@@ -1,0 +1,17 @@
+# Update the pin locations and period constraint for your exact Spartan-6 board.
+
+NET "clk" TNM_NET = "clk_grp";
+TIMESPEC "TS_clk" = PERIOD "clk_grp" 20 ns HIGH 50%;
+
+# Example placeholders only:
+# NET "clk"     LOC = "Pxx" | IOSTANDARD = LVCMOS33;
+# NET "reset"   LOC = "Pyy" | IOSTANDARD = LVCMOS33 | PULLUP;
+# NET "led[0]"  LOC = "Paa" | IOSTANDARD = LVCMOS33;
+# NET "led[1]"  LOC = "Pab" | IOSTANDARD = LVCMOS33;
+# NET "led[2]"  LOC = "Pac" | IOSTANDARD = LVCMOS33;
+# NET "led[3]"  LOC = "Pad" | IOSTANDARD = LVCMOS33;
+# NET "led[4]"  LOC = "Pae" | IOSTANDARD = LVCMOS33;
+# NET "led[5]"  LOC = "Paf" | IOSTANDARD = LVCMOS33;
+# NET "led[6]"  LOC = "Pag" | IOSTANDARD = LVCMOS33;
+# NET "led[7]"  LOC = "Pah" | IOSTANDARD = LVCMOS33;
+# NET "uart_tx" LOC = "Pba" | IOSTANDARD = LVCMOS33;

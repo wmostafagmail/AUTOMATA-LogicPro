@@ -1,0 +1,34 @@
+v 4
+file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/rtl/avr/avr_alu.vhd" "28dc5714766a48d2e9d7f4a17fee5c7aab924ca9" "20260619032759.798":
+  entity avr_alu at 1( 0) + 0 on 263;
+  architecture rtl of avr_alu at 20( 393) + 0 on 264;
+file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/rtl/cpu_pkg.vhd" "81a92610cbf294e1f474a4649377eb455371c4e5" "20260619032759.734":
+  package cpu_pkg at 1( 0) + 0 on 259;
+  package body cpu_pkg at 59( 1548) + 0 on 260;
+file . "tb/tb_avr_core_slice.vhd" "445940b41b8cd62e3aaa5fe7c68fbf958cb2845b" "20260619013334.285":
+  entity tb_avr_core_slice at 1( 0) + 0 on 245;
+  architecture sim of tb_avr_core_slice at 11( 151) + 0 on 246;
+file . "rtl/avr/avr_sreg.vhd" "4a12a5b34f5e2efab986adc953fcc3893ed93c37" "20260619013334.054":
+  entity avr_sreg at 1( 0) + 0 on 239;
+  architecture rtl of avr_sreg at 24( 565) + 0 on 240;
+file . "rtl/avr/avr_regfile.vhd" "e62c026e853652fb55a1b9d767a5a580f90e9b97" "20260619013333.942":
+  entity avr_regfile at 1( 0) + 0 on 235;
+  architecture rtl of avr_regfile at 27( 653) + 0 on 236;
+file . "rtl/avr/avr_decoder.vhd" "824c63d1dffd774e7633a57341b0caefb76b44a9" "20260619013333.819":
+  entity avr_decoder at 1( 0) + 0 on 231;
+  architecture rtl of avr_decoder at 16( 302) + 0 on 232;
+file . "rtl/avr/avr_pc_stack.vhd" "eb3f1786218b3f700476a07dadbe4a18ae5c6df9" "20260619013334.080":
+  entity avr_pc_stack at 1( 0) + 0 on 241;
+  architecture rtl of avr_pc_stack at 22( 502) + 0 on 242;
+file . "rtl/avr/avr_core.vhd" "6540047cd010599b0ef76b99e3f0d4badd19a3be" "20260619013334.121":
+  entity avr_core at 1( 0) + 0 on 243;
+  architecture rtl of avr_core at 26( 636) + 0 on 244;
+file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/rtl/avr/avr_pkg.vhd" "ef78ecd538f2c0fc522e7129e07a5215fbbf69f5" "20260619032759.683":
+  package avr_pkg at 1( 0) + 0 on 257 body;
+  package body avr_pkg at 260( 6226) + 0 on 258;
+file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/rtl/alu.vhd" "51a04edc2b0dceae9c98c7e8401e2777f03a331f" "20260619032759.755":
+  entity alu at 1( 0) + 0 on 261;
+  architecture rtl of alu at 18( 315) + 0 on 262;
+file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/rtl/avr/avr_control_fsm.vhd" "c2b051d3c0540b8c56a2ee8a2e369fd7a6f23315" "20260619032759.879":
+  entity avr_control_fsm at 1( 0) + 0 on 265;
+  architecture rtl of avr_control_fsm at 18( 366) + 0 on 266;

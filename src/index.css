@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-bg: #0b1326;
+  --color-brand-surface: #0b1326;
+  --color-brand-surface-dim: #0b1326;
+  --color-brand-surface-bright: #31394d;
+  --color-brand-surface-lowest: #060e20;
+  --color-brand-surface-low: #131b2e;
+  --color-brand-surface-container: #171f33;
+  --color-brand-surface-high: #222a3d;
+  --color-brand-surface-highest: #2d3449;
+  --color-brand-on-surface: #dae2fd;
+  --color-brand-on-surface-variant: #bac9cc;
+  --color-brand-outline: #849396;
+  --color-brand-outline-variant: #3b494c;
+  --color-brand-primary: #c3f5ff;
+  --color-brand-on-primary: #00363d;
+  --color-brand-cyan: #00e5ff;
+  --color-brand-secondary: #4edea3;
+  --color-brand-tertiary: #ffe9d3;
+  --color-brand-amber: #ffb95f;
+  --color-brand-error: #ffb4ab;
+  --color-brand-error-container: #93000a;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-bg);
+    color: var(--color-brand-on-surface);
+    font-family: var(--font-sans);
+    overflow: hidden;
+  }
+
+  /* Custom scrollbars for a clean high-density developer feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #060e20;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2b354f;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #414f73;
+  }
+}
+
+/* Custom animation for logic pulse indicators */
+@keyframes signalPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.3; }
+}
+
+.logic-pulse {
+  animation: signalPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+

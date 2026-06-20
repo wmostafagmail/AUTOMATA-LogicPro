@@ -1,0 +1,6 @@
+{
+  "name": "Signal Logic Pro",
+  "description": "Interactive Digital Logic Timing Diagram Analyzer designed for hardware debugging, signal trace modeling, protocol decoding, and real-time gate simulation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

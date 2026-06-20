@@ -1,0 +1,357 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="710" viewBox="0 0 1600 710">
+<style>text{font-family:Menlo,Consolas,monospace;font-size:14px;fill:#222} .minor{fill:#666;font-size:12px} .grid{stroke:#ddd;stroke-width:1} .axis{stroke:#999;stroke-width:1.5} .dig{stroke:#0a6;stroke-width:2;fill:none} .bus{stroke:#06c;stroke-width:2;fill:none} .label{font-weight:600} .box{fill:#fff;stroke:#bbb}</style>
+<rect x="0" y="0" width="1600" height="710" fill="white"/>
+<text x="20" y="26" class="label">AVR core slice waveform</text>
+<text x="320" y="26" class="minor">from tb_avr_core_slice.vcd | duration 850 ns</text>
+<line x1="190.0" y1="30" x2="190.0" y2="690" class="grid"/>
+<text x="192.0" y="24" class="minor">0 ns</text>
+<line x1="351.2" y1="30" x2="351.2" y2="690" class="grid"/>
+<text x="353.2" y="24" class="minor">100 ns</text>
+<line x1="512.4" y1="30" x2="512.4" y2="690" class="grid"/>
+<text x="514.4" y="24" class="minor">200 ns</text>
+<line x1="673.5" y1="30" x2="673.5" y2="690" class="grid"/>
+<text x="675.5" y="24" class="minor">300 ns</text>
+<line x1="834.7" y1="30" x2="834.7" y2="690" class="grid"/>
+<text x="836.7" y="24" class="minor">400 ns</text>
+<line x1="995.9" y1="30" x2="995.9" y2="690" class="grid"/>
+<text x="997.9" y="24" class="minor">500 ns</text>
+<line x1="1157.1" y1="30" x2="1157.1" y2="690" class="grid"/>
+<text x="1159.1" y="24" class="minor">600 ns</text>
+<line x1="1318.2" y1="30" x2="1318.2" y2="690" class="grid"/>
+<text x="1320.2" y="24" class="minor">700 ns</text>
+<line x1="1479.4" y1="30" x2="1479.4" y2="690" class="grid"/>
+<text x="1481.4" y="24" class="minor">800 ns</text>
+<text x="20" y="66.0" class="label">clk</text>
+<line x1="190" y1="61.0" x2="1560" y2="61.0" class="axis" opacity="0.25"/>
+<path d="M190.0,71.0 L198.1,71.0 L198.1,51.0 L198.1,51.0 L206.1,51.0 L206.1,71.0 L206.1,71.0 L214.2,71.0 L214.2,51.0 L214.2,51.0 L222.2,51.0 L222.2,71.0 L222.2,71.0 L230.3,71.0 L230.3,51.0 L230.3,51.0 L238.4,51.0 L238.4,71.0 L238.4,71.0 L246.4,71.0 L246.4,51.0 L246.4,51.0 L254.5,51.0 L254.5,71.0 L254.5,71.0 L262.5,71.0 L262.5,51.0 L262.5,51.0 L270.6,51.0 L270.6,71.0 L270.6,71.0 L278.6,71.0 L278.6,51.0 L278.6,51.0 L286.7,51.0 L286.7,71.0 L286.7,71.0 L294.8,71.0 L294.8,51.0 L294.8,51.0 L302.8,51.0 L302.8,71.0 L302.8,71.0 L310.9,71.0 L310.9,51.0 L310.9,51.0 L318.9,51.0 L318.9,71.0 L318.9,71.0 L327.0,71.0 L327.0,51.0 L327.0,51.0 L335.1,51.0 L335.1,71.0 L335.1,71.0 L343.1,71.0 L343.1,51.0 L343.1,51.0 L351.2,51.0 L351.2,71.0 L351.2,71.0 L359.2,71.0 L359.2,51.0 L359.2,51.0 L367.3,51.0 L367.3,71.0 L367.3,71.0 L375.4,71.0 L375.4,51.0 L375.4,51.0 L383.4,51.0 L383.4,71.0 L383.4,71.0 L391.5,71.0 L391.5,51.0 L391.5,51.0 L399.5,51.0 L399.5,71.0 L399.5,71.0 L407.6,71.0 L407.6,51.0 L407.6,51.0 L415.6,51.0 L415.6,71.0 L415.6,71.0 L423.7,71.0 L423.7,51.0 L423.7,51.0 L431.8,51.0 L431.8,71.0 L431.8,71.0 L439.8,71.0 L439.8,51.0 L439.8,51.0 L447.9,51.0 L447.9,71.0 L447.9,71.0 L455.9,71.0 L455.9,51.0 L455.9,51.0 L464.0,51.0 L464.0,71.0 L464.0,71.0 L472.1,71.0 L472.1,51.0 L472.1,51.0 L480.1,51.0 L480.1,71.0 L480.1,71.0 L488.2,71.0 L488.2,51.0 L488.2,51.0 L496.2,51.0 L496.2,71.0 L496.2,71.0 L504.3,71.0 L504.3,51.0 L504.3,51.0 L512.4,51.0 L512.4,71.0 L512.4,71.0 L520.4,71.0 L520.4,51.0 L520.4,51.0 L528.5,51.0 L528.5,71.0 L528.5,71.0 L536.5,71.0 L536.5,51.0 L536.5,51.0 L544.6,51.0 L544.6,71.0 L544.6,71.0 L552.6,71.0 L552.6,51.0 L552.6,51.0 L560.7,51.0 L560.7,71.0 L560.7,71.0 L568.8,71.0 L568.8,51.0 L568.8,51.0 L576.8,51.0 L576.8,71.0 L576.8,71.0 L584.9,71.0 L584.9,51.0 L584.9,51.0 L592.9,51.0 L592.9,71.0 L592.9,71.0 L601.0,71.0 L601.0,51.0 L601.0,51.0 L609.1,51.0 L609.1,71.0 L609.1,71.0 L617.1,71.0 L617.1,51.0 L617.1,51.0 L625.2,51.0 L625.2,71.0 L625.2,71.0 L633.2,71.0 L633.2,51.0 L633.2,51.0 L641.3,51.0 L641.3,71.0 L641.3,71.0 L649.4,71.0 L649.4,51.0 L649.4,51.0 L657.4,51.0 L657.4,71.0 L657.4,71.0 L665.5,71.0 L665.5,51.0 L665.5,51.0 L673.5,51.0 L673.5,71.0 L673.5,71.0 L681.6,71.0 L681.6,51.0 L681.6,51.0 L689.6,51.0 L689.6,71.0 L689.6,71.0 L697.7,71.0 L697.7,51.0 L697.7,51.0 L705.8,51.0 L705.8,71.0 L705.8,71.0 L713.8,71.0 L713.8,51.0 L713.8,51.0 L721.9,51.0 L721.9,71.0 L721.9,71.0 L729.9,71.0 L729.9,51.0 L729.9,51.0 L738.0,51.0 L738.0,71.0 L738.0,71.0 L746.1,71.0 L746.1,51.0 L746.1,51.0 L754.1,51.0 L754.1,71.0 L754.1,71.0 L762.2,71.0 L762.2,51.0 L762.2,51.0 L770.2,51.0 L770.2,71.0 L770.2,71.0 L778.3,71.0 L778.3,51.0 L778.3,51.0 L786.4,51.0 L786.4,71.0 L786.4,71.0 L794.4,71.0 L794.4,51.0 L794.4,51.0 L802.5,51.0 L802.5,71.0 L802.5,71.0 L810.5,71.0 L810.5,51.0 L810.5,51.0 L818.6,51.0 L818.6,71.0 L818.6,71.0 L826.6,71.0 L826.6,51.0 L826.6,51.0 L834.7,51.0 L834.7,71.0 L834.7,71.0 L842.8,71.0 L842.8,51.0 L842.8,51.0 L850.8,51.0 L850.8,71.0 L850.8,71.0 L858.9,71.0 L858.9,51.0 L858.9,51.0 L866.9,51.0 L866.9,71.0 L866.9,71.0 L875.0,71.0 L875.0,51.0 L875.0,51.0 L883.1,51.0 L883.1,71.0 L883.1,71.0 L891.1,71.0 L891.1,51.0 L891.1,51.0 L899.2,51.0 L899.2,71.0 L899.2,71.0 L907.2,71.0 L907.2,51.0 L907.2,51.0 L915.3,51.0 L915.3,71.0 L915.3,71.0 L923.4,71.0 L923.4,51.0 L923.4,51.0 L931.4,51.0 L931.4,71.0 L931.4,71.0 L939.5,71.0 L939.5,51.0 L939.5,51.0 L947.5,51.0 L947.5,71.0 L947.5,71.0 L955.6,71.0 L955.6,51.0 L955.6,51.0 L963.6,51.0 L963.6,71.0 L963.6,71.0 L971.7,71.0 L971.7,51.0 L971.7,51.0 L979.8,51.0 L979.8,71.0 L979.8,71.0 L987.8,71.0 L987.8,51.0 L987.8,51.0 L995.9,51.0 L995.9,71.0 L995.9,71.0 L1003.9,71.0 L1003.9,51.0 L1003.9,51.0 L1012.0,51.0 L1012.0,71.0 L1012.0,71.0 L1020.1,71.0 L1020.1,51.0 L1020.1,51.0 L1028.1,51.0 L1028.1,71.0 L1028.1,71.0 L1036.2,71.0 L1036.2,51.0 L1036.2,51.0 L1044.2,51.0 L1044.2,71.0 L1044.2,71.0 L1052.3,71.0 L1052.3,51.0 L1052.3,51.0 L1060.4,51.0 L1060.4,71.0 L1060.4,71.0 L1068.4,71.0 L1068.4,51.0 L1068.4,51.0 L1076.5,51.0 L1076.5,71.0 L1076.5,71.0 L1084.5,71.0 L1084.5,51.0 L1084.5,51.0 L1092.6,51.0 L1092.6,71.0 L1092.6,71.0 L1100.6,71.0 L1100.6,51.0 L1100.6,51.0 L1108.7,51.0 L1108.7,71.0 L1108.7,71.0 L1116.8,71.0 L1116.8,51.0 L1116.8,51.0 L1124.8,51.0 L1124.8,71.0 L1124.8,71.0 L1132.9,71.0 L1132.9,51.0 L1132.9,51.0 L1140.9,51.0 L1140.9,71.0 L1140.9,71.0 L1149.0,71.0 L1149.0,51.0 L1149.0,51.0 L1157.1,51.0 L1157.1,71.0 L1157.1,71.0 L1165.1,71.0 L1165.1,51.0 L1165.1,51.0 L1173.2,51.0 L1173.2,71.0 L1173.2,71.0 L1181.2,71.0 L1181.2,51.0 L1181.2,51.0 L1189.3,51.0 L1189.3,71.0 L1189.3,71.0 L1197.4,71.0 L1197.4,51.0 L1197.4,51.0 L1205.4,51.0 L1205.4,71.0 L1205.4,71.0 L1213.5,71.0 L1213.5,51.0 L1213.5,51.0 L1221.5,51.0 L1221.5,71.0 L1221.5,71.0 L1229.6,71.0 L1229.6,51.0 L1229.6,51.0 L1237.6,51.0 L1237.6,71.0 L1237.6,71.0 L1245.7,71.0 L1245.7,51.0 L1245.7,51.0 L1253.8,51.0 L1253.8,71.0 L1253.8,71.0 L1261.8,71.0 L1261.8,51.0 L1261.8,51.0 L1269.9,51.0 L1269.9,71.0 L1269.9,71.0 L1277.9,71.0 L1277.9,51.0 L1277.9,51.0 L1286.0,51.0 L1286.0,71.0 L1286.0,71.0 L1294.1,71.0 L1294.1,51.0 L1294.1,51.0 L1302.1,51.0 L1302.1,71.0 L1302.1,71.0 L1310.2,71.0 L1310.2,51.0 L1310.2,51.0 L1318.2,51.0 L1318.2,71.0 L1318.2,71.0 L1326.3,71.0 L1326.3,51.0 L1326.3,51.0 L1334.4,51.0 L1334.4,71.0 L1334.4,71.0 L1342.4,71.0 L1342.4,51.0 L1342.4,51.0 L1350.5,51.0 L1350.5,71.0 L1350.5,71.0 L1358.5,71.0 L1358.5,51.0 L1358.5,51.0 L1366.6,51.0 L1366.6,71.0 L1366.6,71.0 L1374.6,71.0 L1374.6,51.0 L1374.6,51.0 L1382.7,51.0 L1382.7,71.0 L1382.7,71.0 L1390.8,71.0 L1390.8,51.0 L1390.8,51.0 L1398.8,51.0 L1398.8,71.0 L1398.8,71.0 L1406.9,71.0 L1406.9,51.0 L1406.9,51.0 L1414.9,51.0 L1414.9,71.0 L1414.9,71.0 L1423.0,71.0 L1423.0,51.0 L1423.0,51.0 L1431.1,51.0 L1431.1,71.0 L1431.1,71.0 L1439.1,71.0 L1439.1,51.0 L1439.1,51.0 L1447.2,51.0 L1447.2,71.0 L1447.2,71.0 L1455.2,71.0 L1455.2,51.0 L1455.2,51.0 L1463.3,51.0 L1463.3,71.0 L1463.3,71.0 L1471.4,71.0 L1471.4,51.0 L1471.4,51.0 L1479.4,51.0 L1479.4,71.0 L1479.4,71.0 L1487.5,71.0 L1487.5,51.0 L1487.5,51.0 L1495.5,51.0 L1495.5,71.0 L1495.5,71.0 L1503.6,71.0 L1503.6,51.0 L1503.6,51.0 L1511.6,51.0 L1511.6,71.0 L1511.6,71.0 L1519.7,71.0 L1519.7,51.0 L1519.7,51.0 L1527.8,51.0 L1527.8,71.0 L1527.8,71.0 L1535.8,71.0 L1535.8,51.0 L1535.8,51.0 L1543.9,51.0 L1543.9,71.0 L1543.9,71.0 L1551.9,71.0 L1551.9,51.0 L1551.9,51.0 L1560.0,51.0 L1560.0,71.0 L1560.0,71.0 L1560.0,71.0" class="dig"/>
+<text x="20" y="108.0" class="label">reset</text>
+<line x1="190" y1="103.0" x2="1560" y2="103.0" class="axis" opacity="0.25"/>
+<path d="M190.0,93.0 L254.5,93.0 L254.5,113.0 L254.5,113.0 L1560.0,113.0" class="dig"/>
+<text x="20" y="150.0" class="label">pmem_addr</text>
+<line x1="190" y1="145.0" x2="1560" y2="145.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="145.0" x2="294.8" y2="145.0" class="bus"/>
+<line x1="190.0" y1="135.0" x2="190.0" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="149.0" class="minor">0x0</text>
+<line x1="294.8" y1="145.0" x2="375.4" y2="145.0" class="bus"/>
+<line x1="294.8" y1="135.0" x2="294.8" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="296.8" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="298.8" y="149.0" class="minor">0x1</text>
+<line x1="375.4" y1="145.0" x2="455.9" y2="145.0" class="bus"/>
+<line x1="375.4" y1="135.0" x2="375.4" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="377.4" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="379.4" y="149.0" class="minor">0x2</text>
+<line x1="455.9" y1="145.0" x2="536.5" y2="145.0" class="bus"/>
+<line x1="455.9" y1="135.0" x2="455.9" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="457.9" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="459.9" y="149.0" class="minor">0x3</text>
+<line x1="536.5" y1="145.0" x2="617.1" y2="145.0" class="bus"/>
+<line x1="536.5" y1="135.0" x2="536.5" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="538.5" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="540.5" y="149.0" class="minor">0x4</text>
+<line x1="617.1" y1="145.0" x2="713.8" y2="145.0" class="bus"/>
+<line x1="617.1" y1="135.0" x2="617.1" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="619.1" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="621.1" y="149.0" class="minor">0x5</text>
+<line x1="713.8" y1="145.0" x2="794.4" y2="145.0" class="bus"/>
+<line x1="713.8" y1="135.0" x2="713.8" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="715.8" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="717.8" y="149.0" class="minor">0x6</text>
+<line x1="794.4" y1="145.0" x2="891.1" y2="145.0" class="bus"/>
+<line x1="794.4" y1="135.0" x2="794.4" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="796.4" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="798.4" y="149.0" class="minor">0x7</text>
+<line x1="891.1" y1="145.0" x2="971.7" y2="145.0" class="bus"/>
+<line x1="891.1" y1="135.0" x2="891.1" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="893.1" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="895.1" y="149.0" class="minor">0x8</text>
+<line x1="971.7" y1="145.0" x2="1068.4" y2="145.0" class="bus"/>
+<line x1="971.7" y1="135.0" x2="971.7" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="973.7" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="975.7" y="149.0" class="minor">0x9</text>
+<line x1="1068.4" y1="145.0" x2="1181.2" y2="145.0" class="bus"/>
+<line x1="1068.4" y1="135.0" x2="1068.4" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="1070.4" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1072.4" y="149.0" class="minor">0xA</text>
+<line x1="1181.2" y1="145.0" x2="1277.9" y2="145.0" class="bus"/>
+<line x1="1181.2" y1="135.0" x2="1181.2" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="1183.2" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1185.2" y="149.0" class="minor">0xB</text>
+<line x1="1277.9" y1="145.0" x2="1390.8" y2="145.0" class="bus"/>
+<line x1="1277.9" y1="135.0" x2="1277.9" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="1279.9" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1281.9" y="149.0" class="minor">0xC</text>
+<line x1="1390.8" y1="145.0" x2="1487.5" y2="145.0" class="bus"/>
+<line x1="1390.8" y1="135.0" x2="1390.8" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="1392.8" y="132.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1394.8" y="149.0" class="minor">0xD</text>
+<line x1="1487.5" y1="145.0" x2="1519.7" y2="145.0" class="bus"/>
+<line x1="1487.5" y1="135.0" x2="1487.5" y2="155.0" class="bus" opacity="0.5"/>
+<line x1="1519.7" y1="145.0" x2="1560.0" y2="145.0" class="bus"/>
+<line x1="1519.7" y1="135.0" x2="1519.7" y2="155.0" class="bus" opacity="0.5"/>
+<rect x="1521.7" y="132.0" width="34.3" height="18" fill="white" opacity="0.75"/>
+<text x="1523.7" y="149.0" class="minor">0xD</text>
+<text x="20" y="192.0" class="label">d_addr</text>
+<line x1="190" y1="187.0" x2="1560" y2="187.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="187.0" x2="649.4" y2="187.0" class="bus"/>
+<line x1="190.0" y1="177.0" x2="190.0" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="174.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="191.0" class="minor">0x0</text>
+<line x1="649.4" y1="187.0" x2="665.5" y2="187.0" class="bus"/>
+<line x1="649.4" y1="177.0" x2="649.4" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="665.5" y1="187.0" x2="826.6" y2="187.0" class="bus"/>
+<line x1="665.5" y1="177.0" x2="665.5" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="667.5" y="174.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="669.5" y="191.0" class="minor">0x0</text>
+<line x1="826.6" y1="187.0" x2="842.8" y2="187.0" class="bus"/>
+<line x1="826.6" y1="177.0" x2="826.6" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="842.8" y1="187.0" x2="1003.9" y2="187.0" class="bus"/>
+<line x1="842.8" y1="177.0" x2="842.8" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="844.8" y="174.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="846.8" y="191.0" class="minor">0x0</text>
+<line x1="1003.9" y1="187.0" x2="1020.1" y2="187.0" class="bus"/>
+<line x1="1003.9" y1="177.0" x2="1003.9" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="1020.1" y1="187.0" x2="1084.5" y2="187.0" class="bus"/>
+<line x1="1020.1" y1="177.0" x2="1020.1" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="1022.1" y="174.0" width="58.5" height="18" fill="white" opacity="0.75"/>
+<text x="1024.1" y="191.0" class="minor">0x0</text>
+<line x1="1084.5" y1="187.0" x2="1116.8" y2="187.0" class="bus"/>
+<line x1="1084.5" y1="177.0" x2="1084.5" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="1116.8" y1="187.0" x2="1213.5" y2="187.0" class="bus"/>
+<line x1="1116.8" y1="177.0" x2="1116.8" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="1118.8" y="174.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1120.8" y="191.0" class="minor">0x0</text>
+<line x1="1213.5" y1="187.0" x2="1229.6" y2="187.0" class="bus"/>
+<line x1="1213.5" y1="177.0" x2="1213.5" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="1229.6" y1="187.0" x2="1294.1" y2="187.0" class="bus"/>
+<line x1="1229.6" y1="177.0" x2="1229.6" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="1231.6" y="174.0" width="58.5" height="18" fill="white" opacity="0.75"/>
+<text x="1233.6" y="191.0" class="minor">0x0</text>
+<line x1="1294.1" y1="187.0" x2="1326.3" y2="187.0" class="bus"/>
+<line x1="1294.1" y1="177.0" x2="1294.1" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="1326.3" y1="187.0" x2="1423.0" y2="187.0" class="bus"/>
+<line x1="1326.3" y1="177.0" x2="1326.3" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="1328.3" y="174.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1330.3" y="191.0" class="minor">0x0</text>
+<line x1="1423.0" y1="187.0" x2="1439.1" y2="187.0" class="bus"/>
+<line x1="1423.0" y1="177.0" x2="1423.0" y2="197.0" class="bus" opacity="0.5"/>
+<line x1="1439.1" y1="187.0" x2="1560.0" y2="187.0" class="bus"/>
+<line x1="1439.1" y1="177.0" x2="1439.1" y2="197.0" class="bus" opacity="0.5"/>
+<rect x="1441.1" y="174.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1443.1" y="191.0" class="minor">0x0</text>
+<text x="20" y="234.0" class="label">d_wdata</text>
+<line x1="190" y1="229.0" x2="1560" y2="229.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="229.0" x2="649.4" y2="229.0" class="bus"/>
+<line x1="190.0" y1="219.0" x2="190.0" y2="239.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="216.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="233.0" class="minor">0x0</text>
+<line x1="649.4" y1="229.0" x2="665.5" y2="229.0" class="bus"/>
+<line x1="649.4" y1="219.0" x2="649.4" y2="239.0" class="bus" opacity="0.5"/>
+<line x1="665.5" y1="229.0" x2="826.6" y2="229.0" class="bus"/>
+<line x1="665.5" y1="219.0" x2="665.5" y2="239.0" class="bus" opacity="0.5"/>
+<rect x="667.5" y="216.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="669.5" y="233.0" class="minor">0x0</text>
+<line x1="826.6" y1="229.0" x2="842.8" y2="229.0" class="bus"/>
+<line x1="826.6" y1="219.0" x2="826.6" y2="239.0" class="bus" opacity="0.5"/>
+<line x1="842.8" y1="229.0" x2="1003.9" y2="229.0" class="bus"/>
+<line x1="842.8" y1="219.0" x2="842.8" y2="239.0" class="bus" opacity="0.5"/>
+<rect x="844.8" y="216.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="846.8" y="233.0" class="minor">0x0</text>
+<line x1="1003.9" y1="229.0" x2="1020.1" y2="229.0" class="bus"/>
+<line x1="1003.9" y1="219.0" x2="1003.9" y2="239.0" class="bus" opacity="0.5"/>
+<line x1="1020.1" y1="229.0" x2="1213.5" y2="229.0" class="bus"/>
+<line x1="1020.1" y1="219.0" x2="1020.1" y2="239.0" class="bus" opacity="0.5"/>
+<rect x="1022.1" y="216.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1024.1" y="233.0" class="minor">0x0</text>
+<line x1="1213.5" y1="229.0" x2="1229.6" y2="229.0" class="bus"/>
+<line x1="1213.5" y1="219.0" x2="1213.5" y2="239.0" class="bus" opacity="0.5"/>
+<line x1="1229.6" y1="229.0" x2="1423.0" y2="229.0" class="bus"/>
+<line x1="1229.6" y1="219.0" x2="1229.6" y2="239.0" class="bus" opacity="0.5"/>
+<rect x="1231.6" y="216.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1233.6" y="233.0" class="minor">0x0</text>
+<line x1="1423.0" y1="229.0" x2="1439.1" y2="229.0" class="bus"/>
+<line x1="1423.0" y1="219.0" x2="1423.0" y2="239.0" class="bus" opacity="0.5"/>
+<line x1="1439.1" y1="229.0" x2="1560.0" y2="229.0" class="bus"/>
+<line x1="1439.1" y1="219.0" x2="1439.1" y2="239.0" class="bus" opacity="0.5"/>
+<rect x="1441.1" y="216.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1443.1" y="233.0" class="minor">0x0</text>
+<text x="20" y="276.0" class="label">d_we</text>
+<line x1="190" y1="271.0" x2="1560" y2="271.0" class="axis" opacity="0.25"/>
+<path d="M190.0,281.0 L649.4,281.0 L649.4,261.0 L649.4,261.0 L665.5,261.0 L665.5,281.0 L665.5,281.0 L826.6,281.0 L826.6,261.0 L826.6,261.0 L842.8,261.0 L842.8,281.0 L842.8,281.0 L1003.9,281.0 L1003.9,261.0 L1003.9,261.0 L1020.1,261.0 L1020.1,281.0 L1020.1,281.0 L1213.5,281.0 L1213.5,261.0 L1213.5,261.0 L1229.6,261.0 L1229.6,281.0 L1229.6,281.0 L1423.0,281.0 L1423.0,261.0 L1423.0,261.0 L1439.1,261.0 L1439.1,281.0 L1439.1,281.0 L1560.0,281.0" class="dig"/>
+<text x="20" y="318.0" class="label">d_re</text>
+<line x1="190" y1="313.0" x2="1560" y2="313.0" class="axis" opacity="0.25"/>
+<path d="M190.0,323.0 L1084.5,323.0 L1084.5,303.0 L1084.5,303.0 L1100.6,303.0 L1100.6,323.0 L1100.6,323.0 L1294.1,323.0 L1294.1,303.0 L1294.1,303.0 L1310.2,303.0 L1310.2,323.0 L1310.2,323.0 L1560.0,323.0" class="dig"/>
+<text x="20" y="360.0" class="label">pc_q</text>
+<line x1="190" y1="355.0" x2="1560" y2="355.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="355.0" x2="294.8" y2="355.0" class="bus"/>
+<line x1="190.0" y1="345.0" x2="190.0" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="359.0" class="minor">0x0</text>
+<line x1="294.8" y1="355.0" x2="375.4" y2="355.0" class="bus"/>
+<line x1="294.8" y1="345.0" x2="294.8" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="296.8" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="298.8" y="359.0" class="minor">0x1</text>
+<line x1="375.4" y1="355.0" x2="455.9" y2="355.0" class="bus"/>
+<line x1="375.4" y1="345.0" x2="375.4" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="377.4" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="379.4" y="359.0" class="minor">0x2</text>
+<line x1="455.9" y1="355.0" x2="536.5" y2="355.0" class="bus"/>
+<line x1="455.9" y1="345.0" x2="455.9" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="457.9" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="459.9" y="359.0" class="minor">0x3</text>
+<line x1="536.5" y1="355.0" x2="617.1" y2="355.0" class="bus"/>
+<line x1="536.5" y1="345.0" x2="536.5" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="538.5" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="540.5" y="359.0" class="minor">0x4</text>
+<line x1="617.1" y1="355.0" x2="713.8" y2="355.0" class="bus"/>
+<line x1="617.1" y1="345.0" x2="617.1" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="619.1" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="621.1" y="359.0" class="minor">0x5</text>
+<line x1="713.8" y1="355.0" x2="794.4" y2="355.0" class="bus"/>
+<line x1="713.8" y1="345.0" x2="713.8" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="715.8" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="717.8" y="359.0" class="minor">0x6</text>
+<line x1="794.4" y1="355.0" x2="891.1" y2="355.0" class="bus"/>
+<line x1="794.4" y1="345.0" x2="794.4" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="796.4" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="798.4" y="359.0" class="minor">0x7</text>
+<line x1="891.1" y1="355.0" x2="971.7" y2="355.0" class="bus"/>
+<line x1="891.1" y1="345.0" x2="891.1" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="893.1" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="895.1" y="359.0" class="minor">0x8</text>
+<line x1="971.7" y1="355.0" x2="1068.4" y2="355.0" class="bus"/>
+<line x1="971.7" y1="345.0" x2="971.7" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="973.7" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="975.7" y="359.0" class="minor">0x9</text>
+<line x1="1068.4" y1="355.0" x2="1181.2" y2="355.0" class="bus"/>
+<line x1="1068.4" y1="345.0" x2="1068.4" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="1070.4" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1072.4" y="359.0" class="minor">0xA</text>
+<line x1="1181.2" y1="355.0" x2="1277.9" y2="355.0" class="bus"/>
+<line x1="1181.2" y1="345.0" x2="1181.2" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="1183.2" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1185.2" y="359.0" class="minor">0xB</text>
+<line x1="1277.9" y1="355.0" x2="1390.8" y2="355.0" class="bus"/>
+<line x1="1277.9" y1="345.0" x2="1277.9" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="1279.9" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1281.9" y="359.0" class="minor">0xC</text>
+<line x1="1390.8" y1="355.0" x2="1487.5" y2="355.0" class="bus"/>
+<line x1="1390.8" y1="345.0" x2="1390.8" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="1392.8" y="342.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1394.8" y="359.0" class="minor">0xD</text>
+<line x1="1487.5" y1="355.0" x2="1519.7" y2="355.0" class="bus"/>
+<line x1="1487.5" y1="345.0" x2="1487.5" y2="365.0" class="bus" opacity="0.5"/>
+<line x1="1519.7" y1="355.0" x2="1560.0" y2="355.0" class="bus"/>
+<line x1="1519.7" y1="345.0" x2="1519.7" y2="365.0" class="bus" opacity="0.5"/>
+<rect x="1521.7" y="342.0" width="34.3" height="18" fill="white" opacity="0.75"/>
+<text x="1523.7" y="359.0" class="minor">0xD</text>
+<text x="20" y="402.0" class="label">sp_q</text>
+<line x1="190" y1="397.0" x2="1560" y2="397.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="397.0" x2="1003.9" y2="397.0" class="bus"/>
+<line x1="190.0" y1="387.0" x2="190.0" y2="407.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="384.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="401.0" class="minor">0x8FF</text>
+<line x1="1003.9" y1="397.0" x2="1132.9" y2="397.0" class="bus"/>
+<line x1="1003.9" y1="387.0" x2="1003.9" y2="407.0" class="bus" opacity="0.5"/>
+<rect x="1005.9" y="384.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1007.9" y="401.0" class="minor">0x8FE</text>
+<line x1="1132.9" y1="397.0" x2="1560.0" y2="397.0" class="bus"/>
+<line x1="1132.9" y1="387.0" x2="1132.9" y2="407.0" class="bus" opacity="0.5"/>
+<rect x="1134.9" y="384.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1136.9" y="401.0" class="minor">0x8FF</text>
+<text x="20" y="444.0" class="label">ir0_q</text>
+<line x1="190" y1="439.0" x2="1560" y2="439.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="439.0" x2="294.8" y2="439.0" class="bus"/>
+<line x1="190.0" y1="429.0" x2="190.0" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="443.0" class="minor">0x0</text>
+<line x1="294.8" y1="439.0" x2="375.4" y2="439.0" class="bus"/>
+<line x1="294.8" y1="429.0" x2="294.8" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="296.8" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="298.8" y="443.0" class="minor">0xE102</text>
+<line x1="375.4" y1="439.0" x2="455.9" y2="439.0" class="bus"/>
+<line x1="375.4" y1="429.0" x2="375.4" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="377.4" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="379.4" y="443.0" class="minor">0xE314</text>
+<line x1="455.9" y1="439.0" x2="536.5" y2="439.0" class="bus"/>
+<line x1="455.9" y1="429.0" x2="455.9" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="457.9" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="459.9" y="443.0" class="minor">0x2F20</text>
+<line x1="536.5" y1="439.0" x2="617.1" y2="439.0" class="bus"/>
+<line x1="536.5" y1="429.0" x2="536.5" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="538.5" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="540.5" y="443.0" class="minor">0xF21</text>
+<line x1="617.1" y1="439.0" x2="713.8" y2="439.0" class="bus"/>
+<line x1="617.1" y1="429.0" x2="617.1" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="619.1" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="621.1" y="443.0" class="minor">0xB925</text>
+<line x1="713.8" y1="439.0" x2="794.4" y2="439.0" class="bus"/>
+<line x1="713.8" y1="429.0" x2="713.8" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="715.8" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="717.8" y="443.0" class="minor">0x1B20</text>
+<line x1="794.4" y1="439.0" x2="891.1" y2="439.0" class="bus"/>
+<line x1="794.4" y1="429.0" x2="794.4" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="796.4" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="798.4" y="443.0" class="minor">0xB926</text>
+<line x1="891.1" y1="439.0" x2="971.7" y2="439.0" class="bus"/>
+<line x1="891.1" y1="429.0" x2="891.1" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="893.1" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="895.1" y="443.0" class="minor">0x1721</text>
+<line x1="971.7" y1="439.0" x2="1068.4" y2="439.0" class="bus"/>
+<line x1="971.7" y1="429.0" x2="971.7" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="973.7" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="975.7" y="443.0" class="minor">0x932F</text>
+<line x1="1068.4" y1="439.0" x2="1181.2" y2="439.0" class="bus"/>
+<line x1="1068.4" y1="429.0" x2="1068.4" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="1070.4" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1072.4" y="443.0" class="minor">0x913F</text>
+<line x1="1181.2" y1="439.0" x2="1277.9" y2="439.0" class="bus"/>
+<line x1="1181.2" y1="429.0" x2="1181.2" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="1183.2" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1185.2" y="443.0" class="minor">0xB937</text>
+<line x1="1277.9" y1="439.0" x2="1390.8" y2="439.0" class="bus"/>
+<line x1="1277.9" y1="429.0" x2="1277.9" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="1279.9" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1281.9" y="443.0" class="minor">0xB143</text>
+<line x1="1390.8" y1="439.0" x2="1487.5" y2="439.0" class="bus"/>
+<line x1="1390.8" y1="429.0" x2="1390.8" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="1392.8" y="426.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1394.8" y="443.0" class="minor">0xB948</text>
+<line x1="1487.5" y1="439.0" x2="1560.0" y2="439.0" class="bus"/>
+<line x1="1487.5" y1="429.0" x2="1487.5" y2="449.0" class="bus" opacity="0.5"/>
+<rect x="1489.5" y="426.0" width="66.5" height="18" fill="white" opacity="0.75"/>
+<text x="1491.5" y="443.0" class="minor">0xCFFF</text>
+<text x="20" y="486.0" class="label">data_latch</text>
+<line x1="190" y1="481.0" x2="1560" y2="481.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="481.0" x2="1116.8" y2="481.0" class="bus"/>
+<line x1="190.0" y1="471.0" x2="190.0" y2="491.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="468.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="485.0" class="minor">0x0</text>
+<line x1="1116.8" y1="481.0" x2="1326.3" y2="481.0" class="bus"/>
+<line x1="1116.8" y1="471.0" x2="1116.8" y2="491.0" class="bus" opacity="0.5"/>
+<rect x="1118.8" y="468.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1120.8" y="485.0" class="minor">0x34</text>
+<line x1="1326.3" y1="481.0" x2="1560.0" y2="481.0" class="bus"/>
+<line x1="1326.3" y1="471.0" x2="1326.3" y2="491.0" class="bus" opacity="0.5"/>
+<rect x="1328.3" y="468.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="1330.3" y="485.0" class="minor">0x5A</text>
+<text x="20" y="528.0" class="label">sreg_q</text>
+<line x1="190" y1="523.0" x2="1560" y2="523.0" class="axis" opacity="0.25"/>
+<line x1="190.0" y1="523.0" x2="923.4" y2="523.0" class="bus"/>
+<line x1="190.0" y1="513.0" x2="190.0" y2="533.0" class="bus" opacity="0.5"/>
+<rect x="192.0" y="510.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="194.0" y="527.0" class="minor">0x0</text>
+<line x1="923.4" y1="523.0" x2="1560.0" y2="523.0" class="bus"/>
+<line x1="923.4" y1="513.0" x2="923.4" y2="533.0" class="bus" opacity="0.5"/>
+<rect x="925.4" y="510.0" width="70.0" height="18" fill="white" opacity="0.75"/>
+<text x="927.4" y="527.0" class="minor">0x2</text>
+<text x="20" y="570.0" class="label">saw_read</text>
+<line x1="190" y1="565.0" x2="1560" y2="565.0" class="axis" opacity="0.25"/>
+<path d="M190.0,575.0 L1100.6,575.0 L1100.6,555.0 L1100.6,555.0 L1560.0,555.0" class="dig"/>
+<text x="20" y="612.0" class="label">saw_write</text>
+<line x1="190" y1="607.0" x2="1560" y2="607.0" class="axis" opacity="0.25"/>
+<path d="M190.0,617.0 L665.5,617.0 L665.5,597.0 L665.5,597.0 L1560.0,597.0" class="dig"/>
+<text x="20" y="654.0" class="label">saw_branch</text>
+<line x1="190" y1="649.0" x2="1560" y2="649.0" class="axis" opacity="0.25"/>
+<path d="M190.0,659.0 L1519.7,659.0 L1519.7,639.0 L1519.7,639.0 L1560.0,639.0" class="dig"/>
+</svg>
