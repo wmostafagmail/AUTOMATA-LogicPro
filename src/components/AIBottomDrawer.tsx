@@ -86,7 +86,7 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
   if (!report) {
     return (
       <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[11px] text-slate-400">
-        Run an AI macro or send a custom AI request to populate this bottom drawer with the structured analysis output. The raw AI response stays in the right-side AI console.
+        Run an AI macro or send a custom AI request to populate this area with the structured analysis output.
       </div>
     );
   }

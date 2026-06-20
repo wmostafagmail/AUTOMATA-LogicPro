@@ -616,7 +616,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
         {showConsoleHelp && (
           <div className="rounded border border-brand-cyan/20 bg-brand-cyan/8 px-2.5 py-2 text-[10px] leading-relaxed text-slate-300">
-            This is your AI Co-Engineer workspace. Use the macros or a custom prompt to analyze the loaded waveform and project files. The lower-left panel shows the structured AI findings, while this drawer keeps the full raw AI response and model controls.
+            This is your AI Co-Engineer workspace. Use the macros or a custom prompt to analyze the loaded waveform and project files. The lower-left panel shows the detailed structured AI findings, while this drawer keeps the AI controls plus the summary and key metrics.
           </div>
         )}
 
@@ -786,18 +786,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                     <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-emerald-200">{parsedMessages[idx]?.codeBlockCount ?? 0}</div>
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Raw AI Response</div>
-                  {(!parsedMessages[idx]?.summary && m.meta?.macroId && m.meta.macroId !== 'custom_query') && (
-                    <div className="rounded-full border border-brand-cyan/20 bg-brand-cyan/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-brand-cyan">
-                      {getAiMacroSpec(m.meta.macroId).label}
-                    </div>
-                  )}
-                </div>
-                <pre className="max-h-80 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-lg border border-white/5 bg-[#060a12] px-3 py-2.5 text-[10px] leading-relaxed text-slate-300">
-                  {m.text}
-                </pre>
               </div>
             )}
           </div>
