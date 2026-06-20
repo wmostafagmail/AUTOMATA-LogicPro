@@ -449,6 +449,29 @@ function extractOllamaGeneratedText(data: any) {
   return '';
 }
 
+function normalizeLlmTestResponse(text: string) {
+  const withoutThinkBlocks = text.replace(/<think>[\s\S]*?<\/think>/gi, ' ');
+  const withoutCodeFences = withoutThinkBlocks.replace(/```[\s\S]*?```/g, ' ');
+  const withoutInlineTicks = withoutCodeFences.replace(/[`"'“”‘’]/g, ' ');
+  const compact = withoutInlineTicks.replace(/\s+/g, ' ').trim();
+  const cleanedEdges = compact.replace(/^[^A-Z0-9_]+|[^A-Z0-9_]+$/gi, '').trim();
+  return cleanedEdges;
+}
+
+function llmTestPassedExactMatch(text: string) {
+  const normalized = normalizeLlmTestResponse(text);
+  if (normalized === 'TEST_OK') {
+    return true;
+  }
+
+  const stripped = normalized.replace(/\s+/g, '');
+  if (stripped === 'TEST_OK') {
+    return true;
+  }
+
+  return /\bTEST_OK\b/.test(normalized) && normalized.replace(/\bTEST_OK\b/g, '').trim() === '';
+}
+
 function normalizeLogicValue(value: number | string | undefined | null): number | 'Z' | null {
   if (value === undefined || value === null || value === '') return null;
   if (typeof value === 'number') {
@@ -2073,12 +2096,18 @@ async function bootstrap() {
         ai,
         provider,
         model,
-        prompt: 'Reply with exactly: TEST_OK',
+        prompt: [
+          'Reply with exactly this token and nothing else:',
+          'TEST_OK',
+          'Do not add explanation, markdown, quotes, code fences, labels, or reasoning.'
+        ].join('\n'),
       });
 
       const durationMs = Math.max(0, Date.now() - startedAt);
       const trimmed = responseText.trim();
+      const normalized = normalizeLlmTestResponse(trimmed);
       const score = durationMs < 2000 ? 'fast' : durationMs < 8000 ? 'good' : durationMs < 20000 ? 'slow' : 'very slow';
+      const passedExactMatch = llmTestPassedExactMatch(trimmed);
 
       return res.json({
         ok: true,
@@ -2087,7 +2116,8 @@ async function bootstrap() {
         durationMs,
         speedScore: score,
         responsePreview: trimmed.slice(0, 200),
-        passedExactMatch: trimmed === 'TEST_OK',
+        normalizedResponsePreview: normalized.slice(0, 200),
+        passedExactMatch,
       });
     } catch (error: any) {
       return res.status(500).json({

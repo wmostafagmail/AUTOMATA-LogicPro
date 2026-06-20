@@ -26,8 +26,8 @@ import {
 const PROJECT_STORAGE_KEY = 'automata-logicpro-project';
 const DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX = 214;
 const DEFAULT_AI_OUTPUT_WINDOW_BOUNDS = {
-  left: 380,
-  top: 94,
+  left: 0,
+  top: 0,
   width: 1020,
   height: 760,
 };
@@ -218,7 +218,19 @@ export default function App() {
   };
 
   const handleOpenAiOutputWindow = () => {
-    setAiOutputWindowBounds((current) => clampAiOutputWindowBounds(current));
+    setAiOutputWindowBounds((current) => {
+      if (typeof window === 'undefined') {
+        return clampAiOutputWindowBounds(current);
+      }
+
+      const centeredBounds = {
+        ...current,
+        left: Math.round((window.innerWidth - current.width) / 2),
+        top: Math.round((window.innerHeight - current.height) / 2),
+      };
+
+      return clampAiOutputWindowBounds(centeredBounds);
+    });
     setShowAiOutputWindow(true);
   };
 
@@ -1015,7 +1027,13 @@ export default function App() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setShowAiOutputWindow(false)}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setShowAiOutputWindow(false);
+                  }}
                   className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
                   title="Close AI analysis window"
                 >
