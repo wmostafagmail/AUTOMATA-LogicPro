@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ProjectContextPayload, ProjectFileEntry, Signal } from '../types';
+import { AiMacroId, AiMacroValidationResult, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
+import { resolveMacroInvocation } from '../aiDrawerModel';
 import { 
   Send, 
   X, 
@@ -14,7 +16,10 @@ import {
   Check,
   SlidersHorizontal,
   Bot,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  AlertTriangle,
+  CircleDot
 } from 'lucide-react';
 
 interface AIDrawerProps {
@@ -32,6 +37,15 @@ interface AIDrawerProps {
 interface Message {
   role: 'user' | 'assistant';
   text: string;
+  meta?: {
+    macroId?: AiMacroId;
+    tbGenerationMode?: TbGenerationMode | null;
+    provider?: string;
+    model?: string;
+    validation?: AiMacroValidationResult | null;
+    hazardMarkdown?: string | null;
+    protocolMarkdown?: string | null;
+  };
 }
 
 interface ReportCodeBlock {
@@ -67,8 +81,6 @@ interface ModelOption {
   id: string;
   label: string;
 }
-
-type TbGenerationMode = 'project_entities' | 'reverse_from_vcd';
 
 const buildStructuredReport = (text: string): ParsedAssistantReport => {
   const lines = text.split('\n');
@@ -168,6 +180,40 @@ const buildStructuredReport = (text: string): ParsedAssistantReport => {
   };
 };
 
+const combineReports = (reports: ParsedAssistantReport[]): ParsedAssistantReport => {
+  const combinedSections = reports.flatMap((report) => report.sections);
+  const summary = reports.find((report) => report.summary)?.summary || null;
+
+  return {
+    summary,
+    sections: combinedSections,
+    highCount: reports.reduce((sum, report) => sum + report.highCount, 0),
+    mediumCount: reports.reduce((sum, report) => sum + report.mediumCount, 0),
+    lowCount: reports.reduce((sum, report) => sum + report.lowCount, 0),
+    protocolCount: reports.reduce((sum, report) => sum + report.protocolCount, 0),
+    codeBlockCount: reports.reduce((sum, report) => sum + report.codeBlockCount, 0),
+  };
+};
+
+const buildDisplayReport = (message: Message): ParsedAssistantReport | null => {
+  if (message.role !== 'assistant') {
+    return null;
+  }
+
+  const macroSpec = getAiMacroSpec(message.meta?.macroId);
+  const reports: ParsedAssistantReport[] = [buildStructuredReport(message.text)];
+
+  if (macroSpec.deterministicContext.hazardScan && message.meta?.hazardMarkdown) {
+    reports.unshift(buildStructuredReport(message.meta.hazardMarkdown));
+  }
+
+  if (macroSpec.deterministicContext.protocolScan && message.meta?.protocolMarkdown) {
+    reports.unshift(buildStructuredReport(message.meta.protocolMarkdown));
+  }
+
+  return combineReports(reports);
+};
+
 const getSectionAccent = (title: string) => {
   const normalized = title.toLowerCase();
   if (normalized.includes('protocol')) {
@@ -209,6 +255,75 @@ const renderBullet = (bullet: string, key: string) => {
       )}
       <span className="text-[10px] leading-relaxed text-slate-300">{body}</span>
     </div>
+  );
+};
+
+const getValidationTone = (status: AiMacroValidationResult['status']) => {
+  if (status === 'pass') {
+    return {
+      card: 'border-emerald-400/25 bg-emerald-500/8',
+      icon: <ShieldCheck size={12} className="text-emerald-300" />,
+      label: 'Pass',
+      text: 'text-emerald-200',
+    };
+  }
+  if (status === 'warn') {
+    return {
+      card: 'border-amber-400/25 bg-amber-500/8',
+      icon: <AlertTriangle size={12} className="text-amber-300" />,
+      label: 'Warn',
+      text: 'text-amber-200',
+    };
+  }
+  return {
+    card: 'border-rose-400/25 bg-rose-500/8',
+    icon: <AlertTriangle size={12} className="text-rose-300" />,
+    label: 'Fail',
+    text: 'text-rose-200',
+  };
+};
+
+const getMacroButtonTone = (macroId: AiMacroId) => {
+  switch (macroId) {
+    case 'generate_vhdl_tb':
+      return 'text-cyan-200';
+    case 'inspect_race_hazards':
+      return 'text-amber-200';
+    case 'protocol_decoder_details':
+      return 'text-emerald-200';
+    case 'verify_clock_reset_sequence':
+      return 'text-lime-200';
+    case 'explain_fsm_behavior':
+      return 'text-violet-200';
+    case 'summarize_protocol_timeline':
+      return 'text-sky-200';
+    case 'generate_vhdl_assertions':
+      return 'text-rose-200';
+    case 'draft_rtl_skeleton':
+      return 'text-fuchsia-200';
+    case 'suggest_debug_probes':
+      return 'text-orange-200';
+    default:
+      return 'text-brand-on-surface';
+  }
+};
+
+const renderDeterministicBlock = (title: string, markdown: string, accent: string) => {
+  const parsed = buildStructuredReport(markdown);
+  return (
+    <section className={`rounded-lg border px-3 py-2.5 ${accent}`}>
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{title}</div>
+      <div className="mt-2 space-y-2">
+        {parsed.sections.flatMap((section) => [
+          ...section.paragraphs.map((paragraph, index) => (
+            <p key={`${title}-p-${section.title}-${index}`} className="text-[10.5px] leading-relaxed text-slate-300">
+              {paragraph}
+            </p>
+          )),
+          ...section.bullets.map((bullet, index) => renderBullet(bullet, `${title}-b-${section.title}-${index}`)),
+        ])}
+      </div>
+    </section>
   );
 };
 
@@ -354,7 +469,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   );
 
   const parsedMessages = useMemo(
-    () => messages.map((message) => message.role === 'assistant' ? buildStructuredReport(message.text) : null),
+    () => messages.map((message) => buildDisplayReport(message)),
     [messages]
   );
 
@@ -432,10 +547,33 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   };
 
   const handleSendMessage = async (queryText: string) => {
+    return handleMacroSendMessage(queryText, {
+      macroId: 'custom_query',
+      tbGenerationMode: null,
+    });
+  };
+
+  const handleMacroSendMessage = async (
+    queryText: string,
+    options?: {
+      macroId?: AiMacroId;
+      tbGenerationMode?: TbGenerationMode | null;
+    }
+  ) => {
     if (!queryText.trim() || loading) return;
 
+    const macroId = options?.macroId || 'custom_query';
+    const tbMode = options?.tbGenerationMode ?? null;
+
     // Append user message
-    const userMsg: Message = { role: 'user', text: queryText };
+    const userMsg: Message = {
+      role: 'user',
+      text: queryText,
+      meta: {
+        macroId,
+        tbGenerationMode: tbMode,
+      },
+    };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
     setLoading(true);
@@ -457,6 +595,8 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         signal: controller.signal,
         body: JSON.stringify({
           jobId,
+          macroId,
+          tbGenerationMode: tbMode,
           provider: selectedProvider,
           signals,
           query: queryText,
@@ -477,7 +617,16 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
       const assistantMsg: Message = {
         role: 'assistant',
-        text: data.analysis || 'Analysis finished with no return block.'
+        text: data.analysis || 'Analysis finished with no return block.',
+        meta: {
+          macroId: data.macroId || macroId,
+          tbGenerationMode: data.tbGenerationMode || tbMode,
+          provider: data.provider,
+          model: data.model,
+          validation: data.validation || null,
+          hazardMarkdown: data.hazardScan?.markdown || null,
+          protocolMarkdown: data.protocolScan?.markdown || null,
+        },
       };
       setMessages(prev => [...prev, assistantMsg]);
       setJobStatus('AI job finished.');
@@ -485,14 +634,24 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       if (err?.name === 'AbortError' || String(err?.message || err).toLowerCase().includes('aborted')) {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          text: '### AI Job Cancelled\n\nThe active AI request was stopped before completion. All tracked backend provider calls for this job were asked to abort.'
+          text: '### AI Job Cancelled\n\nThe active AI request was stopped before completion. All tracked backend provider calls for this job were asked to abort.',
+          meta: {
+            macroId,
+            tbGenerationMode: tbMode,
+            validation: null,
+          },
         }]);
         setJobStatus('AI job cancelled.');
         return;
       }
       setMessages(prev => [...prev, {
         role: 'assistant',
-        text: `### Simulation Error\n\nCould not compile timing diagram telemetry: ${err.message || err}`
+        text: `### Simulation Error\n\nCould not compile timing diagram telemetry: ${err.message || err}`,
+        meta: {
+          macroId,
+          tbGenerationMode: tbMode,
+          validation: null,
+        },
       }]);
       setJobStatus(`AI job failed: ${err.message || err}`);
     } finally {
@@ -579,26 +738,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     if (!tbPromptDraft.trim()) return;
     const promptToSend = tbPromptDraft;
     setShowTbComposer(false);
-    await handleSendMessage(promptToSend);
+    await handleMacroSendMessage(promptToSend, {
+      macroId: 'generate_vhdl_tb',
+      tbGenerationMode,
+    });
   };
-
-  const PROMPT_SUGGESTIONS = [
-    {
-      label: 'Generate VHDL TB',
-      icon: <FileCode size={11} />,
-      prompt: ''
-    },
-    {
-      label: 'Inspect Race Hazards',
-      icon: <Bug size={11} />,
-      prompt: 'Analyze these signal waveforms for theoretical propagation delays, hazard spikes, hold/setup timing violations, or asynchronous synchronization issues.'
-    },
-    {
-      label: 'Protocol Decoder details',
-      icon: <Layers size={11} />,
-      prompt: 'Verify the signal transition intervals and decode the protocol sequences inside the waveform log. Highlight any byte transitions or framing structure.'
-    }
-  ];
 
   const selectedProviderInfo = providers.find((provider) => provider.id === selectedProvider);
 
@@ -727,8 +871,8 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
             key={idx} 
             className={`p-3 rounded-lg border relative group/msg transition-all ${
               m.role === 'user' 
-                ? 'bg-[#1a253d] border-[#2c3d61] text-brand-on-surface ml-6' 
-                : 'bg-brand-surface-lowest border-brand-outline-variant/20 text-brand-on-surface-variant mr-6'
+                ? 'bg-[#1a253d] border-[#2c3d61] text-brand-on-surface' 
+                : 'bg-brand-surface-lowest border-brand-outline-variant/20 text-brand-on-surface-variant'
             }`}
           >
             {/* Header role badge */}
@@ -761,8 +905,58 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
               <div className="space-y-3 select-text">
                 {parsedMessages[idx]?.summary && (
                   <div className="rounded-lg border border-brand-cyan/20 bg-brand-cyan/8 px-3 py-2">
-                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-cyan">Executive Summary</div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-cyan">Executive Summary</div>
+                      {m.meta?.macroId && m.meta.macroId !== 'custom_query' && (
+                        <div className="rounded-full border border-brand-cyan/20 bg-brand-cyan/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-brand-cyan">
+                          {getAiMacroSpec(m.meta.macroId).label}
+                        </div>
+                      )}
+                    </div>
                     <p className="mt-1 text-[10.5px] leading-relaxed text-slate-200">{parsedMessages[idx]?.summary}</p>
+                  </div>
+                )}
+
+                {m.meta?.validation && (() => {
+                  const tone = getValidationTone(m.meta.validation.status);
+                  return (
+                    <div className={`rounded-lg border px-3 py-2.5 ${tone.card}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          {tone.icon}
+                          <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-100">Validation Result</div>
+                        </div>
+                        <div className={`text-[8px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
+                      </div>
+                      <p className="mt-1 text-[10px] leading-relaxed text-slate-300">{m.meta.validation.summary}</p>
+                      <div className="mt-2 grid gap-1.5">
+                        {m.meta.validation.checks.map((check) => (
+                          <div key={`${idx}-${check.id}`} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
+                            <CircleDot size={10} className={
+                              check.status === 'pass'
+                                ? 'text-emerald-300'
+                                : check.status === 'warn'
+                                  ? 'text-amber-300'
+                                  : check.status === 'fail'
+                                    ? 'text-rose-300'
+                                    : 'text-slate-500'
+                            } />
+                            <div className="min-w-0">
+                              <div className="text-[9px] font-bold text-slate-100">{check.label}</div>
+                              <div className="text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {(m.meta?.hazardMarkdown || m.meta?.protocolMarkdown) && (
+                  <div className="space-y-3">
+                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Deterministic Findings</div>
+                    {m.meta?.hazardMarkdown && getAiMacroSpec(m.meta?.macroId).deterministicContext.hazardScan && renderDeterministicBlock('Hazard Scan', m.meta.hazardMarkdown, 'border-amber-400/25 bg-amber-500/5')}
+                    {m.meta?.protocolMarkdown && getAiMacroSpec(m.meta?.macroId).deterministicContext.protocolScan && renderDeterministicBlock('Protocol Pre-Decode', m.meta.protocolMarkdown, 'border-cyan-400/25 bg-cyan-500/5')}
                   </div>
                 )}
 
@@ -786,6 +980,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                 </div>
 
                 <div className="space-y-3">
+                  <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Validated Report Structure</div>
                   {(parsedMessages[idx]?.sections || []).map((section, sectionIndex) => (
                     <section
                       key={`${idx}-${section.title}-${sectionIndex}`}
@@ -833,6 +1028,13 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                     </section>
                   ))}
                 </div>
+
+                <div className="rounded-lg border border-white/5 bg-[#060a12] px-3 py-2.5">
+                  <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Raw AI Response</div>
+                  <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap break-words text-[10px] leading-relaxed text-slate-300">
+                    {m.text}
+                  </pre>
+                </div>
               </div>
             )}
           </div>
@@ -850,25 +1052,36 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       {/* Suggestion Chips */}
       <div className="p-2 border-t border-brand-outline-variant/30 bg-brand-surface-lowest flex-none shrink-0 text-[10px] space-y-1.5 select-none">
         <span className="text-[9px] uppercase text-slate-400 font-bold tracking-wider px-1 inline-block">ENGINEERING MACROS:</span>
-        <div className="flex flex-wrap gap-1">
-          {PROMPT_SUGGESTIONS.map((s, idx) => (
+        <div className="grid grid-cols-3 gap-1.5">
+          {getVisibleAiMacros().map((macro) => {
+            const icon = macro.id === 'generate_vhdl_tb'
+              ? <FileCode size={11} />
+              : macro.id === 'inspect_race_hazards' || macro.id === 'verify_clock_reset_sequence'
+                ? <Bug size={11} />
+                : macro.id === 'protocol_decoder_details' || macro.id === 'summarize_protocol_timeline'
+                  ? <Layers size={11} />
+                  : macro.id === 'generate_vhdl_assertions' || macro.id === 'draft_rtl_skeleton'
+                    ? <FileCode size={11} />
+                    : <Sparkles size={11} />;
+            const invocation = resolveMacroInvocation(macro.id);
+            return (
             <button
-              key={idx}
+              key={macro.id}
               type="button"
               onClick={() => {
-                if (s.label === 'Generate VHDL TB') {
-                  openTbComposer('project_entities');
+                if (invocation.kind === 'composer') {
+                  openTbComposer(invocation.tbGenerationMode);
                   return;
                 }
-                handleSendMessage(s.prompt);
+                void handleMacroSendMessage(invocation.prompt, { macroId: invocation.macroId });
               }}
               disabled={loading}
-              className="px-2 py-1 bg-brand-surface-low hover:bg-brand-surface-high text-brand-on-surface border border-brand-outline-variant/30 rounded flex items-center gap-1 hover:border-brand-cyan/40 transition-all text-[9.5px] cursor-pointer"
+              className="min-w-0 rounded bg-brand-surface-low px-2 py-1 transition-all text-[9.5px] cursor-pointer text-left border border-brand-outline-variant/30 hover:border-brand-cyan/40 hover:bg-brand-surface-high flex items-center justify-start gap-1.5"
             >
-              {s.icon}
-              <span>{s.label}</span>
+              <span className={`flex-none ${getMacroButtonTone(macro.id)}`}>{icon}</span>
+              <span className={`min-w-0 truncate text-left ${getMacroButtonTone(macro.id)}`}>{macro.label}</span>
             </button>
-          ))}
+          )})}
         </div>
 
         {showTbComposer && (

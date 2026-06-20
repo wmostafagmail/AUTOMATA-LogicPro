@@ -8,6 +8,9 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
+import { AiMacroId, TbGenerationMode } from './src/aiMacros';
+import { validateMacroOutput } from './src/aiMacroValidation';
+import { buildMacroPromptContract } from './src/aiMacroPrompting';
 
 // Load environment variables
 dotenv.config();
@@ -290,6 +293,58 @@ function extractOpenAICompatibleMessageContent(data: any) {
       .trim();
   }
   return '';
+}
+
+function isLikelyOllamaChatModel(modelId: string) {
+  const id = modelId.toLowerCase();
+  return (
+    id.includes('thinking') ||
+    id.includes('instruct') ||
+    id.includes('chat') ||
+    id.includes('claude')
+  );
+}
+
+async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSignal) {
+  const data = await fetchJson(`${OLLAMA_BASE_URL}/api/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal,
+    body: JSON.stringify({
+      model,
+      prompt,
+      stream: false,
+    }),
+  });
+  const responseText = extractOllamaGeneratedText(data);
+  if (!responseText) {
+    throw new Error(
+      `Ollama returned no generated text for model "${model}" via /api/generate. Payload summary: ${summarizePayloadShape(data)}`
+    );
+  }
+  return responseText;
+}
+
+async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal) {
+  const data = await fetchJson(`${OLLAMA_BASE_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal,
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'user', content: prompt },
+      ],
+      stream: false,
+    }),
+  });
+  const responseText = extractOllamaGeneratedText(data);
+  if (!responseText) {
+    throw new Error(
+      `Ollama returned no generated text for model "${model}" via /api/chat. Payload summary: ${summarizePayloadShape(data)}`
+    );
+  }
+  return responseText;
 }
 
 function summarizePayloadShape(data: any) {
@@ -1664,29 +1719,34 @@ async function runModelAnalysis(params: {
         throw new Error(`The selected Ollama model "${model}" appears to be an embedding or reranking model, not a text-generation model. Choose a chat/coder model instead.`);
       }
       try {
-        const data = await fetchJson(`${OLLAMA_BASE_URL}/api/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal,
-          body: JSON.stringify({
-            model,
-            prompt,
-            stream: false,
-          }),
-        });
-        const responseText = extractOllamaGeneratedText(data);
-        if (!responseText) {
-          throw new Error(
-            `Ollama returned no generated text for model "${model}". Payload summary: ${summarizePayloadShape(data)}`
-          );
+        const strategies = isLikelyOllamaChatModel(model)
+          ? [
+              () => runOllamaChat(model, prompt, signal),
+              () => runOllamaGenerate(model, prompt, signal),
+            ]
+          : [
+              () => runOllamaGenerate(model, prompt, signal),
+              () => runOllamaChat(model, prompt, signal),
+            ];
+
+        let lastError: unknown = null;
+        for (const attempt of strategies) {
+          try {
+            return await attempt();
+          } catch (error) {
+            if (isAbortError(error)) {
+              throw error;
+            }
+            lastError = error;
+          }
         }
-        return responseText;
+        throw lastError instanceof Error ? lastError : new Error(`Ollama text generation failed for model "${model}".`);
       } catch (error: any) {
         if (isLikelyConnectivityError(error)) {
           const apiReachable = await canReachOllamaApi();
           if (apiReachable) {
             throw new Error(
-              `Ollama is reachable at ${OLLAMA_BASE_URL}, but text generation failed for model "${model}". Check that the model is fully available for chat/completion and try the request again. Original error: ${String(error?.message || error)}`
+              `Ollama is reachable at ${OLLAMA_BASE_URL}, but text generation failed for model "${model}" across both chat/generate attempts. Check that the model is fully available for chat/completion and try the request again. Original error: ${String(error?.message || error)}`
             );
           }
           throw new Error(`Ollama Local is selected, but ${OLLAMA_BASE_URL} is unreachable. Start the Ollama service or choose a different provider/model.`);
@@ -2043,6 +2103,14 @@ async function bootstrap() {
   app.post('/api/ai-analyze', async (req, res) => {
     const { provider, signals, query, model, timeUnit, tickDuration, projectContext, projectPath, workspaceFileName } = req.body;
     const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
+    const macroId: AiMacroId = typeof req.body?.macroId === 'string' && req.body.macroId.trim()
+      ? req.body.macroId.trim() as AiMacroId
+      : 'custom_query';
+    const tbGenerationMode: TbGenerationMode | null = req.body?.tbGenerationMode === 'reverse_from_vcd'
+      ? 'reverse_from_vcd'
+      : req.body?.tbGenerationMode === 'project_entities'
+        ? 'project_entities'
+        : null;
 
     if (!query) {
       return res.status(400).json({ error: 'User query is required.' });
@@ -2148,18 +2216,30 @@ Return your explanation in beautifully formatted markdown with clear sections. P
         ai,
         provider: selectedProvider,
         model: selectedModel,
-        prompt: `${systemPrompt}\n\nDeveloper's Query: "${query}"`,
+        prompt: `${systemPrompt}\n\n${buildMacroPromptContract({
+          macroId,
+          userQuery: query,
+          tbGenerationMode,
+        })}`,
         signal: controller.signal,
       });
 
-      const combinedAnalysis = `${protocolScan.markdown}\n\n${hazardScan.markdown}\n\n---\n\n${responseText}`.trim();
+      const validation = validateMacroOutput({
+        macroId,
+        text: responseText,
+        hazardFindings: hazardScan.findings,
+        protocolFrames: protocolScan.frames,
+      });
 
       return res.json({
-        analysis: combinedAnalysis,
+        analysis: responseText,
         provider: selectedProvider,
         model: selectedModel,
         hazardScan,
         protocolScan,
+        macroId,
+        tbGenerationMode,
+        validation,
         jobId,
       });
     } catch (error: any) {
@@ -2167,12 +2247,14 @@ Return your explanation in beautifully formatted markdown with clear sections. P
         return res.status(499).json({
           error: 'AI job was cancelled before completion.',
           jobId,
+          macroId,
           cancelled: true,
         });
       }
       console.error('Gemini API call error:', error);
       return res.status(500).json({
-        error: `Core logic simulation analysis failed: ${error.message || error}`
+        error: `Core logic simulation analysis failed: ${error.message || error}`,
+        macroId,
       });
     } finally {
       activeAiJobs.delete(jobId);
