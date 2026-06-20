@@ -305,6 +305,11 @@ function isLikelyOllamaChatModel(modelId: string) {
   );
 }
 
+function shouldDisableOllamaThinking(modelId: string) {
+  const id = modelId.toLowerCase();
+  return id.includes('thinking') || id.includes(':think') || id.includes('/think');
+}
+
 async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSignal) {
   const data = await fetchJson(`${OLLAMA_BASE_URL}/api/generate`, {
     method: 'POST',
@@ -314,6 +319,7 @@ async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSi
       model,
       prompt,
       stream: false,
+      ...(shouldDisableOllamaThinking(model) ? { think: false } : {}),
     }),
   });
   const responseText = extractOllamaGeneratedText(data);
@@ -336,6 +342,7 @@ async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal
         { role: 'user', content: prompt },
       ],
       stream: false,
+      ...(shouldDisableOllamaThinking(model) ? { think: false } : {}),
     }),
   });
   const responseText = extractOllamaGeneratedText(data);
