@@ -82,6 +82,9 @@ interface ModelOption {
   label: string;
 }
 
+const AI_PROVIDER_STORAGE_KEY = 'automata-logicpro-ai-provider';
+const AI_MODEL_STORAGE_KEY = 'automata-logicpro-ai-models';
+
 const buildStructuredReport = (text: string): ParsedAssistantReport => {
   const lines = text.split('\n');
   const sections: ReportSection[] = [];
@@ -253,7 +256,7 @@ const renderBullet = (bullet: string, key: string) => {
       ) : (
         <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-cyan flex-none" />
       )}
-      <span className="text-[10px] leading-relaxed text-slate-300">{body}</span>
+      <span className="break-all text-[10px] leading-relaxed text-slate-300">{body}</span>
     </div>
   );
 };
@@ -316,7 +319,7 @@ const renderDeterministicBlock = (title: string, markdown: string, accent: strin
       <div className="mt-2 space-y-2">
         {parsed.sections.flatMap((section) => [
           ...section.paragraphs.map((paragraph, index) => (
-            <p key={`${title}-p-${section.title}-${index}`} className="text-[10.5px] leading-relaxed text-slate-300">
+            <p key={`${title}-p-${section.title}-${index}`} className="break-all text-[10.5px] leading-relaxed text-slate-300">
               {paragraph}
             </p>
           )),
@@ -348,7 +351,10 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [providers, setProviders] = useState<ProviderOption[]>([]);
-  const [selectedProvider, setSelectedProvider] = useState('ollama');
+  const [selectedProvider, setSelectedProvider] = useState(() => {
+    if (typeof window === 'undefined') return 'ollama';
+    return window.localStorage.getItem(AI_PROVIDER_STORAGE_KEY) || 'ollama';
+  });
   const [models, setModels] = useState<ModelOption[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
   const [providerError, setProviderError] = useState<string | null>(null);
@@ -362,6 +368,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [testGenerating, setTestGenerating] = useState(false);
   const [testGenerateResult, setTestGenerateResult] = useState<string | null>(null);
   const activeRequestControllerRef = useRef<AbortController | null>(null);
+  const drawerScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -375,7 +382,12 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         }
         const nextProviders = Array.isArray(data.providers) ? data.providers : [];
         setProviders(nextProviders);
-        const preferredProvider = nextProviders.find((provider: ProviderOption) => provider.id === 'ollama')
+        const storedProvider = typeof window !== 'undefined'
+          ? window.localStorage.getItem(AI_PROVIDER_STORAGE_KEY)
+          : null;
+        const preferredProvider = nextProviders.find((provider: ProviderOption) => provider.id === storedProvider)
+          || nextProviders.find((provider: ProviderOption) => provider.id === selectedProvider)
+          || nextProviders.find((provider: ProviderOption) => provider.id === 'ollama')
           || nextProviders.find((provider: ProviderOption) => provider.enabled)
           || nextProviders[0];
         if (preferredProvider) {
@@ -402,7 +414,21 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         }
         const nextModels = Array.isArray(data.models) ? data.models : [];
         setModels(nextModels);
-        setSelectedModel((current) => nextModels.some((model: ModelOption) => model.id === current) ? current : (nextModels[0]?.id || ''));
+        const storedModels = typeof window !== 'undefined'
+          ? JSON.parse(window.localStorage.getItem(AI_MODEL_STORAGE_KEY) || '{}')
+          : {};
+        const storedModelForProvider = typeof storedModels?.[selectedProvider] === 'string'
+          ? storedModels[selectedProvider]
+          : '';
+        setSelectedModel((current) => {
+          if (nextModels.some((model: ModelOption) => model.id === current)) {
+            return current;
+          }
+          if (storedModelForProvider && nextModels.some((model: ModelOption) => model.id === storedModelForProvider)) {
+            return storedModelForProvider;
+          }
+          return nextModels[0]?.id || '';
+        });
         setProviderError(data.error || null);
       } catch (error: any) {
         setModels([]);
@@ -413,6 +439,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
     void loadModels();
   }, [isOpen, selectedProvider]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !selectedProvider) return;
+    window.localStorage.setItem(AI_PROVIDER_STORAGE_KEY, selectedProvider);
+  }, [selectedProvider]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !selectedProvider || !selectedModel) return;
+    const storedModels = JSON.parse(window.localStorage.getItem(AI_MODEL_STORAGE_KEY) || '{}');
+    storedModels[selectedProvider] = selectedModel;
+    window.localStorage.setItem(AI_MODEL_STORAGE_KEY, JSON.stringify(storedModels));
+  }, [selectedProvider, selectedModel]);
 
   useEffect(() => {
     if (!loading || !jobStartedAt) {
@@ -428,6 +466,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     const timer = window.setInterval(updateElapsed, 1000);
     return () => window.clearInterval(timer);
   }, [loading, jobStartedAt]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const container = drawerScrollRef.current;
+    if (!container) return;
+    window.requestAnimationFrame(() => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+    });
+  }, [isOpen, messages, loading, showTbComposer, testGenerateResult]);
 
   const vhdlProjectFiles = projectFiles.filter((file) => file.extension === '.vhd' || file.extension === '.vhdl');
   const visibleSignalNames = signals.slice(0, 12).map((signal) => signal.name);
@@ -747,7 +797,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const selectedProviderInfo = providers.find((provider) => provider.id === selectedProvider);
 
   return (
-    <div className="w-[360px] md:w-[420px] bg-brand-surface-low border-l border-brand-outline-variant/55 flex flex-col h-full z-20 select-none flex-none font-sans">
+    <div className="w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex flex-col h-full z-20 select-none flex-none font-sans">
       
       {/* Drawer Header */}
       <div className="border-b border-brand-outline-variant/40 px-3 py-2 bg-brand-surface-lowest flex-none select-none space-y-2">
@@ -822,13 +872,13 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       </div>
 
       {/* Messages Feed */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-4 bg-brand-surface text-[11.5px] leading-relaxed">
+      <div ref={drawerScrollRef} className="relative flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-4 bg-brand-surface text-[11.5px] leading-relaxed">
         {(selectedProviderInfo || providerError) && (
-          <div className="p-2 rounded border border-brand-outline-variant/20 bg-brand-surface-lowest text-[10px] font-mono text-slate-400">
-            <div>Provider: <span className="text-brand-cyan">{selectedProviderInfo?.label || selectedProvider}</span></div>
-            <div>Model: <span className="text-brand-cyan">{selectedModel || 'No model available'}</span></div>
-            {selectedProviderInfo?.reason && <div>{selectedProviderInfo.reason}</div>}
-            {providerError && <div className="text-rose-300">{providerError}</div>}
+          <div className="min-w-0 p-2 rounded border border-brand-outline-variant/20 bg-brand-surface-lowest text-[10px] font-mono text-slate-400">
+            <div className="break-words">Provider: <span className="text-brand-cyan break-all">{selectedProviderInfo?.label || selectedProvider}</span></div>
+            <div className="break-words">Model: <span className="text-brand-cyan break-all">{selectedModel || 'No model available'}</span></div>
+            {selectedProviderInfo?.reason && <div className="break-words">{selectedProviderInfo.reason}</div>}
+            {providerError && <div className="break-words text-rose-300">{providerError}</div>}
           </div>
         )}
 
@@ -848,13 +898,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
               {loading && (
                 <div className="flex items-center gap-2">
                   <span className="text-slate-500">{jobElapsedSeconds}s</span>
-                  <button
-                    type="button"
-                    onClick={() => void handleStopJob()}
-                    className="rounded border border-red-400/60 bg-red-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-[0_0_18px_rgba(220,38,38,0.35)] cursor-pointer hover:bg-red-500"
-                  >
-                    Stop
-                  </button>
                 </div>
               )}
             </div>
@@ -869,7 +912,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         {messages.map((m, idx) => (
           <div 
             key={idx} 
-            className={`p-3 rounded-lg border relative group/msg transition-all ${
+            className={`min-w-0 overflow-x-hidden p-3 rounded-lg border relative group/msg transition-all ${
               m.role === 'user' 
                 ? 'bg-[#1a253d] border-[#2c3d61] text-brand-on-surface' 
                 : 'bg-brand-surface-lowest border-brand-outline-variant/20 text-brand-on-surface-variant'
@@ -913,7 +956,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                         </div>
                       )}
                     </div>
-                    <p className="mt-1 text-[10.5px] leading-relaxed text-slate-200">{parsedMessages[idx]?.summary}</p>
+                    <p className="mt-1 break-all text-[10.5px] leading-relaxed text-slate-200">{parsedMessages[idx]?.summary}</p>
                   </div>
                 )}
 
@@ -928,7 +971,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                         </div>
                         <div className={`text-[8px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
                       </div>
-                      <p className="mt-1 text-[10px] leading-relaxed text-slate-300">{m.meta.validation.summary}</p>
+                      <p className="mt-1 break-all text-[10px] leading-relaxed text-slate-300">{m.meta.validation.summary}</p>
                       <div className="mt-2 grid gap-1.5">
                         {m.meta.validation.checks.map((check) => (
                           <div key={`${idx}-${check.id}`} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
@@ -943,7 +986,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                             } />
                             <div className="min-w-0">
                               <div className="text-[9px] font-bold text-slate-100">{check.label}</div>
-                              <div className="text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
+                              <div className="break-all text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
                             </div>
                           </div>
                         ))}
@@ -996,7 +1039,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                       {section.paragraphs.length > 0 && (
                         <div className="mt-2 space-y-2">
                           {section.paragraphs.map((paragraph, paragraphIndex) => (
-                            <p key={`${section.title}-p-${paragraphIndex}`} className="text-[10.5px] leading-relaxed text-slate-300">
+                            <p key={`${section.title}-p-${paragraphIndex}`} className="break-all text-[10.5px] leading-relaxed text-slate-300">
                               {paragraph}
                             </p>
                           ))}
@@ -1018,7 +1061,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                                   {codeBlock.language || 'code'}
                                 </span>
                               </div>
-                              <pre className="max-w-full overflow-x-auto px-2.5 py-2 text-[10px] leading-relaxed text-emerald-100">
+                              <pre className="max-w-full overflow-x-hidden whitespace-pre-wrap break-words px-2.5 py-2 text-[10px] leading-relaxed text-emerald-100">
                                 <code>{codeBlock.content}</code>
                               </pre>
                             </div>
@@ -1031,7 +1074,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
                 <div className="rounded-lg border border-white/5 bg-[#060a12] px-3 py-2.5">
                   <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Raw AI Response</div>
-                  <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap break-words text-[10px] leading-relaxed text-slate-300">
+                  <pre className="mt-2 max-h-60 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words text-[10px] leading-relaxed text-slate-300">
                     {m.text}
                   </pre>
                 </div>
@@ -1042,10 +1085,28 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
         {/* Loading Spinner */}
         {loading && (
-          <div className="flex items-center gap-2 text-brand-amber text-[10px] uppercase font-mono bg-brand-surface-lowest p-3 rounded-lg border border-brand-amber/10 justify-center">
-            <Loader2 size={12} className="animate-spin text-brand-amber" />
-            <span>AI model working... {jobElapsedSeconds}s</span>
-          </div>
+          <>
+            <div className="flex items-center gap-2 text-brand-amber text-[10px] uppercase font-mono bg-brand-surface-lowest p-3 rounded-lg border border-brand-amber/10 justify-center">
+              <Loader2 size={12} className="animate-spin text-brand-amber" />
+              <span>AI model working... {jobElapsedSeconds}s</span>
+            </div>
+            <div className="sticky bottom-0 z-20 -mx-1 mt-2 pb-1">
+              <div className="mx-1 rounded-xl border border-red-400/35 bg-[#09111f]/95 px-3 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-200">Active AI Job</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleStopJob()}
+                    className="flex-none rounded border border-red-400/70 bg-red-600 px-3 py-1.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-[0_0_18px_rgba(220,38,38,0.35)] cursor-pointer hover:bg-red-500"
+                  >
+                    Stop
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

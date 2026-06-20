@@ -83,7 +83,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'generate_vhdl_tb',
-    label: 'Generate VHDL TB',
+    label: 'Generate TB',
     defaultPrompt: '',
     launchMode: 'composer',
     deterministicContext: {
@@ -106,7 +106,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'inspect_race_hazards',
-    label: 'Inspect Race Hazards',
+    label: 'Inspect Hazards',
     defaultPrompt: 'Analyze these signal waveforms for theoretical propagation delays, hazard spikes, hold/setup timing violations, or asynchronous synchronization issues.',
     launchMode: 'direct',
     deterministicContext: {
@@ -129,7 +129,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'protocol_decoder_details',
-    label: 'Protocol Decoder details',
+    label: 'Decode Protocol',
     defaultPrompt: 'Verify the signal transition intervals and decode the protocol sequences inside the waveform log. Highlight any byte transitions or framing structure.',
     launchMode: 'direct',
     deterministicContext: {
@@ -152,7 +152,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'verify_clock_reset_sequence',
-    label: 'Verify Clock/Reset Sequence',
+    label: 'Check Clock/Reset',
     defaultPrompt: 'Inspect the loaded waveform and verify whether the clock and reset behavior look stable and release in a safe order for startup.',
     launchMode: 'direct',
     deterministicContext: {
@@ -175,7 +175,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'explain_fsm_behavior',
-    label: 'Explain FSM Behavior',
+    label: 'Explain FSM',
     defaultPrompt: 'Infer the likely finite state machine behavior from the loaded waveform and explain the states, transitions, and uncertain areas.',
     launchMode: 'direct',
     deterministicContext: {
@@ -198,7 +198,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'summarize_protocol_timeline',
-    label: 'Summarize Protocol Timeline',
+    label: 'Protocol Timeline',
     defaultPrompt: 'Summarize the decoded protocol activity as a time-ordered transaction timeline and explain what the traffic appears to be doing.',
     launchMode: 'direct',
     deterministicContext: {
@@ -221,7 +221,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'generate_vhdl_assertions',
-    label: 'Generate VHDL Assertions',
+    label: 'VHDL Assertions',
     defaultPrompt: 'Generate practical VHDL assertions for the currently observed timing behavior, protocol framing, and hazard-sensitive conditions.',
     launchMode: 'direct',
     deterministicContext: {
@@ -244,7 +244,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'draft_rtl_skeleton',
-    label: 'Draft RTL Skeleton',
+    label: 'RTL Skeleton',
     defaultPrompt: 'Draft a VHDL RTL skeleton that matches the apparent interface and behavior visible in the loaded waveform and any project context.',
     launchMode: 'direct',
     deterministicContext: {
@@ -268,7 +268,7 @@ export const AI_MACROS: AiMacroSpec[] = [
   },
   {
     id: 'suggest_debug_probes',
-    label: 'Suggest Debug Probes',
+    label: 'Debug Probes',
     defaultPrompt: 'Suggest the next internal probes, trigger conditions, and capture plan that would best reduce uncertainty in this waveform debug session.',
     launchMode: 'direct',
     deterministicContext: {
