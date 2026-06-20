@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useMemo, useEffect, useRef } from 'react';
+import { ChangeEvent, PointerEvent as ReactPointerEvent, useState, useMemo, useEffect, useRef } from 'react';
 import { GhdlProjectInfo, GhdlSourceFile, GhdlStatus, ProjectFileEntry, Signal } from './types';
 import { PRESETS } from './data';
 import { runSimulationEvaluations } from './utils';
@@ -9,7 +9,7 @@ import { Toolbar } from './components/Toolbar';
 import { SignalSidebar } from './components/SignalSidebar';
 import { WaveformViewport } from './components/WaveformViewport';
 import { AIDrawer } from './components/AIDrawer';
-import { AIBottomDrawer } from './components/AIBottomDrawer';
+import { AIBottomDrawer, AIAnalysisContent } from './components/AIBottomDrawer';
 import { AIWorkspaceReport } from './aiReport';
 import {
   Wrench,
@@ -19,11 +19,18 @@ import {
   AlertCircle,
   FolderOpen,
   Play,
-  Loader2
+  Loader2,
+  Maximize2
 } from 'lucide-react';
 
 const PROJECT_STORAGE_KEY = 'automata-logicpro-project';
 const DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX = 214;
+const DEFAULT_AI_OUTPUT_WINDOW_BOUNDS = {
+  left: 380,
+  top: 94,
+  width: 1020,
+  height: 760,
+};
 
 export default function App() {
   // 1. Core workspace timing configuration states
@@ -68,8 +75,18 @@ export default function App() {
   const [leftWorkspaceBottomGapPx, setLeftWorkspaceBottomGapPx] = useState(DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX);
   const [latestAiReport, setLatestAiReport] = useState<AIWorkspaceReport | null>(null);
   const [workspaceAiReportExpanded, setWorkspaceAiReportExpanded] = useState(true);
+  const [showAiOutputWindow, setShowAiOutputWindow] = useState(false);
+  const [aiOutputWindowBounds, setAiOutputWindowBounds] = useState(DEFAULT_AI_OUTPUT_WINDOW_BOUNDS);
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
   const startupWorkspaceRecoveryRef = useRef(false);
+  const aiOutputWindowRef = useRef<HTMLDivElement | null>(null);
+  const aiOutputDragRef = useRef<{
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -144,6 +161,21 @@ export default function App() {
     startupWorkspaceRecoveryRef.current = true;
   }, [signals, simulationLength, tickDuration, timeUnit, workspaceFileName]);
 
+  useEffect(() => {
+    if (!showAiOutputWindow) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowAiOutputWindow(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAiOutputWindow]);
+
   // 5. Compute Live logic simulation of all clocks, outputs and decoders in parallel
   const simulatedSignals = useMemo(() => {
     return runSimulationEvaluations(signals, simulationLength);
@@ -166,6 +198,82 @@ export default function App() {
       }
       return sig;
     }));
+  };
+
+  const clampAiOutputWindowBounds = (nextBounds: typeof DEFAULT_AI_OUTPUT_WINDOW_BOUNDS) => {
+    if (typeof window === 'undefined') {
+      return nextBounds;
+    }
+
+    const minWidth = 520;
+    const minHeight = 360;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const width = Math.min(Math.max(nextBounds.width, minWidth), Math.max(minWidth, viewportWidth - 32));
+    const height = Math.min(Math.max(nextBounds.height, minHeight), Math.max(minHeight, viewportHeight - 32));
+    const left = Math.min(Math.max(nextBounds.left, 16), Math.max(16, viewportWidth - width - 16));
+    const top = Math.min(Math.max(nextBounds.top, 16), Math.max(16, viewportHeight - height - 16));
+
+    return { left, top, width, height };
+  };
+
+  const handleOpenAiOutputWindow = () => {
+    setAiOutputWindowBounds((current) => clampAiOutputWindowBounds(current));
+    setShowAiOutputWindow(true);
+  };
+
+  const handleAiOutputHeaderPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    const element = aiOutputWindowRef.current;
+    const rect = element?.getBoundingClientRect();
+    const liveBounds = rect
+      ? {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        }
+      : aiOutputWindowBounds;
+
+    const clampedLiveBounds = clampAiOutputWindowBounds(liveBounds);
+    setAiOutputWindowBounds(clampedLiveBounds);
+    aiOutputDragRef.current = {
+      pointerId: event.pointerId,
+      offsetX: event.clientX - clampedLiveBounds.left,
+      offsetY: event.clientY - clampedLiveBounds.top,
+      width: clampedLiveBounds.width,
+      height: clampedLiveBounds.height,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleAiOutputHeaderPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = aiOutputDragRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    setAiOutputWindowBounds(
+      clampAiOutputWindowBounds({
+        left: event.clientX - dragState.offsetX,
+        top: event.clientY - dragState.offsetY,
+        width: dragState.width,
+        height: dragState.height,
+      })
+    );
+  };
+
+  const handleAiOutputHeaderPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = aiOutputDragRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    aiOutputDragRef.current = null;
+    event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
   const openWorkspaceSource = async (fileName: string, content: string) => {
@@ -852,6 +960,7 @@ export default function App() {
                 report={latestAiReport}
                 expanded={workspaceAiReportExpanded}
                 onToggleExpanded={() => setWorkspaceAiReportExpanded((previous) => !previous)}
+                onOpenFloatingWindow={handleOpenAiOutputWindow}
                 fillHeight
               />
             </div>
@@ -873,6 +982,53 @@ export default function App() {
           onLatestStructuredReportChange={setLatestAiReport}
         />
       </div>
+
+      {showAiOutputWindow && (
+        <div className="fixed inset-0 z-50 bg-black/20 pointer-events-none">
+          <div
+            ref={aiOutputWindowRef}
+            className="pointer-events-auto fixed flex min-h-[360px] min-w-[520px] resize overflow-auto rounded-xl border border-brand-cyan/25 bg-[#0b1020]/98 shadow-[0_18px_60px_rgba(0,0,0,0.45)]"
+            style={{
+              left: aiOutputWindowBounds.left,
+              top: aiOutputWindowBounds.top,
+              width: aiOutputWindowBounds.width,
+              height: aiOutputWindowBounds.height,
+              maxWidth: 'calc(100vw - 32px)',
+              maxHeight: 'calc(100vh - 32px)',
+            }}
+          >
+            <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+              <div
+                className="flex items-center justify-between gap-3 border-b border-brand-outline-variant/40 bg-brand-surface-lowest px-4 py-3 cursor-move"
+                onPointerDown={handleAiOutputHeaderPointerDown}
+                onPointerMove={handleAiOutputHeaderPointerMove}
+                onPointerUp={handleAiOutputHeaderPointerUp}
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <Maximize2 size={14} className="text-brand-cyan flex-none" />
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Output</div>
+                    <div className="truncate text-[10px] text-slate-400">
+                      {latestAiReport?.report.summary || 'Structured AI findings will appear here after an analysis run.'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAiOutputWindow(false)}
+                  className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
+                  title="Close AI analysis window"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto bg-brand-surface-lowest p-4">
+                <AIAnalysisContent report={latestAiReport} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. VCD Export Viewer Dialog Modal */}
       {showVcdModal && (

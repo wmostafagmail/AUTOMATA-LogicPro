@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, ChevronDown, ChevronUp, CircleDot, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Bot, ChevronDown, ChevronUp, CircleDot, ShieldCheck, AlertTriangle, Maximize2 } from 'lucide-react';
 import { getAiMacroSpec } from '../aiMacros';
 import { AIWorkspaceReport, buildStructuredReport, getSectionAccent } from '../aiReport';
 
@@ -7,6 +7,7 @@ interface AIBottomDrawerProps {
   report: AIWorkspaceReport | null;
   expanded: boolean;
   onToggleExpanded: () => void;
+  onOpenFloatingWindow?: () => void;
   fillHeight?: boolean;
 }
 
@@ -81,10 +82,116 @@ const renderDeterministicBlock = (title: string, markdown: string, accent: strin
   );
 };
 
+export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> = ({ report }) => {
+  if (!report) {
+    return (
+      <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[11px] text-slate-400">
+        Run an AI macro or send a custom AI request to populate this bottom drawer with the structured analysis output. The raw AI response stays in the right-side AI console.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {report.meta.validation && (() => {
+        const tone = getValidationTone(report.meta.validation.status);
+        return (
+          <div className={`rounded-lg border px-3 py-2.5 ${tone.card}`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                {tone.icon}
+                <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-100">Validation Result</div>
+              </div>
+              <div className={`text-[8px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
+            </div>
+            <p className="mt-1 text-[10px] leading-relaxed text-slate-300">{report.meta.validation.summary}</p>
+            <div className="mt-2 grid gap-1.5">
+              {report.meta.validation.checks.map((check) => (
+                <div key={check.id} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
+                  <CircleDot size={10} className={
+                    check.status === 'pass'
+                      ? 'text-emerald-300'
+                      : check.status === 'warn'
+                        ? 'text-amber-300'
+                        : check.status === 'fail'
+                          ? 'text-rose-300'
+                          : 'text-slate-500'
+                  } />
+                  <div className="min-w-0">
+                    <div className="text-[9px] font-bold text-slate-100">{check.label}</div>
+                    <div className="text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {(report.meta.hazardMarkdown || report.meta.protocolMarkdown) && (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {report.meta.hazardMarkdown && renderDeterministicBlock('Hazard Scan', report.meta.hazardMarkdown, 'border-amber-400/25 bg-amber-500/5')}
+          {report.meta.protocolMarkdown && renderDeterministicBlock('Protocol Pre-Decode', report.meta.protocolMarkdown, 'border-cyan-400/25 bg-cyan-500/5')}
+        </div>
+      )}
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        {report.report.sections.map((section, sectionIndex) => (
+          <section
+            key={`${section.title}-${sectionIndex}`}
+            className={`rounded-lg border px-3 py-2.5 ${getSectionAccent(section.title)}`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{section.title}</h3>
+              <span className="text-[8px] uppercase tracking-[0.18em] text-slate-500">
+                {section.bullets.length > 0 ? `${section.bullets.length} findings` : `${section.codeBlocks.length} code`}
+              </span>
+            </div>
+
+            {section.paragraphs.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {section.paragraphs.map((paragraph, paragraphIndex) => (
+                  <p key={`${section.title}-p-${paragraphIndex}`} className="text-[10.5px] leading-relaxed text-slate-300">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {section.bullets.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {section.bullets.map((bullet, bulletIndex) => renderBullet(bullet, `${section.title}-b-${bulletIndex}`))}
+              </div>
+            )}
+
+            {section.codeBlocks.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {section.codeBlocks.map((codeBlock, codeIndex) => (
+                  <div key={`${section.title}-c-${codeIndex}`} className="overflow-hidden rounded-lg border border-emerald-400/15 bg-[#050811]">
+                    <div className="flex items-center justify-between border-b border-white/5 px-2.5 py-1.5">
+                      <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-emerald-200">
+                        {codeBlock.language || 'code'}
+                      </span>
+                    </div>
+                    <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-words px-2.5 py-2 text-[10px] leading-relaxed text-emerald-100">
+                      <code>{codeBlock.content}</code>
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
   report,
   expanded,
   onToggleExpanded,
+  onOpenFloatingWindow,
   fillHeight = false,
 }) => {
   const macroLabel = report?.meta.macroId ? getAiMacroSpec(report.meta.macroId).label : null;
@@ -99,7 +206,7 @@ export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
         <div className="flex min-w-0 items-center gap-2">
           <Bot size={14} className="text-brand-cyan flex-none" />
           <div className="min-w-0">
-            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Drawer</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Output</div>
             <div className="truncate text-[10px] text-slate-400">
               {report?.report.summary || 'Structured AI findings will appear here after an analysis run.'}
             </div>
@@ -111,133 +218,24 @@ export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
               {macroLabel}
             </span>
           )}
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenFloatingWindow?.();
+            }}
+            className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
+            title="Open AI Analysis Output in a floating window"
+          >
+            <Maximize2 size={12} />
+          </button>
           {expanded ? <ChevronDown size={14} className="text-slate-400" /> : <ChevronUp size={14} className="text-slate-400" />}
         </div>
       </button>
 
       {expanded && (
         <div className={`${fillHeight ? 'min-h-0 flex-1' : 'max-h-[34vh]'} overflow-y-auto px-4 pb-4`}>
-          {!report ? (
-            <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[11px] text-slate-400">
-              Run an AI macro or send a custom AI request to populate this bottom drawer with the structured analysis output. The raw AI response stays in the right-side AI console.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
-                <div className="rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                  <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">High Risk</div>
-                  <div className="mt-3 text-lg font-bold leading-none text-rose-200">{report.report.highCount}</div>
-                </div>
-                <div className="rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                  <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Medium</div>
-                  <div className="mt-3 text-lg font-bold leading-none text-amber-200">{report.report.mediumCount}</div>
-                </div>
-                <div className="rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                  <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Low</div>
-                  <div className="mt-3 text-lg font-bold leading-none text-slate-200">{report.report.lowCount}</div>
-                </div>
-                <div className="rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                  <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Protocol</div>
-                  <div className="mt-3 text-lg font-bold leading-none text-cyan-200">{report.report.protocolCount}</div>
-                </div>
-                <div className="rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                  <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Code Blocks</div>
-                  <div className="mt-3 text-lg font-bold leading-none text-emerald-200">{report.report.codeBlockCount}</div>
-                </div>
-              </div>
-
-              {report.meta.validation && (() => {
-                const tone = getValidationTone(report.meta.validation.status);
-                return (
-                  <div className={`rounded-lg border px-3 py-2.5 ${tone.card}`}>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        {tone.icon}
-                        <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-100">Validation Result</div>
-                      </div>
-                      <div className={`text-[8px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
-                    </div>
-                    <p className="mt-1 text-[10px] leading-relaxed text-slate-300">{report.meta.validation.summary}</p>
-                    <div className="mt-2 grid gap-1.5">
-                      {report.meta.validation.checks.map((check) => (
-                        <div key={check.id} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                          <CircleDot size={10} className={
-                            check.status === 'pass'
-                              ? 'text-emerald-300'
-                              : check.status === 'warn'
-                                ? 'text-amber-300'
-                                : check.status === 'fail'
-                                  ? 'text-rose-300'
-                                  : 'text-slate-500'
-                          } />
-                          <div className="min-w-0">
-                            <div className="text-[9px] font-bold text-slate-100">{check.label}</div>
-                            <div className="text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {(report.meta.hazardMarkdown || report.meta.protocolMarkdown) && (
-                <div className="grid gap-3 lg:grid-cols-2">
-                  {report.meta.hazardMarkdown && renderDeterministicBlock('Hazard Scan', report.meta.hazardMarkdown, 'border-amber-400/25 bg-amber-500/5')}
-                  {report.meta.protocolMarkdown && renderDeterministicBlock('Protocol Pre-Decode', report.meta.protocolMarkdown, 'border-cyan-400/25 bg-cyan-500/5')}
-                </div>
-              )}
-
-              <div className="grid gap-3 lg:grid-cols-2">
-                {report.report.sections.map((section, sectionIndex) => (
-                  <section
-                    key={`${section.title}-${sectionIndex}`}
-                    className={`rounded-lg border px-3 py-2.5 ${getSectionAccent(section.title)}`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{section.title}</h3>
-                      <span className="text-[8px] uppercase tracking-[0.18em] text-slate-500">
-                        {section.bullets.length > 0 ? `${section.bullets.length} findings` : `${section.codeBlocks.length} code`}
-                      </span>
-                    </div>
-
-                    {section.paragraphs.length > 0 && (
-                      <div className="mt-2 space-y-2">
-                        {section.paragraphs.map((paragraph, paragraphIndex) => (
-                          <p key={`${section.title}-p-${paragraphIndex}`} className="text-[10.5px] leading-relaxed text-slate-300">
-                            {paragraph}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-
-                    {section.bullets.length > 0 && (
-                      <div className="mt-2 space-y-2">
-                        {section.bullets.map((bullet, bulletIndex) => renderBullet(bullet, `${section.title}-b-${bulletIndex}`))}
-                      </div>
-                    )}
-
-                    {section.codeBlocks.length > 0 && (
-                      <div className="mt-2 space-y-2">
-                        {section.codeBlocks.map((codeBlock, codeIndex) => (
-                          <div key={`${section.title}-c-${codeIndex}`} className="overflow-hidden rounded-lg border border-emerald-400/15 bg-[#050811]">
-                            <div className="flex items-center justify-between border-b border-white/5 px-2.5 py-1.5">
-                              <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-emerald-200">
-                                {codeBlock.language || 'code'}
-                              </span>
-                            </div>
-                            <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-words px-2.5 py-2 text-[10px] leading-relaxed text-emerald-100">
-                              <code>{codeBlock.content}</code>
-                            </pre>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </section>
-                ))}
-              </div>
-            </div>
-          )}
+          <AIAnalysisContent report={report} />
         </div>
       )}
     </div>

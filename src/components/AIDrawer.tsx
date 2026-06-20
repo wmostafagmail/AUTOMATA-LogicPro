@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ProjectContextPayload, ProjectFileEntry, Signal } from '../types';
 import { AiMacroId, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
 import { resolveMacroInvocation } from '../aiDrawerModel';
-import { AIWorkspaceReport, AiReportMeta, buildDisplayReport, buildStructuredReport, getSectionAccent } from '../aiReport';
+import { AIWorkspaceReport, AiReportMeta, buildDisplayReport } from '../aiReport';
 import { 
   Send, 
   X, 
@@ -17,10 +17,7 @@ import {
   Check,
   SlidersHorizontal,
   Bot,
-  ChevronRight,
-  ShieldCheck,
-  AlertTriangle,
-  CircleDot
+  ChevronRight
 } from 'lucide-react';
 
 interface AIDrawerProps {
@@ -58,58 +55,6 @@ interface ModelOption {
 const AI_PROVIDER_STORAGE_KEY = 'automata-logicpro-ai-provider';
 const AI_MODEL_STORAGE_KEY = 'automata-logicpro-ai-models';
 
-const renderBullet = (bullet: string, key: string) => {
-  const severityMatch = bullet.match(/^\[(High|Medium|Low|SPI|I2C|UART)\]\s*/);
-  const badge = severityMatch?.[1] || null;
-  const body = severityMatch ? bullet.replace(severityMatch[0], '') : bullet;
-
-  const badgeClass = badge === 'High'
-    ? 'bg-rose-500/15 text-rose-200 border-rose-400/20'
-    : badge === 'Medium'
-      ? 'bg-amber-500/15 text-amber-200 border-amber-400/20'
-      : badge === 'Low'
-        ? 'bg-slate-500/15 text-slate-200 border-slate-400/20'
-        : 'bg-cyan-500/15 text-cyan-200 border-cyan-400/20';
-
-  return (
-    <div key={key} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2.5 py-2">
-      {badge ? (
-        <span className={`mt-0.5 rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide ${badgeClass}`}>
-          {badge}
-        </span>
-      ) : (
-        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-cyan flex-none" />
-      )}
-      <span className="break-all text-[10px] leading-relaxed text-slate-300">{body}</span>
-    </div>
-  );
-};
-
-const getValidationTone = (status: 'pass' | 'warn' | 'fail') => {
-  if (status === 'pass') {
-    return {
-      card: 'border-emerald-400/25 bg-emerald-500/8',
-      icon: <ShieldCheck size={12} className="text-emerald-300" />,
-      label: 'Pass',
-      text: 'text-emerald-200',
-    };
-  }
-  if (status === 'warn') {
-    return {
-      card: 'border-amber-400/25 bg-amber-500/8',
-      icon: <AlertTriangle size={12} className="text-amber-300" />,
-      label: 'Warn',
-      text: 'text-amber-200',
-    };
-  }
-  return {
-    card: 'border-rose-400/25 bg-rose-500/8',
-    icon: <AlertTriangle size={12} className="text-rose-300" />,
-    label: 'Fail',
-    text: 'text-rose-200',
-  };
-};
-
 const getMacroButtonTone = (macroId: AiMacroId) => {
   switch (macroId) {
     case 'generate_vhdl_tb':
@@ -133,25 +78,6 @@ const getMacroButtonTone = (macroId: AiMacroId) => {
     default:
       return 'text-brand-on-surface';
   }
-};
-
-const renderDeterministicBlock = (title: string, markdown: string, accent: string) => {
-  const parsed = buildStructuredReport(markdown);
-  return (
-    <section className={`rounded-lg border px-3 py-2.5 ${accent}`}>
-      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{title}</div>
-      <div className="mt-2 space-y-2">
-        {parsed.sections.flatMap((section) => [
-          ...section.paragraphs.map((paragraph, index) => (
-            <p key={`${title}-p-${section.title}-${index}`} className="break-all text-[10.5px] leading-relaxed text-slate-300">
-              {paragraph}
-            </p>
-          )),
-          ...section.bullets.map((bullet, index) => renderBullet(bullet, `${title}-b-${section.title}-${index}`)),
-        ])}
-      </div>
-    </section>
-  );
 };
 
 export const AIDrawer: React.FC<AIDrawerProps> = ({
@@ -739,7 +665,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
             disabled={!selectedProvider || !selectedModel || loading || testGenerating}
             className="rounded border border-brand-cyan/30 bg-brand-cyan/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-brand-cyan disabled:opacity-40 cursor-pointer"
           >
-            {testGenerating ? 'Testing...' : 'Test Generate'}
+            {testGenerating ? 'Testing...' : 'TEST'}
           </button>
           {testGenerateResult && (
             <div className="min-w-0 flex-1 rounded border border-white/5 bg-[#060a12] px-2 py-1 text-[9px] font-mono text-slate-300">
@@ -823,7 +749,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="space-y-3 select-text">
+              <div className="space-y-2 select-text">
                 {parsedMessages[idx]?.summary && (
                   <div className="rounded-lg border border-brand-cyan/20 bg-brand-cyan/8 px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
@@ -838,124 +764,40 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   </div>
                 )}
 
-                {m.meta?.validation && (() => {
-                  const tone = getValidationTone(m.meta.validation.status);
-                  return (
-                    <div className={`rounded-lg border px-3 py-2.5 ${tone.card}`}>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          {tone.icon}
-                          <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-100">Validation Result</div>
-                        </div>
-                        <div className={`text-[8px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
-                      </div>
-                      <p className="mt-1 break-all text-[10px] leading-relaxed text-slate-300">{m.meta.validation.summary}</p>
-                      <div className="mt-2 grid gap-1.5">
-                        {m.meta.validation.checks.map((check) => (
-                          <div key={`${idx}-${check.id}`} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                            <CircleDot size={10} className={
-                              check.status === 'pass'
-                                ? 'text-emerald-300'
-                                : check.status === 'warn'
-                                  ? 'text-amber-300'
-                                  : check.status === 'fail'
-                                    ? 'text-rose-300'
-                                    : 'text-slate-500'
-                            } />
-                            <div className="min-w-0">
-                              <div className="text-[9px] font-bold text-slate-100">{check.label}</div>
-                              <div className="break-all text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {(m.meta?.hazardMarkdown || m.meta?.protocolMarkdown) && (
-                  <div className="space-y-3">
-                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Deterministic Findings</div>
-                    {m.meta?.hazardMarkdown && getAiMacroSpec(m.meta?.macroId).deterministicContext.hazardScan && renderDeterministicBlock('Hazard Scan', m.meta.hazardMarkdown, 'border-amber-400/25 bg-amber-500/5')}
-                    {m.meta?.protocolMarkdown && getAiMacroSpec(m.meta?.macroId).deterministicContext.protocolScan && renderDeterministicBlock('Protocol Pre-Decode', m.meta.protocolMarkdown, 'border-cyan-400/25 bg-cyan-500/5')}
+                <div className="grid grid-cols-5 gap-1.5">
+                  <div className="flex min-h-[78px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
+                    <div className="text-[7px] uppercase tracking-[0.16em] text-slate-500">High Risk</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-red-400">{parsedMessages[idx]?.highCount ?? 0}</div>
                   </div>
-                )}
-
-                <div className="grid grid-cols-4 items-stretch gap-2">
-                  <div className="flex h-full min-h-[88px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">High Risk</div>
-                    <div className="mt-auto pt-3 text-lg font-bold leading-none text-rose-200">{parsedMessages[idx]?.highCount ?? 0}</div>
+                  <div className="flex min-h-[78px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
+                    <div className="text-[7px] uppercase tracking-[0.16em] text-slate-500">Medium</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-orange-400">{parsedMessages[idx]?.mediumCount ?? 0}</div>
                   </div>
-                  <div className="flex h-full min-h-[88px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Medium</div>
-                    <div className="mt-auto pt-3 text-lg font-bold leading-none text-amber-200">{parsedMessages[idx]?.mediumCount ?? 0}</div>
+                  <div className="flex min-h-[78px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
+                    <div className="text-[7px] uppercase tracking-[0.16em] text-slate-500">Low</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-yellow-300">{parsedMessages[idx]?.lowCount ?? 0}</div>
                   </div>
-                  <div className="flex h-full min-h-[88px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Protocol Frames</div>
-                    <div className="mt-auto pt-3 text-lg font-bold leading-none text-cyan-200">{parsedMessages[idx]?.protocolCount ?? 0}</div>
+                  <div className="flex min-h-[78px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
+                    <div className="text-[7px] uppercase tracking-[0.16em] text-slate-500">Protocol</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-cyan-200">{parsedMessages[idx]?.protocolCount ?? 0}</div>
                   </div>
-                  <div className="flex h-full min-h-[88px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2.5 py-2">
-                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500">Code Blocks</div>
-                    <div className="mt-auto pt-3 text-lg font-bold leading-none text-emerald-200">{parsedMessages[idx]?.codeBlockCount ?? 0}</div>
+                  <div className="flex min-h-[78px] flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
+                    <div className="text-[7px] uppercase tracking-[0.12em] text-slate-500">Code Blocks</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-emerald-200">{parsedMessages[idx]?.codeBlockCount ?? 0}</div>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Validated Report Structure</div>
-                  {(parsedMessages[idx]?.sections || []).map((section, sectionIndex) => (
-                    <section
-                      key={`${idx}-${section.title}-${sectionIndex}`}
-                      className={`rounded-lg border px-3 py-2.5 ${getSectionAccent(section.title)}`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{section.title}</h3>
-                        <span className="text-[8px] uppercase tracking-[0.18em] text-slate-500">
-                          {section.bullets.length > 0 ? `${section.bullets.length} findings` : `${section.codeBlocks.length} code`}
-                        </span>
-                      </div>
-
-                      {section.paragraphs.length > 0 && (
-                        <div className="mt-2 space-y-2">
-                          {section.paragraphs.map((paragraph, paragraphIndex) => (
-                            <p key={`${section.title}-p-${paragraphIndex}`} className="break-all text-[10.5px] leading-relaxed text-slate-300">
-                              {paragraph}
-                            </p>
-                          ))}
-                        </div>
-                      )}
-
-                      {section.bullets.length > 0 && (
-                        <div className="mt-2 space-y-2">
-                          {section.bullets.map((bullet, bulletIndex) => renderBullet(bullet, `${section.title}-b-${bulletIndex}`))}
-                        </div>
-                      )}
-
-                      {section.codeBlocks.length > 0 && (
-                        <div className="mt-2 space-y-2">
-                          {section.codeBlocks.map((codeBlock, codeIndex) => (
-                            <div key={`${section.title}-c-${codeIndex}`} className="overflow-hidden rounded-lg border border-emerald-400/15 bg-[#050811]">
-                              <div className="flex items-center justify-between border-b border-white/5 px-2.5 py-1.5">
-                                <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-emerald-200">
-                                  {codeBlock.language || 'code'}
-                                </span>
-                              </div>
-                              <pre className="max-w-full overflow-x-hidden whitespace-pre-wrap break-words px-2.5 py-2 text-[10px] leading-relaxed text-emerald-100">
-                                <code>{codeBlock.content}</code>
-                              </pre>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </section>
-                  ))}
-                </div>
-
-                <div className="rounded-lg border border-white/5 bg-[#060a12] px-3 py-2.5">
+                <div className="flex items-center justify-between gap-2">
                   <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Raw AI Response</div>
-                  <pre className="mt-2 max-h-60 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words text-[10px] leading-relaxed text-slate-300">
-                    {m.text}
-                  </pre>
+                  {(!parsedMessages[idx]?.summary && m.meta?.macroId && m.meta.macroId !== 'custom_query') && (
+                    <div className="rounded-full border border-brand-cyan/20 bg-brand-cyan/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-brand-cyan">
+                      {getAiMacroSpec(m.meta.macroId).label}
+                    </div>
+                  )}
                 </div>
+                <pre className="max-h-80 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-lg border border-white/5 bg-[#060a12] px-3 py-2.5 text-[10px] leading-relaxed text-slate-300">
+                  {m.text}
+                </pre>
               </div>
             )}
           </div>
