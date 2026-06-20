@@ -106,7 +106,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-brand-surface overflow-hidden relative font-sans select-none">
+    <div className="h-full min-h-0 w-full flex flex-col bg-brand-surface overflow-hidden relative font-sans select-none">
       <div className="h-8 border-b border-brand-outline-variant/40 bg-brand-surface-container/70 flex items-center justify-between px-4 text-xs font-mono text-slate-300 shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">

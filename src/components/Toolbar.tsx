@@ -26,7 +26,8 @@ interface ToolbarProps {
   simulationLength: number;
   setSimulationLength: (l: number) => void;
   onClearWorkspace: () => void;
-  onInjectGlitch: () => void;
+  glitchInjectionEnabled: boolean;
+  onToggleInjectGlitch: () => void;
   onExportVCD: () => void;
   onOpenWorkspace: () => void;
   onOpenAIDrawer: () => void;
@@ -45,7 +46,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   simulationLength,
   setSimulationLength,
   onClearWorkspace,
-  onInjectGlitch,
+  glitchInjectionEnabled,
+  onToggleInjectGlitch,
   onExportVCD,
   onOpenWorkspace,
   onOpenAIDrawer,
@@ -55,7 +57,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     <div className="h-10 border-b border-brand-outline-variant/40 bg-brand-surface-low px-3 flex items-center justify-between flex-none select-none font-sans z-10 gap-2 overflow-x-auto">
       
       {/* 1. Left Section: Project Picker */}
-      <div className="flex items-center gap-2 flex-none">
+      <div className="flex items-center gap-2 flex-none lg:min-w-[500px]">
         <div className="flex items-center gap-1 bg-brand-surface-lowest p-1 rounded border border-brand-outline-variant/20">
           <span className="text-[9px] text-slate-400 font-bold uppercase px-1">Project:</span>
           <button
@@ -68,6 +70,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span className="max-w-[220px] truncate text-left">{projectLabel}</span>
           </button>
         </div>
+
+        <button
+          onClick={onOpenWorkspace}
+          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
+          title="Open a VCD waveform dump or saved Signal Logic Pro workspace"
+        >
+          <FolderOpen size={11} />
+          <span>Open VCD</span>
+        </button>
+
+        <button
+          onClick={onExportVCD}
+          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
+          title="Export captured timeline as VCD file (Value Change Dump)"
+        >
+          <Download size={11} />
+          <span>VCD Export</span>
+        </button>
       </div>
 
       {/* 2. Middle Section: Timing Configs (Timeline size, Tick resolution) */}
@@ -142,44 +162,43 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         >
           <RotateCcw size={12} />
         </button>
+
+        <button
+          onClick={onOpenGhdlRunner}
+          className="ml-1 px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
+          title="Run a GHDL simulation from the selected project folder"
+        >
+          <Play size={11} className="text-lime-400" />
+          <span>Start Simulation</span>
+        </button>
       </div>
 
       {/* 4. Right Section: Action Utilities */}
       <div className="flex items-center gap-1.5 flex-none ml-auto">
         <button
-          onClick={onInjectGlitch}
-          className="px-2 py-1 select-none flex items-center gap-1 bg-rose-950/40 hover:bg-rose-900 border border-rose-500/20 rounded text-[10px] font-bold text-rose-300 uppercase cursor-pointer"
-          title="Inject logic noise spike into Wire channels"
+          type="button"
+          onClick={onToggleInjectGlitch}
+          aria-pressed={glitchInjectionEnabled}
+          className={`px-2 py-1 select-none flex items-center gap-2 rounded text-[10px] font-bold uppercase cursor-pointer border transition-all ${
+            glitchInjectionEnabled
+              ? 'bg-rose-900 border-rose-400/40 text-rose-100'
+              : 'bg-brand-surface-high hover:bg-brand-surface-bright border-brand-outline-variant/40 text-slate-200'
+          }`}
+          title="Toggle glitch injection mode"
         >
-          <Sparkles size={11} />
+          <Sparkles size={11} className={glitchInjectionEnabled ? 'text-rose-200' : 'text-slate-300'} />
           <span className="hidden sm:inline">Inject Glitch</span>
-        </button>
-
-        <button
-          onClick={onOpenGhdlRunner}
-          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
-          title="Run a GHDL simulation from the selected project folder"
-        >
-          <Play size={11} />
-          <span>Run GHDL</span>
-        </button>
-
-        <button
-          onClick={onOpenWorkspace}
-          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
-          title="Open a VCD waveform dump or saved Signal Logic Pro workspace"
-        >
-          <FolderOpen size={11} />
-          <span>Open VCD</span>
-        </button>
-
-        <button
-          onClick={onExportVCD}
-          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
-          title="Export captured timeline as VCD file (Value Change Dump)"
-        >
-          <Download size={11} />
-          <span>VCD Export</span>
+          <span
+            className={`relative inline-flex h-4 w-7 flex-none items-center rounded-full transition-colors ${
+              glitchInjectionEnabled ? 'bg-rose-300/80' : 'bg-slate-600/80'
+            }`}
+          >
+            <span
+              className={`h-3 w-3 rounded-full bg-white shadow transition-transform ${
+                glitchInjectionEnabled ? 'translate-x-3.5' : 'translate-x-0.5'
+              }`}
+            />
+          </span>
         </button>
 
         <button

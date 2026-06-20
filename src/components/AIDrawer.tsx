@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ProjectContextPayload, ProjectFileEntry, Signal } from '../types';
-import { AiMacroId, AiMacroValidationResult, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
+import { AiMacroId, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
 import { resolveMacroInvocation } from '../aiDrawerModel';
+import { AIWorkspaceReport, AiReportMeta, buildDisplayReport, buildStructuredReport, getSectionAccent } from '../aiReport';
 import { 
   Send, 
   X, 
@@ -32,42 +33,14 @@ interface AIDrawerProps {
   projectPath: string | null;
   projectFiles: ProjectFileEntry[];
   workspaceFileName: string | null;
+  onMacrosPanelHeightChange?: (height: number) => void;
+  onLatestStructuredReportChange?: (report: AIWorkspaceReport | null) => void;
 }
 
 interface Message {
   role: 'user' | 'assistant';
   text: string;
-  meta?: {
-    macroId?: AiMacroId;
-    tbGenerationMode?: TbGenerationMode | null;
-    provider?: string;
-    model?: string;
-    validation?: AiMacroValidationResult | null;
-    hazardMarkdown?: string | null;
-    protocolMarkdown?: string | null;
-  };
-}
-
-interface ReportCodeBlock {
-  language: string;
-  content: string;
-}
-
-interface ReportSection {
-  title: string;
-  paragraphs: string[];
-  bullets: string[];
-  codeBlocks: ReportCodeBlock[];
-}
-
-interface ParsedAssistantReport {
-  summary: string | null;
-  sections: ReportSection[];
-  highCount: number;
-  mediumCount: number;
-  lowCount: number;
-  protocolCount: number;
-  codeBlockCount: number;
+  meta?: AiReportMeta;
 }
 
 interface ProviderOption {
@@ -84,155 +57,6 @@ interface ModelOption {
 
 const AI_PROVIDER_STORAGE_KEY = 'automata-logicpro-ai-provider';
 const AI_MODEL_STORAGE_KEY = 'automata-logicpro-ai-models';
-
-const buildStructuredReport = (text: string): ParsedAssistantReport => {
-  const lines = text.split('\n');
-  const sections: ReportSection[] = [];
-  let currentSection: ReportSection = {
-    title: 'Overview',
-    paragraphs: [],
-    bullets: [],
-    codeBlocks: [],
-  };
-
-  let inCodeBlock = false;
-  let currentCodeLanguage = '';
-  let currentCodeLines: string[] = [];
-
-  const flushCodeBlock = () => {
-    if (!inCodeBlock) return;
-    currentSection.codeBlocks.push({
-      language: currentCodeLanguage,
-      content: currentCodeLines.join('\n').trimEnd(),
-    });
-    inCodeBlock = false;
-    currentCodeLanguage = '';
-    currentCodeLines = [];
-  };
-
-  const pushSection = () => {
-    if (
-      currentSection.paragraphs.length > 0 ||
-      currentSection.bullets.length > 0 ||
-      currentSection.codeBlocks.length > 0 ||
-      currentSection.title !== 'Overview'
-    ) {
-      sections.push(currentSection);
-    }
-  };
-
-  for (const rawLine of lines) {
-    const line = rawLine.replace(/\r/g, '');
-    const trimmed = line.trim();
-
-    if (trimmed.startsWith('```')) {
-      if (inCodeBlock) {
-        flushCodeBlock();
-      } else {
-        inCodeBlock = true;
-        currentCodeLanguage = trimmed.slice(3).trim();
-      }
-      continue;
-    }
-
-    if (inCodeBlock) {
-      currentCodeLines.push(line);
-      continue;
-    }
-
-    if (trimmed === '---') {
-      continue;
-    }
-
-    if (trimmed.startsWith('###') || trimmed.startsWith('##')) {
-      pushSection();
-      currentSection = {
-        title: trimmed.replace(/^#{2,3}\s*/, '').trim() || 'Section',
-        paragraphs: [],
-        bullets: [],
-        codeBlocks: [],
-      };
-      continue;
-    }
-
-    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      currentSection.bullets.push(trimmed.slice(2).trim());
-      continue;
-    }
-
-    if (trimmed.length > 0) {
-      currentSection.paragraphs.push(trimmed);
-    }
-  }
-
-  flushCodeBlock();
-  pushSection();
-
-  const summarySection = sections.find((section) => !section.title.toLowerCase().includes('deterministic') && section.paragraphs.length > 0);
-  const summary = summarySection?.paragraphs[0] || sections.flatMap((section) => section.paragraphs)[0] || null;
-  const bulletPool = sections.flatMap((section) => section.bullets);
-
-  return {
-    summary,
-    sections,
-    highCount: bulletPool.filter((bullet) => bullet.includes('[High]')).length,
-    mediumCount: bulletPool.filter((bullet) => bullet.includes('[Medium]')).length,
-    lowCount: bulletPool.filter((bullet) => bullet.includes('[Low]')).length,
-    protocolCount: bulletPool.filter((bullet) => /\[(SPI|I2C|UART)\]/.test(bullet)).length,
-    codeBlockCount: sections.reduce((count, section) => count + section.codeBlocks.length, 0),
-  };
-};
-
-const combineReports = (reports: ParsedAssistantReport[]): ParsedAssistantReport => {
-  const combinedSections = reports.flatMap((report) => report.sections);
-  const summary = reports.find((report) => report.summary)?.summary || null;
-
-  return {
-    summary,
-    sections: combinedSections,
-    highCount: reports.reduce((sum, report) => sum + report.highCount, 0),
-    mediumCount: reports.reduce((sum, report) => sum + report.mediumCount, 0),
-    lowCount: reports.reduce((sum, report) => sum + report.lowCount, 0),
-    protocolCount: reports.reduce((sum, report) => sum + report.protocolCount, 0),
-    codeBlockCount: reports.reduce((sum, report) => sum + report.codeBlockCount, 0),
-  };
-};
-
-const buildDisplayReport = (message: Message): ParsedAssistantReport | null => {
-  if (message.role !== 'assistant') {
-    return null;
-  }
-
-  const macroSpec = getAiMacroSpec(message.meta?.macroId);
-  const reports: ParsedAssistantReport[] = [buildStructuredReport(message.text)];
-
-  if (macroSpec.deterministicContext.hazardScan && message.meta?.hazardMarkdown) {
-    reports.unshift(buildStructuredReport(message.meta.hazardMarkdown));
-  }
-
-  if (macroSpec.deterministicContext.protocolScan && message.meta?.protocolMarkdown) {
-    reports.unshift(buildStructuredReport(message.meta.protocolMarkdown));
-  }
-
-  return combineReports(reports);
-};
-
-const getSectionAccent = (title: string) => {
-  const normalized = title.toLowerCase();
-  if (normalized.includes('protocol')) {
-    return 'border-cyan-400/25 bg-cyan-500/5';
-  }
-  if (normalized.includes('hazard') || normalized.includes('timing')) {
-    return 'border-amber-400/25 bg-amber-500/5';
-  }
-  if (normalized.includes('assumption')) {
-    return 'border-violet-400/25 bg-violet-500/5';
-  }
-  if (normalized.includes('module') || normalized.includes('testbench') || normalized.includes('code')) {
-    return 'border-emerald-400/25 bg-emerald-500/5';
-  }
-  return 'border-brand-outline-variant/20 bg-brand-surface-low';
-};
 
 const renderBullet = (bullet: string, key: string) => {
   const severityMatch = bullet.match(/^\[(High|Medium|Low|SPI|I2C|UART)\]\s*/);
@@ -261,7 +85,7 @@ const renderBullet = (bullet: string, key: string) => {
   );
 };
 
-const getValidationTone = (status: AiMacroValidationResult['status']) => {
+const getValidationTone = (status: 'pass' | 'warn' | 'fail') => {
   if (status === 'pass') {
     return {
       card: 'border-emerald-400/25 bg-emerald-500/8',
@@ -339,14 +163,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   projectName,
   projectPath,
   projectFiles,
-  workspaceFileName
+  workspaceFileName,
+  onMacrosPanelHeightChange,
+  onLatestStructuredReportChange,
 }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      text: "System waveform analysis console online.\nI am your AI Hardware Co-Engineer. I can inspect the currently loaded timeline captures, run local hazard and protocol pre-analysis, and help generate VHDL-oriented explanations, testbenches, and RTL drafts from the waveform and project context. I prefer VHDL over Verilog unless you explicitly request otherwise. Choose a macro below or draft custom instructions."
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -358,6 +179,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [models, setModels] = useState<ModelOption[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
   const [providerError, setProviderError] = useState<string | null>(null);
+  const [showConsoleHelp, setShowConsoleHelp] = useState(false);
   const [showTbComposer, setShowTbComposer] = useState(false);
   const [tbGenerationMode, setTbGenerationMode] = useState<TbGenerationMode>('project_entities');
   const [tbPromptDraft, setTbPromptDraft] = useState('');
@@ -369,6 +191,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [testGenerateResult, setTestGenerateResult] = useState<string | null>(null);
   const activeRequestControllerRef = useRef<AbortController | null>(null);
   const drawerScrollRef = useRef<HTMLDivElement | null>(null);
+  const lowerControlsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -479,6 +302,30 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     });
   }, [isOpen, messages, loading, showTbComposer, testGenerateResult]);
 
+  useEffect(() => {
+    if (!isOpen || !onMacrosPanelHeightChange) return;
+    const element = lowerControlsRef.current;
+    if (!element) return;
+
+    const publishHeight = () => {
+      const nextHeight = Math.ceil(element.getBoundingClientRect().height);
+      if (nextHeight > 0) {
+        onMacrosPanelHeightChange(nextHeight);
+      }
+    };
+
+    publishHeight();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', publishHeight);
+      return () => window.removeEventListener('resize', publishHeight);
+    }
+
+    const observer = new ResizeObserver(() => publishHeight());
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [isOpen, loading, onMacrosPanelHeightChange, showTbComposer, testGenerateResult]);
+
   const vhdlProjectFiles = projectFiles.filter((file) => file.extension === '.vhd' || file.extension === '.vhdl');
   const visibleSignalNames = signals.slice(0, 12).map((signal) => signal.name);
 
@@ -519,9 +366,32 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   );
 
   const parsedMessages = useMemo(
-    () => messages.map((message) => buildDisplayReport(message)),
+    () => messages.map((message) => message.role === 'assistant' ? buildDisplayReport(message.text, message.meta) : null),
     [messages]
   );
+
+  const latestStructuredReport = useMemo<AIWorkspaceReport | null>(() => {
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const message = messages[index];
+      if (message.role !== 'assistant' || !message.meta?.macroId) {
+        continue;
+      }
+      const report = parsedMessages[index];
+      if (!report) {
+        continue;
+      }
+      return {
+        text: message.text,
+        meta: message.meta,
+        report,
+      };
+    }
+    return null;
+  }, [messages, parsedMessages]);
+
+  useEffect(() => {
+    onLatestStructuredReportChange?.(latestStructuredReport);
+  }, [latestStructuredReport, onLatestStructuredReportChange]);
 
   if (!isOpen) return null;
 
@@ -758,15 +628,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         throw new Error(data?.error || `Test generate failed (${response.status})`);
       }
 
-      const exact = data.passedExactMatch ? 'Exact match' : 'Non-exact reply';
-      const preview = typeof data.responsePreview === 'string' && data.responsePreview.trim()
-        ? ` Preview: ${data.responsePreview}`
-        : '';
-      setTestGenerateResult(
-        `OK · ${data.speedScore} · ${data.durationMs} ms · ${exact}.${preview}`
-      );
+      setTestGenerateResult(data.passedExactMatch ? 'OK' : 'Failed');
     } catch (error: any) {
-      setTestGenerateResult(`Failed · ${error.message || String(error)}`);
+      setTestGenerateResult('Failed');
     } finally {
       setTestGenerating(false);
     }
@@ -807,6 +671,14 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
             <span className="min-w-0 text-[12px] uppercase font-bold text-brand-on-surface tracking-wider leading-tight break-words">
               AI Co-Engineer Console
             </span>
+            <button
+              type="button"
+              onClick={() => setShowConsoleHelp((previous) => !previous)}
+              className="flex h-4 w-4 flex-none items-center justify-center rounded-full border border-brand-cyan/30 bg-brand-cyan/10 text-[9px] font-bold text-brand-cyan cursor-pointer hover:bg-brand-cyan/20"
+              title="Explain this panel"
+            >
+              ?
+            </button>
           </div>
           <button
             onClick={onClose}
@@ -815,6 +687,12 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
             <X size={15} />
           </button>
         </div>
+
+        {showConsoleHelp && (
+          <div className="rounded border border-brand-cyan/20 bg-brand-cyan/8 px-2.5 py-2 text-[10px] leading-relaxed text-slate-300">
+            This is your AI Co-Engineer workspace. Use the macros or a custom prompt to analyze the loaded waveform and project files. The lower-left panel shows the structured AI findings, while this drawer keeps the full raw AI response and model controls.
+          </div>
+        )}
 
         <div className="flex items-center gap-2 rounded bg-brand-surface-high px-2 py-1.5 border border-brand-outline-variant/30 min-w-0">
           <div className="flex items-center gap-1 flex-none">
@@ -1083,6 +961,12 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           </div>
         ))}
 
+        {messages.length === 0 && !loading && (
+          <div className="rounded border border-brand-outline-variant/20 bg-brand-surface-lowest px-3 py-3 text-[10.5px] leading-relaxed text-slate-400">
+            Choose an engineering macro below or ask a custom question to start.
+          </div>
+        )}
+
         {/* Loading Spinner */}
         {loading && (
           <>
@@ -1111,161 +995,164 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       </div>
 
       {/* Suggestion Chips */}
-      <div className="p-2 border-t border-brand-outline-variant/30 bg-brand-surface-lowest flex-none shrink-0 text-[10px] space-y-1.5 select-none">
-        <span className="text-[9px] uppercase text-slate-400 font-bold tracking-wider px-1 inline-block">ENGINEERING MACROS:</span>
-        <div className="grid grid-cols-3 gap-1.5">
-          {getVisibleAiMacros().map((macro) => {
-            const icon = macro.id === 'generate_vhdl_tb'
-              ? <FileCode size={11} />
-              : macro.id === 'inspect_race_hazards' || macro.id === 'verify_clock_reset_sequence'
-                ? <Bug size={11} />
-                : macro.id === 'protocol_decoder_details' || macro.id === 'summarize_protocol_timeline'
-                  ? <Layers size={11} />
-                  : macro.id === 'generate_vhdl_assertions' || macro.id === 'draft_rtl_skeleton'
-                    ? <FileCode size={11} />
-                    : <Sparkles size={11} />;
-            const invocation = resolveMacroInvocation(macro.id);
-            return (
-            <button
-              key={macro.id}
-              type="button"
-              onClick={() => {
-                if (invocation.kind === 'composer') {
-                  openTbComposer(invocation.tbGenerationMode);
-                  return;
-                }
-                void handleMacroSendMessage(invocation.prompt, { macroId: invocation.macroId });
-              }}
-              disabled={loading}
-              className="min-w-0 rounded bg-brand-surface-low px-2 py-1 transition-all text-[9.5px] cursor-pointer text-left border border-brand-outline-variant/30 hover:border-brand-cyan/40 hover:bg-brand-surface-high flex items-center justify-start gap-1.5"
-            >
-              <span className={`flex-none ${getMacroButtonTone(macro.id)}`}>{icon}</span>
-              <span className={`min-w-0 truncate text-left ${getMacroButtonTone(macro.id)}`}>{macro.label}</span>
-            </button>
-          )})}
-        </div>
-
-        {showTbComposer && (
-          <div className="mt-2 rounded border border-brand-outline-variant/30 bg-[#060a12] p-2.5 space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="text-[10px] font-bold uppercase tracking-wide text-brand-cyan">Generate VHDL TB</div>
+      <div ref={lowerControlsRef} className="flex-none shrink-0">
+        {/* Suggestion Chips */}
+        <div className="p-2 border-t border-brand-outline-variant/30 bg-brand-surface-lowest text-[10px] space-y-1.5 select-none">
+          <span className="text-[9px] uppercase text-slate-400 font-bold tracking-wider px-1 inline-block">ENGINEERING MACROS:</span>
+          <div className="grid grid-cols-3 gap-1.5">
+            {getVisibleAiMacros().map((macro) => {
+              const icon = macro.id === 'generate_vhdl_tb'
+                ? <FileCode size={11} />
+                : macro.id === 'inspect_race_hazards' || macro.id === 'verify_clock_reset_sequence'
+                  ? <Bug size={11} />
+                  : macro.id === 'protocol_decoder_details' || macro.id === 'summarize_protocol_timeline'
+                    ? <Layers size={11} />
+                    : macro.id === 'generate_vhdl_assertions' || macro.id === 'draft_rtl_skeleton'
+                      ? <FileCode size={11} />
+                      : <Sparkles size={11} />;
+              const invocation = resolveMacroInvocation(macro.id);
+              return (
               <button
-                type="button"
-                onClick={() => setShowTbComposer(false)}
-                className="text-[9px] text-slate-400 hover:text-white cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-1.5">
-              <button
+                key={macro.id}
                 type="button"
                 onClick={() => {
-                  setTbGenerationMode('project_entities');
-                  setTbPromptDraft(getTbPromptForMode('project_entities'));
+                  if (invocation.kind === 'composer') {
+                    openTbComposer(invocation.tbGenerationMode);
+                    return;
+                  }
+                  void handleMacroSendMessage(invocation.prompt, { macroId: invocation.macroId });
                 }}
-                className={`rounded border px-2 py-2 text-left transition-all cursor-pointer ${
-                  tbGenerationMode === 'project_entities'
-                    ? 'border-brand-cyan/60 bg-brand-cyan/10 text-slate-100'
-                    : 'border-brand-outline-variant/30 bg-brand-surface-low text-slate-300'
-                }`}
+                disabled={loading}
+                className="min-w-0 rounded bg-brand-surface-low px-2 py-1 transition-all text-[9.5px] cursor-pointer text-left border border-brand-outline-variant/30 hover:border-brand-cyan/40 hover:bg-brand-surface-high flex items-center justify-start gap-1.5"
               >
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase">
-                  <ChevronRight size={10} />
-                  <span>Use Project Entities</span>
-                </div>
-                <div className="mt-1 text-[9px] text-slate-400">
-                  Generate VHDL testbenches for the VHDL entities already present in the selected project folder.
-                </div>
+                <span className={`flex-none ${getMacroButtonTone(macro.id)}`}>{icon}</span>
+                <span className={`min-w-0 truncate text-left ${getMacroButtonTone(macro.id)}`}>{macro.label}</span>
               </button>
+            )})}
+          </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setTbGenerationMode('reverse_from_vcd');
-                  setTbPromptDraft(getTbPromptForMode('reverse_from_vcd'));
-                }}
-                className={`rounded border px-2 py-2 text-left transition-all cursor-pointer ${
-                  tbGenerationMode === 'reverse_from_vcd'
-                    ? 'border-brand-cyan/60 bg-brand-cyan/10 text-slate-100'
-                    : 'border-brand-outline-variant/30 bg-brand-surface-low text-slate-300'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase">
-                  <ChevronRight size={10} />
-                  <span>Reverse From Loaded VCD</span>
-                </div>
-                <div className="mt-1 text-[9px] text-slate-400">
-                  Write a complete VHDL module and matching VHDL testbench that reproduce the loaded waveform behavior.
-                </div>
-              </button>
-            </div>
-
-            <div className="space-y-1">
+          {showTbComposer && (
+            <div className="mt-2 rounded border border-brand-outline-variant/30 bg-[#060a12] p-2.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[9px] uppercase font-bold tracking-wide text-slate-400">Editable Prompt</span>
+                <div className="text-[10px] font-bold uppercase tracking-wide text-brand-cyan">Generate VHDL TB</div>
                 <button
                   type="button"
-                  onClick={() => setTbPromptDraft(getTbPromptForMode(tbGenerationMode))}
-                  className="text-[9px] text-brand-amber hover:text-yellow-300 cursor-pointer"
+                  onClick={() => setShowTbComposer(false)}
+                  className="text-[9px] text-slate-400 hover:text-white cursor-pointer"
                 >
-                  Reset Default
+                  Close
                 </button>
               </div>
-              <textarea
-                value={tbPromptDraft}
-                onChange={(event) => setTbPromptDraft(event.target.value)}
-                rows={9}
-                className="w-full resize-y rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-2 text-[10px] font-mono text-slate-200 outline-none focus:border-brand-cyan"
-              />
-            </div>
 
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowTbComposer(false)}
-                className="px-2 py-1 rounded border border-brand-outline-variant/30 bg-brand-surface-low text-[9px] font-bold text-slate-300 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleSubmitTbPrompt()}
-                disabled={loading || !tbPromptDraft.trim()}
-                className="px-2 py-1 rounded bg-brand-amber text-[9px] font-bold text-brand-surface-lowest disabled:opacity-40 cursor-pointer"
-              >
-                Run Prompt
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+              <div className="grid grid-cols-1 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTbGenerationMode('project_entities');
+                    setTbPromptDraft(getTbPromptForMode('project_entities'));
+                  }}
+                  className={`rounded border px-2 py-2 text-left transition-all cursor-pointer ${
+                    tbGenerationMode === 'project_entities'
+                      ? 'border-brand-cyan/60 bg-brand-cyan/10 text-slate-100'
+                      : 'border-brand-outline-variant/30 bg-brand-surface-low text-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase">
+                    <ChevronRight size={10} />
+                    <span>Use Project Entities</span>
+                  </div>
+                  <div className="mt-1 text-[9px] text-slate-400">
+                    Generate VHDL testbenches for the VHDL entities already present in the selected project folder.
+                  </div>
+                </button>
 
-      {/* Input Form Footer */}
-      <form 
-        onSubmit={e => {
-          e.preventDefault();
-          handleSendMessage(inputText);
-        }}
-        className="p-3 border-t border-brand-outline-variant/50 bg-[#060b13] flex items-center gap-2 flex-none"
-      >
-        <input
-          type="text"
-          value={inputText}
-          onChange={e => setInputText(e.target.value)}
-          placeholder="Ask AI hardware coder..."
-          disabled={loading}
-          className="flex-1 bg-brand-surface border border-brand-outline-variant/50 rounded px-3 py-1.5 text-brand-on-surface outline-none focus:border-brand-amber text-[11px] placeholder-slate-500 font-mono"
-        />
-        <button
-          type="submit"
-          disabled={!inputText.trim() || loading || !selectedProvider || !selectedModel}
-          className="p-2 rounded bg-brand-amber hover:bg-yellow-400 text-brand-surface-lowest font-bold transition-all disabled:opacity-30 cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTbGenerationMode('reverse_from_vcd');
+                    setTbPromptDraft(getTbPromptForMode('reverse_from_vcd'));
+                  }}
+                  className={`rounded border px-2 py-2 text-left transition-all cursor-pointer ${
+                    tbGenerationMode === 'reverse_from_vcd'
+                      ? 'border-brand-cyan/60 bg-brand-cyan/10 text-slate-100'
+                      : 'border-brand-outline-variant/30 bg-brand-surface-low text-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase">
+                    <ChevronRight size={10} />
+                    <span>Reverse From Loaded VCD</span>
+                  </div>
+                  <div className="mt-1 text-[9px] text-slate-400">
+                    Write a complete VHDL module and matching VHDL testbench that reproduce the loaded waveform behavior.
+                  </div>
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[9px] uppercase font-bold tracking-wide text-slate-400">Editable Prompt</span>
+                  <button
+                    type="button"
+                    onClick={() => setTbPromptDraft(getTbPromptForMode(tbGenerationMode))}
+                    className="text-[9px] text-brand-amber hover:text-yellow-300 cursor-pointer"
+                  >
+                    Reset Default
+                  </button>
+                </div>
+                <textarea
+                  value={tbPromptDraft}
+                  onChange={(event) => setTbPromptDraft(event.target.value)}
+                  rows={9}
+                  className="w-full resize-y rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-2 text-[10px] font-mono text-slate-200 outline-none focus:border-brand-cyan"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTbComposer(false)}
+                  className="px-2 py-1 rounded border border-brand-outline-variant/30 bg-brand-surface-low text-[9px] font-bold text-slate-300 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSubmitTbPrompt()}
+                  disabled={loading || !tbPromptDraft.trim()}
+                  className="px-2 py-1 rounded bg-brand-amber text-[9px] font-bold text-brand-surface-lowest disabled:opacity-40 cursor-pointer"
+                >
+                  Run Prompt
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input Form Footer */}
+        <form 
+          onSubmit={e => {
+            e.preventDefault();
+            handleSendMessage(inputText);
+          }}
+          className="p-3 border-t border-brand-outline-variant/50 bg-[#060b13] flex items-center gap-2"
         >
-          <Send size={12} />
-        </button>
-      </form>
+          <input
+            type="text"
+            value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            placeholder="Ask AI hardware coder..."
+            disabled={loading}
+            className="flex-1 bg-brand-surface border border-brand-outline-variant/50 rounded px-3 py-1.5 text-brand-on-surface outline-none focus:border-brand-amber text-[11px] placeholder-slate-500 font-mono"
+          />
+          <button
+            type="submit"
+            disabled={!inputText.trim() || loading || !selectedProvider || !selectedModel}
+            className="p-2 rounded bg-brand-amber hover:bg-yellow-400 text-brand-surface-lowest font-bold transition-all disabled:opacity-30 cursor-pointer"
+          >
+            <Send size={12} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

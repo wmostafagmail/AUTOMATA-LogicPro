@@ -9,6 +9,8 @@ import { Toolbar } from './components/Toolbar';
 import { SignalSidebar } from './components/SignalSidebar';
 import { WaveformViewport } from './components/WaveformViewport';
 import { AIDrawer } from './components/AIDrawer';
+import { AIBottomDrawer } from './components/AIBottomDrawer';
+import { AIWorkspaceReport } from './aiReport';
 import {
   Wrench,
   X,
@@ -21,6 +23,7 @@ import {
 } from 'lucide-react';
 
 const PROJECT_STORAGE_KEY = 'automata-logicpro-project';
+const DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX = 214;
 
 export default function App() {
   // 1. Core workspace timing configuration states
@@ -40,7 +43,8 @@ export default function App() {
   const [cursorA, setCursorA] = useState<number | null>(25);
   const [cursorB, setCursorB] = useState<number | null>(89);
   // 4. Panel drawer toggles
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const [aiDrawerOpen, setAiDrawerOpen] = useState(true);
+  const [glitchInjectionEnabled, setGlitchInjectionEnabled] = useState(false);
   const [showVcdModal, setShowVcdModal] = useState(false);
   const [showGhdlModal, setShowGhdlModal] = useState(false);
   const [vcdText, setVcdText] = useState('');
@@ -61,7 +65,11 @@ export default function App() {
   const [projectDirectoryPath, setProjectDirectoryPath] = useState<string | null>(null);
   const [projectFileCount, setProjectFileCount] = useState(0);
   const [projectFiles, setProjectFiles] = useState<ProjectFileEntry[]>([]);
+  const [leftWorkspaceBottomGapPx, setLeftWorkspaceBottomGapPx] = useState(DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX);
+  const [latestAiReport, setLatestAiReport] = useState<AIWorkspaceReport | null>(null);
+  const [workspaceAiReportExpanded, setWorkspaceAiReportExpanded] = useState(true);
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
+  const startupWorkspaceRecoveryRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -95,6 +103,46 @@ export default function App() {
       setTimeUnit(defaultPreset.timeUnit);
     }
   }, []);
+
+  useEffect(() => {
+    if (startupWorkspaceRecoveryRef.current) {
+      return;
+    }
+
+    const visibleSignals = signals.filter((signal) => signal.visible);
+    const hasHiddenOnlyState = signals.length > 0 && visibleSignals.length === 0;
+    const hasCorruptedTimeline = simulationLength < 10;
+    const hasNoSignals = signals.length === 0;
+    const looksBroken = hasNoSignals || hasHiddenOnlyState || hasCorruptedTimeline;
+
+    if (!looksBroken) {
+      startupWorkspaceRecoveryRef.current = true;
+      return;
+    }
+
+    if (hasHiddenOnlyState && !hasCorruptedTimeline) {
+      setSignals((previous) => previous.map((signal) => ({ ...signal, visible: true })));
+      startupWorkspaceRecoveryRef.current = true;
+      return;
+    }
+
+    const defaultPreset = PRESETS.find((preset) => preset.id === 'spi_debug');
+    if (!defaultPreset) {
+      startupWorkspaceRecoveryRef.current = true;
+      return;
+    }
+
+    setSignals(defaultPreset.signals);
+    setSimulationLength(defaultPreset.length);
+    setTickDuration(defaultPreset.tickDuration);
+    setTimeUnit(defaultPreset.timeUnit);
+    setCursorA(25);
+    setCursorB(89);
+    setActivePresetId(defaultPreset.id);
+    setWorkspaceFileName(null);
+    setWorkspaceError(null);
+    startupWorkspaceRecoveryRef.current = true;
+  }, [signals, simulationLength, tickDuration, timeUnit, workspaceFileName]);
 
   // 5. Compute Live logic simulation of all clocks, outputs and decoders in parallel
   const simulatedSignals = useMemo(() => {
@@ -221,21 +269,6 @@ export default function App() {
     setCursorA(null);
     setCursorB(null);
     setActivePresetId('custom');
-  };
-
-  // Noise glitched anomalies generator
-  const handleInjectGlitch = () => {
-    setSignals(prev => prev.map(sig => {
-      if (sig.type === 'wire') {
-        const mutated = [...sig.values];
-        const glitchIdx1 = Math.floor(Math.random() * simulationLength);
-        const glitchIdx2 = Math.floor(Math.random() * simulationLength);
-        if (glitchIdx1 < mutated.length) mutated[glitchIdx1] = mutated[glitchIdx1] === 1 ? 0 : 1;
-        if (glitchIdx2 < mutated.length) mutated[glitchIdx2] = mutated[glitchIdx2] === 1 ? 0 : 1;
-        return { ...sig, values: mutated };
-      }
-      return sig;
-    }));
   };
 
   // Standard VCD Exporter module compile
@@ -586,7 +619,8 @@ export default function App() {
         simulationLength={simulationLength}
         setSimulationLength={setSimulationLength}
         onClearWorkspace={handleClearWorkspace}
-        onInjectGlitch={handleInjectGlitch}
+        glitchInjectionEnabled={glitchInjectionEnabled}
+        onToggleInjectGlitch={() => setGlitchInjectionEnabled((previous) => !previous)}
         onExportVCD={handleExportVCD}
         onOpenWorkspace={handleOpenWorkspace}
         onOpenAIDrawer={() => setAiDrawerOpen(!aiDrawerOpen)}
@@ -778,7 +812,6 @@ export default function App() {
 
       {/* 3. Primary Workspace Area */}
       <div className="flex-1 flex overflow-hidden w-full select-none">
-        
         {/* Collapsible Left Signal Tree */}
         <SignalSidebar
           signals={simulatedSignals}
@@ -786,21 +819,44 @@ export default function App() {
           onShowAllSignals={handleShowAllSignals}
         />
 
-        {/* Waves Timing view diagram */}
-        <WaveformViewport
-          signals={simulatedSignals}
-          length={simulationLength}
-          zoom={zoom}
-          tickWidth={tickWidth}
-          timeUnit={timeUnit}
-          tickDuration={tickDuration}
-          cursorA={cursorA}
-          cursorB={cursorB}
-          setCursorA={setCursorA}
-          setCursorB={setCursorB}
-          onUpdateSignalValues={handleUpdateSignalValues}
-          onToggleSignalVisibility={handleToggleSignalVisibility}
-        />
+        <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
+          <div
+            className="flex-none overflow-hidden"
+            style={{ height: aiDrawerOpen ? `calc(100% - ${leftWorkspaceBottomGapPx}px)` : '100%' }}
+          >
+            <div className="h-full overflow-hidden">
+              {/* Waves Timing view diagram */}
+              <WaveformViewport
+                signals={simulatedSignals}
+                length={simulationLength}
+                zoom={zoom}
+                tickWidth={tickWidth}
+                timeUnit={timeUnit}
+                tickDuration={tickDuration}
+                cursorA={cursorA}
+                cursorB={cursorB}
+                setCursorA={setCursorA}
+                setCursorB={setCursorB}
+                onUpdateSignalValues={handleUpdateSignalValues}
+                onToggleSignalVisibility={handleToggleSignalVisibility}
+              />
+            </div>
+          </div>
+
+          {aiDrawerOpen && (
+            <div
+              className="shrink-0 border-t border-brand-outline-variant/20 bg-brand-surface overflow-hidden"
+              style={{ height: leftWorkspaceBottomGapPx }}
+            >
+              <AIBottomDrawer
+                report={latestAiReport}
+                expanded={workspaceAiReportExpanded}
+                onToggleExpanded={() => setWorkspaceAiReportExpanded((previous) => !previous)}
+                fillHeight
+              />
+            </div>
+          )}
+        </div>
 
         {/* AI Copilot Side Console Drawer */}
         <AIDrawer
@@ -813,6 +869,8 @@ export default function App() {
           projectPath={projectDirectoryPath}
           projectFiles={projectFiles}
           workspaceFileName={workspaceFileName}
+          onMacrosPanelHeightChange={setLeftWorkspaceBottomGapPx}
+          onLatestStructuredReportChange={setLatestAiReport}
         />
       </div>
 
