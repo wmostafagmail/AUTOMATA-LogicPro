@@ -858,25 +858,28 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
               <Loader2 size={12} className="animate-spin text-brand-amber" />
               <span>AI model working... {jobElapsedSeconds}s</span>
             </div>
-            <div className="sticky bottom-0 z-20 -mx-1 mt-2 pb-1">
-              <div className="mx-1 rounded-xl border border-red-400/35 bg-[#09111f]/95 px-3 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-200">Active AI Job</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleStopJob()}
-                    className="flex-none rounded border border-red-400/70 bg-red-600 px-3 py-1.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-[0_0_18px_rgba(220,38,38,0.35)] cursor-pointer hover:bg-red-500"
-                  >
-                    Stop
-                  </button>
-                </div>
-              </div>
-            </div>
           </>
         )}
       </div>
+
+      {loading && (
+        <div className="flex-none border-t border-brand-outline-variant/30 bg-brand-surface-lowest px-4 py-1.5">
+          <div className="rounded-xl border border-red-400/35 bg-[#09111f]/95 px-5 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-200">Active AI Job</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleStopJob()}
+                className="flex-none rounded-lg border border-red-400/70 bg-red-600 px-4 py-2 text-[9px] font-bold uppercase tracking-wide text-white shadow-[0_0_18px_rgba(220,38,38,0.35)] cursor-pointer hover:bg-red-500"
+              >
+                Stop
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Suggestion Chips */}
       <div ref={lowerControlsRef} className="flex-none shrink-0">
