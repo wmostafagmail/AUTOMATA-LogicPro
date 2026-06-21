@@ -1,5 +1,28 @@
 import { AiMacroId, AiMacroValidationResult, TbGenerationMode, getAiMacroSpec } from './aiMacros';
 
+export interface AiSignalDiagnostic {
+  signal: string;
+  normalizedSignal: string;
+  score: number;
+  activityScore: number;
+  categories: string[];
+  entities: string[];
+  relatedNodes: string[];
+}
+
+export interface AiMacroDiagnostics {
+  rootEntity: string;
+  reachableEntities: string[];
+  entityRoles: Record<string, string>;
+  focusEntities: string[];
+  desiredCategories: string[];
+  semanticConfidence: number;
+  selectionNotes: string[];
+  visibleSignalsSent: number;
+  totalSignalsAvailable: number;
+  selectedSignals: AiSignalDiagnostic[];
+}
+
 export interface AiReportMeta {
   macroId?: AiMacroId;
   tbGenerationMode?: TbGenerationMode | null;
@@ -8,6 +31,7 @@ export interface AiReportMeta {
   validation?: AiMacroValidationResult | null;
   hazardMarkdown?: string | null;
   protocolMarkdown?: string | null;
+  diagnostics?: AiMacroDiagnostics | null;
 }
 
 export interface ReportCodeBlock {

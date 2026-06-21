@@ -1,5 +1,5 @@
 import { ChangeEvent, PointerEvent as ReactPointerEvent, useState, useMemo, useEffect, useRef } from 'react';
-import { GhdlProjectInfo, GhdlSourceFile, GhdlStatus, ProjectFileEntry, Signal } from './types';
+import { GhdlProjectInfo, GhdlSourceFile, GhdlStatus, ProjectFileEntry, Signal, SimulationMacroContextPayload } from './types';
 import { PRESETS } from './data';
 import { runSimulationEvaluations } from './utils';
 import { parseImportedWaveform } from './workspaceFile';
@@ -77,6 +77,7 @@ export default function App() {
   const [workspaceAiReportExpanded, setWorkspaceAiReportExpanded] = useState(true);
   const [showAiOutputWindow, setShowAiOutputWindow] = useState(false);
   const [aiOutputWindowBounds, setAiOutputWindowBounds] = useState(DEFAULT_AI_OUTPUT_WINDOW_BOUNDS);
+  const [simulationMacroContext, setSimulationMacroContext] = useState<SimulationMacroContextPayload | null>(null);
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
   const startupWorkspaceRecoveryRef = useRef(false);
   const aiOutputWindowRef = useRef<HTMLDivElement | null>(null);
@@ -389,6 +390,7 @@ export default function App() {
     setCursorA(null);
     setCursorB(null);
     setActivePresetId('custom');
+    setSimulationMacroContext(null);
   };
 
   // Standard VCD Exporter module compile
@@ -544,6 +546,10 @@ export default function App() {
       }
 
       await openWorkspaceSource(data.vcdFileName || `${ghdlTopEntity}.vcd`, data.vcdContent);
+      setSimulationMacroContext({
+        rootEntity: ghdlTopEntity.trim(),
+        sourcePaths: [...ghdlSelectedSourcePaths],
+      });
       setGhdlLogs((previous) => {
         const successMessage = `\n\nLoaded waveform: ${data.vcdFileName || `${ghdlTopEntity}.vcd`}`;
         return previous ? `${previous}${successMessage}` : successMessage.trim();
@@ -569,6 +575,7 @@ export default function App() {
       const data = await response.json();
       if (response.ok) {
         await openWorkspaceFile(new File([data.content], data.name, { type: 'text/plain' }));
+        setSimulationMacroContext(null);
         setWorkspaceError(null);
         return;
       }
@@ -592,6 +599,7 @@ export default function App() {
       const data = await response.json();
       if (response.ok) {
         applyProjectFiles(data.name, data.path, Array.isArray(data.files) ? data.files : []);
+        setSimulationMacroContext(null);
         return;
       }
       if (!data.cancelled) {
@@ -620,6 +628,7 @@ export default function App() {
       lastModified: file.lastModified,
       file,
     })));
+    setSimulationMacroContext(null);
     event.target.value = '';
   };
 
@@ -631,6 +640,7 @@ export default function App() {
 
     try {
       await openWorkspaceFile(file);
+      setSimulationMacroContext(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to open the selected file.';
       setWorkspaceError(message);
@@ -990,6 +1000,7 @@ export default function App() {
           projectPath={projectDirectoryPath}
           projectFiles={projectFiles}
           workspaceFileName={workspaceFileName}
+          simulationMacroContext={simulationMacroContext}
           onMacrosPanelHeightChange={setLeftWorkspaceBottomGapPx}
           onLatestStructuredReportChange={setLatestAiReport}
         />

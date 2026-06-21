@@ -75,6 +75,11 @@ export interface ProjectContextPayload {
   }>;
 }
 
+export interface SimulationMacroContextPayload {
+  rootEntity: string;
+  sourcePaths: string[];
+}
+
 export interface GhdlStatus {
   installed: boolean;
   version?: string;

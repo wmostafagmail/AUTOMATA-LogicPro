@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ProjectContextPayload, ProjectFileEntry, Signal } from '../types';
+import { ProjectContextPayload, ProjectFileEntry, Signal, SimulationMacroContextPayload } from '../types';
 import { AiMacroId, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
 import { resolveMacroInvocation } from '../aiDrawerModel';
 import { AIWorkspaceReport, AiReportMeta, buildDisplayReport } from '../aiReport';
@@ -30,6 +30,7 @@ interface AIDrawerProps {
   projectPath: string | null;
   projectFiles: ProjectFileEntry[];
   workspaceFileName: string | null;
+  simulationMacroContext: SimulationMacroContextPayload | null;
   onMacrosPanelHeightChange?: (height: number) => void;
   onLatestStructuredReportChange?: (report: AIWorkspaceReport | null) => void;
 }
@@ -90,6 +91,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   projectPath,
   projectFiles,
   workspaceFileName,
+  simulationMacroContext,
   onMacrosPanelHeightChange,
   onLatestStructuredReportChange,
 }) => {
@@ -451,7 +453,8 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           tickDuration,
           projectContext,
           projectPath,
-          workspaceFileName
+          workspaceFileName,
+          simulationMacroContext,
         })
       });
 
@@ -472,6 +475,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           validation: data.validation || null,
           hazardMarkdown: data.hazardScan?.markdown || null,
           protocolMarkdown: data.protocolScan?.markdown || null,
+          diagnostics: data.diagnostics || null,
         },
       };
       setMessages(prev => [...prev, assistantMsg]);
@@ -761,6 +765,56 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                       )}
                     </div>
                     <p className="mt-1 break-all text-[10.5px] leading-relaxed text-slate-200">{parsedMessages[idx]?.summary}</p>
+                  </div>
+                )}
+
+                {m.meta?.diagnostics && (
+                  <div className="rounded-lg border border-violet-400/20 bg-violet-500/8 px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-violet-200">Macro Focus</div>
+                      <div className="text-[8px] font-mono text-slate-300">
+                        {m.meta.diagnostics.visibleSignalsSent}/{m.meta.diagnostics.totalSignalsAvailable} signals
+                      </div>
+                    </div>
+                    <div className="mt-2 grid gap-1 text-[9px] text-slate-300">
+                      <div>
+                        <span className="font-bold text-slate-100">Root:</span> {m.meta.diagnostics.rootEntity}
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-100">Focus Entities:</span> {m.meta.diagnostics.focusEntities.join(', ') || 'none'}
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-100">Confidence:</span> {m.meta.diagnostics.semanticConfidence}%
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-100">Entity Roles:</span> {Object.entries(m.meta.diagnostics.entityRoles).slice(0, 5).map(([entityName, role]) => `${entityName}:${role}`).join(', ') || 'none'}
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-100">Categories:</span> {m.meta.diagnostics.desiredCategories.join(', ') || 'none'}
+                      </div>
+                    </div>
+                    {m.meta.diagnostics.selectionNotes.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {m.meta.diagnostics.selectionNotes.slice(0, 3).map((note, noteIndex) => (
+                          <div key={`${idx}-note-${noteIndex}`} className="text-[8px] leading-relaxed text-slate-400">
+                            {note}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-2 space-y-1.5">
+                      {m.meta.diagnostics.selectedSignals.slice(0, 4).map((signal) => (
+                        <div key={`${idx}-${signal.normalizedSignal}`} className="rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="truncate text-[9px] font-bold text-violet-100">{signal.signal}</div>
+                            <div className="text-[8px] font-mono text-slate-400">score {signal.score}</div>
+                          </div>
+                          <div className="mt-1 text-[8px] leading-relaxed text-slate-400">
+                            {signal.entities.join(', ') || 'root only'} • {signal.categories.join(', ') || 'uncategorized'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 

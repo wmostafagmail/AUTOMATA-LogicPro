@@ -93,6 +93,52 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
 
   return (
     <div className="space-y-3">
+      {report.meta.diagnostics && (
+        <div className="rounded-lg border border-violet-400/25 bg-violet-500/8 px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-violet-200">Macro Selection Diagnostics</div>
+            <div className="text-[8px] font-mono text-slate-300">
+              {report.meta.diagnostics.visibleSignalsSent}/{report.meta.diagnostics.totalSignalsAvailable} signals
+            </div>
+          </div>
+          <div className="mt-2 grid gap-1 text-[10px] text-slate-300">
+            <div><span className="font-bold text-slate-100">Root Entity:</span> {report.meta.diagnostics.rootEntity}</div>
+            <div><span className="font-bold text-slate-100">Focus Entities:</span> {report.meta.diagnostics.focusEntities.join(', ') || 'none'}</div>
+            <div><span className="font-bold text-slate-100">Semantic Confidence:</span> {report.meta.diagnostics.semanticConfidence}%</div>
+            <div><span className="font-bold text-slate-100">Reachable Entities:</span> {report.meta.diagnostics.reachableEntities.join(', ') || 'none'}</div>
+            <div><span className="font-bold text-slate-100">Entity Roles:</span> {Object.entries(report.meta.diagnostics.entityRoles).map(([entityName, role]) => `${entityName}:${role}`).join(', ') || 'none'}</div>
+            <div><span className="font-bold text-slate-100">Desired Categories:</span> {report.meta.diagnostics.desiredCategories.join(', ') || 'none'}</div>
+          </div>
+          {report.meta.diagnostics.selectionNotes.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {report.meta.diagnostics.selectionNotes.map((note, noteIndex) => (
+                <div key={`diag-note-${noteIndex}`} className="text-[9px] leading-relaxed text-slate-400">
+                  {note}
+                </div>
+              ))}
+            </div>
+          )}
+          {report.meta.diagnostics.selectedSignals.length > 0 && (
+            <div className="mt-3 grid gap-2 lg:grid-cols-2">
+              {report.meta.diagnostics.selectedSignals.map((signal) => (
+                <div key={signal.normalizedSignal} className="rounded border border-white/5 bg-[#060a12] px-2.5 py-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="truncate text-[10px] font-bold text-violet-100">{signal.signal}</div>
+                    <div className="text-[8px] font-mono text-slate-400">score {signal.score}</div>
+                  </div>
+                  <div className="mt-1 text-[9px] leading-relaxed text-slate-400">
+                    <div>categories: {signal.categories.join(', ') || 'uncategorized'}</div>
+                    <div>entities: {signal.entities.join(', ') || 'none'}</div>
+                    <div>related nodes: {signal.relatedNodes.slice(0, 8).join(', ') || signal.normalizedSignal}</div>
+                    <div>activity score: {signal.activityScore}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {report.meta.validation && (() => {
         const tone = getValidationTone(report.meta.validation.status);
         return (

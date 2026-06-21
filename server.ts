@@ -1231,6 +1231,838 @@ function buildVhdlProjectInfo(sources: VhdlSourceDescriptor[]) {
   };
 }
 
+type VhdlInstanceConnection = {
+  port: string;
+  signals: string[];
+};
+
+type VhdlInstanceModel = {
+  label: string;
+  entity: string;
+  connections: VhdlInstanceConnection[];
+};
+
+type VhdlEntitySemanticModel = {
+  name: string;
+  sourcePath: string;
+  ports: string[];
+  localSignals: string[];
+  aliases: Array<[string, string]>;
+  assignments: Array<[string, string]>;
+  instances: VhdlInstanceModel[];
+  generateBlockCount: number;
+  isTestbench: boolean;
+};
+
+type MacroSignalInsight = {
+  signal: string;
+  categories: Array<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>;
+  entities: string[];
+  relatedNodes: string[];
+};
+
+type MacroSignalIndex = {
+  rootEntity: string;
+  selectedSourcePaths: string[];
+  rootVisibleSignals: string[];
+  reachableEntities: string[];
+  entityRoles: Record<string, string>;
+  signalInsights: MacroSignalInsight[];
+  categorySignals: {
+    clockReset: string[];
+    protocol: string[];
+    state: string[];
+    control: string[];
+    data: string[];
+    debug: string[];
+    all: string[];
+  };
+};
+
+type SemanticSourceFixture = {
+  path: string;
+  isTestbench: boolean;
+  content: string;
+};
+
+const macroSignalIndexCache = new Map<string, MacroSignalIndex>();
+
+function normalizeVhdlIdentifier(value: string) {
+  return value
+    .trim()
+    .replace(/^\\|\\$/g, '')
+    .replace(/\(.*?\)/g, '')
+    .replace(/'.*$/g, '')
+    .split(/[\s./:]+/)
+    .filter(Boolean)
+    .pop()
+    ?.toLowerCase() || value.trim().toLowerCase();
+}
+
+function splitTopLevelDelimited(text: string, delimiter = ',') {
+  const entries: string[] = [];
+  let current = '';
+  let depth = 0;
+  for (const character of text) {
+    if (character === '(') depth += 1;
+    if (character === ')') depth = Math.max(0, depth - 1);
+    if (character === delimiter && depth === 0) {
+      if (current.trim()) {
+        entries.push(current.trim());
+      }
+      current = '';
+      continue;
+    }
+    current += character;
+  }
+  if (current.trim()) {
+    entries.push(current.trim());
+  }
+  return entries;
+}
+
+function parseVhdlIdentifierList(rawText: string) {
+  return splitTopLevelDelimited(rawText)
+    .flatMap((entry) => entry.split(','))
+    .map((entry) => normalizeVhdlIdentifier(entry))
+    .filter(Boolean);
+}
+
+const VHDL_REFERENCE_STOP_WORDS = new Set([
+  'abs', 'access', 'after', 'alias', 'all', 'and', 'architecture', 'array', 'assert', 'attribute',
+  'begin', 'block', 'body', 'buffer', 'bus', 'case', 'component', 'configuration', 'constant',
+  'disconnect', 'downto', 'else', 'elsif', 'end', 'entity', 'exit', 'file', 'for', 'function',
+  'generate', 'generic', 'group', 'guarded', 'if', 'impure', 'in', 'inertial', 'inout', 'is',
+  'label', 'library', 'linkage', 'literal', 'loop', 'map', 'mod', 'nand', 'new', 'next', 'nor',
+  'not', 'null', 'of', 'on', 'open', 'or', 'others', 'out', 'package', 'port', 'postponed',
+  'procedure', 'process', 'pure', 'range', 'record', 'register', 'reject', 'rem', 'report',
+  'return', 'rol', 'ror', 'select', 'severity', 'signal', 'shared', 'sla', 'sll', 'sra', 'srl',
+  'subtype', 'then', 'to', 'transport', 'type', 'unaffected', 'units', 'until', 'use', 'variable',
+  'wait', 'when', 'while', 'with', 'xnor', 'xor',
+  'std_logic', 'std_logic_vector', 'unsigned', 'signed', 'integer', 'natural', 'boolean', 'bit',
+  'bit_vector', 'true', 'false', 'rising_edge', 'falling_edge', 'conv_integer', 'to_integer',
+  'to_unsigned', 'to_signed', 'resize', 'length', 'left', 'right', 'high', 'low', 'event',
+  'stable', 'delayed', 'quiet', 'transaction',
+]);
+
+function extractIdentifierReferences(rawText: string) {
+  const references = new Set<string>();
+  const sanitized = rawText
+    .replace(/"[^"]*"/g, ' ')
+    .replace(/'[^']*'/g, ' ');
+
+  for (const match of sanitized.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?(?:'[a-zA-Z_][a-zA-Z0-9_]*)?)\b/g)) {
+    const normalized = normalizeVhdlIdentifier(match[1]);
+    if (!normalized) continue;
+    if (VHDL_REFERENCE_STOP_WORDS.has(normalized)) continue;
+    references.add(normalized);
+  }
+
+  return Array.from(references);
+}
+
+function extractEntityPortsFromContent(content: string) {
+  const portsByEntity = new Map<string, string[]>();
+  const collectPorts = (ownerName: string, body: string) => {
+    const portMatch = body.match(/\bport\s*\(([\s\S]*?)\)\s*;/i);
+    if (!portMatch) {
+      portsByEntity.set(ownerName, []);
+      return;
+    }
+
+    const ports: string[] = [];
+    splitTopLevelDelimited(portMatch[1], ';').forEach((declaration) => {
+      const [namesPart] = declaration.split(':');
+      if (!namesPart) return;
+      parseVhdlIdentifierList(namesPart).forEach((portName) => ports.push(portName));
+    });
+    portsByEntity.set(ownerName, Array.from(new Set(ports)));
+  };
+
+  for (const match of content.matchAll(/\bentity\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend(?:\s+entity)?(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
+    collectPorts(normalizeVhdlIdentifier(match[1]), match[2] || '');
+  }
+
+  for (const match of content.matchAll(/\bcomponent\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+component(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
+    const componentName = normalizeVhdlIdentifier(match[1]);
+    if (!portsByEntity.has(componentName)) {
+      collectPorts(componentName, match[2] || '');
+    }
+  }
+  return portsByEntity;
+}
+
+function extractLocalSignals(declarativeText: string) {
+  const localSignals: string[] = [];
+  for (const match of declarativeText.matchAll(/\bsignal\s+([^:;]+)\s*:\s*[^;]+;/gi)) {
+    const namesPart = match[1];
+    if (!namesPart) continue;
+    parseVhdlIdentifierList(namesPart).forEach((signalName) => localSignals.push(signalName));
+  }
+  return Array.from(new Set(localSignals));
+}
+
+function extractAliasesFromText(content: string) {
+  const aliases: Array<[string, string]> = [];
+  for (const match of content.matchAll(/\balias\s+([a-zA-Z][a-zA-Z0-9_]*)\b(?:\s*:\s*[^;]+?)?\s+\bis\s+([\s\S]*?)\s*;/gi)) {
+    const aliasName = normalizeVhdlIdentifier(match[1]);
+    extractIdentifierReferences(match[2] || '').forEach((reference) => {
+      aliases.push([aliasName, reference]);
+    });
+  }
+  return aliases;
+}
+
+function extractSimpleAssignments(content: string) {
+  const assignments: Array<[string, string]> = [];
+  for (const match of content.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?)\s*(<=|:=)\s*([\s\S]*?)\s*;/gi)) {
+    const target = normalizeVhdlIdentifier(match[1]);
+    if (!target) continue;
+    extractIdentifierReferences(match[3] || '').forEach((reference) => {
+      if (reference !== target) {
+        assignments.push([target, reference]);
+      }
+    });
+  }
+  return assignments;
+}
+
+function extractPortSignalReferences(rawValue: string) {
+  return extractIdentifierReferences(rawValue);
+}
+
+function extractGenerateBlocks(bodyText: string) {
+  const blocks: Array<{ label: string; body: string }> = [];
+  const pattern = /([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:if|for)\b[\s\S]*?\bgenerate\b([\s\S]*?)\bend\s+generate(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi;
+  for (const match of bodyText.matchAll(pattern)) {
+    blocks.push({
+      label: normalizeVhdlIdentifier(match[1]),
+      body: match[2] || '',
+    });
+  }
+  const strippedBody = bodyText.replace(pattern, ' ');
+  return { blocks, strippedBody };
+}
+
+function extractInstancesFromArchitecture(bodyText: string, entityPorts: Map<string, string[]>, labelPrefix = '') {
+  const instances: VhdlInstanceModel[] = [];
+  const { blocks, strippedBody } = extractGenerateBlocks(bodyText);
+
+  for (const match of strippedBody.matchAll(/([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:entity\s+work\.)?([a-zA-Z][a-zA-Z0-9_]*)(?:\s+generic\s+map\s*\(([\s\S]*?)\))?(?:\s+port\s+map\s*\(([\s\S]*?)\))\s*;/gi)) {
+    const localLabel = normalizeVhdlIdentifier(match[1]);
+    const label = labelPrefix ? `${labelPrefix}.${localLabel}` : localLabel;
+    const entity = normalizeVhdlIdentifier(match[2]);
+    const portMapText = match[4] || '';
+    const rawAssociations = splitTopLevelDelimited(portMapText);
+    const childPorts = entityPorts.get(entity) || [];
+    const namedAssociations = rawAssociations.filter((entry) => entry.includes('=>'));
+    const connections: VhdlInstanceConnection[] = [];
+
+    if (namedAssociations.length === rawAssociations.length) {
+      namedAssociations.forEach((entry) => {
+        const [portPart, signalPart] = entry.split('=>');
+        const signals = extractPortSignalReferences(signalPart || '');
+        if (!portPart || signals.length === 0) return;
+        connections.push({
+          port: normalizeVhdlIdentifier(portPart),
+          signals,
+        });
+      });
+    } else {
+      rawAssociations.forEach((entry, index) => {
+        const signals = extractPortSignalReferences(entry);
+        const port = childPorts[index];
+        if (!port || signals.length === 0) return;
+        connections.push({ port, signals });
+      });
+    }
+
+    instances.push({
+      label,
+      entity,
+      connections,
+    });
+  }
+
+  blocks.forEach((block) => {
+    const nestedPrefix = labelPrefix ? `${labelPrefix}.${block.label}` : block.label;
+    instances.push(...extractInstancesFromArchitecture(block.body, entityPorts, nestedPrefix));
+  });
+
+  return instances;
+}
+
+function buildVhdlSemanticModels(params: {
+  sources: Array<Pick<VhdlSourceDescriptor, 'path' | 'isTestbench'>>;
+  sourceContents: Map<string, string>;
+}) {
+  const { sources, sourceContents } = params;
+  const entityPorts = new Map<string, string[]>();
+
+  for (const source of sources) {
+    const content = sourceContents.get(source.path) || '';
+    for (const [entityName, ports] of extractEntityPortsFromContent(content).entries()) {
+      entityPorts.set(entityName, ports);
+    }
+  }
+
+  const models = new Map<string, VhdlEntitySemanticModel>();
+  for (const source of sources) {
+    const content = sourceContents.get(source.path) || '';
+    for (const match of content.matchAll(/\barchitecture\s+([a-zA-Z][a-zA-Z0-9_]*)\s+of\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bbegin\b([\s\S]*?)\bend(?:\s+architecture)?(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
+      const entityName = normalizeVhdlIdentifier(match[2]);
+      const declarativeText = match[3] || '';
+      const bodyText = match[4] || '';
+      models.set(entityName, {
+        name: entityName,
+        sourcePath: source.path,
+        ports: entityPorts.get(entityName) || [],
+        localSignals: extractLocalSignals(declarativeText),
+        aliases: extractAliasesFromText(`${declarativeText}\n${bodyText}`),
+        assignments: extractSimpleAssignments(bodyText),
+        instances: extractInstancesFromArchitecture(bodyText, entityPorts),
+        generateBlockCount: extractGenerateBlocks(bodyText).blocks.length,
+        isTestbench: source.isTestbench,
+      });
+    }
+  }
+
+  return { entityPorts, models };
+}
+
+function inferEntityRole(model: VhdlEntitySemanticModel | undefined, entityName: string, sourcePath = '') {
+  const normalizedEntity = normalizeVhdlIdentifier(entityName);
+  const normalizedPath = sourcePath.toLowerCase();
+  const tokenSource = `${normalizedEntity} ${normalizedPath}`;
+  const portTokens = (model?.ports || []).flatMap((portName) => tokenizeSignalName(portName));
+  const signalTokens = (model?.localSignals || []).flatMap((signalName) => tokenizeSignalName(signalName));
+  const combinedTokens = [...portTokens, ...signalTokens];
+  const tokenHas = (pattern: RegExp) => combinedTokens.some((token) => pattern.test(token)) || pattern.test(tokenSource);
+
+  if (model?.isTestbench || /\b(tb|testbench)\b/.test(tokenSource)) {
+    return 'testbench';
+  }
+  if (/(wrapper|top|shell|harness)/.test(tokenSource) || ((model?.ports.length || 0) === 0 && (model?.instances.length || 0) > 0)) {
+    return 'wrapper';
+  }
+  if (tokenHas(/\b(spi|uart|i2c|axi|apb|ahb|wishbone|protocol|serial|mosi|miso|sck|sda|rx|tx)\b/)) {
+    return 'protocol';
+  }
+  if (tokenHas(/\b(fsm|ctrl|control|sequencer|dispatch|scheduler|arbiter|state|ready|valid|req|ack)\b/)) {
+    return 'control';
+  }
+  if (tokenHas(/\b(mem|ram|rom|fifo|cache|stack|regfile|addr|data|byte|word)\b/)) {
+    return 'memory';
+  }
+  if (/\b(pkg|package|util|helper|common)\b/.test(tokenSource)) {
+    return 'helper';
+  }
+  if (/\b(rtl|core|datapath|alu|decoder|engine)\b/.test(tokenSource)) {
+    return 'rtl';
+  }
+  return 'logic';
+}
+
+function tokenizeSignalName(name: string) {
+  return normalizeVhdlIdentifier(name)
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+function classifySignalName(name: string) {
+  const normalized = normalizeVhdlIdentifier(name);
+  const tokens = tokenizeSignalName(name);
+  const categories = new Set<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>();
+  const hasToken = (pattern: RegExp) => tokens.some((token) => pattern.test(token)) || pattern.test(normalized);
+
+  if (hasToken(/^(clk|clock|rst|reset|sck|scl)$/) || hasToken(/baud/)) {
+    categories.add('clockReset');
+  }
+  if (hasToken(/(mosi|miso|sda|scl|sck|cs|ss|rx|tx|uart|spi|i2c)/)) {
+    categories.add('protocol');
+  }
+  if (hasToken(/(state|fsm|phase|mode)/)) {
+    categories.add('state');
+  }
+  if (hasToken(/(valid|ready|req|ack|grant|enable|busy|done|start|stop|we|re|wr|rd|cs)/)) {
+    categories.add('control');
+  }
+  if (hasToken(/(data|addr|byte|word|count|cnt|index|payload|opcode)/)) {
+    categories.add('data');
+  }
+  if (hasToken(/(probe|debug|trace|mon|watch)/)) {
+    categories.add('debug');
+  }
+
+  return categories;
+}
+
+function createRootSet(values: Iterable<string>) {
+  return new Set(Array.from(values).map((value) => normalizeVhdlIdentifier(value)).filter(Boolean));
+}
+
+function createEmptyInsight(signal: string) {
+  return {
+    signal: normalizeVhdlIdentifier(signal),
+    categories: new Set<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>(),
+    entities: new Set<string>(),
+    relatedNodes: new Set<string>(),
+  };
+}
+
+function addRootsToMap(target: Map<string, Set<string>>, key: string, values: Iterable<string>) {
+  const normalizedKey = normalizeVhdlIdentifier(key);
+  if (!normalizedKey) return false;
+  const bucket = target.get(normalizedKey) || new Set<string>();
+  const beforeSize = bucket.size;
+  for (const value of values) {
+    const normalizedValue = normalizeVhdlIdentifier(value);
+    if (normalizedValue) {
+      bucket.add(normalizedValue);
+    }
+  }
+  target.set(normalizedKey, bucket);
+  return bucket.size !== beforeSize;
+}
+
+function propagateEntityRoots(model: VhdlEntitySemanticModel, seedMap: Map<string, Set<string>>) {
+  const adjacency = new Map<string, Set<string>>();
+  const connect = (left: string, right: string) => {
+    const leftKey = normalizeVhdlIdentifier(left);
+    const rightKey = normalizeVhdlIdentifier(right);
+    if (!leftKey || !rightKey || leftKey === rightKey) return;
+    const leftBucket = adjacency.get(leftKey) || new Set<string>();
+    leftBucket.add(rightKey);
+    adjacency.set(leftKey, leftBucket);
+    const rightBucket = adjacency.get(rightKey) || new Set<string>();
+    rightBucket.add(leftKey);
+    adjacency.set(rightKey, rightBucket);
+  };
+
+  model.aliases.forEach(([left, right]) => connect(left, right));
+  model.assignments.forEach(([left, right]) => connect(left, right));
+
+  const resolved = new Map<string, Set<string>>();
+  const queue: string[] = [];
+  for (const [key, roots] of seedMap.entries()) {
+    addRootsToMap(resolved, key, roots);
+    queue.push(normalizeVhdlIdentifier(key));
+  }
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const currentRoots = resolved.get(current);
+    if (!currentRoots) continue;
+    for (const neighbor of adjacency.get(current) || []) {
+      if (addRootsToMap(resolved, neighbor, currentRoots)) {
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  return resolved;
+}
+
+function createMacroSignalIndexCacheKey(projectPath: string, rootEntity: string, sourcePaths: string[]) {
+  return createHash('sha1')
+    .update(JSON.stringify({
+      projectPath,
+      rootEntity: normalizeVhdlIdentifier(rootEntity),
+      sourcePaths: [...sourcePaths].sort(),
+    }))
+    .digest('hex');
+}
+
+async function buildMacroSignalIndex(params: {
+  projectPath: string;
+  rootEntity: string;
+  sourcePaths?: string[];
+}) {
+  const { projectPath, rootEntity } = params;
+  const availableSources = await collectVhdlSources(projectPath);
+  const selectedSourcePaths = Array.isArray(params.sourcePaths) && params.sourcePaths.length > 0
+    ? Array.from(new Set(params.sourcePaths.map((value) => value.trim()).filter(Boolean))).sort()
+    : availableSources.map((source) => source.path);
+  const selectedSources = availableSources.filter((source) => selectedSourcePaths.includes(source.path));
+  const sourceContents = new Map<string, string>();
+
+  for (const source of selectedSources) {
+    const rawContent = await fs.readFile(path.join(projectPath, source.path), 'utf8');
+    sourceContents.set(source.path, stripVhdlComments(rawContent));
+  }
+
+  return buildMacroSignalIndexFromParsedSources({
+    rootEntity,
+    selectedSources,
+    sourceContents,
+  });
+}
+
+function buildMacroSignalIndexFromParsedSources(params: {
+  rootEntity: string;
+  selectedSources: Array<Pick<VhdlSourceDescriptor, 'path' | 'isTestbench'>>;
+  sourceContents: Map<string, string>;
+}) {
+  const { rootEntity, selectedSources, sourceContents } = params;
+  const normalizedSelectedSources = selectedSources.map((source) => ({
+    path: source.path,
+    isTestbench: source.isTestbench,
+  }));
+
+  const { entityPorts, models } = buildVhdlSemanticModels({
+    sources: normalizedSelectedSources,
+    sourceContents,
+  });
+  const entityRoles = Object.fromEntries(
+    Array.from(models.entries())
+      .map(([entityName, model]) => [entityName, inferEntityRole(model, entityName, model.sourcePath)])
+      .sort((left, right) => left[0].localeCompare(right[0]))
+  );
+  const normalizedRootEntity = normalizeVhdlIdentifier(rootEntity);
+  const rootModel = models.get(normalizedRootEntity);
+  const rootVisibleSignals = Array.from(new Set([
+    ...(rootModel?.ports || entityPorts.get(normalizedRootEntity) || []),
+    ...(rootModel?.localSignals || []),
+  ])).map((signalName) => normalizeVhdlIdentifier(signalName)).filter(Boolean);
+  const rootVisibleSet = createRootSet(rootVisibleSignals);
+
+  const categoryBuckets = {
+    clockReset: new Set<string>(),
+    protocol: new Set<string>(),
+    state: new Set<string>(),
+    control: new Set<string>(),
+    data: new Set<string>(),
+    debug: new Set<string>(),
+    all: new Set<string>(rootVisibleSignals),
+  };
+  const reachableEntities = new Set<string>([normalizedRootEntity]);
+  const traversalVisited = new Set<string>();
+  const signalInsights = new Map<string, ReturnType<typeof createEmptyInsight>>();
+
+  const ensureInsight = (signalName: string) => {
+    const normalizedSignal = normalizeVhdlIdentifier(signalName);
+    const existing = signalInsights.get(normalizedSignal);
+    if (existing) {
+      return existing;
+    }
+    const created = createEmptyInsight(normalizedSignal);
+    signalInsights.set(normalizedSignal, created);
+    return created;
+  };
+
+  const recordSignalObservation = (params: {
+    signalName: string;
+    entityName: string;
+    nodeName: string;
+    categories: Iterable<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>;
+  }) => {
+    const insight = ensureInsight(params.signalName);
+    insight.entities.add(normalizeVhdlIdentifier(params.entityName));
+    insight.relatedNodes.add(normalizeVhdlIdentifier(params.nodeName));
+    for (const category of params.categories) {
+      insight.categories.add(category);
+    }
+  };
+
+  const traverseEntity = (entityName: string, seedMap: Map<string, Set<string>>, depth = 0) => {
+    if (depth > 10) {
+      return;
+    }
+    const model = models.get(entityName);
+    if (!model) {
+      return;
+    }
+
+    const signature = `${entityName}|${Array.from(seedMap.entries()).map(([key, values]) => `${key}:${Array.from(values).sort().join(',')}`).sort().join(';')}`;
+    if (traversalVisited.has(signature)) {
+      return;
+    }
+    traversalVisited.add(signature);
+
+    const resolved = propagateEntityRoots(model, seedMap);
+    for (const [nodeName, roots] of resolved.entries()) {
+      const resolvedRoots = Array.from(roots).filter((rootSignal) => rootVisibleSet.has(rootSignal));
+      if (resolvedRoots.length === 0) {
+        continue;
+      }
+      categoryBuckets.all.forEach(() => undefined);
+      resolvedRoots.forEach((rootSignal) => categoryBuckets.all.add(rootSignal));
+      const categories = classifySignalName(nodeName);
+      categories.forEach((category) => {
+        resolvedRoots.forEach((rootSignal) => categoryBuckets[category].add(rootSignal));
+      });
+      resolvedRoots.forEach((rootSignal) => {
+        recordSignalObservation({
+          signalName: rootSignal,
+          entityName,
+          nodeName,
+          categories,
+        });
+      });
+    }
+
+    model.instances.forEach((instance) => {
+      reachableEntities.add(instance.entity);
+      const childSeedMap = new Map<string, Set<string>>();
+      instance.connections.forEach((connection) => {
+        const aggregatedRoots = new Set<string>();
+        connection.signals.forEach((signalName) => {
+          const roots = resolved.get(normalizeVhdlIdentifier(signalName));
+          if (!roots || roots.size === 0) {
+            return;
+          }
+          roots.forEach((rootSignal) => aggregatedRoots.add(rootSignal));
+        });
+        if (aggregatedRoots.size > 0) {
+          addRootsToMap(childSeedMap, connection.port, aggregatedRoots);
+        }
+      });
+      if (childSeedMap.size > 0) {
+        traverseEntity(instance.entity, childSeedMap, depth + 1);
+      }
+    });
+  };
+
+  const rootSeedMap = new Map<string, Set<string>>();
+  rootVisibleSignals.forEach((signalName) => {
+    addRootsToMap(rootSeedMap, signalName, [signalName]);
+    const seedCategories = classifySignalName(signalName);
+    seedCategories.forEach((category) => categoryBuckets[category].add(signalName));
+    recordSignalObservation({
+      signalName,
+      entityName: normalizedRootEntity,
+      nodeName: signalName,
+      categories: seedCategories,
+    });
+  });
+
+  if (rootModel) {
+    traverseEntity(normalizedRootEntity, rootSeedMap);
+  }
+
+  return {
+    rootEntity: normalizedRootEntity,
+    selectedSourcePaths: normalizedSelectedSources.map((source) => source.path).sort(),
+    rootVisibleSignals,
+    reachableEntities: Array.from(reachableEntities).sort(),
+    entityRoles,
+    signalInsights: Array.from(signalInsights.values())
+      .map((insight) => ({
+        signal: insight.signal,
+        categories: Array.from(insight.categories).sort(),
+        entities: Array.from(insight.entities).sort(),
+        relatedNodes: Array.from(insight.relatedNodes).sort(),
+      }))
+      .sort((left, right) => left.signal.localeCompare(right.signal)),
+    categorySignals: {
+      clockReset: Array.from(categoryBuckets.clockReset).sort(),
+      protocol: Array.from(categoryBuckets.protocol).sort(),
+      state: Array.from(categoryBuckets.state).sort(),
+      control: Array.from(categoryBuckets.control).sort(),
+      data: Array.from(categoryBuckets.data).sort(),
+      debug: Array.from(categoryBuckets.debug).sort(),
+      all: Array.from(categoryBuckets.all).sort(),
+    },
+  } satisfies MacroSignalIndex;
+}
+
+function buildMacroSignalIndexFromFixtures(params: {
+  rootEntity: string;
+  sources: SemanticSourceFixture[];
+}) {
+  const sourceContents = new Map<string, string>();
+  params.sources.forEach((source) => {
+    sourceContents.set(source.path, stripVhdlComments(source.content));
+  });
+
+  return buildMacroSignalIndexFromParsedSources({
+    rootEntity: params.rootEntity,
+    selectedSources: params.sources.map((source) => ({
+      path: source.path,
+      isTestbench: source.isTestbench,
+    })),
+    sourceContents,
+  });
+}
+
+async function getOrBuildMacroSignalIndex(params: {
+  projectPath: string;
+  rootEntity: string;
+  sourcePaths?: string[];
+}) {
+  const cacheKey = createMacroSignalIndexCacheKey(
+    params.projectPath,
+    params.rootEntity,
+    Array.isArray(params.sourcePaths) ? params.sourcePaths : []
+  );
+  const cached = macroSignalIndexCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const built = await buildMacroSignalIndex(params);
+  macroSignalIndexCache.set(cacheKey, built);
+  return built;
+}
+
+function countSignalTransitions(values: Array<number | string>) {
+  let transitions = 0;
+  for (let index = 1; index < values.length; index += 1) {
+    if (values[index] !== values[index - 1]) {
+      transitions += 1;
+    }
+  }
+  return transitions;
+}
+
+function selectMacroSignals(params: {
+  macroId: AiMacroId;
+  signals: AnalyzerSignal[];
+  index: MacroSignalIndex;
+}) {
+  const { macroId, signals, index } = params;
+  const insightMap = new Map(index.signalInsights.map((insight) => [normalizeVhdlIdentifier(insight.signal), insight]));
+  const entityRoleMap = new Map(Object.entries(index.entityRoles).map(([entityName, role]) => [normalizeVhdlIdentifier(entityName), role]));
+  const categorySets = {
+    all: createRootSet(index.categorySignals.all),
+    clockReset: createRootSet(index.categorySignals.clockReset),
+    protocol: createRootSet(index.categorySignals.protocol),
+    state: createRootSet(index.categorySignals.state),
+    control: createRootSet(index.categorySignals.control),
+    data: createRootSet(index.categorySignals.data),
+    debug: createRootSet(index.categorySignals.debug),
+  };
+
+  const desiredCategories: Array<keyof typeof categorySets> =
+    macroId === 'protocol_decoder_details' || macroId === 'summarize_protocol_timeline'
+      ? ['protocol', 'clockReset', 'control', 'data', 'all']
+      : macroId === 'inspect_race_hazards' || macroId === 'verify_clock_reset_sequence'
+        ? ['clockReset', 'control', 'data', 'protocol', 'debug', 'all']
+        : macroId === 'explain_fsm_behavior'
+          ? ['state', 'control', 'clockReset', 'data', 'all']
+          : macroId === 'generate_vhdl_tb' || macroId === 'generate_vhdl_assertions' || macroId === 'draft_rtl_skeleton'
+            ? ['all', 'clockReset', 'control', 'data', 'state', 'protocol']
+            : macroId === 'suggest_debug_probes'
+              ? ['protocol', 'clockReset', 'control', 'state', 'data', 'debug', 'all']
+              : ['all', 'clockReset', 'control', 'data', 'protocol', 'state'];
+
+  const desiredSet = new Set<string>();
+  desiredCategories.forEach((category) => {
+    categorySets[category].forEach((signalName) => desiredSet.add(signalName));
+  });
+
+  const preferredRoles =
+    macroId === 'protocol_decoder_details' || macroId === 'summarize_protocol_timeline'
+      ? ['protocol', 'wrapper', 'rtl', 'logic']
+      : macroId === 'inspect_race_hazards' || macroId === 'verify_clock_reset_sequence'
+        ? ['testbench', 'wrapper', 'control', 'rtl', 'logic']
+        : macroId === 'explain_fsm_behavior'
+          ? ['control', 'rtl', 'wrapper', 'logic']
+          : macroId === 'generate_vhdl_tb' || macroId === 'generate_vhdl_assertions' || macroId === 'draft_rtl_skeleton'
+            ? ['wrapper', 'rtl', 'control', 'protocol', 'logic']
+            : macroId === 'suggest_debug_probes'
+              ? ['protocol', 'control', 'wrapper', 'rtl', 'memory', 'logic']
+              : ['rtl', 'wrapper', 'control', 'protocol', 'logic'];
+  const roleWeight = (role: string | undefined) => {
+    if (!role) return 0;
+    const position = preferredRoles.indexOf(role);
+    return position >= 0 ? Math.max(1, preferredRoles.length - position) : 0;
+  };
+
+  const scoredSignals = signals.map((signal) => {
+    const normalizedName = normalizeVhdlIdentifier(getSignalName(signal));
+    const insight = insightMap.get(normalizedName);
+    const activityScore = Math.min(8, countSignalTransitions(getSignalValues(signal)));
+    let score = 0;
+    if (categorySets.all.has(normalizedName)) score += 10;
+    if (categorySets.clockReset.has(normalizedName)) score += desiredCategories.includes('clockReset') ? 8 : 2;
+    if (categorySets.protocol.has(normalizedName)) score += desiredCategories.includes('protocol') ? 8 : 2;
+    if (categorySets.state.has(normalizedName)) score += desiredCategories.includes('state') ? 8 : 2;
+    if (categorySets.control.has(normalizedName)) score += desiredCategories.includes('control') ? 6 : 2;
+    if (categorySets.data.has(normalizedName)) score += desiredCategories.includes('data') ? 5 : 1;
+    if (categorySets.debug.has(normalizedName)) score += desiredCategories.includes('debug') ? 5 : 1;
+    score += activityScore;
+    score += Math.min(6, insight?.entities.length || 0);
+    score += Math.min(4, insight?.categories.length || 0);
+    score += Math.max(...(insight?.entities.map((entityName) => roleWeight(entityRoleMap.get(entityName))) || [0]));
+
+    return {
+      signal,
+      normalizedName,
+      score,
+      activityScore,
+      insight,
+    };
+  });
+
+  const limit =
+    macroId === 'protocol_decoder_details' || macroId === 'summarize_protocol_timeline'
+      ? 10
+      : macroId === 'inspect_race_hazards' || macroId === 'verify_clock_reset_sequence'
+        ? 12
+        : macroId === 'explain_fsm_behavior'
+          ? 12
+          : macroId === 'custom_query'
+            ? 16
+            : 18;
+
+  const mandatoryNames = scoredSignals
+    .filter((entry) => desiredSet.has(entry.normalizedName))
+    .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
+    .slice(0, Math.min(limit, Math.max(6, desiredSet.size)))
+    .map((entry) => entry.normalizedName);
+
+  const selected = scoredSignals
+    .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
+    .filter((entry, index, array) => mandatoryNames.includes(entry.normalizedName) || (entry.score > 0 && index < limit) || (array.length <= limit))
+    .slice(0, limit);
+
+  const selectedNames = new Set(selected.map((entry) => entry.normalizedName));
+  mandatoryNames.forEach((mandatoryName) => {
+    if (selectedNames.has(mandatoryName)) {
+      return;
+    }
+    const match = scoredSignals.find((entry) => entry.normalizedName === mandatoryName);
+    if (match) {
+      selected.push(match);
+      selectedNames.add(mandatoryName);
+    }
+  });
+
+  const selectedEntries = selected
+    .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
+    .slice(0, limit);
+  const focusEntityScores = new Map<string, number>();
+  selectedEntries.forEach((entry) => {
+    entry.insight?.entities.forEach((entityName) => {
+      const normalizedEntity = normalizeVhdlIdentifier(entityName);
+      const nextScore = (focusEntityScores.get(normalizedEntity) || 0)
+        + entry.score
+        + roleWeight(entityRoleMap.get(normalizedEntity));
+      focusEntityScores.set(normalizedEntity, nextScore);
+    });
+  });
+  const focusEntities = Array.from(focusEntityScores.entries())
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .slice(0, 6)
+    .map(([entityName]) => entityName);
+
+  return {
+    selectedSignals: selectedEntries.map((entry) => entry.signal),
+    selectedSignalInsights: selectedEntries.map((entry) => ({
+      signal: getSignalName(entry.signal),
+      normalizedSignal: entry.normalizedName,
+      score: entry.score,
+      activityScore: entry.activityScore,
+      categories: entry.insight?.categories || [],
+      entities: entry.insight?.entities || [],
+      relatedNodes: entry.insight?.relatedNodes || [],
+    })),
+    desiredCategories,
+    focusEntities,
+  };
+}
+
 function rankSourceForCompilation(source: VhdlSourceDescriptor) {
   if (source.packages.length > 0) return 0;
   if (source.packageBodies.length > 0) return 1;
@@ -2023,13 +2855,28 @@ async function bootstrap() {
     }
 
     try {
+      const normalizedProjectPath = projectPath.trim();
+      const normalizedTopEntity = topEntity.trim();
+      const normalizedSourcePaths = Array.isArray(sourcePaths) ? sourcePaths : undefined;
       const result = await runGhdlSimulation({
-        projectPath: projectPath.trim(),
-        topEntity: topEntity.trim(),
-        sourcePaths: Array.isArray(sourcePaths) ? sourcePaths : undefined,
+        projectPath: normalizedProjectPath,
+        topEntity: normalizedTopEntity,
+        sourcePaths: normalizedSourcePaths,
         stopTime: typeof stopTime === 'string' && stopTime.trim() ? stopTime.trim() : undefined,
         autoInstall: Boolean(autoInstall),
       });
+      try {
+        await getOrBuildMacroSignalIndex({
+          projectPath: normalizedProjectPath,
+          rootEntity: normalizedTopEntity,
+          sourcePaths: normalizedSourcePaths,
+        });
+      } catch (cacheError: any) {
+        result.logs = [
+          ...result.logs,
+          `Macro signal index warmup skipped: ${cacheError?.message || String(cacheError)}`,
+        ];
+      }
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ error: error.message || error, logs: error.logs || [] });
@@ -2139,6 +2986,7 @@ async function bootstrap() {
 
   app.post('/api/ai-analyze', async (req, res) => {
     const { provider, signals, query, model, timeUnit, tickDuration, projectContext, projectPath, workspaceFileName } = req.body;
+    const simulationMacroContext = req.body?.simulationMacroContext;
     const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
     const macroId: AiMacroId = typeof req.body?.macroId === 'string' && req.body.macroId.trim()
       ? req.body.macroId.trim() as AiMacroId
@@ -2188,12 +3036,114 @@ async function bootstrap() {
         resolvedTimeUnit
       );
 
+      const allSignals = Array.isArray(signals) ? signals : [];
+      const normalizedProjectPath = typeof projectPath === 'string' && projectPath.trim() ? projectPath.trim() : '';
+      const simulationRootEntity = typeof simulationMacroContext?.rootEntity === 'string' && simulationMacroContext.rootEntity.trim()
+        ? simulationMacroContext.rootEntity.trim()
+        : '';
+      const simulationSourcePaths = Array.isArray(simulationMacroContext?.sourcePaths)
+        ? simulationMacroContext.sourcePaths.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
+        : [];
+
+      let macroSignalIndex: MacroSignalIndex | null = null;
+      let selectedSignals = allSignals;
+      let waveformSelectionText = '';
+      let macroDiagnostics: {
+        rootEntity: string;
+        reachableEntities: string[];
+        entityRoles: Record<string, string>;
+        focusEntities: string[];
+        desiredCategories: string[];
+        semanticConfidence: number;
+        selectionNotes: string[];
+        visibleSignalsSent: number;
+        totalSignalsAvailable: number;
+        selectedSignals: Array<{
+          signal: string;
+          normalizedSignal: string;
+          score: number;
+          activityScore: number;
+          categories: string[];
+          entities: string[];
+          relatedNodes: string[];
+        }>;
+      } | null = null;
+
+      if (normalizedProjectPath && simulationRootEntity && allSignals.length > 0) {
+        try {
+          macroSignalIndex = await getOrBuildMacroSignalIndex({
+            projectPath: normalizedProjectPath,
+            rootEntity: simulationRootEntity,
+            sourcePaths: simulationSourcePaths,
+          });
+          const signalSelection = selectMacroSignals({
+            macroId,
+            signals: allSignals,
+            index: macroSignalIndex,
+          });
+          if (signalSelection.selectedSignals.length > 0) {
+            selectedSignals = signalSelection.selectedSignals;
+          }
+          const roleCounts = Object.values(macroSignalIndex.entityRoles).reduce<Record<string, number>>((acc, role) => {
+            acc[role] = (acc[role] || 0) + 1;
+            return acc;
+          }, {});
+          const selectedWithInsights = signalSelection.selectedSignalInsights.filter((signal) => signal.entities.length > 0 || signal.categories.length > 0).length;
+          const semanticConfidence = selectedSignals.length > 0
+            ? Math.round((selectedWithInsights / selectedSignals.length) * 100)
+            : 0;
+          const selectionNotes = [
+            `selected ${selectedSignals.length} of ${allSignals.length} visible signals for ${macroId}`,
+            `reachable entities: ${macroSignalIndex.reachableEntities.length}`,
+            `entity roles observed: ${Object.entries(roleCounts).map(([role, count]) => `${role}=${count}`).join(', ') || 'none'}`,
+          ];
+          if (selectedWithInsights < selectedSignals.length) {
+            selectionNotes.push(`some selected signals did not resolve to strong semantic insights (${selectedWithInsights}/${selectedSignals.length})`);
+          }
+          macroDiagnostics = {
+            rootEntity: macroSignalIndex.rootEntity,
+            reachableEntities: macroSignalIndex.reachableEntities,
+            entityRoles: macroSignalIndex.entityRoles,
+            focusEntities: signalSelection.focusEntities,
+            desiredCategories: signalSelection.desiredCategories,
+            semanticConfidence,
+            selectionNotes,
+            visibleSignalsSent: selectedSignals.length,
+            totalSignalsAvailable: allSignals.length,
+            selectedSignals: signalSelection.selectedSignalInsights,
+          };
+
+          waveformSelectionText += `### Macro Signal Selection\n`;
+          waveformSelectionText += `Simulation Root: ${macroSignalIndex.rootEntity}\n`;
+          waveformSelectionText += `Reachable Entities: ${macroSignalIndex.reachableEntities.join(', ') || 'none'}\n`;
+          waveformSelectionText += `Entity Roles: ${Object.entries(macroSignalIndex.entityRoles).map(([entityName, role]) => `${entityName}:${role}`).join(', ') || 'none'}\n`;
+          waveformSelectionText += `Macro Focus Entities: ${signalSelection.focusEntities.join(', ') || macroSignalIndex.rootEntity}\n`;
+          waveformSelectionText += `Selection Categories: ${signalSelection.desiredCategories.join(', ')}\n`;
+          waveformSelectionText += `Semantic Confidence: ${semanticConfidence}%\n`;
+          waveformSelectionText += `Relevant Signals: ${selectedSignals.map((signal) => getSignalName(signal)).join(', ') || 'none'}\n\n`;
+          waveformSelectionText += `### Signal Relevance Hints\n`;
+          signalSelection.selectedSignalInsights.forEach((insight) => {
+            waveformSelectionText += `- ${insight.signal}`;
+            waveformSelectionText += ` | categories: ${insight.categories.join(', ') || 'uncategorized'}`;
+            waveformSelectionText += ` | entities: ${insight.entities.join(', ') || macroSignalIndex?.rootEntity || 'unknown'}`;
+            waveformSelectionText += ` | related nodes: ${insight.relatedNodes.slice(0, 8).join(', ') || insight.normalizedSignal}`;
+            waveformSelectionText += ` | activity score: ${insight.activityScore}\n`;
+          });
+          waveformSelectionText += '\n';
+        } catch (selectionError: any) {
+          waveformSelectionText += `### Macro Signal Selection\n`;
+          waveformSelectionText += `Selection fallback: full waveform set used because semantic filtering failed: ${selectionError?.message || String(selectionError)}\n\n`;
+        }
+      }
+
       // Format the timing trace data into a highly readable block for the LLM
       let waveformText = '### Captured Waves Log:\n';
-      waveformText += `Time Base Unit: ${tickDuration} ${timeUnit} per tick\n\n`;
+      waveformText += `Time Base Unit: ${tickDuration} ${timeUnit} per tick\n`;
+      waveformText += `Visible Signals Sent: ${selectedSignals.length}/${allSignals.length}\n\n`;
+      waveformText += waveformSelectionText;
 
-      if (Array.isArray(signals)) {
-        signals.forEach((sig: any) => {
+      if (selectedSignals.length > 0) {
+        selectedSignals.forEach((sig: any) => {
           waveformText += `Signal Channel: ${sig.name} | Type: ${sig.type}\n`;
           const sampleValues = sig.values ? sig.values.slice(0, 120) : [];
           waveformText += `Ticks (0-120): ${sampleValues.map((v: any) => v === -1 ? 'Z' : v).join('')}\n\n`;
@@ -2240,7 +3190,9 @@ ${hazardScan.markdown}
 
 ${projectText}
 
-Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.`;
+Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.
+
+When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", treat those as the primary hierarchy-aware view of the design. Use the focus entities and related nodes to explain why each selected signal matters to the requested macro.`;
 
       // Call latest recommended Gemini Model
       const selectedProvider: LLMProviderId = typeof provider === 'string' && provider.trim()
@@ -2274,6 +3226,7 @@ Return your explanation in beautifully formatted markdown with clear sections. P
         model: selectedModel,
         hazardScan,
         protocolScan,
+        diagnostics: macroDiagnostics,
         macroId,
         tbGenerationMode,
         validation,
@@ -2321,6 +3274,20 @@ Return your explanation in beautifully formatted markdown with clear sections. P
   });
 }
 
-bootstrap().catch((err) => {
-  console.error('Failed to trigger bootstrap startup server sequence:', err);
-});
+export const __semanticTestHooks = {
+  normalizeVhdlIdentifier,
+  extractIdentifierReferences,
+  extractGenerateBlocks,
+  extractInstancesFromArchitecture,
+  buildVhdlSemanticModels,
+  inferEntityRole,
+  classifySignalName,
+  buildMacroSignalIndexFromFixtures,
+  selectMacroSignals,
+};
+
+if (process.env.AI_SELECTOR_TEST_MODE !== '1') {
+  bootstrap().catch((err) => {
+    console.error('Failed to trigger bootstrap startup server sequence:', err);
+  });
+}
