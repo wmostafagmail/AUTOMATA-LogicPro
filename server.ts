@@ -2440,6 +2440,33 @@ async function buildProjectContextFromPath(projectPath: string, query: string, w
   };
 }
 
+let cachedVhdlSkillPrompt: string | null = null;
+
+async function getVhdlSkillPrompt() {
+  if (cachedVhdlSkillPrompt !== null) {
+    return cachedVhdlSkillPrompt;
+  }
+
+  try {
+    const skillPath = path.join(process.cwd(), 'SKILL.md');
+    const rawSkill = await fs.readFile(skillPath, 'utf8');
+    cachedVhdlSkillPrompt = [
+      '### Mandatory VHDL Skill',
+      'The following project skill must be applied for this analysis whenever VHDL code, VHDL testbenches, RTL, assertions, or VHDL-oriented reasoning are involved.',
+      'Treat it as required implementation and style guidance, not optional background.',
+      rawSkill.trim(),
+    ].join('\n\n');
+  } catch (error: any) {
+    cachedVhdlSkillPrompt = [
+      '### Mandatory VHDL Skill',
+      `The project SKILL.md file could not be loaded automatically: ${error?.message || String(error)}.`,
+      'Continue with VHDL-oriented best effort, but state assumptions clearly.',
+    ].join('\n\n');
+  }
+
+  return cachedVhdlSkillPrompt;
+}
+
 async function normalizeFilesystemPath(targetPath: string) {
   const resolvedPath = path.resolve(targetPath.trim());
   try {
@@ -3266,6 +3293,7 @@ async function bootstrap() {
 
       let projectText = '';
       let resolvedProjectContext = projectContext;
+      const vhdlSkillPrompt = await getVhdlSkillPrompt();
       if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && normalizedProjectPath) {
         resolvedProjectContext = await buildProjectContextFromPath(normalizedProjectPath, query, workspaceFileName);
       }
@@ -3307,6 +3335,8 @@ ${protocolScan.markdown}
 ${hazardScan.markdown}
 
 ${projectText}
+
+${vhdlSkillPrompt}
 
 Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.
 
