@@ -1,11 +1,11 @@
-import {
+import type {
   AiMacroId,
   AiMacroValidationCheck,
   AiMacroValidationResult,
   HazardFindingLike,
   ProtocolFrameLike,
-  getAiMacroSpec,
-} from './aiMacros';
+} from './aiMacros.ts';
+import { getAiMacroSpec } from './aiMacros.ts';
 
 interface ValidateMacroOutputParams {
   macroId: AiMacroId;

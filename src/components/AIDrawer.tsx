@@ -3,6 +3,7 @@ import { ProjectContextPayload, ProjectFileEntry, Signal, SimulationMacroContext
 import { AiMacroId, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
 import { resolveMacroInvocation } from '../aiDrawerModel';
 import { AIWorkspaceReport, AiReportMeta, buildDisplayReport } from '../aiReport';
+import { apiFetch } from '../api';
 import { 
   Send, 
   X, 
@@ -126,7 +127,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
     const loadProviders = async () => {
       try {
-        const response = await fetch('/api/ai/providers');
+        const response = await apiFetch('/api/ai/providers');
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.error || 'Failed to load providers');
@@ -158,7 +159,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
     const loadModels = async () => {
       try {
-        const response = await fetch(`/api/ai/providers/${selectedProvider}/models`);
+        const response = await apiFetch(`/api/ai/providers/${selectedProvider}/models`);
         const data = await response.json();
         if (!response.ok && !Array.isArray(data.models)) {
           throw new Error(data.error || 'Failed to load models');
@@ -437,7 +438,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     try {
       const projectContext = await buildProjectContext(queryText);
       setJobStatus(`Sending request to ${selectedProvider} / ${selectedModel || 'default model'}...`);
-      const response = await fetch('/api/ai-analyze', {
+      const response = await apiFetch('/api/ai-analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
@@ -520,7 +521,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
     if (activeJobId) {
       try {
-        await fetch(`/api/ai-jobs/${activeJobId}/cancel`, {
+        await apiFetch(`/api/ai-jobs/${activeJobId}/cancel`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -538,7 +539,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     setTestGenerating(true);
     setTestGenerateResult(null);
     try {
-      const response = await fetch('/api/ai/test-generate', {
+      const response = await apiFetch('/api/ai/test-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -854,9 +855,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         {/* Loading Spinner */}
         {loading && (
           <>
-            <div className="flex items-center gap-2 text-brand-amber text-[10px] uppercase font-mono bg-brand-surface-lowest p-3 rounded-lg border border-brand-amber/10 justify-center">
-              <Loader2 size={12} className="animate-spin text-brand-amber" />
-              <span>AI model working... {jobElapsedSeconds}s</span>
+            <div className="flex items-center gap-2 text-lime-300 text-[10px] uppercase font-mono bg-brand-surface-lowest p-3 rounded-lg border border-lime-400/20 justify-center">
+              <Loader2 size={12} className="animate-spin text-lime-300" />
+              <span>AI Analysis {jobElapsedSeconds}s</span>
             </div>
           </>
         )}

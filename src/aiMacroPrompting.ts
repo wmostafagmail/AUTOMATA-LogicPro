@@ -1,4 +1,5 @@
-import { AiMacroId, TbGenerationMode, getAiMacroSpec } from './aiMacros';
+import type { AiMacroId, TbGenerationMode } from './aiMacros.ts';
+import { getAiMacroSpec } from './aiMacros.ts';
 
 interface BuildMacroPromptContractParams {
   macroId: AiMacroId;

@@ -5,12 +5,11 @@ import os from 'os';
 import { promisify } from 'util';
 import { execFile } from 'child_process';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI } from '@google/genai';
+import type { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
-import { AiMacroId, TbGenerationMode } from './src/aiMacros';
-import { validateMacroOutput } from './src/aiMacroValidation';
-import { buildMacroPromptContract } from './src/aiMacroPrompting';
+import type { AiMacroId, TbGenerationMode } from './src/aiMacros.ts';
+import { validateMacroOutput } from './src/aiMacroValidation.ts';
+import { buildMacroPromptContract } from './src/aiMacroPrompting.ts';
 
 // Load environment variables
 dotenv.config();
@@ -2441,6 +2440,40 @@ async function buildProjectContextFromPath(projectPath: string, query: string, w
   };
 }
 
+async function normalizeFilesystemPath(targetPath: string) {
+  const resolvedPath = path.resolve(targetPath.trim());
+  try {
+    return await fs.realpath(resolvedPath);
+  } catch {
+    return resolvedPath;
+  }
+}
+
+function isPathWithinRoot(candidatePath: string, rootPath: string) {
+  const relativePath = path.relative(rootPath, candidatePath);
+  return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+}
+
+async function ensureDirectoryPath(targetPath: string, label = 'Directory') {
+  const normalizedPath = await normalizeFilesystemPath(targetPath);
+  let stat: Awaited<ReturnType<typeof fs.stat>>;
+  try {
+    stat = await fs.stat(normalizedPath);
+  } catch {
+    const error = new Error(`${label} does not exist.`);
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  if (!stat.isDirectory()) {
+    const error = new Error(`${label} must be a folder.`);
+    (error as any).statusCode = 400;
+    throw error;
+  }
+
+  return normalizedPath;
+}
+
 async function listProviderModels(provider: LLMProviderId): Promise<ProviderModel[]> {
   switch (provider) {
     case 'ollama': {
@@ -2734,6 +2767,31 @@ async function runModelAnalysis(params: {
 async function bootstrap() {
   const app = express();
   const PORT = 3000;
+  const HOST = '127.0.0.1';
+  const SESSION_HEADER = 'x-logicpro-session';
+  const sessionToken = randomUUID();
+  const approvedProjectRoots = new Set<string>();
+
+  const rememberApprovedProjectRoot = async (rootPath: string) => {
+    const normalizedRoot = await normalizeFilesystemPath(rootPath);
+    approvedProjectRoots.add(normalizedRoot);
+    return normalizedRoot;
+  };
+
+  const assertApprovedProjectPath = async (candidatePath: string, label = 'Project path') => {
+    const normalizedPath = await normalizeFilesystemPath(candidatePath);
+    for (const approvedRoot of approvedProjectRoots) {
+      if (isPathWithinRoot(normalizedPath, approvedRoot)) {
+        return normalizedPath;
+      }
+    }
+
+    const error = new Error(
+      `${label} is not approved for this app session. Re-select the project folder from inside AUTOMATA LogicPro and try again.`
+    );
+    (error as any).statusCode = 403;
+    throw error;
+  };
 
   // Middleware for body parsing
   app.use(express.json({ limit: '10mb' }));
@@ -2743,6 +2801,7 @@ async function bootstrap() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (apiKey) {
     try {
+      const { GoogleGenAI } = await import('@google/genai');
       ai = new GoogleGenAI({ apiKey });
       console.log('Gemini AI Client initialized successfully.');
     } catch (e) {
@@ -2758,28 +2817,73 @@ async function bootstrap() {
     res.json({ status: 'healthy', database: 'local_persistence' });
   });
 
+  app.get('/api/session', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.json({ token: sessionToken });
+  });
+
+  app.use('/api', (req, res, next) => {
+    if (req.path === '/health' || req.path === '/session') {
+      return next();
+    }
+
+    const providedToken = typeof req.header(SESSION_HEADER) === 'string' ? req.header(SESSION_HEADER) : '';
+    if (providedToken !== sessionToken) {
+      return res.status(401).json({
+        error: 'Missing or invalid local session token. Refresh the app and try again.',
+      });
+    }
+
+    return next();
+  });
+
   app.post('/api/project/select', async (req, res) => {
     try {
       const requestedDefaultPath = typeof req.body?.defaultPath === 'string' ? req.body.defaultPath : null;
       const projectPath = await chooseProjectFolder(requestedDefaultPath);
-      const files = await listProjectFiles(projectPath);
+      const approvedProjectPath = await rememberApprovedProjectRoot(projectPath);
+      const files = await listProjectFiles(approvedProjectPath);
       res.json({
-        name: path.basename(projectPath),
-        path: projectPath,
+        name: path.basename(approvedProjectPath),
+        path: approvedProjectPath,
         files,
       });
     } catch (error: any) {
       if (isAppleScriptCancel(error)) {
         return res.status(400).json({ cancelled: true });
       }
-      res.status(500).json({ error: error.message || error });
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
+    }
+  });
+
+  app.post('/api/project/restore', async (req, res) => {
+    const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath.trim() : '';
+    if (!projectPath) {
+      return res.status(400).json({ error: 'Project path is required.' });
+    }
+
+    try {
+      const approvedProjectPath = await rememberApprovedProjectRoot(await ensureDirectoryPath(projectPath, 'Project folder'));
+      const files = await listProjectFiles(approvedProjectPath);
+      res.json({
+        name: path.basename(approvedProjectPath),
+        path: approvedProjectPath,
+        files,
+      });
+    } catch (error: any) {
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
     }
   });
 
   app.post('/api/project/open-workspace', async (req, res) => {
     try {
-      const defaultPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath : null;
+      const defaultPath = typeof req.body?.projectPath === 'string' && req.body.projectPath.trim()
+        ? await assertApprovedProjectPath(req.body.projectPath, 'Workspace default path')
+        : null;
       const selectedPath = await chooseWorkspaceFile(defaultPath);
+      await rememberApprovedProjectRoot(path.dirname(selectedPath));
       const content = await fs.readFile(selectedPath, 'utf8');
       res.json({
         name: path.basename(selectedPath),
@@ -2790,13 +2894,15 @@ async function bootstrap() {
       if (isAppleScriptCancel(error)) {
         return res.status(400).json({ cancelled: true });
       }
-      res.status(500).json({ error: error.message || error });
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
     }
   });
 
   app.post('/api/project/save-vcd', async (req, res) => {
     try {
-      const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath : null;
+      const projectPath = typeof req.body?.projectPath === 'string' && req.body.projectPath.trim()
+        ? await assertApprovedProjectPath(req.body.projectPath, 'Export directory')
+        : null;
       const suggestedName = typeof req.body?.suggestedName === 'string' && req.body.suggestedName.trim()
         ? req.body.suggestedName.trim()
         : 'logic_dump.vcd';
@@ -2808,7 +2914,7 @@ async function bootstrap() {
       if (isAppleScriptCancel(error)) {
         return res.status(400).json({ cancelled: true });
       }
-      res.status(500).json({ error: error.message || error });
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
     }
   });
 
@@ -2827,10 +2933,10 @@ async function bootstrap() {
     }
 
     try {
-      const sources = await collectVhdlSources(projectPath);
+      const sources = await collectVhdlSources(await assertApprovedProjectPath(projectPath));
       res.json(buildVhdlProjectInfo(sources));
     } catch (error: any) {
-      res.status(500).json({ error: error.message || error });
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
     }
   });
 
@@ -2855,7 +2961,7 @@ async function bootstrap() {
     }
 
     try {
-      const normalizedProjectPath = projectPath.trim();
+      const normalizedProjectPath = await assertApprovedProjectPath(projectPath.trim());
       const normalizedTopEntity = topEntity.trim();
       const normalizedSourcePaths = Array.isArray(sourcePaths) ? sourcePaths : undefined;
       const result = await runGhdlSimulation({
@@ -2879,7 +2985,7 @@ async function bootstrap() {
       }
       res.json(result);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || error, logs: error.logs || [] });
+      res.status(error?.statusCode || 500).json({ error: error.message || error, logs: error.logs || [] });
     }
   });
 
@@ -3037,7 +3143,15 @@ async function bootstrap() {
       );
 
       const allSignals = Array.isArray(signals) ? signals : [];
-      const normalizedProjectPath = typeof projectPath === 'string' && projectPath.trim() ? projectPath.trim() : '';
+      let normalizedProjectPath = '';
+      let projectPathUnavailableReason = '';
+      if (typeof projectPath === 'string' && projectPath.trim()) {
+        try {
+          normalizedProjectPath = await assertApprovedProjectPath(projectPath.trim());
+        } catch (projectPathError: any) {
+          projectPathUnavailableReason = projectPathError?.message || String(projectPathError);
+        }
+      }
       const simulationRootEntity = typeof simulationMacroContext?.rootEntity === 'string' && simulationMacroContext.rootEntity.trim()
         ? simulationMacroContext.rootEntity.trim()
         : '';
@@ -3152,8 +3266,12 @@ async function bootstrap() {
 
       let projectText = '';
       let resolvedProjectContext = projectContext;
-      if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && typeof projectPath === 'string' && projectPath.trim()) {
-        resolvedProjectContext = await buildProjectContextFromPath(projectPath, query, workspaceFileName);
+      if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && normalizedProjectPath) {
+        resolvedProjectContext = await buildProjectContextFromPath(normalizedProjectPath, query, workspaceFileName);
+      }
+      if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && projectPathUnavailableReason) {
+        projectText += `### Project Workspace Context\n`;
+        projectText += `Server-side project file enrichment skipped: ${projectPathUnavailableReason}\n\n`;
       }
 
       if (resolvedProjectContext && typeof resolvedProjectContext === 'object') {
@@ -3242,7 +3360,7 @@ When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", 
         });
       }
       console.error('Gemini API call error:', error);
-      return res.status(500).json({
+      return res.status(error?.statusCode || 500).json({
         error: `Core logic simulation analysis failed: ${error.message || error}`,
         macroId,
       });
@@ -3254,6 +3372,7 @@ When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", 
   // --- VITE MIDDLEWARE OR STATIC SERVER ---
 
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -3269,8 +3388,8 @@ When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", 
     console.log(`Serving static files from: ${distPath}`);
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Signal Logic Pro server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Signal Logic Pro server running on http://${HOST}:${PORT}`);
   });
 }
 

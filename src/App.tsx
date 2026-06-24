@@ -3,6 +3,7 @@ import { GhdlProjectInfo, GhdlSourceFile, GhdlStatus, ProjectFileEntry, Signal, 
 import { PRESETS } from './data';
 import { runSimulationEvaluations } from './utils';
 import { parseImportedWaveform } from './workspaceFile';
+import { apiFetch } from './api';
 
 // Components
 import { Toolbar } from './components/Toolbar';
@@ -31,6 +32,10 @@ const DEFAULT_AI_OUTPUT_WINDOW_BOUNDS = {
   width: 1020,
   height: 760,
 };
+
+function isProjectApprovalErrorMessage(message: string) {
+  return message.toLowerCase().includes('not approved for this app session');
+}
 
 export default function App() {
   // 1. Core workspace timing configuration states
@@ -80,6 +85,7 @@ export default function App() {
   const [simulationMacroContext, setSimulationMacroContext] = useState<SimulationMacroContextPayload | null>(null);
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
   const startupWorkspaceRecoveryRef = useRef(false);
+  const startupProjectRestorePathRef = useRef<string | null>(null);
   const aiOutputWindowRef = useRef<HTMLDivElement | null>(null);
   const aiOutputDragRef = useRef<{
     pointerId: number;
@@ -338,6 +344,56 @@ export default function App() {
     }
   };
 
+  const resetProjectSelection = (message?: string) => {
+    setProjectDirectoryName('Select Project Folder');
+    setProjectDirectoryPath(null);
+    setProjectFiles([]);
+    setProjectFileCount(0);
+    setGhdlProjectInfo(null);
+    setGhdlSelectedSourcePaths([]);
+    setGhdlTopEntity('');
+
+    if (message) {
+      setWorkspaceError(message);
+    }
+
+    try {
+      window.localStorage.removeItem(PROJECT_STORAGE_KEY);
+    } catch {
+      // Ignore storage failures.
+    }
+  };
+
+  useEffect(() => {
+    if (!projectDirectoryPath) {
+      return;
+    }
+    if (startupProjectRestorePathRef.current === projectDirectoryPath) {
+      return;
+    }
+    startupProjectRestorePathRef.current = projectDirectoryPath;
+
+    const restoreProjectAccess = async () => {
+      try {
+        const response = await apiFetch('/api/project/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectPath: projectDirectoryPath }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Unable to restore the selected project folder.');
+        }
+        applyProjectFiles(data.name, data.path, Array.isArray(data.files) ? data.files : []);
+      } catch (error: any) {
+        startupProjectRestorePathRef.current = null;
+        resetProjectSelection(error?.message || 'Re-select the project folder to continue.');
+      }
+    };
+
+    void restoreProjectAccess();
+  }, [projectDirectoryPath]);
+
   const handleToggleGhdlSource = (sourcePath: string) => {
     setGhdlSelectedSourcePaths((previous) =>
       previous.includes(sourcePath)
@@ -428,7 +484,7 @@ export default function App() {
     setShowVcdModal(true);
 
     try {
-      const response = await fetch('/api/project/save-vcd', {
+      const response = await apiFetch('/api/project/save-vcd', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -442,10 +498,18 @@ export default function App() {
         setWorkspaceError(null);
         return;
       }
+      if (typeof data?.error === 'string' && isProjectApprovalErrorMessage(data.error)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
       if (!data.cancelled) {
         setWorkspaceError(data.error || 'Unable to export the VCD file.');
       }
     } catch (error: any) {
+      if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
       setWorkspaceError(error?.message || 'Unable to export the VCD file.');
     }
 
@@ -480,8 +544,8 @@ export default function App() {
 
     try {
       const [statusResponse, infoResponse] = await Promise.all([
-        fetch('/api/ghdl/status'),
-        fetch('/api/ghdl/project-info', {
+        apiFetch('/api/ghdl/status'),
+        apiFetch('/api/ghdl/project-info', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ projectPath: projectDirectoryPath }),
@@ -503,6 +567,10 @@ export default function App() {
       setGhdlTopEntity(infoData.defaultTopEntity || '');
       setWorkspaceError(null);
     } catch (error: any) {
+      if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
       setWorkspaceError(error?.message || 'Unable to load the GHDL project view.');
     }
   };
@@ -526,7 +594,7 @@ export default function App() {
     setGhdlJobStartedAt(Date.now());
     setGhdlJobStatus('Sending selected source set to GHDL...');
     try {
-      const response = await fetch('/api/ghdl/run', {
+      const response = await apiFetch('/api/ghdl/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -557,6 +625,10 @@ export default function App() {
       setGhdlJobStatus(`Simulation finished. Loaded ${data.vcdFileName || `${ghdlTopEntity}.vcd`}.`);
       setWorkspaceError(null);
     } catch (error: any) {
+      if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
       setGhdlJobStatus(`Simulation failed: ${error?.message || 'GHDL simulation failed.'}`);
       setWorkspaceError(error?.message || 'GHDL simulation failed.');
     } finally {
@@ -567,7 +639,7 @@ export default function App() {
 
   const handleOpenWorkspace = async () => {
     try {
-      const response = await fetch('/api/project/open-workspace', {
+      const response = await apiFetch('/api/project/open-workspace', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ projectPath: projectDirectoryPath }),
@@ -579,10 +651,18 @@ export default function App() {
         setWorkspaceError(null);
         return;
       }
+      if (typeof data?.error === 'string' && isProjectApprovalErrorMessage(data.error)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
       if (!data.cancelled) {
         setWorkspaceError(data.error || 'Unable to open the selected file.');
       }
     } catch (error: any) {
+      if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
       setWorkspaceError(error?.message || 'Unable to open the selected file.');
     }
 
@@ -591,7 +671,7 @@ export default function App() {
 
   const handlePickProjectDirectory = async () => {
     try {
-      const response = await fetch('/api/project/select', {
+      const response = await apiFetch('/api/project/select', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ defaultPath: projectDirectoryPath }),
