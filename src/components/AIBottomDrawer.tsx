@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, ChevronDown, ChevronUp, CircleDot, ShieldCheck, AlertTriangle, Maximize2 } from 'lucide-react';
+import { Bot, ChevronDown, ChevronUp, CircleDot, ShieldCheck, AlertTriangle, GitBranch, Maximize2 } from 'lucide-react';
 import { getAiMacroSpec } from '../aiMacros';
 import { AIWorkspaceReport, buildStructuredReport, getSectionAccent } from '../aiReport';
 
@@ -8,6 +8,7 @@ interface AIBottomDrawerProps {
   expanded: boolean;
   onToggleExpanded: () => void;
   onOpenFloatingWindow?: () => void;
+  onOpenDiagramWindow?: () => void;
   fillHeight?: boolean;
 }
 
@@ -238,6 +239,7 @@ export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
   expanded,
   onToggleExpanded,
   onOpenFloatingWindow,
+  onOpenDiagramWindow,
   fillHeight = false,
 }) => {
   const macroLabel = report?.meta.macroId ? getAiMacroSpec(report.meta.macroId).label : null;
@@ -264,6 +266,18 @@ export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
               {macroLabel}
             </span>
           )}
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenDiagramWindow?.();
+            }}
+            className="flex items-center gap-1 rounded border border-violet-400/30 bg-violet-500/10 px-1.5 py-1 text-[8px] font-bold uppercase tracking-wide text-violet-200 transition-colors hover:bg-violet-500/20 hover:text-white cursor-pointer"
+            title="Open block diagram viewer"
+          >
+            <GitBranch size={12} />
+            <span>Diagram</span>
+          </button>
           <button
             type="button"
             onClick={(event) => {

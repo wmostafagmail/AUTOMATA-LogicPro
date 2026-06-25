@@ -1265,6 +1265,12 @@ type MacroSignalIndex = {
   selectedSourcePaths: string[];
   rootVisibleSignals: string[];
   reachableEntities: string[];
+  entityHierarchy: Array<{
+    parent: string;
+    child: string;
+    instanceLabel: string;
+  }>;
+  entityDepths: Record<string, number>;
   entityRoles: Record<string, string>;
   signalInsights: MacroSignalInsight[];
   categorySignals: {
@@ -1735,6 +1741,8 @@ function buildMacroSignalIndexFromParsedSources(params: {
     all: new Set<string>(rootVisibleSignals),
   };
   const reachableEntities = new Set<string>([normalizedRootEntity]);
+  const entityHierarchy = new Map<string, { parent: string; child: string; instanceLabel: string }>();
+  const entityDepths = new Map<string, number>([[normalizedRootEntity, 0]]);
   const traversalVisited = new Set<string>();
   const signalInsights = new Map<string, ReturnType<typeof createEmptyInsight>>();
 
@@ -1802,6 +1810,16 @@ function buildMacroSignalIndexFromParsedSources(params: {
 
     model.instances.forEach((instance) => {
       reachableEntities.add(instance.entity);
+      const hierarchyKey = `${entityName}->${instance.entity}->${instance.label}`;
+      entityHierarchy.set(hierarchyKey, {
+        parent: entityName,
+        child: instance.entity,
+        instanceLabel: instance.label,
+      });
+      const currentDepth = entityDepths.get(instance.entity);
+      if (currentDepth === undefined || depth + 1 < currentDepth) {
+        entityDepths.set(instance.entity, depth + 1);
+      }
       const childSeedMap = new Map<string, Set<string>>();
       instance.connections.forEach((connection) => {
         const aggregatedRoots = new Set<string>();
@@ -1844,6 +1862,14 @@ function buildMacroSignalIndexFromParsedSources(params: {
     selectedSourcePaths: normalizedSelectedSources.map((source) => source.path).sort(),
     rootVisibleSignals,
     reachableEntities: Array.from(reachableEntities).sort(),
+    entityHierarchy: Array.from(entityHierarchy.values()).sort((left, right) =>
+      left.parent.localeCompare(right.parent)
+      || left.child.localeCompare(right.child)
+      || left.instanceLabel.localeCompare(right.instanceLabel)
+    ),
+    entityDepths: Object.fromEntries(
+      Array.from(entityDepths.entries()).sort((left, right) => left[0].localeCompare(right[0]))
+    ),
     entityRoles,
     signalInsights: Array.from(signalInsights.values())
       .map((insight) => ({
@@ -3192,6 +3218,12 @@ async function bootstrap() {
       let macroDiagnostics: {
         rootEntity: string;
         reachableEntities: string[];
+        entityHierarchy: Array<{
+          parent: string;
+          child: string;
+          instanceLabel: string;
+        }>;
+        entityDepths: Record<string, number>;
         entityRoles: Record<string, string>;
         focusEntities: string[];
         desiredCategories: string[];
@@ -3244,6 +3276,8 @@ async function bootstrap() {
           macroDiagnostics = {
             rootEntity: macroSignalIndex.rootEntity,
             reachableEntities: macroSignalIndex.reachableEntities,
+            entityHierarchy: macroSignalIndex.entityHierarchy,
+            entityDepths: macroSignalIndex.entityDepths,
             entityRoles: macroSignalIndex.entityRoles,
             focusEntities: signalSelection.focusEntities,
             desiredCategories: signalSelection.desiredCategories,

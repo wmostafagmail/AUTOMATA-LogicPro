@@ -11,6 +11,7 @@ import { SignalSidebar } from './components/SignalSidebar';
 import { WaveformViewport } from './components/WaveformViewport';
 import { AIDrawer } from './components/AIDrawer';
 import { AIBottomDrawer, AIAnalysisContent } from './components/AIBottomDrawer';
+import { AIDiagramContent } from './components/AIDiagramViewer';
 import { AIWorkspaceReport } from './aiReport';
 import {
   Wrench,
@@ -21,7 +22,8 @@ import {
   FolderOpen,
   Play,
   Loader2,
-  Maximize2
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 
 const PROJECT_STORAGE_KEY = 'automata-logicpro-project';
@@ -31,6 +33,12 @@ const DEFAULT_AI_OUTPUT_WINDOW_BOUNDS = {
   top: 0,
   width: 1020,
   height: 760,
+};
+const DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS = {
+  left: 0,
+  top: 0,
+  width: 1120,
+  height: 720,
 };
 
 function isProjectApprovalErrorMessage(message: string) {
@@ -82,12 +90,26 @@ export default function App() {
   const [workspaceAiReportExpanded, setWorkspaceAiReportExpanded] = useState(true);
   const [showAiOutputWindow, setShowAiOutputWindow] = useState(false);
   const [aiOutputWindowBounds, setAiOutputWindowBounds] = useState(DEFAULT_AI_OUTPUT_WINDOW_BOUNDS);
+  const [aiOutputWindowFullscreen, setAiOutputWindowFullscreen] = useState(false);
+  const [showAiDiagramWindow, setShowAiDiagramWindow] = useState(false);
+  const [aiDiagramWindowBounds, setAiDiagramWindowBounds] = useState(DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS);
+  const [aiDiagramWindowFullscreen, setAiDiagramWindowFullscreen] = useState(false);
   const [simulationMacroContext, setSimulationMacroContext] = useState<SimulationMacroContextPayload | null>(null);
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
   const startupWorkspaceRecoveryRef = useRef(false);
   const startupProjectRestorePathRef = useRef<string | null>(null);
   const aiOutputWindowRef = useRef<HTMLDivElement | null>(null);
+  const aiOutputWindowRestoreBoundsRef = useRef(DEFAULT_AI_OUTPUT_WINDOW_BOUNDS);
   const aiOutputDragRef = useRef<{
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const aiDiagramWindowRef = useRef<HTMLDivElement | null>(null);
+  const aiDiagramWindowRestoreBoundsRef = useRef(DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS);
+  const aiDiagramDragRef = useRef<{
     pointerId: number;
     offsetX: number;
     offsetY: number;
@@ -169,19 +191,20 @@ export default function App() {
   }, [signals, simulationLength, tickDuration, timeUnit, workspaceFileName]);
 
   useEffect(() => {
-    if (!showAiOutputWindow) {
+    if (!showAiOutputWindow && !showAiDiagramWindow) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setShowAiOutputWindow(false);
+        setShowAiDiagramWindow(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showAiOutputWindow]);
+  }, [showAiDiagramWindow, showAiOutputWindow]);
 
   // 5. Compute Live logic simulation of all clocks, outputs and decoders in parallel
   const simulatedSignals = useMemo(() => {
@@ -224,7 +247,25 @@ export default function App() {
     return { left, top, width, height };
   };
 
+  const clampAiDiagramWindowBounds = (nextBounds: typeof DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS) => {
+    if (typeof window === 'undefined') {
+      return nextBounds;
+    }
+
+    const minWidth = 760;
+    const minHeight = 460;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const width = Math.min(Math.max(nextBounds.width, minWidth), Math.max(minWidth, viewportWidth - 32));
+    const height = Math.min(Math.max(nextBounds.height, minHeight), Math.max(minHeight, viewportHeight - 32));
+    const left = Math.min(Math.max(nextBounds.left, 16), Math.max(16, viewportWidth - width - 16));
+    const top = Math.min(Math.max(nextBounds.top, 16), Math.max(16, viewportHeight - height - 16));
+
+    return { left, top, width, height };
+  };
+
   const handleOpenAiOutputWindow = () => {
+    setAiOutputWindowFullscreen(false);
     setAiOutputWindowBounds((current) => {
       if (typeof window === 'undefined') {
         return clampAiOutputWindowBounds(current);
@@ -241,7 +282,28 @@ export default function App() {
     setShowAiOutputWindow(true);
   };
 
+  const handleOpenAiDiagramWindow = () => {
+    setAiDiagramWindowFullscreen(false);
+    setAiDiagramWindowBounds((current) => {
+      if (typeof window === 'undefined') {
+        return clampAiDiagramWindowBounds(current);
+      }
+
+      const centeredBounds = {
+        ...current,
+        left: Math.round((window.innerWidth - current.width) / 2),
+        top: Math.round((window.innerHeight - current.height) / 2),
+      };
+
+      return clampAiDiagramWindowBounds(centeredBounds);
+    });
+    setShowAiDiagramWindow(true);
+  };
+
   const handleAiOutputHeaderPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (aiOutputWindowFullscreen) {
+      return;
+    }
     if (event.button !== 0) {
       return;
     }
@@ -270,6 +332,9 @@ export default function App() {
   };
 
   const handleAiOutputHeaderPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (aiOutputWindowFullscreen) {
+      return;
+    }
     const dragState = aiOutputDragRef.current;
     if (!dragState || dragState.pointerId !== event.pointerId) {
       return;
@@ -293,6 +358,137 @@ export default function App() {
 
     aiOutputDragRef.current = null;
     event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+
+  const handleAiDiagramHeaderPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (aiDiagramWindowFullscreen) {
+      return;
+    }
+    if (event.button !== 0) {
+      return;
+    }
+
+    const element = aiDiagramWindowRef.current;
+    const rect = element?.getBoundingClientRect();
+    const liveBounds = rect
+      ? {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        }
+      : aiDiagramWindowBounds;
+
+    const clampedLiveBounds = clampAiDiagramWindowBounds(liveBounds);
+    setAiDiagramWindowBounds(clampedLiveBounds);
+    aiDiagramDragRef.current = {
+      pointerId: event.pointerId,
+      offsetX: event.clientX - clampedLiveBounds.left,
+      offsetY: event.clientY - clampedLiveBounds.top,
+      width: clampedLiveBounds.width,
+      height: clampedLiveBounds.height,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleAiDiagramHeaderPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (aiDiagramWindowFullscreen) {
+      return;
+    }
+    const dragState = aiDiagramDragRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    setAiDiagramWindowBounds(
+      clampAiDiagramWindowBounds({
+        left: event.clientX - dragState.offsetX,
+        top: event.clientY - dragState.offsetY,
+        width: dragState.width,
+        height: dragState.height,
+      })
+    );
+  };
+
+  const handleAiDiagramHeaderPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = aiDiagramDragRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    aiDiagramDragRef.current = null;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const syncFullscreenBounds = () => {
+      if (aiOutputWindowFullscreen) {
+        setAiOutputWindowBounds({
+          left: 0,
+          top: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }
+      if (aiDiagramWindowFullscreen) {
+        setAiDiagramWindowBounds({
+          left: 0,
+          top: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }
+    };
+
+    syncFullscreenBounds();
+    window.addEventListener('resize', syncFullscreenBounds);
+    return () => window.removeEventListener('resize', syncFullscreenBounds);
+  }, [aiDiagramWindowFullscreen, aiOutputWindowFullscreen]);
+
+  const toggleAiOutputWindowFullscreen = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    setAiOutputWindowBounds((current) => {
+      if (aiOutputWindowFullscreen) {
+        return clampAiOutputWindowBounds(aiOutputWindowRestoreBoundsRef.current);
+      }
+
+      aiOutputWindowRestoreBoundsRef.current = current;
+      return {
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+    });
+    setAiOutputWindowFullscreen((current) => !current);
+  };
+
+  const toggleAiDiagramWindowFullscreen = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    setAiDiagramWindowBounds((current) => {
+      if (aiDiagramWindowFullscreen) {
+        return clampAiDiagramWindowBounds(aiDiagramWindowRestoreBoundsRef.current);
+      }
+
+      aiDiagramWindowRestoreBoundsRef.current = current;
+      return {
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+    });
+    setAiDiagramWindowFullscreen((current) => !current);
   };
 
   const openWorkspaceSource = async (fileName: string, content: string) => {
@@ -1063,6 +1259,7 @@ export default function App() {
                 expanded={workspaceAiReportExpanded}
                 onToggleExpanded={() => setWorkspaceAiReportExpanded((previous) => !previous)}
                 onOpenFloatingWindow={handleOpenAiOutputWindow}
+                onOpenDiagramWindow={handleOpenAiDiagramWindow}
                 fillHeight
               />
             </div>
@@ -1090,14 +1287,16 @@ export default function App() {
         <div className="fixed inset-0 z-50 bg-black/20 pointer-events-none">
           <div
             ref={aiOutputWindowRef}
-            className="pointer-events-auto fixed flex min-h-[360px] min-w-[520px] resize overflow-auto rounded-xl border border-brand-cyan/25 bg-[#0b1020]/98 shadow-[0_18px_60px_rgba(0,0,0,0.45)]"
+            className={`pointer-events-auto fixed flex overflow-auto border border-brand-cyan/25 bg-[#0b1020]/98 shadow-[0_18px_60px_rgba(0,0,0,0.45)] ${
+              aiOutputWindowFullscreen ? 'rounded-none' : 'min-h-[360px] min-w-[520px] resize rounded-xl'
+            }`}
             style={{
               left: aiOutputWindowBounds.left,
               top: aiOutputWindowBounds.top,
               width: aiOutputWindowBounds.width,
               height: aiOutputWindowBounds.height,
-              maxWidth: 'calc(100vw - 32px)',
-              maxHeight: 'calc(100vh - 32px)',
+              maxWidth: aiOutputWindowFullscreen ? '100vw' : 'calc(100vw - 32px)',
+              maxHeight: aiOutputWindowFullscreen ? '100vh' : 'calc(100vh - 32px)',
             }}
           >
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
@@ -1116,23 +1315,112 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onPointerDown={(event) => {
-                    event.stopPropagation();
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setShowAiOutputWindow(false);
-                  }}
-                  className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
-                  title="Close AI analysis window"
-                >
-                  <X size={14} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleAiOutputWindowFullscreen();
+                    }}
+                    className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
+                    title={aiOutputWindowFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                  >
+                    {aiOutputWindowFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  </button>
+                  <button
+                    type="button"
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setShowAiOutputWindow(false);
+                    }}
+                    className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
+                    title="Close AI analysis window"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto bg-brand-surface-lowest p-4">
                 <AIAnalysisContent report={latestAiReport} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAiDiagramWindow && (
+        <div className="fixed inset-0 z-50 bg-black/20 pointer-events-none">
+          <div
+            ref={aiDiagramWindowRef}
+            className={`pointer-events-auto fixed flex overflow-auto border border-violet-400/25 bg-[#0b1020]/98 shadow-[0_18px_60px_rgba(0,0,0,0.45)] ${
+              aiDiagramWindowFullscreen ? 'rounded-none' : 'min-h-[460px] min-w-[760px] resize rounded-xl'
+            }`}
+            style={{
+              left: aiDiagramWindowBounds.left,
+              top: aiDiagramWindowBounds.top,
+              width: aiDiagramWindowBounds.width,
+              height: aiDiagramWindowBounds.height,
+              maxWidth: aiDiagramWindowFullscreen ? '100vw' : 'calc(100vw - 32px)',
+              maxHeight: aiDiagramWindowFullscreen ? '100vh' : 'calc(100vh - 32px)',
+            }}
+          >
+            <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+              <div
+                className="flex items-center justify-between gap-3 border-b border-brand-outline-variant/40 bg-brand-surface-lowest px-4 py-3 cursor-move"
+                onPointerDown={handleAiDiagramHeaderPointerDown}
+                onPointerMove={handleAiDiagramHeaderPointerMove}
+                onPointerUp={handleAiDiagramHeaderPointerUp}
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <Maximize2 size={14} className="text-violet-200 flex-none" />
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-200">Block Diagram Viewer</div>
+                    <div className="truncate text-[10px] text-slate-400">
+                      {latestAiReport?.meta.diagnostics
+                        ? `Graphical entity and signal relations for ${latestAiReport.meta.diagnostics.rootEntity}`
+                        : 'Run an AI macro with diagnostics to populate the diagram viewer.'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleAiDiagramWindowFullscreen();
+                    }}
+                    className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
+                    title={aiDiagramWindowFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                  >
+                    {aiDiagramWindowFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  </button>
+                  <button
+                    type="button"
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setShowAiDiagramWindow(false);
+                    }}
+                    className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
+                    title="Close block diagram window"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+              <div className="min-h-0 flex-1 overflow-auto bg-brand-surface-lowest p-4">
+                <AIDiagramContent report={latestAiReport} />
               </div>
             </div>
           </div>

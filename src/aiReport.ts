@@ -13,6 +13,12 @@ export interface AiSignalDiagnostic {
 export interface AiMacroDiagnostics {
   rootEntity: string;
   reachableEntities: string[];
+  entityHierarchy: Array<{
+    parent: string;
+    child: string;
+    instanceLabel: string;
+  }>;
+  entityDepths: Record<string, number>;
   entityRoles: Record<string, string>;
   focusEntities: string[];
   desiredCategories: string[];
