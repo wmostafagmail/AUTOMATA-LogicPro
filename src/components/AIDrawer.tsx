@@ -1097,23 +1097,23 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
                 <div className="grid grid-cols-5 gap-1.5">
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
-                    <div className="min-w-0 break-words text-[11px] uppercase leading-tight tracking-[0.12em] text-slate-500">High Risk</div>
+                    <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.08em] text-slate-500">High Risk</div>
                     <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-red-400">{parsedMessages[idx]?.highCount ?? 0}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
-                    <div className="min-w-0 break-words text-[11px] uppercase leading-tight tracking-[0.12em] text-slate-500">Medium</div>
+                    <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.08em] text-slate-500">Medium</div>
                     <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-orange-400">{parsedMessages[idx]?.mediumCount ?? 0}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
-                    <div className="min-w-0 break-words text-[11px] uppercase leading-tight tracking-[0.12em] text-slate-500">Low</div>
+                    <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.08em] text-slate-500">Low</div>
                     <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-yellow-300">{parsedMessages[idx]?.lowCount ?? 0}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
-                    <div className="min-w-0 break-words text-[11px] uppercase leading-tight tracking-[0.1em] text-slate-500">Protocol</div>
+                    <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.06em] text-slate-500">Protocol</div>
                     <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-cyan-200">{parsedMessages[idx]?.protocolCount ?? 0}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
-                    <div className="min-w-0 break-words text-[11px] uppercase leading-tight tracking-[0.08em] text-slate-500">Code Blocks</div>
+                    <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.05em] text-slate-500">Code Blocks</div>
                     <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-emerald-200">{parsedMessages[idx]?.codeBlockCount ?? 0}</div>
                   </div>
                 </div>
