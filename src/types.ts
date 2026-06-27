@@ -89,6 +89,14 @@ export interface GhdlStatus {
   reason?: string;
 }
 
+export interface GhdlRunResponse {
+  logs: string[];
+  vcdPath: string;
+  vcdFileName: string;
+  vcdContent: string;
+  status: GhdlStatus;
+}
+
 export interface GhdlSourceFile {
   path: string;
   name: string;
@@ -104,6 +112,14 @@ export interface GhdlProjectInfo {
   topCandidates: string[];
   defaultTopEntity: string;
   defaultSourcePaths: string[];
+}
+
+export interface ProviderOption {
+  id: string;
+  label: string;
+  enabled: boolean;
+  reason?: string;
+  deployment: 'local' | 'remote';
 }
 
 export interface Preset {

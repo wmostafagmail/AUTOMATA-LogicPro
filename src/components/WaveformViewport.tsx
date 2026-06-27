@@ -121,11 +121,11 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
 
         {cursorA !== null && cursorB !== null && (
           <div className="flex items-center gap-6 bg-brand-surface-low border border-brand-outline-variant/30 px-3 py-1 rounded select-all font-bold">
-            <div className="text-[11px] text-slate-300">
+            <div className="text-[12px] text-slate-300">
               <span>Δt = </span>
               <span className="text-brand-cyan">{Math.abs(cursorA - cursorB) * tickDuration} {timeUnit}</span>
             </div>
-            <div className="text-[11px] text-brand-secondary">
+            <div className="text-[12px] text-brand-secondary">
               <span>Freq = </span>
               <span>
                 {(() => {
@@ -146,7 +146,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
           </div>
         )}
 
-        <div className="text-[10px] text-slate-500 italic hidden sm:block">
+        <div className="text-[12px] text-slate-500 italic hidden sm:block">
           Hide signals from the row eye icon to send them back to Signal Manager.
         </div>
       </div>
@@ -154,7 +154,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
       <div className="flex-1 flex overflow-hidden relative">
         <div className="w-[260px] flex-none border-r border-brand-outline-variant/40 bg-[#0c1322] flex flex-col min-h-0">
           <div className="h-8 border-b border-brand-outline-variant/40 bg-brand-surface-low flex items-center px-3">
-            <span className="text-[11px] font-bold uppercase tracking-wide text-brand-cyan">Signals</span>
+            <span className="text-[12px] font-bold uppercase tracking-wide text-brand-cyan">Signals</span>
           </div>
           <div
             ref={rowViewportRef}
@@ -201,11 +201,11 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div className="w-1.5 h-2.5 rounded flex-none" style={{ backgroundColor: signal.color }} />
-                          <span className="font-mono text-[10px] font-bold text-slate-100 truncate">{signal.name}</span>
+                          <span className="font-mono text-[12px] font-bold text-slate-100 truncate">{signal.name}</span>
                         </div>
                         <div className="flex items-center gap-1.5 flex-none">
                           <span
-                            className="font-mono text-[9px] uppercase min-w-[42px] text-right"
+                            className="font-mono text-[12px] uppercase min-w-[42px] text-right"
                             style={{ color: signal.color }}
                           >
                             {value}
@@ -250,7 +250,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
                           strokeWidth={isMajor ? 1 : 0.6}
                         />
                         {isMajor && (
-                          <text x={x + 3} y={9} fill="#94a3b8" className="font-mono text-[8px] font-medium">
+                          <text x={x + 3} y={9} fill="#94a3b8" className="font-mono text-[12px] font-medium">
                             {formatTime(tick)}
                           </text>
                         )}
@@ -324,14 +324,14 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
                       <g>
                         <line x1={cursorA * tickWidth} y1={0} x2={cursorA * tickWidth} y2={totalRowsHeight} stroke="#00e5ff" strokeWidth={1.5} strokeDasharray="4,4" />
                         <rect x={cursorA * tickWidth - 7} y={0} width={14} height={16} fill="#00e5ff" rx={2} />
-                        <text x={cursorA * tickWidth} y={12} textAnchor="middle" fill="#0b1326" className="font-sans font-extrabold text-[10px]">A</text>
+                        <text x={cursorA * tickWidth} y={12} textAnchor="middle" fill="#0b1326" className="font-sans font-extrabold text-[12px]">A</text>
                       </g>
                     )}
                     {cursorB !== null && (
                       <g>
                         <line x1={cursorB * tickWidth} y1={0} x2={cursorB * tickWidth} y2={totalRowsHeight} stroke="#ffb95f" strokeWidth={1.5} strokeDasharray="4,4" />
                         <rect x={cursorB * tickWidth - 7} y={0} width={14} height={16} fill="#ffb95f" rx={2} />
-                        <text x={cursorB * tickWidth} y={12} textAnchor="middle" fill="#0b1326" className="font-sans font-extrabold text-[10px]">B</text>
+                        <text x={cursorB * tickWidth} y={12} textAnchor="middle" fill="#0b1326" className="font-sans font-extrabold text-[12px]">B</text>
                       </g>
                     )}
                     {hoveredTick !== null && (

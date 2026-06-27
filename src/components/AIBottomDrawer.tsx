@@ -28,13 +28,13 @@ const renderBullet = (bullet: string, key: string) => {
   return (
     <div key={key} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2.5 py-2">
       {badge ? (
-        <span className={`mt-0.5 rounded-full border px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide ${badgeClass}`}>
+        <span className={`mt-0.5 rounded-full border px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wide ${badgeClass}`}>
           {badge}
         </span>
       ) : (
         <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-cyan flex-none" />
       )}
-      <span className="text-[10px] leading-relaxed text-slate-300">{body}</span>
+      <span className="text-[12px] leading-relaxed text-slate-300">{body}</span>
     </div>
   );
 };
@@ -68,11 +68,11 @@ const renderDeterministicBlock = (title: string, markdown: string, accent: strin
   const parsed = buildStructuredReport(markdown);
   return (
     <section className={`rounded-lg border px-3 py-2.5 ${accent}`}>
-      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{title}</div>
+      <div className="text-[12px] font-bold uppercase tracking-[0.18em] text-slate-100">{title}</div>
       <div className="mt-2 space-y-2">
         {parsed.sections.flatMap((section) => [
           ...section.paragraphs.map((paragraph, index) => (
-            <p key={`${title}-p-${section.title}-${index}`} className="text-[10.5px] leading-relaxed text-slate-300">
+            <p key={`${title}-p-${section.title}-${index}`} className="text-[12px] leading-relaxed text-slate-300">
               {paragraph}
             </p>
           )),
@@ -86,7 +86,7 @@ const renderDeterministicBlock = (title: string, markdown: string, accent: strin
 export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> = ({ report }) => {
   if (!report) {
     return (
-      <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[11px] text-slate-400">
+      <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[12px] text-slate-400">
         Run an AI macro or send a custom AI request to populate this area with the structured analysis output.
       </div>
     );
@@ -97,12 +97,12 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
       {report.meta.diagnostics && (
         <div className="rounded-lg border border-violet-400/25 bg-violet-500/8 px-3 py-2.5">
           <div className="flex items-center justify-between gap-2">
-            <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-violet-200">Macro Selection Diagnostics</div>
-            <div className="text-[8px] font-mono text-slate-300">
+            <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-violet-200">Macro Selection Diagnostics</div>
+            <div className="text-[12px] font-mono text-slate-300">
               {report.meta.diagnostics.visibleSignalsSent}/{report.meta.diagnostics.totalSignalsAvailable} signals
             </div>
           </div>
-          <div className="mt-2 grid gap-1 text-[10px] text-slate-300">
+          <div className="mt-2 grid gap-1 text-[12px] text-slate-300">
             <div><span className="font-bold text-slate-100">Root Entity:</span> {report.meta.diagnostics.rootEntity}</div>
             <div><span className="font-bold text-slate-100">Focus Entities:</span> {report.meta.diagnostics.focusEntities.join(', ') || 'none'}</div>
             <div><span className="font-bold text-slate-100">Semantic Confidence:</span> {report.meta.diagnostics.semanticConfidence}%</div>
@@ -113,7 +113,7 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
           {report.meta.diagnostics.selectionNotes.length > 0 && (
             <div className="mt-2 space-y-1">
               {report.meta.diagnostics.selectionNotes.map((note, noteIndex) => (
-                <div key={`diag-note-${noteIndex}`} className="text-[9px] leading-relaxed text-slate-400">
+                <div key={`diag-note-${noteIndex}`} className="text-[12px] leading-relaxed text-slate-400">
                   {note}
                 </div>
               ))}
@@ -121,13 +121,13 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
           )}
           {report.meta.diagnostics.selectedSignals.length > 0 && (
             <div className="mt-3 grid gap-2 lg:grid-cols-2">
-              {report.meta.diagnostics.selectedSignals.map((signal) => (
-                <div key={signal.normalizedSignal} className="rounded border border-white/5 bg-[#060a12] px-2.5 py-2">
+              {report.meta.diagnostics.selectedSignals.map((signal, index) => (
+                <div key={signal.displayKey || `${signal.normalizedSignal}-${index}`} className="rounded border border-white/5 bg-[#060a12] px-2.5 py-2">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="truncate text-[10px] font-bold text-violet-100">{signal.signal}</div>
-                    <div className="text-[8px] font-mono text-slate-400">score {signal.score}</div>
+                    <div className="truncate text-[12px] font-bold text-violet-100">{signal.signal}</div>
+                    <div className="text-[12px] font-mono text-slate-400">score {signal.score}</div>
                   </div>
-                  <div className="mt-1 text-[9px] leading-relaxed text-slate-400">
+                  <div className="mt-1 text-[12px] leading-relaxed text-slate-400">
                     <div>categories: {signal.categories.join(', ') || 'uncategorized'}</div>
                     <div>entities: {signal.entities.join(', ') || 'none'}</div>
                     <div>related nodes: {signal.relatedNodes.slice(0, 8).join(', ') || signal.normalizedSignal}</div>
@@ -147,11 +147,11 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 {tone.icon}
-                <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-100">Validation Result</div>
+                <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-slate-100">Validation Result</div>
               </div>
-              <div className={`text-[8px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
+              <div className={`text-[12px] font-bold uppercase tracking-[0.18em] ${tone.text}`}>{tone.label}</div>
             </div>
-            <p className="mt-1 text-[10px] leading-relaxed text-slate-300">{report.meta.validation.summary}</p>
+            <p className="mt-1 text-[12px] leading-relaxed text-slate-300">{report.meta.validation.summary}</p>
             <div className="mt-2 grid gap-1.5">
               {report.meta.validation.checks.map((check) => (
                 <div key={check.id} className="flex items-start gap-2 rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
@@ -165,8 +165,8 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
                           : 'text-slate-500'
                   } />
                   <div className="min-w-0">
-                    <div className="text-[9px] font-bold text-slate-100">{check.label}</div>
-                    <div className="text-[9px] leading-relaxed text-slate-400">{check.detail}</div>
+                    <div className="text-[12px] font-bold text-slate-100">{check.label}</div>
+                    <div className="text-[12px] leading-relaxed text-slate-400">{check.detail}</div>
                   </div>
                 </div>
               ))}
@@ -174,6 +174,37 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
           </div>
         );
       })()}
+
+      {report.meta.generatedFiles && report.meta.generatedFiles.length > 0 && (
+        <div className="rounded-lg border border-emerald-400/25 bg-emerald-500/8 px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-emerald-200">Saved Generated Files</div>
+            <div className="text-[12px] font-mono text-slate-300">
+              {report.meta.generatedFiles.length} file{report.meta.generatedFiles.length === 1 ? '' : 's'}
+            </div>
+          </div>
+          {report.meta.outputDirectory && (
+            <div className="mt-1 text-[12px] leading-relaxed text-slate-400">
+              Output folder: <span className="font-mono text-slate-300">{report.meta.outputDirectory}</span>
+            </div>
+          )}
+          <div className="mt-2 grid gap-1.5">
+            {report.meta.generatedFiles.map((file) => (
+              <div key={file.path} className="rounded border border-white/5 bg-[#060a12] px-2.5 py-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="truncate text-[12px] font-bold text-emerald-100">{file.name}</div>
+                  <div className="text-[12px] uppercase tracking-[0.14em] text-emerald-300">
+                    {(file.kind || 'artifact').replace(/_/g, ' ')}
+                  </div>
+                </div>
+                <div className="mt-1 break-all font-mono text-[12px] leading-relaxed text-slate-400">
+                  {file.path}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {(report.meta.hazardMarkdown || report.meta.protocolMarkdown) && (
         <div className="grid gap-3 lg:grid-cols-2">
@@ -189,8 +220,8 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
             className={`rounded-lg border px-3 py-2.5 ${getSectionAccent(section.title)}`}
           >
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-100">{section.title}</h3>
-              <span className="text-[8px] uppercase tracking-[0.18em] text-slate-500">
+              <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-slate-100">{section.title}</h3>
+              <span className="text-[12px] uppercase tracking-[0.18em] text-slate-500">
                 {section.bullets.length > 0 ? `${section.bullets.length} findings` : `${section.codeBlocks.length} code`}
               </span>
             </div>
@@ -198,7 +229,7 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
             {section.paragraphs.length > 0 && (
               <div className="mt-2 space-y-2">
                 {section.paragraphs.map((paragraph, paragraphIndex) => (
-                  <p key={`${section.title}-p-${paragraphIndex}`} className="text-[10.5px] leading-relaxed text-slate-300">
+                  <p key={`${section.title}-p-${paragraphIndex}`} className="text-[12px] leading-relaxed text-slate-300">
                     {paragraph}
                   </p>
                 ))}
@@ -216,11 +247,11 @@ export const AIAnalysisContent: React.FC<{ report: AIWorkspaceReport | null }> =
                 {section.codeBlocks.map((codeBlock, codeIndex) => (
                   <div key={`${section.title}-c-${codeIndex}`} className="overflow-hidden rounded-lg border border-emerald-400/15 bg-[#050811]">
                     <div className="flex items-center justify-between border-b border-white/5 px-2.5 py-1.5">
-                      <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-emerald-200">
+                      <span className="text-[12px] font-bold uppercase tracking-[0.18em] text-emerald-200">
                         {codeBlock.language || 'code'}
                       </span>
                     </div>
-                    <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-words px-2.5 py-2 text-[10px] leading-relaxed text-emerald-100">
+                    <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-words px-2.5 py-2 text-[12px] leading-relaxed text-emerald-100">
                       <code>{codeBlock.content}</code>
                     </pre>
                   </div>
@@ -254,15 +285,15 @@ export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
         <div className="flex min-w-0 items-center gap-2">
           <Bot size={14} className="text-brand-cyan flex-none" />
           <div className="min-w-0">
-            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Output</div>
-            <div className="truncate text-[10px] text-slate-400">
+            <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Output</div>
+            <div className="truncate text-[12px] text-slate-400">
               {report?.report.summary || 'Structured AI findings will appear here after an analysis run.'}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-none">
           {macroLabel && (
-            <span className="rounded-full border border-brand-cyan/20 bg-brand-cyan/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-brand-cyan">
+            <span className="rounded-full border border-brand-cyan/20 bg-brand-cyan/10 px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-brand-cyan">
               {macroLabel}
             </span>
           )}
@@ -272,7 +303,7 @@ export const AIBottomDrawer: React.FC<AIBottomDrawerProps> = ({
               event.stopPropagation();
               onOpenDiagramWindow?.();
             }}
-            className="flex items-center gap-1 rounded border border-violet-400/30 bg-violet-500/10 px-1.5 py-1 text-[8px] font-bold uppercase tracking-wide text-violet-200 transition-colors hover:bg-violet-500/20 hover:text-white cursor-pointer"
+            className="flex items-center gap-1 rounded border border-violet-400/30 bg-violet-500/10 px-1.5 py-1 text-[12px] font-bold uppercase tracking-wide text-violet-200 transition-colors hover:bg-violet-500/20 hover:text-white cursor-pointer"
             title="Open block diagram viewer"
           >
             <GitBranch size={12} />

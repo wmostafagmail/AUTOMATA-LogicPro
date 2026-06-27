@@ -25,6 +25,14 @@ function extractCodeBlocks(text: string) {
   }));
 }
 
+function hasMermaidStateDiagram(text: string) {
+  const codeBlocks = extractCodeBlocks(text);
+  return codeBlocks.some((block) => (
+    block.language.includes('mermaid')
+    && /\bstateDiagram-v2\b/i.test(block.content)
+  ));
+}
+
 function hasSectionAlias(text: string, aliases: string[]) {
   const normalized = normalizeText(text);
   return aliases.some((alias) => {
@@ -141,6 +149,75 @@ function buildCodeBlockCheck(macroId: AiMacroId, text: string): AiMacroValidatio
   };
 }
 
+function buildMacroSpecificArtifactCheck(macroId: AiMacroId, text: string): AiMacroValidationCheck {
+  switch (macroId) {
+    case 'generate_vhdl_tb': {
+      const codeBlocks = extractCodeBlocks(text);
+      const hasTestbenchLikeVhdl = codeBlocks.some((block) => (
+        block.language.includes('vhdl')
+        && /\b(wait for|port map|assert\b|clk_process|stimulus|uut\b|dut\b)\b/i.test(block.content)
+      ));
+      return {
+        id: 'artifact:testbench',
+        label: 'Testbench artifact present',
+        status: hasTestbenchLikeVhdl ? 'pass' : 'fail',
+        detail: hasTestbenchLikeVhdl
+          ? 'Detected a likely VHDL testbench artifact.'
+          : 'Expected at least one VHDL testbench-style artifact, not just generic VHDL text.',
+      };
+    }
+    case 'generate_vhdl_assertions': {
+      const codeBlocks = extractCodeBlocks(text);
+      const hasAssertions = codeBlocks.some((block) => (
+        block.language.includes('vhdl')
+        && /\bassert\b/i.test(block.content)
+      ));
+      return {
+        id: 'artifact:assertions',
+        label: 'Assertion artifact present',
+        status: hasAssertions ? 'pass' : 'fail',
+        detail: hasAssertions
+          ? 'Detected VHDL assertion code.'
+          : 'Expected VHDL assertion code containing assert statements.',
+      };
+    }
+    case 'draft_rtl_skeleton': {
+      const codeBlocks = extractCodeBlocks(text);
+      const hasSkeleton = codeBlocks.some((block) => (
+        block.language.includes('vhdl')
+        && /\bentity\b/i.test(block.content)
+        && /\barchitecture\b/i.test(block.content)
+      ));
+      return {
+        id: 'artifact:rtl_skeleton',
+        label: 'RTL skeleton artifact present',
+        status: hasSkeleton ? 'pass' : 'fail',
+        detail: hasSkeleton
+          ? 'Detected entity and architecture skeleton code.'
+          : 'Expected a VHDL entity/architecture skeleton, not only notes or partial snippets.',
+      };
+    }
+    case 'explain_fsm_behavior': {
+      const hasDiagram = hasMermaidStateDiagram(text);
+      return {
+        id: 'artifact:fsm_diagram',
+        label: 'FSM diagram artifact present',
+        status: hasDiagram ? 'pass' : 'fail',
+        detail: hasDiagram
+          ? 'Detected a Mermaid state diagram artifact.'
+          : 'Expected a Mermaid state diagram artifact using stateDiagram-v2.',
+      };
+    }
+    default:
+      return {
+        id: 'artifact:specific',
+        label: 'Macro-specific artifact present',
+        status: 'not_applicable',
+        detail: 'No extra artifact check is required for this macro.',
+      };
+  }
+}
+
 function buildNonEmptyCheck(text: string): AiMacroValidationCheck {
   const useful = text.trim().length >= 80;
   return {
@@ -162,6 +239,7 @@ export function validateMacroOutput({
     buildNonEmptyCheck(text),
     ...buildSectionChecks(macroId, text),
     buildCodeBlockCheck(macroId, text),
+    buildMacroSpecificArtifactCheck(macroId, text),
   ];
 
   if (spec.deterministicContext.hazardScan) {

@@ -1,6 +1,7 @@
 import { AiMacroId, AiMacroValidationResult, TbGenerationMode, getAiMacroSpec } from './aiMacros';
 
 export interface AiSignalDiagnostic {
+  displayKey: string;
   signal: string;
   normalizedSignal: string;
   score: number;
@@ -34,6 +35,25 @@ export interface AiReportMeta {
   tbGenerationMode?: TbGenerationMode | null;
   provider?: string;
   model?: string;
+  telemetry?: {
+    engineLabel: string;
+    inputTokens: number;
+    latestAttemptInputTokens?: number;
+    jobInputTokens?: number;
+    sessionInputTokens?: number;
+    outputTokens: number;
+    jobOutputTokens?: number;
+    sessionOutputTokens?: number;
+    tokensPerSecond: number;
+    durationMs: number;
+  } | null;
+  retryUsed?: boolean;
+  outputDirectory?: string | null;
+  generatedFiles?: Array<{
+    name: string;
+    path: string;
+    kind?: 'testbench' | 'module' | 'assertions' | 'rtl_skeleton' | 'unknown';
+  }>;
   validation?: AiMacroValidationResult | null;
   hazardMarkdown?: string | null;
   protocolMarkdown?: string | null;

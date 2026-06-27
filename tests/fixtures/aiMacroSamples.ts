@@ -2,7 +2,7 @@ export const generateVhdlTbGood = `## Assumptions
 The DUT uses a synchronous active-high reset and a single rising-edge clock.
 
 ## Generated Artifacts
-### VHDL Module
+### demo.vhd
 \`\`\`vhdl
 library ieee;
 use ieee.std_logic_1164.all;
@@ -15,13 +15,28 @@ entity demo is
 end entity;
 \`\`\`
 
-### VHDL Testbench
+### demo_tb.vhd
 \`\`\`vhdl
 library ieee;
 use ieee.std_logic_1164.all;
 
 entity demo_tb is
 end entity;
+
+architecture sim of demo_tb is
+  signal clk : std_logic := '0';
+  signal rst : std_logic := '1';
+begin
+  clk <= not clk after 5 ns;
+  stimulus : process
+  begin
+    wait for 20 ns;
+    rst <= '0';
+    wait for 40 ns;
+    assert rst = '0' report "reset released" severity note;
+    wait;
+  end process;
+end architecture;
 \`\`\`
 
 ## Verification Notes
@@ -83,6 +98,15 @@ The waveform suggests an IDLE phase, an active TRANSFER phase, and a short COMPL
 ## Transition Evidence
 The control outputs change in a repeatable order that indicates a transition from IDLE to TRANSFER when chip-select asserts, then COMPLETE when the byte finishes.
 
+## State Diagram
+\`\`\`mermaid
+stateDiagram-v2
+  [*] --> IDLE
+  IDLE --> TRANSFER: chip_select asserted
+  TRANSFER --> COMPLETE: byte_done
+  COMPLETE --> IDLE: return idle
+\`\`\`
+
 ## Uncertainty
 The exact state encoding is not visible, so the labels are inferred from behavior rather than from internal state bits.`;
 
@@ -113,6 +137,7 @@ export const draftRtlSkeletonGood = `## Assumptions
 The interface appears to contain a clock, reset, chip select, serial clock, data in, and a valid output.
 
 ## Entity Skeleton
+### spi_receiver.vhd
 \`\`\`vhdl
 library ieee;
 use ieee.std_logic_1164.all;
@@ -128,6 +153,23 @@ entity spi_receiver is
     valid    : out std_logic
   );
 end entity;
+architecture rtl of spi_receiver is
+  signal shift_reg : std_logic_vector(7 downto 0) := (others => '0');
+  signal bit_count : integer range 0 to 7 := 0;
+begin
+  process (clk)
+  begin
+    if rising_edge(clk) then
+      if rst = '1' then
+        shift_reg <= (others => '0');
+        bit_count <= 0;
+        valid <= '0';
+      else
+        valid <= '0';
+      end if;
+    end if;
+  end process;
+end architecture;
 \`\`\`
 
 ## Architecture Outline

@@ -1,0 +1,4 @@
+v 4
+file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/AI Generated RTL/avr_spi_master.vhd" "29053e06dcaa12418bd505b1d38a11fd0ee5d1b5" "20260627212226.820":
+  entity avr_spi_master at 1( 0) + 0 on 11;
+  architecture rtl of avr_spi_master at 34( 1084) + 0 on 12;

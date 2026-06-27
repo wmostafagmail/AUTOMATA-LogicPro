@@ -369,13 +369,13 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
 
   if (!diagnostics) {
     return (
-      <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[11px] text-slate-400">
+      <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface px-4 py-5 text-[12px] text-slate-400">
         Run an AI macro that produces structured diagnostics to populate the floating block diagram viewer.
       </div>
     );
   }
 
-  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const nodeById = new Map<string, DiagramNode>(nodes.map((node) => [node.id, node]));
   const levelBands = Array.from({ length: Math.max(depthCount, 1) }, (_, index) => ({
     index,
     y: DIAGRAM_MARGIN_Y - 22 + index * VERTICAL_GAP,
@@ -450,20 +450,20 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
     <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="grid gap-2 md:grid-cols-4">
         <div className="rounded-lg border border-cyan-400/20 bg-cyan-500/8 px-3 py-2">
-          <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-cyan-200">Root</div>
-          <div className="mt-1 text-[11px] font-bold text-slate-100">{diagnostics.rootEntity}</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.18em] text-cyan-200">Root</div>
+          <div className="mt-1 text-[12px] font-bold text-slate-100">{diagnostics.rootEntity}</div>
         </div>
         <div className="rounded-lg border border-violet-400/20 bg-violet-500/8 px-3 py-2">
-          <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-violet-200">Hierarchy Levels</div>
-          <div className="mt-1 text-[11px] font-bold text-slate-100">{depthCount}</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.18em] text-violet-200">Hierarchy Levels</div>
+          <div className="mt-1 text-[12px] font-bold text-slate-100">{depthCount}</div>
         </div>
         <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/8 px-3 py-2">
-          <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-200">Signals Routed</div>
-          <div className="mt-1 text-[11px] font-bold text-slate-100">{diagnostics.selectedSignals.length}</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.18em] text-emerald-200">Signals Routed</div>
+          <div className="mt-1 text-[12px] font-bold text-slate-100">{diagnostics.selectedSignals.length}</div>
         </div>
         <div className="rounded-lg border border-amber-400/20 bg-amber-500/8 px-3 py-2">
-          <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-amber-200">Focus Entities</div>
-          <div className="mt-1 text-[11px] font-bold text-slate-100">{diagnostics.focusEntities.length}</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.18em] text-amber-200">Focus Entities</div>
+          <div className="mt-1 text-[12px] font-bold text-slate-100">{diagnostics.focusEntities.length}</div>
         </div>
       </div>
 
@@ -477,7 +477,7 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
           >
             <ZoomOut size={12} />
           </button>
-          <div className="min-w-[52px] text-center text-[10px] font-bold text-brand-cyan">{Math.round(zoom * 100)}%</div>
+          <div className="min-w-[52px] text-center text-[12px] font-bold text-brand-cyan">{Math.round(zoom * 100)}%</div>
           <button
             type="button"
             onClick={() => applyZoom(zoom * 1.12)}
@@ -527,7 +527,7 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
                   fill={band.index % 2 === 0 ? 'rgba(12, 18, 36, 0.55)' : 'rgba(7, 13, 28, 0.52)'}
                   stroke="rgba(148,163,184,0.08)"
                 />
-                <text x="38" y={band.y + 24} fontSize="11" fontWeight="700" fill="#64748b" letterSpacing="3">
+                <text x="38" y={band.y + 24} fontSize="12" fontWeight="700" fill="#64748b" letterSpacing="3">
                   {band.label}
                 </text>
               </g>
@@ -570,7 +570,7 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
                         fill="rgba(5,10,18,0.92)"
                         stroke="rgba(148,163,184,0.15)"
                       />
-                      <text x={midX} y={midY} textAnchor="middle" fontSize="9" fontWeight="700" fill="#cbd5e1">
+                      <text x={midX} y={midY} textAnchor="middle" fontSize="12" fontWeight="700" fill="#cbd5e1">
                         {truncateLabel(edge.label, 14)}
                       </text>
                     </>
@@ -628,7 +628,7 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
                     x={node.x + node.width / 2}
                     y={node.y + node.height - 16}
                     textAnchor="middle"
-                    fontSize="11"
+                    fontSize="12"
                     fill={tone.detail}
                   >
                     {detail}
@@ -642,29 +642,29 @@ export const AIDiagramContent: React.FC<AIDiagramContentProps> = ({ report }) =>
 
       <div className="grid gap-2 md:grid-cols-3">
         <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface-low px-3 py-2">
-          <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-cyan-200">
+          <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-cyan-200">
             <GitBranch size={11} />
             <span>Hierarchy</span>
           </div>
-          <div className="mt-1 text-[10px] leading-relaxed text-slate-300">
+          <div className="mt-1 text-[12px] leading-relaxed text-slate-300">
             Blocks are now grouped beneath their actual parent, with one band per VHDL hierarchy level.
           </div>
         </div>
         <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface-low px-3 py-2">
-          <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-violet-200">
+          <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-violet-200">
             <Layers size={11} />
             <span>Instances</span>
           </div>
-          <div className="mt-1 text-[10px] leading-relaxed text-slate-300">
+          <div className="mt-1 text-[12px] leading-relaxed text-slate-300">
             Connection labels show the instance path or instance name used to instantiate the child block.
           </div>
         </div>
         <div className="rounded-lg border border-brand-outline-variant/20 bg-brand-surface-low px-3 py-2">
-          <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-200">
+          <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.18em] text-emerald-200">
             <RadioTower size={11} />
             <span>Signals</span>
           </div>
-          <div className="mt-1 text-[10px] leading-relaxed text-slate-300">
+          <div className="mt-1 text-[12px] leading-relaxed text-slate-300">
             Signal blocks attach beneath the deepest related entity so waveform context stays close to the owning block.
           </div>
         </div>

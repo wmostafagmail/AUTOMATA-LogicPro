@@ -29,6 +29,8 @@ export interface AiMacroSpec {
     aliases: string[];
   }>;
   requiresVhdlCodeBlock: boolean;
+  requiresMermaidDiagram?: boolean;
+  generatedArtifactDirectory?: string | null;
   rubric: string[];
 }
 
@@ -98,6 +100,7 @@ export const AI_MACROS: AiMacroSpec[] = [
       { id: 'verification_notes', label: 'Verification Notes', aliases: ['verification notes', 'validation notes', 'verification'] },
     ],
     requiresVhdlCodeBlock: true,
+    generatedArtifactDirectory: 'AI Generated TB',
     rubric: [
       'State assumptions before code.',
       'Include usable VHDL code blocks.',
@@ -187,12 +190,15 @@ export const AI_MACROS: AiMacroSpec[] = [
     expectedOutputSections: [
       { id: 'likely_states', label: 'Likely States', aliases: ['likely states', 'states', 'state interpretation'] },
       { id: 'transition_evidence', label: 'Transition Evidence', aliases: ['transition evidence', 'state transitions', 'evidence'] },
+      { id: 'state_diagram', label: 'State Diagram', aliases: ['state diagram', 'fsm diagram', 'diagram artifact'] },
       { id: 'uncertainty', label: 'Uncertainty', aliases: ['uncertainty', 'open questions', 'confidence'] },
     ],
     requiresVhdlCodeBlock: false,
+    requiresMermaidDiagram: true,
     rubric: [
       'Infer states from waveform evidence rather than inventing them.',
       'Explain transitions in time order.',
+      'Include a state diagram artifact.',
       'State uncertainty where the waveform is ambiguous.',
     ],
   },
@@ -236,6 +242,7 @@ export const AI_MACROS: AiMacroSpec[] = [
       { id: 'verification_notes', label: 'Verification Notes', aliases: ['verification notes', 'usage notes', 'verification'] },
     ],
     requiresVhdlCodeBlock: true,
+    generatedArtifactDirectory: 'AI Generated Assertions',
     rubric: [
       'Produce usable VHDL assertion code blocks.',
       'Tie assertions to observed timing/protocol behavior.',
@@ -260,6 +267,7 @@ export const AI_MACROS: AiMacroSpec[] = [
       { id: 'verification_notes', label: 'Verification Notes', aliases: ['verification notes', 'validation notes', 'verification'] },
     ],
     requiresVhdlCodeBlock: true,
+    generatedArtifactDirectory: 'AI Generated RTL',
     rubric: [
       'Produce a VHDL-oriented skeleton grounded in visible behavior.',
       'Keep uncertain internals clearly marked as assumptions.',
@@ -274,7 +282,7 @@ export const AI_MACROS: AiMacroSpec[] = [
     deterministicContext: {
       hazardScan: true,
       protocolScan: true,
-      projectContext: false,
+      projectContext: true,
       waveform: true,
     },
     expectedOutputSections: [

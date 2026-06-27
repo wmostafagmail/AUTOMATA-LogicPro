@@ -8,8 +8,11 @@ import path from 'path';
 import type { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import type { AiMacroId, TbGenerationMode } from './src/aiMacros.ts';
+import { getAiMacroSpec } from './src/aiMacros.ts';
 import { validateMacroOutput } from './src/aiMacroValidation.ts';
 import { buildMacroPromptContract } from './src/aiMacroPrompting.ts';
+import { getProviderDeployment, requiresRemoteExportConsent, scrubProjectContextForRemoteExport } from './src/exportPolicy.ts';
+import { createSessionManager, type LogicProSession } from './src/server/sessionManager.ts';
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +24,7 @@ type ProviderDescriptor = {
   label: string;
   enabled: boolean;
   reason?: string;
+  deployment: 'local' | 'remote';
 };
 
 type ProviderModel = {
@@ -64,7 +68,252 @@ type ProtocolFrame = {
   detail: string;
 };
 
+type GeneratedVhdlArtifact = {
+  fileName: string;
+  content: string;
+  kind: 'testbench' | 'module' | 'assertions' | 'rtl_skeleton' | 'unknown';
+};
+
+type SavedGeneratedVhdlArtifact = GeneratedVhdlArtifact & {
+  path: string;
+};
+
 const activeAiJobs = new Map<string, AbortController>();
+
+function extractTaggedCodeBlocks(text: string) {
+  return [...text.matchAll(/```([^\n`]*)\n([\s\S]*?)```/g)].map((match) => ({
+    language: match[1].trim().toLowerCase(),
+    content: match[2].trim(),
+    index: match.index ?? 0,
+  }));
+}
+
+function looksLikeVhdlTestbench(content: string, fileName = '') {
+  const normalizedName = fileName.toLowerCase();
+  if (/(^|[_-])(tb|testbench)([_-]|$)/i.test(normalizedName) || normalizedName.endsWith('_tb.vhd')) {
+    return true;
+  }
+
+  return (
+    /\b(wait for|port map|uut\b|dut\b|stimulus|clk_process|clock process|reset process|assert\b)\b/i.test(content)
+    && /\b(entity|architecture|process)\b/i.test(content)
+  );
+}
+
+function sanitizeGeneratedFileBaseName(value: string) {
+  return value
+    .replace(/\.vhd[l]?$/i, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    || 'generated_tb';
+}
+
+function inferGeneratedVhdlFileName(block: { content: string; index: number }, fullText: string, ordinal: number) {
+  const leadingText = fullText.slice(0, block.index);
+  const recentLines = leadingText.split('\n').slice(-8).reverse();
+
+  for (const line of recentLines) {
+    const fileMatch = line.match(/([A-Za-z0-9_.-]+\.vhd[l]?)/i);
+    if (fileMatch) {
+      const base = sanitizeGeneratedFileBaseName(fileMatch[1]);
+      return `${base}.vhd`;
+    }
+  }
+
+  const entityMatch = block.content.match(/\bentity\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/i);
+  if (entityMatch) {
+    const base = sanitizeGeneratedFileBaseName(entityMatch[1]);
+    return `${base}.vhd`;
+  }
+
+  return `generated_tb_${ordinal + 1}.vhd`;
+}
+
+function extractGeneratedVhdlArtifacts(text: string, macroId: AiMacroId): GeneratedVhdlArtifact[] {
+  const blocks = extractTaggedCodeBlocks(text)
+    .filter((block) => block.language.includes('vhdl') && block.content.length > 0);
+
+  const artifacts: GeneratedVhdlArtifact[] = [];
+  const seenNames = new Map<string, number>();
+
+  blocks.forEach((block, index) => {
+    const inferredName = inferGeneratedVhdlFileName(block, text, index);
+    const kind = macroId === 'generate_vhdl_assertions'
+      ? 'assertions'
+      : macroId === 'draft_rtl_skeleton'
+        ? 'rtl_skeleton'
+        : looksLikeVhdlTestbench(block.content, inferredName)
+          ? 'testbench'
+          : 'module';
+    const baseName = sanitizeGeneratedFileBaseName(inferredName);
+    const collisionCount = seenNames.get(baseName) || 0;
+    seenNames.set(baseName, collisionCount + 1);
+    const fileName = collisionCount === 0 ? `${baseName}.vhd` : `${baseName}_${collisionCount + 1}.vhd`;
+
+    artifacts.push({
+      fileName,
+      content: block.content.trimEnd(),
+      kind,
+    });
+  });
+
+  return artifacts;
+}
+
+function buildArtifactRetryPrompt(params: {
+  originalPrompt: string;
+  macroId: AiMacroId;
+  tbGenerationMode: TbGenerationMode | null;
+  artifactDirectory: string;
+  validationSummary: string;
+  validationWarnings: string[];
+}) {
+  const {
+    originalPrompt,
+    macroId,
+    tbGenerationMode,
+    artifactDirectory,
+    validationSummary,
+    validationWarnings,
+  } = params;
+  const warningLines = validationWarnings.length > 0
+    ? validationWarnings.map((warning) => `- ${warning}`).join('\n')
+    : '- No valid VHDL artifact was detected.';
+
+  const macroLabel = getAiMacroSpec(macroId).label;
+  const specificRequirements = macroId === 'generate_vhdl_tb'
+    ? [
+        'Return Markdown with these sections: Assumptions, Generated Artifact(s), Verification Notes.',
+        'At least one generated file must be a VHDL testbench and its filename must end with `_tb.vhd`.',
+        tbGenerationMode === 'reverse_from_vcd'
+          ? 'Because this is reverse-from-VCD mode, include both the inferred design module and the matching testbench.'
+          : 'Because this is project-entity mode, generate usable VHDL testbench file(s) for the project entities.',
+      ]
+    : macroId === 'generate_vhdl_assertions'
+      ? [
+          'Return Markdown with these sections: Assumptions, Assertions, Verification Notes.',
+          'Each VHDL artifact must contain practical `assert` statements tied to the observed behavior.',
+          'Generate files that belong in the project folder under "AI Generated Assertions".',
+        ]
+      : [
+          'Return Markdown with these sections: Assumptions, Entity Skeleton, Architecture Outline, Verification Notes.',
+          'The VHDL artifact must contain both an `entity` and an `architecture`.',
+          'Generate files that belong in the project folder under "AI Generated RTL".',
+        ];
+
+  return `${originalPrompt}
+
+### Automatic Retry: Strict ${macroLabel} Enforcement
+Your previous response failed validation for the ${macroLabel} macro.
+
+Validation summary:
+${validationSummary}
+
+Validation issues:
+${warningLines}
+
+You must now obey all of the following hard requirements:
+1. ${specificRequirements.join('\n2. ')}
+3. In the artifact section, include fenced code blocks tagged exactly as \`vhdl\`.
+4. For every fenced code block, place a filename heading immediately before it in the form:
+   ### filename.vhd
+5. The generated files must be directly extractable and savable into "${artifactDirectory}".
+6. Do not return prose-only output, pseudo-code, Mermaid-only output, or untagged code fences.
+7. Do not explain why you cannot comply unless the project context is genuinely missing. If you comply, output the code.
+`;
+}
+
+function buildValidationRetryPrompt(params: {
+  originalPrompt: string;
+  macroId: AiMacroId;
+  validationSummary: string;
+  validationWarnings: string[];
+}) {
+  const { originalPrompt, macroId, validationSummary, validationWarnings } = params;
+  const macroSpec = getAiMacroSpec(macroId);
+  const warningLines = validationWarnings.length > 0
+    ? validationWarnings.map((warning) => `- ${warning}`).join('\n')
+    : '- The required macro structure was not satisfied.';
+
+  return `${originalPrompt}
+
+### Automatic Retry: Strict ${macroSpec.label} Validation Repair
+Your previous response failed the ${macroSpec.label} macro validation.
+
+Validation summary:
+${validationSummary}
+
+Validation issues:
+${warningLines}
+
+You must now repair the response so that all required sections are present and the macro contract is fully satisfied.
+- Keep the answer grounded in the supplied waveform, deterministic scans, and project context.
+- Preserve technical usefulness, but prioritize passing the macro format and artifact requirements.
+- If the macro requires a Mermaid state diagram, include a fenced \`mermaid\` block using \`stateDiagram-v2\`.
+- If the macro requires code, return properly tagged fenced code blocks.
+`;
+}
+
+async function saveGeneratedVhdlArtifacts(params: {
+  projectPath: string;
+  outputFolder: string;
+  artifacts: GeneratedVhdlArtifact[];
+}) {
+  const outputDirectory = path.join(params.projectPath, params.outputFolder);
+  await fs.mkdir(outputDirectory, { recursive: true });
+
+  const savedArtifacts: SavedGeneratedVhdlArtifact[] = [];
+  for (const artifact of params.artifacts) {
+    const targetPath = path.join(outputDirectory, artifact.fileName);
+    const finalContent = artifact.content.endsWith('\n') ? artifact.content : `${artifact.content}\n`;
+    await fs.writeFile(targetPath, finalContent, 'utf8');
+    savedArtifacts.push({
+      ...artifact,
+      path: targetPath,
+    });
+  }
+
+  return {
+    outputDirectory,
+    savedArtifacts,
+  };
+}
+
+function formatSignalValue(value: number | string) {
+  if (value === -1) return 'Z';
+  return String(value);
+}
+
+function buildSignalTransitionSummary(values: Array<number | string>) {
+  if (!Array.isArray(values) || values.length === 0) {
+    return 'No captured samples.';
+  }
+
+  let transitions = 0;
+  const events: string[] = [];
+  let previous = values[0];
+
+  for (let index = 1; index < values.length; index += 1) {
+    const current = values[index];
+    if (current !== previous) {
+      transitions += 1;
+      if (events.length < 12) {
+        events.push(`t${index}:${formatSignalValue(previous)}->${formatSignalValue(current)}`);
+      }
+      previous = current;
+    }
+  }
+
+  const recentWindow = values.slice(Math.max(0, values.length - 32));
+  return [
+    `Transitions: ${transitions}`,
+    `First value: ${formatSignalValue(values[0])}`,
+    `Last value: ${formatSignalValue(values[values.length - 1])}`,
+    `Sample transition events: ${events.join(', ') || 'none'}`,
+    `Recent window (${recentWindow.length} ticks): ${recentWindow.map((value) => formatSignalValue(value)).join('')}`,
+  ].join(' | ');
+}
 
 function isLikelyOllamaEmbeddingModel(modelId: string) {
   const id = modelId.toLowerCase();
@@ -167,48 +416,56 @@ function getProviderDescriptors(): ProviderDescriptor[] {
       label: 'Ollama Local',
       enabled: true,
       reason: `Uses ${OLLAMA_BASE_URL}`,
+      deployment: 'local',
     },
     {
       id: 'mtplx',
       label: 'MTPLX Local',
       enabled: true,
       reason: `Uses ${MTPLX_BASE_URL}`,
+      deployment: 'local',
     },
     {
       id: 'gemini',
       label: 'Google Gemini',
       enabled: Boolean(process.env.GEMINI_API_KEY),
       reason: process.env.GEMINI_API_KEY ? 'Gemini API key detected' : 'Set GEMINI_API_KEY',
+      deployment: 'remote',
     },
     {
       id: 'openai',
       label: 'OpenAI',
       enabled: Boolean(process.env.OPENAI_API_KEY),
       reason: process.env.OPENAI_API_KEY ? 'OpenAI API key detected' : 'Set OPENAI_API_KEY',
+      deployment: 'remote',
     },
     {
       id: 'anthropic',
       label: 'Anthropic Claude',
       enabled: Boolean(process.env.ANTHROPIC_API_KEY),
       reason: process.env.ANTHROPIC_API_KEY ? 'Anthropic API key detected' : 'Set ANTHROPIC_API_KEY',
+      deployment: 'remote',
     },
     {
       id: 'openrouter',
       label: 'OpenRouter',
       enabled: Boolean(process.env.OPENROUTER_API_KEY),
       reason: process.env.OPENROUTER_API_KEY ? 'OpenRouter API key detected' : 'Set OPENROUTER_API_KEY',
+      deployment: 'remote',
     },
     {
       id: 'groq',
       label: 'Groq',
       enabled: Boolean(process.env.GROQ_API_KEY),
       reason: process.env.GROQ_API_KEY ? 'Groq API key detected' : 'Set GROQ_API_KEY',
+      deployment: 'remote',
     },
     {
       id: 'mistral',
       label: 'Mistral',
       enabled: Boolean(process.env.MISTRAL_API_KEY),
       reason: process.env.MISTRAL_API_KEY ? 'Mistral API key detected' : 'Set MISTRAL_API_KEY',
+      deployment: 'remote',
     },
   ];
 }
@@ -327,7 +584,16 @@ async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSi
       `Ollama returned no generated text for model "${model}" via /api/generate. Payload summary: ${summarizePayloadShape(data)}`
     );
   }
-  return responseText;
+  return {
+    text: responseText,
+    usage: {
+      inputTokens: typeof data?.prompt_eval_count === 'number' ? data.prompt_eval_count : undefined,
+      outputTokens: typeof data?.eval_count === 'number' ? data.eval_count : undefined,
+      totalTokens: typeof data?.prompt_eval_count === 'number' && typeof data?.eval_count === 'number'
+        ? data.prompt_eval_count + data.eval_count
+        : undefined,
+    },
+  };
 }
 
 async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal) {
@@ -350,7 +616,16 @@ async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal
       `Ollama returned no generated text for model "${model}" via /api/chat. Payload summary: ${summarizePayloadShape(data)}`
     );
   }
-  return responseText;
+  return {
+    text: responseText,
+    usage: {
+      inputTokens: typeof data?.prompt_eval_count === 'number' ? data.prompt_eval_count : undefined,
+      outputTokens: typeof data?.eval_count === 'number' ? data.eval_count : undefined,
+      totalTokens: typeof data?.prompt_eval_count === 'number' && typeof data?.eval_count === 'number'
+        ? data.prompt_eval_count + data.eval_count
+        : undefined,
+    },
+  };
 }
 
 function summarizePayloadShape(data: any) {
@@ -477,6 +752,38 @@ function llmTestPassedExactMatch(text: string) {
 
   return /\bTEST_OK\b/.test(normalized) && normalized.replace(/\bTEST_OK\b/g, '').trim() === '';
 }
+
+function estimateTokenCount(text: string) {
+  const normalized = text.trim();
+  if (!normalized) {
+    return 0;
+  }
+  return Math.max(1, Math.round(normalized.length / 4));
+}
+
+type AiRunTelemetry = {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  tokensPerSecond: number;
+  durationMs: number;
+};
+
+type AiJobTelemetry = {
+  latestAttemptInputTokens: number;
+  jobInputTokens: number;
+  sessionInputTokens: number;
+  outputTokens: number;
+  jobOutputTokens: number;
+  sessionOutputTokens: number;
+  tokensPerSecond: number;
+  durationMs: number;
+};
+
+type AiRunResult = {
+  text: string;
+  telemetry: AiRunTelemetry;
+};
 
 function normalizeLogicValue(value: number | string | undefined | null): number | 'Z' | null {
   if (value === undefined || value === null || value === '') return null;
@@ -1210,7 +1517,9 @@ async function collectVhdlSources(rootPath: string) {
 }
 
 function buildVhdlProjectInfo(sources: VhdlSourceDescriptor[]) {
-  const selectedPaths = sources.map((source) => source.path);
+  const selectedPaths = sources
+    .filter((source) => !/(^|\/)AI Generated TB(\/|$)/i.test(source.path))
+    .map((source) => source.path);
   const topCandidates = Array.from(new Set(
     sources
       .filter((source) => source.entities.length > 0)
@@ -2057,9 +2366,50 @@ function selectMacroSignals(params: {
   const selectedEntries = selected
     .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
     .slice(0, limit);
-  const focusEntityScores = new Map<string, number>();
+  const mergedVisibleEntries = new Map<string, {
+    signal: AnalyzerSignal;
+    normalizedName: string;
+    displaySignalName: string;
+    score: number;
+    activityScore: number;
+    categories: Set<string>;
+    entities: Set<string>;
+    relatedNodes: Set<string>;
+  }>();
   selectedEntries.forEach((entry) => {
-    entry.insight?.entities.forEach((entityName) => {
+    const displaySignalName = getSignalName(entry.signal);
+    const visibleNameKey = normalizeVhdlIdentifier(displaySignalName);
+    const existing = mergedVisibleEntries.get(visibleNameKey);
+    if (!existing) {
+      mergedVisibleEntries.set(visibleNameKey, {
+        signal: entry.signal,
+        normalizedName: entry.normalizedName,
+        displaySignalName,
+        score: entry.score,
+        activityScore: entry.activityScore,
+        categories: new Set(entry.insight?.categories || []),
+        entities: new Set(entry.insight?.entities || []),
+        relatedNodes: new Set(entry.insight?.relatedNodes || []),
+      });
+      return;
+    }
+
+    if (entry.score > existing.score) {
+      existing.signal = entry.signal;
+      existing.normalizedName = entry.normalizedName;
+      existing.displaySignalName = displaySignalName;
+    }
+    existing.score = Math.max(existing.score, entry.score);
+    existing.activityScore = Math.max(existing.activityScore, entry.activityScore);
+    (entry.insight?.categories || []).forEach((category) => existing.categories.add(category));
+    (entry.insight?.entities || []).forEach((entityName) => existing.entities.add(entityName));
+    (entry.insight?.relatedNodes || []).forEach((nodeName) => existing.relatedNodes.add(nodeName));
+  });
+  const diagnosticEntries = Array.from(mergedVisibleEntries.values())
+    .sort((left, right) => right.score - left.score || left.displaySignalName.localeCompare(right.displaySignalName));
+  const focusEntityScores = new Map<string, number>();
+  diagnosticEntries.forEach((entry) => {
+    entry.entities.forEach((entityName) => {
       const normalizedEntity = normalizeVhdlIdentifier(entityName);
       const nextScore = (focusEntityScores.get(normalizedEntity) || 0)
         + entry.score
@@ -2073,19 +2423,24 @@ function selectMacroSignals(params: {
     .map(([entityName]) => entityName);
 
   return {
-    selectedSignals: selectedEntries.map((entry) => entry.signal),
-    selectedSignalInsights: selectedEntries.map((entry) => ({
-      signal: getSignalName(entry.signal),
+    selectedSignals: diagnosticEntries.map((entry) => entry.signal),
+    selectedSignalInsights: diagnosticEntries.map((entry, index) => ({
+      displayKey: `${entry.normalizedName}-${entry.displaySignalName || entry.signal.id || index}`,
+      signal: entry.displaySignalName,
       normalizedSignal: entry.normalizedName,
       score: entry.score,
       activityScore: entry.activityScore,
-      categories: entry.insight?.categories || [],
-      entities: entry.insight?.entities || [],
-      relatedNodes: entry.insight?.relatedNodes || [],
+      categories: Array.from(entry.categories).sort(),
+      entities: Array.from(entry.entities).sort(),
+      relatedNodes: Array.from(entry.relatedNodes).sort(),
     })),
     desiredCategories,
     focusEntities,
   };
+}
+
+function estimatePreprocessingTokenCount(parts: Array<string | null | undefined>) {
+  return parts.reduce((total, part) => total + estimateTokenCount(typeof part === 'string' ? part : ''), 0);
 }
 
 function rankSourceForCompilation(source: VhdlSourceDescriptor) {
@@ -2209,11 +2564,10 @@ async function runGhdlSimulation(params: {
   topEntity: string;
   sourcePaths?: string[];
   stopTime?: string;
-  autoInstall?: boolean;
 }) {
   const logs: string[] = [];
-  const { projectPath, topEntity, sourcePaths, stopTime, autoInstall } = params;
-  const status = autoInstall ? await ensureGhdlInstalled(logs) : await getGhdlStatus();
+  const { projectPath, topEntity, sourcePaths, stopTime } = params;
+  const status = await getGhdlStatus();
 
   if (!status.installed) {
     throw new Error(status.reason || 'GHDL is not installed.');
@@ -2493,6 +2847,16 @@ async function getVhdlSkillPrompt() {
   return cachedVhdlSkillPrompt;
 }
 
+async function applyMandatoryVhdlSkill(taskPrompt: string) {
+  const vhdlSkillPrompt = await getVhdlSkillPrompt();
+  return [
+    vhdlSkillPrompt,
+    '### Task-Specific Priority',
+    'Apply the mandatory VHDL skill to this request. If the task below contains a stricter response contract, exact-token requirement, validation rule, or output format, obey that exact contract while still using the VHDL skill for reasoning and implementation guidance.',
+    taskPrompt,
+  ].join('\n\n');
+}
+
 async function normalizeFilesystemPath(targetPath: string) {
   const resolvedPath = path.resolve(targetPath.trim());
   try {
@@ -2648,8 +3012,26 @@ async function runModelAnalysis(params: {
   model: string;
   prompt: string;
   signal?: AbortSignal;
-}) {
+}): Promise<AiRunResult> {
   const { ai, provider, model, prompt, signal } = params;
+  const startedAt = Date.now();
+  const finalizeResult = (text: string, usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number }) => {
+    const durationMs = Math.max(1, Date.now() - startedAt);
+    const inputTokens = Math.max(0, usage?.inputTokens ?? estimateTokenCount(prompt));
+    const outputTokens = Math.max(0, usage?.outputTokens ?? estimateTokenCount(text));
+    const totalTokens = Math.max(inputTokens + outputTokens, usage?.totalTokens ?? inputTokens + outputTokens);
+    const tokensPerSecond = outputTokens > 0 ? Number((outputTokens / (durationMs / 1000)).toFixed(2)) : 0;
+    return {
+      text,
+      telemetry: {
+        inputTokens,
+        outputTokens,
+        totalTokens,
+        tokensPerSecond,
+        durationMs,
+      },
+    };
+  };
 
   switch (provider) {
     case 'gemini': {
@@ -2660,7 +3042,13 @@ async function runModelAnalysis(params: {
         model,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
       });
-      return response.text || 'No response generated from the model.';
+      const text = response.text || 'No response generated from the model.';
+      const usage = (response as any)?.usageMetadata;
+      return finalizeResult(text, {
+        inputTokens: usage?.promptTokenCount,
+        outputTokens: usage?.candidatesTokenCount,
+        totalTokens: usage?.totalTokenCount,
+      });
     }
     case 'ollama': {
       if (isLikelyOllamaEmbeddingModel(model)) {
@@ -2680,7 +3068,8 @@ async function runModelAnalysis(params: {
         let lastError: unknown = null;
         for (const attempt of strategies) {
           try {
-            return await attempt();
+            const result = await attempt();
+            return finalizeResult(result.text, result.usage);
           } catch (error) {
             if (isAbortError(error)) {
               throw error;
@@ -2720,7 +3109,11 @@ async function runModelAnalysis(params: {
         if (!responseText) {
           throw new Error(`MTPLX returned no generated text for model "${model}".`);
         }
-        return responseText;
+        return finalizeResult(responseText, {
+          inputTokens: data?.usage?.prompt_tokens,
+          outputTokens: data?.usage?.completion_tokens,
+          totalTokens: data?.usage?.total_tokens,
+        });
       } catch (error: any) {
         const message = String(error?.message || error);
         if (message.includes('fetch failed')) {
@@ -2743,7 +3136,11 @@ async function runModelAnalysis(params: {
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      return data.choices?.[0]?.message?.content || 'No response generated from OpenAI.';
+      return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from OpenAI.', {
+        inputTokens: data?.usage?.prompt_tokens,
+        outputTokens: data?.usage?.completion_tokens,
+        totalTokens: data?.usage?.total_tokens,
+      });
     }
     case 'openrouter': {
       if (!process.env.OPENROUTER_API_KEY) throw new Error('OpenRouter is unconfigured. Set OPENROUTER_API_KEY.');
@@ -2759,7 +3156,11 @@ async function runModelAnalysis(params: {
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      return data.choices?.[0]?.message?.content || 'No response generated from OpenRouter.';
+      return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from OpenRouter.', {
+        inputTokens: data?.usage?.prompt_tokens,
+        outputTokens: data?.usage?.completion_tokens,
+        totalTokens: data?.usage?.total_tokens,
+      });
     }
     case 'groq': {
       if (!process.env.GROQ_API_KEY) throw new Error('Groq is unconfigured. Set GROQ_API_KEY.');
@@ -2775,7 +3176,11 @@ async function runModelAnalysis(params: {
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      return data.choices?.[0]?.message?.content || 'No response generated from Groq.';
+      return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from Groq.', {
+        inputTokens: data?.usage?.prompt_tokens,
+        outputTokens: data?.usage?.completion_tokens,
+        totalTokens: data?.usage?.total_tokens,
+      });
     }
     case 'mistral': {
       if (!process.env.MISTRAL_API_KEY) throw new Error('Mistral is unconfigured. Set MISTRAL_API_KEY.');
@@ -2791,7 +3196,11 @@ async function runModelAnalysis(params: {
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      return data.choices?.[0]?.message?.content || 'No response generated from Mistral.';
+      return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from Mistral.', {
+        inputTokens: data?.usage?.prompt_tokens,
+        outputTokens: data?.usage?.completion_tokens,
+        totalTokens: data?.usage?.total_tokens,
+      });
     }
     case 'anthropic': {
       if (!process.env.ANTHROPIC_API_KEY) throw new Error('Anthropic is unconfigured. Set ANTHROPIC_API_KEY.');
@@ -2810,7 +3219,13 @@ async function runModelAnalysis(params: {
         }),
       });
       const content = Array.isArray(data.content) ? data.content : [];
-      return content.map((block: any) => block.text || '').join('\n').trim() || 'No response generated from Anthropic.';
+      return finalizeResult(content.map((block: any) => block.text || '').join('\n').trim() || 'No response generated from Anthropic.', {
+        inputTokens: data?.usage?.input_tokens,
+        outputTokens: data?.usage?.output_tokens,
+        totalTokens: typeof data?.usage?.input_tokens === 'number' && typeof data?.usage?.output_tokens === 'number'
+          ? data.usage.input_tokens + data.usage.output_tokens
+          : undefined,
+      });
     }
     default:
       throw new Error(`Unsupported provider: ${provider}`);
@@ -2822,28 +3237,31 @@ async function bootstrap() {
   const PORT = 3000;
   const HOST = '127.0.0.1';
   const SESSION_HEADER = 'x-logicpro-session';
-  const sessionToken = randomUUID();
-  const approvedProjectRoots = new Set<string>();
+  const SESSION_COOKIE = 'logicpro-session-id';
+  const sessionManager = createSessionManager({ cookieName: SESSION_COOKIE });
 
-  const rememberApprovedProjectRoot = async (rootPath: string) => {
-    const normalizedRoot = await normalizeFilesystemPath(rootPath);
-    approvedProjectRoots.add(normalizedRoot);
-    return normalizedRoot;
+  const getRequiredSession = (req: express.Request) => {
+    const session = sessionManager.getSession(req.headers.cookie);
+    if (!session) {
+      const error = new Error('Missing or expired local app session. Refresh AUTOMATA LogicPro and try again.');
+      (error as any).statusCode = 401;
+      throw error;
+    }
+    return session;
   };
 
-  const assertApprovedProjectPath = async (candidatePath: string, label = 'Project path') => {
-    const normalizedPath = await normalizeFilesystemPath(candidatePath);
-    for (const approvedRoot of approvedProjectRoots) {
-      if (isPathWithinRoot(normalizedPath, approvedRoot)) {
-        return normalizedPath;
-      }
-    }
+  const rememberApprovedProjectRoot = async (session: LogicProSession, rootPath: string) => {
+    const normalizedRoot = await normalizeFilesystemPath(rootPath);
+    return sessionManager.rememberApprovedRoot(session, normalizedRoot);
+  };
 
-    const error = new Error(
-      `${label} is not approved for this app session. Re-select the project folder from inside AUTOMATA LogicPro and try again.`
-    );
-    (error as any).statusCode = 403;
-    throw error;
+  const assertApprovedProjectPath = async (
+    session: LogicProSession,
+    candidatePath: string,
+    label = 'Project path'
+  ) => {
+    const normalizedPath = await normalizeFilesystemPath(candidatePath);
+    return sessionManager.assertApprovedPath(session, normalizedPath, label, isPathWithinRoot);
   };
 
   // Middleware for body parsing
@@ -2871,10 +3289,12 @@ async function bootstrap() {
   });
 
   app.get('/api/session', (req, res) => {
+    const session = sessionManager.getOrCreateSession(req.headers.cookie);
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.json({ token: sessionToken });
+    res.setHeader('Set-Cookie', sessionManager.createCookieValue(session));
+    res.json({ token: session.csrfToken });
   });
 
   app.use('/api', (req, res, next) => {
@@ -2882,8 +3302,15 @@ async function bootstrap() {
       return next();
     }
 
+    const session = sessionManager.getSession(req.headers.cookie);
+    if (!session) {
+      return res.status(401).json({
+        error: 'Missing or expired local app session. Refresh the app and try again.',
+      });
+    }
+
     const providedToken = typeof req.header(SESSION_HEADER) === 'string' ? req.header(SESSION_HEADER) : '';
-    if (providedToken !== sessionToken) {
+    if (!sessionManager.matchesCsrfToken(session, providedToken)) {
       return res.status(401).json({
         error: 'Missing or invalid local session token. Refresh the app and try again.',
       });
@@ -2894,9 +3321,10 @@ async function bootstrap() {
 
   app.post('/api/project/select', async (req, res) => {
     try {
+      const session = getRequiredSession(req);
       const requestedDefaultPath = typeof req.body?.defaultPath === 'string' ? req.body.defaultPath : null;
       const projectPath = await chooseProjectFolder(requestedDefaultPath);
-      const approvedProjectPath = await rememberApprovedProjectRoot(projectPath);
+      const approvedProjectPath = await rememberApprovedProjectRoot(session, projectPath);
       const files = await listProjectFiles(approvedProjectPath);
       res.json({
         name: path.basename(approvedProjectPath),
@@ -2918,7 +3346,9 @@ async function bootstrap() {
     }
 
     try {
-      const approvedProjectPath = await rememberApprovedProjectRoot(await ensureDirectoryPath(projectPath, 'Project folder'));
+      const session = getRequiredSession(req);
+      const ensuredProjectPath = await ensureDirectoryPath(projectPath, 'Project folder');
+      const approvedProjectPath = await assertApprovedProjectPath(session, ensuredProjectPath, 'Project folder');
       const files = await listProjectFiles(approvedProjectPath);
       res.json({
         name: path.basename(approvedProjectPath),
@@ -2932,11 +3362,12 @@ async function bootstrap() {
 
   app.post('/api/project/open-workspace', async (req, res) => {
     try {
+      const session = getRequiredSession(req);
       const defaultPath = typeof req.body?.projectPath === 'string' && req.body.projectPath.trim()
-        ? await assertApprovedProjectPath(req.body.projectPath, 'Workspace default path')
+        ? await assertApprovedProjectPath(session, req.body.projectPath, 'Workspace default path')
         : null;
       const selectedPath = await chooseWorkspaceFile(defaultPath);
-      await rememberApprovedProjectRoot(path.dirname(selectedPath));
+      await rememberApprovedProjectRoot(session, path.dirname(selectedPath));
       const content = await fs.readFile(selectedPath, 'utf8');
       res.json({
         name: path.basename(selectedPath),
@@ -2953,8 +3384,9 @@ async function bootstrap() {
 
   app.post('/api/project/save-vcd', async (req, res) => {
     try {
+      const session = getRequiredSession(req);
       const projectPath = typeof req.body?.projectPath === 'string' && req.body.projectPath.trim()
-        ? await assertApprovedProjectPath(req.body.projectPath, 'Export directory')
+        ? await assertApprovedProjectPath(session, req.body.projectPath, 'Export directory')
         : null;
       const suggestedName = typeof req.body?.suggestedName === 'string' && req.body.suggestedName.trim()
         ? req.body.suggestedName.trim()
@@ -2986,7 +3418,8 @@ async function bootstrap() {
     }
 
     try {
-      const sources = await collectVhdlSources(await assertApprovedProjectPath(projectPath));
+      const session = getRequiredSession(req);
+      const sources = await collectVhdlSources(await assertApprovedProjectPath(session, projectPath));
       res.json(buildVhdlProjectInfo(sources));
     } catch (error: any) {
       res.status(error?.statusCode || 500).json({ error: error.message || error });
@@ -2995,6 +3428,12 @@ async function bootstrap() {
 
   app.post('/api/ghdl/install', async (req, res) => {
     const logs: string[] = [];
+    if (req.body?.confirmInstall !== true) {
+      return res.status(400).json({
+        error: 'GHDL installation requires explicit confirmation from the UI before the installer can run.',
+        logs,
+      });
+    }
     try {
       const status = await ensureGhdlInstalled(logs);
       res.json({ status, logs });
@@ -3004,7 +3443,7 @@ async function bootstrap() {
   });
 
   app.post('/api/ghdl/run', async (req, res) => {
-    const { projectPath, topEntity, sourcePaths, stopTime, autoInstall } = req.body;
+    const { projectPath, topEntity, sourcePaths, stopTime } = req.body;
 
     if (typeof projectPath !== 'string' || !projectPath.trim()) {
       return res.status(400).json({ error: 'Project path is required.' });
@@ -3014,7 +3453,8 @@ async function bootstrap() {
     }
 
     try {
-      const normalizedProjectPath = await assertApprovedProjectPath(projectPath.trim());
+      const session = getRequiredSession(req);
+      const normalizedProjectPath = await assertApprovedProjectPath(session, projectPath.trim());
       const normalizedTopEntity = topEntity.trim();
       const normalizedSourcePaths = Array.isArray(sourcePaths) ? sourcePaths : undefined;
       const result = await runGhdlSimulation({
@@ -3022,7 +3462,6 @@ async function bootstrap() {
         topEntity: normalizedTopEntity,
         sourcePaths: normalizedSourcePaths,
         stopTime: typeof stopTime === 'string' && stopTime.trim() ? stopTime.trim() : undefined,
-        autoInstall: Boolean(autoInstall),
       });
       try {
         await getOrBuildMacroSignalIndex({
@@ -3105,16 +3544,18 @@ async function bootstrap() {
 
     const startedAt = Date.now();
     try {
-      const responseText = await runModelAnalysis({
+      const testPrompt = await applyMandatoryVhdlSkill([
+        'Reply with exactly this token and nothing else:',
+        'TEST_OK',
+        'Do not add explanation, markdown, quotes, code fences, labels, or reasoning.'
+      ].join('\n'));
+      const result = await runModelAnalysis({
         ai,
         provider,
         model,
-        prompt: [
-          'Reply with exactly this token and nothing else:',
-          'TEST_OK',
-          'Do not add explanation, markdown, quotes, code fences, labels, or reasoning.'
-        ].join('\n'),
+        prompt: testPrompt,
       });
+      const responseText = result.text;
 
       const durationMs = Math.max(0, Date.now() - startedAt);
       const trimmed = responseText.trim();
@@ -3146,6 +3587,7 @@ async function bootstrap() {
   app.post('/api/ai-analyze', async (req, res) => {
     const { provider, signals, query, model, timeUnit, tickDuration, projectContext, projectPath, workspaceFileName } = req.body;
     const simulationMacroContext = req.body?.simulationMacroContext;
+    const remoteExportConsent = Boolean(req.body?.remoteExportConsent);
     const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
     const macroId: AiMacroId = typeof req.body?.macroId === 'string' && req.body.macroId.trim()
       ? req.body.macroId.trim() as AiMacroId
@@ -3182,8 +3624,26 @@ async function bootstrap() {
     });
 
     try {
+      const session = getRequiredSession(req);
       const resolvedTickDuration = Number.isFinite(Number(tickDuration)) ? Number(tickDuration) : 1;
       const resolvedTimeUnit = typeof timeUnit === 'string' && timeUnit.trim() ? timeUnit : 'ns';
+      const selectedProvider: LLMProviderId = typeof provider === 'string' && provider.trim()
+        ? provider.trim() as LLMProviderId
+        : 'gemini';
+      const selectedModel = typeof model === 'string' && model.trim()
+        ? model.trim()
+        : (STATIC_PROVIDER_MODELS[selectedProvider]?.[0]?.id || 'gemini-2.5-flash');
+      const providerDeployment = getProviderDeployment(selectedProvider);
+
+      if (requiresRemoteExportConsent(selectedProvider) && !remoteExportConsent) {
+        return res.status(403).json({
+          error: `Remote provider export is disabled for ${selectedProvider}. Enable explicit consent in the AI drawer before sending waveform or project context off-machine.`,
+          macroId,
+          provider: selectedProvider,
+          deployment: providerDeployment,
+        });
+      }
+
       const hazardScan = analyzeWaveformHazards(
         Array.isArray(signals) ? signals : [],
         resolvedTickDuration,
@@ -3200,10 +3660,19 @@ async function bootstrap() {
       let projectPathUnavailableReason = '';
       if (typeof projectPath === 'string' && projectPath.trim()) {
         try {
-          normalizedProjectPath = await assertApprovedProjectPath(projectPath.trim());
+          normalizedProjectPath = await assertApprovedProjectPath(session, projectPath.trim());
         } catch (projectPathError: any) {
           projectPathUnavailableReason = projectPathError?.message || String(projectPathError);
         }
+      }
+      const macroSpec = getAiMacroSpec(macroId);
+      const artifactDirectory = macroSpec.generatedArtifactDirectory || null;
+
+      if (artifactDirectory && !normalizedProjectPath) {
+        throw new Error(
+          projectPathUnavailableReason
+            || `${macroSpec.label} requires an opened project folder so the generated .vhd files can be saved into "${artifactDirectory}".`
+        );
       }
       const simulationRootEntity = typeof simulationMacroContext?.rootEntity === 'string' && simulationMacroContext.rootEntity.trim()
         ? simulationMacroContext.rootEntity.trim()
@@ -3232,6 +3701,7 @@ async function bootstrap() {
         visibleSignalsSent: number;
         totalSignalsAvailable: number;
         selectedSignals: Array<{
+          displayKey: string;
           signal: string;
           normalizedSignal: string;
           score: number;
@@ -3320,20 +3790,40 @@ async function bootstrap() {
       if (selectedSignals.length > 0) {
         selectedSignals.forEach((sig: any) => {
           waveformText += `Signal Channel: ${sig.name} | Type: ${sig.type}\n`;
-          const sampleValues = sig.values ? sig.values.slice(0, 120) : [];
-          waveformText += `Ticks (0-120): ${sampleValues.map((v: any) => v === -1 ? 'Z' : v).join('')}\n\n`;
+          const sampleValues = Array.isArray(sig.values) ? sig.values.slice(0, 120) : [];
+          waveformText += `Ticks (0-120): ${sampleValues.map((value: any) => formatSignalValue(value)).join('')}\n`;
+          waveformText += `Transition Summary: ${buildSignalTransitionSummary(Array.isArray(sig.values) ? sig.values : [])}\n\n`;
         });
       }
 
       let projectText = '';
       let resolvedProjectContext = projectContext;
-      const vhdlSkillPrompt = await getVhdlSkillPrompt();
-      if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && normalizedProjectPath) {
+      let exportPolicyText = '';
+      if (
+        (!resolvedProjectContext || typeof resolvedProjectContext !== 'object')
+        && normalizedProjectPath
+        && providerDeployment === 'local'
+      ) {
         resolvedProjectContext = await buildProjectContextFromPath(normalizedProjectPath, query, workspaceFileName);
       }
       if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && projectPathUnavailableReason) {
         projectText += `### Project Workspace Context\n`;
         projectText += `Server-side project file enrichment skipped: ${projectPathUnavailableReason}\n\n`;
+      }
+
+      if (providerDeployment === 'remote') {
+        const scrubbed = scrubProjectContextForRemoteExport(
+          resolvedProjectContext && typeof resolvedProjectContext === 'object'
+            ? resolvedProjectContext
+            : null
+        );
+        resolvedProjectContext = scrubbed?.context || null;
+        if (scrubbed && scrubbed.redactionNotes.length > 0) {
+          exportPolicyText += `### Remote Export Policy\n`;
+          exportPolicyText += `Provider deployment: remote\n`;
+          exportPolicyText += `Project context was scrubbed before export. Redaction notes:\n`;
+          exportPolicyText += `${scrubbed.redactionNotes.map((note) => `- ${note}`).join('\n')}\n\n`;
+        }
       }
 
       if (resolvedProjectContext && typeof resolvedProjectContext === 'object') {
@@ -3368,49 +3858,190 @@ ${protocolScan.markdown}
 
 ${hazardScan.markdown}
 
-${projectText}
-
-${vhdlSkillPrompt}
+${exportPolicyText}${projectText}
 
 Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.
 
 When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", treat those as the primary hierarchy-aware view of the design. Use the focus entities and related nodes to explain why each selected signal matters to the requested macro.`;
 
+      const preprocessingInputTokens = estimatePreprocessingTokenCount([
+        query,
+        waveformText,
+        protocolScan.markdown,
+        hazardScan.markdown,
+        exportPolicyText,
+        projectText,
+      ]);
+
       // Call latest recommended Gemini Model
-      const selectedProvider: LLMProviderId = typeof provider === 'string' && provider.trim()
-        ? provider.trim() as LLMProviderId
-        : 'gemini';
-      const selectedModel = typeof model === 'string' && model.trim()
-        ? model.trim()
-        : (STATIC_PROVIDER_MODELS[selectedProvider]?.[0]?.id || 'gemini-2.5-flash');
-      const responseText = await runModelAnalysis({
+      const initialPrompt = await applyMandatoryVhdlSkill(`${systemPrompt}\n\n${buildMacroPromptContract({
+        macroId,
+        userQuery: query,
+        tbGenerationMode,
+      })}`);
+      let aiResult = await runModelAnalysis({
         ai,
         provider: selectedProvider,
         model: selectedModel,
-        prompt: `${systemPrompt}\n\n${buildMacroPromptContract({
-          macroId,
-          userQuery: query,
-          tbGenerationMode,
-        })}`,
+        prompt: initialPrompt,
         signal: controller.signal,
       });
+      const attemptTelemetries: AiRunTelemetry[] = [aiResult.telemetry];
+      let responseText = aiResult.text;
+      let responseTelemetry = aiResult.telemetry;
 
-      const validation = validateMacroOutput({
+      let validation = validateMacroOutput({
         macroId,
         text: responseText,
         hazardFindings: hazardScan.findings,
         protocolFrames: protocolScan.frames,
       });
+      let retryUsed = false;
+
+      if (artifactDirectory) {
+        const hasVhdlCodeFailure = validation.checks.some((check) => check.id === 'code:vhdl' && check.status === 'fail');
+        const extractedInitialArtifacts = extractGeneratedVhdlArtifacts(responseText, macroId);
+        const hasRequiredArtifact = macroId === 'generate_vhdl_tb'
+          ? extractedInitialArtifacts.some((artifact) => artifact.kind === 'testbench')
+          : extractedInitialArtifacts.length > 0;
+
+        if (hasVhdlCodeFailure || !hasRequiredArtifact || validation.status === 'fail') {
+          retryUsed = true;
+          const retryPrompt = buildArtifactRetryPrompt({
+            originalPrompt: initialPrompt,
+            macroId,
+            tbGenerationMode,
+            artifactDirectory,
+            validationSummary: validation.summary,
+            validationWarnings: validation.warnings,
+          });
+          aiResult = await runModelAnalysis({
+            ai,
+            provider: selectedProvider,
+            model: selectedModel,
+            prompt: retryPrompt,
+            signal: controller.signal,
+          });
+          attemptTelemetries.push(aiResult.telemetry);
+          responseText = aiResult.text;
+          responseTelemetry = aiResult.telemetry;
+
+          validation = validateMacroOutput({
+            macroId,
+            text: responseText,
+            hazardFindings: hazardScan.findings,
+            protocolFrames: protocolScan.frames,
+          });
+        }
+      } else if (macroId !== 'custom_query' && validation.status === 'fail') {
+        retryUsed = true;
+        const retryPrompt = buildValidationRetryPrompt({
+          originalPrompt: initialPrompt,
+          macroId,
+          validationSummary: validation.summary,
+          validationWarnings: validation.warnings,
+        });
+        aiResult = await runModelAnalysis({
+          ai,
+          provider: selectedProvider,
+          model: selectedModel,
+          prompt: retryPrompt,
+          signal: controller.signal,
+        });
+        attemptTelemetries.push(aiResult.telemetry);
+        responseText = aiResult.text;
+        responseTelemetry = aiResult.telemetry;
+
+        validation = validateMacroOutput({
+          macroId,
+          text: responseText,
+          hazardFindings: hazardScan.findings,
+          protocolFrames: protocolScan.frames,
+        });
+      }
+
+      let outputDirectory: string | null = null;
+      let savedGeneratedFiles: SavedGeneratedVhdlArtifact[] = [];
+      let analysisText = responseText;
+
+      if (artifactDirectory) {
+        const extractedArtifacts = extractGeneratedVhdlArtifacts(responseText, macroId);
+        const hasVhdlCodeFailure = validation.checks.some((check) => check.id === 'code:vhdl' && check.status === 'fail');
+        const hasRequiredArtifact = macroId === 'generate_vhdl_tb'
+          ? extractedArtifacts.some((artifact) => artifact.kind === 'testbench')
+          : extractedArtifacts.length > 0;
+
+        if (hasVhdlCodeFailure || extractedArtifacts.length === 0 || !hasRequiredArtifact || validation.status === 'fail') {
+          const failureReasons = [
+            hasVhdlCodeFailure ? 'no tagged VHDL code block was returned' : null,
+            extractedArtifacts.length === 0 ? 'no extractable VHDL artifacts were found' : null,
+            macroId === 'generate_vhdl_tb' && !hasRequiredArtifact ? 'no VHDL testbench artifact was identified' : null,
+            validation.status === 'fail' ? `macro validation still failed (${validation.summary})` : null,
+          ].filter(Boolean).join('; ');
+          const retryNote = retryUsed ? ' The stricter automatic retry was attempted and still did not produce valid artifact code.' : '';
+          throw new Error(`${macroSpec.label} hard-failed because ${failureReasons}.${retryNote}`);
+        }
+
+        const saveResult = await saveGeneratedVhdlArtifacts({
+          projectPath: normalizedProjectPath,
+          outputFolder: artifactDirectory,
+          artifacts: extractedArtifacts,
+        });
+        outputDirectory = saveResult.outputDirectory;
+        savedGeneratedFiles = saveResult.savedArtifacts;
+
+        analysisText = `${responseText.trimEnd()}\n\n## Saved Generated Files\n${savedGeneratedFiles
+          .map((artifact) => `- ${path.relative(normalizedProjectPath, artifact.path)}`)
+          .join('\n')}\n`;
+      }
+
+      const latestAttemptInputTokens = responseTelemetry.inputTokens;
+      const jobInputTokens = preprocessingInputTokens
+        + attemptTelemetries.reduce((sum, telemetry) => sum + telemetry.inputTokens, 0);
+      const jobOutputTokens = attemptTelemetries.reduce((sum, telemetry) => sum + telemetry.outputTokens, 0);
+      const sessionAiTokenTotals = sessionManager.accumulateAiTokens(session, {
+        inputTokens: jobInputTokens,
+        outputTokens: jobOutputTokens,
+      });
+      const jobTelemetry: AiJobTelemetry = {
+        latestAttemptInputTokens,
+        jobInputTokens,
+        sessionInputTokens: sessionAiTokenTotals.inputTokens,
+        outputTokens: responseTelemetry.outputTokens,
+        jobOutputTokens,
+        sessionOutputTokens: sessionAiTokenTotals.outputTokens,
+        tokensPerSecond: responseTelemetry.tokensPerSecond,
+        durationMs: responseTelemetry.durationMs,
+      };
 
       return res.json({
-        analysis: responseText,
+        analysis: analysisText,
         provider: selectedProvider,
         model: selectedModel,
+        telemetry: {
+          engineLabel: getProviderDescriptors().find((entry) => entry.id === selectedProvider)?.label || selectedProvider,
+          inputTokens: jobTelemetry.latestAttemptInputTokens,
+          latestAttemptInputTokens: jobTelemetry.latestAttemptInputTokens,
+          jobInputTokens: jobTelemetry.jobInputTokens,
+          sessionInputTokens: jobTelemetry.sessionInputTokens,
+          outputTokens: jobTelemetry.outputTokens,
+          jobOutputTokens: jobTelemetry.jobOutputTokens,
+          sessionOutputTokens: jobTelemetry.sessionOutputTokens,
+          tokensPerSecond: jobTelemetry.tokensPerSecond,
+          durationMs: jobTelemetry.durationMs,
+        },
         hazardScan,
         protocolScan,
         diagnostics: macroDiagnostics,
         macroId,
         tbGenerationMode,
+        retryUsed,
+        outputDirectory,
+        generatedFiles: savedGeneratedFiles.map((artifact) => ({
+          name: artifact.fileName,
+          path: artifact.path,
+          kind: artifact.kind,
+        })),
         validation,
         jobId,
       });

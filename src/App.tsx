@@ -4,6 +4,13 @@ import { PRESETS } from './data';
 import { runSimulationEvaluations } from './utils';
 import { parseImportedWaveform } from './workspaceFile';
 import { apiFetch } from './api';
+import { fetchGhdlModalData, installGhdl, runGhdl } from './app/ghdlClient';
+import {
+  clearStoredProjectSelection,
+  isProjectApprovalErrorMessage,
+  loadStoredProjectSelection,
+  saveProjectSelection,
+} from './app/projectPersistence';
 
 // Components
 import { Toolbar } from './components/Toolbar';
@@ -26,7 +33,6 @@ import {
   Minimize2
 } from 'lucide-react';
 
-const PROJECT_STORAGE_KEY = 'automata-logicpro-project';
 const DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX = 214;
 const DEFAULT_AI_OUTPUT_WINDOW_BOUNDS = {
   left: 0,
@@ -40,10 +46,6 @@ const DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS = {
   width: 1120,
   height: 720,
 };
-
-function isProjectApprovalErrorMessage(message: string) {
-  return message.toLowerCase().includes('not approved for this app session');
-}
 
 export default function App() {
   // 1. Core workspace timing configuration states
@@ -75,6 +77,7 @@ export default function App() {
   const [ghdlSelectedSourcePaths, setGhdlSelectedSourcePaths] = useState<string[]>([]);
   const [ghdlStopTime, setGhdlStopTime] = useState('1us');
   const [ghdlBusy, setGhdlBusy] = useState(false);
+  const [ghdlInstalling, setGhdlInstalling] = useState(false);
   const [ghdlLogs, setGhdlLogs] = useState('');
   const [ghdlJobStatus, setGhdlJobStatus] = useState<string | null>(null);
   const [ghdlJobStartedAt, setGhdlJobStartedAt] = useState<number | null>(null);
@@ -118,24 +121,12 @@ export default function App() {
   } | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(PROJECT_STORAGE_KEY);
-      if (!raw) {
-        return;
-      }
-      const parsed = JSON.parse(raw) as {
-        name?: string;
-        path?: string | null;
-        files?: ProjectFileEntry[];
-      };
-      if (parsed?.name && Array.isArray(parsed.files)) {
-        setProjectDirectoryName(parsed.name);
-        setProjectDirectoryPath(parsed.path || null);
-        setProjectFiles(parsed.files);
-        setProjectFileCount(parsed.files.length);
-      }
-    } catch {
-      // Ignore stale browser storage.
+    const storedProject = loadStoredProjectSelection();
+    if (storedProject) {
+      setProjectDirectoryName(storedProject.name);
+      setProjectDirectoryPath(storedProject.path || null);
+      setProjectFiles(storedProject.files);
+      setProjectFileCount(storedProject.files.length);
     }
   }, []);
 
@@ -520,24 +511,7 @@ export default function App() {
     setProjectFiles(nextFiles);
     setProjectFileCount(nextFiles.length);
     setWorkspaceError(null);
-
-    try {
-      const serializableFiles = nextFiles.map((file) => ({
-        path: file.path,
-        name: file.name,
-        extension: file.extension,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      }));
-      window.localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify({
-        name: nextProjectName,
-        path: nextProjectPath,
-        files: serializableFiles,
-      }));
-    } catch {
-      // Ignore storage failures.
-    }
+    saveProjectSelection(nextProjectName, nextProjectPath, nextFiles);
   };
 
   const resetProjectSelection = (message?: string) => {
@@ -553,11 +527,7 @@ export default function App() {
       setWorkspaceError(message);
     }
 
-    try {
-      window.localStorage.removeItem(PROJECT_STORAGE_KEY);
-    } catch {
-      // Ignore storage failures.
-    }
+    clearStoredProjectSelection();
   };
 
   useEffect(() => {
@@ -739,28 +709,11 @@ export default function App() {
     setGhdlLogs('');
 
     try {
-      const [statusResponse, infoResponse] = await Promise.all([
-        apiFetch('/api/ghdl/status'),
-        apiFetch('/api/ghdl/project-info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ projectPath: projectDirectoryPath }),
-        }),
-      ]);
-      const statusData = await statusResponse.json();
-      const infoData = await infoResponse.json();
-
-      if (!statusResponse.ok) {
-        throw new Error(statusData.error || 'Unable to detect GHDL status.');
-      }
-      if (!infoResponse.ok) {
-        throw new Error(infoData.error || 'Unable to inspect VHDL sources.');
-      }
-
-      setGhdlStatus(statusData);
-      setGhdlProjectInfo(infoData);
-      setGhdlSelectedSourcePaths(Array.isArray(infoData.defaultSourcePaths) ? infoData.defaultSourcePaths : []);
-      setGhdlTopEntity(infoData.defaultTopEntity || '');
+      const modalData = await fetchGhdlModalData(projectDirectoryPath);
+      setGhdlStatus(modalData.status);
+      setGhdlProjectInfo(modalData.projectInfo);
+      setGhdlSelectedSourcePaths(Array.isArray(modalData.projectInfo.defaultSourcePaths) ? modalData.projectInfo.defaultSourcePaths : []);
+      setGhdlTopEntity(modalData.projectInfo.defaultTopEntity || '');
       setWorkspaceError(null);
     } catch (error: any) {
       if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
@@ -768,6 +721,24 @@ export default function App() {
         return;
       }
       setWorkspaceError(error?.message || 'Unable to load the GHDL project view.');
+    }
+  };
+
+  const handleInstallGhdl = async () => {
+    setGhdlInstalling(true);
+    setGhdlLogs('');
+    setGhdlJobStatus('Installing GHDL...');
+    try {
+      const result = await installGhdl();
+      setGhdlStatus(result.status);
+      setGhdlLogs(Array.isArray(result.logs) ? result.logs.join('\n\n') : '');
+      setGhdlJobStatus(result.status.installed ? 'GHDL installation finished.' : 'GHDL installation did not complete.');
+      setWorkspaceError(null);
+    } catch (error: any) {
+      setGhdlJobStatus(`Installation failed: ${error?.message || 'Unable to install GHDL.'}`);
+      setWorkspaceError(error?.message || 'Unable to install GHDL.');
+    } finally {
+      setGhdlInstalling(false);
     }
   };
 
@@ -787,27 +758,18 @@ export default function App() {
 
     setGhdlBusy(true);
     setGhdlLogs('');
-    setGhdlJobStartedAt(Date.now());
-    setGhdlJobStatus('Sending selected source set to GHDL...');
-    try {
-      const response = await apiFetch('/api/ghdl/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectPath: projectDirectoryPath,
-          topEntity: ghdlTopEntity.trim(),
-          sourcePaths: ghdlSelectedSourcePaths,
-          stopTime: ghdlStopTime.trim() || undefined,
-          autoInstall: true,
-        }),
-      });
+      setGhdlJobStartedAt(Date.now());
+      setGhdlJobStatus('Sending selected source set to GHDL...');
+      try {
+      const data = await runGhdl(
+        projectDirectoryPath,
+        ghdlTopEntity.trim(),
+        ghdlSelectedSourcePaths,
+        ghdlStopTime.trim() || undefined
+      );
       setGhdlJobStatus('Waiting for GHDL compile and simulation output...');
-      const data = await response.json();
       setGhdlLogs(Array.isArray(data.logs) ? data.logs.join('\n\n') : '');
       setGhdlJobStatus('Processing simulation output...');
-      if (!response.ok) {
-        throw new Error(data.error || 'GHDL simulation failed.');
-      }
 
       await openWorkspaceSource(data.vcdFileName || `${ghdlTopEntity}.vcd`, data.vcdContent);
       setSimulationMacroContext({
@@ -1004,7 +966,7 @@ export default function App() {
             <span className="text-[12px] leading-none text-brand-secondary font-mono lowercase">v1.0</span>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-[10px] text-slate-400 font-mono">
+        <div className="flex items-center gap-4 text-[12px] text-slate-400 font-mono">
           <div className="flex items-center gap-1.5 bg-[#0f1526] p-1 px-2 rounded">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary inline-block animate-pulse"></span>
             <span>Logic Simulator Engine Active</span>
@@ -1034,14 +996,14 @@ export default function App() {
       />
 
       {workspaceError && (
-        <div className="mx-3 mt-3 rounded border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-[11px] text-rose-100 flex items-center gap-2">
+        <div className="mx-3 mt-3 rounded border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-[12px] text-rose-100 flex items-center gap-2">
           <AlertCircle size={14} className="text-rose-300 flex-none" />
           <span>{workspaceError}</span>
         </div>
       )}
 
       {workspaceFileName && !workspaceError && (
-        <div className="mx-3 mt-3 rounded border border-brand-cyan/20 bg-brand-cyan/10 px-3 py-2 text-[11px] text-slate-200 flex items-center gap-2">
+        <div className="mx-3 mt-3 rounded border border-brand-cyan/20 bg-brand-cyan/10 px-3 py-2 text-[12px] text-slate-200 flex items-center gap-2">
           <FolderOpen size={14} className="text-brand-cyan flex-none" />
           <span>Opened workspace file: <strong>{workspaceFileName}</strong></span>
         </div>
@@ -1063,29 +1025,42 @@ export default function App() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-[11px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-[12px]">
               <div className="rounded border border-brand-outline-variant/20 bg-brand-surface-lowest p-3">
-                <div className="text-slate-400 uppercase text-[9px] font-bold mb-1">Project Folder</div>
+                <div className="text-slate-400 uppercase text-[12px] font-bold mb-1">Project Folder</div>
                 <div className="font-mono text-slate-200 break-all">{projectDirectoryPath || 'No project selected'}</div>
               </div>
               <div className="rounded border border-brand-outline-variant/20 bg-brand-surface-lowest p-3">
-                <div className="text-slate-400 uppercase text-[9px] font-bold mb-1">GHDL Status</div>
-                <div className="font-mono text-slate-200">
+                <div className="text-slate-400 uppercase text-[12px] font-bold mb-1">GHDL Status</div>
+              <div className="font-mono text-slate-200">
                   {ghdlStatus?.installed ? `Installed${ghdlStatus.version ? `: ${ghdlStatus.version}` : ''}` : 'Not installed'}
                 </div>
                 {ghdlStatus?.installer && !ghdlStatus.installed && (
                   <div className="mt-1 text-slate-400">Installer: {ghdlStatus.installer}</div>
+                )}
+                {!ghdlStatus?.installed && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void handleInstallGhdl()}
+                      disabled={ghdlInstalling || ghdlBusy}
+                      className="px-2 py-1 rounded border border-brand-amber/40 bg-brand-surface-high text-[12px] font-bold text-brand-amber cursor-pointer hover:bg-brand-surface-bright disabled:opacity-40"
+                    >
+                      {ghdlInstalling ? 'Installing...' : 'Install GHDL'}
+                    </button>
+                    <span className="text-slate-500">Installation is explicit and must be confirmed here before running simulations.</span>
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="space-y-3 mb-4">
               <label className="block">
-                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wide mb-1 block">Top Entity / Testbench</span>
+                <span className="text-[12px] text-slate-400 uppercase font-bold tracking-wide mb-1 block">Top Entity / Testbench</span>
                 <select
                   value={ghdlTopEntity}
                   onChange={(event) => setGhdlTopEntity(event.target.value)}
-                  className="w-full bg-brand-surface border border-brand-outline-variant/50 rounded px-3 py-2 text-brand-on-surface outline-none focus:border-brand-cyan text-[11px] font-mono"
+                  className="w-full bg-brand-surface border border-brand-outline-variant/50 rounded px-3 py-2 text-brand-on-surface outline-none focus:border-brand-cyan text-[12px] font-mono"
                 >
                   {!ghdlProjectInfo?.topCandidates?.length && (
                     <option value="">No entities found</option>
@@ -1096,13 +1071,13 @@ export default function App() {
                 </select>
               </label>
               <label className="block">
-                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wide mb-1 block">Stop Time</span>
+                <span className="text-[12px] text-slate-400 uppercase font-bold tracking-wide mb-1 block">Stop Time</span>
                 <input
                   type="text"
                   value={ghdlStopTime}
                   onChange={(event) => setGhdlStopTime(event.target.value)}
                   placeholder="1us"
-                  className="w-full bg-brand-surface border border-brand-outline-variant/50 rounded px-3 py-2 text-brand-on-surface outline-none focus:border-brand-cyan text-[11px] font-mono"
+                  className="w-full bg-brand-surface border border-brand-outline-variant/50 rounded px-3 py-2 text-brand-on-surface outline-none focus:border-brand-cyan text-[12px] font-mono"
                 />
               </label>
             </div>
@@ -1110,21 +1085,21 @@ export default function App() {
             <div className="rounded border border-brand-outline-variant/20 bg-brand-surface-lowest p-3 mb-4 flex-none">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <div>
-                  <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Source Set</div>
-                  <div className="text-[10px] text-slate-500 mt-1">Choose the VHDL files GHDL should analyze for this run.</div>
+                  <div className="text-[12px] text-slate-400 uppercase font-bold tracking-wide">Source Set</div>
+                  <div className="text-[12px] text-slate-500 mt-1">Choose the VHDL files GHDL should analyze for this run.</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setGhdlSelectedSourcePaths(ghdlProjectInfo?.defaultSourcePaths || [])}
-                    className="px-2 py-1 rounded border border-brand-outline-variant/40 bg-brand-surface-high text-[10px] font-bold text-slate-200 cursor-pointer hover:bg-brand-surface-bright"
+                    className="px-2 py-1 rounded border border-brand-outline-variant/40 bg-brand-surface-high text-[12px] font-bold text-slate-200 cursor-pointer hover:bg-brand-surface-bright"
                   >
                     Select All
                   </button>
                   <button
                     type="button"
                     onClick={() => setGhdlSelectedSourcePaths([])}
-                    className="px-2 py-1 rounded border border-brand-outline-variant/40 bg-brand-surface-high text-[10px] font-bold text-slate-200 cursor-pointer hover:bg-brand-surface-bright"
+                    className="px-2 py-1 rounded border border-brand-outline-variant/40 bg-brand-surface-high text-[12px] font-bold text-slate-200 cursor-pointer hover:bg-brand-surface-bright"
                   >
                     Clear
                   </button>
@@ -1133,7 +1108,7 @@ export default function App() {
 
               <div className="max-h-52 overflow-y-auto rounded border border-brand-outline-variant/20 bg-[#060a12]">
                 {(ghdlProjectInfo?.sources || []).length === 0 ? (
-                  <div className="px-3 py-4 text-[11px] text-slate-400">No VHDL sources were found in the selected project folder.</div>
+                  <div className="px-3 py-4 text-[12px] text-slate-400">No VHDL sources were found in the selected project folder.</div>
                 ) : (
                   (ghdlProjectInfo?.sources || []).map((source) => (
                     <label
@@ -1147,8 +1122,8 @@ export default function App() {
                         className="mt-0.5"
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="font-mono text-[11px] text-slate-100 break-all">{source.path}</div>
-                        <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-400">
+                        <div className="font-mono text-[12px] text-slate-100 break-all">{source.path}</div>
+                        <div className="mt-1 flex flex-wrap gap-2 text-[12px] text-slate-400">
                           <span>entities: {source.entities.join(', ') || 'none'}</span>
                           <span>deps: {source.dependencies.join(', ') || 'none'}</span>
                           {source.isTestbench && <span className="text-brand-cyan">testbench</span>}
@@ -1159,7 +1134,7 @@ export default function App() {
                 )}
               </div>
 
-              <div className="mt-2 text-[10px] text-slate-400">
+              <div className="mt-2 text-[12px] text-slate-400">
                 {ghdlSelectedSources.length} file(s) selected
                 {!ghdlSelectedTopMatchesSources && (
                   <span className="ml-2 text-amber-300">The chosen top entity is not declared by the selected source set.</span>
@@ -1168,9 +1143,9 @@ export default function App() {
             </div>
 
             <div className="rounded border border-brand-outline-variant/20 bg-[#060a12] p-3 mb-4 flex-1 min-h-0 overflow-y-auto">
-              <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wide mb-2">Run Log</div>
+              <div className="text-[12px] text-slate-400 uppercase font-bold tracking-wide mb-2">Run Log</div>
               {(ghdlBusy || ghdlJobStatus) && (
-                <div className={`mb-3 rounded border p-2 text-[10px] font-mono ${
+                <div className={`mb-3 rounded border p-2 text-[12px] font-mono ${
                   ghdlBusy
                     ? 'border-brand-amber/20 bg-brand-surface-lowest text-slate-300'
                     : ghdlJobStatus?.startsWith('Simulation failed')
@@ -1191,7 +1166,7 @@ export default function App() {
                   )}
                 </div>
               )}
-              <pre className="font-mono text-[10px] text-slate-300 whitespace-pre-wrap">
+              <pre className="font-mono text-[12px] text-slate-300 whitespace-pre-wrap">
                 {ghdlLogs || 'Run output will appear here. The app now scans VHDL dependencies, lets you choose the source set, then compiles until the dependency graph resolves.'}
               </pre>
             </div>
@@ -1199,14 +1174,14 @@ export default function App() {
             <div className="flex items-center justify-end gap-2 flex-none">
               <button
                 onClick={() => setShowGhdlModal(false)}
-                className="px-3 py-1.5 rounded bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 text-[11px] font-bold text-white transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 text-[12px] font-bold text-white transition-all cursor-pointer"
               >
                 Close
               </button>
               <button
                 onClick={handleRunGhdl}
-                disabled={ghdlBusy || !projectDirectoryPath || ghdlSelectedSourcePaths.length === 0 || !ghdlSelectedTopMatchesSources}
-                className="px-4 py-1.5 rounded bg-brand-cyan hover:bg-cyan-400 text-[11px] font-bold text-brand-on-primary transition-all cursor-pointer disabled:opacity-40 flex items-center gap-2"
+                disabled={ghdlBusy || ghdlInstalling || !ghdlStatus?.installed || !projectDirectoryPath || ghdlSelectedSourcePaths.length === 0 || !ghdlSelectedTopMatchesSources}
+                className="px-4 py-1.5 rounded bg-brand-cyan hover:bg-cyan-400 text-[12px] font-bold text-brand-on-primary transition-all cursor-pointer disabled:opacity-40 flex items-center gap-2"
               >
                 {ghdlBusy ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
                 <span>{ghdlBusy ? 'Running...' : 'Run GHDL'}</span>
@@ -1309,8 +1284,8 @@ export default function App() {
                 <div className="flex min-w-0 items-center gap-2">
                   <Maximize2 size={14} className="text-brand-cyan flex-none" />
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Output</div>
-                    <div className="truncate text-[10px] text-slate-400">
+                    <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-cyan">AI Analysis Output</div>
+                    <div className="truncate text-[12px] text-slate-400">
                       {latestAiReport?.report.summary || 'Structured AI findings will appear here after an analysis run.'}
                     </div>
                   </div>
@@ -1380,8 +1355,8 @@ export default function App() {
                 <div className="flex min-w-0 items-center gap-2">
                   <Maximize2 size={14} className="text-violet-200 flex-none" />
                   <div className="min-w-0">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-200">Block Diagram Viewer</div>
-                    <div className="truncate text-[10px] text-slate-400">
+                    <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-violet-200">Block Diagram Viewer</div>
+                    <div className="truncate text-[12px] text-slate-400">
                       {latestAiReport?.meta.diagnostics
                         ? `Graphical entity and signal relations for ${latestAiReport.meta.diagnostics.rootEntity}`
                         : 'Run an AI macro with diagnostics to populate the diagram viewer.'}
@@ -1444,14 +1419,14 @@ export default function App() {
               </button>
             </div>
 
-            <div className="flex items-center gap-2 bg-brand-cyan/10 border border-brand-cyan/20 p-2.5 rounded text-[11px] text-slate-300 mb-3 select-none">
+            <div className="flex items-center gap-2 bg-brand-cyan/10 border border-brand-cyan/20 p-2.5 rounded text-[12px] text-slate-300 mb-3 select-none">
               <AlertCircle size={14} className="text-brand-cyan flex-none" />
               <p>Your timeline has been compiled to industrial **IEEE Standard 1364-2001 VCD**. Drag-and-drop downloaded files directly into Verilog Timing analyzers like GTKWave or ModelSim for laboratory synthesis.</p>
             </div>
 
-            <label className="text-[10px] text-brand-cyan uppercase font-bold font-mono tracking-wider mb-1 select-none">VCD String Hex Preview</label>
+            <label className="text-[12px] text-brand-cyan uppercase font-bold font-mono tracking-wider mb-1 select-none">VCD String Hex Preview</label>
             <div className="flex-1 bg-black/50 border border-brand-outline-variant/20 rounded p-3 overflow-y-auto mb-4 scrollbar-thin">
-              <pre className="font-mono text-[10px] text-amber-100/90 whitespace-pre leading-normal select-all">
+              <pre className="font-mono text-[12px] text-amber-100/90 whitespace-pre leading-normal select-all">
                 {vcdText}
               </pre>
             </div>
@@ -1460,14 +1435,14 @@ export default function App() {
             <div className="flex items-center justify-end gap-2 shrink-0 select-none">
               <button
                 onClick={handleCopyVCD}
-                className="px-3.5 py-1.5 rounded bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 text-[11px] font-bold text-white transition-all flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-1.5 rounded bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 text-[12px] font-bold text-white transition-all flex items-center gap-1 cursor-pointer"
               >
                 {vcdCopied ? <Check size={12} className="text-brand-secondary" /> : <Copy size={12} />}
                 <span>{vcdCopied ? 'Copied to Clipboard!' : 'Copy to Clipboard'}</span>
               </button>
               <button
                 onClick={() => setShowVcdModal(false)}
-                className="px-4 py-1.5 rounded bg-brand-cyan hover:bg-cyan-400 text-[11px] font-bold text-brand-on-primary transition-all cursor-pointer"
+                className="px-4 py-1.5 rounded bg-brand-cyan hover:bg-cyan-400 text-[12px] font-bold text-brand-on-primary transition-all cursor-pointer"
               >
                 Done
               </button>
@@ -1477,7 +1452,7 @@ export default function App() {
       )}
 
       {/* 5. Compact, clean footer (Max 1px separation) */}
-      <footer className="h-6 border-t border-brand-outline-variant/30 bg-brand-surface-lowest px-4 flex items-center justify-between shrink-0 select-none text-[10px] text-slate-500 font-mono">
+      <footer className="h-6 border-t border-brand-outline-variant/30 bg-brand-surface-lowest px-4 flex items-center justify-between shrink-0 select-none text-[12px] text-slate-500 font-mono">
         <div>
           <span>Project: </span>
           <span className="text-brand-cyan uppercase font-bold">{projectDirectoryName}</span>

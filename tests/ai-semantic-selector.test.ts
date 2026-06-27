@@ -199,3 +199,26 @@ test('selectMacroSignals keeps available signals when semantic matching is weak'
     ['mystery_probe_a', 'mystery_probe_b']
   );
 });
+
+test('selectMacroSignals merges duplicate visible signal names into one diagnostic entry', () => {
+  const index = __semanticTestHooks.buildMacroSignalIndexFromFixtures({
+    rootEntity: 'tb_spi',
+    sources: semanticFixtureSources,
+  });
+
+  const result = __semanticTestHooks.selectMacroSignals({
+    macroId: 'inspect_race_hazards',
+    signals: [
+      { id: 'tb_clk', name: 'clk', type: 'wire' as const, values: [0, 1, 0, 1] },
+      { id: 'dut_clk', name: 'clk', type: 'wire' as const, values: [0, 1, 0, 1] },
+      { id: 'wrapper_clk', name: 'clk', type: 'wire' as const, values: [0, 1, 0, 1] },
+      makeSignal('tb_reset_n', [0, 0, 1, 1]),
+      makeSignal('launch_req', [0, 1, 0, 1]),
+    ],
+    index,
+  });
+
+  const clkDiagnostics = result.selectedSignalInsights.filter((signal: { signal: string }) => signal.signal === 'clk');
+  assert.equal(clkDiagnostics.length, 1);
+  assert.equal(result.selectedSignals.filter((signal: { name?: string }) => signal.name === 'clk').length, 1);
+});

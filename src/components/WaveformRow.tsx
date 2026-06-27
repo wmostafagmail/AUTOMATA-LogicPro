@@ -191,7 +191,7 @@ export const WaveformRow: React.FC<WaveformRowProps> = ({
                     y={16}
                     textAnchor="middle"
                     fill="#e2e8f0"
-                    className="font-mono text-[9px] select-none font-medium text-center"
+                    className="font-mono text-[12px] select-none font-medium text-center"
                     style={{ maxWidth: w - 8 }}
                   >
                     {(() => {

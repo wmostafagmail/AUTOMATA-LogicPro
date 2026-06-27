@@ -11,7 +11,6 @@ import {
   Play,
   RefreshCw,
   Copy,
-  Terminal,
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -59,11 +58,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       {/* 1. Left Section: Project Picker */}
       <div className="flex items-center gap-2 flex-none lg:min-w-[500px]">
         <div className="flex items-center gap-1 bg-brand-surface-lowest p-1 rounded border border-brand-outline-variant/20">
-          <span className="text-[9px] text-slate-400 font-bold uppercase px-1">Project:</span>
+          <span className="text-[12px] text-slate-400 font-bold uppercase px-1">Project:</span>
           <button
             type="button"
             onClick={onPickProjectDirectory}
-            className="inline-flex items-center gap-1 rounded bg-[#0b1326] px-2 py-1 text-[11px] font-medium text-brand-cyan outline-none cursor-pointer hover:bg-[#101a32] transition-colors"
+            className="inline-flex items-center gap-1 rounded bg-[#0b1326] px-2 py-1 text-[12px] font-medium text-brand-cyan outline-none cursor-pointer hover:bg-[#101a32] transition-colors"
             title="Select the project directory for this workspace"
           >
             <FolderOpen size={11} />
@@ -73,7 +72,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           onClick={onOpenWorkspace}
-          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
+          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[12px] font-bold text-slate-100 uppercase cursor-pointer"
           title="Open a VCD waveform dump or saved Signal Logic Pro workspace"
         >
           <FolderOpen size={11} />
@@ -82,7 +81,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           onClick={onExportVCD}
-          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
+          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[12px] font-bold text-slate-100 uppercase cursor-pointer"
           title="Export captured timeline as VCD file (Value Change Dump)"
         >
           <Download size={11} />
@@ -94,12 +93,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <div className="hidden lg:flex items-center gap-3 bg-brand-surface-low border-x border-brand-outline-variant/30 px-3 flex-none select-none">
         
         {/* Tick scale */}
-        <div className="flex items-center gap-1.5 text-[10px]">
+        <div className="flex items-center gap-1.5 text-[12px]">
           <span className="text-slate-400 font-bold uppercase">Tick Scale:</span>
           <select
             value={tickDuration}
             onChange={e => setTickDuration(Number(e.target.value))}
-            className="bg-brand-surface-lowest border border-brand-outline-variant/30 rounded text-[11px] text-brand-on-surface px-1.5 py-0.5 outline-none"
+            className="bg-brand-surface-lowest border border-brand-outline-variant/30 rounded text-[12px] text-brand-on-surface px-1.5 py-0.5 outline-none"
           >
             <option value="1">1</option>
             <option value="2">2</option>
@@ -111,7 +110,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <select
             value={timeUnit}
             onChange={e => setTimeUnit(e.target.value as any)}
-            className="bg-brand-surface-lowest border border-brand-outline-variant/30 rounded text-[11px] text-brand-on-surface px-1 py-0.5 outline-none font-mono"
+            className="bg-brand-surface-lowest border border-brand-outline-variant/30 rounded text-[12px] text-brand-on-surface px-1 py-0.5 outline-none font-mono"
           >
             <option value="ns">ns</option>
             <option value="us">us</option>
@@ -121,12 +120,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         {/* length */}
-        <div className="flex items-center gap-1.5 text-[10px]">
+        <div className="flex items-center gap-1.5 text-[12px]">
           <span className="text-slate-400 font-bold uppercase">Length (Ticks):</span>
           <select
             value={simulationLength}
             onChange={e => setSimulationLength(Number(e.target.value))}
-            className="bg-brand-surface-lowest border border-brand-outline-variant/30 rounded text-[11px] text-brand-on-surface px-1 py-0.5 outline-none"
+            className="bg-brand-surface-lowest border border-brand-outline-variant/30 rounded text-[12px] text-brand-on-surface px-1 py-0.5 outline-none"
           >
             <option value="100">100 ticks</option>
             <option value="150">150 ticks</option>
@@ -145,7 +144,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         >
           <ZoomOut size={12} />
         </button>
-        <span className="text-[10px] font-mono text-brand-cyan select-none w-10 text-center font-bold">
+        <span className="text-[12px] font-mono text-brand-cyan select-none w-10 text-center font-bold">
           {(zoom * 100).toFixed(0)}%
         </span>
         <button
@@ -165,7 +164,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           onClick={onOpenGhdlRunner}
-          className="ml-1 px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[10px] font-bold text-slate-100 uppercase cursor-pointer"
+          className="ml-1 px-2 py-1 select-none flex items-center gap-1 bg-brand-surface-high hover:bg-brand-surface-bright border border-brand-outline-variant/40 rounded text-[12px] font-bold text-slate-100 uppercase cursor-pointer"
           title="Run a GHDL simulation from the selected project folder"
         >
           <Play size={11} className="text-lime-400" />
@@ -179,7 +178,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           type="button"
           onClick={onToggleInjectGlitch}
           aria-pressed={glitchInjectionEnabled}
-          className={`px-2 py-1 select-none flex items-center gap-2 rounded text-[10px] font-bold uppercase cursor-pointer border transition-all ${
+          className={`px-2 py-1 select-none flex items-center gap-2 rounded text-[12px] font-bold uppercase cursor-pointer border transition-all ${
             glitchInjectionEnabled
               ? 'bg-rose-900 border-rose-400/40 text-rose-100'
               : 'bg-brand-surface-high hover:bg-brand-surface-bright border-brand-outline-variant/40 text-slate-200'
@@ -203,10 +202,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           onClick={onOpenAIDrawer}
-          className="px-2.5 py-1 select-none flex items-center gap-1 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-500/30 rounded text-[10px] font-bold text-brand-tertiary uppercase cursor-pointer transition-all animate-pulse"
+          className="px-2.5 py-1 select-none flex items-center gap-1 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-500/30 rounded text-[12px] font-bold text-brand-tertiary uppercase cursor-pointer transition-all animate-pulse"
           title="Open AI Hardware timing assistant"
         >
-          <Terminal size={11} className="text-brand-amber text-yellow-300" />
           <span>AI Assist</span>
         </button>
 
