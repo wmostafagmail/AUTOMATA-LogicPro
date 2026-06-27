@@ -180,6 +180,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     outputTokens: 0,
   });
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [activeMacroId, setActiveMacroId] = useState<AiMacroId | null>(null);
   const [testGenerating, setTestGenerating] = useState(false);
   const [testGenerateResult, setTestGenerateResult] = useState<string | null>(null);
   const activeRequestControllerRef = useRef<AbortController | null>(null);
@@ -504,6 +505,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       : `ai-job-${Date.now()}`;
     activeRequestControllerRef.current = controller;
     setActiveJobId(jobId);
+    setActiveMacroId(macroId);
 
     try {
       const selectedProviderRequiresRemoteConsent = requiresRemoteExportConsent(selectedProvider);
@@ -782,15 +784,16 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     : jobFailed
       ? 'border-rose-500/30 bg-rose-950/30 text-rose-100'
       : 'border-brand-secondary/20 bg-brand-surface-lowest text-slate-300';
+  const activeMacroLabel = getAiMacroSpec(activeMacroId).label;
   const jobCardTitle = loading
-    ? 'Active AI Job'
+    ? activeMacroLabel
     : jobFailed
-      ? 'AI Job Failed'
+      ? activeMacroLabel
       : jobWasCancelled
-        ? 'Last AI Job'
+        ? activeMacroLabel
         : jobCompletedSuccessfully
-          ? 'Last AI Job'
-          : 'AI Job';
+          ? activeMacroLabel
+          : activeMacroLabel;
   const jobCardTitleTone = loading
     ? 'text-red-200'
     : jobFailed
