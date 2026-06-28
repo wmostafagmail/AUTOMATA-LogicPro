@@ -4082,7 +4082,16 @@ When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", 
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        watch: {
+          ignored: [
+            '**/AI Generated TB/**',
+            '**/AI Generated RTL/**',
+            '**/AI Generated Assertions/**',
+          ],
+        },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
