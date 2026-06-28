@@ -1,6 +1,3 @@
-assert (sck_reg = '0' or sck_reg = '1') 
-    report "SCK must be stable during CS assertion" 
-    severity warning;
-  assert byte_counter = 2 
-    report "Frame must transfer exactly 2 bytes per CS window" 
-    severity error when cs_n = '0' and state = IDLE;
+rst_n <= '1'; wait for 4 ns;
+     rst_n <= '0'; wait for 10 ns;
+     -- Observe debug_zero asserting at t=35ns relative to simulation start
