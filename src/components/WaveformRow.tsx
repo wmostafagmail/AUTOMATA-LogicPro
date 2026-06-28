@@ -7,6 +7,7 @@ interface WaveformRowProps {
   zoom: number;
   tickWidth: number; // Width in pixels of one simulation tick
   hoveredTick: number | null;
+  glitchInjectionEnabled: boolean;
   onSetValues: (newValues: (number | string)[]) => void;
   onGridClick: (tick: number, e: React.MouseEvent) => void;
 }
@@ -17,6 +18,7 @@ export const WaveformRow: React.FC<WaveformRowProps> = ({
   zoom,
   tickWidth,
   hoveredTick,
+  glitchInjectionEnabled,
   onSetValues,
   onGridClick
 }) => {
@@ -255,7 +257,7 @@ export const WaveformRow: React.FC<WaveformRowProps> = ({
     const clickedTick = Math.floor(clickX / tickWidth);
     
     if (clickedTick >= 0 && clickedTick < length) {
-      if (signal.type === 'wire') {
+      if (glitchInjectionEnabled && signal.type === 'wire') {
         // Toggle Low <-> High <-> High-Z
         const newValues = [...signal.values];
         const val = Number(newValues[clickedTick] ?? 0);

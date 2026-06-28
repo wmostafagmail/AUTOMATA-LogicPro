@@ -8,6 +8,7 @@ interface WaveformViewportProps {
   length: number;
   zoom: number;
   tickWidth: number;
+  glitchInjectionEnabled: boolean;
   timeUnit: 'ns' | 'us' | 'ms' | 's';
   tickDuration: number;
   cursorA: number | null;
@@ -26,6 +27,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
   length,
   zoom,
   tickWidth,
+  glitchInjectionEnabled,
   timeUnit,
   tickDuration,
   cursorA,
@@ -309,6 +311,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
                         zoom={zoom}
                         tickWidth={tickWidth}
                         hoveredTick={hoveredTick}
+                        glitchInjectionEnabled={glitchInjectionEnabled}
                         onSetValues={(newValues) => onUpdateSignalValues(signal.id, newValues)}
                         onGridClick={() => {}}
                       />

@@ -1091,7 +1091,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setGhdlSelectedSourcePaths(ghdlProjectInfo?.defaultSourcePaths || [])}
+                    onClick={() => setGhdlSelectedSourcePaths((ghdlProjectInfo?.sources || []).map((source) => source.path))}
                     className="px-2 py-1 rounded border border-brand-outline-variant/40 bg-brand-surface-high text-[12px] font-bold text-slate-200 cursor-pointer hover:bg-brand-surface-bright"
                   >
                     Select All
@@ -1212,6 +1212,7 @@ export default function App() {
                 length={simulationLength}
                 zoom={zoom}
                 tickWidth={tickWidth}
+                glitchInjectionEnabled={glitchInjectionEnabled}
                 timeUnit={timeUnit}
                 tickDuration={tickDuration}
                 cursorA={cursorA}

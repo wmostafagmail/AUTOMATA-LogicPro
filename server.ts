@@ -7,7 +7,7 @@ import { execFile } from 'child_process';
 import path from 'path';
 import type { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
-import type { AiMacroId, TbGenerationMode } from './src/aiMacros.ts';
+import type { AiMacroId, AiMacroValidationResult, TbGenerationMode } from './src/aiMacros.ts';
 import { getAiMacroSpec } from './src/aiMacros.ts';
 import { validateMacroOutput } from './src/aiMacroValidation.ts';
 import { buildMacroPromptContract } from './src/aiMacroPrompting.ts';
@@ -785,6 +785,17 @@ type AiRunResult = {
   telemetry: AiRunTelemetry;
 };
 
+function formatValidationFailureDetails(validation: AiMacroValidationResult) {
+  const failedChecks = validation.checks.filter((check) => check.status === 'fail');
+  if (failedChecks.length === 0) {
+    return validation.summary;
+  }
+
+  return failedChecks
+    .map((check) => `${check.label}: ${check.detail}`)
+    .join(' | ');
+}
+
 function normalizeLogicValue(value: number | string | undefined | null): number | 'Z' | null {
   if (value === undefined || value === null || value === '') return null;
   if (typeof value === 'number') {
@@ -1518,7 +1529,7 @@ async function collectVhdlSources(rootPath: string) {
 
 function buildVhdlProjectInfo(sources: VhdlSourceDescriptor[]) {
   const selectedPaths = sources
-    .filter((source) => !/(^|\/)AI Generated TB(\/|$)/i.test(source.path))
+    .filter((source) => !/(^|\/)AI Generated (TB|RTL|Assertions)(\/|$)/i.test(source.path))
     .map((source) => source.path);
   const topCandidates = Array.from(new Set(
     sources
@@ -3976,7 +3987,9 @@ When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", 
             hasVhdlCodeFailure ? 'no tagged VHDL code block was returned' : null,
             extractedArtifacts.length === 0 ? 'no extractable VHDL artifacts were found' : null,
             macroId === 'generate_vhdl_tb' && !hasRequiredArtifact ? 'no VHDL testbench artifact was identified' : null,
-            validation.status === 'fail' ? `macro validation still failed (${validation.summary})` : null,
+            validation.status === 'fail'
+              ? `macro validation still failed (${formatValidationFailureDetails(validation)})`
+              : null,
           ].filter(Boolean).join('; ');
           const retryNote = retryUsed ? ' The stricter automatic retry was attempted and still did not produce valid artifact code.' : '';
           throw new Error(`${macroSpec.label} hard-failed because ${failureReasons}.${retryNote}`);
