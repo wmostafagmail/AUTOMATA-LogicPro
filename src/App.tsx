@@ -96,6 +96,7 @@ export default function App() {
   const [leftWorkspaceBottomGapPx, setLeftWorkspaceBottomGapPx] = useState(DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX);
   const [latestAiReport, setLatestAiReport] = useState<AIWorkspaceReport | null>(null);
   const [selectedIssueMarkerId, setSelectedIssueMarkerId] = useState<string | null>(null);
+  const [issuePanelDismissed, setIssuePanelDismissed] = useState(false);
   const [issueFocusRequestKey, setIssueFocusRequestKey] = useState(0);
   const [hazardSeverityFilter, setHazardSeverityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
   const [markerDisplayLimit, setMarkerDisplayLimit] = useState<'all' | 25 | 50 | 100>('all');
@@ -221,16 +222,21 @@ export default function App() {
   useEffect(() => {
     if (visibleIssueMarkers.length === 0) {
       setSelectedIssueMarkerId(null);
+      setIssuePanelDismissed(false);
       return;
     }
 
-    if (!selectedIssueMarkerId || !visibleIssueMarkers.some((marker) => marker.id === selectedIssueMarkerId)) {
+    if (
+      !issuePanelDismissed
+      && (!selectedIssueMarkerId || !visibleIssueMarkers.some((marker) => marker.id === selectedIssueMarkerId))
+    ) {
       setSelectedIssueMarkerId(visibleIssueMarkers[0]?.id || null);
     }
-  }, [visibleIssueMarkers, selectedIssueMarkerId]);
+  }, [issuePanelDismissed, visibleIssueMarkers, selectedIssueMarkerId]);
 
   const handleSelectIssueMarker = (markerId: string) => {
     setSelectedIssueMarkerId(markerId);
+    setIssuePanelDismissed(false);
     setIssueFocusRequestKey((current) => current + 1);
 
     const marker = visibleIssueMarkers.find((entry) => entry.id === markerId);
@@ -248,6 +254,23 @@ export default function App() {
       setCursorB(endTick);
     }
   };
+
+  const handleCloseIssueMarker = () => {
+    setSelectedIssueMarkerId(null);
+    setIssuePanelDismissed(true);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !selectedIssueMarkerId) {
+        return;
+      }
+      handleCloseIssueMarker();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedIssueMarkerId]);
 
   // Updates parameters of specific channel item
   const handleUpdateSignal = (id: string, updated: Partial<Signal>) => {
@@ -1035,6 +1058,7 @@ export default function App() {
                   [family]: !current[family],
                 }))}
                 onSelectIssueMarker={handleSelectIssueMarker}
+                onCloseIssueMarker={handleCloseIssueMarker}
                 length={simulationLength}
                 zoom={zoom}
                 tickWidth={tickWidth}

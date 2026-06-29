@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Signal, WaveformIssueMarker } from '../types';
 import { WaveformRow } from './WaveformRow';
-import { ChevronLeft, ChevronRight, EyeOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, EyeOff, X } from 'lucide-react';
 
 type MarkerFamily = 'hazard' | 'protocol' | 'clockReset' | 'fsm';
 
@@ -14,6 +14,7 @@ interface WaveformViewportProps {
   issueFocusRequestKey?: number;
   onToggleMarkerFamily?: (family: MarkerFamily) => void;
   onSelectIssueMarker?: (markerId: string) => void;
+  onCloseIssueMarker?: () => void;
   length: number;
   zoom: number;
   tickWidth: number;
@@ -72,6 +73,7 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
   issueFocusRequestKey = 0,
   onToggleMarkerFamily,
   onSelectIssueMarker,
+  onCloseIssueMarker,
   length,
   zoom,
   tickWidth,
@@ -954,14 +956,24 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
                 <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Selected Issue</div>
                 <div className="mt-1 text-[12px] font-bold text-slate-100">{activeResolvedIssueMarker.title}</div>
               </div>
-              <div className={`rounded-full border px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${activeMarkerTone.border} ${activeMarkerTone.text}`}>
-                {activeResolvedIssueMarker.kind === 'protocol'
-                  ? 'protocol'
-                  : activeResolvedIssueMarker.kind === 'clockReset'
-                    ? 'clock/reset'
-                    : activeResolvedIssueMarker.kind === 'fsm'
-                      ? 'fsm'
-                    : activeResolvedIssueMarker.severity}
+              <div className="flex items-center gap-2">
+                <div className={`rounded-full border px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${activeMarkerTone.border} ${activeMarkerTone.text}`}>
+                  {activeResolvedIssueMarker.kind === 'protocol'
+                    ? 'protocol'
+                    : activeResolvedIssueMarker.kind === 'clockReset'
+                      ? 'clock/reset'
+                      : activeResolvedIssueMarker.kind === 'fsm'
+                        ? 'fsm'
+                      : activeResolvedIssueMarker.severity}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onCloseIssueMarker?.()}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded border border-brand-outline-variant/30 bg-brand-surface-low text-slate-300 transition-colors hover:border-rose-300/35 hover:text-rose-200"
+                  title="Close issue panel"
+                >
+                  <X size={13} />
+                </button>
               </div>
             </div>
             <div className="mt-1 text-[12px] leading-relaxed text-slate-300">{activeResolvedIssueMarker.detail}</div>
