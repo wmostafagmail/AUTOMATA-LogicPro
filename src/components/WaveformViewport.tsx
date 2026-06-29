@@ -920,9 +920,9 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
       </div>
       {activeResolvedIssueMarker && activeMarkerTone && (
         <div className="pointer-events-none absolute right-3 top-[54px] z-30 w-[340px]">
-          <div className={`rounded-xl border bg-[#08101d]/95 px-3 py-2.5 ${activeMarkerTone.border} ${activeMarkerTone.glow}`}>
+          <div className={`pointer-events-auto rounded-xl border bg-[#08101d]/95 px-3 py-2.5 ${activeMarkerTone.border} ${activeMarkerTone.glow}`}>
             {resolvedIssueMarkers.length > 1 && (
-              <div className="pointer-events-auto mb-2 flex items-center justify-between gap-3 rounded-lg border border-brand-outline-variant/25 bg-[#0b1320]/85 px-2 py-1">
+              <div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-brand-outline-variant/25 bg-[#0b1320]/85 px-2 py-1">
                 <div className="text-[11px] font-mono text-slate-400">
                   Issue {activeResolvedIssueMarkerIndex + 1} / {resolvedIssueMarkers.length}
                 </div>
