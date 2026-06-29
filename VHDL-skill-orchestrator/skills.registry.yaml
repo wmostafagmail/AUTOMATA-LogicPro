@@ -1,0 +1,115 @@
+version: 1
+registry_name: vhdl-skills-registry
+description: VHDL-focused registry used by the VHDL-skill-orchestrator to select and sequence FPGA/VHDL skills.
+
+skills:
+  - name: VHDL-skill-orchestrator
+    path: .agents/skills/VHDL-skill-orchestrator/SKILL.md
+    description: VHDL-focused meta-skill that selects, sequences, and coordinates FPGA/VHDL-related specialized skills.
+    domains: [vhdl-orchestration, fpga, rtl, orchestration, routing, planning]
+    phases: [requirements, architecture, design, implementation, debugging, verification, documentation, review]
+    outputs: [skill-call-plan, merged-output, checklist]
+    trigger_keywords: [vhdl, fpga, rtl, orchestrate, route, skills, call skills, use skills, skill list]
+    priority: 1000
+    conflicts: []
+
+  - name: vhdl-language
+    path: .agents/skills/vhdl-language/SKILL.md
+    description: FPGA/VHDL architecture, RTL implementation, verification, synthesis, timing, CDC, and debug skill.
+    domains: [fpga, rtl, vhdl, ieee-1076, synthesis]
+    phases: [requirements, architecture, design, implementation, debugging, verification, optimization]
+    outputs: [vhdl, testbench, constraints, design-notes, debug-analysis]
+    trigger_keywords: [vhdl, fpga, rtl, vivado, quartus, ghdl, ieee 1076, testbench, synthesis]
+    priority: 100
+    toolchains: [ghdl, vivado, quartus, questa, modelsim, riviera-pro]
+    conflicts: []
+
+  - name: fpga-architecture
+    path: .agents/skills/fpga-architecture/SKILL.md
+    description: FPGA system architecture, clock/reset planning, CDC strategy, datapath/control design, and resource planning.
+    domains: [fpga, rtl, architecture, timing]
+    phases: [requirements, architecture, design, optimization]
+    outputs: [architecture-plan, block-diagram-description, interface-plan, risk-register]
+    trigger_keywords: [fpga architecture, clock domain, reset, cdc, pipeline, bram, dsp]
+    priority: 90
+    conflicts: []
+
+  - name: rtl-verification
+    path: .agents/skills/rtl-verification/SKILL.md
+    description: Self-checking testbenches, assertions, scoreboards, simulation plans, and regression strategy for RTL.
+    domains: [rtl, verification, simulation, testbench]
+    phases: [verification, debugging, review]
+    outputs: [testbench, assertions, simulation-plan, regression-commands]
+    trigger_keywords: [testbench, simulation, assertion, scoreboard, coverage, vunit, osvvm, uvvm]
+    priority: 85
+    conflicts: []
+
+  - name: timing-constraints
+    path: .agents/skills/timing-constraints/SKILL.md
+    description: FPGA timing constraints, clock constraints, generated clocks, false paths, multicycle paths, and timing debug.
+    domains: [fpga, timing, constraints, synthesis, implementation]
+    phases: [design, verification, optimization, debugging]
+    outputs: [xdc, sdc, timing-notes, constraints-checklist]
+    trigger_keywords: [xdc, sdc, timing, constraints, setup, hold, false path, multicycle]
+    priority: 80
+    conflicts: []
+
+  - name: backend-engineer
+    path: .agents/skills/backend-engineer/SKILL.md
+    description: Backend API, services, authentication, business logic, and server-side implementation.
+    domains: [backend, api, server, node, python, database]
+    phases: [architecture, implementation, debugging, testing]
+    outputs: [api-code, service-code, tests, documentation]
+    trigger_keywords: [api, backend, express, fastapi, database, auth, service]
+    priority: 70
+    conflicts: []
+
+  - name: frontend-engineer
+    path: .agents/skills/frontend-engineer/SKILL.md
+    description: Frontend application implementation, components, state management, routing, and integration.
+    domains: [frontend, ui, react, nextjs, web]
+    phases: [implementation, debugging, testing]
+    outputs: [frontend-code, components, pages, tests]
+    trigger_keywords: [frontend, react, next.js, ui, component, page, dashboard]
+    priority: 70
+    conflicts: []
+
+  - name: ui-ux-designer
+    path: .agents/skills/ui-ux-designer/SKILL.md
+    description: UI/UX review, user flows, wireframes, accessibility, responsive layout, and usability improvement.
+    domains: [ui, ux, design, accessibility]
+    phases: [requirements, design, review]
+    outputs: [wireframe-notes, ux-review, design-system-notes, accessibility-checklist]
+    trigger_keywords: [ui, ux, design, wireframe, responsive, accessibility, user flow]
+    priority: 65
+    conflicts: []
+
+  - name: test-engineer
+    path: .agents/skills/test-engineer/SKILL.md
+    description: Software testing strategy, unit tests, integration tests, end-to-end tests, and regression checks.
+    domains: [testing, qa, automation]
+    phases: [verification, debugging, review]
+    outputs: [test-plan, unit-tests, integration-tests, regression-checklist]
+    trigger_keywords: [test, qa, regression, unit test, integration test, e2e]
+    priority: 60
+    conflicts: []
+
+  - name: security-reviewer
+    path: .agents/skills/security-reviewer/SKILL.md
+    description: Security review for authentication, authorization, secrets, input validation, data protection, and threat risks.
+    domains: [security, compliance, privacy]
+    phases: [architecture, implementation, review, debugging]
+    outputs: [security-review, risk-list, security-fixes]
+    trigger_keywords: [security, auth, vulnerability, secret, permission, encryption]
+    priority: 75
+    conflicts: []
+
+  - name: documentation-writer
+    path: .agents/skills/documentation-writer/SKILL.md
+    description: Technical documentation, README files, design notes, operating instructions, and user guides.
+    domains: [documentation, writing, technical-communication]
+    phases: [documentation, review]
+    outputs: [readme, design-doc, user-guide, implementation-notes]
+    trigger_keywords: [readme, documentation, guide, notes, manual]
+    priority: 50
+    conflicts: []

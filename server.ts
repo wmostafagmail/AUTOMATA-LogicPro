@@ -1,5 +1,5 @@
 import express from 'express';
-import { createHash, randomUUID } from 'crypto';
+import { createHash } from 'crypto';
 import fs from 'fs/promises';
 import os from 'os';
 import { promisify } from 'util';
@@ -12,7 +12,33 @@ import { getAiMacroSpec } from './src/aiMacros.ts';
 import { validateMacroOutput } from './src/aiMacroValidation.ts';
 import { buildMacroPromptContract } from './src/aiMacroPrompting.ts';
 import { getProviderDeployment, requiresRemoteExportConsent, scrubProjectContextForRemoteExport } from './src/exportPolicy.ts';
-import { createSessionManager, type LogicProSession } from './src/server/sessionManager.ts';
+import { createAiJobRegistry } from './src/server/aiJobRegistry.ts';
+import { prepareAiAnalyzeRequest } from './src/server/aiAnalyzePreparation.ts';
+import { runAiAnalyzeJob } from './src/server/aiAnalyzeRunner.ts';
+import { createAiMetaRouteContext } from './src/server/aiMetaHandlers.ts';
+import { createAiJobSecurityContext } from './src/server/aiJobSecurity.ts';
+import { createAiAnalyzeRouteContext } from './src/server/aiAnalyzeRouteHandlers.ts';
+import { createGhdlRouteContext } from './src/server/ghdlRouteHandlers.ts';
+import { validateGhdlInstallRequest } from './src/server/ghdlInstallPolicy.ts';
+import { createProjectRouteContext } from './src/server/projectRouteHandlers.ts';
+import { buildPreparedRemoteExportPreview } from './src/server/remoteExportPreview.ts';
+import { createSessionSecurityContext } from './src/server/sessionSecurity.ts';
+import { prepareVhdlSkillOrchestratorPrompt } from './src/server/vhdlSkillOrchestrator.ts';
+import {
+  buildMacroSignalIndexFromFixtures,
+  buildMacroSignalIndexFromParsedSources,
+  buildVhdlSemanticModels,
+  classifySignalName,
+  extractGenerateBlocks,
+  extractIdentifierReferences,
+  extractInstancesFromArchitecture,
+  inferEntityRole,
+  normalizeVhdlIdentifier,
+  selectMacroSignals,
+  type MacroSignalIndex,
+  type SemanticSourceFixture,
+} from './src/server/macroSignalSelection.ts';
+import { analyzeProtocolFrames, analyzeWaveformHazards, formatSignalValue, getSignalName, getSignalValues, normalizeLogicValue } from './src/server/waveformAnalysis.ts';
 
 // Load environment variables
 dotenv.config();
@@ -51,23 +77,6 @@ type AnalyzerSignal = {
   };
 };
 
-type HazardFinding = {
-  severity: 'high' | 'medium' | 'low';
-  title: string;
-  detail: string;
-};
-
-type ProtocolKind = 'SPI' | 'I2C' | 'UART';
-
-type ProtocolFrame = {
-  protocol: ProtocolKind;
-  channel: string;
-  startTick: number;
-  endTick: number;
-  summary: string;
-  detail: string;
-};
-
 type GeneratedVhdlArtifact = {
   fileName: string;
   content: string;
@@ -78,7 +87,7 @@ type SavedGeneratedVhdlArtifact = GeneratedVhdlArtifact & {
   path: string;
 };
 
-const activeAiJobs = new Map<string, AbortController>();
+const activeAiJobs = createAiJobRegistry();
 
 function extractTaggedCodeBlocks(text: string) {
   return [...text.matchAll(/```([^\n`]*)\n([\s\S]*?)```/g)].map((match) => ({
@@ -278,11 +287,6 @@ async function saveGeneratedVhdlArtifacts(params: {
     outputDirectory,
     savedArtifacts,
   };
-}
-
-function formatSignalValue(value: number | string) {
-  if (value === -1) return 'Z';
-  return String(value);
 }
 
 function buildSignalTransitionSummary(values: Array<number | string>) {
@@ -769,17 +773,6 @@ type AiRunTelemetry = {
   durationMs: number;
 };
 
-type AiJobTelemetry = {
-  latestAttemptInputTokens: number;
-  jobInputTokens: number;
-  sessionInputTokens: number;
-  outputTokens: number;
-  jobOutputTokens: number;
-  sessionOutputTokens: number;
-  tokensPerSecond: number;
-  durationMs: number;
-};
-
 type AiRunResult = {
   text: string;
   telemetry: AiRunTelemetry;
@@ -794,572 +787,6 @@ function formatValidationFailureDetails(validation: AiMacroValidationResult) {
   return failedChecks
     .map((check) => `${check.label}: ${check.detail}`)
     .join(' | ');
-}
-
-function normalizeLogicValue(value: number | string | undefined | null): number | 'Z' | null {
-  if (value === undefined || value === null || value === '') return null;
-  if (typeof value === 'number') {
-    if (value === -1) return 'Z';
-    return value === 1 ? 1 : 0;
-  }
-  const normalized = String(value).trim().toUpperCase();
-  if (!normalized) return null;
-  if (normalized === 'Z' || normalized === 'X') return 'Z';
-  if (normalized === '1' || normalized === 'H' || normalized === 'HIGH' || normalized === 'TRUE') return 1;
-  if (normalized === '0' || normalized === 'L' || normalized === 'LOW' || normalized === 'FALSE') return 0;
-  if (/^[01]+$/.test(normalized)) {
-    return normalized.endsWith('1') ? 1 : 0;
-  }
-  return null;
-}
-
-function formatTickWindow(startTick: number, endTick: number, tickDuration: number, timeUnit: string) {
-  const startTime = startTick * tickDuration;
-  const endTime = endTick * tickDuration;
-  if (startTick === endTick) {
-    return `tick ${startTick} (${startTime} ${timeUnit})`;
-  }
-  return `ticks ${startTick}-${endTick} (${startTime}-${endTime} ${timeUnit})`;
-}
-
-function formatSeverityBadge(severity: HazardFinding['severity']) {
-  switch (severity) {
-    case 'high':
-      return 'High';
-    case 'medium':
-      return 'Medium';
-    default:
-      return 'Low';
-  }
-}
-
-function formatByte(byteValue: number) {
-  const hex = `0x${byteValue.toString(16).toUpperCase().padStart(2, '0')}`;
-  const ascii = byteValue >= 32 && byteValue <= 126 ? ` '${String.fromCharCode(byteValue)}'` : '';
-  return `${hex}${ascii}`;
-}
-
-function getSignalName(signal: AnalyzerSignal) {
-  return signal.name || signal.id || 'unnamed_signal';
-}
-
-function getSignalValues(signal: AnalyzerSignal | undefined, fallback: Array<number | string> = []) {
-  return Array.isArray(signal?.values) ? signal!.values : fallback;
-}
-
-function findSignalByName(signals: AnalyzerSignal[], patterns: RegExp[]) {
-  return signals.find((signal) => {
-    const haystack = `${signal.name || ''} ${signal.id || ''}`.toLowerCase();
-    return patterns.some((pattern) => pattern.test(haystack));
-  });
-}
-
-function findSignalById(signals: AnalyzerSignal[], id?: string) {
-  if (!id) return undefined;
-  return signals.find((signal) => signal.id === id);
-}
-
-function estimateUartBaudTicks(values: Array<number | string>) {
-  const runLengths: number[] = [];
-  let current = normalizeLogicValue(values[0]);
-  let length = 1;
-  for (let index = 1; index < values.length; index += 1) {
-    const next = normalizeLogicValue(values[index]);
-    if (next === current) {
-      length += 1;
-    } else {
-      if (length >= 2 && current !== null && current !== 'Z') {
-        runLengths.push(length);
-      }
-      current = next;
-      length = 1;
-    }
-  }
-  if (length >= 2 && current !== null && current !== 'Z') {
-    runLengths.push(length);
-  }
-  if (runLengths.length === 0) return 8;
-
-  const counts = new Map<number, number>();
-  runLengths.forEach((runLength) => counts.set(runLength, (counts.get(runLength) || 0) + 1));
-  return [...counts.entries()].sort((left, right) => right[1] - left[1] || left[0] - right[0])[0]?.[0] || 8;
-}
-
-function decodeSpiFrames(
-  channel: string,
-  sckValues: Array<number | string>,
-  dataValues: Array<number | string>,
-  csValues: Array<number | string>,
-): ProtocolFrame[] {
-  const frames: ProtocolFrame[] = [];
-  let inTransaction = false;
-  let startTick = 0;
-  let bits: number[] = [];
-  const bytes: number[] = [];
-
-  const flushFrame = (endTick: number) => {
-    if (!inTransaction) return;
-    const renderedBytes = bytes.map(formatByte);
-    frames.push({
-      protocol: 'SPI',
-      channel,
-      startTick,
-      endTick,
-      summary: renderedBytes.length > 0 ? `SPI bytes ${renderedBytes.join(', ')}` : 'SPI transaction detected',
-      detail: renderedBytes.length > 0
-        ? `Decoded ${bytes.length} byte(s) on MOSI: ${renderedBytes.join(', ')}.`
-        : `Chip-select asserted from tick ${startTick} to ${endTick}, but a complete byte was not captured.`,
-    });
-    inTransaction = false;
-    bits = [];
-    bytes.length = 0;
-  };
-
-  for (let tick = 1; tick < Math.min(sckValues.length, dataValues.length, csValues.length); tick += 1) {
-    const csPrev = normalizeLogicValue(csValues[tick - 1]);
-    const csCurr = normalizeLogicValue(csValues[tick]);
-    const sckPrev = normalizeLogicValue(sckValues[tick - 1]);
-    const sckCurr = normalizeLogicValue(sckValues[tick]);
-
-    if (!inTransaction && csCurr === 0) {
-      inTransaction = true;
-      startTick = tick;
-      bits = [];
-      bytes.length = 0;
-    }
-
-    if (inTransaction && sckPrev === 0 && sckCurr === 1 && csCurr === 0) {
-      const bit = normalizeLogicValue(dataValues[tick]);
-      if (bit === 0 || bit === 1) {
-        bits.push(bit);
-        if (bits.length === 8) {
-          let byteValue = 0;
-          bits.forEach((capturedBit) => {
-            byteValue = (byteValue << 1) | capturedBit;
-          });
-          bytes.push(byteValue);
-          bits = [];
-        }
-      }
-    }
-
-    if (inTransaction && csPrev === 0 && csCurr === 1) {
-      flushFrame(tick);
-    }
-  }
-
-  if (inTransaction) {
-    flushFrame(Math.min(sckValues.length, dataValues.length, csValues.length) - 1);
-  }
-
-  return frames;
-}
-
-function decodeI2cFrames(
-  channel: string,
-  sclValues: Array<number | string>,
-  sdaValues: Array<number | string>,
-): ProtocolFrame[] {
-  const frames: ProtocolFrame[] = [];
-  let inTransaction = false;
-  let startTick = 0;
-  let bits: number[] = [];
-  const bytes: Array<{ value: number; ack: boolean }> = [];
-
-  const flushFrame = (endTick: number) => {
-    if (!inTransaction) return;
-    const renderedBytes = bytes.map((entry) => `${formatByte(entry.value)}${entry.ack ? ' ACK' : ' NACK'}`);
-    frames.push({
-      protocol: 'I2C',
-      channel,
-      startTick,
-      endTick,
-      summary: renderedBytes.length > 0 ? `I2C frame ${renderedBytes.join(', ')}` : 'I2C START/STOP transaction detected',
-      detail: renderedBytes.length > 0
-        ? `Decoded ${bytes.length} byte(s) between START and STOP: ${renderedBytes.join(', ')}.`
-        : `START/STOP activity was detected from tick ${startTick} to ${endTick}, but a complete byte+ACK group was not captured.`,
-    });
-    inTransaction = false;
-    bits = [];
-    bytes.length = 0;
-  };
-
-  for (let tick = 1; tick < Math.min(sclValues.length, sdaValues.length); tick += 1) {
-    const sclPrev = normalizeLogicValue(sclValues[tick - 1]);
-    const sclCurr = normalizeLogicValue(sclValues[tick]);
-    const sdaPrev = normalizeLogicValue(sdaValues[tick - 1]);
-    const sdaCurr = normalizeLogicValue(sdaValues[tick]);
-
-    const isStart = sclCurr === 1 && sdaPrev === 1 && sdaCurr === 0;
-    const isStop = sclCurr === 1 && sdaPrev === 0 && sdaCurr === 1;
-
-    if (isStart) {
-      if (inTransaction) {
-        flushFrame(tick - 1);
-      }
-      inTransaction = true;
-      startTick = tick;
-      bits = [];
-      bytes.length = 0;
-      continue;
-    }
-
-    if (inTransaction && sclPrev === 0 && sclCurr === 1) {
-      const bit = normalizeLogicValue(sdaValues[tick]);
-      if (bit === 0 || bit === 1) {
-        bits.push(bit);
-        if (bits.length === 9) {
-          let byteValue = 0;
-          for (let index = 0; index < 8; index += 1) {
-            byteValue = (byteValue << 1) | bits[index];
-          }
-          bytes.push({ value: byteValue, ack: bits[8] === 0 });
-          bits = [];
-        }
-      }
-    }
-
-    if (inTransaction && isStop) {
-      flushFrame(tick);
-    }
-  }
-
-  if (inTransaction) {
-    flushFrame(Math.min(sclValues.length, sdaValues.length) - 1);
-  }
-
-  return frames;
-}
-
-function decodeUartFrames(
-  channel: string,
-  rxValues: Array<number | string>,
-  baudTicks: number,
-): ProtocolFrame[] {
-  const frames: ProtocolFrame[] = [];
-  const baud = Math.max(2, baudTicks);
-
-  let tick = 1;
-  while (tick < rxValues.length) {
-    const prev = normalizeLogicValue(rxValues[tick - 1]);
-    const curr = normalizeLogicValue(rxValues[tick]);
-    if (prev === 1 && curr === 0) {
-      const startTick = tick;
-      let byteValue = 0;
-      let valid = true;
-
-      for (let bitIndex = 0; bitIndex < 8; bitIndex += 1) {
-        const sampleTick = Math.round(startTick + baud * (bitIndex + 1) + baud / 2);
-        const sampled = normalizeLogicValue(rxValues[sampleTick]);
-        if (sampled !== 0 && sampled !== 1) {
-          valid = false;
-          break;
-        }
-        byteValue |= sampled << bitIndex;
-      }
-
-      const stopTick = Math.round(startTick + baud * 9 + baud / 2);
-      const stopBit = normalizeLogicValue(rxValues[stopTick]);
-      if (valid && stopBit === 1) {
-        const endTick = Math.min(rxValues.length - 1, Math.round(startTick + baud * 10));
-        frames.push({
-          protocol: 'UART',
-          channel,
-          startTick,
-          endTick,
-          summary: `UART byte ${formatByte(byteValue)}`,
-          detail: `Decoded UART frame from tick ${startTick} to ${endTick}: ${formatByte(byteValue)} using an estimated baud window of ${baud} tick(s) per bit.`,
-        });
-        tick = endTick;
-        continue;
-      }
-    }
-    tick += 1;
-  }
-
-  return frames;
-}
-
-function analyzeProtocolFrames(
-  signals: AnalyzerSignal[],
-  tickDuration: number,
-  timeUnit: string,
-) {
-  const frames: ProtocolFrame[] = [];
-  const visibleSignals = signals.filter((signal) => signal && signal.visible !== false && Array.isArray(signal.values));
-  const usedChannels = new Set<string>();
-
-  const addFrames = (channelKey: string, nextFrames: ProtocolFrame[]) => {
-    if (nextFrames.length === 0 || usedChannels.has(channelKey)) return;
-    usedChannels.add(channelKey);
-    frames.push(...nextFrames);
-  };
-
-  const decoderSignals = visibleSignals.filter((signal) => signal.type === 'decoder' && signal.config?.decoderType);
-  for (const decoderSignal of decoderSignals) {
-    const decoderType = decoderSignal.config?.decoderType;
-    if (decoderType === 'SPI') {
-      const sck = findSignalById(visibleSignals, decoderSignal.config?.clkSignalId);
-      const data = findSignalById(visibleSignals, decoderSignal.config?.dataSignalId);
-      const cs = findSignalById(visibleSignals, decoderSignal.config?.csSignalId);
-      if (sck && data && cs) {
-        addFrames(`SPI:${decoderSignal.id}`, decodeSpiFrames(
-          `${getSignalName(decoderSignal)} via ${getSignalName(data)}`,
-          getSignalValues(sck),
-          getSignalValues(data),
-          getSignalValues(cs),
-        ));
-      }
-    } else if (decoderType === 'I2C') {
-      const scl = findSignalById(visibleSignals, decoderSignal.config?.clkSignalId);
-      const sda = findSignalById(visibleSignals, decoderSignal.config?.dataSignalId);
-      if (scl && sda) {
-        addFrames(`I2C:${decoderSignal.id}`, decodeI2cFrames(
-          `${getSignalName(decoderSignal)} via ${getSignalName(sda)}`,
-          getSignalValues(scl),
-          getSignalValues(sda),
-        ));
-      }
-    } else if (decoderType === 'UART') {
-      const rx = findSignalById(visibleSignals, decoderSignal.config?.rxSignalId);
-      if (rx) {
-        addFrames(`UART:${decoderSignal.id}`, decodeUartFrames(
-          `${getSignalName(decoderSignal)} via ${getSignalName(rx)}`,
-          getSignalValues(rx),
-          decoderSignal.config?.baudTicks ?? estimateUartBaudTicks(getSignalValues(rx)),
-        ));
-      }
-    }
-  }
-
-  const spiSck = findSignalByName(visibleSignals, [/\bsck\b/, /\bspi.*clk\b/, /\bspi.*sck\b/]);
-  const spiData = findSignalByName(visibleSignals, [/\bmosi\b/, /\bspi.*data\b/, /\bspi.*mosi\b/]);
-  const spiCs = findSignalByName(visibleSignals, [/\bcs\b/, /\bss\b/, /chip.?select/, /\bspi.*cs\b/]);
-  if (spiSck && spiData && spiCs) {
-    addFrames('SPI:heuristic', decodeSpiFrames(
-      `${getSignalName(spiData)} heuristic`,
-      getSignalValues(spiSck),
-      getSignalValues(spiData),
-      getSignalValues(spiCs),
-    ));
-  }
-
-  const i2cScl = findSignalByName(visibleSignals, [/\bscl\b/, /\bi2c.*clk\b/]);
-  const i2cSda = findSignalByName(visibleSignals, [/\bsda\b/, /\bi2c.*data\b/]);
-  if (i2cScl && i2cSda) {
-    addFrames('I2C:heuristic', decodeI2cFrames(
-      `${getSignalName(i2cSda)} heuristic`,
-      getSignalValues(i2cScl),
-      getSignalValues(i2cSda),
-    ));
-  }
-
-  const uartCandidates = visibleSignals.filter((signal) => {
-    const haystack = `${signal.name || ''} ${signal.id || ''}`.toLowerCase();
-    return /\buart\b/.test(haystack) || /\brx\b/.test(haystack) || /\btx\b/.test(haystack) || /\bserial\b/.test(haystack);
-  });
-  uartCandidates.forEach((signal) => {
-    addFrames(`UART:heuristic:${signal.id || signal.name}`, decodeUartFrames(
-      `${getSignalName(signal)} heuristic`,
-      getSignalValues(signal),
-      estimateUartBaudTicks(getSignalValues(signal)),
-    ));
-  });
-
-  frames.sort((left, right) => left.startTick - right.startTick || left.protocol.localeCompare(right.protocol));
-  const protocolCounts = new Map<ProtocolKind, number>();
-  frames.forEach((frame) => protocolCounts.set(frame.protocol, (protocolCounts.get(frame.protocol) || 0) + 1));
-
-  const markdownLines = [
-    '### Deterministic Protocol Pre-Decode',
-    frames.length > 0
-      ? `Detected ${frames.length} frame(s): ${(['SPI', 'I2C', 'UART'] as ProtocolKind[])
-          .filter((protocol) => protocolCounts.has(protocol))
-          .map((protocol) => `${protocol} ${protocolCounts.get(protocol)}`)
-          .join(', ')}`
-      : 'No deterministic SPI, I2C, or UART frames could be decoded from the currently visible signals.',
-  ];
-
-  if (frames.length > 0) {
-    markdownLines.push('');
-    frames.slice(0, 16).forEach((frame) => {
-      markdownLines.push(`- [${frame.protocol}] ${frame.summary} on ${frame.channel} at ${formatTickWindow(frame.startTick, frame.endTick, tickDuration, timeUnit)}. ${frame.detail}`);
-    });
-    if (frames.length > 16) {
-      markdownLines.push(`- Additional decoded frames omitted from summary: ${frames.length - 16}`);
-    }
-  }
-
-  return {
-    frames,
-    markdown: markdownLines.join('\n'),
-  };
-}
-
-function analyzeWaveformHazards(
-  signals: AnalyzerSignal[],
-  tickDuration: number,
-  timeUnit: string
-) {
-  const findings: HazardFinding[] = [];
-  const visibleSignals = signals.filter((signal) => signal && signal.visible !== false && Array.isArray(signal.values));
-  const signalMap = new Map<string, AnalyzerSignal>(
-    visibleSignals
-      .filter((signal) => typeof signal.id === 'string' && signal.id)
-      .map((signal) => [signal.id as string, signal])
-  );
-
-  const transitionMap = new Map<string, number[]>();
-  const edgeMap = new Map<string, number[]>();
-
-  for (const signal of visibleSignals) {
-    const name = signal.name || signal.id || 'unnamed_signal';
-    const values = signal.values || [];
-    const transitions: number[] = [];
-    const activeEdges: number[] = [];
-
-    for (let index = 1; index < values.length; index += 1) {
-      const previous = normalizeLogicValue(values[index - 1]);
-      const current = normalizeLogicValue(values[index]);
-      if (previous === null || current === null) {
-        continue;
-      }
-      if (previous !== current) {
-        transitions.push(index);
-        if ((previous === 0 && current === 1) || (previous === 1 && current === 0)) {
-          activeEdges.push(index);
-        }
-      }
-    }
-
-    transitionMap.set(name, transitions);
-    edgeMap.set(name, activeEdges);
-
-    for (let transitionIndex = 1; transitionIndex < transitions.length; transitionIndex += 1) {
-      const pulseWidthTicks = transitions[transitionIndex] - transitions[transitionIndex - 1];
-      if (pulseWidthTicks <= 1) {
-        findings.push({
-          severity: 'high',
-          title: `${name}: single-tick pulse/glitch suspect`,
-          detail: `Back-to-back transitions were detected at ${formatTickWindow(transitions[transitionIndex - 1], transitions[transitionIndex], tickDuration, timeUnit)}. This usually indicates a very narrow pulse or combinational glitch.`,
-        });
-      } else if (pulseWidthTicks === 2) {
-        findings.push({
-          severity: 'medium',
-          title: `${name}: narrow pulse suspect`,
-          detail: `A two-tick pulse was detected around ${formatTickWindow(transitions[transitionIndex - 1], transitions[transitionIndex], tickDuration, timeUnit)}. Review whether this pulse is intentional or a hazard caused by skewed input arrival.`,
-        });
-      }
-    }
-
-    let highZTransitions = 0;
-    for (let index = 1; index < values.length; index += 1) {
-      const previous = normalizeLogicValue(values[index - 1]);
-      const current = normalizeLogicValue(values[index]);
-      if ((previous === 'Z' && current !== 'Z' && current !== null) || (current === 'Z' && previous !== 'Z' && previous !== null)) {
-        highZTransitions += 1;
-      }
-    }
-    if (highZTransitions > 0) {
-      findings.push({
-        severity: 'low',
-        title: `${name}: tri-state transition activity`,
-        detail: `${highZTransitions} transition(s) into or out of High-Z were detected. Confirm bus turn-around timing and contention-free enable sequencing.`,
-      });
-    }
-  }
-
-  const clockSignals = visibleSignals.filter((signal) => {
-    const name = `${signal.name || ''} ${signal.id || ''}`.toLowerCase();
-    return signal.type === 'clock' || name.includes('clk') || name.includes('clock');
-  });
-
-  for (const clockSignal of clockSignals) {
-    const clockName = clockSignal.name || clockSignal.id || 'clock';
-    const clockEdges = edgeMap.get(clockName) || [];
-    for (const signal of visibleSignals) {
-      const signalName = signal.name || signal.id || 'unnamed_signal';
-      if (signalName === clockName) continue;
-      const transitions = transitionMap.get(signalName) || [];
-      if (transitions.length === 0 || clockEdges.length === 0) continue;
-
-      const setupHoldHits: Array<{ signalTick: number; clockTick: number }> = [];
-      for (const transitionTick of transitions) {
-        for (const edgeTick of clockEdges) {
-          if (Math.abs(transitionTick - edgeTick) <= 1) {
-            setupHoldHits.push({ signalTick: transitionTick, clockTick: edgeTick });
-            break;
-          }
-        }
-      }
-
-      if (setupHoldHits.length > 0) {
-        const firstHit = setupHoldHits[0];
-        findings.push({
-          severity: setupHoldHits.length >= 3 ? 'high' : 'medium',
-          title: `${signalName}: setup/hold risk near ${clockName}`,
-          detail: `${setupHoldHits.length} transition(s) occur within ±1 tick of ${clockName} active edges. First overlap: signal tick ${firstHit.signalTick}, clock edge tick ${firstHit.clockTick}. This is a classic race/setup-hold risk area.`,
-        });
-      }
-    }
-  }
-
-  for (const signal of visibleSignals) {
-    if (signal.type !== 'gate' || !signal.config?.inputA) {
-      continue;
-    }
-    const signalName = signal.name || signal.id || 'gate_output';
-    const inputA = signalMap.get(signal.config.inputA);
-    const inputB = signal.config.inputB ? signalMap.get(signal.config.inputB) : undefined;
-    if (!inputA) continue;
-
-    const inputATransitions = transitionMap.get(inputA.name || inputA.id || '') || [];
-    const inputBTransitions = inputB ? transitionMap.get(inputB.name || inputB.id || '') || [] : [];
-    const outputTransitions = transitionMap.get(signalName) || [];
-
-    for (const inputTickA of inputATransitions) {
-      const nearInputB = inputBTransitions.find((inputTickB) => Math.abs(inputTickB - inputTickA) <= 1);
-      if (!nearInputB) continue;
-      const nearOutput = outputTransitions.find((outputTick) => outputTick >= Math.min(inputTickA, nearInputB) && outputTick <= Math.max(inputTickA, nearInputB) + 1);
-      if (nearOutput !== undefined) {
-        findings.push({
-          severity: 'medium',
-          title: `${signalName}: gate-level race/hazard window`,
-          detail: `Gate inputs ${(inputA.name || inputA.id)} and ${(inputB?.name || inputB?.id)} transition nearly together around ticks ${inputTickA} and ${nearInputB}, and the output reacts at tick ${nearOutput}. Review logic skew and reconvergent fan-in hazards.`,
-        });
-      }
-    }
-  }
-
-  const severityRank: Record<HazardFinding['severity'], number> = { high: 0, medium: 1, low: 2 };
-  findings.sort((left, right) => severityRank[left.severity] - severityRank[right.severity] || left.title.localeCompare(right.title));
-
-  const highCount = findings.filter((finding) => finding.severity === 'high').length;
-  const mediumCount = findings.filter((finding) => finding.severity === 'medium').length;
-  const lowCount = findings.filter((finding) => finding.severity === 'low').length;
-
-  const summaryLines = [
-    '### Deterministic Hazard Scan',
-    `Signals scanned: ${visibleSignals.length}`,
-    `Findings: ${findings.length} total (${highCount} high, ${mediumCount} medium, ${lowCount} low)`,
-  ];
-
-  if (findings.length === 0) {
-    summaryLines.push('No obvious glitch, narrow-pulse, or setup/hold-adjacent transitions were detected in the sampled waveform data.');
-  } else {
-    summaryLines.push('');
-    findings.slice(0, 12).forEach((finding) => {
-      summaryLines.push(`- [${formatSeverityBadge(finding.severity)}] ${finding.title}: ${finding.detail}`);
-    });
-    if (findings.length > 12) {
-      summaryLines.push(`- Additional findings omitted from summary: ${findings.length - 12}`);
-    }
-  }
-
-  return {
-    findings,
-    markdown: summaryLines.join('\n'),
-  };
 }
 
 async function runCommand(command: string, args: string[], options?: { cwd?: string }) {
@@ -1550,443 +977,7 @@ function buildVhdlProjectInfo(sources: VhdlSourceDescriptor[]) {
   };
 }
 
-type VhdlInstanceConnection = {
-  port: string;
-  signals: string[];
-};
-
-type VhdlInstanceModel = {
-  label: string;
-  entity: string;
-  connections: VhdlInstanceConnection[];
-};
-
-type VhdlEntitySemanticModel = {
-  name: string;
-  sourcePath: string;
-  ports: string[];
-  localSignals: string[];
-  aliases: Array<[string, string]>;
-  assignments: Array<[string, string]>;
-  instances: VhdlInstanceModel[];
-  generateBlockCount: number;
-  isTestbench: boolean;
-};
-
-type MacroSignalInsight = {
-  signal: string;
-  categories: Array<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>;
-  entities: string[];
-  relatedNodes: string[];
-};
-
-type MacroSignalIndex = {
-  rootEntity: string;
-  selectedSourcePaths: string[];
-  rootVisibleSignals: string[];
-  reachableEntities: string[];
-  entityHierarchy: Array<{
-    parent: string;
-    child: string;
-    instanceLabel: string;
-  }>;
-  entityDepths: Record<string, number>;
-  entityRoles: Record<string, string>;
-  signalInsights: MacroSignalInsight[];
-  categorySignals: {
-    clockReset: string[];
-    protocol: string[];
-    state: string[];
-    control: string[];
-    data: string[];
-    debug: string[];
-    all: string[];
-  };
-};
-
-type SemanticSourceFixture = {
-  path: string;
-  isTestbench: boolean;
-  content: string;
-};
-
 const macroSignalIndexCache = new Map<string, MacroSignalIndex>();
-
-function normalizeVhdlIdentifier(value: string) {
-  return value
-    .trim()
-    .replace(/^\\|\\$/g, '')
-    .replace(/\(.*?\)/g, '')
-    .replace(/'.*$/g, '')
-    .split(/[\s./:]+/)
-    .filter(Boolean)
-    .pop()
-    ?.toLowerCase() || value.trim().toLowerCase();
-}
-
-function splitTopLevelDelimited(text: string, delimiter = ',') {
-  const entries: string[] = [];
-  let current = '';
-  let depth = 0;
-  for (const character of text) {
-    if (character === '(') depth += 1;
-    if (character === ')') depth = Math.max(0, depth - 1);
-    if (character === delimiter && depth === 0) {
-      if (current.trim()) {
-        entries.push(current.trim());
-      }
-      current = '';
-      continue;
-    }
-    current += character;
-  }
-  if (current.trim()) {
-    entries.push(current.trim());
-  }
-  return entries;
-}
-
-function parseVhdlIdentifierList(rawText: string) {
-  return splitTopLevelDelimited(rawText)
-    .flatMap((entry) => entry.split(','))
-    .map((entry) => normalizeVhdlIdentifier(entry))
-    .filter(Boolean);
-}
-
-const VHDL_REFERENCE_STOP_WORDS = new Set([
-  'abs', 'access', 'after', 'alias', 'all', 'and', 'architecture', 'array', 'assert', 'attribute',
-  'begin', 'block', 'body', 'buffer', 'bus', 'case', 'component', 'configuration', 'constant',
-  'disconnect', 'downto', 'else', 'elsif', 'end', 'entity', 'exit', 'file', 'for', 'function',
-  'generate', 'generic', 'group', 'guarded', 'if', 'impure', 'in', 'inertial', 'inout', 'is',
-  'label', 'library', 'linkage', 'literal', 'loop', 'map', 'mod', 'nand', 'new', 'next', 'nor',
-  'not', 'null', 'of', 'on', 'open', 'or', 'others', 'out', 'package', 'port', 'postponed',
-  'procedure', 'process', 'pure', 'range', 'record', 'register', 'reject', 'rem', 'report',
-  'return', 'rol', 'ror', 'select', 'severity', 'signal', 'shared', 'sla', 'sll', 'sra', 'srl',
-  'subtype', 'then', 'to', 'transport', 'type', 'unaffected', 'units', 'until', 'use', 'variable',
-  'wait', 'when', 'while', 'with', 'xnor', 'xor',
-  'std_logic', 'std_logic_vector', 'unsigned', 'signed', 'integer', 'natural', 'boolean', 'bit',
-  'bit_vector', 'true', 'false', 'rising_edge', 'falling_edge', 'conv_integer', 'to_integer',
-  'to_unsigned', 'to_signed', 'resize', 'length', 'left', 'right', 'high', 'low', 'event',
-  'stable', 'delayed', 'quiet', 'transaction',
-]);
-
-function extractIdentifierReferences(rawText: string) {
-  const references = new Set<string>();
-  const sanitized = rawText
-    .replace(/"[^"]*"/g, ' ')
-    .replace(/'[^']*'/g, ' ');
-
-  for (const match of sanitized.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?(?:'[a-zA-Z_][a-zA-Z0-9_]*)?)\b/g)) {
-    const normalized = normalizeVhdlIdentifier(match[1]);
-    if (!normalized) continue;
-    if (VHDL_REFERENCE_STOP_WORDS.has(normalized)) continue;
-    references.add(normalized);
-  }
-
-  return Array.from(references);
-}
-
-function extractEntityPortsFromContent(content: string) {
-  const portsByEntity = new Map<string, string[]>();
-  const collectPorts = (ownerName: string, body: string) => {
-    const portMatch = body.match(/\bport\s*\(([\s\S]*?)\)\s*;/i);
-    if (!portMatch) {
-      portsByEntity.set(ownerName, []);
-      return;
-    }
-
-    const ports: string[] = [];
-    splitTopLevelDelimited(portMatch[1], ';').forEach((declaration) => {
-      const [namesPart] = declaration.split(':');
-      if (!namesPart) return;
-      parseVhdlIdentifierList(namesPart).forEach((portName) => ports.push(portName));
-    });
-    portsByEntity.set(ownerName, Array.from(new Set(ports)));
-  };
-
-  for (const match of content.matchAll(/\bentity\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend(?:\s+entity)?(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
-    collectPorts(normalizeVhdlIdentifier(match[1]), match[2] || '');
-  }
-
-  for (const match of content.matchAll(/\bcomponent\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+component(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
-    const componentName = normalizeVhdlIdentifier(match[1]);
-    if (!portsByEntity.has(componentName)) {
-      collectPorts(componentName, match[2] || '');
-    }
-  }
-  return portsByEntity;
-}
-
-function extractLocalSignals(declarativeText: string) {
-  const localSignals: string[] = [];
-  for (const match of declarativeText.matchAll(/\bsignal\s+([^:;]+)\s*:\s*[^;]+;/gi)) {
-    const namesPart = match[1];
-    if (!namesPart) continue;
-    parseVhdlIdentifierList(namesPart).forEach((signalName) => localSignals.push(signalName));
-  }
-  return Array.from(new Set(localSignals));
-}
-
-function extractAliasesFromText(content: string) {
-  const aliases: Array<[string, string]> = [];
-  for (const match of content.matchAll(/\balias\s+([a-zA-Z][a-zA-Z0-9_]*)\b(?:\s*:\s*[^;]+?)?\s+\bis\s+([\s\S]*?)\s*;/gi)) {
-    const aliasName = normalizeVhdlIdentifier(match[1]);
-    extractIdentifierReferences(match[2] || '').forEach((reference) => {
-      aliases.push([aliasName, reference]);
-    });
-  }
-  return aliases;
-}
-
-function extractSimpleAssignments(content: string) {
-  const assignments: Array<[string, string]> = [];
-  for (const match of content.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?)\s*(<=|:=)\s*([\s\S]*?)\s*;/gi)) {
-    const target = normalizeVhdlIdentifier(match[1]);
-    if (!target) continue;
-    extractIdentifierReferences(match[3] || '').forEach((reference) => {
-      if (reference !== target) {
-        assignments.push([target, reference]);
-      }
-    });
-  }
-  return assignments;
-}
-
-function extractPortSignalReferences(rawValue: string) {
-  return extractIdentifierReferences(rawValue);
-}
-
-function extractGenerateBlocks(bodyText: string) {
-  const blocks: Array<{ label: string; body: string }> = [];
-  const pattern = /([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:if|for)\b[\s\S]*?\bgenerate\b([\s\S]*?)\bend\s+generate(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi;
-  for (const match of bodyText.matchAll(pattern)) {
-    blocks.push({
-      label: normalizeVhdlIdentifier(match[1]),
-      body: match[2] || '',
-    });
-  }
-  const strippedBody = bodyText.replace(pattern, ' ');
-  return { blocks, strippedBody };
-}
-
-function extractInstancesFromArchitecture(bodyText: string, entityPorts: Map<string, string[]>, labelPrefix = '') {
-  const instances: VhdlInstanceModel[] = [];
-  const { blocks, strippedBody } = extractGenerateBlocks(bodyText);
-
-  for (const match of strippedBody.matchAll(/([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:entity\s+work\.)?([a-zA-Z][a-zA-Z0-9_]*)(?:\s+generic\s+map\s*\(([\s\S]*?)\))?(?:\s+port\s+map\s*\(([\s\S]*?)\))\s*;/gi)) {
-    const localLabel = normalizeVhdlIdentifier(match[1]);
-    const label = labelPrefix ? `${labelPrefix}.${localLabel}` : localLabel;
-    const entity = normalizeVhdlIdentifier(match[2]);
-    const portMapText = match[4] || '';
-    const rawAssociations = splitTopLevelDelimited(portMapText);
-    const childPorts = entityPorts.get(entity) || [];
-    const namedAssociations = rawAssociations.filter((entry) => entry.includes('=>'));
-    const connections: VhdlInstanceConnection[] = [];
-
-    if (namedAssociations.length === rawAssociations.length) {
-      namedAssociations.forEach((entry) => {
-        const [portPart, signalPart] = entry.split('=>');
-        const signals = extractPortSignalReferences(signalPart || '');
-        if (!portPart || signals.length === 0) return;
-        connections.push({
-          port: normalizeVhdlIdentifier(portPart),
-          signals,
-        });
-      });
-    } else {
-      rawAssociations.forEach((entry, index) => {
-        const signals = extractPortSignalReferences(entry);
-        const port = childPorts[index];
-        if (!port || signals.length === 0) return;
-        connections.push({ port, signals });
-      });
-    }
-
-    instances.push({
-      label,
-      entity,
-      connections,
-    });
-  }
-
-  blocks.forEach((block) => {
-    const nestedPrefix = labelPrefix ? `${labelPrefix}.${block.label}` : block.label;
-    instances.push(...extractInstancesFromArchitecture(block.body, entityPorts, nestedPrefix));
-  });
-
-  return instances;
-}
-
-function buildVhdlSemanticModels(params: {
-  sources: Array<Pick<VhdlSourceDescriptor, 'path' | 'isTestbench'>>;
-  sourceContents: Map<string, string>;
-}) {
-  const { sources, sourceContents } = params;
-  const entityPorts = new Map<string, string[]>();
-
-  for (const source of sources) {
-    const content = sourceContents.get(source.path) || '';
-    for (const [entityName, ports] of extractEntityPortsFromContent(content).entries()) {
-      entityPorts.set(entityName, ports);
-    }
-  }
-
-  const models = new Map<string, VhdlEntitySemanticModel>();
-  for (const source of sources) {
-    const content = sourceContents.get(source.path) || '';
-    for (const match of content.matchAll(/\barchitecture\s+([a-zA-Z][a-zA-Z0-9_]*)\s+of\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bbegin\b([\s\S]*?)\bend(?:\s+architecture)?(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
-      const entityName = normalizeVhdlIdentifier(match[2]);
-      const declarativeText = match[3] || '';
-      const bodyText = match[4] || '';
-      models.set(entityName, {
-        name: entityName,
-        sourcePath: source.path,
-        ports: entityPorts.get(entityName) || [],
-        localSignals: extractLocalSignals(declarativeText),
-        aliases: extractAliasesFromText(`${declarativeText}\n${bodyText}`),
-        assignments: extractSimpleAssignments(bodyText),
-        instances: extractInstancesFromArchitecture(bodyText, entityPorts),
-        generateBlockCount: extractGenerateBlocks(bodyText).blocks.length,
-        isTestbench: source.isTestbench,
-      });
-    }
-  }
-
-  return { entityPorts, models };
-}
-
-function inferEntityRole(model: VhdlEntitySemanticModel | undefined, entityName: string, sourcePath = '') {
-  const normalizedEntity = normalizeVhdlIdentifier(entityName);
-  const normalizedPath = sourcePath.toLowerCase();
-  const tokenSource = `${normalizedEntity} ${normalizedPath}`;
-  const portTokens = (model?.ports || []).flatMap((portName) => tokenizeSignalName(portName));
-  const signalTokens = (model?.localSignals || []).flatMap((signalName) => tokenizeSignalName(signalName));
-  const combinedTokens = [...portTokens, ...signalTokens];
-  const tokenHas = (pattern: RegExp) => combinedTokens.some((token) => pattern.test(token)) || pattern.test(tokenSource);
-
-  if (model?.isTestbench || /\b(tb|testbench)\b/.test(tokenSource)) {
-    return 'testbench';
-  }
-  if (/(wrapper|top|shell|harness)/.test(tokenSource) || ((model?.ports.length || 0) === 0 && (model?.instances.length || 0) > 0)) {
-    return 'wrapper';
-  }
-  if (tokenHas(/\b(spi|uart|i2c|axi|apb|ahb|wishbone|protocol|serial|mosi|miso|sck|sda|rx|tx)\b/)) {
-    return 'protocol';
-  }
-  if (tokenHas(/\b(fsm|ctrl|control|sequencer|dispatch|scheduler|arbiter|state|ready|valid|req|ack)\b/)) {
-    return 'control';
-  }
-  if (tokenHas(/\b(mem|ram|rom|fifo|cache|stack|regfile|addr|data|byte|word)\b/)) {
-    return 'memory';
-  }
-  if (/\b(pkg|package|util|helper|common)\b/.test(tokenSource)) {
-    return 'helper';
-  }
-  if (/\b(rtl|core|datapath|alu|decoder|engine)\b/.test(tokenSource)) {
-    return 'rtl';
-  }
-  return 'logic';
-}
-
-function tokenizeSignalName(name: string) {
-  return normalizeVhdlIdentifier(name)
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean);
-}
-
-function classifySignalName(name: string) {
-  const normalized = normalizeVhdlIdentifier(name);
-  const tokens = tokenizeSignalName(name);
-  const categories = new Set<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>();
-  const hasToken = (pattern: RegExp) => tokens.some((token) => pattern.test(token)) || pattern.test(normalized);
-
-  if (hasToken(/^(clk|clock|rst|reset|sck|scl)$/) || hasToken(/baud/)) {
-    categories.add('clockReset');
-  }
-  if (hasToken(/(mosi|miso|sda|scl|sck|cs|ss|rx|tx|uart|spi|i2c)/)) {
-    categories.add('protocol');
-  }
-  if (hasToken(/(state|fsm|phase|mode)/)) {
-    categories.add('state');
-  }
-  if (hasToken(/(valid|ready|req|ack|grant|enable|busy|done|start|stop|we|re|wr|rd|cs)/)) {
-    categories.add('control');
-  }
-  if (hasToken(/(data|addr|byte|word|count|cnt|index|payload|opcode)/)) {
-    categories.add('data');
-  }
-  if (hasToken(/(probe|debug|trace|mon|watch)/)) {
-    categories.add('debug');
-  }
-
-  return categories;
-}
-
-function createRootSet(values: Iterable<string>) {
-  return new Set(Array.from(values).map((value) => normalizeVhdlIdentifier(value)).filter(Boolean));
-}
-
-function createEmptyInsight(signal: string) {
-  return {
-    signal: normalizeVhdlIdentifier(signal),
-    categories: new Set<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>(),
-    entities: new Set<string>(),
-    relatedNodes: new Set<string>(),
-  };
-}
-
-function addRootsToMap(target: Map<string, Set<string>>, key: string, values: Iterable<string>) {
-  const normalizedKey = normalizeVhdlIdentifier(key);
-  if (!normalizedKey) return false;
-  const bucket = target.get(normalizedKey) || new Set<string>();
-  const beforeSize = bucket.size;
-  for (const value of values) {
-    const normalizedValue = normalizeVhdlIdentifier(value);
-    if (normalizedValue) {
-      bucket.add(normalizedValue);
-    }
-  }
-  target.set(normalizedKey, bucket);
-  return bucket.size !== beforeSize;
-}
-
-function propagateEntityRoots(model: VhdlEntitySemanticModel, seedMap: Map<string, Set<string>>) {
-  const adjacency = new Map<string, Set<string>>();
-  const connect = (left: string, right: string) => {
-    const leftKey = normalizeVhdlIdentifier(left);
-    const rightKey = normalizeVhdlIdentifier(right);
-    if (!leftKey || !rightKey || leftKey === rightKey) return;
-    const leftBucket = adjacency.get(leftKey) || new Set<string>();
-    leftBucket.add(rightKey);
-    adjacency.set(leftKey, leftBucket);
-    const rightBucket = adjacency.get(rightKey) || new Set<string>();
-    rightBucket.add(leftKey);
-    adjacency.set(rightKey, rightBucket);
-  };
-
-  model.aliases.forEach(([left, right]) => connect(left, right));
-  model.assignments.forEach(([left, right]) => connect(left, right));
-
-  const resolved = new Map<string, Set<string>>();
-  const queue: string[] = [];
-  for (const [key, roots] of seedMap.entries()) {
-    addRootsToMap(resolved, key, roots);
-    queue.push(normalizeVhdlIdentifier(key));
-  }
-
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    const currentRoots = resolved.get(current);
-    if (!currentRoots) continue;
-    for (const neighbor of adjacency.get(current) || []) {
-      if (addRootsToMap(resolved, neighbor, currentRoots)) {
-        queue.push(neighbor);
-      }
-    }
-  }
-
-  return resolved;
-}
 
 function createMacroSignalIndexCacheKey(projectPath: string, rootEntity: string, sourcePaths: string[]) {
   return createHash('sha1')
@@ -2023,212 +1014,6 @@ async function buildMacroSignalIndex(params: {
   });
 }
 
-function buildMacroSignalIndexFromParsedSources(params: {
-  rootEntity: string;
-  selectedSources: Array<Pick<VhdlSourceDescriptor, 'path' | 'isTestbench'>>;
-  sourceContents: Map<string, string>;
-}) {
-  const { rootEntity, selectedSources, sourceContents } = params;
-  const normalizedSelectedSources = selectedSources.map((source) => ({
-    path: source.path,
-    isTestbench: source.isTestbench,
-  }));
-
-  const { entityPorts, models } = buildVhdlSemanticModels({
-    sources: normalizedSelectedSources,
-    sourceContents,
-  });
-  const entityRoles = Object.fromEntries(
-    Array.from(models.entries())
-      .map(([entityName, model]) => [entityName, inferEntityRole(model, entityName, model.sourcePath)])
-      .sort((left, right) => left[0].localeCompare(right[0]))
-  );
-  const normalizedRootEntity = normalizeVhdlIdentifier(rootEntity);
-  const rootModel = models.get(normalizedRootEntity);
-  const rootVisibleSignals = Array.from(new Set([
-    ...(rootModel?.ports || entityPorts.get(normalizedRootEntity) || []),
-    ...(rootModel?.localSignals || []),
-  ])).map((signalName) => normalizeVhdlIdentifier(signalName)).filter(Boolean);
-  const rootVisibleSet = createRootSet(rootVisibleSignals);
-
-  const categoryBuckets = {
-    clockReset: new Set<string>(),
-    protocol: new Set<string>(),
-    state: new Set<string>(),
-    control: new Set<string>(),
-    data: new Set<string>(),
-    debug: new Set<string>(),
-    all: new Set<string>(rootVisibleSignals),
-  };
-  const reachableEntities = new Set<string>([normalizedRootEntity]);
-  const entityHierarchy = new Map<string, { parent: string; child: string; instanceLabel: string }>();
-  const entityDepths = new Map<string, number>([[normalizedRootEntity, 0]]);
-  const traversalVisited = new Set<string>();
-  const signalInsights = new Map<string, ReturnType<typeof createEmptyInsight>>();
-
-  const ensureInsight = (signalName: string) => {
-    const normalizedSignal = normalizeVhdlIdentifier(signalName);
-    const existing = signalInsights.get(normalizedSignal);
-    if (existing) {
-      return existing;
-    }
-    const created = createEmptyInsight(normalizedSignal);
-    signalInsights.set(normalizedSignal, created);
-    return created;
-  };
-
-  const recordSignalObservation = (params: {
-    signalName: string;
-    entityName: string;
-    nodeName: string;
-    categories: Iterable<'clockReset' | 'protocol' | 'state' | 'control' | 'data' | 'debug'>;
-  }) => {
-    const insight = ensureInsight(params.signalName);
-    insight.entities.add(normalizeVhdlIdentifier(params.entityName));
-    insight.relatedNodes.add(normalizeVhdlIdentifier(params.nodeName));
-    for (const category of params.categories) {
-      insight.categories.add(category);
-    }
-  };
-
-  const traverseEntity = (entityName: string, seedMap: Map<string, Set<string>>, depth = 0) => {
-    if (depth > 10) {
-      return;
-    }
-    const model = models.get(entityName);
-    if (!model) {
-      return;
-    }
-
-    const signature = `${entityName}|${Array.from(seedMap.entries()).map(([key, values]) => `${key}:${Array.from(values).sort().join(',')}`).sort().join(';')}`;
-    if (traversalVisited.has(signature)) {
-      return;
-    }
-    traversalVisited.add(signature);
-
-    const resolved = propagateEntityRoots(model, seedMap);
-    for (const [nodeName, roots] of resolved.entries()) {
-      const resolvedRoots = Array.from(roots).filter((rootSignal) => rootVisibleSet.has(rootSignal));
-      if (resolvedRoots.length === 0) {
-        continue;
-      }
-      categoryBuckets.all.forEach(() => undefined);
-      resolvedRoots.forEach((rootSignal) => categoryBuckets.all.add(rootSignal));
-      const categories = classifySignalName(nodeName);
-      categories.forEach((category) => {
-        resolvedRoots.forEach((rootSignal) => categoryBuckets[category].add(rootSignal));
-      });
-      resolvedRoots.forEach((rootSignal) => {
-        recordSignalObservation({
-          signalName: rootSignal,
-          entityName,
-          nodeName,
-          categories,
-        });
-      });
-    }
-
-    model.instances.forEach((instance) => {
-      reachableEntities.add(instance.entity);
-      const hierarchyKey = `${entityName}->${instance.entity}->${instance.label}`;
-      entityHierarchy.set(hierarchyKey, {
-        parent: entityName,
-        child: instance.entity,
-        instanceLabel: instance.label,
-      });
-      const currentDepth = entityDepths.get(instance.entity);
-      if (currentDepth === undefined || depth + 1 < currentDepth) {
-        entityDepths.set(instance.entity, depth + 1);
-      }
-      const childSeedMap = new Map<string, Set<string>>();
-      instance.connections.forEach((connection) => {
-        const aggregatedRoots = new Set<string>();
-        connection.signals.forEach((signalName) => {
-          const roots = resolved.get(normalizeVhdlIdentifier(signalName));
-          if (!roots || roots.size === 0) {
-            return;
-          }
-          roots.forEach((rootSignal) => aggregatedRoots.add(rootSignal));
-        });
-        if (aggregatedRoots.size > 0) {
-          addRootsToMap(childSeedMap, connection.port, aggregatedRoots);
-        }
-      });
-      if (childSeedMap.size > 0) {
-        traverseEntity(instance.entity, childSeedMap, depth + 1);
-      }
-    });
-  };
-
-  const rootSeedMap = new Map<string, Set<string>>();
-  rootVisibleSignals.forEach((signalName) => {
-    addRootsToMap(rootSeedMap, signalName, [signalName]);
-    const seedCategories = classifySignalName(signalName);
-    seedCategories.forEach((category) => categoryBuckets[category].add(signalName));
-    recordSignalObservation({
-      signalName,
-      entityName: normalizedRootEntity,
-      nodeName: signalName,
-      categories: seedCategories,
-    });
-  });
-
-  if (rootModel) {
-    traverseEntity(normalizedRootEntity, rootSeedMap);
-  }
-
-  return {
-    rootEntity: normalizedRootEntity,
-    selectedSourcePaths: normalizedSelectedSources.map((source) => source.path).sort(),
-    rootVisibleSignals,
-    reachableEntities: Array.from(reachableEntities).sort(),
-    entityHierarchy: Array.from(entityHierarchy.values()).sort((left, right) =>
-      left.parent.localeCompare(right.parent)
-      || left.child.localeCompare(right.child)
-      || left.instanceLabel.localeCompare(right.instanceLabel)
-    ),
-    entityDepths: Object.fromEntries(
-      Array.from(entityDepths.entries()).sort((left, right) => left[0].localeCompare(right[0]))
-    ),
-    entityRoles,
-    signalInsights: Array.from(signalInsights.values())
-      .map((insight) => ({
-        signal: insight.signal,
-        categories: Array.from(insight.categories).sort(),
-        entities: Array.from(insight.entities).sort(),
-        relatedNodes: Array.from(insight.relatedNodes).sort(),
-      }))
-      .sort((left, right) => left.signal.localeCompare(right.signal)),
-    categorySignals: {
-      clockReset: Array.from(categoryBuckets.clockReset).sort(),
-      protocol: Array.from(categoryBuckets.protocol).sort(),
-      state: Array.from(categoryBuckets.state).sort(),
-      control: Array.from(categoryBuckets.control).sort(),
-      data: Array.from(categoryBuckets.data).sort(),
-      debug: Array.from(categoryBuckets.debug).sort(),
-      all: Array.from(categoryBuckets.all).sort(),
-    },
-  } satisfies MacroSignalIndex;
-}
-
-function buildMacroSignalIndexFromFixtures(params: {
-  rootEntity: string;
-  sources: SemanticSourceFixture[];
-}) {
-  const sourceContents = new Map<string, string>();
-  params.sources.forEach((source) => {
-    sourceContents.set(source.path, stripVhdlComments(source.content));
-  });
-
-  return buildMacroSignalIndexFromParsedSources({
-    rootEntity: params.rootEntity,
-    selectedSources: params.sources.map((source) => ({
-      path: source.path,
-      isTestbench: source.isTestbench,
-    })),
-    sourceContents,
-  });
-}
 
 async function getOrBuildMacroSignalIndex(params: {
   projectPath: string;
@@ -2248,206 +1033,6 @@ async function getOrBuildMacroSignalIndex(params: {
   const built = await buildMacroSignalIndex(params);
   macroSignalIndexCache.set(cacheKey, built);
   return built;
-}
-
-function countSignalTransitions(values: Array<number | string>) {
-  let transitions = 0;
-  for (let index = 1; index < values.length; index += 1) {
-    if (values[index] !== values[index - 1]) {
-      transitions += 1;
-    }
-  }
-  return transitions;
-}
-
-function selectMacroSignals(params: {
-  macroId: AiMacroId;
-  signals: AnalyzerSignal[];
-  index: MacroSignalIndex;
-}) {
-  const { macroId, signals, index } = params;
-  const insightMap = new Map(index.signalInsights.map((insight) => [normalizeVhdlIdentifier(insight.signal), insight]));
-  const entityRoleMap = new Map(Object.entries(index.entityRoles).map(([entityName, role]) => [normalizeVhdlIdentifier(entityName), role]));
-  const categorySets = {
-    all: createRootSet(index.categorySignals.all),
-    clockReset: createRootSet(index.categorySignals.clockReset),
-    protocol: createRootSet(index.categorySignals.protocol),
-    state: createRootSet(index.categorySignals.state),
-    control: createRootSet(index.categorySignals.control),
-    data: createRootSet(index.categorySignals.data),
-    debug: createRootSet(index.categorySignals.debug),
-  };
-
-  const desiredCategories: Array<keyof typeof categorySets> =
-    macroId === 'protocol_decoder_details' || macroId === 'summarize_protocol_timeline'
-      ? ['protocol', 'clockReset', 'control', 'data', 'all']
-      : macroId === 'inspect_race_hazards' || macroId === 'verify_clock_reset_sequence'
-        ? ['clockReset', 'control', 'data', 'protocol', 'debug', 'all']
-        : macroId === 'explain_fsm_behavior'
-          ? ['state', 'control', 'clockReset', 'data', 'all']
-          : macroId === 'generate_vhdl_tb' || macroId === 'generate_vhdl_assertions' || macroId === 'draft_rtl_skeleton'
-            ? ['all', 'clockReset', 'control', 'data', 'state', 'protocol']
-            : macroId === 'suggest_debug_probes'
-              ? ['protocol', 'clockReset', 'control', 'state', 'data', 'debug', 'all']
-              : ['all', 'clockReset', 'control', 'data', 'protocol', 'state'];
-
-  const desiredSet = new Set<string>();
-  desiredCategories.forEach((category) => {
-    categorySets[category].forEach((signalName) => desiredSet.add(signalName));
-  });
-
-  const preferredRoles =
-    macroId === 'protocol_decoder_details' || macroId === 'summarize_protocol_timeline'
-      ? ['protocol', 'wrapper', 'rtl', 'logic']
-      : macroId === 'inspect_race_hazards' || macroId === 'verify_clock_reset_sequence'
-        ? ['testbench', 'wrapper', 'control', 'rtl', 'logic']
-        : macroId === 'explain_fsm_behavior'
-          ? ['control', 'rtl', 'wrapper', 'logic']
-          : macroId === 'generate_vhdl_tb' || macroId === 'generate_vhdl_assertions' || macroId === 'draft_rtl_skeleton'
-            ? ['wrapper', 'rtl', 'control', 'protocol', 'logic']
-            : macroId === 'suggest_debug_probes'
-              ? ['protocol', 'control', 'wrapper', 'rtl', 'memory', 'logic']
-              : ['rtl', 'wrapper', 'control', 'protocol', 'logic'];
-  const roleWeight = (role: string | undefined) => {
-    if (!role) return 0;
-    const position = preferredRoles.indexOf(role);
-    return position >= 0 ? Math.max(1, preferredRoles.length - position) : 0;
-  };
-
-  const scoredSignals = signals.map((signal) => {
-    const normalizedName = normalizeVhdlIdentifier(getSignalName(signal));
-    const insight = insightMap.get(normalizedName);
-    const activityScore = Math.min(8, countSignalTransitions(getSignalValues(signal)));
-    let score = 0;
-    if (categorySets.all.has(normalizedName)) score += 10;
-    if (categorySets.clockReset.has(normalizedName)) score += desiredCategories.includes('clockReset') ? 8 : 2;
-    if (categorySets.protocol.has(normalizedName)) score += desiredCategories.includes('protocol') ? 8 : 2;
-    if (categorySets.state.has(normalizedName)) score += desiredCategories.includes('state') ? 8 : 2;
-    if (categorySets.control.has(normalizedName)) score += desiredCategories.includes('control') ? 6 : 2;
-    if (categorySets.data.has(normalizedName)) score += desiredCategories.includes('data') ? 5 : 1;
-    if (categorySets.debug.has(normalizedName)) score += desiredCategories.includes('debug') ? 5 : 1;
-    score += activityScore;
-    score += Math.min(6, insight?.entities.length || 0);
-    score += Math.min(4, insight?.categories.length || 0);
-    score += Math.max(...(insight?.entities.map((entityName) => roleWeight(entityRoleMap.get(entityName))) || [0]));
-
-    return {
-      signal,
-      normalizedName,
-      score,
-      activityScore,
-      insight,
-    };
-  });
-
-  const limit =
-    macroId === 'protocol_decoder_details' || macroId === 'summarize_protocol_timeline'
-      ? 10
-      : macroId === 'inspect_race_hazards' || macroId === 'verify_clock_reset_sequence'
-        ? 12
-        : macroId === 'explain_fsm_behavior'
-          ? 12
-          : macroId === 'custom_query'
-            ? 16
-            : 18;
-
-  const mandatoryNames = scoredSignals
-    .filter((entry) => desiredSet.has(entry.normalizedName))
-    .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
-    .slice(0, Math.min(limit, Math.max(6, desiredSet.size)))
-    .map((entry) => entry.normalizedName);
-
-  const selected = scoredSignals
-    .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
-    .filter((entry, index, array) => mandatoryNames.includes(entry.normalizedName) || (entry.score > 0 && index < limit) || (array.length <= limit))
-    .slice(0, limit);
-
-  const selectedNames = new Set(selected.map((entry) => entry.normalizedName));
-  mandatoryNames.forEach((mandatoryName) => {
-    if (selectedNames.has(mandatoryName)) {
-      return;
-    }
-    const match = scoredSignals.find((entry) => entry.normalizedName === mandatoryName);
-    if (match) {
-      selected.push(match);
-      selectedNames.add(mandatoryName);
-    }
-  });
-
-  const selectedEntries = selected
-    .sort((left, right) => right.score - left.score || left.signal.name.localeCompare(right.signal.name))
-    .slice(0, limit);
-  const mergedVisibleEntries = new Map<string, {
-    signal: AnalyzerSignal;
-    normalizedName: string;
-    displaySignalName: string;
-    score: number;
-    activityScore: number;
-    categories: Set<string>;
-    entities: Set<string>;
-    relatedNodes: Set<string>;
-  }>();
-  selectedEntries.forEach((entry) => {
-    const displaySignalName = getSignalName(entry.signal);
-    const visibleNameKey = normalizeVhdlIdentifier(displaySignalName);
-    const existing = mergedVisibleEntries.get(visibleNameKey);
-    if (!existing) {
-      mergedVisibleEntries.set(visibleNameKey, {
-        signal: entry.signal,
-        normalizedName: entry.normalizedName,
-        displaySignalName,
-        score: entry.score,
-        activityScore: entry.activityScore,
-        categories: new Set(entry.insight?.categories || []),
-        entities: new Set(entry.insight?.entities || []),
-        relatedNodes: new Set(entry.insight?.relatedNodes || []),
-      });
-      return;
-    }
-
-    if (entry.score > existing.score) {
-      existing.signal = entry.signal;
-      existing.normalizedName = entry.normalizedName;
-      existing.displaySignalName = displaySignalName;
-    }
-    existing.score = Math.max(existing.score, entry.score);
-    existing.activityScore = Math.max(existing.activityScore, entry.activityScore);
-    (entry.insight?.categories || []).forEach((category) => existing.categories.add(category));
-    (entry.insight?.entities || []).forEach((entityName) => existing.entities.add(entityName));
-    (entry.insight?.relatedNodes || []).forEach((nodeName) => existing.relatedNodes.add(nodeName));
-  });
-  const diagnosticEntries = Array.from(mergedVisibleEntries.values())
-    .sort((left, right) => right.score - left.score || left.displaySignalName.localeCompare(right.displaySignalName));
-  const focusEntityScores = new Map<string, number>();
-  diagnosticEntries.forEach((entry) => {
-    entry.entities.forEach((entityName) => {
-      const normalizedEntity = normalizeVhdlIdentifier(entityName);
-      const nextScore = (focusEntityScores.get(normalizedEntity) || 0)
-        + entry.score
-        + roleWeight(entityRoleMap.get(normalizedEntity));
-      focusEntityScores.set(normalizedEntity, nextScore);
-    });
-  });
-  const focusEntities = Array.from(focusEntityScores.entries())
-    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
-    .slice(0, 6)
-    .map(([entityName]) => entityName);
-
-  return {
-    selectedSignals: diagnosticEntries.map((entry) => entry.signal),
-    selectedSignalInsights: diagnosticEntries.map((entry, index) => ({
-      displayKey: `${entry.normalizedName}-${entry.displaySignalName || entry.signal.id || index}`,
-      signal: entry.displaySignalName,
-      normalizedSignal: entry.normalizedName,
-      score: entry.score,
-      activityScore: entry.activityScore,
-      categories: Array.from(entry.categories).sort(),
-      entities: Array.from(entry.entities).sort(),
-      relatedNodes: Array.from(entry.relatedNodes).sort(),
-    })),
-    desiredCategories,
-    focusEntities,
-  };
 }
 
 function estimatePreprocessingTokenCount(parts: Array<string | null | undefined>) {
@@ -2831,41 +1416,8 @@ async function buildProjectContextFromPath(projectPath: string, query: string, w
   };
 }
 
-let cachedVhdlSkillPrompt: string | null = null;
-
-async function getVhdlSkillPrompt() {
-  if (cachedVhdlSkillPrompt !== null) {
-    return cachedVhdlSkillPrompt;
-  }
-
-  try {
-    const skillPath = path.join(process.cwd(), 'SKILL.md');
-    const rawSkill = await fs.readFile(skillPath, 'utf8');
-    cachedVhdlSkillPrompt = [
-      '### Mandatory VHDL Skill',
-      'The following project skill must be applied for this analysis whenever VHDL code, VHDL testbenches, RTL, assertions, or VHDL-oriented reasoning are involved.',
-      'Treat it as required implementation and style guidance, not optional background.',
-      rawSkill.trim(),
-    ].join('\n\n');
-  } catch (error: any) {
-    cachedVhdlSkillPrompt = [
-      '### Mandatory VHDL Skill',
-      `The project SKILL.md file could not be loaded automatically: ${error?.message || String(error)}.`,
-      'Continue with VHDL-oriented best effort, but state assumptions clearly.',
-    ].join('\n\n');
-  }
-
-  return cachedVhdlSkillPrompt;
-}
-
 async function applyMandatoryVhdlSkill(taskPrompt: string) {
-  const vhdlSkillPrompt = await getVhdlSkillPrompt();
-  return [
-    vhdlSkillPrompt,
-    '### Task-Specific Priority',
-    'Apply the mandatory VHDL skill to this request. If the task below contains a stricter response contract, exact-token requirement, validation rule, or output format, obey that exact contract while still using the VHDL skill for reasoning and implementation guidance.',
-    taskPrompt,
-  ].join('\n\n');
+  return prepareVhdlSkillOrchestratorPrompt(taskPrompt, process.cwd());
 }
 
 async function normalizeFilesystemPath(targetPath: string) {
@@ -3247,33 +1799,23 @@ async function bootstrap() {
   const app = express();
   const PORT = 3000;
   const HOST = '127.0.0.1';
-  const SESSION_HEADER = 'x-logicpro-session';
-  const SESSION_COOKIE = 'logicpro-session-id';
-  const sessionManager = createSessionManager({ cookieName: SESSION_COOKIE });
-
-  const getRequiredSession = (req: express.Request) => {
-    const session = sessionManager.getSession(req.headers.cookie);
-    if (!session) {
-      const error = new Error('Missing or expired local app session. Refresh AUTOMATA LogicPro and try again.');
-      (error as any).statusCode = 401;
-      throw error;
-    }
-    return session;
-  };
-
-  const rememberApprovedProjectRoot = async (session: LogicProSession, rootPath: string) => {
-    const normalizedRoot = await normalizeFilesystemPath(rootPath);
-    return sessionManager.rememberApprovedRoot(session, normalizedRoot);
-  };
-
-  const assertApprovedProjectPath = async (
-    session: LogicProSession,
-    candidatePath: string,
-    label = 'Project path'
-  ) => {
-    const normalizedPath = await normalizeFilesystemPath(candidatePath);
-    return sessionManager.assertApprovedPath(session, normalizedPath, label, isPathWithinRoot);
-  };
+  const {
+    sessionManager,
+    getRequiredSession,
+    rememberApprovedProjectRoot,
+    assertApprovedProjectPath,
+    sessionMiddleware,
+  } = createSessionSecurityContext({
+    normalizeFilesystemPath,
+    isPathWithinRoot,
+  });
+  const {
+    cancelAiJobHandler,
+    beginTrackedJob,
+  } = createAiJobSecurityContext({
+    activeAiJobs,
+    getRequiredSession,
+  });
 
   // Middleware for body parsing
   app.use(express.json({ limit: '10mb' }));
@@ -3290,8 +1832,99 @@ async function bootstrap() {
       console.error('Error initializing Gemini client:', e);
     }
   } else {
-    console.warn('GEMINI_API_KEY environment variable is not defined. AI Assist features will fallback.');
+    console.warn('GEMINI_API_KEY environment variable is not defined. Gemini is disabled; AI Assist defaults to available local providers such as Ollama.');
   }
+  const {
+    getProvidersHandler,
+    getRemoteExportConsentHandler,
+    setRemoteExportConsentHandler,
+    listProviderModelsHandler,
+    legacyEncodeHandler,
+    testGenerateHandler,
+  } = createAiMetaRouteContext({
+    ai,
+    getProviderDescriptors,
+    getRequiredSession,
+    sessionManager,
+    listProviderModels,
+    staticProviderModels: STATIC_PROVIDER_MODELS,
+    applyMandatoryVhdlSkill,
+    runModelAnalysis,
+    normalizeLlmTestResponse,
+    llmTestPassedExactMatch,
+  });
+  const {
+    getStatusHandler: getGhdlStatusHandler,
+    getProjectInfoHandler: getGhdlProjectInfoHandler,
+    installHandler: installGhdlHandler,
+    runHandler: runGhdlHandler,
+  } = createGhdlRouteContext({
+    getRequiredSession,
+    assertApprovedProjectPath,
+    collectVhdlSources,
+    buildVhdlProjectInfo,
+    getGhdlStatus,
+    validateGhdlInstallRequest,
+    ensureGhdlInstalled,
+    runGhdlSimulation,
+    getOrBuildMacroSignalIndex,
+  });
+  const {
+    selectProjectHandler,
+    restoreProjectHandler,
+    openWorkspaceHandler,
+    saveVcdHandler,
+  } = createProjectRouteContext({
+    getRequiredSession,
+    rememberApprovedProjectRoot,
+    assertApprovedProjectPath,
+    chooseProjectFolder,
+    chooseWorkspaceFile,
+    chooseExportPath,
+    listProjectFiles,
+    ensureDirectoryPath,
+    isAppleScriptCancel,
+  });
+  const {
+    remoteExportPreviewHandler,
+    remoteExportApproveHandler,
+    analyzeHandler,
+  } = createAiAnalyzeRouteContext({
+    ai,
+    getRequiredSession,
+    sessionManager,
+    beginTrackedJob,
+    deleteTrackedJob: (jobId: string) => activeAiJobs.delete(jobId),
+    prepareAiAnalyzeRequest,
+    runAiAnalyzeJob,
+    runModelAnalysis,
+    getProviderDeployment,
+    requiresRemoteExportConsent,
+    assertApprovedProjectPath,
+    analyzeWaveformHazards,
+    analyzeProtocolFrames,
+    getAiMacroSpec,
+    getOrBuildMacroSignalIndex,
+    selectMacroSignals,
+    getSignalName,
+    formatSignalValue,
+    buildSignalTransitionSummary,
+    buildProjectContextFromPath,
+    scrubProjectContextForRemoteExport,
+    buildMacroPromptContract,
+    estimatePreprocessingTokenCount,
+    buildPreparedRemoteExportPreview,
+    applyMandatoryVhdlSkill,
+    getProviderDescriptors,
+    validateMacroOutput,
+    buildArtifactRetryPrompt,
+    buildValidationRetryPrompt,
+    extractGeneratedVhdlArtifacts,
+    saveGeneratedVhdlArtifacts,
+    formatValidationFailureDetails,
+    isAbortError,
+    staticProviderModels: STATIC_PROVIDER_MODELS,
+  });
 
   // --- API ROUTES ---
 
@@ -3305,777 +1938,51 @@ async function bootstrap() {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Set-Cookie', sessionManager.createCookieValue(session));
-    res.json({ token: session.csrfToken });
+    res.json({
+      token: session.csrfToken,
+      approvedProjectRoot: sessionManager.getApprovedRoot(session),
+      remoteExportConsents: sessionManager.getRemoteExportConsents(session),
+    });
   });
 
-  app.use('/api', (req, res, next) => {
-    if (req.path === '/health' || req.path === '/session') {
-      return next();
-    }
+  app.use('/api', sessionMiddleware);
 
-    const session = sessionManager.getSession(req.headers.cookie);
-    if (!session) {
-      return res.status(401).json({
-        error: 'Missing or expired local app session. Refresh the app and try again.',
-      });
-    }
+  app.post('/api/project/select', selectProjectHandler);
 
-    const providedToken = typeof req.header(SESSION_HEADER) === 'string' ? req.header(SESSION_HEADER) : '';
-    if (!sessionManager.matchesCsrfToken(session, providedToken)) {
-      return res.status(401).json({
-        error: 'Missing or invalid local session token. Refresh the app and try again.',
-      });
-    }
+  app.post('/api/project/restore', restoreProjectHandler);
 
-    return next();
-  });
+  app.post('/api/project/open-workspace', openWorkspaceHandler);
 
-  app.post('/api/project/select', async (req, res) => {
-    try {
-      const session = getRequiredSession(req);
-      const requestedDefaultPath = typeof req.body?.defaultPath === 'string' ? req.body.defaultPath : null;
-      const projectPath = await chooseProjectFolder(requestedDefaultPath);
-      const approvedProjectPath = await rememberApprovedProjectRoot(session, projectPath);
-      const files = await listProjectFiles(approvedProjectPath);
-      res.json({
-        name: path.basename(approvedProjectPath),
-        path: approvedProjectPath,
-        files,
-      });
-    } catch (error: any) {
-      if (isAppleScriptCancel(error)) {
-        return res.status(400).json({ cancelled: true });
-      }
-      res.status(error?.statusCode || 500).json({ error: error.message || error });
-    }
-  });
+  app.post('/api/project/save-vcd', saveVcdHandler);
 
-  app.post('/api/project/restore', async (req, res) => {
-    const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath.trim() : '';
-    if (!projectPath) {
-      return res.status(400).json({ error: 'Project path is required.' });
-    }
+  app.get('/api/ghdl/status', getGhdlStatusHandler);
 
-    try {
-      const session = getRequiredSession(req);
-      const ensuredProjectPath = await ensureDirectoryPath(projectPath, 'Project folder');
-      const approvedProjectPath = await assertApprovedProjectPath(session, ensuredProjectPath, 'Project folder');
-      const files = await listProjectFiles(approvedProjectPath);
-      res.json({
-        name: path.basename(approvedProjectPath),
-        path: approvedProjectPath,
-        files,
-      });
-    } catch (error: any) {
-      res.status(error?.statusCode || 500).json({ error: error.message || error });
-    }
-  });
+  app.post('/api/ghdl/project-info', getGhdlProjectInfoHandler);
 
-  app.post('/api/project/open-workspace', async (req, res) => {
-    try {
-      const session = getRequiredSession(req);
-      const defaultPath = typeof req.body?.projectPath === 'string' && req.body.projectPath.trim()
-        ? await assertApprovedProjectPath(session, req.body.projectPath, 'Workspace default path')
-        : null;
-      const selectedPath = await chooseWorkspaceFile(defaultPath);
-      await rememberApprovedProjectRoot(session, path.dirname(selectedPath));
-      const content = await fs.readFile(selectedPath, 'utf8');
-      res.json({
-        name: path.basename(selectedPath),
-        path: selectedPath,
-        content,
-      });
-    } catch (error: any) {
-      if (isAppleScriptCancel(error)) {
-        return res.status(400).json({ cancelled: true });
-      }
-      res.status(error?.statusCode || 500).json({ error: error.message || error });
-    }
-  });
+  app.post('/api/ghdl/install', installGhdlHandler);
 
-  app.post('/api/project/save-vcd', async (req, res) => {
-    try {
-      const session = getRequiredSession(req);
-      const projectPath = typeof req.body?.projectPath === 'string' && req.body.projectPath.trim()
-        ? await assertApprovedProjectPath(session, req.body.projectPath, 'Export directory')
-        : null;
-      const suggestedName = typeof req.body?.suggestedName === 'string' && req.body.suggestedName.trim()
-        ? req.body.suggestedName.trim()
-        : 'logic_dump.vcd';
-      const content = typeof req.body?.content === 'string' ? req.body.content : '';
-      const targetPath = await chooseExportPath(projectPath, suggestedName);
-      await fs.writeFile(targetPath, content, 'utf8');
-      res.json({ path: targetPath, name: path.basename(targetPath) });
-    } catch (error: any) {
-      if (isAppleScriptCancel(error)) {
-        return res.status(400).json({ cancelled: true });
-      }
-      res.status(error?.statusCode || 500).json({ error: error.message || error });
-    }
-  });
+  app.post('/api/ghdl/run', runGhdlHandler);
 
-  app.get('/api/ghdl/status', async (req, res) => {
-    try {
-      res.json(await getGhdlStatus());
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || error });
-    }
-  });
+  app.get('/api/ai/providers', getProvidersHandler);
 
-  app.post('/api/ghdl/project-info', async (req, res) => {
-    const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath.trim() : '';
-    if (!projectPath) {
-      return res.status(400).json({ error: 'Project path is required.' });
-    }
+  app.get('/api/ai/remote-export-consent', getRemoteExportConsentHandler);
 
-    try {
-      const session = getRequiredSession(req);
-      const sources = await collectVhdlSources(await assertApprovedProjectPath(session, projectPath));
-      res.json(buildVhdlProjectInfo(sources));
-    } catch (error: any) {
-      res.status(error?.statusCode || 500).json({ error: error.message || error });
-    }
-  });
+  app.post('/api/ai/remote-export-consent', setRemoteExportConsentHandler);
 
-  app.post('/api/ghdl/install', async (req, res) => {
-    const logs: string[] = [];
-    if (req.body?.confirmInstall !== true) {
-      return res.status(400).json({
-        error: 'GHDL installation requires explicit confirmation from the UI before the installer can run.',
-        logs,
-      });
-    }
-    try {
-      const status = await ensureGhdlInstalled(logs);
-      res.json({ status, logs });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || error, logs });
-    }
-  });
-
-  app.post('/api/ghdl/run', async (req, res) => {
-    const { projectPath, topEntity, sourcePaths, stopTime } = req.body;
-
-    if (typeof projectPath !== 'string' || !projectPath.trim()) {
-      return res.status(400).json({ error: 'Project path is required.' });
-    }
-    if (typeof topEntity !== 'string' || !topEntity.trim()) {
-      return res.status(400).json({ error: 'Top entity or testbench name is required.' });
-    }
-
-    try {
-      const session = getRequiredSession(req);
-      const normalizedProjectPath = await assertApprovedProjectPath(session, projectPath.trim());
-      const normalizedTopEntity = topEntity.trim();
-      const normalizedSourcePaths = Array.isArray(sourcePaths) ? sourcePaths : undefined;
-      const result = await runGhdlSimulation({
-        projectPath: normalizedProjectPath,
-        topEntity: normalizedTopEntity,
-        sourcePaths: normalizedSourcePaths,
-        stopTime: typeof stopTime === 'string' && stopTime.trim() ? stopTime.trim() : undefined,
-      });
-      try {
-        await getOrBuildMacroSignalIndex({
-          projectPath: normalizedProjectPath,
-          rootEntity: normalizedTopEntity,
-          sourcePaths: normalizedSourcePaths,
-        });
-      } catch (cacheError: any) {
-        result.logs = [
-          ...result.logs,
-          `Macro signal index warmup skipped: ${cacheError?.message || String(cacheError)}`,
-        ];
-      }
-      res.json(result);
-    } catch (error: any) {
-      res.status(error?.statusCode || 500).json({ error: error.message || error, logs: error.logs || [] });
-    }
-  });
-
-  app.get('/api/ai/providers', async (req, res) => {
-    try {
-      const providers = getProviderDescriptors();
-      res.json({ providers });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || error });
-    }
-  });
-
-  app.get('/api/ai/providers/:provider/models', async (req, res) => {
-    const provider = req.params.provider as LLMProviderId;
-    const providerInfo = getProviderDescriptors().find((entry) => entry.id === provider);
-
-    if (!providerInfo) {
-      return res.status(404).json({ error: `Unknown provider: ${req.params.provider}` });
-    }
-
-    try {
-      const models = await listProviderModels(provider);
-      res.json({ provider: providerInfo, models });
-    } catch (error: any) {
-      res.status(500).json({
-        provider: providerInfo,
-        models: STATIC_PROVIDER_MODELS[provider] || [],
-        error: error.message || error,
-      });
-    }
-  });
+  app.get('/api/ai/providers/:provider/models', listProviderModelsHandler);
 
   // REST API: Run Gemini Timing Diagram Analysis
-  app.post('/api/ai-encode', async (req, res) => {
-    // Legacy endpoint support
-    res.json({ ok: true });
-  });
+  app.post('/api/ai-encode', legacyEncodeHandler);
 
-  app.post('/api/ai-jobs/:jobId/cancel', async (req, res) => {
-    const jobId = typeof req.params.jobId === 'string' ? req.params.jobId : '';
-    const controller = activeAiJobs.get(jobId);
-    if (!controller) {
-      return res.status(404).json({ ok: false, error: 'AI job not found or already finished.' });
-    }
-    controller.abort(new Error('Request was cancelled by the user.'));
-    activeAiJobs.delete(jobId);
-    return res.json({ ok: true, jobId, cancelled: true });
-  });
+  app.post('/api/ai-jobs/:jobId/cancel', cancelAiJobHandler);
 
-  app.post('/api/ai/test-generate', async (req, res) => {
-    const provider = typeof req.body?.provider === 'string' && req.body.provider.trim()
-      ? req.body.provider.trim() as LLMProviderId
-      : null;
-    const model = typeof req.body?.model === 'string' && req.body.model.trim()
-      ? req.body.model.trim()
-      : '';
+  app.post('/api/ai/test-generate', testGenerateHandler);
 
-    if (!provider) {
-      return res.status(400).json({ error: 'Provider is required.' });
-    }
-    if (!model) {
-      return res.status(400).json({ error: 'Model is required.' });
-    }
+  app.post('/api/ai/remote-export-preview', remoteExportPreviewHandler);
 
-    const startedAt = Date.now();
-    try {
-      const testPrompt = await applyMandatoryVhdlSkill([
-        'Reply with exactly this token and nothing else:',
-        'TEST_OK',
-        'Do not add explanation, markdown, quotes, code fences, labels, or reasoning.'
-      ].join('\n'));
-      const result = await runModelAnalysis({
-        ai,
-        provider,
-        model,
-        prompt: testPrompt,
-      });
-      const responseText = result.text;
+  app.post('/api/ai/remote-export-approve', remoteExportApproveHandler);
 
-      const durationMs = Math.max(0, Date.now() - startedAt);
-      const trimmed = responseText.trim();
-      const normalized = normalizeLlmTestResponse(trimmed);
-      const score = durationMs < 2000 ? 'fast' : durationMs < 8000 ? 'good' : durationMs < 20000 ? 'slow' : 'very slow';
-      const passedExactMatch = llmTestPassedExactMatch(trimmed);
-
-      return res.json({
-        ok: true,
-        provider,
-        model,
-        durationMs,
-        speedScore: score,
-        responsePreview: trimmed.slice(0, 200),
-        normalizedResponsePreview: normalized.slice(0, 200),
-        passedExactMatch,
-      });
-    } catch (error: any) {
-      return res.status(500).json({
-        ok: false,
-        provider,
-        model,
-        durationMs: Math.max(0, Date.now() - startedAt),
-        error: error.message || String(error),
-      });
-    }
-  });
-
-  app.post('/api/ai-analyze', async (req, res) => {
-    const { provider, signals, query, model, timeUnit, tickDuration, projectContext, projectPath, workspaceFileName } = req.body;
-    const simulationMacroContext = req.body?.simulationMacroContext;
-    const remoteExportConsent = Boolean(req.body?.remoteExportConsent);
-    const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
-    const macroId: AiMacroId = typeof req.body?.macroId === 'string' && req.body.macroId.trim()
-      ? req.body.macroId.trim() as AiMacroId
-      : 'custom_query';
-    const tbGenerationMode: TbGenerationMode | null = req.body?.tbGenerationMode === 'reverse_from_vcd'
-      ? 'reverse_from_vcd'
-      : req.body?.tbGenerationMode === 'project_entities'
-        ? 'project_entities'
-        : null;
-
-    if (!query) {
-      return res.status(400).json({ error: 'User query is required.' });
-    }
-
-    const controller = new AbortController();
-    activeAiJobs.set(jobId, controller);
-
-    const abortActiveJob = (reason: string) => {
-      if (activeAiJobs.has(jobId)) {
-        controller.abort(new Error(reason));
-        activeAiJobs.delete(jobId);
-      }
-    };
-
-    // Only abort on a real client disconnect/cancellation, not on the normal
-    // request stream closing after Express finishes reading the POST body.
-    req.on('aborted', () => {
-      abortActiveJob('Request was cancelled by the client connection.');
-    });
-    res.on('close', () => {
-      if (!res.writableEnded) {
-        abortActiveJob('Request was cancelled by the client connection.');
-      }
-    });
-
-    try {
-      const session = getRequiredSession(req);
-      const resolvedTickDuration = Number.isFinite(Number(tickDuration)) ? Number(tickDuration) : 1;
-      const resolvedTimeUnit = typeof timeUnit === 'string' && timeUnit.trim() ? timeUnit : 'ns';
-      const selectedProvider: LLMProviderId = typeof provider === 'string' && provider.trim()
-        ? provider.trim() as LLMProviderId
-        : 'gemini';
-      const selectedModel = typeof model === 'string' && model.trim()
-        ? model.trim()
-        : (STATIC_PROVIDER_MODELS[selectedProvider]?.[0]?.id || 'gemini-2.5-flash');
-      const providerDeployment = getProviderDeployment(selectedProvider);
-
-      if (requiresRemoteExportConsent(selectedProvider) && !remoteExportConsent) {
-        return res.status(403).json({
-          error: `Remote provider export is disabled for ${selectedProvider}. Enable explicit consent in the AI drawer before sending waveform or project context off-machine.`,
-          macroId,
-          provider: selectedProvider,
-          deployment: providerDeployment,
-        });
-      }
-
-      const hazardScan = analyzeWaveformHazards(
-        Array.isArray(signals) ? signals : [],
-        resolvedTickDuration,
-        resolvedTimeUnit
-      );
-      const protocolScan = analyzeProtocolFrames(
-        Array.isArray(signals) ? signals : [],
-        resolvedTickDuration,
-        resolvedTimeUnit
-      );
-
-      const allSignals = Array.isArray(signals) ? signals : [];
-      let normalizedProjectPath = '';
-      let projectPathUnavailableReason = '';
-      if (typeof projectPath === 'string' && projectPath.trim()) {
-        try {
-          normalizedProjectPath = await assertApprovedProjectPath(session, projectPath.trim());
-        } catch (projectPathError: any) {
-          projectPathUnavailableReason = projectPathError?.message || String(projectPathError);
-        }
-      }
-      const macroSpec = getAiMacroSpec(macroId);
-      const artifactDirectory = macroSpec.generatedArtifactDirectory || null;
-
-      if (artifactDirectory && !normalizedProjectPath) {
-        throw new Error(
-          projectPathUnavailableReason
-            || `${macroSpec.label} requires an opened project folder so the generated .vhd files can be saved into "${artifactDirectory}".`
-        );
-      }
-      const simulationRootEntity = typeof simulationMacroContext?.rootEntity === 'string' && simulationMacroContext.rootEntity.trim()
-        ? simulationMacroContext.rootEntity.trim()
-        : '';
-      const simulationSourcePaths = Array.isArray(simulationMacroContext?.sourcePaths)
-        ? simulationMacroContext.sourcePaths.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
-        : [];
-
-      let macroSignalIndex: MacroSignalIndex | null = null;
-      let selectedSignals = allSignals;
-      let waveformSelectionText = '';
-      let macroDiagnostics: {
-        rootEntity: string;
-        reachableEntities: string[];
-        entityHierarchy: Array<{
-          parent: string;
-          child: string;
-          instanceLabel: string;
-        }>;
-        entityDepths: Record<string, number>;
-        entityRoles: Record<string, string>;
-        focusEntities: string[];
-        desiredCategories: string[];
-        semanticConfidence: number;
-        selectionNotes: string[];
-        visibleSignalsSent: number;
-        totalSignalsAvailable: number;
-        selectedSignals: Array<{
-          displayKey: string;
-          signal: string;
-          normalizedSignal: string;
-          score: number;
-          activityScore: number;
-          categories: string[];
-          entities: string[];
-          relatedNodes: string[];
-        }>;
-      } | null = null;
-
-      if (normalizedProjectPath && simulationRootEntity && allSignals.length > 0) {
-        try {
-          macroSignalIndex = await getOrBuildMacroSignalIndex({
-            projectPath: normalizedProjectPath,
-            rootEntity: simulationRootEntity,
-            sourcePaths: simulationSourcePaths,
-          });
-          const signalSelection = selectMacroSignals({
-            macroId,
-            signals: allSignals,
-            index: macroSignalIndex,
-          });
-          if (signalSelection.selectedSignals.length > 0) {
-            selectedSignals = signalSelection.selectedSignals;
-          }
-          const roleCounts = Object.values(macroSignalIndex.entityRoles).reduce<Record<string, number>>((acc, role) => {
-            acc[role] = (acc[role] || 0) + 1;
-            return acc;
-          }, {});
-          const selectedWithInsights = signalSelection.selectedSignalInsights.filter((signal) => signal.entities.length > 0 || signal.categories.length > 0).length;
-          const semanticConfidence = selectedSignals.length > 0
-            ? Math.round((selectedWithInsights / selectedSignals.length) * 100)
-            : 0;
-          const selectionNotes = [
-            `selected ${selectedSignals.length} of ${allSignals.length} visible signals for ${macroId}`,
-            `reachable entities: ${macroSignalIndex.reachableEntities.length}`,
-            `entity roles observed: ${Object.entries(roleCounts).map(([role, count]) => `${role}=${count}`).join(', ') || 'none'}`,
-          ];
-          if (selectedWithInsights < selectedSignals.length) {
-            selectionNotes.push(`some selected signals did not resolve to strong semantic insights (${selectedWithInsights}/${selectedSignals.length})`);
-          }
-          macroDiagnostics = {
-            rootEntity: macroSignalIndex.rootEntity,
-            reachableEntities: macroSignalIndex.reachableEntities,
-            entityHierarchy: macroSignalIndex.entityHierarchy,
-            entityDepths: macroSignalIndex.entityDepths,
-            entityRoles: macroSignalIndex.entityRoles,
-            focusEntities: signalSelection.focusEntities,
-            desiredCategories: signalSelection.desiredCategories,
-            semanticConfidence,
-            selectionNotes,
-            visibleSignalsSent: selectedSignals.length,
-            totalSignalsAvailable: allSignals.length,
-            selectedSignals: signalSelection.selectedSignalInsights,
-          };
-
-          waveformSelectionText += `### Macro Signal Selection\n`;
-          waveformSelectionText += `Simulation Root: ${macroSignalIndex.rootEntity}\n`;
-          waveformSelectionText += `Reachable Entities: ${macroSignalIndex.reachableEntities.join(', ') || 'none'}\n`;
-          waveformSelectionText += `Entity Roles: ${Object.entries(macroSignalIndex.entityRoles).map(([entityName, role]) => `${entityName}:${role}`).join(', ') || 'none'}\n`;
-          waveformSelectionText += `Macro Focus Entities: ${signalSelection.focusEntities.join(', ') || macroSignalIndex.rootEntity}\n`;
-          waveformSelectionText += `Selection Categories: ${signalSelection.desiredCategories.join(', ')}\n`;
-          waveformSelectionText += `Semantic Confidence: ${semanticConfidence}%\n`;
-          waveformSelectionText += `Relevant Signals: ${selectedSignals.map((signal) => getSignalName(signal)).join(', ') || 'none'}\n\n`;
-          waveformSelectionText += `### Signal Relevance Hints\n`;
-          signalSelection.selectedSignalInsights.forEach((insight) => {
-            waveformSelectionText += `- ${insight.signal}`;
-            waveformSelectionText += ` | categories: ${insight.categories.join(', ') || 'uncategorized'}`;
-            waveformSelectionText += ` | entities: ${insight.entities.join(', ') || macroSignalIndex?.rootEntity || 'unknown'}`;
-            waveformSelectionText += ` | related nodes: ${insight.relatedNodes.slice(0, 8).join(', ') || insight.normalizedSignal}`;
-            waveformSelectionText += ` | activity score: ${insight.activityScore}\n`;
-          });
-          waveformSelectionText += '\n';
-        } catch (selectionError: any) {
-          waveformSelectionText += `### Macro Signal Selection\n`;
-          waveformSelectionText += `Selection fallback: full waveform set used because semantic filtering failed: ${selectionError?.message || String(selectionError)}\n\n`;
-        }
-      }
-
-      // Format the timing trace data into a highly readable block for the LLM
-      let waveformText = '### Captured Waves Log:\n';
-      waveformText += `Time Base Unit: ${tickDuration} ${timeUnit} per tick\n`;
-      waveformText += `Visible Signals Sent: ${selectedSignals.length}/${allSignals.length}\n\n`;
-      waveformText += waveformSelectionText;
-
-      if (selectedSignals.length > 0) {
-        selectedSignals.forEach((sig: any) => {
-          waveformText += `Signal Channel: ${sig.name} | Type: ${sig.type}\n`;
-          const sampleValues = Array.isArray(sig.values) ? sig.values.slice(0, 120) : [];
-          waveformText += `Ticks (0-120): ${sampleValues.map((value: any) => formatSignalValue(value)).join('')}\n`;
-          waveformText += `Transition Summary: ${buildSignalTransitionSummary(Array.isArray(sig.values) ? sig.values : [])}\n\n`;
-        });
-      }
-
-      let projectText = '';
-      let resolvedProjectContext = projectContext;
-      let exportPolicyText = '';
-      if (
-        (!resolvedProjectContext || typeof resolvedProjectContext !== 'object')
-        && normalizedProjectPath
-        && providerDeployment === 'local'
-      ) {
-        resolvedProjectContext = await buildProjectContextFromPath(normalizedProjectPath, query, workspaceFileName);
-      }
-      if ((!resolvedProjectContext || typeof resolvedProjectContext !== 'object') && projectPathUnavailableReason) {
-        projectText += `### Project Workspace Context\n`;
-        projectText += `Server-side project file enrichment skipped: ${projectPathUnavailableReason}\n\n`;
-      }
-
-      if (providerDeployment === 'remote') {
-        const scrubbed = scrubProjectContextForRemoteExport(
-          resolvedProjectContext && typeof resolvedProjectContext === 'object'
-            ? resolvedProjectContext
-            : null
-        );
-        resolvedProjectContext = scrubbed?.context || null;
-        if (scrubbed && scrubbed.redactionNotes.length > 0) {
-          exportPolicyText += `### Remote Export Policy\n`;
-          exportPolicyText += `Provider deployment: remote\n`;
-          exportPolicyText += `Project context was scrubbed before export. Redaction notes:\n`;
-          exportPolicyText += `${scrubbed.redactionNotes.map((note) => `- ${note}`).join('\n')}\n\n`;
-        }
-      }
-
-      if (resolvedProjectContext && typeof resolvedProjectContext === 'object') {
-        const projectName = typeof resolvedProjectContext.name === 'string' ? resolvedProjectContext.name : 'Selected project';
-        const fileCount = Number.isFinite(resolvedProjectContext.fileCount) ? Number(resolvedProjectContext.fileCount) : 0;
-        const filePaths = Array.isArray(resolvedProjectContext.filePaths) ? resolvedProjectContext.filePaths.slice(0, 80) : [];
-        const excerpts = Array.isArray(resolvedProjectContext.excerpts) ? resolvedProjectContext.excerpts.slice(0, 8) : [];
-
-        projectText += `### Project Workspace Context\n`;
-        projectText += `Project Name: ${projectName}\n`;
-        projectText += `Project File Count: ${fileCount}\n`;
-        if (filePaths.length > 0) {
-          projectText += `Project Files:\n${filePaths.map((filePath: string) => `- ${filePath}`).join('\n')}\n\n`;
-        }
-
-        excerpts.forEach((excerpt: any) => {
-          if (typeof excerpt?.path !== 'string' || typeof excerpt?.content !== 'string') {
-            return;
-          }
-          projectText += `File Excerpt: ${excerpt.path}\n`;
-          projectText += `${excerpt.content}\n\n`;
-        });
-      }
-
-      // Construct expert-level Prompt
-      const systemPrompt = `You are a professional ASIC/FPGA digital design engineer, embedding systems developer, and veteran hardware logic analyzer debugger.
-You are assisting a developer using "Signal Logic Pro" logic waveforms.
-Review the following timing diagram traces captured by the logic analyzer and answer the developer's question.
-
-${waveformText}
-${protocolScan.markdown}
-
-${hazardScan.markdown}
-
-${exportPolicyText}${projectText}
-
-Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.
-
-When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", treat those as the primary hierarchy-aware view of the design. Use the focus entities and related nodes to explain why each selected signal matters to the requested macro.`;
-
-      const preprocessingInputTokens = estimatePreprocessingTokenCount([
-        query,
-        waveformText,
-        protocolScan.markdown,
-        hazardScan.markdown,
-        exportPolicyText,
-        projectText,
-      ]);
-
-      // Call latest recommended Gemini Model
-      const initialPrompt = await applyMandatoryVhdlSkill(`${systemPrompt}\n\n${buildMacroPromptContract({
-        macroId,
-        userQuery: query,
-        tbGenerationMode,
-      })}`);
-      let aiResult = await runModelAnalysis({
-        ai,
-        provider: selectedProvider,
-        model: selectedModel,
-        prompt: initialPrompt,
-        signal: controller.signal,
-      });
-      const attemptTelemetries: AiRunTelemetry[] = [aiResult.telemetry];
-      let responseText = aiResult.text;
-      let responseTelemetry = aiResult.telemetry;
-
-      let validation = validateMacroOutput({
-        macroId,
-        text: responseText,
-        hazardFindings: hazardScan.findings,
-        protocolFrames: protocolScan.frames,
-      });
-      let retryUsed = false;
-
-      if (artifactDirectory) {
-        const hasVhdlCodeFailure = validation.checks.some((check) => check.id === 'code:vhdl' && check.status === 'fail');
-        const extractedInitialArtifacts = extractGeneratedVhdlArtifacts(responseText, macroId);
-        const hasRequiredArtifact = macroId === 'generate_vhdl_tb'
-          ? extractedInitialArtifacts.some((artifact) => artifact.kind === 'testbench')
-          : extractedInitialArtifacts.length > 0;
-
-        if (hasVhdlCodeFailure || !hasRequiredArtifact || validation.status === 'fail') {
-          retryUsed = true;
-          const retryPrompt = buildArtifactRetryPrompt({
-            originalPrompt: initialPrompt,
-            macroId,
-            tbGenerationMode,
-            artifactDirectory,
-            validationSummary: validation.summary,
-            validationWarnings: validation.warnings,
-          });
-          aiResult = await runModelAnalysis({
-            ai,
-            provider: selectedProvider,
-            model: selectedModel,
-            prompt: retryPrompt,
-            signal: controller.signal,
-          });
-          attemptTelemetries.push(aiResult.telemetry);
-          responseText = aiResult.text;
-          responseTelemetry = aiResult.telemetry;
-
-          validation = validateMacroOutput({
-            macroId,
-            text: responseText,
-            hazardFindings: hazardScan.findings,
-            protocolFrames: protocolScan.frames,
-          });
-        }
-      } else if (macroId !== 'custom_query' && validation.status === 'fail') {
-        retryUsed = true;
-        const retryPrompt = buildValidationRetryPrompt({
-          originalPrompt: initialPrompt,
-          macroId,
-          validationSummary: validation.summary,
-          validationWarnings: validation.warnings,
-        });
-        aiResult = await runModelAnalysis({
-          ai,
-          provider: selectedProvider,
-          model: selectedModel,
-          prompt: retryPrompt,
-          signal: controller.signal,
-        });
-        attemptTelemetries.push(aiResult.telemetry);
-        responseText = aiResult.text;
-        responseTelemetry = aiResult.telemetry;
-
-        validation = validateMacroOutput({
-          macroId,
-          text: responseText,
-          hazardFindings: hazardScan.findings,
-          protocolFrames: protocolScan.frames,
-        });
-      }
-
-      let outputDirectory: string | null = null;
-      let savedGeneratedFiles: SavedGeneratedVhdlArtifact[] = [];
-      let analysisText = responseText;
-
-      if (artifactDirectory) {
-        const extractedArtifacts = extractGeneratedVhdlArtifacts(responseText, macroId);
-        const hasVhdlCodeFailure = validation.checks.some((check) => check.id === 'code:vhdl' && check.status === 'fail');
-        const hasRequiredArtifact = macroId === 'generate_vhdl_tb'
-          ? extractedArtifacts.some((artifact) => artifact.kind === 'testbench')
-          : extractedArtifacts.length > 0;
-
-        if (hasVhdlCodeFailure || extractedArtifacts.length === 0 || !hasRequiredArtifact || validation.status === 'fail') {
-          const failureReasons = [
-            hasVhdlCodeFailure ? 'no tagged VHDL code block was returned' : null,
-            extractedArtifacts.length === 0 ? 'no extractable VHDL artifacts were found' : null,
-            macroId === 'generate_vhdl_tb' && !hasRequiredArtifact ? 'no VHDL testbench artifact was identified' : null,
-            validation.status === 'fail'
-              ? `macro validation still failed (${formatValidationFailureDetails(validation)})`
-              : null,
-          ].filter(Boolean).join('; ');
-          const retryNote = retryUsed ? ' The stricter automatic retry was attempted and still did not produce valid artifact code.' : '';
-          throw new Error(`${macroSpec.label} hard-failed because ${failureReasons}.${retryNote}`);
-        }
-
-        const saveResult = await saveGeneratedVhdlArtifacts({
-          projectPath: normalizedProjectPath,
-          outputFolder: artifactDirectory,
-          artifacts: extractedArtifacts,
-        });
-        outputDirectory = saveResult.outputDirectory;
-        savedGeneratedFiles = saveResult.savedArtifacts;
-
-        analysisText = `${responseText.trimEnd()}\n\n## Saved Generated Files\n${savedGeneratedFiles
-          .map((artifact) => `- ${path.relative(normalizedProjectPath, artifact.path)}`)
-          .join('\n')}\n`;
-      }
-
-      const latestAttemptInputTokens = responseTelemetry.inputTokens;
-      const jobInputTokens = preprocessingInputTokens
-        + attemptTelemetries.reduce((sum, telemetry) => sum + telemetry.inputTokens, 0);
-      const jobOutputTokens = attemptTelemetries.reduce((sum, telemetry) => sum + telemetry.outputTokens, 0);
-      const sessionAiTokenTotals = sessionManager.accumulateAiTokens(session, {
-        inputTokens: jobInputTokens,
-        outputTokens: jobOutputTokens,
-      });
-      const jobTelemetry: AiJobTelemetry = {
-        latestAttemptInputTokens,
-        jobInputTokens,
-        sessionInputTokens: sessionAiTokenTotals.inputTokens,
-        outputTokens: responseTelemetry.outputTokens,
-        jobOutputTokens,
-        sessionOutputTokens: sessionAiTokenTotals.outputTokens,
-        tokensPerSecond: responseTelemetry.tokensPerSecond,
-        durationMs: responseTelemetry.durationMs,
-      };
-
-      return res.json({
-        analysis: analysisText,
-        provider: selectedProvider,
-        model: selectedModel,
-        telemetry: {
-          engineLabel: getProviderDescriptors().find((entry) => entry.id === selectedProvider)?.label || selectedProvider,
-          inputTokens: jobTelemetry.latestAttemptInputTokens,
-          latestAttemptInputTokens: jobTelemetry.latestAttemptInputTokens,
-          jobInputTokens: jobTelemetry.jobInputTokens,
-          sessionInputTokens: jobTelemetry.sessionInputTokens,
-          outputTokens: jobTelemetry.outputTokens,
-          jobOutputTokens: jobTelemetry.jobOutputTokens,
-          sessionOutputTokens: jobTelemetry.sessionOutputTokens,
-          tokensPerSecond: jobTelemetry.tokensPerSecond,
-          durationMs: jobTelemetry.durationMs,
-        },
-        hazardScan,
-        protocolScan,
-        diagnostics: macroDiagnostics,
-        macroId,
-        tbGenerationMode,
-        retryUsed,
-        outputDirectory,
-        generatedFiles: savedGeneratedFiles.map((artifact) => ({
-          name: artifact.fileName,
-          path: artifact.path,
-          kind: artifact.kind,
-        })),
-        validation,
-        jobId,
-      });
-    } catch (error: any) {
-      if (isAbortError(error)) {
-        return res.status(499).json({
-          error: 'AI job was cancelled before completion.',
-          jobId,
-          macroId,
-          cancelled: true,
-        });
-      }
-      console.error('Gemini API call error:', error);
-      return res.status(error?.statusCode || 500).json({
-        error: `Core logic simulation analysis failed: ${error.message || error}`,
-        macroId,
-      });
-    } finally {
-      activeAiJobs.delete(jobId);
-    }
-  });
+  app.post('/api/ai-analyze', analyzeHandler);
 
   // --- VITE MIDDLEWARE OR STATIC SERVER ---
 

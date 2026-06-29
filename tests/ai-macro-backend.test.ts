@@ -26,6 +26,7 @@ test('project-entity VHDL TB prompt includes macro contract and mode', () => {
 
   assert.match(prompt, /Macro ID: generate_vhdl_tb/);
   assert.match(prompt, /TB Generation Mode: project_entities/);
+  assert.match(prompt, /## Selected Skills|Selected Skills section/i);
   assert.match(prompt, /Include at least one fenced code block tagged as `vhdl`/);
   assert.match(prompt, /Required sections or equivalents/);
 });
@@ -149,11 +150,35 @@ test('protocol validator warns when frames exist but are not referenced', () => 
 test('protocol validator accepts explicit no-frame acknowledgement', () => {
   const result = validateMacroOutput({
     macroId: 'protocol_decoder_details',
-    text: `## Decoded Frames\nNo deterministic SPI/I2C/UART frames were decoded.\n\n## Protocol Interpretation\nThere is not enough stable traffic to interpret.\n\n## Anomalies / Uncertainty\nThe decode remains ambiguous.`,
+    text: `## Selected Skills\n- Primary: VHDL-skill-orchestrator\n\n## Decoded Frames\nNo deterministic SPI/I2C/UART frames were decoded.\n\n## Protocol Interpretation\nThere is not enough stable traffic to interpret.\n\n## Anomalies / Uncertainty\nThe decode remains ambiguous.`,
     protocolFrames: [],
   });
 
   assert.equal(result.checks.find((check) => check.id === 'deterministic:protocol')?.status, 'pass');
+});
+
+test('macro validator fails when Selected Skills section is missing', () => {
+  const result = validateMacroOutput({
+    macroId: 'inspect_race_hazards',
+    text: `## Hazard Summary
+The deterministic scan shows a setup/hold risk near clk.
+
+## Suspected Root Causes
+The issue is near the sampling edge.
+
+## Recommended Fixes
+Add synchronization or register staging.`,
+    hazardFindings: [
+      {
+        severity: 'high',
+        title: 'clk/data setup-hold risk',
+        detail: 'Transition near clk',
+      },
+    ],
+  });
+
+  assert.equal(result.status, 'fail');
+  assert.equal(result.checks.find((check) => check.id === 'section:selected_skills')?.status, 'fail');
 });
 
 test('clock/reset macro prompt includes startup-sequencing guidance', () => {

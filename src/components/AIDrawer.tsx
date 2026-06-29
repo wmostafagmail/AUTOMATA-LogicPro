@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ProjectContextPayload, ProjectFileEntry, ProviderOption, Signal, SimulationMacroContextPayload } from '../types';
 import { AiMacroId, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
 import { resolveMacroInvocation } from '../aiDrawerModel';
-import { AIWorkspaceReport, AiReportMeta, buildDisplayReport } from '../aiReport';
+import { AIWorkspaceReport, buildDisplayReport } from '../aiReport';
 import { apiFetch } from '../api';
-import { getProviderDeployment, requiresRemoteExportConsent } from '../exportPolicy';
+import { getProviderDeployment } from '../exportPolicy';
+import { useAIDrawerAnalysis, type Message } from './useAIDrawerAnalysis';
+import { JobTelemetryPanel, ProviderSummaryPanel, RemoteConsentPanel, RemoteExportPreviewPanel } from './AIDrawerStatusPanels';
 import { 
   Send, 
   X, 
@@ -36,33 +38,30 @@ interface AIDrawerProps {
   onLatestStructuredReportChange?: (report: AIWorkspaceReport | null) => void;
 }
 
-interface Message {
-  role: 'user' | 'assistant';
-  text: string;
-  meta?: AiReportMeta;
-}
-
 interface ModelOption {
   id: string;
   label: string;
 }
 
-interface JobTelemetry {
-  engineLabel: string;
-  inputTokens: number | null;
-  latestAttemptInputTokens: number | null;
-  jobInputTokens: number | null;
-  sessionInputTokens: number | null;
-  outputTokens: number | null;
-  jobOutputTokens: number | null;
-  sessionOutputTokens: number | null;
-  tokensPerSecond: number | null;
-  durationMs: number | null;
-}
-
 const AI_PROVIDER_STORAGE_KEY = 'automata-logicpro-ai-provider';
 const AI_MODEL_STORAGE_KEY = 'automata-logicpro-ai-models';
-const AI_REMOTE_EXPORT_CONSENT_STORAGE_KEY = 'automata-logicpro-ai-remote-export-consents';
+
+const loadStoredModelSelections = (): Record<string, string> => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  try {
+    const raw = window.localStorage.getItem(AI_MODEL_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, string> : {};
+  } catch {
+    return {};
+  }
+};
 
 const normalizeProviderOptions = (providers: unknown[]): ProviderOption[] => (
   providers
@@ -85,22 +84,6 @@ const estimateTokenCount = (text: string) => {
   const normalized = text.trim();
   if (!normalized) return 0;
   return Math.max(1, Math.round(normalized.length / 4));
-};
-
-const renderTelemetryValue = (
-  value: number | null,
-  options?: {
-    suffix?: string;
-    loading?: boolean;
-  }
-) => {
-  if (value === null) {
-    if (options?.loading) {
-      return <span className="text-lime-300">Calculating</span>;
-    }
-    return '0';
-  }
-  return `${value}${options?.suffix || ''}`;
 };
 
 const getMacroButtonTone = (macroId: AiMacroId) => {
@@ -142,10 +125,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   onMacrosPanelHeightChange,
   onLatestStructuredReportChange,
 }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [providers, setProviders] = useState<ProviderOption[]>([]);
   const [selectedProvider, setSelectedProvider] = useState(() => {
     if (typeof window === 'undefined') return 'ollama';
@@ -153,37 +133,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   });
   const [models, setModels] = useState<ModelOption[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
-  const [providerError, setProviderError] = useState<string | null>(null);
-  const [remoteExportConsents, setRemoteExportConsents] = useState<Record<string, boolean>>(() => {
-    if (typeof window === 'undefined') return {};
-    try {
-      const parsed = JSON.parse(window.localStorage.getItem(AI_REMOTE_EXPORT_CONSENT_STORAGE_KEY) || '{}');
-      return parsed && typeof parsed === 'object' ? parsed : {};
-    } catch {
-      return {};
-    }
-  });
+  const [remoteExportConsents, setRemoteExportConsents] = useState<Record<string, boolean>>({});
   const [showConsoleHelp, setShowConsoleHelp] = useState(false);
   const [showTbComposer, setShowTbComposer] = useState(false);
   const [tbGenerationMode, setTbGenerationMode] = useState<TbGenerationMode>('project_entities');
   const [tbPromptDraft, setTbPromptDraft] = useState('');
-  const [jobStatus, setJobStatus] = useState<string | null>(null);
-  const [jobStartedAt, setJobStartedAt] = useState<number | null>(null);
-  const [jobElapsedSeconds, setJobElapsedSeconds] = useState(0);
-  const [jobTelemetry, setJobTelemetry] = useState<JobTelemetry | null>(null);
-  const [sessionTokenTotals, setSessionTokenTotals] = useState<{ inputTokens: number; outputTokens: number }>({
-    inputTokens: 0,
-    outputTokens: 0,
-  });
-  const sessionTokenTotalsRef = useRef<{ inputTokens: number; outputTokens: number }>({
-    inputTokens: 0,
-    outputTokens: 0,
-  });
-  const [activeJobId, setActiveJobId] = useState<string | null>(null);
-  const [activeMacroId, setActiveMacroId] = useState<AiMacroId | null>(null);
-  const [testGenerating, setTestGenerating] = useState(false);
-  const [testGenerateResult, setTestGenerateResult] = useState<string | null>(null);
-  const activeRequestControllerRef = useRef<AbortController | null>(null);
   const drawerScrollRef = useRef<HTMLDivElement | null>(null);
   const lowerControlsRef = useRef<HTMLDivElement | null>(null);
 
@@ -220,6 +174,26 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    const loadRemoteExportConsents = async () => {
+      try {
+        const response = await apiFetch('/api/ai/remote-export-consent');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load remote export consent settings');
+        }
+        const nextConsents = data?.consents && typeof data.consents === 'object' ? data.consents : {};
+        setRemoteExportConsents(nextConsents);
+      } catch (error: any) {
+        setProviderError((current) => current || error.message || String(error));
+      }
+    };
+
+    void loadRemoteExportConsents();
+  }, [isOpen]);
+
+  useEffect(() => {
     if (!isOpen || !selectedProvider) return;
 
     const loadModels = async () => {
@@ -231,9 +205,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         }
         const nextModels = Array.isArray(data.models) ? data.models : [];
         setModels(nextModels);
-        const storedModels = typeof window !== 'undefined'
-          ? JSON.parse(window.localStorage.getItem(AI_MODEL_STORAGE_KEY) || '{}')
-          : {};
+        const storedModels = loadStoredModelSelections();
         const storedModelForProvider = typeof storedModels?.[selectedProvider] === 'string'
           ? storedModels[selectedProvider]
           : '';
@@ -258,36 +230,141 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   }, [isOpen, selectedProvider]);
 
   useEffect(() => {
+    setPendingRemoteExportPreview(null);
+  }, [selectedProvider, selectedModel, inputText, tbPromptDraft, timeUnit, tickDuration, projectPath, workspaceFileName, simulationMacroContext, signals]);
+
+  useEffect(() => {
     if (typeof window === 'undefined' || !selectedProvider) return;
     window.localStorage.setItem(AI_PROVIDER_STORAGE_KEY, selectedProvider);
   }, [selectedProvider]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !selectedProvider || !selectedModel) return;
-    const storedModels = JSON.parse(window.localStorage.getItem(AI_MODEL_STORAGE_KEY) || '{}');
+    const storedModels = loadStoredModelSelections();
     storedModels[selectedProvider] = selectedModel;
     window.localStorage.setItem(AI_MODEL_STORAGE_KEY, JSON.stringify(storedModels));
   }, [selectedProvider, selectedModel]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(AI_REMOTE_EXPORT_CONSENT_STORAGE_KEY, JSON.stringify(remoteExportConsents));
-  }, [remoteExportConsents]);
-
-  useEffect(() => {
-    if (!loading || !jobStartedAt) {
-      setJobElapsedSeconds(0);
-      return;
+  async function buildProjectContext(queryText: string): Promise<ProjectContextPayload | null> {
+    if (projectFiles.length === 0) {
+      return null;
     }
 
-    const updateElapsed = () => {
-      setJobElapsedSeconds(Math.max(0, Math.floor((Date.now() - jobStartedAt) / 1000)));
-    };
+    const normalizedTerms = queryText
+      .toLowerCase()
+      .split(/[^a-z0-9_./-]+/i)
+      .filter((term) => term.length >= 3);
 
-    updateElapsed();
-    const timer = window.setInterval(updateElapsed, 1000);
-    return () => window.clearInterval(timer);
-  }, [loading, jobStartedAt]);
+    const preferredExtensions = new Set([
+      '.vcd', '.vsd', '.json', '.vhd', '.vhdl', '.sv', '.v', '.vh',
+      '.c', '.cc', '.cpp', '.h', '.hpp', '.py', '.tcl', '.md', '.txt'
+    ]);
+
+    const scoredFiles = projectFiles
+      .map((file) => {
+        let score = 0;
+        if (preferredExtensions.has(file.extension)) score += 4;
+        if (workspaceFileName && file.name === workspaceFileName) score += 8;
+        if (file.extension === '.vcd' || file.extension === '.vsd') score += 5;
+        if (file.extension === '.vhd' || file.extension === '.vhdl') score += 4;
+        if (file.extension === '.json') score += 2;
+
+        const haystack = `${file.path} ${file.name}`.toLowerCase();
+        normalizedTerms.forEach((term) => {
+          if (haystack.includes(term)) score += 2;
+        });
+
+        return { file, score };
+      })
+      .sort((left, right) => right.score - left.score || left.file.path.localeCompare(right.file.path));
+
+    const selected = scoredFiles
+      .filter((entry) => entry.score > 0)
+      .slice(0, 8)
+      .map((entry) => entry.file);
+
+    const excerpts: ProjectContextPayload['excerpts'] = [];
+    let totalBytes = 0;
+
+    for (const file of selected) {
+      if (!file.file) {
+        continue;
+      }
+
+      if (file.size > 120_000) {
+        continue;
+      }
+
+      const content = await file.file.text();
+      const trimmed = content.slice(0, 12_000);
+      totalBytes += trimmed.length;
+      if (totalBytes > 48_000) {
+        break;
+      }
+
+      excerpts.push({
+        path: file.path,
+        content: trimmed,
+      });
+    }
+
+    return {
+      name: projectName,
+      fileCount: projectFiles.length,
+      filePaths: projectFiles.slice(0, 80).map((file) => file.path),
+      excerpts,
+    };
+  }
+
+  const {
+    messages,
+    loading,
+    copiedIndex,
+    providerError,
+    pendingRemoteExportPreview,
+    jobStatus,
+    jobElapsedSeconds,
+    testGenerating,
+    testGenerateResult,
+    handleSendMessage,
+    handleMacroSendMessage,
+    handleApproveRemoteExportPreview,
+    handleCancelRemoteExportPreview,
+    handleStopJob,
+    handleTestGenerate,
+    handleCopyText,
+    selectedProviderInfo,
+    selectedProviderRequiresRemoteConsent,
+    hasRemoteExportConsent,
+    selectedProviderDeployment,
+    statusPanelTelemetry,
+    hasFinishedJobCard,
+    jobWasCancelled,
+    jobFailed,
+    statusPanelText,
+    statusPanelTone,
+    jobCardTitle,
+    jobCardTitleTone,
+    jobCardSurface,
+    sessionInputDisplayValue,
+    sessionOutputDisplayValue,
+    jobCardBadge,
+    jobCardBadgeTone,
+    setProviderError,
+    setPendingRemoteExportPreview,
+  } = useAIDrawerAnalysis({
+    providers,
+    selectedProvider,
+    selectedModel,
+    remoteExportConsents,
+    signals,
+    timeUnit,
+    tickDuration,
+    projectPath,
+    workspaceFileName,
+    simulationMacroContext,
+    buildProjectContext,
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -369,6 +446,26 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     [messages]
   );
 
+  const getMessageMetricCounts = (message: Message, parsedReport: ReturnType<typeof buildDisplayReport> | null) => {
+    if (message.meta?.macroId === 'inspect_race_hazards' && Array.isArray(message.meta.hazardFindings)) {
+      return {
+        highCount: message.meta.hazardFindings.filter((finding) => finding?.severity === 'high').length,
+        mediumCount: message.meta.hazardFindings.filter((finding) => finding?.severity === 'medium').length,
+        lowCount: message.meta.hazardFindings.filter((finding) => finding?.severity === 'low').length,
+        protocolCount: parsedReport?.protocolCount ?? 0,
+        codeBlockCount: parsedReport?.codeBlockCount ?? 0,
+      };
+    }
+
+    return {
+      highCount: parsedReport?.highCount ?? 0,
+      mediumCount: parsedReport?.mediumCount ?? 0,
+      lowCount: parsedReport?.lowCount ?? 0,
+      protocolCount: parsedReport?.protocolCount ?? 0,
+      codeBlockCount: parsedReport?.codeBlockCount ?? 0,
+    };
+  };
+
   const latestStructuredReport = useMemo<AIWorkspaceReport | null>(() => {
     for (let index = messages.length - 1; index >= 0; index -= 1) {
       const message = messages[index];
@@ -394,351 +491,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  const buildProjectContext = async (queryText: string): Promise<ProjectContextPayload | null> => {
-    if (projectFiles.length === 0) {
-      return null;
-    }
-
-    const normalizedTerms = queryText
-      .toLowerCase()
-      .split(/[^a-z0-9_./-]+/i)
-      .filter((term) => term.length >= 3);
-
-    const preferredExtensions = new Set([
-      '.vcd', '.vsd', '.json', '.vhd', '.vhdl', '.sv', '.v', '.vh',
-      '.c', '.cc', '.cpp', '.h', '.hpp', '.py', '.tcl', '.md', '.txt'
-    ]);
-
-    const scoredFiles = projectFiles
-      .map((file) => {
-        let score = 0;
-        if (preferredExtensions.has(file.extension)) score += 4;
-        if (workspaceFileName && file.name === workspaceFileName) score += 8;
-        if (file.extension === '.vcd' || file.extension === '.vsd') score += 5;
-        if (file.extension === '.vhd' || file.extension === '.vhdl') score += 4;
-        if (file.extension === '.json') score += 2;
-
-        const haystack = `${file.path} ${file.name}`.toLowerCase();
-        normalizedTerms.forEach((term) => {
-          if (haystack.includes(term)) score += 2;
-        });
-
-        return { file, score };
-      })
-      .sort((left, right) => right.score - left.score || left.file.path.localeCompare(right.file.path));
-
-    const selected = scoredFiles
-      .filter((entry) => entry.score > 0)
-      .slice(0, 8)
-      .map((entry) => entry.file);
-
-    const excerpts: ProjectContextPayload['excerpts'] = [];
-    let totalBytes = 0;
-
-    for (const file of selected) {
-      if (!file.file) {
-        continue;
-      }
-
-      if (file.size > 120_000) {
-        continue;
-      }
-
-      const content = await file.file.text();
-      const trimmed = content.slice(0, 12_000);
-      totalBytes += trimmed.length;
-      if (totalBytes > 48_000) {
-        break;
-      }
-
-      excerpts.push({
-        path: file.path,
-        content: trimmed,
-      });
-    }
-
-    return {
-      name: projectName,
-      fileCount: projectFiles.length,
-      filePaths: projectFiles.slice(0, 80).map((file) => file.path),
-      excerpts,
-    };
-  };
-
-  const handleSendMessage = async (queryText: string) => {
-    return handleMacroSendMessage(queryText, {
-      macroId: 'custom_query',
-      tbGenerationMode: null,
-    });
-  };
-
-  const handleMacroSendMessage = async (
-    queryText: string,
-    options?: {
-      macroId?: AiMacroId;
-      tbGenerationMode?: TbGenerationMode | null;
-    }
-  ) => {
-    if (!queryText.trim() || loading) return;
-
-    const macroId = options?.macroId || 'custom_query';
-    const tbMode = options?.tbGenerationMode ?? null;
-
-    // Append user message
-    const userMsg: Message = {
-      role: 'user',
-      text: queryText,
-      meta: {
-        macroId,
-        tbGenerationMode: tbMode,
-      },
-    };
-    setMessages([userMsg]);
-    setCopiedIndex(null);
-    setInputText('');
-    setLoading(true);
-    setJobStartedAt(Date.now());
-    setJobStatus('Preparing AI request...');
-    const controller = new AbortController();
-    const jobId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `ai-job-${Date.now()}`;
-    activeRequestControllerRef.current = controller;
-    setActiveJobId(jobId);
-    setActiveMacroId(macroId);
-
-    try {
-      const selectedProviderRequiresRemoteConsent = requiresRemoteExportConsent(selectedProvider);
-      const hasRemoteExportConsent = selectedProviderRequiresRemoteConsent
-        ? Boolean(remoteExportConsents[selectedProvider])
-        : true;
-      const projectContext = hasRemoteExportConsent ? await buildProjectContext(queryText) : null;
-      const selectedProviderLabel = providers.find((provider) => provider.id === selectedProvider)?.label || selectedProvider;
-      const projectContextText = projectContext
-        ? [
-            projectContext.name,
-            projectContext.filePaths.join('\n'),
-            projectContext.excerpts.map((excerpt) => `${excerpt.path}\n${excerpt.content}`).join('\n'),
-          ].join('\n')
-        : '';
-      const signalPreviewText = signals
-        .slice(0, 12)
-        .map((signal) => `${signal.name}:${Array.isArray(signal.values) ? signal.values.slice(0, 48).join('') : ''}`)
-        .join('\n');
-      setJobTelemetry({
-        engineLabel: selectedProviderLabel,
-        inputTokens: null,
-        latestAttemptInputTokens: null,
-        jobInputTokens: null,
-        sessionInputTokens: sessionTokenTotalsRef.current.inputTokens,
-        outputTokens: null,
-        jobOutputTokens: null,
-        sessionOutputTokens: sessionTokenTotalsRef.current.outputTokens,
-        tokensPerSecond: null,
-        durationMs: null,
-      });
-      setJobStatus('AI Engine is analyzing...');
-      const response = await apiFetch('/api/ai-analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          jobId,
-          macroId,
-          tbGenerationMode: tbMode,
-          provider: selectedProvider,
-          signals,
-          query: queryText,
-          model: selectedModel,
-          timeUnit,
-          tickDuration,
-          projectContext,
-          remoteExportConsent: hasRemoteExportConsent,
-          projectPath,
-          workspaceFileName,
-          simulationMacroContext,
-        })
-      });
-
-      const data = await response.json();
-      setJobStatus('Receiving AI response...');
-      if (!response.ok) {
-        throw new Error(data.error || 'Server error running simulation analysis');
-      }
-
-      const assistantMsg: Message = {
-        role: 'assistant',
-        text: data.analysis || 'Analysis finished with no return block.',
-        meta: {
-          macroId: data.macroId || macroId,
-          tbGenerationMode: data.tbGenerationMode || tbMode,
-          provider: data.provider,
-          model: data.model,
-          telemetry: data.telemetry || null,
-          retryUsed: Boolean(data.retryUsed),
-          outputDirectory: data.outputDirectory || null,
-          generatedFiles: Array.isArray(data.generatedFiles) ? data.generatedFiles : [],
-          validation: data.validation || null,
-          hazardMarkdown: data.hazardScan?.markdown || null,
-          protocolMarkdown: data.protocolScan?.markdown || null,
-          diagnostics: data.diagnostics || null,
-        },
-      };
-      setMessages(prev => [...prev, assistantMsg]);
-      const responseTelemetry = data.telemetry || null;
-      if (responseTelemetry) {
-        const completedJobInputTokens = Math.max(
-          0,
-          Number(
-            responseTelemetry.jobInputTokens
-            ?? responseTelemetry.latestAttemptInputTokens
-            ?? responseTelemetry.inputTokens
-            ?? 0
-          )
-        );
-        const completedJobOutputTokens = Math.max(
-          0,
-          Number(
-            responseTelemetry.jobOutputTokens
-            ?? responseTelemetry.outputTokens
-            ?? 0
-          )
-        );
-        const derivedSessionInputTokens = sessionTokenTotalsRef.current.inputTokens + completedJobInputTokens;
-        const derivedSessionOutputTokens = sessionTokenTotalsRef.current.outputTokens + completedJobOutputTokens;
-        const reportedSessionInputTokens = Number.isFinite(responseTelemetry.sessionInputTokens)
-          ? Number(responseTelemetry.sessionInputTokens)
-          : 0;
-        const reportedSessionOutputTokens = Number.isFinite(responseTelemetry.sessionOutputTokens)
-          ? Number(responseTelemetry.sessionOutputTokens)
-          : 0;
-        const nextSessionTotals = {
-          inputTokens: Math.max(0, reportedSessionInputTokens, derivedSessionInputTokens),
-          outputTokens: Math.max(0, reportedSessionOutputTokens, derivedSessionOutputTokens),
-        };
-        sessionTokenTotalsRef.current = nextSessionTotals;
-        setSessionTokenTotals(nextSessionTotals);
-        setJobTelemetry({
-          ...responseTelemetry,
-          jobInputTokens: completedJobInputTokens,
-          jobOutputTokens: completedJobOutputTokens,
-          sessionInputTokens: nextSessionTotals.inputTokens,
-          sessionOutputTokens: nextSessionTotals.outputTokens,
-        });
-      } else {
-        setJobTelemetry(null);
-      }
-      setJobStatus('AI analysis finished.');
-    } catch (err: any) {
-      if (err?.name === 'AbortError' || String(err?.message || err).toLowerCase().includes('aborted')) {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          text: '### AI Job Cancelled\n\nThe active AI request was stopped before completion. All tracked backend provider calls for this job were asked to abort.',
-          meta: {
-            macroId,
-            tbGenerationMode: tbMode,
-            validation: null,
-          },
-        }]);
-        setJobTelemetry((previous) => previous ? {
-          ...previous,
-          latestAttemptInputTokens: null,
-          jobInputTokens: null,
-          outputTokens: null,
-          jobOutputTokens: null,
-          tokensPerSecond: null,
-          durationMs: null,
-        } : null);
-        setJobStatus('AI job cancelled.');
-        return;
-      }
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        text: `### Simulation Error\n\nCould not compile timing diagram telemetry: ${err.message || err}`,
-        meta: {
-          macroId,
-          tbGenerationMode: tbMode,
-          validation: null,
-        },
-      }]);
-      setJobTelemetry((previous) => previous ? {
-        ...previous,
-        latestAttemptInputTokens: null,
-        jobInputTokens: null,
-        outputTokens: null,
-        jobOutputTokens: null,
-        tokensPerSecond: null,
-        durationMs: null,
-      } : null);
-      setJobStatus(`AI job failed: ${err.message || err}`);
-    } finally {
-      activeRequestControllerRef.current = null;
-      setActiveJobId(null);
-      setLoading(false);
-      setJobStartedAt(null);
-    }
-  };
-
-  const handleStopJob = async () => {
-    if (!loading) return;
-
-    setJobStatus('Stopping AI job...');
-    activeRequestControllerRef.current?.abort();
-
-    if (activeJobId) {
-      try {
-        await apiFetch(`/api/ai-jobs/${activeJobId}/cancel`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        });
-      } catch {
-        // The local request abort above is still enough to stop the current UI flow.
-      }
-    }
-  };
-
-  const handleTestGenerate = async () => {
-    if (!selectedProvider || !selectedModel || testGenerating || loading) {
-      return;
-    }
-
-    setTestGenerating(true);
-    setTestGenerateResult(null);
-    try {
-      const response = await apiFetch('/api/ai/test-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: selectedProvider,
-          model: selectedModel,
-        }),
-      });
-      const rawText = await response.text();
-      let data: any = null;
-      try {
-        data = rawText ? JSON.parse(rawText) : null;
-      } catch {
-        const compact = rawText.trim().replace(/\s+/g, ' ').slice(0, 160);
-        throw new Error(compact ? `Non-JSON response: ${compact}` : 'Empty response from test generate endpoint');
-      }
-      if (!response.ok) {
-        throw new Error(data?.error || `Test generate failed (${response.status})`);
-      }
-
-      setTestGenerateResult(data.passedExactMatch ? 'OK' : 'Failed');
-    } catch (error: any) {
-      setTestGenerateResult('Failed');
-    } finally {
-      setTestGenerating(false);
-    }
-  };
-
-  const handleCopyText = (text: string, idx: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(idx);
-    setTimeout(() => setCopiedIndex(null), 1500);
-  };
-
   const openTbComposer = (mode: TbGenerationMode) => {
     setTbGenerationMode(mode);
     setTbPromptDraft(getTbPromptForMode(mode));
@@ -754,80 +506,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       tbGenerationMode,
     });
   };
-
-  const selectedProviderInfo = providers.find((provider) => provider.id === selectedProvider);
-  const selectedProviderLabel = selectedProviderInfo?.label || selectedProvider || 'AI Provider';
-  const selectedProviderRequiresRemoteConsent = requiresRemoteExportConsent(selectedProvider);
-  const hasRemoteExportConsent = selectedProviderRequiresRemoteConsent
-    ? Boolean(remoteExportConsents[selectedProvider])
-    : true;
-  const selectedProviderDeployment = selectedProviderInfo?.deployment || getProviderDeployment(selectedProvider);
-  const statusPanelTelemetry = jobTelemetry || {
-    engineLabel: selectedProviderLabel,
-    inputTokens: null,
-    latestAttemptInputTokens: null,
-    jobInputTokens: null,
-    sessionInputTokens: sessionTokenTotalsRef.current.inputTokens,
-    outputTokens: null,
-    jobOutputTokens: null,
-    sessionOutputTokens: sessionTokenTotalsRef.current.outputTokens,
-    tokensPerSecond: null,
-    durationMs: null,
-  };
-  const hasFinishedJobCard = Boolean(jobStatus);
-  const jobCompletedSuccessfully = jobStatus === 'AI analysis finished.';
-  const jobWasCancelled = jobStatus === 'AI job cancelled.';
-  const jobFailed = Boolean(jobStatus?.startsWith('AI job failed'));
-  const statusPanelText = jobStatus || 'AI Engine ready.';
-  const statusPanelTone = loading
-    ? 'border-brand-amber/20 bg-brand-surface-lowest text-slate-300'
-    : jobFailed
-      ? 'border-rose-500/30 bg-rose-950/30 text-rose-100'
-      : 'border-brand-secondary/20 bg-brand-surface-lowest text-slate-300';
-  const activeMacroLabel = getAiMacroSpec(activeMacroId).label;
-  const jobCardTitle = loading
-    ? activeMacroLabel
-    : jobFailed
-      ? activeMacroLabel
-      : jobWasCancelled
-        ? activeMacroLabel
-        : jobCompletedSuccessfully
-          ? activeMacroLabel
-          : activeMacroLabel;
-  const jobCardTitleTone = loading
-    ? 'text-red-200'
-    : jobFailed
-      ? 'text-rose-200'
-      : jobWasCancelled
-        ? 'text-amber-200'
-        : 'text-emerald-200';
-  const jobCardSurface = loading
-    ? 'border-red-400/35 bg-[#09111f]/95'
-    : jobFailed
-      ? 'border-rose-500/35 bg-rose-950/30'
-      : jobWasCancelled
-        ? 'border-amber-400/35 bg-amber-950/20'
-        : 'border-emerald-400/30 bg-[#09111f]/95';
-  const sessionInputDisplayValue = loading && (statusPanelTelemetry.sessionInputTokens ?? 0) <= 0
-    ? null
-    : statusPanelTelemetry.sessionInputTokens;
-  const sessionOutputDisplayValue = loading && (statusPanelTelemetry.sessionOutputTokens ?? 0) <= 0
-    ? null
-    : statusPanelTelemetry.sessionOutputTokens;
-  const jobCardBadge = loading
-    ? 'Running'
-    : jobFailed
-      ? 'Failed'
-      : jobWasCancelled
-        ? 'Cancelled'
-        : 'Finished';
-  const jobCardBadgeTone = loading
-    ? 'border-red-400/45 bg-red-500/15 text-red-100'
-    : jobFailed
-      ? 'border-rose-400/45 bg-rose-500/15 text-rose-100'
-      : jobWasCancelled
-        ? 'border-amber-400/45 bg-amber-500/15 text-amber-100'
-        : 'border-emerald-400/45 bg-emerald-500/15 text-emerald-100';
 
   return (
     <div className="w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex flex-col h-full z-20 select-none flex-none font-sans">
@@ -918,86 +596,47 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       </div>
 
       <div className="flex-none space-y-3 border-b border-brand-outline-variant/30 bg-brand-surface px-3.5 py-3">
-        {(selectedProviderInfo || providerError) && (
-          <div className="min-w-0 p-2 rounded border border-brand-outline-variant/20 bg-brand-surface-lowest text-[12px] font-mono text-slate-400">
-            <div className="break-words">Provider: <span className="text-brand-cyan break-all">{selectedProviderInfo?.label || selectedProvider}</span></div>
-            <div className="break-words">Model: <span className="text-brand-cyan break-all">{selectedModel || 'No model available'}</span></div>
-            <div className="break-words">Deployment: <span className={selectedProviderDeployment === 'remote' ? 'text-amber-200' : 'text-emerald-200'}>{selectedProviderDeployment}</span></div>
-            {selectedProviderInfo?.reason && <div className="break-words">{selectedProviderInfo.reason}</div>}
-            {providerError && <div className="break-words text-rose-300">{providerError}</div>}
-          </div>
-        )}
+        <ProviderSummaryPanel
+          selectedProviderInfo={selectedProviderInfo}
+          selectedProvider={selectedProvider}
+          selectedModel={selectedModel}
+          selectedProviderDeployment={selectedProviderDeployment}
+          providerError={providerError}
+        />
 
         {selectedProviderRequiresRemoteConsent && (
-          <div className="rounded border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-[12px] leading-relaxed text-amber-100">
-            <label className="flex cursor-pointer items-start gap-2">
-              <input
-                type="checkbox"
-                checked={hasRemoteExportConsent}
-                onChange={(event) => {
-                  const checked = event.target.checked;
-                  setRemoteExportConsents((previous) => ({
-                    ...previous,
-                    [selectedProvider]: checked,
-                  }));
-                }}
-                className="mt-0.5"
-              />
-              <span>
-                Allow export of scrubbed waveform and project context to this remote provider. Sensitive files and token-like values are redacted first, but project-derived data leaves this machine only after you enable this consent.
-              </span>
-            </label>
-          </div>
+          <RemoteConsentPanel
+            selectedProvider={selectedProvider}
+            hasRemoteExportConsent={hasRemoteExportConsent}
+            onConsentUpdated={setRemoteExportConsents}
+            onError={setProviderError}
+          />
         )}
 
-        <div className={`rounded border px-2 py-1.5 text-[12px] font-mono ${statusPanelTone}`}>
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                {loading ? <Loader2 size={12} className="animate-spin text-brand-amber" /> : <Check size={12} className="text-brand-secondary" />}
-                <span>{statusPanelText}</span>
-              </div>
-              {loading && (
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-500">{jobElapsedSeconds}s</span>
-                </div>
-              )}
-            </div>
-            <div className="mt-1.5 grid grid-cols-2 gap-1.5 text-[12px]">
-              <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">AI Engine</div>
-                <div className="mt-auto pt-1.5 text-brand-cyan">{statusPanelTelemetry.engineLabel}</div>
-              </div>
-              <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Tokens / Sec</div>
-                <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.tokensPerSecond, { loading })}</div>
-              </div>
-              <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Job Input Tokens</div>
-                <div className="mt-auto pt-1.5 text-slate-200">
-                  {renderTelemetryValue(statusPanelTelemetry.jobInputTokens ?? statusPanelTelemetry.latestAttemptInputTokens ?? statusPanelTelemetry.inputTokens, { loading })}
-                </div>
-              </div>
-              <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Session Input</div>
-                <div className="mt-auto pt-1.5 text-slate-200">
-                  {renderTelemetryValue(sessionInputDisplayValue, { loading })}
-                </div>
-              </div>
-              <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Job Output Tokens</div>
-                <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.jobOutputTokens ?? statusPanelTelemetry.outputTokens, { loading })}</div>
-              </div>
-              <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-                <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Session Output</div>
-                <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(sessionOutputDisplayValue, { loading })}</div>
-              </div>
-            </div>
-          </div>
+        {pendingRemoteExportPreview && (
+          <RemoteExportPreviewPanel
+            pendingRemoteExportPreview={pendingRemoteExportPreview}
+            onCancel={handleCancelRemoteExportPreview}
+            onApprove={() => void handleApproveRemoteExportPreview()}
+          />
+        )}
+
+        <JobTelemetryPanel
+          loading={loading}
+          jobElapsedSeconds={jobElapsedSeconds}
+          statusPanelText={statusPanelText}
+          statusPanelTone={statusPanelTone}
+          statusPanelTelemetry={statusPanelTelemetry}
+          sessionInputDisplayValue={sessionInputDisplayValue}
+          sessionOutputDisplayValue={sessionOutputDisplayValue}
+        />
       </div>
 
       {/* Messages Feed */}
       <div ref={drawerScrollRef} className="relative flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-4 bg-brand-surface text-[12px] leading-relaxed">
-        {messages.map((m, idx) => (
+        {messages.map((m, idx) => {
+          const metricCounts = getMessageMetricCounts(m, parsedMessages[idx]);
+          return (
           <div 
             key={idx} 
             className={`min-w-0 overflow-x-hidden p-3 rounded-lg border relative group/msg transition-all ${
@@ -1101,29 +740,29 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                 <div className="grid grid-cols-5 gap-1.5">
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
                     <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.08em] text-slate-500">High Risk</div>
-                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-red-400">{parsedMessages[idx]?.highCount ?? 0}</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-red-400">{metricCounts.highCount}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
                     <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.08em] text-slate-500">Medium</div>
-                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-orange-400">{parsedMessages[idx]?.mediumCount ?? 0}</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-orange-400">{metricCounts.mediumCount}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
                     <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.08em] text-slate-500">Low</div>
-                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-yellow-300">{parsedMessages[idx]?.lowCount ?? 0}</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-yellow-300">{metricCounts.lowCount}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
                     <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.06em] text-slate-500">Protocol</div>
-                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-cyan-200">{parsedMessages[idx]?.protocolCount ?? 0}</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-cyan-200">{metricCounts.protocolCount}</div>
                   </div>
                   <div className="flex min-h-[78px] min-w-0 flex-col rounded-lg border border-white/5 bg-[#060a12] px-2 py-1.5">
                     <div className="min-w-0 whitespace-normal break-normal text-[10px] uppercase leading-tight tracking-[0.05em] text-slate-500">Code Blocks</div>
-                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-emerald-200">{parsedMessages[idx]?.codeBlockCount ?? 0}</div>
+                    <div className="mt-auto pt-2 text-base font-bold leading-none tabular-nums text-emerald-200">{metricCounts.codeBlockCount}</div>
                   </div>
                 </div>
               </div>
             )}
           </div>
-        ))}
+        )})}
 
         {messages.length === 0 && !loading && (
           <div className="rounded border border-brand-outline-variant/20 bg-brand-surface-lowest px-3 py-3 text-[12px] leading-relaxed text-slate-400">

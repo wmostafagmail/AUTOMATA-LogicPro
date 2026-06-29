@@ -30,6 +30,10 @@ export function buildMacroPromptContract({
   const macroInstructions = [
     `### Macro Output Contract`,
     `You are answering under the "${spec.label}" macro contract.`,
+    'You must include a `## Selected Skills` section that states the primary skill and any supporting skills actually used for this response.',
+    'Preferred format:',
+    '- Primary: <skill-name>',
+    '- Supporting: <skill-name> - <reason>',
     `Required sections or equivalents:\n${requiredSections}`,
     spec.requiresVhdlCodeBlock
       ? 'Include at least one fenced code block tagged as `vhdl` and make it non-empty.'

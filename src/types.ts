@@ -80,6 +80,19 @@ export interface SimulationMacroContextPayload {
   sourcePaths: string[];
 }
 
+export interface WaveformIssueMarker {
+  id: string;
+  kind?: 'hazard' | 'protocol' | 'clockReset' | 'fsm';
+  severity: 'high' | 'medium' | 'low';
+  title: string;
+  detail: string;
+  signalNames: string[];
+  startTick: number | null;
+  endTick: number | null;
+  relatedTicks: number[];
+  clusterSize?: number;
+}
+
 export interface GhdlStatus {
   installed: boolean;
   version?: string;

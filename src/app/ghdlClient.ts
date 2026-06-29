@@ -27,11 +27,15 @@ export async function fetchGhdlModalData(projectPath: string) {
   };
 }
 
-export async function installGhdl() {
+export async function installGhdl(confirmPhrase: string, installCommand: string[] | null | undefined) {
   const response = await apiFetch('/api/ghdl/install', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmInstall: true }),
+    body: JSON.stringify({
+      confirmInstall: true,
+      confirmPhrase,
+      installCommand,
+    }),
   });
   const data = await response.json();
   if (!response.ok) {

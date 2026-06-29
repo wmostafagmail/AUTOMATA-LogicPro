@@ -43,7 +43,16 @@ function hasSectionAlias(text: string, aliases: string[]) {
 
 function buildSectionChecks(macroId: AiMacroId, text: string): AiMacroValidationCheck[] {
   const spec = getAiMacroSpec(macroId);
-  return spec.expectedOutputSections.map((section) => {
+  const requiredSections = [
+    {
+      id: 'selected_skills',
+      label: 'Selected Skills',
+      aliases: ['selected skills'],
+    },
+    ...spec.expectedOutputSections,
+  ];
+
+  return requiredSections.map((section) => {
     const found = hasSectionAlias(text, section.aliases);
     return {
       id: `section:${section.id}`,

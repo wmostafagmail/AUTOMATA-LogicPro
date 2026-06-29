@@ -11,6 +11,39 @@ export interface AiSignalDiagnostic {
   relatedNodes: string[];
 }
 
+export interface AiHazardFinding {
+  severity: 'high' | 'medium' | 'low';
+  title: string;
+  detail: string;
+  signalNames: string[];
+  startTick: number | null;
+  endTick: number | null;
+  relatedTicks: number[];
+}
+
+export const getHazardFindingDisplayId = (finding: AiHazardFinding, index: number) => {
+  const relatedTicks = Array.isArray(finding.relatedTicks) ? finding.relatedTicks : [];
+  const primaryTick = typeof finding.startTick === 'number' ? finding.startTick : relatedTicks[0] ?? 'na';
+  const title = typeof finding.title === 'string' && finding.title.trim() ? finding.title.trim() : `finding-${index}`;
+  return `hazard-${index}-${title}-${primaryTick}`;
+};
+
+export interface AiProtocolFrame {
+  protocol: 'SPI' | 'I2C' | 'UART';
+  channel: string;
+  startTick: number;
+  endTick: number;
+  summary: string;
+  detail: string;
+}
+
+export const getProtocolFrameDisplayId = (frame: AiProtocolFrame, index: number) => {
+  const protocol = typeof frame.protocol === 'string' ? frame.protocol : 'PROTO';
+  const channel = typeof frame.channel === 'string' && frame.channel.trim() ? frame.channel.trim() : `channel-${index}`;
+  const startTick = typeof frame.startTick === 'number' ? frame.startTick : 'na';
+  return `protocol-${index}-${protocol}-${channel}-${startTick}`;
+};
+
 export interface AiMacroDiagnostics {
   rootEntity: string;
   reachableEntities: string[];
@@ -56,8 +89,15 @@ export interface AiReportMeta {
   }>;
   validation?: AiMacroValidationResult | null;
   hazardMarkdown?: string | null;
+  hazardFindings?: AiHazardFinding[];
   protocolMarkdown?: string | null;
+  protocolFrames?: AiProtocolFrame[];
   diagnostics?: AiMacroDiagnostics | null;
+  deterministicSkillSelection?: {
+    registryPath: string;
+    selectedSkills: OrchestratorSkillEntry[];
+    skillCallPlan: string[];
+  } | null;
 }
 
 export interface ReportCodeBlock {
@@ -72,6 +112,20 @@ export interface ReportSection {
   codeBlocks: ReportCodeBlock[];
 }
 
+export interface OrchestratorSkillEntry {
+  role: 'primary' | 'supporting' | 'other';
+  name: string;
+  reason?: string | null;
+}
+
+export interface OrchestratorAudit {
+  selectedSkills: OrchestratorSkillEntry[];
+  executionSummary: string[];
+  deliverables: string[];
+  validation: string[];
+  assumptions: string[];
+}
+
 export interface ParsedAssistantReport {
   summary: string | null;
   sections: ReportSection[];
@@ -80,7 +134,134 @@ export interface ParsedAssistantReport {
   lowCount: number;
   protocolCount: number;
   codeBlockCount: number;
+  orchestratorAudit: OrchestratorAudit | null;
 }
+
+const normalizeSectionTitle = (title: string) => title.trim().toLowerCase();
+
+const getSectionByTitle = (sections: ReportSection[], matcher: RegExp) => (
+  sections.find((section) => matcher.test(normalizeSectionTitle(section.title)))
+);
+
+const collectSectionItems = (section: ReportSection | undefined) => {
+  if (!section) {
+    return [];
+  }
+  return [
+    ...section.paragraphs.map((paragraph) => paragraph.trim()).filter(Boolean),
+    ...section.bullets.map((bullet) => bullet.trim()).filter(Boolean),
+  ];
+};
+
+const parseSelectedSkills = (section: ReportSection | undefined): OrchestratorSkillEntry[] => {
+  if (!section) {
+    return [];
+  }
+
+  const items = collectSectionItems(section);
+  const parsed = items.map((item) => {
+    const normalized = item.replace(/^[-*]\s*/, '').trim();
+
+    const primaryMatch = normalized.match(/^primary\s*:\s*(.+)$/i);
+    if (primaryMatch) {
+      return {
+        role: 'primary' as const,
+        name: primaryMatch[1].trim(),
+        reason: null,
+      };
+    }
+
+    const supportingMatch = normalized.match(/^supporting\s*:\s*(.+)$/i);
+    if (supportingMatch) {
+      const supportingBody = supportingMatch[1].trim();
+      const [name, ...reasonParts] = supportingBody.split(/\s+-\s+/);
+      return {
+        role: 'supporting' as const,
+        name: name.trim(),
+        reason: reasonParts.join(' - ').trim() || null,
+      };
+    }
+
+    const splitMatch = normalized.match(/^([^:]+):\s*(.+)$/);
+    if (splitMatch) {
+      return {
+        role: 'other' as const,
+        name: `${splitMatch[1].trim()}: ${splitMatch[2].trim()}`,
+        reason: null,
+      };
+    }
+
+    return {
+      role: 'other' as const,
+      name: normalized,
+      reason: null,
+    };
+  });
+
+  return parsed.filter((entry) => entry.name.length > 0);
+};
+
+const extractOrchestratorAudit = (sections: ReportSection[]): OrchestratorAudit | null => {
+  const selectedSkillsSection = getSectionByTitle(sections, /^selected skills$/i);
+  const executionSummarySection = getSectionByTitle(sections, /^execution summary$/i);
+  const deliverablesSection = getSectionByTitle(sections, /^deliverables$/i);
+  const validationSection = getSectionByTitle(sections, /^validation$/i);
+  const assumptionsSection = getSectionByTitle(sections, /^assumptions$/i);
+
+  const audit: OrchestratorAudit = {
+    selectedSkills: parseSelectedSkills(selectedSkillsSection),
+    executionSummary: collectSectionItems(executionSummarySection),
+    deliverables: collectSectionItems(deliverablesSection),
+    validation: collectSectionItems(validationSection),
+    assumptions: collectSectionItems(assumptionsSection),
+  };
+
+  const hasAnyAuditContent = (
+    audit.selectedSkills.length > 0
+    || audit.executionSummary.length > 0
+    || audit.deliverables.length > 0
+    || audit.validation.length > 0
+    || audit.assumptions.length > 0
+  );
+
+  return hasAnyAuditContent ? audit : null;
+};
+
+const mergeOrchestratorAudit = (
+  parsedAudit: OrchestratorAudit | null,
+  metaAudit: AiReportMeta['deterministicSkillSelection']
+): OrchestratorAudit | null => {
+  if (!parsedAudit && !metaAudit) {
+    return null;
+  }
+
+  const selectedSkills = metaAudit?.selectedSkills?.length
+    ? metaAudit.selectedSkills
+    : (parsedAudit?.selectedSkills || []);
+  const executionSummary = [
+    ...(metaAudit?.skillCallPlan || []),
+    ...(parsedAudit?.executionSummary || []),
+  ];
+  const dedupedExecutionSummary = [...new Set(executionSummary.map((item) => item.trim()).filter(Boolean))];
+
+  const merged: OrchestratorAudit = {
+    selectedSkills,
+    executionSummary: dedupedExecutionSummary,
+    deliverables: parsedAudit?.deliverables || [],
+    validation: parsedAudit?.validation || [],
+    assumptions: parsedAudit?.assumptions || [],
+  };
+
+  const hasAnyAuditContent = (
+    merged.selectedSkills.length > 0
+    || merged.executionSummary.length > 0
+    || merged.deliverables.length > 0
+    || merged.validation.length > 0
+    || merged.assumptions.length > 0
+  );
+
+  return hasAnyAuditContent ? merged : null;
+};
 
 export interface AIWorkspaceReport {
   text: string;
@@ -183,6 +364,7 @@ export const buildStructuredReport = (text: string): ParsedAssistantReport => {
     lowCount: bulletPool.filter((bullet) => bullet.includes('[Low]')).length,
     protocolCount: bulletPool.filter((bullet) => /\[(SPI|I2C|UART)\]/.test(bullet)).length,
     codeBlockCount: sections.reduce((count, section) => count + section.codeBlocks.length, 0),
+    orchestratorAudit: extractOrchestratorAudit(sections),
   };
 };
 
@@ -198,6 +380,7 @@ export const combineReports = (reports: ParsedAssistantReport[]): ParsedAssistan
     lowCount: reports.reduce((sum, report) => sum + report.lowCount, 0),
     protocolCount: reports.reduce((sum, report) => sum + report.protocolCount, 0),
     codeBlockCount: reports.reduce((sum, report) => sum + report.codeBlockCount, 0),
+    orchestratorAudit: extractOrchestratorAudit(combinedSections),
   };
 };
 
@@ -213,7 +396,11 @@ export const buildDisplayReport = (text: string, meta?: AiReportMeta): ParsedAss
     reports.unshift(buildStructuredReport(meta.protocolMarkdown));
   }
 
-  return combineReports(reports);
+  const combined = combineReports(reports);
+  return {
+    ...combined,
+    orchestratorAudit: mergeOrchestratorAudit(combined.orchestratorAudit, meta?.deterministicSkillSelection || null),
+  };
 };
 
 export const getSectionAccent = (title: string) => {

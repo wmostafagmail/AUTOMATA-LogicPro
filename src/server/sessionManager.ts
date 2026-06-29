@@ -3,7 +3,9 @@ import { randomUUID } from 'crypto';
 export interface LogicProSession {
   id: string;
   csrfToken: string;
-  approvedProjectRoots: Set<string>;
+  approvedProjectRoot: string | null;
+  remoteExportConsents: Record<string, boolean>;
+  remoteExportApprovals: Record<string, { providerId: string; createdAt: number }>;
   aiTokenTotals: {
     inputTokens: number;
     outputTokens: number;
@@ -37,12 +39,19 @@ function parseCookieHeader(cookieHeader: string | undefined) {
 export function createSessionManager(options: CreateSessionManagerOptions) {
   const { cookieName, sessionTtlMs = 1000 * 60 * 60 * 8 } = options;
   const sessions = new Map<string, LogicProSession>();
+  const remoteExportApprovalTtlMs = 1000 * 60 * 10;
 
   const pruneExpiredSessions = () => {
     const cutoff = Date.now() - sessionTtlMs;
     for (const [sessionId, session] of sessions.entries()) {
       if (session.lastSeenAt < cutoff) {
         sessions.delete(sessionId);
+        continue;
+      }
+      for (const [approvalHash, approval] of Object.entries(session.remoteExportApprovals)) {
+        if (approval.createdAt < Date.now() - remoteExportApprovalTtlMs) {
+          delete session.remoteExportApprovals[approvalHash];
+        }
       }
     }
   };
@@ -52,7 +61,9 @@ export function createSessionManager(options: CreateSessionManagerOptions) {
     const session: LogicProSession = {
       id: randomUUID(),
       csrfToken: randomUUID(),
-      approvedProjectRoots: new Set<string>(),
+      approvedProjectRoot: null,
+      remoteExportConsents: {},
+      remoteExportApprovals: {},
       aiTokenTotals: {
         inputTokens: 0,
         outputTokens: 0,
@@ -94,10 +105,63 @@ export function createSessionManager(options: CreateSessionManagerOptions) {
     matchesCsrfToken(session: LogicProSession, token: string | undefined) {
       return typeof token === 'string' && token === session.csrfToken;
     },
-    rememberApprovedRoot(session: LogicProSession, normalizedRoot: string) {
-      session.approvedProjectRoots.add(normalizedRoot);
+    setApprovedRoot(session: LogicProSession, normalizedRoot: string) {
+      session.approvedProjectRoot = normalizedRoot;
       session.lastSeenAt = Date.now();
       return normalizedRoot;
+    },
+    getApprovedRoot(session: LogicProSession) {
+      session.lastSeenAt = Date.now();
+      return session.approvedProjectRoot;
+    },
+    setRemoteExportConsent(session: LogicProSession, providerId: string, allowed: boolean) {
+      const normalizedProviderId = String(providerId || '').trim().toLowerCase();
+      if (!normalizedProviderId) {
+        return { ...session.remoteExportConsents };
+      }
+      session.remoteExportConsents[normalizedProviderId] = allowed;
+      session.lastSeenAt = Date.now();
+      return { ...session.remoteExportConsents };
+    },
+    getRemoteExportConsents(session: LogicProSession) {
+      session.lastSeenAt = Date.now();
+      return { ...session.remoteExportConsents };
+    },
+    hasRemoteExportConsent(session: LogicProSession, providerId: string) {
+      const normalizedProviderId = String(providerId || '').trim().toLowerCase();
+      session.lastSeenAt = Date.now();
+      return Boolean(session.remoteExportConsents[normalizedProviderId]);
+    },
+    registerRemoteExportApproval(session: LogicProSession, providerId: string, previewHash: string) {
+      const normalizedProviderId = String(providerId || '').trim().toLowerCase();
+      const normalizedPreviewHash = String(previewHash || '').trim();
+      if (!normalizedProviderId || !normalizedPreviewHash) {
+        return false;
+      }
+      session.remoteExportApprovals[normalizedPreviewHash] = {
+        providerId: normalizedProviderId,
+        createdAt: Date.now(),
+      };
+      session.lastSeenAt = Date.now();
+      return true;
+    },
+    consumeRemoteExportApproval(session: LogicProSession, providerId: string, previewHash: string) {
+      const normalizedProviderId = String(providerId || '').trim().toLowerCase();
+      const normalizedPreviewHash = String(previewHash || '').trim();
+      const approval = session.remoteExportApprovals[normalizedPreviewHash];
+      if (!normalizedProviderId || !normalizedPreviewHash || !approval) {
+        session.lastSeenAt = Date.now();
+        return false;
+      }
+      const isExpired = approval.createdAt < Date.now() - remoteExportApprovalTtlMs;
+      if (approval.providerId !== normalizedProviderId || isExpired) {
+        delete session.remoteExportApprovals[normalizedPreviewHash];
+        session.lastSeenAt = Date.now();
+        return false;
+      }
+      delete session.remoteExportApprovals[normalizedPreviewHash];
+      session.lastSeenAt = Date.now();
+      return true;
     },
     accumulateAiTokens(
       session: LogicProSession,
@@ -120,11 +184,10 @@ export function createSessionManager(options: CreateSessionManagerOptions) {
       label: string,
       isPathWithinRoot: (candidatePath: string, rootPath: string) => boolean
     ) {
-      for (const approvedRoot of session.approvedProjectRoots) {
-        if (isPathWithinRoot(normalizedPath, approvedRoot)) {
-          session.lastSeenAt = Date.now();
-          return normalizedPath;
-        }
+      const approvedRoot = session.approvedProjectRoot;
+      if (approvedRoot && isPathWithinRoot(normalizedPath, approvedRoot)) {
+        session.lastSeenAt = Date.now();
+        return normalizedPath;
       }
 
       const error = new Error(

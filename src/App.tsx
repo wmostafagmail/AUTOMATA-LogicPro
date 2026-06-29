@@ -1,10 +1,12 @@
-import { ChangeEvent, PointerEvent as ReactPointerEvent, useState, useMemo, useEffect, useRef } from 'react';
+import { ChangeEvent, useState, useMemo, useEffect, useRef } from 'react';
 import { GhdlProjectInfo, GhdlSourceFile, GhdlStatus, ProjectFileEntry, Signal, SimulationMacroContextPayload } from './types';
 import { PRESETS } from './data';
 import { runSimulationEvaluations } from './utils';
 import { parseImportedWaveform } from './workspaceFile';
 import { apiFetch } from './api';
 import { fetchGhdlModalData, installGhdl, runGhdl } from './app/ghdlClient';
+import { useFloatingWindow } from './hooks/useFloatingWindow';
+import { useWaveformIssueMarkers } from './hooks/useWaveformIssueMarkers';
 import {
   clearStoredProjectSelection,
   isProjectApprovalErrorMessage,
@@ -46,8 +48,10 @@ const DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS = {
   width: 1120,
   height: 720,
 };
+const GHDL_INSTALL_CONFIRMATION_TEXT = 'INSTALL GHDL';
 
 export default function App() {
+  type MarkerFamily = 'hazard' | 'protocol' | 'clockReset' | 'fsm';
   // 1. Core workspace timing configuration states
   const [simulationLength, setSimulationLength] = useState(200);
   const [timeUnit, setTimeUnit] = useState<'ns' | 'us' | 'ms' | 's'>('ns');
@@ -82,6 +86,7 @@ export default function App() {
   const [ghdlJobStatus, setGhdlJobStatus] = useState<string | null>(null);
   const [ghdlJobStartedAt, setGhdlJobStartedAt] = useState<number | null>(null);
   const [ghdlElapsedSeconds, setGhdlElapsedSeconds] = useState(0);
+  const [ghdlInstallConfirmationInput, setGhdlInstallConfirmationInput] = useState('');
   const [workspaceFileName, setWorkspaceFileName] = useState<string | null>(null);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [projectDirectoryName, setProjectDirectoryName] = useState('Select Project Folder');
@@ -90,35 +95,31 @@ export default function App() {
   const [projectFiles, setProjectFiles] = useState<ProjectFileEntry[]>([]);
   const [leftWorkspaceBottomGapPx, setLeftWorkspaceBottomGapPx] = useState(DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX);
   const [latestAiReport, setLatestAiReport] = useState<AIWorkspaceReport | null>(null);
+  const [selectedIssueMarkerId, setSelectedIssueMarkerId] = useState<string | null>(null);
+  const [issueFocusRequestKey, setIssueFocusRequestKey] = useState(0);
+  const [hazardSeverityFilter, setHazardSeverityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
+  const [markerDisplayLimit, setMarkerDisplayLimit] = useState<'all' | 25 | 50 | 100>('all');
+  const [markerFamilyVisibility, setMarkerFamilyVisibility] = useState<Record<MarkerFamily, boolean>>({
+    hazard: true,
+    protocol: true,
+    clockReset: true,
+    fsm: true,
+  });
   const [workspaceAiReportExpanded, setWorkspaceAiReportExpanded] = useState(true);
-  const [showAiOutputWindow, setShowAiOutputWindow] = useState(false);
-  const [aiOutputWindowBounds, setAiOutputWindowBounds] = useState(DEFAULT_AI_OUTPUT_WINDOW_BOUNDS);
-  const [aiOutputWindowFullscreen, setAiOutputWindowFullscreen] = useState(false);
-  const [showAiDiagramWindow, setShowAiDiagramWindow] = useState(false);
-  const [aiDiagramWindowBounds, setAiDiagramWindowBounds] = useState(DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS);
-  const [aiDiagramWindowFullscreen, setAiDiagramWindowFullscreen] = useState(false);
   const [simulationMacroContext, setSimulationMacroContext] = useState<SimulationMacroContextPayload | null>(null);
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
   const startupWorkspaceRecoveryRef = useRef(false);
   const startupProjectRestorePathRef = useRef<string | null>(null);
-  const aiOutputWindowRef = useRef<HTMLDivElement | null>(null);
-  const aiOutputWindowRestoreBoundsRef = useRef(DEFAULT_AI_OUTPUT_WINDOW_BOUNDS);
-  const aiOutputDragRef = useRef<{
-    pointerId: number;
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const aiDiagramWindowRef = useRef<HTMLDivElement | null>(null);
-  const aiDiagramWindowRestoreBoundsRef = useRef(DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS);
-  const aiDiagramDragRef = useRef<{
-    pointerId: number;
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-  } | null>(null);
+  const aiOutputWindow = useFloatingWindow({
+    defaultBounds: DEFAULT_AI_OUTPUT_WINDOW_BOUNDS,
+    minWidth: 520,
+    minHeight: 360,
+  });
+  const aiDiagramWindow = useFloatingWindow({
+    defaultBounds: DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS,
+    minWidth: 760,
+    minHeight: 460,
+  });
 
   useEffect(() => {
     const storedProject = loadStoredProjectSelection();
@@ -182,25 +183,71 @@ export default function App() {
   }, [signals, simulationLength, tickDuration, timeUnit, workspaceFileName]);
 
   useEffect(() => {
-    if (!showAiOutputWindow && !showAiDiagramWindow) {
+    if (!aiOutputWindow.isOpen && !aiDiagramWindow.isOpen) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setShowAiOutputWindow(false);
-        setShowAiDiagramWindow(false);
+        aiOutputWindow.setIsOpen(false);
+        aiDiagramWindow.setIsOpen(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showAiDiagramWindow, showAiOutputWindow]);
+  }, [aiDiagramWindow.isOpen, aiDiagramWindow.setIsOpen, aiOutputWindow.isOpen, aiOutputWindow.setIsOpen]);
 
   // 5. Compute Live logic simulation of all clocks, outputs and decoders in parallel
   const simulatedSignals = useMemo(() => {
     return runSimulationEvaluations(signals, simulationLength);
   }, [signals, simulationLength]);
+
+  const {
+    rawHazardMarkers,
+    filteredIssueMarkers,
+    markerFamilyCounts,
+    visibleIssueMarkers,
+    hazardFilterCounts,
+  } = useWaveformIssueMarkers({
+    latestAiReport,
+    simulatedSignals,
+    simulationLength,
+    hazardSeverityFilter,
+    markerDisplayLimit,
+    markerFamilyVisibility,
+  });
+
+  useEffect(() => {
+    if (visibleIssueMarkers.length === 0) {
+      setSelectedIssueMarkerId(null);
+      return;
+    }
+
+    if (!selectedIssueMarkerId || !visibleIssueMarkers.some((marker) => marker.id === selectedIssueMarkerId)) {
+      setSelectedIssueMarkerId(visibleIssueMarkers[0]?.id || null);
+    }
+  }, [visibleIssueMarkers, selectedIssueMarkerId]);
+
+  const handleSelectIssueMarker = (markerId: string) => {
+    setSelectedIssueMarkerId(markerId);
+    setIssueFocusRequestKey((current) => current + 1);
+
+    const marker = visibleIssueMarkers.find((entry) => entry.id === markerId);
+    if (!marker) {
+      return;
+    }
+
+    const startTick = marker.startTick ?? marker.relatedTicks[0] ?? null;
+    const endTick = marker.endTick ?? startTick;
+
+    if (typeof startTick === 'number') {
+      setCursorA(startTick);
+    }
+    if (typeof endTick === 'number') {
+      setCursorB(endTick);
+    }
+  };
 
   // Updates parameters of specific channel item
   const handleUpdateSignal = (id: string, updated: Partial<Signal>) => {
@@ -221,265 +268,12 @@ export default function App() {
     }));
   };
 
-  const clampAiOutputWindowBounds = (nextBounds: typeof DEFAULT_AI_OUTPUT_WINDOW_BOUNDS) => {
-    if (typeof window === 'undefined') {
-      return nextBounds;
-    }
-
-    const minWidth = 520;
-    const minHeight = 360;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const width = Math.min(Math.max(nextBounds.width, minWidth), Math.max(minWidth, viewportWidth - 32));
-    const height = Math.min(Math.max(nextBounds.height, minHeight), Math.max(minHeight, viewportHeight - 32));
-    const left = Math.min(Math.max(nextBounds.left, 16), Math.max(16, viewportWidth - width - 16));
-    const top = Math.min(Math.max(nextBounds.top, 16), Math.max(16, viewportHeight - height - 16));
-
-    return { left, top, width, height };
-  };
-
-  const clampAiDiagramWindowBounds = (nextBounds: typeof DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS) => {
-    if (typeof window === 'undefined') {
-      return nextBounds;
-    }
-
-    const minWidth = 760;
-    const minHeight = 460;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const width = Math.min(Math.max(nextBounds.width, minWidth), Math.max(minWidth, viewportWidth - 32));
-    const height = Math.min(Math.max(nextBounds.height, minHeight), Math.max(minHeight, viewportHeight - 32));
-    const left = Math.min(Math.max(nextBounds.left, 16), Math.max(16, viewportWidth - width - 16));
-    const top = Math.min(Math.max(nextBounds.top, 16), Math.max(16, viewportHeight - height - 16));
-
-    return { left, top, width, height };
-  };
-
   const handleOpenAiOutputWindow = () => {
-    setAiOutputWindowFullscreen(false);
-    setAiOutputWindowBounds((current) => {
-      if (typeof window === 'undefined') {
-        return clampAiOutputWindowBounds(current);
-      }
-
-      const centeredBounds = {
-        ...current,
-        left: Math.round((window.innerWidth - current.width) / 2),
-        top: Math.round((window.innerHeight - current.height) / 2),
-      };
-
-      return clampAiOutputWindowBounds(centeredBounds);
-    });
-    setShowAiOutputWindow(true);
+    aiOutputWindow.openWindow();
   };
 
   const handleOpenAiDiagramWindow = () => {
-    setAiDiagramWindowFullscreen(false);
-    setAiDiagramWindowBounds((current) => {
-      if (typeof window === 'undefined') {
-        return clampAiDiagramWindowBounds(current);
-      }
-
-      const centeredBounds = {
-        ...current,
-        left: Math.round((window.innerWidth - current.width) / 2),
-        top: Math.round((window.innerHeight - current.height) / 2),
-      };
-
-      return clampAiDiagramWindowBounds(centeredBounds);
-    });
-    setShowAiDiagramWindow(true);
-  };
-
-  const handleAiOutputHeaderPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (aiOutputWindowFullscreen) {
-      return;
-    }
-    if (event.button !== 0) {
-      return;
-    }
-
-    const element = aiOutputWindowRef.current;
-    const rect = element?.getBoundingClientRect();
-    const liveBounds = rect
-      ? {
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-        }
-      : aiOutputWindowBounds;
-
-    const clampedLiveBounds = clampAiOutputWindowBounds(liveBounds);
-    setAiOutputWindowBounds(clampedLiveBounds);
-    aiOutputDragRef.current = {
-      pointerId: event.pointerId,
-      offsetX: event.clientX - clampedLiveBounds.left,
-      offsetY: event.clientY - clampedLiveBounds.top,
-      width: clampedLiveBounds.width,
-      height: clampedLiveBounds.height,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const handleAiOutputHeaderPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (aiOutputWindowFullscreen) {
-      return;
-    }
-    const dragState = aiOutputDragRef.current;
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    setAiOutputWindowBounds(
-      clampAiOutputWindowBounds({
-        left: event.clientX - dragState.offsetX,
-        top: event.clientY - dragState.offsetY,
-        width: dragState.width,
-        height: dragState.height,
-      })
-    );
-  };
-
-  const handleAiOutputHeaderPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const dragState = aiOutputDragRef.current;
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    aiOutputDragRef.current = null;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  };
-
-  const handleAiDiagramHeaderPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (aiDiagramWindowFullscreen) {
-      return;
-    }
-    if (event.button !== 0) {
-      return;
-    }
-
-    const element = aiDiagramWindowRef.current;
-    const rect = element?.getBoundingClientRect();
-    const liveBounds = rect
-      ? {
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-        }
-      : aiDiagramWindowBounds;
-
-    const clampedLiveBounds = clampAiDiagramWindowBounds(liveBounds);
-    setAiDiagramWindowBounds(clampedLiveBounds);
-    aiDiagramDragRef.current = {
-      pointerId: event.pointerId,
-      offsetX: event.clientX - clampedLiveBounds.left,
-      offsetY: event.clientY - clampedLiveBounds.top,
-      width: clampedLiveBounds.width,
-      height: clampedLiveBounds.height,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const handleAiDiagramHeaderPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (aiDiagramWindowFullscreen) {
-      return;
-    }
-    const dragState = aiDiagramDragRef.current;
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    setAiDiagramWindowBounds(
-      clampAiDiagramWindowBounds({
-        left: event.clientX - dragState.offsetX,
-        top: event.clientY - dragState.offsetY,
-        width: dragState.width,
-        height: dragState.height,
-      })
-    );
-  };
-
-  const handleAiDiagramHeaderPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const dragState = aiDiagramDragRef.current;
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    aiDiagramDragRef.current = null;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  };
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const syncFullscreenBounds = () => {
-      if (aiOutputWindowFullscreen) {
-        setAiOutputWindowBounds({
-          left: 0,
-          top: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      }
-      if (aiDiagramWindowFullscreen) {
-        setAiDiagramWindowBounds({
-          left: 0,
-          top: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      }
-    };
-
-    syncFullscreenBounds();
-    window.addEventListener('resize', syncFullscreenBounds);
-    return () => window.removeEventListener('resize', syncFullscreenBounds);
-  }, [aiDiagramWindowFullscreen, aiOutputWindowFullscreen]);
-
-  const toggleAiOutputWindowFullscreen = () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    setAiOutputWindowBounds((current) => {
-      if (aiOutputWindowFullscreen) {
-        return clampAiOutputWindowBounds(aiOutputWindowRestoreBoundsRef.current);
-      }
-
-      aiOutputWindowRestoreBoundsRef.current = current;
-      return {
-        left: 0,
-        top: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    });
-    setAiOutputWindowFullscreen((current) => !current);
-  };
-
-  const toggleAiDiagramWindowFullscreen = () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    setAiDiagramWindowBounds((current) => {
-      if (aiDiagramWindowFullscreen) {
-        return clampAiDiagramWindowBounds(aiDiagramWindowRestoreBoundsRef.current);
-      }
-
-      aiDiagramWindowRestoreBoundsRef.current = current;
-      return {
-        left: 0,
-        top: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    });
-    setAiDiagramWindowFullscreen((current) => !current);
+    aiDiagramWindow.openWindow();
   };
 
   const openWorkspaceSource = async (fileName: string, content: string) => {
@@ -725,15 +519,20 @@ export default function App() {
   };
 
   const handleInstallGhdl = async () => {
+    if (ghdlInstallConfirmationInput.trim() !== GHDL_INSTALL_CONFIRMATION_TEXT) {
+      setWorkspaceError(`Type "${GHDL_INSTALL_CONFIRMATION_TEXT}" to confirm GHDL installation.`);
+      return;
+    }
     setGhdlInstalling(true);
     setGhdlLogs('');
     setGhdlJobStatus('Installing GHDL...');
     try {
-      const result = await installGhdl();
+      const result = await installGhdl(ghdlInstallConfirmationInput.trim(), ghdlStatus?.installCommand);
       setGhdlStatus(result.status);
       setGhdlLogs(Array.isArray(result.logs) ? result.logs.join('\n\n') : '');
       setGhdlJobStatus(result.status.installed ? 'GHDL installation finished.' : 'GHDL installation did not complete.');
       setWorkspaceError(null);
+      setGhdlInstallConfirmationInput('');
     } catch (error: any) {
       setGhdlJobStatus(`Installation failed: ${error?.message || 'Unable to install GHDL.'}`);
       setWorkspaceError(error?.message || 'Unable to install GHDL.');
@@ -1038,17 +837,34 @@ export default function App() {
                 {ghdlStatus?.installer && !ghdlStatus.installed && (
                   <div className="mt-1 text-slate-400">Installer: {ghdlStatus.installer}</div>
                 )}
+                {ghdlStatus?.installCommand?.length ? (
+                  <div className="mt-1 break-all text-slate-500">
+                    Command: <span className="font-mono text-slate-300">{ghdlStatus.installCommand.join(' ')}</span>
+                  </div>
+                ) : null}
                 {!ghdlStatus?.installed && (
-                  <div className="mt-2 flex items-center gap-2">
+                  <div className="mt-2 space-y-2">
+                    <div className="text-slate-500">
+                      To authorize installation, type <span className="font-mono text-brand-amber">{GHDL_INSTALL_CONFIRMATION_TEXT}</span> exactly.
+                    </div>
+                    <input
+                      type="text"
+                      value={ghdlInstallConfirmationInput}
+                      onChange={(event) => setGhdlInstallConfirmationInput(event.target.value)}
+                      placeholder={GHDL_INSTALL_CONFIRMATION_TEXT}
+                      className="w-full rounded border border-brand-outline-variant/30 bg-brand-surface-high px-2 py-1 text-[12px] font-mono text-slate-100 outline-none"
+                    />
+                    <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => void handleInstallGhdl()}
-                      disabled={ghdlInstalling || ghdlBusy}
+                      disabled={ghdlInstalling || ghdlBusy || ghdlInstallConfirmationInput.trim() !== GHDL_INSTALL_CONFIRMATION_TEXT}
                       className="px-2 py-1 rounded border border-brand-amber/40 bg-brand-surface-high text-[12px] font-bold text-brand-amber cursor-pointer hover:bg-brand-surface-bright disabled:opacity-40"
                     >
                       {ghdlInstalling ? 'Installing...' : 'Install GHDL'}
                     </button>
-                    <span className="text-slate-500">Installation is explicit and must be confirmed here before running simulations.</span>
+                    <span className="text-slate-500">Installation is explicit and requires the typed confirmation plus the shown platform command.</span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1209,6 +1025,16 @@ export default function App() {
               {/* Waves Timing view diagram */}
               <WaveformViewport
                 signals={simulatedSignals}
+                issueMarkers={visibleIssueMarkers}
+                markerFamilyCounts={markerFamilyCounts}
+                markerFamilyVisibility={markerFamilyVisibility}
+                activeIssueMarkerId={selectedIssueMarkerId}
+                issueFocusRequestKey={issueFocusRequestKey}
+                onToggleMarkerFamily={(family) => setMarkerFamilyVisibility((current) => ({
+                  ...current,
+                  [family]: !current[family],
+                }))}
+                onSelectIssueMarker={handleSelectIssueMarker}
                 length={simulationLength}
                 zoom={zoom}
                 tickWidth={tickWidth}
@@ -1232,6 +1058,21 @@ export default function App() {
             >
               <AIBottomDrawer
                 report={latestAiReport}
+                hazardMarkers={visibleIssueMarkers}
+                hazardSeverityFilter={hazardSeverityFilter}
+                hazardFilterCounts={hazardFilterCounts}
+                filteredMarkerCount={filteredIssueMarkers.length}
+                markerFamilyCounts={markerFamilyCounts}
+                markerFamilyVisibility={markerFamilyVisibility}
+                markerDisplayLimit={markerDisplayLimit}
+                selectedHazardId={selectedIssueMarkerId}
+                onSelectHazard={handleSelectIssueMarker}
+                onChangeHazardSeverityFilter={setHazardSeverityFilter}
+                onToggleMarkerFamily={(family) => setMarkerFamilyVisibility((current) => ({
+                  ...current,
+                  [family]: !current[family],
+                }))}
+                onChangeMarkerDisplayLimit={setMarkerDisplayLimit}
                 expanded={workspaceAiReportExpanded}
                 onToggleExpanded={() => setWorkspaceAiReportExpanded((previous) => !previous)}
                 onOpenFloatingWindow={handleOpenAiOutputWindow}
@@ -1259,28 +1100,28 @@ export default function App() {
         />
       </div>
 
-      {showAiOutputWindow && (
+      {aiOutputWindow.isOpen && (
         <div className="fixed inset-0 z-50 bg-black/20 pointer-events-none">
           <div
-            ref={aiOutputWindowRef}
+            ref={aiOutputWindow.windowRef}
             className={`pointer-events-auto fixed flex overflow-auto border border-brand-cyan/25 bg-[#0b1020]/98 shadow-[0_18px_60px_rgba(0,0,0,0.45)] ${
-              aiOutputWindowFullscreen ? 'rounded-none' : 'min-h-[360px] min-w-[520px] resize rounded-xl'
+              aiOutputWindow.fullscreen ? 'rounded-none' : 'min-h-[360px] min-w-[520px] resize rounded-xl'
             }`}
             style={{
-              left: aiOutputWindowBounds.left,
-              top: aiOutputWindowBounds.top,
-              width: aiOutputWindowBounds.width,
-              height: aiOutputWindowBounds.height,
-              maxWidth: aiOutputWindowFullscreen ? '100vw' : 'calc(100vw - 32px)',
-              maxHeight: aiOutputWindowFullscreen ? '100vh' : 'calc(100vh - 32px)',
+              left: aiOutputWindow.bounds.left,
+              top: aiOutputWindow.bounds.top,
+              width: aiOutputWindow.bounds.width,
+              height: aiOutputWindow.bounds.height,
+              maxWidth: aiOutputWindow.fullscreen ? '100vw' : 'calc(100vw - 32px)',
+              maxHeight: aiOutputWindow.fullscreen ? '100vh' : 'calc(100vh - 32px)',
             }}
           >
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
               <div
                 className="flex items-center justify-between gap-3 border-b border-brand-outline-variant/40 bg-brand-surface-lowest px-4 py-3 cursor-move"
-                onPointerDown={handleAiOutputHeaderPointerDown}
-                onPointerMove={handleAiOutputHeaderPointerMove}
-                onPointerUp={handleAiOutputHeaderPointerUp}
+                onPointerDown={aiOutputWindow.handleHeaderPointerDown}
+                onPointerMove={aiOutputWindow.handleHeaderPointerMove}
+                onPointerUp={aiOutputWindow.handleHeaderPointerUp}
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <Maximize2 size={14} className="text-brand-cyan flex-none" />
@@ -1299,12 +1140,12 @@ export default function App() {
                     }}
                     onClick={(event) => {
                       event.stopPropagation();
-                      toggleAiOutputWindowFullscreen();
+                      aiOutputWindow.toggleFullscreen();
                     }}
                     className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
-                    title={aiOutputWindowFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                    title={aiOutputWindow.fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                   >
-                    {aiOutputWindowFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                    {aiOutputWindow.fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                   </button>
                   <button
                     type="button"
@@ -1313,7 +1154,7 @@ export default function App() {
                     }}
                     onClick={(event) => {
                       event.stopPropagation();
-                      setShowAiOutputWindow(false);
+                      aiOutputWindow.closeWindow();
                     }}
                     className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
                     title="Close AI analysis window"
@@ -1323,35 +1164,52 @@ export default function App() {
                 </div>
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto bg-brand-surface-lowest p-4">
-                <AIAnalysisContent report={latestAiReport} />
+                <AIAnalysisContent
+                  report={latestAiReport}
+                  hazardMarkers={visibleIssueMarkers}
+                  hazardSeverityFilter={hazardSeverityFilter}
+                  hazardFilterCounts={hazardFilterCounts}
+                  filteredMarkerCount={filteredIssueMarkers.length}
+                  markerFamilyCounts={markerFamilyCounts}
+                  markerFamilyVisibility={markerFamilyVisibility}
+                  markerDisplayLimit={markerDisplayLimit}
+                  selectedHazardId={selectedIssueMarkerId}
+                  onSelectHazard={handleSelectIssueMarker}
+                  onChangeHazardSeverityFilter={setHazardSeverityFilter}
+                  onToggleMarkerFamily={(family) => setMarkerFamilyVisibility((current) => ({
+                    ...current,
+                    [family]: !current[family],
+                  }))}
+                  onChangeMarkerDisplayLimit={setMarkerDisplayLimit}
+                />
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {showAiDiagramWindow && (
+      {aiDiagramWindow.isOpen && (
         <div className="fixed inset-0 z-50 bg-black/20 pointer-events-none">
           <div
-            ref={aiDiagramWindowRef}
+            ref={aiDiagramWindow.windowRef}
             className={`pointer-events-auto fixed flex overflow-auto border border-violet-400/25 bg-[#0b1020]/98 shadow-[0_18px_60px_rgba(0,0,0,0.45)] ${
-              aiDiagramWindowFullscreen ? 'rounded-none' : 'min-h-[460px] min-w-[760px] resize rounded-xl'
+              aiDiagramWindow.fullscreen ? 'rounded-none' : 'min-h-[460px] min-w-[760px] resize rounded-xl'
             }`}
             style={{
-              left: aiDiagramWindowBounds.left,
-              top: aiDiagramWindowBounds.top,
-              width: aiDiagramWindowBounds.width,
-              height: aiDiagramWindowBounds.height,
-              maxWidth: aiDiagramWindowFullscreen ? '100vw' : 'calc(100vw - 32px)',
-              maxHeight: aiDiagramWindowFullscreen ? '100vh' : 'calc(100vh - 32px)',
+              left: aiDiagramWindow.bounds.left,
+              top: aiDiagramWindow.bounds.top,
+              width: aiDiagramWindow.bounds.width,
+              height: aiDiagramWindow.bounds.height,
+              maxWidth: aiDiagramWindow.fullscreen ? '100vw' : 'calc(100vw - 32px)',
+              maxHeight: aiDiagramWindow.fullscreen ? '100vh' : 'calc(100vh - 32px)',
             }}
           >
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
               <div
                 className="flex items-center justify-between gap-3 border-b border-brand-outline-variant/40 bg-brand-surface-lowest px-4 py-3 cursor-move"
-                onPointerDown={handleAiDiagramHeaderPointerDown}
-                onPointerMove={handleAiDiagramHeaderPointerMove}
-                onPointerUp={handleAiDiagramHeaderPointerUp}
+                onPointerDown={aiDiagramWindow.handleHeaderPointerDown}
+                onPointerMove={aiDiagramWindow.handleHeaderPointerMove}
+                onPointerUp={aiDiagramWindow.handleHeaderPointerUp}
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <Maximize2 size={14} className="text-violet-200 flex-none" />
@@ -1372,12 +1230,12 @@ export default function App() {
                     }}
                     onClick={(event) => {
                       event.stopPropagation();
-                      toggleAiDiagramWindowFullscreen();
+                      aiDiagramWindow.toggleFullscreen();
                     }}
                     className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
-                    title={aiDiagramWindowFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                    title={aiDiagramWindow.fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                   >
-                    {aiDiagramWindowFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                    {aiDiagramWindow.fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                   </button>
                   <button
                     type="button"
@@ -1386,7 +1244,7 @@ export default function App() {
                     }}
                     onClick={(event) => {
                       event.stopPropagation();
-                      setShowAiDiagramWindow(false);
+                      aiDiagramWindow.closeWindow();
                     }}
                     className="rounded border border-brand-outline-variant/30 bg-brand-surface-high p-1.5 text-slate-300 transition-colors hover:bg-brand-surface hover:text-white cursor-pointer"
                     title="Close block diagram window"
