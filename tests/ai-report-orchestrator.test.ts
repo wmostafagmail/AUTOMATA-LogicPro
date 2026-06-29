@@ -60,3 +60,37 @@ The model discussed the work but omitted the selected skills section.
   assert.equal(report.orchestratorAudit?.selectedSkills[1]?.name, 'vhdl-language');
   assert.match(report.orchestratorAudit?.executionSummary[0] || '', /coordinate the selected skills/i);
 });
+
+test('buildDisplayReport filters non-VHDL skills from parsed selected skills text', () => {
+  const report = buildDisplayReport(`
+## Selected Skills
+- Primary: **VHDL-skill-orchestrator**
+- Supporting: **vhdl-language** - core VHDL reasoning
+- Supporting: **rtl-verification** - verification flow
+- Supporting: **ui-ux-designer** - should never appear in the hardware skill list
+
+## Execution Summary
+Selected the required hardware-focused skills only.
+  `.trim());
+
+  assert.ok(report.orchestratorAudit);
+  assert.deepEqual(
+    report.orchestratorAudit?.selectedSkills.map((skill) => skill.name),
+    ['VHDL-skill-orchestrator', 'vhdl-language', 'rtl-verification'],
+  );
+});
+
+test('buildDisplayReport does not prepend hazard or protocol summaries for general-design custom queries', () => {
+  const report = buildDisplayReport(`
+## Design Response
+Yes. A digital clock can be built from a clock divider, counters, and display drivers.
+  `.trim(), {
+    macroId: 'custom_query',
+    customQueryMode: 'general_design',
+    hazardMarkdown: '## Hazard Summary\nNo obvious hazards detected.',
+    protocolMarkdown: '## Decoded Frames\nNo deterministic SPI/I2C/UART frames were decoded.',
+  });
+
+  const sectionTitles = report.sections.map((section) => section.title);
+  assert.deepEqual(sectionTitles, ['Design Response']);
+});

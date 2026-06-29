@@ -1,4 +1,5 @@
 import { AiMacroId, AiMacroValidationResult, TbGenerationMode, getAiMacroSpec } from './aiMacros';
+import type { CustomQueryMode } from './customQueryIntent';
 
 export interface AiSignalDiagnostic {
   displayKey: string;
@@ -66,6 +67,7 @@ export interface AiMacroDiagnostics {
 export interface AiReportMeta {
   macroId?: AiMacroId;
   tbGenerationMode?: TbGenerationMode | null;
+  customQueryMode?: CustomQueryMode | null;
   provider?: string;
   model?: string;
   telemetry?: {
@@ -137,6 +139,21 @@ export interface ParsedAssistantReport {
   orchestratorAudit: OrchestratorAudit | null;
 }
 
+const ALLOWED_VHDL_SKILL_NAMES = new Set([
+  'VHDL-skill-orchestrator',
+  'vhdl-language',
+  'fpga-architecture',
+  'rtl-verification',
+  'timing-constraints',
+]);
+
+const normalizeSkillNameForDisplay = (value: string) => (
+  value
+    .replace(/\*\*/g, '')
+    .replace(/`/g, '')
+    .trim()
+);
+
 const normalizeSectionTitle = (title: string) => title.trim().toLowerCase();
 
 const getSectionByTitle = (sections: ReportSection[], matcher: RegExp) => (
@@ -166,7 +183,7 @@ const parseSelectedSkills = (section: ReportSection | undefined): OrchestratorSk
     if (primaryMatch) {
       return {
         role: 'primary' as const,
-        name: primaryMatch[1].trim(),
+        name: normalizeSkillNameForDisplay(primaryMatch[1].trim()),
         reason: null,
       };
     }
@@ -177,7 +194,7 @@ const parseSelectedSkills = (section: ReportSection | undefined): OrchestratorSk
       const [name, ...reasonParts] = supportingBody.split(/\s+-\s+/);
       return {
         role: 'supporting' as const,
-        name: name.trim(),
+        name: normalizeSkillNameForDisplay(name.trim()),
         reason: reasonParts.join(' - ').trim() || null,
       };
     }
@@ -186,19 +203,35 @@ const parseSelectedSkills = (section: ReportSection | undefined): OrchestratorSk
     if (splitMatch) {
       return {
         role: 'other' as const,
-        name: `${splitMatch[1].trim()}: ${splitMatch[2].trim()}`,
+        name: normalizeSkillNameForDisplay(`${splitMatch[1].trim()}: ${splitMatch[2].trim()}`),
         reason: null,
       };
     }
 
     return {
       role: 'other' as const,
-      name: normalized,
+      name: normalizeSkillNameForDisplay(normalized),
       reason: null,
     };
   });
 
   return parsed.filter((entry) => entry.name.length > 0);
+};
+
+const filterAllowedSelectedSkills = (skills: OrchestratorSkillEntry[]) => {
+  const seen = new Set<string>();
+  return skills.filter((entry) => {
+    const normalizedName = normalizeSkillNameForDisplay(entry.name);
+    if (!ALLOWED_VHDL_SKILL_NAMES.has(normalizedName)) {
+      return false;
+    }
+    if (seen.has(normalizedName)) {
+      return false;
+    }
+    entry.name = normalizedName;
+    seen.add(normalizedName);
+    return true;
+  });
 };
 
 const extractOrchestratorAudit = (sections: ReportSection[]): OrchestratorAudit | null => {
@@ -236,8 +269,14 @@ const mergeOrchestratorAudit = (
   }
 
   const selectedSkills = metaAudit?.selectedSkills?.length
-    ? metaAudit.selectedSkills
-    : (parsedAudit?.selectedSkills || []);
+    ? filterAllowedSelectedSkills(metaAudit.selectedSkills.map((entry) => ({
+        ...entry,
+        name: normalizeSkillNameForDisplay(entry.name),
+      })))
+    : filterAllowedSelectedSkills((parsedAudit?.selectedSkills || []).map((entry) => ({
+        ...entry,
+        name: normalizeSkillNameForDisplay(entry.name),
+      })));
   const executionSummary = [
     ...(metaAudit?.skillCallPlan || []),
     ...(parsedAudit?.executionSummary || []),
@@ -388,11 +427,11 @@ export const buildDisplayReport = (text: string, meta?: AiReportMeta): ParsedAss
   const macroSpec = getAiMacroSpec(meta?.macroId);
   const reports: ParsedAssistantReport[] = [buildStructuredReport(text)];
 
-  if (macroSpec.deterministicContext.hazardScan && meta?.hazardMarkdown) {
+  if ((meta?.macroId !== 'custom_query' || meta?.customQueryMode !== 'general_design') && macroSpec.deterministicContext.hazardScan && meta?.hazardMarkdown) {
     reports.unshift(buildStructuredReport(meta.hazardMarkdown));
   }
 
-  if (macroSpec.deterministicContext.protocolScan && meta?.protocolMarkdown) {
+  if ((meta?.macroId !== 'custom_query' || meta?.customQueryMode !== 'general_design') && macroSpec.deterministicContext.protocolScan && meta?.protocolMarkdown) {
     reports.unshift(buildStructuredReport(meta.protocolMarkdown));
   }
 

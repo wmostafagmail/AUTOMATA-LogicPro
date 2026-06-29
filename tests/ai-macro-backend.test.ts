@@ -191,6 +191,18 @@ test('clock/reset macro prompt includes startup-sequencing guidance', () => {
   assert.match(prompt, /reset assertion\/deassertion timing/i);
 });
 
+test('custom query prompt treats general design requests as non-waveform tasks', () => {
+  const prompt = buildMacroPromptContract({
+    macroId: 'custom_query',
+    userQuery: 'Can you design a digital clock?',
+    tbGenerationMode: null,
+  });
+
+  assert.match(prompt, /general FPGA\/VHDL design request/i);
+  assert.match(prompt, /Do not force waveform decoding, protocol analysis, or logic-analyzer interpretation/i);
+  assert.doesNotMatch(prompt, /You must use the deterministic protocol pre-decode as required grounding context/i);
+});
+
 test('clock/reset validator passes with grounded structured output', () => {
   const result = validateMacroOutput({
     macroId: 'verify_clock_reset_sequence',

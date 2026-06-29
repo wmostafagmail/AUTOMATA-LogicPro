@@ -361,6 +361,7 @@ export function createAiAnalyzeRouteContext(params: {
         protocolScan,
         diagnostics: macroDiagnostics,
         macroId,
+        customQueryMode: preparedRequest.customQueryMode || null,
         tbGenerationMode,
         retryUsed: analysisResult.retryUsed,
         outputDirectory: analysisResult.outputDirectory,

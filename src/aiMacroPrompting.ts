@@ -1,5 +1,6 @@
 import type { AiMacroId, TbGenerationMode } from './aiMacros.ts';
 import { getAiMacroSpec } from './aiMacros.ts';
+import { detectCustomQueryMode } from './customQueryIntent.ts';
 
 interface BuildMacroPromptContractParams {
   macroId: AiMacroId;
@@ -13,6 +14,7 @@ export function buildMacroPromptContract({
   tbGenerationMode,
 }: BuildMacroPromptContractParams) {
   const spec = getAiMacroSpec(macroId);
+  const customQueryMode = macroId === 'custom_query' ? detectCustomQueryMode(userQuery) : null;
   const requiredSections = spec.expectedOutputSections.length > 0
     ? spec.expectedOutputSections.map((section) => `- ${section.label}`).join('\n')
     : '- Clear technical sections as appropriate';
@@ -38,10 +40,14 @@ export function buildMacroPromptContract({
     spec.requiresVhdlCodeBlock
       ? 'Include at least one fenced code block tagged as `vhdl` and make it non-empty.'
       : 'Do not fabricate code unless the user explicitly asks for it.',
-    spec.deterministicContext.hazardScan
+    macroId === 'custom_query' && customQueryMode === 'general_design'
+      ? 'This is a general FPGA/VHDL design request. Use waveform, protocol, or hazard context only if the user explicitly asks for it or if it is directly relevant.'
+      : spec.deterministicContext.hazardScan
       ? 'You must use the deterministic hazard scan as required grounding context.'
       : 'Hazard scan context is optional unless directly relevant.',
-    spec.deterministicContext.protocolScan
+    macroId === 'custom_query' && customQueryMode === 'general_design'
+      ? 'Do not force waveform decoding, protocol analysis, or logic-analyzer interpretation when the user is asking for general design help.'
+      : spec.deterministicContext.protocolScan
       ? 'You must use the deterministic protocol pre-decode as required grounding context.'
       : 'Protocol pre-decode context is optional unless directly relevant.',
     macroId === 'inspect_race_hazards'

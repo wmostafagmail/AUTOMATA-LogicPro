@@ -255,6 +255,7 @@ export function useAIDrawerAnalysis(params: {
         text: data.analysis || 'Analysis finished with no return block.',
         meta: {
           macroId: data.macroId || macroId,
+          customQueryMode: data.customQueryMode || null,
           tbGenerationMode: data.tbGenerationMode || tbMode,
           provider: data.provider,
           model: data.model,

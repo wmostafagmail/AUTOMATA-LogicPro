@@ -43,7 +43,10 @@ test('VHDL skill orchestrator prompt uses deterministic selection instead of emb
   ].join('\n'));
 
   assert.match(prompt, /^@Use VHDL-skill-orchestrator/m);
-  assert.match(prompt, /Use only the deterministically selected skills below for this task\./);
+  assert.match(prompt, /Use the available skills registry to select only the skills needed for this task\./);
+  assert.match(prompt, /Create a short skill call plan, execute the plan, merge outputs, and run the final verification checklist\./);
+  assert.match(prompt, /\n\nTask:\n\n### Active Macro/);
+  assert.match(prompt, /### Deterministic Server Skill Selection/);
   assert.match(prompt, /### Deterministically Selected Skills/);
   assert.match(prompt, /- Primary: VHDL-skill-orchestrator/);
   assert.match(prompt, /- Supporting: vhdl-language - /);

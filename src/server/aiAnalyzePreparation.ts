@@ -1,5 +1,6 @@
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { AiMacroId, TbGenerationMode } from '../aiMacros';
+import { detectCustomQueryMode, type CustomQueryMode } from '../customQueryIntent';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -183,8 +184,23 @@ export async function prepareAiAnalyzeRequest(params: {
   }
 
   const allSignals = Array.isArray(signals) ? signals as AnalyzerSignal[] : [];
-  const hazardScan = analyzeWaveformHazards(allSignals, resolvedTickDuration, resolvedTimeUnit);
-  const protocolScan = analyzeProtocolFrames(allSignals, resolvedTickDuration, resolvedTimeUnit);
+  const customQueryMode: CustomQueryMode | null = macroId === 'custom_query'
+    ? detectCustomQueryMode(query)
+    : null;
+  const shouldUseWaveformContext = macroId !== 'custom_query' || customQueryMode !== 'general_design';
+
+  const hazardScan = shouldUseWaveformContext
+    ? analyzeWaveformHazards(allSignals, resolvedTickDuration, resolvedTimeUnit)
+    : {
+        markdown: '',
+        findings: [],
+      };
+  const protocolScan = shouldUseWaveformContext
+    ? analyzeProtocolFrames(allSignals, resolvedTickDuration, resolvedTimeUnit)
+    : {
+        markdown: '',
+        frames: [],
+      };
 
   let normalizedProjectPath = '';
   let projectPathUnavailableReason = '';
@@ -217,7 +233,7 @@ export async function prepareAiAnalyzeRequest(params: {
   let waveformSelectionText = '';
   let macroDiagnostics: MacroDiagnostics | null = null;
 
-  if (normalizedProjectPath && simulationRootEntity && allSignals.length > 0) {
+  if (shouldUseWaveformContext && normalizedProjectPath && simulationRootEntity && allSignals.length > 0) {
     try {
       macroSignalIndex = await getOrBuildMacroSignalIndex({
         projectPath: normalizedProjectPath,
@@ -287,18 +303,21 @@ export async function prepareAiAnalyzeRequest(params: {
     }
   }
 
-  let waveformText = '### Captured Waves Log:\n';
-  waveformText += `Time Base Unit: ${tickDuration} ${timeUnit} per tick\n`;
-  waveformText += `Visible Signals Sent: ${selectedSignals.length}/${allSignals.length}\n\n`;
-  waveformText += waveformSelectionText;
+  let waveformText = '';
+  if (shouldUseWaveformContext) {
+    waveformText = '### Captured Waves Log:\n';
+    waveformText += `Time Base Unit: ${tickDuration} ${timeUnit} per tick\n`;
+    waveformText += `Visible Signals Sent: ${selectedSignals.length}/${allSignals.length}\n\n`;
+    waveformText += waveformSelectionText;
 
-  if (selectedSignals.length > 0) {
-    selectedSignals.forEach((sig: AnalyzerSignal) => {
-      waveformText += `Signal Channel: ${sig.name} | Type: ${sig.type}\n`;
-      const sampleValues = Array.isArray(sig.values) ? sig.values.slice(0, 120) : [];
-      waveformText += `Ticks (0-120): ${sampleValues.map((value) => formatSignalValue(value)).join('')}\n`;
-      waveformText += `Transition Summary: ${buildSignalTransitionSummary(Array.isArray(sig.values) ? sig.values : [])}\n\n`;
-    });
+    if (selectedSignals.length > 0) {
+      selectedSignals.forEach((sig: AnalyzerSignal) => {
+        waveformText += `Signal Channel: ${sig.name} | Type: ${sig.type}\n`;
+        const sampleValues = Array.isArray(sig.values) ? sig.values.slice(0, 120) : [];
+        waveformText += `Ticks (0-120): ${sampleValues.map((value) => formatSignalValue(value)).join('')}\n`;
+        waveformText += `Transition Summary: ${buildSignalTransitionSummary(Array.isArray(sig.values) ? sig.values : [])}\n\n`;
+      });
+    }
   }
 
   let projectText = '';
@@ -358,7 +377,8 @@ export async function prepareAiAnalyzeRequest(params: {
     });
   }
 
-  const systemPrompt = `You are a professional ASIC/FPGA digital design engineer, embedding systems developer, and veteran hardware logic analyzer debugger.
+  const systemPrompt = shouldUseWaveformContext
+    ? `You are a professional ASIC/FPGA digital design engineer, embedding systems developer, and veteran hardware logic analyzer debugger.
 You are assisting a developer using "Signal Logic Pro" logic waveforms.
 Review the following timing diagram traces captured by the logic analyzer and answer the developer's question.
 
@@ -371,7 +391,14 @@ ${exportPolicyText}${projectText}
 
 Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.
 
-When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", treat those as the primary hierarchy-aware view of the design. Use the focus entities and related nodes to explain why each selected signal matters to the requested macro.`;
+When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", treat those as the primary hierarchy-aware view of the design. Use the focus entities and related nodes to explain why each selected signal matters to the requested macro.`
+    : `You are a professional ASIC/FPGA digital design engineer and embedded systems developer.
+You are assisting a developer using "Signal Logic Pro".
+The developer is asking a general FPGA/VHDL design question, not a waveform-debug question.
+
+${exportPolicyText}${projectText}
+
+Answer the developer's question directly and do not force waveform decoding, protocol interpretation, or logic-analyzer findings unless the user explicitly asked for them. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. Keep the answer technical, constructive, and grounded in any relevant project context that was provided.`;
 
   const preprocessingInputTokens = estimatePreprocessingTokenCount([
     query,
@@ -403,6 +430,7 @@ When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", 
     waveformText,
     projectText,
     exportPolicyText,
+    customQueryMode,
     systemPrompt,
     preprocessingInputTokens,
     buildMacroPromptContract,

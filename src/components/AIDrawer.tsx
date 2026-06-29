@@ -506,8 +506,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     onLatestStructuredReportChange?.(latestStructuredReport);
   }, [latestStructuredReport, onLatestStructuredReportChange]);
 
-  const finishedJobCardText = finishedJobSkillSummary || jobStatus;
-
   if (!isOpen) return null;
 
   const openTbComposer = (mode: TbGenerationMode) => {
@@ -807,9 +805,13 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
               <div className="min-w-0">
                 <div className={`text-[12px] font-bold uppercase tracking-[0.2em] ${jobCardTitleTone}`}>{jobCardTitle}</div>
                 {!loading && (
-                  <div className="mt-1 text-[12px] text-slate-400">
-                    {finishedJobCardText}
-                  </div>
+                  <>
+                    {finishedJobSkillSummary && (
+                      <div className="mt-1 text-[12px] leading-relaxed text-slate-300 break-all">
+                        <span className="text-slate-500">Skills used:</span> {finishedJobSkillSummary}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
               {loading ? (
