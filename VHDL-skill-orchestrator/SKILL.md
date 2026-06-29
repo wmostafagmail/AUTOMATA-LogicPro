@@ -206,9 +206,9 @@ Use when quality gates are needed.
 Example:
 
 ```text
-frontend-engineer creates component
-ui-ux-designer reviews layout
-accessibility-auditor reviews WCAG compliance
+vhdl-language drafts the RTL or verification artifact
+fpga-architecture reviews interfaces, clock/reset, and hierarchy
+timing-constraints reviews timing assumptions and implementation risks
 ```
 
 #### Debug Triage Mode
@@ -418,27 +418,23 @@ Build a dashboard app with login, PostgreSQL database, API, and responsive UI.
 Selected skills:
 
 ```yaml
-primary: fullstack-architect
+primary: VHDL-skill-orchestrator
 supporting:
-  - backend-engineer
-  - database-designer
-  - frontend-engineer
-  - ui-ux-designer
-  - security-reviewer
-  - test-engineer
+  - vhdl-language
+  - fpga-architecture
+  - rtl-verification
+  - timing-constraints
 ```
 
 Execution order:
 
 ```text
-1. fullstack-architect: define app architecture and module boundaries.
-2. database-designer: create schema and migrations.
-3. backend-engineer: implement API and auth.
-4. frontend-engineer: implement UI and state handling.
-5. ui-ux-designer: review layout, accessibility, and flows.
-6. security-reviewer: check auth, secrets, validation, and permissions.
-7. test-engineer: add unit, integration, and smoke tests.
-8. VHDL-skill-orchestrator: merge and verify final output.
+1. VHDL-skill-orchestrator: identify the minimum hardware-focused skill set.
+2. fpga-architecture: review hierarchy, interfaces, clocks, resets, and control/data partitioning.
+3. vhdl-language: implement or analyze the RTL/VHDL artifact.
+4. rtl-verification: validate behavior with testbench/assertion-oriented reasoning.
+5. timing-constraints: review timing assumptions, setup/hold risks, and implementation constraints.
+6. VHDL-skill-orchestrator: merge and verify final output.
 ```
 
 ---

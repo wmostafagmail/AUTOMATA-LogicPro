@@ -14,7 +14,8 @@ test('deterministic VHDL skill selection routes generate_vhdl_tb to verification
   assert.equal(selection.primary.name, 'VHDL-skill-orchestrator');
   assert.ok(selection.supporting.some((skill) => skill.name === 'vhdl-language'));
   assert.ok(selection.supporting.some((skill) => skill.name === 'rtl-verification'));
-  assert.ok(selection.supporting.some((skill) => skill.name === 'test-engineer'));
+  assert.ok(selection.supporting.some((skill) => skill.name === 'fpga-architecture'));
+  assert.ok(!selection.supporting.some((skill) => skill.name === 'test-engineer'));
   assert.match(selection.skillCallPlan.join('\n'), /rtl-verification/i);
 });
 

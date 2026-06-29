@@ -40,12 +40,12 @@ const MACRO_SKILL_HINTS: Array<{
   {
     macroId: 'generate_vhdl_tb',
     required: ['vhdl-language', 'rtl-verification'],
-    preferred: ['test-engineer'],
+    preferred: ['fpga-architecture'],
   },
   {
     macroId: 'inspect_race_hazards',
     required: ['vhdl-language', 'rtl-verification'],
-    preferred: ['fpga-architecture', 'security-reviewer'],
+    preferred: ['fpga-architecture', 'timing-constraints'],
   },
   {
     macroId: 'protocol_decoder_details',
@@ -70,7 +70,7 @@ const MACRO_SKILL_HINTS: Array<{
   {
     macroId: 'generate_vhdl_assertions',
     required: ['vhdl-language', 'rtl-verification'],
-    preferred: ['test-engineer'],
+    preferred: ['timing-constraints'],
   },
   {
     macroId: 'draft_rtl_skeleton',

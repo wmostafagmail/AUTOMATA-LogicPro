@@ -485,9 +485,28 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     return null;
   }, [messages, parsedMessages]);
 
+  const finishedJobSkillSummary = useMemo(() => {
+    if (jobStatus !== 'AI analysis finished.') {
+      return null;
+    }
+
+    const selectedSkills = latestStructuredReport?.report.orchestratorAudit?.selectedSkills || [];
+    const uniqueSkillNames = Array.from(
+      new Set(
+        selectedSkills
+          .map((skill) => String(skill.name || '').trim())
+          .filter(Boolean)
+      )
+    );
+
+    return uniqueSkillNames.length > 0 ? uniqueSkillNames.join(', ') : null;
+  }, [jobStatus, latestStructuredReport]);
+
   useEffect(() => {
     onLatestStructuredReportChange?.(latestStructuredReport);
   }, [latestStructuredReport, onLatestStructuredReportChange]);
+
+  const finishedJobCardText = finishedJobSkillSummary || jobStatus;
 
   if (!isOpen) return null;
 
@@ -789,7 +808,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                 <div className={`text-[12px] font-bold uppercase tracking-[0.2em] ${jobCardTitleTone}`}>{jobCardTitle}</div>
                 {!loading && (
                   <div className="mt-1 text-[12px] text-slate-400">
-                    {jobStatus}
+                    {finishedJobCardText}
                   </div>
                 )}
               </div>
