@@ -59,7 +59,6 @@ export function createAiAnalyzeRouteContext(params: {
   buildProjectContextFromPath: (...args: any[]) => any;
   scrubProjectContextForRemoteExport: (...args: any[]) => any;
   buildMacroPromptContract: (...args: any[]) => any;
-  estimatePreprocessingTokenCount: (...args: any[]) => any;
   buildPreparedRemoteExportPreview: (params: {
     preparedRequest: PreparedAiAnalyzeRequest;
     macroId: AiMacroId;
@@ -105,7 +104,6 @@ export function createAiAnalyzeRouteContext(params: {
     buildProjectContextFromPath,
     scrubProjectContextForRemoteExport,
     buildMacroPromptContract,
-    estimatePreprocessingTokenCount,
     buildPreparedRemoteExportPreview,
     applyMandatoryVhdlSkill,
     getProviderDescriptors,
@@ -168,7 +166,6 @@ export function createAiAnalyzeRouteContext(params: {
         buildProjectContextFromPath,
         scrubProjectContextForRemoteExport,
         buildMacroPromptContract,
-        estimatePreprocessingTokenCount,
         skipRemoteExportConsentCheck: true,
       });
 
@@ -276,7 +273,6 @@ export function createAiAnalyzeRouteContext(params: {
         buildProjectContextFromPath,
         scrubProjectContextForRemoteExport,
         buildMacroPromptContract,
-        estimatePreprocessingTokenCount,
       });
       const {
         selectedProvider: preparedSelectedProvider,
@@ -288,7 +284,6 @@ export function createAiAnalyzeRouteContext(params: {
         artifactDirectory,
         macroDiagnostics,
         systemPrompt,
-        preprocessingInputTokens,
       } = preparedRequest;
       const selectedProvider = preparedSelectedProvider;
       const selectedModel = preparedSelectedModel
@@ -329,7 +324,6 @@ export function createAiAnalyzeRouteContext(params: {
         macroId,
         tbGenerationMode,
         systemPrompt,
-        preprocessingInputTokens,
         normalizedProjectPath,
         artifactDirectory,
         macroSpec,

@@ -60,6 +60,7 @@ interface JobTelemetry {
   jobOutputTokens: number | null;
   sessionOutputTokens: number | null;
   tokensPerSecond: number | null;
+  endToEndTokensPerSecond?: number | null;
   durationMs: number | null;
 }
 
@@ -170,6 +171,7 @@ export function useAIDrawerAnalysis(params: {
       outputTokens: null,
       jobOutputTokens: null,
       tokensPerSecond: null,
+      endToEndTokensPerSecond: null,
       durationMs: null,
     } : null);
   };
@@ -224,6 +226,7 @@ export function useAIDrawerAnalysis(params: {
         jobOutputTokens: null,
         sessionOutputTokens: sessionTokenTotalsRef.current.outputTokens,
         tokensPerSecond: null,
+        endToEndTokensPerSecond: null,
         durationMs: null,
       });
       setJobStatus('AI Engine is analyzing...');
@@ -275,41 +278,20 @@ export function useAIDrawerAnalysis(params: {
       setMessages((prev) => [...prev, assistantMsg]);
       const responseTelemetry = data.telemetry || null;
       if (responseTelemetry) {
-        const completedJobInputTokens = Math.max(
-          0,
-          Number(
-            responseTelemetry.jobInputTokens
-            ?? responseTelemetry.latestAttemptInputTokens
-            ?? responseTelemetry.inputTokens
-            ?? 0
-          )
-        );
-        const completedJobOutputTokens = Math.max(
-          0,
-          Number(
-            responseTelemetry.jobOutputTokens
-            ?? responseTelemetry.outputTokens
-            ?? 0
-          )
-        );
-        const derivedSessionInputTokens = sessionTokenTotalsRef.current.inputTokens + completedJobInputTokens;
-        const derivedSessionOutputTokens = sessionTokenTotalsRef.current.outputTokens + completedJobOutputTokens;
         const reportedSessionInputTokens = Number.isFinite(responseTelemetry.sessionInputTokens)
           ? Number(responseTelemetry.sessionInputTokens)
-          : 0;
+          : sessionTokenTotalsRef.current.inputTokens;
         const reportedSessionOutputTokens = Number.isFinite(responseTelemetry.sessionOutputTokens)
           ? Number(responseTelemetry.sessionOutputTokens)
-          : 0;
+          : sessionTokenTotalsRef.current.outputTokens;
         const nextSessionTotals = {
-          inputTokens: Math.max(0, reportedSessionInputTokens, derivedSessionInputTokens),
-          outputTokens: Math.max(0, reportedSessionOutputTokens, derivedSessionOutputTokens),
+          inputTokens: Math.max(0, reportedSessionInputTokens),
+          outputTokens: Math.max(0, reportedSessionOutputTokens),
         };
         sessionTokenTotalsRef.current = nextSessionTotals;
         setSessionTokenTotals(nextSessionTotals);
         setJobTelemetry({
           ...responseTelemetry,
-          jobInputTokens: completedJobInputTokens,
-          jobOutputTokens: completedJobOutputTokens,
           sessionInputTokens: nextSessionTotals.inputTokens,
           sessionOutputTokens: nextSessionTotals.outputTokens,
         });
@@ -509,9 +491,9 @@ export function useAIDrawerAnalysis(params: {
         throw new Error(data?.error || `Test generate failed (${response.status})`);
       }
 
-      setTestGenerateResult(data.passedExactMatch ? 'OK' : 'Failed');
+      setTestGenerateResult(data.passedExactMatch ? 'PASS' : 'FAIL');
     } catch {
-      setTestGenerateResult('Failed');
+      setTestGenerateResult('FAIL');
     } finally {
       setTestGenerating(false);
     }
@@ -541,6 +523,7 @@ export function useAIDrawerAnalysis(params: {
     jobOutputTokens: null,
     sessionOutputTokens: sessionTokenTotalsRef.current.outputTokens,
     tokensPerSecond: null,
+    endToEndTokensPerSecond: null,
     durationMs: null,
   };
   const hasFinishedJobCard = Boolean(jobStatus);

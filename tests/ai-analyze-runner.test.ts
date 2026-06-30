@@ -162,9 +162,9 @@ test('runAiAnalyzeJob retries once when non-artifact validation fails and accumu
   assert.equal(result.retryUsed, true);
   assert.equal(result.analysis, 'second response');
   assert.equal(result.telemetry.inputTokens, 80);
-  assert.equal(result.telemetry.jobInputTokens, 190);
+  assert.equal(result.telemetry.jobInputTokens, 180);
   assert.equal(result.telemetry.jobOutputTokens, 60);
-  assert.equal(result.telemetry.sessionInputTokens, 190);
+  assert.equal(result.telemetry.sessionInputTokens, 180);
   assert.equal(result.telemetry.sessionOutputTokens, 60);
   assert.equal(result.deterministicSkillSelection?.primary.name, 'VHDL-skill-orchestrator');
   assert.equal(result.deterministicSkillSelection?.supporting[0]?.name, 'vhdl-language');
@@ -336,7 +336,7 @@ test('runAiAnalyzeJob session token accumulation continues across multiple jobs 
     },
   });
   const firstResult = await runAiAnalyzeJob(firstParams);
-  assert.equal(firstResult.telemetry.sessionInputTokens, 45);
+  assert.equal(firstResult.telemetry.sessionInputTokens, 40);
   assert.equal(firstResult.telemetry.sessionOutputTokens, 15);
 
   const secondParams = createBaseParams({
@@ -359,8 +359,8 @@ test('runAiAnalyzeJob session token accumulation continues across multiple jobs 
   });
   const secondResult = await runAiAnalyzeJob(secondParams);
 
-  assert.equal(secondResult.telemetry.jobInputTokens, 67);
+  assert.equal(secondResult.telemetry.jobInputTokens, 60);
   assert.equal(secondResult.telemetry.jobOutputTokens, 20);
-  assert.equal(secondResult.telemetry.sessionInputTokens, 112);
+  assert.equal(secondResult.telemetry.sessionInputTokens, 100);
   assert.equal(secondResult.telemetry.sessionOutputTokens, 35);
 });

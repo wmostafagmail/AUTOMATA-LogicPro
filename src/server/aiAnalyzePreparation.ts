@@ -118,7 +118,6 @@ export async function prepareAiAnalyzeRequest(params: {
     userQuery: string;
     tbGenerationMode: TbGenerationMode | null;
   }) => string;
-  estimatePreprocessingTokenCount: (parts: Array<string | null | undefined>) => number;
   skipRemoteExportConsentCheck?: boolean;
 }) {
   const {
@@ -149,7 +148,6 @@ export async function prepareAiAnalyzeRequest(params: {
     buildProjectContextFromPath,
     scrubProjectContextForRemoteExport,
     buildMacroPromptContract,
-    estimatePreprocessingTokenCount,
     skipRemoteExportConsentCheck = false,
   } = params;
 
@@ -400,15 +398,6 @@ ${exportPolicyText}${projectText}
 
 Answer the developer's question directly and do not force waveform decoding, protocol interpretation, or logic-analyzer findings unless the user explicitly asked for them. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. Keep the answer technical, constructive, and grounded in any relevant project context that was provided.`;
 
-  const preprocessingInputTokens = estimatePreprocessingTokenCount([
-    query,
-    waveformText,
-    protocolScan.markdown,
-    hazardScan.markdown,
-    exportPolicyText,
-    projectText,
-  ]);
-
   return {
     selectedProvider,
     selectedModel,
@@ -432,7 +421,6 @@ Answer the developer's question directly and do not force waveform decoding, pro
     exportPolicyText,
     customQueryMode,
     systemPrompt,
-    preprocessingInputTokens,
     buildMacroPromptContract,
   };
 }

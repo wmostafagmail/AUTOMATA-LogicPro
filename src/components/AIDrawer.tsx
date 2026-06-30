@@ -80,12 +80,6 @@ const normalizeProviderOptions = (providers: unknown[]): ProviderOption[] => (
     }))
 );
 
-const estimateTokenCount = (text: string) => {
-  const normalized = text.trim();
-  if (!normalized) return 0;
-  return Math.max(1, Math.round(normalized.length / 4));
-};
-
 const getMacroButtonTone = (macroId: AiMacroId) => {
   switch (macroId) {
     case 'generate_vhdl_tb':
@@ -605,7 +599,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
             {testGenerating ? 'Testing...' : 'TEST'}
           </button>
           {testGenerateResult && (
-            <div className="min-w-0 flex-1 rounded border border-white/5 bg-[#060a12] px-2 py-1 text-[12px] font-mono text-slate-300">
+            <div className={`min-w-0 flex-1 rounded border px-2 py-1 text-[12px] font-mono font-bold ${
+              testGenerateResult === 'PASS'
+                ? 'border-lime-400/50 bg-lime-500/10 text-lime-300'
+                : 'border-red-400/50 bg-red-500/10 text-red-300'
+            }`}>
               {testGenerateResult}
             </div>
           )}

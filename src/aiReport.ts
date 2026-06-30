@@ -72,14 +72,15 @@ export interface AiReportMeta {
   model?: string;
   telemetry?: {
     engineLabel: string;
-    inputTokens: number;
+    inputTokens: number | null;
     latestAttemptInputTokens?: number;
     jobInputTokens?: number;
     sessionInputTokens?: number;
-    outputTokens: number;
+    outputTokens: number | null;
     jobOutputTokens?: number;
     sessionOutputTokens?: number;
-    tokensPerSecond: number;
+    tokensPerSecond: number | null;
+    endToEndTokensPerSecond?: number | null;
     durationMs: number;
   } | null;
   retryUsed?: boolean;

@@ -596,6 +596,13 @@ async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSi
       totalTokens: typeof data?.prompt_eval_count === 'number' && typeof data?.eval_count === 'number'
         ? data.prompt_eval_count + data.eval_count
         : undefined,
+      tokensPerSecond: (
+        typeof data?.eval_count === 'number'
+        && typeof data?.eval_duration === 'number'
+        && data.eval_duration > 0
+      )
+        ? Number((data.eval_count / (data.eval_duration / 1_000_000_000)).toFixed(2))
+        : undefined,
     },
   };
 }
@@ -627,6 +634,13 @@ async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal
       outputTokens: typeof data?.eval_count === 'number' ? data.eval_count : undefined,
       totalTokens: typeof data?.prompt_eval_count === 'number' && typeof data?.eval_count === 'number'
         ? data.prompt_eval_count + data.eval_count
+        : undefined,
+      tokensPerSecond: (
+        typeof data?.eval_count === 'number'
+        && typeof data?.eval_duration === 'number'
+        && data.eval_duration > 0
+      )
+        ? Number((data.eval_count / (data.eval_duration / 1_000_000_000)).toFixed(2))
         : undefined,
     },
   };
@@ -766,10 +780,11 @@ function estimateTokenCount(text: string) {
 }
 
 type AiRunTelemetry = {
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-  tokensPerSecond: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  totalTokens: number | null;
+  tokensPerSecond: number | null;
+  endToEndTokensPerSecond?: number | null;
   durationMs: number;
 };
 
@@ -1578,19 +1593,35 @@ async function runModelAnalysis(params: {
 }): Promise<AiRunResult> {
   const { ai, provider, model, prompt, signal } = params;
   const startedAt = Date.now();
-  const finalizeResult = (text: string, usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number }) => {
+  const finalizeResult = (
+    text: string,
+    usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number; tokensPerSecond?: number }
+  ) => {
     const durationMs = Math.max(1, Date.now() - startedAt);
-    const inputTokens = Math.max(0, usage?.inputTokens ?? estimateTokenCount(prompt));
-    const outputTokens = Math.max(0, usage?.outputTokens ?? estimateTokenCount(text));
-    const totalTokens = Math.max(inputTokens + outputTokens, usage?.totalTokens ?? inputTokens + outputTokens);
-    const tokensPerSecond = outputTokens > 0 ? Number((outputTokens / (durationMs / 1000)).toFixed(2)) : 0;
+    const inputTokens = typeof usage?.inputTokens === 'number'
+      ? Math.max(0, usage.inputTokens)
+      : null;
+    const outputTokens = typeof usage?.outputTokens === 'number'
+      ? Math.max(0, usage.outputTokens)
+      : null;
+    const totalTokens = typeof usage?.totalTokens === 'number'
+      ? Math.max(0, usage.totalTokens)
+      : inputTokens !== null && outputTokens !== null
+        ? inputTokens + outputTokens
+        : null;
+    const endToEndTokensPerSecond = outputTokens !== null && durationMs > 0
+      ? Number((outputTokens / (durationMs / 1000)).toFixed(2))
+      : null;
     return {
       text,
       telemetry: {
         inputTokens,
         outputTokens,
         totalTokens,
-        tokensPerSecond,
+        tokensPerSecond: typeof usage?.tokensPerSecond === 'number' && Number.isFinite(usage.tokensPerSecond)
+          ? Math.max(0, usage.tokensPerSecond)
+          : null,
+        endToEndTokensPerSecond,
         durationMs,
       },
     };
@@ -1912,7 +1943,6 @@ async function bootstrap() {
     buildProjectContextFromPath,
     scrubProjectContextForRemoteExport,
     buildMacroPromptContract,
-    estimatePreprocessingTokenCount,
     buildPreparedRemoteExportPreview,
     applyMandatoryVhdlSkill,
     getProviderDescriptors,

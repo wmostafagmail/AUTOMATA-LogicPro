@@ -7,10 +7,11 @@ import type { DeterministicSkillSelection, PreparedVhdlSkillPrompt } from './vhd
 type SessionManager = ReturnType<typeof createSessionManager>;
 
 type AiRunTelemetry = {
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-  tokensPerSecond: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  totalTokens: number | null;
+  tokensPerSecond: number | null;
+  endToEndTokensPerSecond?: number | null;
   durationMs: number;
 };
 
@@ -54,7 +55,6 @@ export async function runAiAnalyzeJob(params: {
   macroId: AiMacroId;
   tbGenerationMode: TbGenerationMode | null;
   systemPrompt: string;
-  preprocessingInputTokens: number;
   normalizedProjectPath: string;
   artifactDirectory: string | null;
   macroSpec: { label: string };
@@ -120,7 +120,6 @@ export async function runAiAnalyzeJob(params: {
     macroId,
     tbGenerationMode,
     systemPrompt,
-    preprocessingInputTokens,
     normalizedProjectPath,
     artifactDirectory,
     macroSpec,
@@ -269,12 +268,21 @@ export async function runAiAnalyzeJob(params: {
   }
 
   const latestAttemptInputTokens = responseTelemetry.inputTokens;
-  const jobInputTokens = preprocessingInputTokens
-    + attemptTelemetries.reduce((sum, telemetry) => sum + telemetry.inputTokens, 0);
-  const jobOutputTokens = attemptTelemetries.reduce((sum, telemetry) => sum + telemetry.outputTokens, 0);
+  const reportedAttemptInputTokens = attemptTelemetries
+    .map((telemetry) => telemetry.inputTokens)
+    .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+  const reportedAttemptOutputTokens = attemptTelemetries
+    .map((telemetry) => telemetry.outputTokens)
+    .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+  const jobInputTokens = reportedAttemptInputTokens.length > 0
+    ? reportedAttemptInputTokens.reduce((sum, value) => sum + value, 0)
+    : null;
+  const jobOutputTokens = reportedAttemptOutputTokens.length > 0
+    ? reportedAttemptOutputTokens.reduce((sum, value) => sum + value, 0)
+    : null;
   const sessionAiTokenTotals = sessionManager.accumulateAiTokens(session, {
-    inputTokens: jobInputTokens,
-    outputTokens: jobOutputTokens,
+    inputTokens: jobInputTokens ?? undefined,
+    outputTokens: jobOutputTokens ?? undefined,
   });
 
   return {
@@ -291,6 +299,7 @@ export async function runAiAnalyzeJob(params: {
       jobOutputTokens,
       sessionOutputTokens: sessionAiTokenTotals.outputTokens,
       tokensPerSecond: responseTelemetry.tokensPerSecond,
+      endToEndTokensPerSecond: responseTelemetry.endToEndTokensPerSecond,
       durationMs: responseTelemetry.durationMs,
     },
     retryUsed,

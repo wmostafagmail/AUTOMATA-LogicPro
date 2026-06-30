@@ -13,9 +13,9 @@ const renderTelemetryValue = (
 ) => {
   if (value === null) {
     if (options?.loading) {
-      return <span className="text-lime-300">Calculating</span>;
+      return <span className="text-lime-300">Pending</span>;
     }
-    return '0';
+    return 'Unavailable';
   }
   return `${value}${options?.suffix || ''}`;
 };
@@ -175,6 +175,7 @@ export const JobTelemetryPanel: React.FC<{
     outputTokens: number | null;
     sessionOutputTokens: number | null;
     tokensPerSecond: number | null;
+    endToEndTokensPerSecond: number | null;
   };
   sessionInputDisplayValue: number | null;
   sessionOutputDisplayValue: number | null;
@@ -206,24 +207,33 @@ export const JobTelemetryPanel: React.FC<{
       </div>
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
         <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Tokens / Sec</div>
-        <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.tokensPerSecond, { loading })}</div>
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-1.5">
+          <div className="min-w-0 text-left">
+            <div className="text-[10px] uppercase tracking-[0.12em] text-slate-500">OUT</div>
+            <div className="pt-0.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.tokensPerSecond, { loading })}</div>
+          </div>
+          <div className="min-w-0 text-right">
+            <div className="text-[10px] uppercase tracking-[0.12em] text-slate-500">E2E</div>
+            <div className="pt-0.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.endToEndTokensPerSecond, { loading })}</div>
+          </div>
+        </div>
       </div>
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Job Input Tokens</div>
+        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Job IN Tokens</div>
         <div className="mt-auto pt-1.5 text-slate-200">
           {renderTelemetryValue(statusPanelTelemetry.jobInputTokens ?? statusPanelTelemetry.latestAttemptInputTokens ?? statusPanelTelemetry.inputTokens, { loading })}
         </div>
       </div>
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Session Input</div>
+        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Session IN Tokens</div>
         <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(sessionInputDisplayValue, { loading })}</div>
       </div>
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Job Output Tokens</div>
+        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Job OUT Tokens</div>
         <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.jobOutputTokens ?? statusPanelTelemetry.outputTokens, { loading })}</div>
       </div>
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Session Output</div>
+        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Session OUT Tokens</div>
         <div className="mt-auto pt-1.5 text-slate-200">{renderTelemetryValue(sessionOutputDisplayValue, { loading })}</div>
       </div>
     </div>
