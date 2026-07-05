@@ -1,0 +1,9 @@
+{
+  "name": "counter",
+  "files": [
+    {"type": "analyze", "path": "src/updown_counter.vhd"},
+    {"type": "analyze", "path": "tb/tb_updown_counter.vhd"}
+  ],
+  "elaborate": {"top": "tb_updown_counter"},
+  "simulate": {"args": ["--vcd=waveform.vcd", "--stop-time=10us"]}
+}

@@ -1,6 +1,7 @@
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { AiMacroId, TbGenerationMode } from '../aiMacros';
 import { detectCustomQueryMode, type CustomQueryMode } from '../customQueryIntent';
+import { buildMacroSystemPrompt } from './macroSystemPrompts';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -185,7 +186,9 @@ export async function prepareAiAnalyzeRequest(params: {
   const customQueryMode: CustomQueryMode | null = macroId === 'custom_query'
     ? detectCustomQueryMode(query)
     : null;
-  const shouldUseWaveformContext = macroId !== 'custom_query' || customQueryMode !== 'general_design';
+  const shouldUseWaveformContext = macroId === 'fpga_vhdl_architect'
+    ? false
+    : macroId !== 'custom_query' || customQueryMode !== 'general_design';
 
   const hazardScan = shouldUseWaveformContext
     ? analyzeWaveformHazards(allSignals, resolvedTickDuration, resolvedTimeUnit)
@@ -375,28 +378,15 @@ export async function prepareAiAnalyzeRequest(params: {
     });
   }
 
-  const systemPrompt = shouldUseWaveformContext
-    ? `You are a professional ASIC/FPGA digital design engineer, embedding systems developer, and veteran hardware logic analyzer debugger.
-You are assisting a developer using "Signal Logic Pro" logic waveforms.
-Review the following timing diagram traces captured by the logic analyzer and answer the developer's question.
-
-${waveformText}
-${protocolScan.markdown}
-
-${hazardScan.markdown}
-
-${exportPolicyText}${projectText}
-
-Return your explanation in beautifully formatted markdown with clear sections. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. You may also write C drivers or testbench setups when requested. Address timing delay offsets, race conditions, edge setup/hold times, glitches, active-low triggers, or decoded ASCII bytes. Make your answer highly detailed, technical, and constructive.
-
-When the prompt includes "Macro Signal Selection" and "Signal Relevance Hints", treat those as the primary hierarchy-aware view of the design. Use the focus entities and related nodes to explain why each selected signal matters to the requested macro.`
-    : `You are a professional ASIC/FPGA digital design engineer and embedded systems developer.
-You are assisting a developer using "Signal Logic Pro".
-The developer is asking a general FPGA/VHDL design question, not a waveform-debug question.
-
-${exportPolicyText}${projectText}
-
-Answer the developer's question directly and do not force waveform decoding, protocol interpretation, or logic-analyzer findings unless the user explicitly asked for them. Prefer VHDL for any HDL examples, RTL, or testbenches unless the developer explicitly asks for Verilog. Keep the answer technical, constructive, and grounded in any relevant project context that was provided.`;
+  const systemPrompt = buildMacroSystemPrompt({
+    macroId,
+    waveformText: shouldUseWaveformContext ? waveformText : '',
+    protocolMarkdown: shouldUseWaveformContext ? protocolScan.markdown : '',
+    hazardMarkdown: shouldUseWaveformContext ? hazardScan.markdown : '',
+    exportPolicyText,
+    projectText,
+    customQueryMode,
+  });
 
   return {
     selectedProvider,

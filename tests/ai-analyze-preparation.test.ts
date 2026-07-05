@@ -55,3 +55,35 @@ test('prepareAiAnalyzeRequest hard-fails when provider is missing', async () => 
     }
   );
 });
+
+test('prepareAiAnalyzeRequest uses macro-specific inspect hazards system prompt content', async () => {
+  const result = await prepareAiAnalyzeRequest(createBaseParams({
+    signals: [
+      { name: 'clk', values: ['0', '1', '0'] },
+      { name: 'reset', values: ['1', '0', '0'] },
+    ],
+    query: 'inspect the waveform for hazards',
+    analyzeWaveformHazards: () => ({ markdown: 'hazards-markdown', findings: [] }),
+    analyzeProtocolFrames: () => ({ markdown: 'protocol-markdown', frames: [] }),
+    getAiMacroSpec: () => ({ label: 'Inspect Hazards', generatedArtifactDirectory: null }),
+  }));
+
+  assert.match(result.systemPrompt, /System Prompt — Inspect Hazards Macro/i);
+  assert.match(result.systemPrompt, /Classify each issue by severity/i);
+  assert.match(result.systemPrompt, /Deterministic Hazard Scan/i);
+  assert.match(result.systemPrompt, /hazards-markdown/);
+  assert.match(result.systemPrompt, /vhdl-language/i);
+});
+
+test('prepareAiAnalyzeRequest uses general-design custom-query prompt when waveform forcing is not appropriate', async () => {
+  const result = await prepareAiAnalyzeRequest(createBaseParams({
+    macroId: 'custom_query',
+    query: 'Can you design a digital clock?',
+    analyzeWaveformHazards: () => ({ markdown: 'hazards-markdown', findings: [] }),
+    analyzeProtocolFrames: () => ({ markdown: 'protocol-markdown', frames: [] }),
+  }));
+
+  assert.match(result.systemPrompt, /System Prompt — General FPGA \/ VHDL Design Query/i);
+  assert.doesNotMatch(result.systemPrompt, /Deterministic Hazard Scan/i);
+  assert.doesNotMatch(result.systemPrompt, /Deterministic Protocol Scan/i);
+});

@@ -1,0 +1,19 @@
+{
+  "project_name": "ALU",
+  "top_entity": "alu",
+  "top_testbench": "alu_tb",
+  "vhdl_standard": "08",
+  "analysis_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/alu_tb.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 src/alu_pkg.vhd",
+    "ghdl -a --std=08 src/alu.vhd",
+    "ghdl -a --std=08 tb/alu_tb.vhd",
+    "ghdl -e --std=08 alu_tb",
+    "ghdl -r --std=08 alu_tb --vcd=alu_tb.vcd"
+  ],
+  "expected_result": "Note: All tests passed."
+}

@@ -2,10 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getVisibleAiMacros } from '../src/aiMacros';
 import { resolveMacroInvocation } from '../src/aiDrawerModel';
+import { architectPromptRequestsReuse, filterArchitectReferenceFiles, isGeneratedArchitectPath } from '../src/fpgaArchitectContext';
 
 test('visible macros expose stable ids in the intended order', () => {
   const macros = getVisibleAiMacros().map((macro) => macro.id);
   assert.deepEqual(macros, [
+    'fpga_vhdl_architect',
     'generate_vhdl_tb',
     'inspect_race_hazards',
     'protocol_decoder_details',
@@ -88,4 +90,36 @@ test('Suggest Debug Probes resolves to a direct macro request', () => {
   if (invocation.kind === 'request') {
     assert.match(invocation.prompt, /trigger conditions|capture plan/i);
   }
+});
+
+test('FPGA Architect generated-folder filter excludes app-generated subfolders by default', () => {
+  assert.equal(isGeneratedArchitectPath('fpga_vhdl_project/src/top.vhd'), true);
+  assert.equal(isGeneratedArchitectPath('Counter/AI Generated TB/tb_counter.vhd'), true);
+  assert.equal(isGeneratedArchitectPath('rtl/top.vhd'), false);
+
+  const filtered = filterArchitectReferenceFiles([
+    {
+      path: 'fpga_vhdl_project/src/updown_counter.vhd',
+      name: 'updown_counter.vhd',
+      extension: '.vhd',
+      size: 100,
+      type: 'file',
+      lastModified: 0,
+    },
+    {
+      path: 'rtl/counter.vhd',
+      name: 'counter.vhd',
+      extension: '.vhd',
+      size: 100,
+      type: 'file',
+      lastModified: 0,
+    },
+  ]);
+
+  assert.deepEqual(filtered.map((file) => file.path), ['rtl/counter.vhd']);
+});
+
+test('FPGA Architect generated-folder filter can be bypassed only by explicit reuse wording', () => {
+  assert.equal(architectPromptRequestsReuse('Please reuse the existing generated files as a starting point.'), true);
+  assert.equal(architectPromptRequestsReuse('Build a fresh architecture for this project.'), false);
 });

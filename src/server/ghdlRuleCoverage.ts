@@ -1,0 +1,1087 @@
+import type { AiMacroId } from '../aiMacros';
+
+export type GhdlRuleMacroScope =
+  | 'all_code_macros'
+  | 'architect_only'
+  | 'tb_only'
+  | 'tb_and_assertions'
+  | 'runnable_artifacts_only';
+
+export type GhdlRuleEnforcementLayer =
+  | 'prompt'
+  | 'validator'
+  | 'post_parse_contract'
+  | 'retry_guidance'
+  | 'diagnostics'
+  | 'runtime_acceptance';
+
+export type GhdlRuleStatus = 'implemented' | 'partial' | 'planned';
+
+export type CanonicalGhdlRule = {
+  ruleId: string;
+  sourceSection: string;
+  title: string;
+  summary: string;
+  family:
+    | 'generation_contract'
+    | 'project_structure'
+    | 'vhdl_standard'
+    | 'source_ordering'
+    | 'entity_interface'
+    | 'architecture_legality'
+    | 'identifier_legality'
+    | 'type_numeric_discipline'
+    | 'clock_reset'
+    | 'process_discipline'
+    | 'rtl_vs_testbench'
+    | 'testbench_behavior'
+    | 'waveform_tooling'
+    | 'ghdl_commands'
+    | 'domain_specific'
+    | 'response_contract';
+  macroScope: GhdlRuleMacroScope;
+  enforcementLayers: GhdlRuleEnforcementLayer[];
+  status: GhdlRuleStatus;
+  testId: string | null;
+};
+
+const CODE_GENERATING_MACRO_IDS: AiMacroId[] = [
+  'fpga_vhdl_architect',
+  'generate_vhdl_tb',
+  'generate_vhdl_assertions',
+  'draft_rtl_skeleton',
+];
+
+const GHDL_RULE_ENFORCEMENT_LAYERS: GhdlRuleEnforcementLayer[] = [
+  'prompt',
+  'validator',
+  'post_parse_contract',
+  'retry_guidance',
+  'diagnostics',
+  'runtime_acceptance',
+];
+
+export const GHDL_EXTERNAL_RULE_REGISTRY: CanonicalGhdlRule[] = [
+  {
+    ruleId: 'ghdl-purpose-reliability',
+    sourceSection: '1',
+    title: 'Purpose and reliability goals',
+    summary: 'Generated VHDL and TB output must prioritize syntax, semantics, deterministic simulation, self-checking behavior, and reproducible GHDL usage.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-purpose',
+  },
+  {
+    ruleId: 'ghdl-golden-rule',
+    sourceSection: '2',
+    title: 'Golden rule preflight',
+    summary: 'Before outputting code, generation must reason about standard, source files, ordering, top entity, package availability, generic defaults, constrained top-level ports, typed arithmetic, self-checking TBs, and runnable commands.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-golden-rule',
+  },
+  {
+    ruleId: 'ghdl-default-target-profile',
+    sourceSection: '3',
+    title: 'Default GHDL target profile',
+    summary: 'Default to VHDL-2008, standard IEEE packages, conservative GHDL command style, and deterministic self-checking simulation with waveform output.',
+    family: 'vhdl_standard',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-target-profile',
+  },
+  {
+    ruleId: 'ghdl-no-nonstandard-arithmetic',
+    sourceSection: '4.1',
+    title: 'No non-standard arithmetic packages',
+    summary: 'Do not use Synopsys arithmetic packages; use ieee.std_logic_1164 and ieee.numeric_std only.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-nonstandard-arithmetic',
+  },
+  {
+    ruleId: 'ghdl-no-raw-slv-arithmetic',
+    sourceSection: '4.2',
+    title: 'No arithmetic directly on std_logic_vector',
+    summary: 'Arithmetic, resize, shift, and integer conversion must operate on typed unsigned/signed values, with explicit boundary conversions.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-slv-arithmetic',
+  },
+  {
+    ruleId: 'ghdl-clean-command-contract',
+    sourceSection: '4.3',
+    title: 'Exact clean GHDL commands required',
+    summary: 'Generated runnable artifacts must carry exact analyze, elaborate, run, and waveform commands rather than vague simulation instructions.',
+    family: 'ghdl_commands',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'post_parse_contract', 'validator'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-command-contract',
+  },
+  {
+    ruleId: 'ghdl-no-hidden-dependencies',
+    sourceSection: '4.4',
+    title: 'No hidden external dependencies',
+    summary: 'Generated projects must avoid vendor IP, vendor simulation libraries, non-generated packages, and OS-specific absolute paths unless explicitly requested.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-hidden-dependencies',
+  },
+  {
+    ruleId: 'ghdl-self-checking-testbenches',
+    sourceSection: '4.5',
+    title: 'Self-checking testbenches',
+    summary: 'Every generated TB must contain deterministic stimulus, expected-result checking, assertions, PASS/FAIL signaling, and a deterministic finish.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'validator', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-self-checking-tb',
+  },
+  {
+    ruleId: 'ghdl-rtl-tb-separation',
+    sourceSection: '4.6',
+    title: 'Separate RTL and TB constructs',
+    summary: 'Simulation-only constructs such as wait-for delays, TextIO, and success-by-failure completion must stay out of synthesizable RTL.',
+    family: 'rtl_vs_testbench',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-rtl-vs-tb',
+  },
+  {
+    ruleId: 'ghdl-required-output-structure',
+    sourceSection: '5',
+    title: 'Required output structure',
+    summary: 'Complete project generation should follow a stable root/src/tb/sim/waves-oriented structure; single-module generation must still include code, TB, commands, expected behavior, and waveform notes.',
+    family: 'project_structure',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-output-structure',
+  },
+  {
+    ruleId: 'ghdl-file-naming-rules',
+    sourceSection: '6',
+    title: 'File naming rules',
+    summary: 'Use lowercase snake_case filenames with aligned entity names and avoid spaces, special characters, and mixed-case file naming.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-file-naming',
+  },
+  {
+    ruleId: 'ghdl-local-library-use-clauses',
+    sourceSection: '7',
+    title: 'Local library and use clauses',
+    summary: 'Each design unit must include its own required IEEE/std library and use clauses; visibility does not carry between files.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-local-use-clauses',
+  },
+  {
+    ruleId: 'ghdl-default-std08',
+    sourceSection: '8.1',
+    title: 'Default to VHDL-2008',
+    summary: 'Use --std=08 by default and keep generated code conservative within the VHDL-2008 feature set.',
+    family: 'vhdl_standard',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-std08',
+  },
+  {
+    ruleId: 'ghdl-no-default-std19',
+    sourceSection: '8.2',
+    title: 'Avoid VHDL-2019 by default',
+    summary: 'Do not default to --std=19 unless explicitly requested.',
+    family: 'vhdl_standard',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-standard-group',
+  },
+  {
+    ruleId: 'ghdl-no-mixed-standard-groups',
+    sourceSection: '8.3',
+    title: 'No mixed standard groups',
+    summary: 'Do not mix analyze/elaborate/run standards within one generated project.',
+    family: 'vhdl_standard',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-standard-group',
+  },
+  {
+    ruleId: 'ghdl-source-ordering',
+    sourceSection: '9',
+    title: 'Source ordering',
+    summary: 'Compile packages before package bodies, RTL leaves before top-level RTL, and testbench packages before the testbench top.',
+    family: 'source_ordering',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-source-order',
+  },
+  {
+    ruleId: 'ghdl-entity-format',
+    sourceSection: '10.1',
+    title: 'Entity format',
+    summary: 'Use explicit entity endings and plain legal entity declarations.',
+    family: 'entity_interface',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-entity-format',
+  },
+  {
+    ruleId: 'ghdl-top-generic-defaults',
+    sourceSection: '10.2',
+    title: 'Top-level generic defaults',
+    summary: 'Every generic on a top-level generated entity must have a default value.',
+    family: 'entity_interface',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-top-generic-defaults',
+  },
+  {
+    ruleId: 'ghdl-top-port-constraints',
+    sourceSection: '10.3',
+    title: 'Top-level port constraints',
+    summary: 'Top-level simulation-apex ports must use constrained types or defaulted-generic-driven constrained ranges.',
+    family: 'entity_interface',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-top-port-constraints',
+  },
+  {
+    ruleId: 'ghdl-architecture-format',
+    sourceSection: '11',
+    title: 'Architecture rules',
+    summary: 'Use explicit architecture endings and stable architecture naming such as rtl, sim, behav, or struct.',
+    family: 'architecture_legality',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-architecture-format',
+  },
+  {
+    ruleId: 'ghdl-multiple-architectures',
+    sourceSection: '11',
+    title: 'Multiple-architecture handling',
+    summary: 'If multiple architectures are generated for one entity, elaboration commands must target the required architecture explicitly.',
+    family: 'architecture_legality',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-multiple-architectures',
+  },
+  {
+    ruleId: 'ghdl-identifier-safety',
+    sourceSection: '12',
+    title: 'Identifier safety',
+    summary: 'Use simple identifiers only, avoid extended/non-ASCII names, later-standard reserved words, case-only differences, and operator keywords as identifiers.',
+    family: 'identifier_legality',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-reserved-identifiers',
+  },
+  {
+    ruleId: 'ghdl-strong-internal-types',
+    sourceSection: '13.1',
+    title: 'Strong internal types',
+    summary: 'Use unsigned/signed internally for arithmetic and keep std_logic_vector mainly at ports, packed buses, and bit-field boundaries.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-strong-types',
+  },
+  {
+    ruleId: 'ghdl-explicit-boundary-conversions',
+    sourceSection: '13.2',
+    title: 'Explicit boundary conversions',
+    summary: 'Convert explicitly between std_logic_vector, unsigned, signed, and integer at boundaries.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-explicit-conversions',
+  },
+  {
+    ruleId: 'ghdl-explicit-resizing',
+    sourceSection: '13.3',
+    title: 'Explicit resizing',
+    summary: 'Do not rely on implicit width matching; resize intentionally on typed numeric operands.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-resize',
+  },
+  {
+    ruleId: 'ghdl-no-mixed-arithmetic-types',
+    sourceSection: '13.4',
+    title: 'No mixed arithmetic types',
+    summary: 'Do not mix signed and unsigned directly; convert deliberately or redesign operand types.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-mixed-arithmetic',
+  },
+  {
+    ruleId: 'ghdl-reset-templates',
+    sourceSection: '14.1-14.2',
+    title: 'Reset templates',
+    summary: 'Prefer synchronous reset unless explicitly asked for async reset, and keep reset handling style explicit and consistent.',
+    family: 'clock_reset',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-reset-templates',
+  },
+  {
+    ruleId: 'ghdl-no-mixed-clock-edges',
+    sourceSection: '14.3',
+    title: 'No mixed clock edges',
+    summary: 'Do not mix rising_edge and falling_edge within the same synchronous domain unless DDR-style behavior is explicitly required.',
+    family: 'clock_reset',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-mixed-clock-edges',
+  },
+  {
+    ruleId: 'ghdl-no-generated-clocks',
+    sourceSection: '14.4',
+    title: 'No generated clocks in RTL',
+    summary: 'Do not synthesize derived clocks in logic by default; prefer clock-enable style.',
+    family: 'clock_reset',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-generated-clock',
+  },
+  {
+    ruleId: 'ghdl-clock-enable-style',
+    sourceSection: '14.5',
+    title: 'Clock-enable style',
+    summary: 'Prefer explicit clock-enable conditions instead of secondary logic clocks.',
+    family: 'clock_reset',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-clock-enable',
+  },
+  {
+    ruleId: 'ghdl-process-all-style',
+    sourceSection: '15.1',
+    title: 'process(all) combinational style',
+    summary: 'Prefer VHDL-2008 process(all) style for combinational logic.',
+    family: 'process_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-process-all',
+  },
+  {
+    ruleId: 'ghdl-comb-default-assignments',
+    sourceSection: '15.2',
+    title: 'Default assignments in combinational processes',
+    summary: 'Assign outputs on all paths to avoid inferred latches.',
+    family: 'process_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-comb-defaults',
+  },
+  {
+    ruleId: 'ghdl-no-wait-in-rtl',
+    sourceSection: '15.3',
+    title: 'No wait statements in RTL',
+    summary: 'Do not use wait statements or wait-for delays inside synthesizable RTL processes.',
+    family: 'rtl_vs_testbench',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-rtl-vs-tb',
+  },
+  {
+    ruleId: 'ghdl-fsm-style',
+    sourceSection: '16',
+    title: 'FSM style',
+    summary: 'Use enumerated state types, safe defaults, explicit reset behavior, complete state coverage, and stable two-process or three-process FSM style.',
+    family: 'process_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-fsm',
+  },
+  {
+    ruleId: 'ghdl-one-driver-per-rtl-signal',
+    sourceSection: '17.1',
+    title: 'One driver per RTL signal',
+    summary: 'Synthesizable signals should normally have a single RTL driver.',
+    family: 'process_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-single-driver',
+  },
+  {
+    ruleId: 'ghdl-clocked-variable-discipline',
+    sourceSection: '17.2',
+    title: 'Variables in clocked processes',
+    summary: 'Use process-local variables legally and intentionally inside clocked processes.',
+    family: 'process_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-architecture-scope',
+  },
+  {
+    ruleId: 'ghdl-arithmetic-width-rules',
+    sourceSection: '18',
+    title: 'Arithmetic and width rules',
+    summary: 'Addition, subtraction, multiplication, saturation, division, and modulo must obey explicit width and typing discipline.',
+    family: 'type_numeric_discipline',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-arithmetic-width',
+  },
+  {
+    ruleId: 'ghdl-array-memory-rules',
+    sourceSection: '19',
+    title: 'Array and memory rules',
+    summary: 'Use legal memory type declarations, safe synchronous RAM templates, and disciplined address handling.',
+    family: 'architecture_legality',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-array-memory',
+  },
+  {
+    ruleId: 'ghdl-record-package-rules',
+    sourceSection: '20',
+    title: 'Records and packages',
+    summary: 'Use legal package/type structure and stable shared record/package declarations.',
+    family: 'architecture_legality',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-package-structure',
+  },
+  {
+    ruleId: 'ghdl-generate-statement-rules',
+    sourceSection: '21',
+    title: 'Generate statement rules',
+    summary: 'Use legal generate forms conservatively and with static legality.',
+    family: 'architecture_legality',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-generate',
+  },
+  {
+    ruleId: 'ghdl-instantiation-rules',
+    sourceSection: '22',
+    title: 'Instantiation rules',
+    summary: 'Instantiate entities/components with coherent generics, ports, and declared dependencies.',
+    family: 'architecture_legality',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-instantiation',
+  },
+  {
+    ruleId: 'ghdl-assertion-rules',
+    sourceSection: '23',
+    title: 'Assertion rules',
+    summary: 'Use practical TB assertions, disciplined RTL assertions, and correct severity usage.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_and_assertions',
+    enforcementLayers: ['prompt', 'validator', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-assertions',
+  },
+  {
+    ruleId: 'ghdl-tb-entity-rules',
+    sourceSection: '24',
+    title: 'Testbench entity rules',
+    summary: 'Use tb_<dut_name> no-port style and stable simulation-focused architecture naming.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-tb-entity',
+  },
+  {
+    ruleId: 'ghdl-tb-clock-rules',
+    sourceSection: '25',
+    title: 'Testbench clock rules',
+    summary: 'Generate deterministic TB clocks with explicit period control.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-tb-clock',
+  },
+  {
+    ruleId: 'ghdl-tb-reset-rules',
+    sourceSection: '26',
+    title: 'Testbench reset rules',
+    summary: 'Drive reset sequences explicitly and keep them consistent with DUT reset semantics.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-tb-reset',
+  },
+  {
+    ruleId: 'ghdl-tb-stimulus-rules',
+    sourceSection: '27',
+    title: 'Testbench stimulus rules',
+    summary: 'Stimulus should be deterministic, maintainable, and aligned to clock/reset behavior.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-tb-stimulus',
+  },
+  {
+    ruleId: 'ghdl-scoreboard-rules',
+    sourceSection: '28',
+    title: 'Scoreboard rules',
+    summary: 'Use expected-value tracking or scoreboard-style checks where practical.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-scoreboard',
+  },
+  {
+    ruleId: 'ghdl-latency-aware-tb-rules',
+    sourceSection: '29',
+    title: 'Latency-aware testbench rules',
+    summary: 'Generated TB checks must sample DUT outputs only after the intended latency and active clock updates have taken effect.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-latency-aware',
+  },
+  {
+    ruleId: 'ghdl-random-testing-rules',
+    sourceSection: '30',
+    title: 'Random testing rules',
+    summary: 'Randomized testing is optional and must remain deterministic enough for GHDL reproduction.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-random-testing',
+  },
+  {
+    ruleId: 'ghdl-textio-rules',
+    sourceSection: '31',
+    title: 'TextIO rules',
+    summary: 'Prefer std.textio conservatively; ieee.std_logic_textio is only allowed when support is explicitly confirmed.',
+    family: 'waveform_tooling',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-textio-policy',
+  },
+  {
+    ruleId: 'ghdl-simulation-finish-rules',
+    sourceSection: '32',
+    title: 'Simulation finish rules',
+    summary: 'Successful TBs must stop cleanly and deterministically without using failure severity for success.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'validator', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-sim-finish',
+  },
+  {
+    ruleId: 'ghdl-timeout-rules',
+    sourceSection: '33',
+    title: 'Timeout rules',
+    summary: 'Testbenches should include timeout protection so hangs do not appear as silent success.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-timeout',
+  },
+  {
+    ruleId: 'ghdl-waveform-rules',
+    sourceSection: '34',
+    title: 'Waveform rules',
+    summary: 'Waveform generation must be explicit, preferring VCD by default and allowing GHW/FST when the generated plan requires them.',
+    family: 'waveform_tooling',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-waveform-contract',
+  },
+  {
+    ruleId: 'ghdl-command-rules',
+    sourceSection: '35',
+    title: 'GHDL command rules',
+    summary: 'Generated plans may use syntax-check, analyze, elaborate, run, elab-run, clean, remove, and inspection commands, but the runnable path must be exact and coherent.',
+    family: 'ghdl_commands',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt', 'post_parse_contract', 'validator'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-ghdl-commands',
+  },
+  {
+    ruleId: 'ghdl-makefile-template',
+    sourceSection: '36',
+    title: 'Makefile template',
+    summary: 'When a Makefile is generated, it must preserve compile ordering and command reproducibility.',
+    family: 'ghdl_commands',
+    macroScope: 'architect_only',
+    enforcementLayers: ['prompt', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-makefile',
+  },
+  {
+    ruleId: 'ghdl-diagnostics-rules',
+    sourceSection: '37',
+    title: 'Warning and diagnostics rules',
+    summary: 'Diagnostics should be specific, actionable, and mapped to stable failure classes where possible.',
+    family: 'response_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['retry_guidance', 'diagnostics'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-diagnostics',
+  },
+  {
+    ruleId: 'ghdl-failure-patterns',
+    sourceSection: '38',
+    title: 'Known GHDL compatibility failure patterns',
+    summary: 'Missing package visibility, width mismatch, unconstrained top arrays, non-static ranges, ambiguous literals, multiple drivers, incomplete sensitivity, latches, infinite TBs, and assertions that never run are known failure families.',
+    family: 'response_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator', 'diagnostics', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-failure-patterns',
+  },
+  {
+    ruleId: 'ghdl-synthesizable-subset',
+    sourceSection: '39',
+    title: 'Synthesizable RTL subset',
+    summary: 'Generated RTL must stay within a conservative synthesizable subset unless explicitly marked testbench-only.',
+    family: 'rtl_vs_testbench',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'validator'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-synthesizable-subset',
+  },
+  {
+    ruleId: 'ghdl-delay-timing-rules',
+    sourceSection: '40',
+    title: 'Delay and timing rules',
+    summary: 'Avoid design-time delay modeling in RTL and use timing semantics conservatively.',
+    family: 'clock_reset',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-delay-timing',
+  },
+  {
+    ruleId: 'ghdl-handshake-rules',
+    sourceSection: '41',
+    title: 'Handshake protocol rules',
+    summary: 'Protocol-ready/valid-style generation must honor deterministic handshake semantics.',
+    family: 'domain_specific',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-handshake',
+  },
+  {
+    ruleId: 'ghdl-fifo-rules',
+    sourceSection: '42',
+    title: 'FIFO rules',
+    summary: 'FIFO-style designs should use safe pointer, status, and buffering discipline.',
+    family: 'domain_specific',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-fifo',
+  },
+  {
+    ruleId: 'ghdl-protocol-rules',
+    sourceSection: '43',
+    title: 'UART/SPI/I2C protocol rules',
+    summary: 'Protocol-specific generation should keep framing, timing, and transaction legality explicit.',
+    family: 'domain_specific',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-protocols',
+  },
+  {
+    ruleId: 'ghdl-dsp-rules',
+    sourceSection: '44',
+    title: 'DSP rules',
+    summary: 'DSP-style generation must use disciplined arithmetic, width control, and latency-aware verification.',
+    family: 'domain_specific',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-dsp',
+  },
+  {
+    ruleId: 'ghdl-cpu-core-rules',
+    sourceSection: '45',
+    title: 'CPU/core rules',
+    summary: 'Core/CPU generation must keep architecture, state, and verification coherent and analyzable.',
+    family: 'domain_specific',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-cpu',
+  },
+  {
+    ruleId: 'ghdl-video-rules',
+    sourceSection: '46',
+    title: 'Video timing rules',
+    summary: 'Video/pixel timing generation must keep strict counters, sync behavior, and addressing discipline.',
+    family: 'domain_specific',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-video',
+  },
+  {
+    ruleId: 'ghdl-reset-initialization-semantics',
+    sourceSection: '47',
+    title: 'Reset and initialization semantics',
+    summary: 'Reset intent, default values, and initialization assumptions must be explicit and consistent between DUT and TB.',
+    family: 'clock_reset',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-reset-init',
+  },
+  {
+    ruleId: 'ghdl-unknown-z-rules',
+    sourceSection: '48',
+    title: 'Unknown and high-impedance rules',
+    summary: 'Treat X/Z/unknown handling conservatively and avoid hiding uncertainty in generated logic or checks.',
+    family: 'testbench_behavior',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-unknown-z',
+  },
+  {
+    ruleId: 'ghdl-tb-utility-packages',
+    sourceSection: '49',
+    title: 'TB utility package rules',
+    summary: 'Shared TB helper packages are allowed, but must be generated explicitly and ordered before TB dependents.',
+    family: 'project_structure',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'validator', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'generated-vhdl-validation-tb-utilities',
+  },
+  {
+    ruleId: 'ghdl-required-tb-sections',
+    sourceSection: '50',
+    title: 'Required testbench sections',
+    summary: 'TBs should contain clear sections for clock, reset, stimulus, checking, timeout, and finish behavior.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-tb-sections',
+  },
+  {
+    ruleId: 'ghdl-pass-fail-output-rules',
+    sourceSection: '51',
+    title: 'PASS/FAIL output rules',
+    summary: 'PASS/FAIL output must be unambiguous, deterministic, and not rely on intentional failure for success.',
+    family: 'testbench_behavior',
+    macroScope: 'tb_only',
+    enforcementLayers: ['prompt', 'validator', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-pass-fail',
+  },
+  {
+    ruleId: 'ghdl-minimal-correct-example-pattern',
+    sourceSection: '52',
+    title: 'Minimal correct example pattern',
+    summary: 'Use the minimal correct complete pattern of RTL, TB, and commands as a baseline shape.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-minimal-pattern',
+  },
+  {
+    ruleId: 'ghdl-required-readme-content',
+    sourceSection: '53',
+    title: 'Required README content',
+    summary: 'Complete project generation should include concise README-level usage and simulation guidance.',
+    family: 'project_structure',
+    macroScope: 'architect_only',
+    enforcementLayers: ['prompt', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-readme',
+  },
+  {
+    ruleId: 'ghdl-ci-compatibility-rules',
+    sourceSection: '54',
+    title: 'CI compatibility rules',
+    summary: 'Generated command plans and project structures should stay CI-friendly and non-interactive.',
+    family: 'ghdl_commands',
+    macroScope: 'runnable_artifacts_only',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-ci',
+  },
+  {
+    ruleId: 'ghdl-self-review-checklist',
+    sourceSection: '55',
+    title: 'LLM self-review checklist',
+    summary: 'Generation should self-check standard, libraries, RTL legality, TB legality, and file completeness before final output.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'retry_guidance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-self-review',
+  },
+  {
+    ruleId: 'ghdl-response-contract',
+    sourceSection: '56',
+    title: 'LLM response contract',
+    summary: 'The response must stay machine-usable, complete, and structurally valid for the app path it is serving.',
+    family: 'response_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'post_parse_contract', 'retry_guidance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-response-contract',
+  },
+  {
+    ruleId: 'ghdl-forbidden-output-patterns',
+    sourceSection: '57',
+    title: 'Forbidden output patterns',
+    summary: 'Do not emit giant fallback prose, invalid wrappers, pseudo-code, or malformed machine-readable structures in place of saveable artifacts.',
+    family: 'response_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'retry_guidance', 'post_parse_contract'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-forbidden-output',
+  },
+  {
+    ruleId: 'ghdl-preferred-output-patterns',
+    sourceSection: '58',
+    title: 'Preferred output patterns',
+    summary: 'Prefer compact, complete, machine-usable, GHDL-friendly project output patterns.',
+    family: 'response_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-preferred-output',
+  },
+  {
+    ruleId: 'ghdl-advanced-optional-rules',
+    sourceSection: '59',
+    title: 'Advanced optional rules',
+    summary: 'PSL, vendor libraries, and external test frameworks are optional and should only appear when explicitly requested or supported.',
+    family: 'waveform_tooling',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-advanced-optional',
+  },
+  {
+    ruleId: 'ghdl-final-quality-standard',
+    sourceSection: '60',
+    title: 'Final quality standard',
+    summary: 'The final generated output must be conservative, GHDL-usable, complete, and professionally structured.',
+    family: 'generation_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt', 'runtime_acceptance'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-final-quality',
+  },
+  {
+    ruleId: 'ghdl-reference-notes',
+    sourceSection: '61',
+    title: 'Reference notes',
+    summary: 'Reference notes inform generation quality but do not override the strict machine-usable contract.',
+    family: 'response_contract',
+    macroScope: 'all_code_macros',
+    enforcementLayers: ['prompt'],
+    status: 'implemented',
+    testId: 'ghdl-rule-coverage-reference-notes',
+  },
+];
+
+export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
+  no_generated_artifacts: ['ghdl-golden-rule'],
+  no_vhdl_sources_found: ['ghdl-golden-rule'],
+  empty_validation_source_set: ['ghdl-golden-rule'],
+  reserved_identifier: ['ghdl-identifier-safety'],
+  illegal_prefix_operator_form: ['ghdl-identifier-safety', 'ghdl-no-raw-slv-arithmetic'],
+  architecture_body_variable: ['ghdl-clocked-variable-discipline'],
+  executable_region_signal_declaration: ['ghdl-clocked-variable-discipline'],
+  declaration_after_begin: ['ghdl-clocked-variable-discipline'],
+  interface_arrow_syntax: ['ghdl-entity-format'],
+  illegal_scalar_type_alias: ['ghdl-record-package-rules'],
+  scalar_bit_string_assignment: ['ghdl-arithmetic-width-rules'],
+  natural_language_leakage: ['ghdl-forbidden-output-patterns'],
+  end_statement_file_extension: ['ghdl-architecture-format', 'ghdl-entity-format'],
+  verilog_style_literal: ['ghdl-arithmetic-width-rules'],
+  illegal_numeric_logical_hybrid: ['ghdl-no-raw-slv-arithmetic'],
+  missing_std_logic_1164_clause: ['ghdl-local-library-use-clauses'],
+  missing_numeric_std_clause: ['ghdl-local-library-use-clauses'],
+  resize_on_raw_std_logic_vector: ['ghdl-no-raw-slv-arithmetic', 'ghdl-explicit-resizing'],
+  resize_with_range_attribute: ['ghdl-explicit-resizing'],
+  to_integer_on_raw_logic_type: ['ghdl-explicit-boundary-conversions'],
+  shift_left_on_raw_std_logic_vector: ['ghdl-no-raw-slv-arithmetic'],
+  shift_right_on_raw_std_logic_vector: ['ghdl-no-raw-slv-arithmetic'],
+  typed_bitwise_mismatch: ['ghdl-no-raw-slv-arithmetic'],
+  typed_unary_mismatch: ['ghdl-no-raw-slv-arithmetic'],
+  typed_helper_actual_mismatch: ['ghdl-explicit-boundary-conversions'],
+  procedure_outer_scope_write: ['ghdl-clocked-variable-discipline'],
+  variable_assigned_with_signal_operator: ['ghdl-clocked-variable-discipline'],
+  signal_assigned_with_variable_operator: ['ghdl-clocked-variable-discipline'],
+  illegal_multidimensional_logic_vector: ['ghdl-array-memory-rules'],
+  reconstrained_subtype_alias: ['ghdl-array-memory-rules'],
+  subprogram_body_inside_package_declaration: ['ghdl-record-package-rules'],
+  undeclared_interface_dimension_reference: ['ghdl-top-port-constraints'],
+  output_port_readback: ['ghdl-no-raw-slv-arithmetic'],
+  runtime_bound_check_risk: ['ghdl-arithmetic-width-rules'],
+  top_level_generic_default_missing: ['ghdl-top-generic-defaults'],
+  top_level_port_unconstrained: ['ghdl-top-port-constraints'],
+  mixed_vhdl_standard_group: ['ghdl-no-mixed-standard-groups'],
+  missing_ghdl_command_contract: ['ghdl-clean-command-contract', 'ghdl-command-rules'],
+  invalid_source_order_contract: ['ghdl-source-ordering'],
+  multiple_architecture_elaboration_ambiguity: ['ghdl-multiple-architectures'],
+  rtl_contains_tb_only_construct: ['ghdl-rtl-tb-separation', 'ghdl-no-wait-in-rtl'],
+  unsupported_textio_package_policy: ['ghdl-textio-rules'],
+  missing_waveform_generation_contract: ['ghdl-waveform-rules'],
+  generated_clock_in_rtl: ['ghdl-no-generated-clocks'],
+  mixed_clock_edge_domain: ['ghdl-no-mixed-clock-edges'],
+  ghdl_analyze_failure: ['ghdl-command-rules'],
+  ghdl_elaborate_failure: ['ghdl-command-rules'],
+  ghdl_simulate_failure: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
+};
+
+export function getCanonicalRuleIdsForFailureCode(failureCode: string | null | undefined) {
+  if (!failureCode) return [];
+  return GHDL_FAILURE_CODE_TO_RULE_IDS[failureCode] || [];
+}
+
+export function ruleAppliesToMacro(rule: CanonicalGhdlRule, macroId: AiMacroId) {
+  switch (rule.macroScope) {
+    case 'all_code_macros':
+      return ['fpga_vhdl_architect', 'generate_vhdl_tb', 'generate_vhdl_assertions', 'draft_rtl_skeleton'].includes(macroId);
+    case 'architect_only':
+      return macroId === 'fpga_vhdl_architect';
+    case 'tb_only':
+      return macroId === 'generate_vhdl_tb' || macroId === 'fpga_vhdl_architect';
+    case 'tb_and_assertions':
+      return ['generate_vhdl_tb', 'generate_vhdl_assertions', 'fpga_vhdl_architect'].includes(macroId);
+    case 'runnable_artifacts_only':
+      return ['fpga_vhdl_architect', 'generate_vhdl_tb', 'draft_rtl_skeleton', 'generate_vhdl_assertions'].includes(macroId);
+    default:
+      return false;
+  }
+}
+
+export function buildGhdlRuleCoverageReport() {
+  const totals = {
+    total: GHDL_EXTERNAL_RULE_REGISTRY.length,
+    implemented: 0,
+    partial: 0,
+    planned: 0,
+  };
+
+  const byFamily = new Map<string, { total: number; implemented: number; partial: number; planned: number }>();
+  const byMacro = new Map<AiMacroId, { total: number; implemented: number; partial: number; planned: number }>();
+  const byEnforcementLayer = new Map<GhdlRuleEnforcementLayer, { total: number; implemented: number; partial: number; planned: number }>();
+
+  for (const macroId of CODE_GENERATING_MACRO_IDS) {
+    byMacro.set(macroId, { total: 0, implemented: 0, partial: 0, planned: 0 });
+  }
+  for (const layer of GHDL_RULE_ENFORCEMENT_LAYERS) {
+    byEnforcementLayer.set(layer, { total: 0, implemented: 0, partial: 0, planned: 0 });
+  }
+
+  for (const rule of GHDL_EXTERNAL_RULE_REGISTRY) {
+    totals[rule.status] += 1;
+    const familyStats = byFamily.get(rule.family) || { total: 0, implemented: 0, partial: 0, planned: 0 };
+    familyStats.total += 1;
+    familyStats[rule.status] += 1;
+    byFamily.set(rule.family, familyStats);
+
+    for (const macroId of CODE_GENERATING_MACRO_IDS) {
+      if (!ruleAppliesToMacro(rule, macroId)) {
+        continue;
+      }
+      const macroStats = byMacro.get(macroId)!;
+      macroStats.total += 1;
+      macroStats[rule.status] += 1;
+    }
+
+    for (const layer of rule.enforcementLayers) {
+      const layerStats = byEnforcementLayer.get(layer)!;
+      layerStats.total += 1;
+      layerStats[rule.status] += 1;
+    }
+  }
+
+  return {
+    totals,
+    byFamily: Array.from(byFamily.entries()).map(([family, stats]) => ({ family, ...stats })),
+    byMacro: Array.from(byMacro.entries()).map(([macroId, stats]) => ({ macroId, ...stats })),
+    byEnforcementLayer: Array.from(byEnforcementLayer.entries()).map(([layer, stats]) => ({ layer, ...stats })),
+    rules: GHDL_EXTERNAL_RULE_REGISTRY,
+  };
+}
+
+export function buildCodeGeneratingCommandContract(macroId: AiMacroId) {
+  const sharedLines = [
+    'Use one VHDL standard consistently across the generated project, defaulting to `--std=08` unless explicitly requested otherwise.',
+    'If the macro returns runnable VHDL artifacts, include exact GHDL analyze/elaborate/run commands, not vague simulation prose.',
+    'When a waveform is expected, include an explicit waveform argument such as `--vcd=...`, `--ghw=...`, or `--fst=...`.',
+  ];
+
+  if (macroId === 'fpga_vhdl_architect') {
+    sharedLines.push('Include explicit `analysis_order`, `top_testbench`, `run_commands`, and `expected_result` metadata that matches the generated files exactly.');
+  } else if (macroId === 'generate_vhdl_tb') {
+    sharedLines.push('Return a concrete GHDL command sequence for the DUT and testbench, including waveform output and the expected simulation result.');
+  } else {
+    sharedLines.push('If the output includes a runnable DUT/TB pair or compile-ready assertions/skeleton project, return the exact GHDL command sequence needed to validate it.');
+  }
+
+  return sharedLines.map((line) => `- ${line}`).join('\n');
+}

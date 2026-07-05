@@ -75,6 +75,8 @@ export interface AiReportMeta {
     inputTokens: number | null;
     latestAttemptInputTokens?: number;
     jobInputTokens?: number;
+    attemptCount?: number;
+    retryCount?: number;
     sessionInputTokens?: number;
     outputTokens: number | null;
     jobOutputTokens?: number;
@@ -90,6 +92,32 @@ export interface AiReportMeta {
     path: string;
     kind?: 'testbench' | 'module' | 'assertions' | 'rtl_skeleton' | 'unknown';
   }>;
+  architectProject?: {
+    projectName: string;
+    sanitizedProjectName: string;
+    topEntity: string;
+    vhdlStandard: string;
+    targetFpga: string | null;
+    summary: string;
+    assumptions: string[];
+    warnings: string[];
+    folderTree: string;
+    outputDirectory: string | null;
+    files: Array<{
+      path: string;
+      fileType: string;
+      purpose: string;
+      content: string;
+      savedPath?: string;
+    }>;
+    ghdl: {
+      analysisOrder: string[];
+      topTestbench: string;
+      runCommands: string[];
+      expectedResult: string;
+    };
+    qualityChecklist: string[];
+  } | null;
   validation?: AiMacroValidationResult | null;
   hazardMarkdown?: string | null;
   hazardFindings?: AiHazardFinding[];

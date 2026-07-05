@@ -1,0 +1,16 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+package alu_constants is
+    -- Define OpCodes using integer constants
+    constant OP_NOP : std_logic_vector(1 downto 0) := "NN"; -- No operation / Idle
+    constant OP_ADD : std_logic_vector(1 downto 0) := "A+";  -- Addition (A + B)
+    constant OP_SUB : std_logic_vector(1 downto 2) := "S-";  -- Subtraction (A - B) - Note: Requires 3 bits if opcode space is larger, using 3 for robustness.
+    constant OP_AND : std_logic_vector(1 downto 0) := "AN";  -- Bitwise AND
+    constant OP_OR  : std_logic_vector(1 downto 0) := "O|";  -- Bitwise OR
+    constant OP_XOR : std_logic_vector(1 downto 0) := "X^";  -- Bitwise XOR
+    constant OP_SLL : std_logic_vector(1 downto 2) := "SL";  -- Shift Left
+    constant OP_SRL : std_logic_vector(1 downto 2) := "SR";  -- Shift Right
+
+end package alu_constants;

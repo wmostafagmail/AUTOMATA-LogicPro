@@ -1,4 +1,12 @@
 v 4
+file . "FPGA Projects/Counter/counter/src/tb_updown_counter.vhd" "0bda45ba204ffa71dcde0c1663811b423561f01d" "20260701221235.511":
+  entity tb_updown_counter at 14( 742) + 0 on 16;
+  architecture sim of tb_updown_counter at 22( 904) + 0 on 17;
+file . "FPGA Projects/Counter/counter/src/updown_counter_pkg.vhd" "42395bc60ffce331e484f6f3d99f6ae61c6c4fc3" "20260701221235.449":
+  package updown_counter_pkg at 9( 401) + 0 on 13;
 file / "/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/AI Generated RTL/avr_spi_master.vhd" "29053e06dcaa12418bd505b1d38a11fd0ee5d1b5" "20260627212226.820":
   entity avr_spi_master at 1( 0) + 0 on 11;
   architecture rtl of avr_spi_master at 34( 1084) + 0 on 12;
+file . "FPGA Projects/Counter/counter/src/updown_counter.vhd" "65ff1d0576cf23f407c22b9b13287e7dd0ecd622" "20260701221235.467":
+  entity updown_counter at 14( 817) + 0 on 14;
+  architecture rtl of updown_counter at 36( 1631) + 0 on 15;

@@ -1,0 +1,23 @@
+{
+  "project": "Counter",
+  "target": "Generic FPGA",
+  "clock": "100 MHz",
+  "reset": "Synchronous Active-High",
+  "files": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/tb_alu.vhd"
+  ],
+  "compile": [
+    "ghdl -a --std=08 src/alu_pkg.vhd",
+    "ghdl -a --std=08 src/alu.vhd"
+  ],
+  "elaborate": [
+    "ghdl -e --std=08 tb/tb_alu"
+  ],
+  "run": [
+    "ghdl -r --std=08 tb/tb_alu --wave=tb_alu.fst"
+  ],
+  "stop_on_pass": true,
+  "stop_code": 0
+}

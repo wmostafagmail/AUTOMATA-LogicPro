@@ -4,7 +4,7 @@ description: VHDL-focused registry used by the VHDL-skill-orchestrator to select
 
 skills:
   - name: VHDL-skill-orchestrator
-    path: .agents/skills/VHDL-skill-orchestrator/SKILL.md
+    path: VHDL-skill-orchestrator/SKILL.md
     description: VHDL-focused meta-skill that selects, sequences, and coordinates FPGA/VHDL-related specialized skills.
     domains: [vhdl-orchestration, fpga, rtl, orchestration, routing, planning]
     phases: [requirements, architecture, design, implementation, debugging, verification, documentation, review]
@@ -14,18 +14,18 @@ skills:
     conflicts: []
 
   - name: vhdl-language
-    path: .agents/skills/vhdl-language/SKILL.md
-    description: FPGA/VHDL architecture, RTL implementation, verification, synthesis, timing, CDC, and debug skill.
+    path: VHDL-skill-orchestrator/skills/vhdl-language/SKILL.md
+    description: FPGA/VHDL language skill with IEEE-1076 and GHDL-safe coding discipline for RTL, packages, and testbenches.
     domains: [fpga, rtl, vhdl, ieee-1076, synthesis]
     phases: [requirements, architecture, design, implementation, debugging, verification, optimization]
     outputs: [vhdl, testbench, constraints, design-notes, debug-analysis]
-    trigger_keywords: [vhdl, fpga, rtl, vivado, quartus, ghdl, ieee 1076, testbench, synthesis]
+    trigger_keywords: [vhdl, fpga, rtl, vivado, quartus, ghdl, ieee 1076, testbench, synthesis, vhdl-2008, numeric_std, std_logic_1164]
     priority: 100
     toolchains: [ghdl, vivado, quartus, questa, modelsim, riviera-pro]
     conflicts: []
 
   - name: fpga-architecture
-    path: .agents/skills/fpga-architecture/SKILL.md
+    path: VHDL-skill-orchestrator/skills/fpga-architecture/SKILL.md
     description: FPGA system architecture, clock/reset planning, CDC strategy, datapath/control design, and resource planning.
     domains: [fpga, rtl, architecture, timing]
     phases: [requirements, architecture, design, optimization]
@@ -35,21 +35,21 @@ skills:
     conflicts: []
 
   - name: rtl-verification
-    path: .agents/skills/rtl-verification/SKILL.md
-    description: Self-checking testbenches, assertions, scoreboards, simulation plans, and regression strategy for RTL.
+    path: VHDL-skill-orchestrator/skills/rtl-verification/SKILL.md
+    description: Self-checking RTL verification skill with GHDL compile/elaborate/simulate discipline, assertions, scoreboards, and regression planning.
     domains: [rtl, verification, simulation, testbench]
     phases: [verification, debugging, review]
-    outputs: [testbench, assertions, simulation-plan, regression-commands]
-    trigger_keywords: [testbench, simulation, assertion, scoreboard, coverage, vunit, osvvm, uvvm]
+    outputs: [testbench, assertions, simulation-plan, regression-commands, ghdl-checklist]
+    trigger_keywords: [testbench, simulation, assertion, scoreboard, coverage, vunit, osvvm, uvvm, ghdl, compile, elaborate, simulate]
     priority: 85
     conflicts: []
 
   - name: timing-constraints
-    path: .agents/skills/timing-constraints/SKILL.md
-    description: FPGA timing constraints, clock constraints, generated clocks, false paths, multicycle paths, and timing debug.
+    path: VHDL-skill-orchestrator/skills/timing-constraints/SKILL.md
+    description: FPGA timing, reset release, and constraint skill with GHDL-aware startup and sampling discipline.
     domains: [fpga, timing, constraints, synthesis, implementation]
     phases: [design, verification, optimization, debugging]
-    outputs: [xdc, sdc, timing-notes, constraints-checklist]
-    trigger_keywords: [xdc, sdc, timing, constraints, setup, hold, false path, multicycle]
+    outputs: [xdc, sdc, timing-notes, constraints-checklist, startup-checklist]
+    trigger_keywords: [xdc, sdc, timing, constraints, setup, hold, false path, multicycle, reset release, clock reset]
     priority: 80
     conflicts: []

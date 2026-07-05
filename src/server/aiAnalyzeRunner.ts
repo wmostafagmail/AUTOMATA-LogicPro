@@ -3,6 +3,18 @@ import path from 'path';
 import type { AiMacroId, AiMacroValidationResult, TbGenerationMode } from '../aiMacros';
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { DeterministicSkillSelection, PreparedVhdlSkillPrompt } from './vhdlSkillOrchestrator';
+import type { FpgaArchitectProject } from './fpgaArchitect';
+import { buildMacroExecutionPrompt } from './aiPromptUtils';
+import {
+  applyGeneratedCodeRepairs,
+  buildGeneratedCodeRepairPrompt,
+  parseGeneratedCodeRepairs,
+  type RepairableGeneratedFile,
+} from './generatedCodeRepair';
+import type {
+  GeneratedVhdlArtifactForValidation,
+  GeneratedVhdlValidationResult,
+} from './generatedVhdlValidation';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -27,6 +39,20 @@ type SavedGeneratedVhdlArtifact = {
   path: string;
 };
 
+type SavedFpgaArchitectArtifact = {
+  name: string;
+  path: string;
+  fileType: string;
+  purpose: string;
+  content: string;
+  kind: 'testbench' | 'module' | 'assertions' | 'rtl_skeleton' | 'unknown';
+};
+
+type SavedArchitectProjectResult = {
+  outputDirectory: string;
+  savedFiles: SavedFpgaArchitectArtifact[];
+};
+
 type HazardFindingLike = {
   severity: 'high' | 'medium' | 'low';
   title: string;
@@ -47,6 +73,56 @@ type ExtractedArtifact = {
   content: string;
   kind: 'testbench' | 'module' | 'assertions' | 'rtl_skeleton' | 'unknown';
 };
+
+type AnnotatedAiAnalyzeError = Error & {
+  generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+};
+
+function macroRequiresPassingSimulation(macroId: AiMacroId) {
+  return macroId === 'generate_vhdl_tb' || macroId === 'fpga_vhdl_architect';
+}
+
+function describeValidationGate(stage: GeneratedVhdlValidationResult['stage']) {
+  if (stage === 'prevalidate') {
+    return 'strict pre-GHDL validation';
+  }
+  return `GHDL ${stage} validation`;
+}
+
+function buildAnnotatedAiAnalyzeError(
+  message: string,
+  metadata?: {
+    generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+  },
+): AnnotatedAiAnalyzeError {
+  const error = new Error(message) as AnnotatedAiAnalyzeError;
+  if (metadata?.generatedVhdlValidation) {
+    error.generatedVhdlValidation = metadata.generatedVhdlValidation;
+  }
+  return error;
+}
+
+function requirePassingSimulationForMacro(params: {
+  macroId: AiMacroId;
+  validation: GeneratedVhdlValidationResult;
+}) {
+  const { macroId, validation } = params;
+  if (!macroRequiresPassingSimulation(macroId)) {
+    return validation;
+  }
+  if (!validation.ok) {
+    return validation;
+  }
+  if (validation.stage === 'simulate') {
+    return validation;
+  }
+
+  return {
+    ...validation,
+    ok: false,
+    summary: `The generated output reached only the GHDL ${validation.stage} stage. This macro requires a full passing compile/elaborate/simulate flow before it can be accepted.`,
+  };
+}
 
 export async function runAiAnalyzeJob(params: {
   ai: GoogleGenAI | null;
@@ -71,6 +147,7 @@ export async function runAiAnalyzeJob(params: {
   }) => string;
   userQuery: string;
   preparedPrompt?: PreparedVhdlSkillPrompt | null;
+  fpgaArchitectExecutionMode?: 'normal' | 'test_compact';
   applyMandatoryVhdlSkill: (taskPrompt: string) => Promise<{
     prompt: string;
     selection: DeterministicSkillSelection | null;
@@ -112,6 +189,44 @@ export async function runAiAnalyzeJob(params: {
     savedArtifacts: SavedGeneratedVhdlArtifact[];
   }>;
   formatValidationFailureDetails: (validation: AiMacroValidationResult) => string;
+  parseFpgaArchitectResponse?: (text: string) => FpgaArchitectProject;
+  buildFpgaArchitectRetryPrompt?: (params: {
+    originalPrompt: string;
+    errorSummary: string;
+  }) => string;
+  buildFpgaArchitectJsonRepairPrompt?: (params: {
+    originalPrompt: string;
+    invalidResponse: string;
+    errorSummary: string;
+  }) => string;
+  buildFpgaArchitectCompactRetryPrompt?: (params: {
+    originalPrompt: string;
+    errorSummary: string;
+    compactMode?: 'compact' | 'ultra_compact' | 'minimal';
+  }) => string;
+  buildFpgaArchitectTestRunPrompt?: (params: {
+    originalPrompt: string;
+    compactMode?: 'ultra_compact' | 'minimal';
+  }) => string;
+  saveFpgaArchitectProject?: (params: {
+    projectPath: string;
+    project: FpgaArchitectProject;
+  }) => Promise<{
+    outputDirectory: string;
+    savedFiles: SavedFpgaArchitectArtifact[];
+  }>;
+  buildFpgaArchitectMarkdownReport?: (params: {
+    project: FpgaArchitectProject;
+    outputDirectory: string;
+  }) => string;
+  validateGeneratedVhdlWithGhdl?: (params: {
+    macroId: AiMacroId;
+    projectPath: string;
+    tbGenerationMode: TbGenerationMode | null;
+    artifactDirectory: string | null;
+    savedArtifacts: GeneratedVhdlArtifactForValidation[];
+    architectProject?: FpgaArchitectProject | null;
+  }) => Promise<GeneratedVhdlValidationResult>;
 }) {
   const {
     ai,
@@ -132,6 +247,7 @@ export async function runAiAnalyzeJob(params: {
     buildMacroPromptContract,
     userQuery,
     preparedPrompt,
+    fpgaArchitectExecutionMode = 'normal',
     applyMandatoryVhdlSkill,
     runModelAnalysis,
     validateMacroOutput,
@@ -140,14 +256,32 @@ export async function runAiAnalyzeJob(params: {
     extractGeneratedVhdlArtifacts,
     saveGeneratedVhdlArtifacts,
     formatValidationFailureDetails,
+    parseFpgaArchitectResponse,
+    buildFpgaArchitectRetryPrompt,
+    buildFpgaArchitectJsonRepairPrompt,
+    buildFpgaArchitectCompactRetryPrompt,
+    buildFpgaArchitectTestRunPrompt,
+    saveFpgaArchitectProject,
+    buildFpgaArchitectMarkdownReport,
+    validateGeneratedVhdlWithGhdl,
   } = params;
 
-  const resolvedPreparedPrompt = preparedPrompt || await applyMandatoryVhdlSkill(`${systemPrompt}\n\n${buildMacroPromptContract({
+  const resolvedPreparedPrompt = preparedPrompt || await applyMandatoryVhdlSkill(buildMacroExecutionPrompt({
+    systemPrompt,
+    buildMacroPromptContract,
     macroId,
     userQuery,
     tbGenerationMode,
-  })}`);
-  const initialPrompt = resolvedPreparedPrompt.prompt;
+  }));
+  const isFpgaArchitectMacro = macroId === 'fpga_vhdl_architect';
+  const initialPrompt = isFpgaArchitectMacro
+    && fpgaArchitectExecutionMode === 'test_compact'
+    && buildFpgaArchitectTestRunPrompt
+    ? buildFpgaArchitectTestRunPrompt({
+      originalPrompt: resolvedPreparedPrompt.prompt,
+      compactMode: 'minimal',
+    })
+    : resolvedPreparedPrompt.prompt;
   const deterministicSkillSelection = resolvedPreparedPrompt.selection;
   let aiResult = await runModelAnalysis({
     ai,
@@ -168,7 +302,17 @@ export async function runAiAnalyzeJob(params: {
   });
   let retryUsed = false;
 
-  if (artifactDirectory) {
+  if (isFpgaArchitectMacro) {
+    validation = {
+      macroId,
+      status: 'pass',
+      summary: 'Structured FPGA architect JSON received.',
+      warnings: [],
+      checks: [],
+    };
+  }
+
+  if (!isFpgaArchitectMacro && artifactDirectory) {
     const hasVhdlCodeFailure = validation.checks.some((check) => check.id === 'code:vhdl' && check.status === 'fail');
     const extractedInitialArtifacts = extractGeneratedVhdlArtifacts(responseText, macroId);
     const hasRequiredArtifact = macroId === 'generate_vhdl_tb'
@@ -233,8 +377,313 @@ export async function runAiAnalyzeJob(params: {
   let outputDirectory: string | null = null;
   let savedGeneratedFiles: SavedGeneratedVhdlArtifact[] = [];
   let analysisText = responseText;
+  let architectProject: FpgaArchitectProject | null = null;
+  let ghdlValidation: GeneratedVhdlValidationResult | null = null;
+  let repairableFiles: RepairableGeneratedFile[] = [];
 
-  if (artifactDirectory) {
+  const appendGhdlValidationSummary = (text: string, validationResult: GeneratedVhdlValidationResult) => {
+    const recentLogs = validationResult.logs.slice(-8);
+    const logSection = recentLogs.length > 0
+      ? `\nRecent validation log lines:\n${recentLogs.map((line) => `- ${line}`).join('\n')}`
+      : '';
+    return `${text.trimEnd()}\n\n## GHDL Validation\n- Status: PASS\n- Stage: ${validationResult.stage}\n- Summary: ${validationResult.summary}${logSection}\n`;
+  };
+
+  const repairFpgaArchitectManifestIfNeeded = async (currentResponseText: string) => {
+    if (!parseFpgaArchitectResponse || !buildFpgaArchitectJsonRepairPrompt || !buildFpgaArchitectCompactRetryPrompt) {
+      throw new Error('FPGA Architect JSON repair dependencies are unavailable.');
+    }
+    try {
+      return parseFpgaArchitectResponse(currentResponseText);
+    } catch (error: any) {
+      retryUsed = true;
+      const repairPrompt = buildFpgaArchitectJsonRepairPrompt({
+        originalPrompt: initialPrompt,
+        invalidResponse: currentResponseText,
+        errorSummary: error?.message || String(error),
+      });
+      aiResult = await runModelAnalysis({
+        ai,
+        provider: selectedProvider,
+        model: selectedModel,
+        prompt: repairPrompt,
+        signal,
+      });
+      attemptTelemetries.push(aiResult.telemetry);
+      responseText = aiResult.text;
+      responseTelemetry = aiResult.telemetry;
+      try {
+        return parseFpgaArchitectResponse(responseText);
+      } catch (repairError: any) {
+        const compactModes: Array<'compact' | 'ultra_compact' | 'minimal'> = ['compact', 'ultra_compact', 'minimal'];
+        let lastCompactError: unknown = repairError;
+
+        for (const compactMode of compactModes) {
+          const compactRetryPrompt = buildFpgaArchitectCompactRetryPrompt({
+            originalPrompt: initialPrompt,
+            errorSummary: (lastCompactError as any)?.message || String(lastCompactError),
+            compactMode,
+          });
+          aiResult = await runModelAnalysis({
+            ai,
+            provider: selectedProvider,
+            model: selectedModel,
+            prompt: compactRetryPrompt,
+            signal,
+          });
+          attemptTelemetries.push(aiResult.telemetry);
+          responseText = aiResult.text;
+          responseTelemetry = aiResult.telemetry;
+          try {
+            return parseFpgaArchitectResponse(responseText);
+          } catch (compactError: any) {
+            lastCompactError = compactError;
+          }
+        }
+
+        throw lastCompactError instanceof Error ? lastCompactError : new Error(String(lastCompactError));
+      }
+    }
+  };
+
+  const buildGhdlFailureSummary = (validationResult: GeneratedVhdlValidationResult) => {
+    const validationLabel = describeValidationGate(validationResult.stage);
+    const recentLogs = validationResult.logs
+      .filter((line) => typeof line === 'string' && line.trim().length > 0)
+      .slice(-12);
+    const machineFailureSection = (validationResult.failureDetails || []).slice(0, 5)
+      .map((detail) => {
+        const lines = [
+          `- Failure class: ${detail.category} / ${detail.code}`,
+          ...(detail.ruleIds && detail.ruleIds.length > 0 ? [`  Rule IDs: ${detail.ruleIds.join(', ')}`] : []),
+          `  Summary: ${detail.message}`,
+        ];
+        if (detail.forbiddenConstruct) {
+          lines.push(`  Forbidden construct: ${detail.forbiddenConstruct}`);
+        }
+        if (detail.legalReplacementPattern) {
+          lines.push(`  Legal replacement pattern: ${detail.legalReplacementPattern}`);
+        }
+        return lines.join('\n');
+      })
+      .join('\n');
+    const logSection = recentLogs.length > 0
+      ? `\nRecent validation log lines:\n${recentLogs.map((line) => `- ${line}`).join('\n')}`
+      : '';
+    const detailSection = machineFailureSection
+      ? `\nMachine-readable validation classes:\n${machineFailureSection}`
+      : '';
+    return `Generated project failed ${validationLabel}.\nSummary: ${validationResult.summary}${detailSection}${logSection}`;
+  };
+
+  const attemptSharedGeneratedCodeRepair = async (params: {
+    validationResult: GeneratedVhdlValidationResult;
+    files: RepairableGeneratedFile[];
+  }) => {
+    if (params.files.length === 0 || !validateGeneratedVhdlWithGhdl) {
+      return null;
+    }
+
+    retryUsed = true;
+    const repairPrompt = buildGeneratedCodeRepairPrompt({
+      originalPrompt: initialPrompt,
+      macroId,
+      macroLabel: macroSpec.label,
+      validation: params.validationResult,
+      availableFiles: params.files,
+    });
+    aiResult = await runModelAnalysis({
+      ai,
+      provider: selectedProvider,
+      model: selectedModel,
+      prompt: repairPrompt,
+      signal,
+    });
+    attemptTelemetries.push(aiResult.telemetry);
+    responseText = aiResult.text;
+    responseTelemetry = aiResult.telemetry;
+
+    const parsedRepairs = parseGeneratedCodeRepairs({
+      text: responseText,
+      allowedFiles: params.files,
+    });
+
+    if (parsedRepairs.length === 0) {
+      return {
+        repairedFiles: params.files,
+        validationResult: params.validationResult,
+        parsedRepairs,
+      };
+    }
+
+    const updatedFiles = await applyGeneratedCodeRepairs({
+      availableFiles: params.files,
+      repairs: parsedRepairs,
+    });
+
+    const repairedValidation = requirePassingSimulationForMacro({
+      macroId,
+      validation: await validateGeneratedVhdlWithGhdl({
+        macroId,
+        projectPath: normalizedProjectPath,
+        tbGenerationMode,
+        artifactDirectory,
+        savedArtifacts: updatedFiles.map((file) => ({
+          fileName: path.basename(file.relativePath),
+          path: file.absolutePath,
+          kind: file.kind,
+        })),
+        architectProject,
+      }),
+    });
+
+    return {
+      repairedFiles: updatedFiles,
+      validationResult: repairedValidation,
+      parsedRepairs,
+    };
+  };
+
+  const saveAndValidateArchitectProject = async (project: FpgaArchitectProject) => {
+    const saveResult = await saveFpgaArchitectProject!({
+      projectPath: normalizedProjectPath,
+      project,
+    }) as SavedArchitectProjectResult;
+    outputDirectory = saveResult.outputDirectory;
+    savedGeneratedFiles = saveResult.savedFiles.map((file) => ({
+      fileName: file.name,
+      content: file.content,
+      kind: file.kind,
+      path: file.path,
+    }));
+    project.files = project.files.map((file) => {
+      const saved = saveResult.savedFiles.find((savedFile) => savedFile.path.endsWith(path.normalize(file.path)));
+      return saved ? { ...file, savedPath: saved.path } : file;
+    });
+    repairableFiles = saveResult.savedFiles
+      .filter((file) => file.path.toLowerCase().endsWith('.vhd') || file.path.toLowerCase().endsWith('.vhdl'))
+      .map((file) => ({
+        relativePath: path.relative(normalizedProjectPath, file.path),
+        absolutePath: file.path,
+        content: file.content,
+        kind: file.kind,
+      }));
+
+    let validationResult: GeneratedVhdlValidationResult | null = null;
+    if (validateGeneratedVhdlWithGhdl) {
+      validationResult = requirePassingSimulationForMacro({
+        macroId,
+        validation: await validateGeneratedVhdlWithGhdl({
+          macroId,
+          projectPath: normalizedProjectPath,
+          tbGenerationMode,
+          artifactDirectory,
+          savedArtifacts: saveResult.savedFiles.map((file) => ({
+            fileName: file.name,
+            path: file.path,
+            kind: file.kind,
+          })),
+          architectProject: project,
+        }),
+      });
+    }
+
+    return { saveResult, validationResult };
+  };
+
+  if (isFpgaArchitectMacro) {
+    if (!parseFpgaArchitectResponse || !saveFpgaArchitectProject || !buildFpgaArchitectMarkdownReport || !buildFpgaArchitectJsonRepairPrompt || !buildFpgaArchitectCompactRetryPrompt) {
+      throw new Error('FPGA Architect save/report dependencies are unavailable.');
+    }
+    if (!normalizedProjectPath) {
+      throw new Error('FPGA Architect requires an opened project folder so the generated project can be saved.');
+    }
+
+    try {
+      architectProject = await repairFpgaArchitectManifestIfNeeded(responseText);
+    } catch (error: any) {
+      throw new Error(`FPGA Architect hard-failed because the generated project manifest was still invalid before VHDL validation. The app did not modify or auto-fix any generated VHDL files. ${error?.message || String(error)}`);
+    }
+
+    let saveResult = await saveAndValidateArchitectProject(architectProject);
+    ghdlValidation = saveResult.validationResult;
+
+    if (ghdlValidation && !ghdlValidation.ok) {
+      const sharedRepair = await attemptSharedGeneratedCodeRepair({
+        validationResult: ghdlValidation,
+        files: repairableFiles,
+      });
+      if (sharedRepair?.parsedRepairs.length) {
+        repairableFiles = sharedRepair.repairedFiles;
+        ghdlValidation = sharedRepair.validationResult;
+        if (ghdlValidation.ok) {
+          savedGeneratedFiles = savedGeneratedFiles.map((artifact) => {
+            const repaired = repairableFiles.find((file) => file.absolutePath === artifact.path);
+            return repaired ? { ...artifact, content: repaired.content } : artifact;
+          });
+          if (architectProject) {
+            architectProject.files = architectProject.files.map((file) => {
+              const repaired = repairableFiles.find((candidate) => candidate.absolutePath === file.savedPath);
+              return repaired ? { ...file, content: repaired.content } : file;
+            });
+          }
+        }
+      }
+
+      if (ghdlValidation && !ghdlValidation.ok) {
+        const validationLabel = describeValidationGate(ghdlValidation.stage);
+        if (!buildFpgaArchitectRetryPrompt) {
+          throw buildAnnotatedAiAnalyzeError(
+            `FPGA Architect hard-failed because the generated project did not pass ${validationLabel}. The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`,
+            { generatedVhdlValidation: ghdlValidation },
+          );
+        }
+
+        retryUsed = true;
+        const retryPrompt = buildFpgaArchitectRetryPrompt({
+          originalPrompt: initialPrompt,
+          errorSummary: buildGhdlFailureSummary(ghdlValidation),
+        });
+        aiResult = await runModelAnalysis({
+          ai,
+          provider: selectedProvider,
+          model: selectedModel,
+          prompt: retryPrompt,
+          signal,
+        });
+        attemptTelemetries.push(aiResult.telemetry);
+        responseText = aiResult.text;
+        responseTelemetry = aiResult.telemetry;
+
+        try {
+          architectProject = await repairFpgaArchitectManifestIfNeeded(responseText);
+        } catch (error: any) {
+          throw buildAnnotatedAiAnalyzeError(
+            `FPGA Architect hard-failed because the GHDL repair retry returned an invalid project manifest before VHDL validation. The app did not modify or auto-fix any generated VHDL files. ${error?.message || String(error)}`,
+            { generatedVhdlValidation: ghdlValidation },
+          );
+        }
+
+        saveResult = await saveAndValidateArchitectProject(architectProject);
+        ghdlValidation = saveResult.validationResult;
+        if (ghdlValidation && !ghdlValidation.ok) {
+          const retryValidationLabel = describeValidationGate(ghdlValidation.stage);
+          throw buildAnnotatedAiAnalyzeError(
+            `FPGA Architect hard-failed because the generated project did not pass ${retryValidationLabel} after GHDL repair retry. The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`,
+            { generatedVhdlValidation: ghdlValidation },
+          );
+        }
+      }
+    }
+
+    analysisText = buildFpgaArchitectMarkdownReport({
+      project: architectProject,
+      outputDirectory,
+    });
+    if (ghdlValidation?.ok) {
+      analysisText = appendGhdlValidationSummary(analysisText, ghdlValidation);
+    }
+  } else if (artifactDirectory) {
     const extractedArtifacts = extractGeneratedVhdlArtifacts(responseText, macroId);
     const hasVhdlCodeFailure = validation.checks.some((check) => check.id === 'code:vhdl' && check.status === 'fail');
     const hasRequiredArtifact = macroId === 'generate_vhdl_tb'
@@ -261,10 +710,57 @@ export async function runAiAnalyzeJob(params: {
     });
     outputDirectory = saveResult.outputDirectory;
     savedGeneratedFiles = saveResult.savedArtifacts;
+    repairableFiles = saveResult.savedArtifacts
+      .filter((artifact) => artifact.path.toLowerCase().endsWith('.vhd') || artifact.path.toLowerCase().endsWith('.vhdl'))
+      .map((artifact) => ({
+        relativePath: path.relative(normalizedProjectPath, artifact.path),
+        absolutePath: artifact.path,
+        content: artifact.content,
+        kind: artifact.kind,
+      }));
+    if (validateGeneratedVhdlWithGhdl && ['generate_vhdl_tb', 'draft_rtl_skeleton'].includes(macroId)) {
+      ghdlValidation = requirePassingSimulationForMacro({
+        macroId,
+        validation: await validateGeneratedVhdlWithGhdl({
+          macroId,
+          projectPath: normalizedProjectPath,
+          tbGenerationMode,
+          artifactDirectory,
+          savedArtifacts: saveResult.savedArtifacts.map((artifact) => ({
+            fileName: artifact.fileName,
+            path: artifact.path,
+            kind: artifact.kind,
+          })),
+        }),
+      });
+
+      if (!ghdlValidation.ok) {
+        const sharedRepair = await attemptSharedGeneratedCodeRepair({
+          validationResult: ghdlValidation,
+          files: repairableFiles,
+        });
+        if (sharedRepair?.parsedRepairs.length) {
+          repairableFiles = sharedRepair.repairedFiles;
+          ghdlValidation = sharedRepair.validationResult;
+          savedGeneratedFiles = savedGeneratedFiles.map((artifact) => {
+            const repaired = repairableFiles.find((file) => file.absolutePath === artifact.path);
+            return repaired ? { ...artifact, content: repaired.content } : artifact;
+          });
+        }
+
+        if (!ghdlValidation.ok) {
+          const validationLabel = describeValidationGate(ghdlValidation.stage);
+          throw new Error(`${macroSpec.label} hard-failed because the generated VHDL did not pass ${validationLabel}. The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`);
+        }
+      }
+    }
 
     analysisText = `${responseText.trimEnd()}\n\n## Saved Generated Files\n${savedGeneratedFiles
       .map((artifact) => `- ${path.relative(normalizedProjectPath, artifact.path)}`)
       .join('\n')}\n`;
+    if (ghdlValidation?.ok) {
+      analysisText = appendGhdlValidationSummary(analysisText, ghdlValidation);
+    }
   }
 
   const latestAttemptInputTokens = responseTelemetry.inputTokens;
@@ -294,6 +790,8 @@ export async function runAiAnalyzeJob(params: {
       inputTokens: latestAttemptInputTokens,
       latestAttemptInputTokens,
       jobInputTokens,
+      attemptCount: attemptTelemetries.length,
+      retryCount: Math.max(0, attemptTelemetries.length - 1),
       sessionInputTokens: sessionAiTokenTotals.inputTokens,
       outputTokens: responseTelemetry.outputTokens,
       jobOutputTokens,
@@ -309,6 +807,14 @@ export async function runAiAnalyzeJob(params: {
       path: artifact.path,
       kind: artifact.kind,
     })),
+    architectProject: architectProject ? {
+      ...architectProject,
+      outputDirectory,
+      files: architectProject.files.map((file) => ({
+        ...file,
+        savedPath: file.savedPath || path.join(outputDirectory || normalizedProjectPath, file.path),
+      })),
+    } : null,
     validation,
     deterministicSkillSelection,
   };

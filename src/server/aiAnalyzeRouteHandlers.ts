@@ -4,12 +4,33 @@ import type { GoogleGenAI } from '@google/genai';
 import type { AiMacroId, TbGenerationMode } from '../aiMacros';
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { PreparedAiAnalyzeRequest } from './aiAnalyzePreparation';
+import type { FpgaArchitectProject } from './fpgaArchitect';
+import { runFpgaArchitectStressLoop } from './fpgaArchitectStressLoop';
+import { FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS } from '../fpgaArchitectSweepConfig';
+import {
+  buildVhdlOrchestratorTaskPrompt,
+  normalizePreparedPrompt,
+  parseMacroExecutionParams,
+} from './aiPromptUtils';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
 type BeginTrackedJobResult = {
   controller: AbortController;
   abortTrackedJob: (reason: string) => void;
+  updateTrackedJobProgress: (progress: {
+    currentLoop?: number;
+    totalLoops?: number;
+    completedAttempts?: number;
+    failures?: number;
+    successes?: number;
+    currentDesignKey?: string;
+    currentDesignLabel?: string;
+    currentDesignIndex?: number;
+    totalDesigns?: number;
+    currentDesignAttempt?: number;
+    attemptsPerDesign?: number;
+  }) => void;
 };
 
 type ProviderDescriptor = {
@@ -25,6 +46,17 @@ type GeneratedArtifact = {
   content: string;
   kind: string;
 };
+
+type SavedArchitectProjectResponse = {
+  outputDirectory: string;
+  files: Array<{
+    path: string;
+    fileType: string;
+    purpose: string;
+    content: string;
+    savedPath?: string;
+  }>;
+} & FpgaArchitectProject;
 
 export function createAiAnalyzeRouteContext(params: {
   ai: GoogleGenAI | null;
@@ -78,6 +110,14 @@ export function createAiAnalyzeRouteContext(params: {
   extractGeneratedVhdlArtifacts: (text: string, macroId: AiMacroId) => GeneratedArtifact[];
   saveGeneratedVhdlArtifacts: (...args: any[]) => Promise<any>;
   formatValidationFailureDetails: (...args: any[]) => string;
+  parseFpgaArchitectResponse: (...args: any[]) => FpgaArchitectProject;
+  buildFpgaArchitectRetryPrompt: (...args: any[]) => string;
+  buildFpgaArchitectJsonRepairPrompt: (...args: any[]) => string;
+  buildFpgaArchitectCompactRetryPrompt: (...args: any[]) => string;
+  buildFpgaArchitectTestRunPrompt: (...args: any[]) => string;
+  saveFpgaArchitectProject: (...args: any[]) => Promise<any>;
+  buildFpgaArchitectMarkdownReport: (...args: any[]) => string;
+  validateGeneratedVhdlWithGhdl: (...args: any[]) => Promise<any>;
   isAbortError: (error: unknown) => boolean;
   staticProviderModels: Record<string, Array<{ id: string }>>;
 }) {
@@ -113,6 +153,14 @@ export function createAiAnalyzeRouteContext(params: {
     extractGeneratedVhdlArtifacts,
     saveGeneratedVhdlArtifacts,
     formatValidationFailureDetails,
+    parseFpgaArchitectResponse,
+    buildFpgaArchitectRetryPrompt,
+    buildFpgaArchitectJsonRepairPrompt,
+    buildFpgaArchitectCompactRetryPrompt,
+    buildFpgaArchitectTestRunPrompt,
+    saveFpgaArchitectProject,
+    buildFpgaArchitectMarkdownReport,
+    validateGeneratedVhdlWithGhdl,
     isAbortError,
     staticProviderModels,
   } = params;
@@ -120,14 +168,7 @@ export function createAiAnalyzeRouteContext(params: {
   const remoteExportPreviewHandler: express.RequestHandler = async (req, res) => {
     const { provider, signals, query, model, timeUnit, tickDuration, projectContext, projectPath, workspaceFileName } = req.body;
     const simulationMacroContext = req.body?.simulationMacroContext;
-    const macroId: AiMacroId = typeof req.body?.macroId === 'string' && req.body.macroId.trim()
-      ? req.body.macroId.trim() as AiMacroId
-      : 'custom_query';
-    const tbGenerationMode: TbGenerationMode | null = req.body?.tbGenerationMode === 'reverse_from_vcd'
-      ? 'reverse_from_vcd'
-      : req.body?.tbGenerationMode === 'project_entities'
-        ? 'project_entities'
-        : null;
+    const { macroId, tbGenerationMode } = parseMacroExecutionParams(req.body);
 
     try {
       if (!requiresRemoteExportConsent(provider)) {
@@ -219,14 +260,7 @@ export function createAiAnalyzeRouteContext(params: {
       ? req.body.remoteExportPreviewHash.trim()
       : '';
     const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
-    const macroId: AiMacroId = typeof req.body?.macroId === 'string' && req.body.macroId.trim()
-      ? req.body.macroId.trim() as AiMacroId
-      : 'custom_query';
-    const tbGenerationMode: TbGenerationMode | null = req.body?.tbGenerationMode === 'reverse_from_vcd'
-      ? 'reverse_from_vcd'
-      : req.body?.tbGenerationMode === 'project_entities'
-        ? 'project_entities'
-        : null;
+    const { macroId, tbGenerationMode } = parseMacroExecutionParams(req.body);
 
     if (!query) {
       return res.status(400).json({ error: 'User query is required.' });
@@ -344,6 +378,14 @@ export function createAiAnalyzeRouteContext(params: {
         extractGeneratedVhdlArtifacts,
         saveGeneratedVhdlArtifacts,
         formatValidationFailureDetails,
+        parseFpgaArchitectResponse,
+        buildFpgaArchitectRetryPrompt,
+        buildFpgaArchitectJsonRepairPrompt,
+        buildFpgaArchitectCompactRetryPrompt,
+        buildFpgaArchitectTestRunPrompt,
+        saveFpgaArchitectProject,
+        buildFpgaArchitectMarkdownReport,
+        validateGeneratedVhdlWithGhdl,
       });
 
       return res.json({
@@ -360,6 +402,7 @@ export function createAiAnalyzeRouteContext(params: {
         retryUsed: analysisResult.retryUsed,
         outputDirectory: analysisResult.outputDirectory,
         generatedFiles: analysisResult.generatedFiles,
+        architectProject: analysisResult.architectProject || null,
         validation: analysisResult.validation,
         deterministicSkillSelection: analysisResult.deterministicSkillSelection,
         jobId,
@@ -383,9 +426,198 @@ export function createAiAnalyzeRouteContext(params: {
     }
   };
 
+  const fpgaArchitectStressLoopHandler: express.RequestHandler = async (req, res) => {
+    const provider = typeof req.body?.provider === 'string' ? req.body.provider.trim() : '';
+    const model = typeof req.body?.model === 'string' ? req.body.model.trim() : '';
+    const query = typeof req.body?.query === 'string' ? req.body.query.trim() : '';
+    const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath.trim() : '';
+    const workspaceFileName = typeof req.body?.workspaceFileName === 'string' ? req.body.workspaceFileName.trim() : '';
+    const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
+
+    if (!provider) {
+      return res.status(400).json({ error: 'Provider is required.' });
+    }
+    if (!model) {
+      return res.status(400).json({ error: 'Model is required.' });
+    }
+    if (!query) {
+      return res.status(400).json({ error: 'FPGA Architect prompt is required.' });
+    }
+    if (!projectPath) {
+      return res.status(400).json({ error: 'Open a project folder before running the FPGA Architect multi-design sweep.' });
+    }
+
+    const session = getRequiredSession(req);
+    const { controller, abortTrackedJob, updateTrackedJobProgress } = beginTrackedJob(session, jobId);
+
+    req.on('aborted', () => {
+      abortTrackedJob('Request was cancelled by the client connection.');
+    });
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        abortTrackedJob('Request was cancelled by the client connection.');
+      }
+    });
+
+    try {
+      const loopResult = await runFpgaArchitectStressLoop({
+        ai,
+        selectedProvider: provider,
+        selectedModel: model,
+        userQuery: query,
+        projectPath,
+        workspaceFileName: workspaceFileName || null,
+        session,
+        sessionManager,
+        signal: controller.signal,
+        prepareAiAnalyzeRequest,
+        runAiAnalyzeJob,
+        getProviderDeployment,
+        requiresRemoteExportConsent,
+        assertApprovedProjectPath,
+        analyzeWaveformHazards,
+        analyzeProtocolFrames,
+        getAiMacroSpec,
+        getOrBuildMacroSignalIndex,
+        selectMacroSignals,
+        getSignalName,
+        formatSignalValue,
+        buildSignalTransitionSummary,
+        buildProjectContextFromPath,
+        scrubProjectContextForRemoteExport,
+        getProviderDescriptors,
+        buildMacroPromptContract,
+        applyMandatoryVhdlSkill,
+        runModelAnalysis,
+        validateMacroOutput,
+        buildArtifactRetryPrompt,
+        buildValidationRetryPrompt,
+        extractGeneratedVhdlArtifacts,
+        saveGeneratedVhdlArtifacts,
+        formatValidationFailureDetails,
+        parseFpgaArchitectResponse,
+        buildFpgaArchitectRetryPrompt,
+        buildFpgaArchitectJsonRepairPrompt,
+        buildFpgaArchitectCompactRetryPrompt,
+        buildFpgaArchitectTestRunPrompt,
+        saveFpgaArchitectProject,
+        buildFpgaArchitectMarkdownReport,
+        validateGeneratedVhdlWithGhdl,
+        onProgress: ({ currentLoop, totalLoops, completedAttempts, failures, successes, currentDesignKey, currentDesignLabel, currentDesignIndex, totalDesigns, currentDesignAttempt, attemptsPerDesign }) => {
+          updateTrackedJobProgress({
+            currentLoop,
+            totalLoops,
+            completedAttempts,
+            failures,
+            successes,
+            currentDesignKey,
+            currentDesignLabel,
+            currentDesignIndex,
+            totalDesigns,
+            currentDesignAttempt,
+            attemptsPerDesign,
+          });
+        },
+      });
+
+      return res.json({
+        ok: true,
+        jobId,
+        ...loopResult,
+      });
+    } catch (error: any) {
+      if (isAbortError(error)) {
+        return res.status(499).json({
+          error: 'FPGA Architect multi-design sweep was cancelled before completion.',
+          expectedAttempts: FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS,
+          jobId,
+          cancelled: true,
+        });
+      }
+      return res.status(error?.statusCode || 500).json({
+        ok: false,
+        jobId,
+        error: error?.message || String(error),
+      });
+    } finally {
+      deleteTrackedJob(jobId);
+    }
+  };
+
+  const codeChatHandler: express.RequestHandler = async (req, res) => {
+    const provider = typeof req.body?.provider === 'string' ? req.body.provider.trim() : '';
+    const model = typeof req.body?.model === 'string' ? req.body.model.trim() : '';
+    const question = typeof req.body?.question === 'string' ? req.body.question.trim() : '';
+    const filePath = typeof req.body?.filePath === 'string' ? req.body.filePath.trim() : '';
+    const fileContent = typeof req.body?.fileContent === 'string' ? req.body.fileContent : '';
+    const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath.trim() : '';
+    const projectSummary = typeof req.body?.projectSummary === 'string' ? req.body.projectSummary.trim() : '';
+    const filePaths = Array.isArray(req.body?.filePaths)
+      ? req.body.filePaths.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0).slice(0, 80)
+      : [];
+
+    if (!provider || !model || !question) {
+      return res.status(400).json({ error: 'Provider, model, and question are required.' });
+    }
+
+    if (requiresRemoteExportConsent(provider)) {
+      return res.status(403).json({
+        error: 'Code chat is currently limited to local providers so source code does not leave the machine without a dedicated preview flow.',
+      });
+    }
+
+    try {
+      const session = getRequiredSession(req);
+      let approvedProjectPath = '';
+      if (projectPath) {
+        approvedProjectPath = await assertApprovedProjectPath(session, projectPath, 'Project folder');
+      }
+
+      const taskPrompt = buildVhdlOrchestratorTaskPrompt([
+        'You are helping with an editable FPGA/VHDL architect project inside AUTOMATA LogicPro.',
+        '',
+        `Project folder: ${approvedProjectPath || 'not provided'}`,
+        `Project summary: ${projectSummary || 'not provided'}`,
+        `Selected file: ${filePath || 'unspecified'}`,
+        'Project file list:',
+        `${filePaths.map((entry) => `- ${entry}`).join('\n') || '- none provided'}`,
+        '',
+        'Selected file content:',
+        '```',
+        fileContent,
+        '```',
+        '',
+        'User question:',
+        question,
+        '',
+        'Answer directly about the code. If you suggest code changes, use fenced `vhdl` blocks when appropriate and keep the response practical.',
+      ].join('\n'));
+
+      const preparedPrompt = normalizePreparedPrompt(await applyMandatoryVhdlSkill(taskPrompt));
+      const result = await runModelAnalysis({
+        ai,
+        provider,
+        model,
+        prompt: preparedPrompt.prompt,
+      });
+
+      res.json({
+        answer: result.text,
+        provider,
+        model,
+        telemetry: result.telemetry,
+        deterministicSkillSelection: preparedPrompt.selection,
+      });
+    } catch (error: any) {
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
+    }
+  };
+
   return {
     remoteExportPreviewHandler,
     remoteExportApproveHandler,
     analyzeHandler,
+    fpgaArchitectStressLoopHandler,
+    codeChatHandler,
   };
 }

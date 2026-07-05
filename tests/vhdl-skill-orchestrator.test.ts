@@ -12,6 +12,7 @@ test('deterministic VHDL skill selection routes generate_vhdl_tb to verification
   ].join('\n'));
 
   assert.equal(selection.primary.name, 'VHDL-skill-orchestrator');
+  assert.match(selection.registryPath, /VHDL-skill-orchestrator\/skills\.registry\.yaml$/);
   assert.ok(selection.supporting.some((skill) => skill.name === 'vhdl-language'));
   assert.ok(selection.supporting.some((skill) => skill.name === 'rtl-verification'));
   assert.ok(selection.supporting.some((skill) => skill.name === 'fpga-architecture'));
@@ -52,6 +53,9 @@ test('VHDL skill orchestrator prompt uses deterministic selection instead of emb
   assert.match(prompt, /- Supporting: vhdl-language - /);
   assert.match(prompt, /- Supporting: fpga-architecture - /);
   assert.match(prompt, /### Skill Call Plan/);
+  assert.match(prompt, /## Shared GHDL Conformance Rules/);
+  assert.match(prompt, /std\.env\.stop\(0\)/);
+  assert.match(prompt, /Do not use VHDL logical operator tokens as pseudo-English arithmetic\/comparison glue/);
   assert.doesNotMatch(prompt, /### VHDL-skill-orchestrator README/);
   assert.doesNotMatch(prompt, /### VHDL Skills Registry/);
 });

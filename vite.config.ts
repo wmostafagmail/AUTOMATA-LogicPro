@@ -4,9 +4,18 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 const ignoredGeneratedArtifactGlobs = [
+  '**/FPGA Projects/**',
   '**/AI Generated TB/**',
   '**/AI Generated RTL/**',
   '**/AI Generated Assertions/**',
+  '**/.automata-logicpro/**',
+  '**/work-obj08.cf',
+  '**/*.o',
+  '**/*.cf',
+  '**/*.vcd',
+  '**/*.ghw',
+  '**/*.fst',
+  '**/*.svg',
 ];
 
 export default defineConfig(() => {

@@ -1,0 +1,17 @@
+{
+  "project_name": "Counter",
+  "top_entity": "alu",
+  "top_testbench": "tb_alu",
+  "vhdl_standard": "2008",
+  "analysis_order": [
+    "counter/counter/src/alu_pkg.vhd",
+    "counter/counter/src/alu.vhd",
+    "counter/counter/tb/tb_alu.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 counter/counter/src/alu_pkg.vhd counter/counter/src/alu.vhd counter/counter/tb/tb_alu.vhd",
+    "ghdl -e --std=08 tb_alu",
+    "ghdl -r --std=08 tb_alu --wave=tb_alu.fst"
+  ],
+  "expected_result": "PASS"
+}

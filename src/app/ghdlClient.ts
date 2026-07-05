@@ -58,7 +58,12 @@ export async function runGhdl(projectPath: string, topEntity: string, sourcePath
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || 'GHDL simulation failed.');
+    const detail = Array.isArray(data.logs) && data.logs.length > 0
+      ? `${data.error || 'GHDL simulation failed.'}\n\n${data.logs.join('\n')}`
+      : (data.error || 'GHDL simulation failed.');
+    const error = new Error(detail);
+    (error as any).logs = Array.isArray(data.logs) ? data.logs : [];
+    throw error;
   }
   return data as GhdlRunResponse;
 }

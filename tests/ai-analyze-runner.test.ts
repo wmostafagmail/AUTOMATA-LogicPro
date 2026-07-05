@@ -101,6 +101,13 @@ function createBaseParams(overrides: Record<string, any> = {}) {
         })),
       };
     },
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: true,
+      stage: 'simulate' as const,
+      summary: 'Generated VHDL passed GHDL simulation.',
+      logs: ['ghdl ok'],
+      validatedTopEntities: ['tb_generated'],
+    }),
     formatValidationFailureDetails: (validation: { checks: Array<{ label: string; status: string }> }) => (
       validation.checks.map((check) => `${check.label}:${check.status}`).join(', ') || 'unknown'
     ),
@@ -164,10 +171,91 @@ test('runAiAnalyzeJob retries once when non-artifact validation fails and accumu
   assert.equal(result.telemetry.inputTokens, 80);
   assert.equal(result.telemetry.jobInputTokens, 180);
   assert.equal(result.telemetry.jobOutputTokens, 60);
+  assert.equal(result.telemetry.attemptCount, 2);
+  assert.equal(result.telemetry.retryCount, 1);
   assert.equal(result.telemetry.sessionInputTokens, 180);
   assert.equal(result.telemetry.sessionOutputTokens, 60);
   assert.equal(result.deterministicSkillSelection?.primary.name, 'VHDL-skill-orchestrator');
   assert.equal(result.deterministicSkillSelection?.supporting[0]?.name, 'vhdl-language');
+});
+
+test('runAiAnalyzeJob uses FPGA Architect compact test-run prompt on the initial attempt when requested', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    fpgaArchitectExecutionMode: 'test_compact' as const,
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+            { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'Makefile', file_type: 'makefile', purpose: 'build', content: 'all:' },
+            { path: 'README.md', file_type: 'markdown', purpose: 'docs', content: 'readme' },
+            { path: 'sim/run_ghdl.sh', file_type: 'script', purpose: 'simulation', content: 'ghdl -a' },
+            { path: 'requirements/spec.md', file_type: 'markdown', purpose: 'requirements', content: 'req' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    buildFpgaArchitectTestRunPrompt: ({ originalPrompt, compactMode }: { originalPrompt: string; compactMode?: 'ultra_compact' | 'minimal' }) => (
+      `${originalPrompt}\nTEST-RUN-COMPACT:${compactMode || 'minimal'}`
+    ),
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: true,
+      stage: 'simulate' as const,
+      summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+      logs: ['simulation pass'],
+      validatedTopEntities: ['tb_counter'],
+    }),
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 1);
+  assert.match(params.__runCalls[0]?.prompt || '', /^wrapped:system prompt\n\ncontract:check waveform\nTEST-RUN-COMPACT:minimal$/);
+  assert.equal(result.retryUsed, false);
 });
 
 test('runAiAnalyzeJob hard-fails artifact macros after retry when required artifacts are still missing', async () => {
@@ -363,4 +451,991 @@ test('runAiAnalyzeJob session token accumulation continues across multiple jobs 
   assert.equal(secondResult.telemetry.jobOutputTokens, 20);
   assert.equal(secondResult.telemetry.sessionInputTokens, 100);
   assert.equal(secondResult.telemetry.sessionOutputTokens, 35);
+});
+
+test('runAiAnalyzeJob hard-fails artifact generation when saved VHDL fails GHDL validation and does not auto-fix the files', async () => {
+  const params = createBaseParams({
+    macroId: 'generate_vhdl_tb' as const,
+    tbGenerationMode: 'reverse_from_vcd' as const,
+    artifactDirectory: 'AI Generated TB',
+    macroSpec: { label: 'Generate TB' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: [
+          '## Selected Skills',
+          '- Primary: VHDL-skill-orchestrator',
+          '## Assumptions',
+          '- first',
+          '## Generated Artifact(s)',
+          '### generated_tb.vhd',
+          '```vhdl',
+          'entity tb_generated is end entity;',
+          'architecture sim of tb_generated is begin end architecture;',
+          '```',
+          '## Verification Notes',
+          '- note',
+        ].join('\n'),
+        telemetry: {
+          inputTokens: 90,
+          outputTokens: 30,
+          totalTokens: 120,
+          tokensPerSecond: 20,
+          durationMs: 400,
+        },
+      };
+    },
+    validateMacroOutput: () => ({
+      macroId: 'generate_vhdl_tb' as const,
+      status: 'pass' as const,
+      summary: 'TB generated',
+      warnings: [],
+      checks: [{ id: 'code:vhdl', label: 'VHDL code', status: 'pass' as const, detail: 'present' }],
+    }),
+    extractGeneratedVhdlArtifacts: () => [
+      { fileName: 'generated_tb.vhd', content: 'tb code', kind: 'testbench' as const },
+    ],
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ fileName: string }> }) => {
+      if (savedArtifacts[0]?.fileName === 'generated_tb.vhd') {
+        return {
+          ok: false,
+          stage: 'simulate' as const,
+          summary: 'tb_generated ended with severity failure',
+          logs: ['tb_generated: simulation complete', 'severity failure used on pass'],
+          validatedTopEntities: [],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_generated.',
+        logs: ['simulation stopped with status 0'],
+        validatedTopEntities: ['tb_generated'],
+      };
+    },
+  });
+
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /Generate TB hard-failed because the generated VHDL did not pass GHDL simulate validation\. The app does not auto-fix VHDL file issues\./i,
+  );
+
+  assert.equal(params.__runCalls.length, 2);
+});
+
+test('runAiAnalyzeJob treats Generate TB analyze-only GHDL success as a failure and hard-fails without auto-fixing', async () => {
+  const params = createBaseParams({
+    macroId: 'generate_vhdl_tb' as const,
+    tbGenerationMode: 'project_entities' as const,
+    artifactDirectory: 'AI Generated TB',
+    macroSpec: { label: 'Generate TB' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: '### counter_tb.vhd\n```vhdl\nentity counter_tb is end entity;\narchitecture sim of counter_tb is begin end architecture;\n```',
+        telemetry: {
+          inputTokens: 60,
+          outputTokens: 20,
+          totalTokens: 80,
+          tokensPerSecond: 12,
+          durationMs: 220,
+        },
+      };
+    },
+    validateMacroOutput: () => ({
+      macroId: 'generate_vhdl_tb' as const,
+      status: 'pass' as const,
+      summary: 'TB generated',
+      warnings: [],
+      checks: [{ id: 'code:vhdl', label: 'VHDL code', status: 'pass' as const, detail: 'present' }],
+    }),
+    extractGeneratedVhdlArtifacts: () => [
+      { fileName: 'counter_tb.vhd', content: 'entity counter_tb is end entity; architecture sim of counter_tb is begin end architecture;', kind: 'testbench' as const },
+    ],
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: true,
+      stage: 'analyze' as const,
+      summary: 'Generated VHDL passed GHDL analysis.',
+      logs: ['ghdl -a counter_tb.vhd', 'analysis only'],
+      validatedTopEntities: [],
+    }),
+  });
+
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /Generate TB hard-failed because the generated VHDL did not pass GHDL analyze validation\. The app does not auto-fix VHDL file issues\./i,
+  );
+
+  assert.equal(params.__runCalls.length, 2);
+});
+
+test('runAiAnalyzeJob repairs generated VHDL artifacts through the shared repair pipeline before hard-failing', async () => {
+  const params = createBaseParams({
+    macroId: 'generate_vhdl_tb' as const,
+    tbGenerationMode: 'project_entities' as const,
+    artifactDirectory: 'AI Generated TB',
+    macroSpec: { label: 'Generate TB' },
+    normalizedProjectPath: '/private/tmp/logicpro-repair-artifact-test',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      if (params.__runCalls.length === 1) {
+        return {
+          text: '### counter_tb.vhd\n```vhdl\nentity counter_tb is end entity;\narchitecture sim of counter_tb is begin end architecture;\n```',
+          telemetry: {
+            inputTokens: 60,
+            outputTokens: 20,
+            totalTokens: 80,
+            tokensPerSecond: 12,
+            durationMs: 220,
+          },
+        };
+      }
+
+      return {
+        text: '### AI Generated TB/counter_tb.vhd\n```vhdl\nentity counter_tb is end entity;\narchitecture sim of counter_tb is begin\n  process begin std.env.stop(0); wait; end process;\nend architecture;\n```',
+        telemetry: {
+          inputTokens: 30,
+          outputTokens: 15,
+          totalTokens: 45,
+          tokensPerSecond: 10,
+          durationMs: 140,
+        },
+      };
+    },
+    validateMacroOutput: () => ({
+      macroId: 'generate_vhdl_tb' as const,
+      status: 'pass' as const,
+      summary: 'TB generated',
+      warnings: [],
+      checks: [{ id: 'code:vhdl', label: 'VHDL code', status: 'pass' as const, detail: 'present' }],
+    }),
+    extractGeneratedVhdlArtifacts: () => [
+      {
+        fileName: 'counter_tb.vhd',
+        content: 'entity counter_tb is end entity;\narchitecture sim of counter_tb is begin end architecture;',
+        kind: 'testbench' as const,
+      },
+    ],
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ fileName: string; path: string }> }) => {
+      const saved = savedArtifacts[0];
+      if (!saved) {
+        throw new Error('missing artifact');
+      }
+      if (params.__runCalls.length === 1) {
+        return {
+          ok: false,
+          stage: 'simulate' as const,
+          summary: `${saved.path}: severity failure used for pass`,
+          logs: [`${saved.path}: severity failure used for pass`],
+          validatedTopEntities: [],
+          failureCode: 'simulation_success_stop_style',
+          failureCategory: 'simulation_success' as const,
+          failureDetails: [
+            {
+              code: 'simulation_success_stop_style',
+              category: 'simulation_success' as const,
+              ruleIds: ['sim.success.stop_style'],
+              message: 'Passing simulations must stop cleanly instead of using severity failure.',
+              excerpt: `${saved.path}: severity failure used for pass`,
+              forbiddenConstruct: 'severity failure used for pass termination',
+              legalReplacementPattern: 'use std.env.stop(0) or another VHDL-2008 clean success termination',
+            },
+          ],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for counter_tb.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['counter_tb'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 2);
+  assert.match(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
+  assert.match(params.__runCalls[1].prompt, /severity failure used for pass termination/);
+  assert.equal(result.retryUsed, true);
+  assert.equal(result.telemetry.attemptCount, 2);
+  assert.equal(result.telemetry.retryCount, 1);
+  assert.match(result.analysis, /## GHDL Validation/);
+});
+
+test('runAiAnalyzeJob repairs FPGA Architect generated VHDL through the shared repair pipeline before falling back to full regeneration', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/private/tmp/logicpro-repair-architect-test',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      if (params.__runCalls.length === 1) {
+        return {
+          text: JSON.stringify({
+            project_name: 'proj',
+            sanitized_project_name: 'proj',
+            top_entity: 'counter',
+            vhdl_standard: 'VHDL-2008',
+            target_fpga: null,
+            summary: 'summary',
+            assumptions: [],
+            warnings: [],
+            folder_tree: '',
+            files: [
+              { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+              { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+              { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+              { path: 'Makefile', file_type: 'makefile', purpose: 'build', content: 'all:' },
+              { path: 'README.md', file_type: 'markdown', purpose: 'docs', content: 'readme' },
+              { path: 'sim/run_ghdl.sh', file_type: 'script', purpose: 'simulation', content: 'ghdl -a' },
+              { path: 'requirements/spec.md', file_type: 'markdown', purpose: 'requirements', content: 'req' },
+            ],
+            ghdl: {
+              analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+              top_testbench: 'tb_counter',
+              run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+              expected_result: 'pass',
+            },
+            quality_checklist: [],
+          }),
+          telemetry: {
+            inputTokens: 50,
+            outputTokens: 20,
+            totalTokens: 70,
+            tokensPerSecond: 10,
+            durationMs: 200,
+          },
+        };
+      }
+
+      return {
+        text: '### proj/tb/tb_counter.vhd\n```vhdl\nentity tb_counter is end entity;\narchitecture sim of tb_counter is begin\n  process begin std.env.stop(0); wait; end process;\nend architecture;\n```',
+        telemetry: {
+          inputTokens: 25,
+          outputTokens: 10,
+          totalTokens: 35,
+          tokensPerSecond: 9,
+          durationMs: 150,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async () => {
+      if (params.__runCalls.length === 1) {
+        return {
+          ok: false,
+          stage: 'simulate' as const,
+          summary: 'tb/tb_counter.vhd: passing simulations must stop cleanly',
+          logs: ['tb/tb_counter.vhd: passing simulations must stop cleanly'],
+          validatedTopEntities: [],
+          failureCode: 'simulation_success_stop_style',
+          failureCategory: 'simulation_success' as const,
+          failureDetails: [
+            {
+              code: 'simulation_success_stop_style',
+              category: 'simulation_success' as const,
+              ruleIds: ['sim.success.stop_style'],
+              message: 'Passing simulations must stop cleanly instead of using severity failure.',
+              excerpt: 'tb/tb_counter.vhd: passing simulations must stop cleanly',
+              forbiddenConstruct: 'severity failure used for pass termination',
+              legalReplacementPattern: 'use std.env.stop(0) or another VHDL-2008 clean success termination',
+            },
+          ],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_counter'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 2);
+  assert.match(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
+  assert.doesNotMatch(params.__runCalls[1].prompt, /Generated project failed/);
+  assert.equal(result.retryUsed, true);
+  assert.match(result.analysis, /architect report/);
+  assert.match(result.analysis, /## GHDL Validation/);
+});
+
+test('runAiAnalyzeJob hard-fails FPGA Architect when generated project fails GHDL validation and does not auto-fix the files', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+            { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+            { path: 'requirements/req.md', file_type: 'markdown', purpose: 'req', content: 'req' },
+            { path: 'architecture/arch.md', file_type: 'markdown', purpose: 'arch', content: 'arch' },
+            { path: 'sim/run.sh', file_type: 'script', purpose: 'run', content: 'ghdl' },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'docs/readme.md', file_type: 'markdown', purpose: 'docs', content: 'docs' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+      compactMode,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      compactMode?: 'compact' | 'ultra_compact';
+    }) => `${originalPrompt}\nCOMPACT-REGEN:${compactMode || 'compact'}\n${errorSummary}`,
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: false,
+      stage: 'simulate' as const,
+      summary: 'tb_counter failed reset expectation',
+      logs: ['FAIL-P1'],
+      validatedTopEntities: [],
+    }),
+  });
+
+  await assert.rejects(
+    async () => {
+      try {
+        await runAiAnalyzeJob(params);
+      } catch (error: any) {
+        assert.equal(error?.generatedVhdlValidation?.stage, 'simulate');
+        assert.equal(error?.generatedVhdlValidation?.summary, 'tb_counter failed reset expectation');
+        assert.ok(Array.isArray(error?.generatedVhdlValidation?.logs));
+        throw error;
+      }
+    },
+    /FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after GHDL repair retry\. The app does not auto-fix VHDL file issues\./i
+  );
+  assert.equal(params.__runCalls.length, 3);
+  assert.match(params.__runCalls[1]?.prompt || '', /Shared Generated-Code Repair Pipeline/i);
+  assert.match(params.__runCalls[2]?.prompt || '', /Recent validation log lines:/i);
+  assert.match(params.__runCalls[2]?.prompt || '', /tb_counter failed reset expectation/i);
+});
+
+test('runAiAnalyzeJob reports FPGA Architect strict-rule violations as pre-GHDL validation failures before retry', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+            { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+            { path: 'requirements/req.md', file_type: 'markdown', purpose: 'req', content: 'req' },
+            { path: 'architecture/arch.md', file_type: 'markdown', purpose: 'arch', content: 'arch' },
+            { path: 'sim/run.sh', file_type: 'script', purpose: 'run', content: 'ghdl' },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'docs/readme.md', file_type: 'markdown', purpose: 'docs', content: 'docs' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\nARCH-RETRY\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+      compactMode,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      compactMode?: 'compact' | 'ultra_compact' | 'minimal';
+    }) => `${originalPrompt}\nCOMPACT-REGEN:${compactMode || 'compact'}\n${errorSummary}`,
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: false,
+      stage: 'prevalidate' as const,
+      summary: 'src/alu_pkg.vhd: uses reserved VHDL identifier "body" as a package.',
+      logs: ['src/alu_pkg.vhd: uses reserved VHDL identifier "body" as a package.'],
+      validatedTopEntities: [],
+    }),
+  });
+
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after GHDL repair retry\. The app does not auto-fix VHDL file issues\./i,
+  );
+  assert.equal(params.__runCalls.length, 3);
+  assert.match(params.__runCalls[1]?.prompt || '', /Shared Generated-Code Repair Pipeline/i);
+  assert.match(params.__runCalls[2]?.prompt || '', /Generated project failed strict pre-GHDL validation\./i);
+  assert.match(params.__runCalls[2]?.prompt || '', /reserved VHDL identifier "body"/i);
+});
+
+test('runAiAnalyzeJob treats FPGA Architect analyze-only GHDL success as a failure and hard-fails without auto-fixing', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+            { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+            { path: 'requirements/req.md', file_type: 'markdown', purpose: 'req', content: 'req' },
+            { path: 'architecture/arch.md', file_type: 'markdown', purpose: 'arch', content: 'arch' },
+            { path: 'sim/run.sh', file_type: 'script', purpose: 'run', content: 'ghdl' },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'docs/readme.md', file_type: 'markdown', purpose: 'docs', content: 'docs' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nCOMPACT-REGEN\n${errorSummary}`,
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: true,
+      stage: 'analyze' as const,
+      summary: 'Generated VHDL passed GHDL analysis.',
+      logs: ['ghdl -a ok', 'simulation was not reached'],
+      validatedTopEntities: [],
+    }),
+  });
+
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after GHDL repair retry\. The app does not auto-fix VHDL file issues\./i
+  );
+  assert.equal(params.__runCalls.length, 3);
+});
+
+test('runAiAnalyzeJob lets FPGA Architect recover from a GHDL failure via one repair retry', async () => {
+  const validProject = JSON.stringify({
+    project_name: 'proj',
+    sanitized_project_name: 'proj',
+    top_entity: 'counter',
+    vhdl_standard: 'VHDL-2008',
+    target_fpga: null,
+    summary: 'summary',
+    assumptions: [],
+    warnings: [],
+    folder_tree: '',
+    files: [
+      { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+      { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+      { path: 'requirements/req.md', file_type: 'markdown', purpose: 'req', content: 'req' },
+      { path: 'architecture/arch.md', file_type: 'markdown', purpose: 'arch', content: 'arch' },
+      { path: 'sim/run.sh', file_type: 'script', purpose: 'run', content: 'ghdl' },
+      { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+      { path: 'docs/readme.md', file_type: 'markdown', purpose: 'docs', content: 'docs' },
+    ],
+    ghdl: {
+      analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+      top_testbench: 'tb_counter',
+      run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+      expected_result: 'pass',
+    },
+    quality_checklist: [],
+  });
+
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: validProject,
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\nARCH-RETRY\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+      compactMode,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      compactMode?: 'compact' | 'ultra_compact' | 'minimal';
+    }) => `${originalPrompt}\nCOMPACT-REGEN:${compactMode || 'compact'}\n${errorSummary}`,
+    validateGeneratedVhdlWithGhdl: async () => {
+      params.__ghdlCalls = (params.__ghdlCalls || 0) + 1;
+      if (params.__ghdlCalls === 1) {
+        return {
+          ok: false,
+          stage: 'analyze' as const,
+          summary: 'first pass failed',
+          logs: ['bad first pass'],
+          validatedTopEntities: [],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_counter'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+  assert.equal(params.__runCalls.length, 3);
+  assert.equal(result.retryUsed, true);
+  assert.match(result.analysis, /## GHDL Validation/i);
+  assert.match(result.analysis, /Status: PASS/i);
+});
+
+test('runAiAnalyzeJob includes validator failure class guidance in FPGA Architect retry prompts', async () => {
+  const validProject = JSON.stringify({
+    project_name: 'proj',
+    sanitized_project_name: 'proj',
+    top_entity: 'counter',
+    vhdl_standard: 'VHDL-2008',
+    target_fpga: null,
+    summary: 'summary',
+    assumptions: [],
+    warnings: [],
+    folder_tree: '',
+    files: [
+      { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+      { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+      { path: 'requirements/req.md', file_type: 'markdown', purpose: 'req', content: 'req' },
+      { path: 'architecture/arch.md', file_type: 'markdown', purpose: 'arch', content: 'arch' },
+      { path: 'sim/run.sh', file_type: 'script', purpose: 'run', content: 'ghdl' },
+      { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+      { path: 'docs/readme.md', file_type: 'markdown', purpose: 'docs', content: 'docs' },
+    ],
+    ghdl: {
+      analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+      top_testbench: 'tb_counter',
+      run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+      expected_result: 'pass',
+    },
+    quality_checklist: [],
+  });
+
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: validProject,
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\nARCH-RETRY\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+      compactMode,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      compactMode?: 'compact' | 'ultra_compact' | 'minimal';
+    }) => `${originalPrompt}\nCOMPACT-REGEN:${compactMode || 'compact'}\n${errorSummary}`,
+    validateGeneratedVhdlWithGhdl: async () => {
+      params.__ghdlCalls = (params.__ghdlCalls || 0) + 1;
+      if (params.__ghdlCalls === 1) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'src/alu.vhd: calls resize on raw std_logic_vector "a".',
+          logs: ['src/alu.vhd: calls resize on raw std_logic_vector "a".'],
+          validatedTopEntities: [],
+          failureCode: 'resize_on_raw_std_logic_vector',
+          failureCategory: 'numeric_std_type_discipline' as const,
+          failureDetails: [
+            {
+              code: 'resize_on_raw_std_logic_vector',
+              category: 'numeric_std_type_discipline' as const,
+              message: 'src/alu.vhd: calls resize on raw std_logic_vector "a". Convert first.',
+              excerpt: 'src/alu.vhd: calls resize on raw std_logic_vector "a". Convert first.',
+              forbiddenConstruct: 'resize(a, WIDTH) on std_logic_vector',
+              legalReplacementPattern: 'resize(unsigned(a), WIDTH)',
+            },
+          ],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_counter'],
+      };
+    },
+  });
+
+  await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 3);
+  assert.match(params.__runCalls[1].prompt, /Failure class: numeric_std_type_discipline \/ resize_on_raw_std_logic_vector/);
+  assert.match(params.__runCalls[1].prompt, /Forbidden construct: resize\(a, WIDTH\) on std_logic_vector/);
+  assert.match(params.__runCalls[1].prompt, /Legal replacement pattern: resize\(unsigned\(a\), WIDTH\)/);
+});
+
+test('runAiAnalyzeJob performs a dedicated FPGA Architect JSON repair pass when the returned project JSON is malformed', async () => {
+  const validProject = JSON.stringify({
+    project_name: 'proj',
+    sanitized_project_name: 'proj',
+    top_entity: 'counter',
+    vhdl_standard: 'VHDL-2008',
+    target_fpga: null,
+    summary: 'summary',
+    assumptions: [],
+    warnings: [],
+    folder_tree: '',
+    files: [
+      { path: 'src/counter.vhd', file_type: 'vhdl_rtl', purpose: 'rtl', content: 'entity counter is end entity; architecture rtl of counter is begin end architecture;' },
+      { path: 'tb/tb_counter.vhd', file_type: 'vhdl_testbench', purpose: 'tb', content: 'entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;' },
+      { path: 'requirements/req.md', file_type: 'markdown', purpose: 'req', content: 'req' },
+      { path: 'architecture/arch.md', file_type: 'markdown', purpose: 'arch', content: 'arch' },
+      { path: 'sim/run.sh', file_type: 'script', purpose: 'run', content: 'ghdl' },
+      { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+      { path: 'docs/readme.md', file_type: 'markdown', purpose: 'docs', content: 'docs' },
+    ],
+    ghdl: {
+      analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+      top_testbench: 'tb_counter',
+      run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+      expected_result: 'pass',
+    },
+    quality_checklist: [],
+  });
+
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      const attempt = params.__runCalls.length;
+      return {
+        text: attempt < 5 ? '{"project_name":"proj","files":["unterminated]' : validProject,
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
+        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\nARCH-RETRY\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+      compactMode,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      compactMode?: 'compact' | 'ultra_compact' | 'minimal';
+    }) => `${originalPrompt}\nCOMPACT-REGEN:${compactMode || 'compact'}\n${errorSummary}`,
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: true,
+      stage: 'simulate' as const,
+      summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+      logs: ['simulation pass'],
+      validatedTopEntities: ['tb_counter'],
+    }),
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 5);
+  assert.match(params.__runCalls[1].prompt, /JSON-ONLY-REPAIR/);
+  assert.match(params.__runCalls[2].prompt, /COMPACT-REGEN:compact/);
+  assert.match(params.__runCalls[3].prompt, /COMPACT-REGEN:ultra_compact/);
+  assert.match(params.__runCalls[4].prompt, /COMPACT-REGEN:minimal/);
+  assert.match(result.analysis, /architect report/);
+  assert.equal(result.retryUsed, true);
+});
+
+test('runAiAnalyzeJob reports malformed FPGA Architect JSON as a pre-VHDL failure and does not imply VHDL auto-fix', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: '{"project_name":"proj","files":["unterminated]',
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async () => {
+      throw new Error('save should not run for invalid JSON');
+    },
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\nARCH-RETRY\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({
+      originalPrompt,
+      invalidResponse,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      invalidResponse: string;
+      errorSummary: string;
+    }) => `${originalPrompt}\nJSON-ONLY-REPAIR\n${errorSummary}\n${invalidResponse}`,
+    buildFpgaArchitectCompactRetryPrompt: ({
+      originalPrompt,
+      errorSummary,
+      compactMode,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      compactMode?: 'compact' | 'ultra_compact' | 'minimal';
+    }) => `${originalPrompt}\nCOMPACT-REGEN:${compactMode || 'compact'}\n${errorSummary}`,
+  });
+
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /FPGA Architect hard-failed because the generated project manifest was still invalid before VHDL validation\. The app did not modify or auto-fix any generated VHDL files\./i,
+  );
+  assert.equal(params.__runCalls.length, 5);
 });

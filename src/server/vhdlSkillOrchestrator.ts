@@ -1,5 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { buildVhdlOrchestratorTaskPrompt } from './aiPromptUtils';
+import { SHARED_GHDL_CONFORMANCE_RULES, SHARED_VHDL_SKILL_NAMES } from './ghdlStrictVhdlRules';
 
 type RegistrySkill = {
   name: string;
@@ -37,6 +39,11 @@ const MACRO_SKILL_HINTS: Array<{
   required: string[];
   preferred: string[];
 }> = [
+  {
+    macroId: 'fpga_vhdl_architect',
+    required: ['vhdl-language', 'fpga-architecture', 'rtl-verification'],
+    preferred: ['timing-constraints'],
+  },
   {
     macroId: 'generate_vhdl_tb',
     required: ['vhdl-language', 'rtl-verification'],
@@ -153,7 +160,7 @@ async function loadVhdlSkillRegistry(projectRoot: string): Promise<VhdlSkillRegi
 }
 
 function inferMacroHints(taskPrompt: string) {
-  const macroIdMatch = taskPrompt.match(/Macro ID:\s*([a-z0-9_]+)/i);
+  const macroIdMatch = taskPrompt.match(/(?:Macro ID|Feature Mode):\s*([a-z0-9_]+)/i);
   const macroId = macroIdMatch ? macroIdMatch[1].trim().toLowerCase() : null;
   if (!macroId) {
     return null;
@@ -295,10 +302,13 @@ export async function prepareVhdlSkillOrchestratorPrompt(taskPrompt: string, pro
       `### Registry Source`,
       `Use the repository-local VHDL skills registry at: ${selection.registryPath}`,
       `Do not re-select skills from scratch. Use the deterministic selection below unless the task clearly requires an additional skill.`,
+      `### Shared Skill Names`,
+      SHARED_VHDL_SKILL_NAMES,
       `### Deterministically Selected Skills`,
       selectedSkillsText,
       `### Skill Call Plan`,
       selection.skillCallPlan.join('\n'),
+      SHARED_GHDL_CONFORMANCE_RULES,
       `### Selected Skill Registry Notes`,
       `- ${selection.primary.name}: ${selection.primary.description}`,
       ...selection.supporting.map((skill) => {
@@ -315,32 +325,28 @@ export async function prepareVhdlSkillOrchestratorPrompt(taskPrompt: string, pro
 
     return {
       selection,
-      prompt: [
-        '@Use VHDL-skill-orchestrator',
-        'Use the available skills registry to select only the skills needed for this task.',
-        'Create a short skill call plan, execute the plan, merge outputs, and run the final verification checklist.',
-        'Task:',
-        taskPrompt,
-        '### Deterministic Server Skill Selection',
-        'The app already selected the skills below from the repository-local registry. Use this deterministic selection as the authoritative registry result for this task.',
-        skillReferenceText,
-        '### Task-Specific Priority',
-        'If the task above contains a stricter response contract, exact-token requirement, validation rule, or output format, obey that exact contract while still following the deterministic skill plan.',
-      ].join('\n\n'),
+      prompt: buildVhdlOrchestratorTaskPrompt(taskPrompt, [
+        [
+          '### Deterministic Server Skill Selection',
+          'The app already selected the skills below from the repository-local registry. Use this deterministic selection as the authoritative registry result for this task.',
+          skillReferenceText,
+        ].join('\n\n'),
+        [
+          '### Task-Specific Priority',
+          'If the task above contains a stricter response contract, exact-token requirement, validation rule, or output format, obey that exact contract while still following the deterministic skill plan.',
+        ].join('\n\n'),
+      ]),
     };
   } catch (error: any) {
     return {
       selection: null,
-      prompt: [
-        '@Use VHDL-skill-orchestrator',
-        'Use the available skills registry to select only the skills needed for this task.',
-        'Create a short skill call plan, execute the plan, merge outputs, and run the final verification checklist.',
-        'Task:',
-        taskPrompt,
-        '### Registry Load Failure',
-        `The repository-local deterministic VHDL skill selection could not be loaded automatically: ${error?.message || String(error)}`,
-        'Proceed with VHDL-oriented best effort, but state assumptions clearly and keep the answer within the requested response contract.',
-      ].join('\n\n'),
+      prompt: buildVhdlOrchestratorTaskPrompt(taskPrompt, [
+        [
+          '### Registry Load Failure',
+          `The repository-local deterministic VHDL skill selection could not be loaded automatically: ${error?.message || String(error)}`,
+          'Proceed with VHDL-oriented best effort, but state assumptions clearly and keep the answer within the requested response contract.',
+        ].join('\n\n'),
+      ]),
     };
   }
 }

@@ -111,10 +111,54 @@ export function createProjectRouteContext(params: {
     }
   };
 
+  const readProjectFileHandler: express.RequestHandler = async (req, res) => {
+    const candidatePath = typeof req.body?.path === 'string' ? req.body.path.trim() : '';
+    if (!candidatePath) {
+      return res.status(400).json({ error: 'File path is required.' });
+    }
+
+    try {
+      const session = getRequiredSession(req);
+      const approvedPath = await assertApprovedProjectPath(session, candidatePath, 'Project file');
+      const content = await fs.readFile(approvedPath, 'utf8');
+      res.json({
+        path: approvedPath,
+        name: path.basename(approvedPath),
+        content,
+      });
+    } catch (error: any) {
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
+    }
+  };
+
+  const writeProjectFileHandler: express.RequestHandler = async (req, res) => {
+    const candidatePath = typeof req.body?.path === 'string' ? req.body.path.trim() : '';
+    if (!candidatePath) {
+      return res.status(400).json({ error: 'File path is required.' });
+    }
+    const content = typeof req.body?.content === 'string' ? req.body.content : '';
+
+    try {
+      const session = getRequiredSession(req);
+      const approvedPath = await assertApprovedProjectPath(session, candidatePath, 'Project file');
+      await fs.mkdir(path.dirname(approvedPath), { recursive: true });
+      await fs.writeFile(approvedPath, content, 'utf8');
+      res.json({
+        path: approvedPath,
+        name: path.basename(approvedPath),
+        saved: true,
+      });
+    } catch (error: any) {
+      res.status(error?.statusCode || 500).json({ error: error.message || error });
+    }
+  };
+
   return {
     selectProjectHandler,
     restoreProjectHandler,
     openWorkspaceHandler,
     saveVcdHandler,
+    readProjectFileHandler,
+    writeProjectFileHandler,
   };
 }

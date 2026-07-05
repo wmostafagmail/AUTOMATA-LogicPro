@@ -25,6 +25,16 @@ import { buildPreparedRemoteExportPreview } from './src/server/remoteExportPrevi
 import { createSessionSecurityContext } from './src/server/sessionSecurity.ts';
 import { prepareVhdlSkillOrchestratorPrompt } from './src/server/vhdlSkillOrchestrator.ts';
 import {
+  buildFpgaArchitectCompactRetryPrompt,
+  buildFpgaArchitectMarkdownReport,
+  buildFpgaArchitectJsonRepairPrompt,
+  buildFpgaArchitectRetryPrompt,
+  buildFpgaArchitectTestRunPrompt,
+  parseFpgaArchitectResponse,
+  saveFpgaArchitectProject,
+} from './src/server/fpgaArchitect.ts';
+import { validateGeneratedVhdlWithGhdl } from './src/server/generatedVhdlValidation.ts';
+import {
   buildMacroSignalIndexFromFixtures,
   buildMacroSignalIndexFromParsedSources,
   buildVhdlSemanticModels,
@@ -228,8 +238,12 @@ You must now obey all of the following hard requirements:
 4. For every fenced code block, place a filename heading immediately before it in the form:
    ### filename.vhd
 5. The generated files must be directly extractable and savable into "${artifactDirectory}".
-6. Do not return prose-only output, pseudo-code, Mermaid-only output, or untagged code fences.
-7. Do not explain why you cannot comply unless the project context is genuinely missing. If you comply, output the code.
+6. The app will immediately compile, elaborate, and simulate the generated VHDL with GHDL. Use the exact validation summary and issues above to repair the code so the full GHDL flow passes.
+7. If you generate a testbench, it must stop cleanly on success using VHDL-2008 style success termination such as \`std.env.stop(0)\`; never use \`severity failure\` to indicate a passing run.
+8. Keep DUT reset behavior, reset polarity, and testbench expectations consistent. Do not assume an uninitialized power-up state when a deterministic reset or initialization is intended.
+9. For synchronous checks in generated testbenches, sample outputs only after the active clock edge update has taken effect.
+10. Do not return prose-only output, pseudo-code, Mermaid-only output, or untagged code fences.
+11. Do not explain why you cannot comply unless the project context is genuinely missing. If you comply, output the code.
 `;
 }
 
@@ -805,14 +819,26 @@ function formatValidationFailureDetails(validation: AiMacroValidationResult) {
 }
 
 async function runCommand(command: string, args: string[], options?: { cwd?: string }) {
-  const { stdout, stderr } = await execFileAsync(command, args, {
-    cwd: options?.cwd,
-    maxBuffer: 1024 * 1024 * 20,
-  });
-  return {
-    stdout: String(stdout || '').trim(),
-    stderr: String(stderr || '').trim(),
-  };
+  try {
+    const { stdout, stderr } = await execFileAsync(command, args, {
+      cwd: options?.cwd,
+      maxBuffer: 1024 * 1024 * 20,
+    });
+    return {
+      stdout: String(stdout || '').trim(),
+      stderr: String(stderr || '').trim(),
+    };
+  } catch (error: any) {
+    const stdout = String(error?.stdout || '').trim();
+    const stderr = String(error?.stderr || '').trim();
+    const detail = stderr || stdout || error?.message || `Command failed: ${command} ${args.join(' ')}`;
+    const failure = new Error(detail);
+    (failure as any).stdout = stdout;
+    (failure as any).stderr = stderr;
+    (failure as any).command = command;
+    (failure as any).args = args;
+    throw failure;
+  }
 }
 
 async function commandExists(command: string) {
@@ -1842,6 +1868,7 @@ async function bootstrap() {
   });
   const {
     cancelAiJobHandler,
+    getAiJobStatusHandler,
     beginTrackedJob,
   } = createAiJobSecurityContext({
     activeAiJobs,
@@ -1905,6 +1932,8 @@ async function bootstrap() {
     restoreProjectHandler,
     openWorkspaceHandler,
     saveVcdHandler,
+    readProjectFileHandler,
+    writeProjectFileHandler,
   } = createProjectRouteContext({
     getRequiredSession,
     rememberApprovedProjectRoot,
@@ -1920,6 +1949,8 @@ async function bootstrap() {
     remoteExportPreviewHandler,
     remoteExportApproveHandler,
     analyzeHandler,
+    fpgaArchitectStressLoopHandler,
+    codeChatHandler,
   } = createAiAnalyzeRouteContext({
     ai,
     getRequiredSession,
@@ -1952,6 +1983,14 @@ async function bootstrap() {
     extractGeneratedVhdlArtifacts,
     saveGeneratedVhdlArtifacts,
     formatValidationFailureDetails,
+    parseFpgaArchitectResponse,
+    buildFpgaArchitectRetryPrompt,
+    buildFpgaArchitectJsonRepairPrompt,
+    buildFpgaArchitectCompactRetryPrompt,
+    buildFpgaArchitectTestRunPrompt,
+    saveFpgaArchitectProject,
+    buildFpgaArchitectMarkdownReport,
+    validateGeneratedVhdlWithGhdl,
     isAbortError,
     staticProviderModels: STATIC_PROVIDER_MODELS,
   });
@@ -1985,6 +2024,10 @@ async function bootstrap() {
 
   app.post('/api/project/save-vcd', saveVcdHandler);
 
+  app.post('/api/project/read-file', readProjectFileHandler);
+
+  app.post('/api/project/write-file', writeProjectFileHandler);
+
   app.get('/api/ghdl/status', getGhdlStatusHandler);
 
   app.post('/api/ghdl/project-info', getGhdlProjectInfoHandler);
@@ -2005,6 +2048,7 @@ async function bootstrap() {
   app.post('/api/ai-encode', legacyEncodeHandler);
 
   app.post('/api/ai-jobs/:jobId/cancel', cancelAiJobHandler);
+  app.get('/api/ai-jobs/:jobId/status', getAiJobStatusHandler);
 
   app.post('/api/ai/test-generate', testGenerateHandler);
 
@@ -2013,6 +2057,10 @@ async function bootstrap() {
   app.post('/api/ai/remote-export-approve', remoteExportApproveHandler);
 
   app.post('/api/ai-analyze', analyzeHandler);
+
+  app.post('/api/ai/fpga-architect-loop', fpgaArchitectStressLoopHandler);
+
+  app.post('/api/ai/code-chat', codeChatHandler);
 
   // --- VITE MIDDLEWARE OR STATIC SERVER ---
 
@@ -2023,9 +2071,18 @@ async function bootstrap() {
         middlewareMode: true,
         watch: {
           ignored: [
+            '**/FPGA Projects/**',
             '**/AI Generated TB/**',
             '**/AI Generated RTL/**',
             '**/AI Generated Assertions/**',
+            '**/.automata-logicpro/**',
+            '**/work-obj08.cf',
+            '**/*.o',
+            '**/*.cf',
+            '**/*.vcd',
+            '**/*.ghw',
+            '**/*.fst',
+            '**/*.svg',
           ],
         },
       },
@@ -2060,7 +2117,15 @@ export const __semanticTestHooks = {
 };
 
 if (process.env.AI_SELECTOR_TEST_MODE !== '1') {
-  bootstrap().catch((err) => {
-    console.error('Failed to trigger bootstrap startup server sequence:', err);
-  });
+  const bootstrapKeepAlive = setInterval(() => {
+    // Keep the event loop alive until async startup reaches app.listen().
+  }, 1000);
+
+  bootstrap()
+    .catch((err) => {
+      console.error('Failed to trigger bootstrap startup server sequence:', err);
+    })
+    .finally(() => {
+      clearInterval(bootstrapKeepAlive);
+    });
 }

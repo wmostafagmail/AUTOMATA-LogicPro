@@ -1,5 +1,6 @@
 export type AiMacroId =
   | 'custom_query'
+  | 'fpga_vhdl_architect'
   | 'generate_vhdl_tb'
   | 'inspect_race_hazards'
   | 'protocol_decoder_details'
@@ -81,6 +82,32 @@ export const AI_MACROS: AiMacroSpec[] = [
     rubric: [
       'Use the loaded waveform and project context.',
       'Keep the answer technical, grounded, and actionable.',
+    ],
+  },
+  {
+    id: 'fpga_vhdl_architect',
+    label: 'FPGA Architect',
+    defaultPrompt: '',
+    launchMode: 'composer',
+    deterministicContext: {
+      hazardScan: false,
+      protocolScan: false,
+      projectContext: true,
+      waveform: false,
+    },
+    expectedOutputSections: [
+      { id: 'project', label: 'Project', aliases: ['project', 'project summary'] },
+      { id: 'assumptions', label: 'Assumptions', aliases: ['assumptions'] },
+      { id: 'generated_files', label: 'Generated Files', aliases: ['generated files', 'files'] },
+      { id: 'ghdl_plan', label: 'GHDL Plan', aliases: ['ghdl plan', 'simulation plan'] },
+      { id: 'quality_checklist', label: 'Quality Checklist', aliases: ['quality checklist', 'checklist'] },
+    ],
+    requiresVhdlCodeBlock: false,
+    generatedArtifactDirectory: '.',
+    rubric: [
+      'Generate a complete FPGA/VHDL project with docs, RTL, TB, and simulation scripts.',
+      'Keep the output machine-parseable and saveable into the selected project folder.',
+      'Be explicit about assumptions, warnings, and verification steps.',
     ],
   },
   {

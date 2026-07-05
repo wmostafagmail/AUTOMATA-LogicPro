@@ -1,9 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import {
+  FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN,
+  FPGA_ARCHITECT_SWEEP_DESIGNS,
+  FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS,
+} from '../fpgaArchitectSweepConfig';
 import { ProjectContextPayload, ProjectFileEntry, ProviderOption, Signal, SimulationMacroContextPayload } from '../types';
 import { AiMacroId, TbGenerationMode, getAiMacroSpec, getVisibleAiMacros } from '../aiMacros';
 import { resolveMacroInvocation } from '../aiDrawerModel';
 import { AIWorkspaceReport, buildDisplayReport } from '../aiReport';
 import { apiFetch } from '../api';
+import { architectPromptRequestsReuse, filterArchitectReferenceFiles } from '../fpgaArchitectContext';
 import { getProviderDeployment } from '../exportPolicy';
 import { useAIDrawerAnalysis, type Message } from './useAIDrawerAnalysis';
 import { JobTelemetryPanel, ProviderSummaryPanel, RemoteConsentPanel, RemoteExportPreviewPanel } from './AIDrawerStatusPanels';
@@ -45,6 +52,25 @@ interface ModelOption {
 
 const AI_PROVIDER_STORAGE_KEY = 'automata-logicpro-ai-provider';
 const AI_MODEL_STORAGE_KEY = 'automata-logicpro-ai-models';
+const FPGA_TARGET_OPTIONS = [
+  { value: '', label: 'Generic / infer from requirements' },
+  { value: 'Xilinx Artix-7', label: 'Xilinx Artix-7' },
+  { value: 'Xilinx Spartan-7', label: 'Xilinx Spartan-7' },
+  { value: 'AMD/Xilinx Zynq-7000', label: 'AMD/Xilinx Zynq-7000' },
+  { value: 'Intel Cyclone IV', label: 'Intel Cyclone IV' },
+  { value: 'Intel Cyclone V', label: 'Intel Cyclone V' },
+  { value: 'Intel MAX 10', label: 'Intel MAX 10' },
+  { value: 'Lattice iCE40', label: 'Lattice iCE40' },
+  { value: 'Lattice ECP5', label: 'Lattice ECP5' },
+  { value: 'Microchip PolarFire', label: 'Microchip PolarFire' },
+];
+const RESET_STYLE_OPTIONS = [
+  { value: 'Synchronous active-high reset', label: 'Synchronous active-high reset' },
+  { value: 'Synchronous active-low reset', label: 'Synchronous active-low reset' },
+  { value: 'Asynchronous active-high reset', label: 'Asynchronous active-high reset' },
+  { value: 'Asynchronous active-low reset', label: 'Asynchronous active-low reset' },
+  { value: 'Reset-less / power-on initialization', label: 'Reset-less / power-on initialization' },
+];
 
 const loadStoredModelSelections = (): Record<string, string> => {
   if (typeof window === 'undefined') {
@@ -82,6 +108,8 @@ const normalizeProviderOptions = (providers: unknown[]): ProviderOption[] => (
 
 const getMacroButtonTone = (macroId: AiMacroId) => {
   switch (macroId) {
+    case 'fpga_vhdl_architect':
+      return 'text-orange-200';
     case 'generate_vhdl_tb':
       return 'text-cyan-200';
     case 'inspect_race_hazards':
@@ -130,10 +158,101 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [remoteExportConsents, setRemoteExportConsents] = useState<Record<string, boolean>>({});
   const [showConsoleHelp, setShowConsoleHelp] = useState(false);
   const [showTbComposer, setShowTbComposer] = useState(false);
+  const [showArchitectComposer, setShowArchitectComposer] = useState(false);
   const [tbGenerationMode, setTbGenerationMode] = useState<TbGenerationMode>('project_entities');
   const [tbPromptDraft, setTbPromptDraft] = useState('');
+  const [architectProjectName, setArchitectProjectName] = useState('');
+  const [architectTargetFpga, setArchitectTargetFpga] = useState('');
+  const [architectClockHz, setArchitectClockHz] = useState('100 MHz');
+  const [architectResetStyle, setArchitectResetStyle] = useState('Synchronous active-high reset');
+  const [architectInterfacePrefs, setArchitectInterfacePrefs] = useState('');
+  const [architectIncludeTb, setArchitectIncludeTb] = useState(true);
+  const [architectIncludeGhdl, setArchitectIncludeGhdl] = useState(true);
+  const [architectPromptDraft, setArchitectPromptDraft] = useState('');
+  const [architectLoopRunning, setArchitectLoopRunning] = useState(false);
+  const [architectLoopJobId, setArchitectLoopJobId] = useState<string | null>(null);
+  const [architectLoopCurrent, setArchitectLoopCurrent] = useState(0);
+  const [architectLoopCurrentDesignLabel, setArchitectLoopCurrentDesignLabel] = useState('');
+  const [architectLoopCurrentDesignAttempt, setArchitectLoopCurrentDesignAttempt] = useState(0);
+  const [architectLoopCompletedAttempts, setArchitectLoopCompletedAttempts] = useState(0);
+  const [architectLoopFailures, setArchitectLoopFailures] = useState(0);
+  const [architectLoopSuccesses, setArchitectLoopSuccesses] = useState(0);
+  const [architectLoopResult, setArchitectLoopResult] = useState<{
+    failures: number;
+    attempts: number;
+    logFilePath: string;
+    masterLogPath?: string;
+    designSummaries?: Array<{
+      key: string;
+      label: string;
+      attempts: number;
+      completedAttempts: number;
+      failures: number;
+      successes: number;
+      logFilePath: string;
+      outputRoot: string;
+    }>;
+    error?: string | null;
+  } | null>(null);
+  const architectLoopAttempts = FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS;
+  const architectLoopDesignCount = FPGA_ARCHITECT_SWEEP_DESIGNS.length;
   const drawerScrollRef = useRef<HTMLDivElement | null>(null);
   const lowerControlsRef = useRef<HTMLDivElement | null>(null);
+  const architectLoopStopRequestedRef = useRef(false);
+
+  useEffect(() => {
+    if (!architectLoopRunning || !architectLoopJobId) {
+      return;
+    }
+
+    let cancelled = false;
+    const pollStatus = async () => {
+      try {
+        const response = await apiFetch(`/api/ai-jobs/${architectLoopJobId}/status`);
+        const data = await response.json().catch(() => null);
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const nextCurrent = Number(data?.progress?.currentLoop);
+        if (Number.isFinite(nextCurrent)) {
+          setArchitectLoopCurrent(nextCurrent);
+        }
+        const nextCompletedAttempts = Number(data?.progress?.completedAttempts);
+        if (Number.isFinite(nextCompletedAttempts)) {
+          setArchitectLoopCompletedAttempts(nextCompletedAttempts);
+        }
+        const nextFailures = Number(data?.progress?.failures);
+        if (Number.isFinite(nextFailures)) {
+          setArchitectLoopFailures(nextFailures);
+        }
+        const nextSuccesses = Number(data?.progress?.successes);
+        if (Number.isFinite(nextSuccesses)) {
+          setArchitectLoopSuccesses(nextSuccesses);
+        }
+        const nextDesignLabel = typeof data?.progress?.currentDesignLabel === 'string'
+          ? data.progress.currentDesignLabel
+          : '';
+        setArchitectLoopCurrentDesignLabel(nextDesignLabel);
+        const nextDesignAttempt = Number(data?.progress?.currentDesignAttempt);
+        if (Number.isFinite(nextDesignAttempt)) {
+          setArchitectLoopCurrentDesignAttempt(nextDesignAttempt);
+        }
+      } catch {
+        // Keep the loop running quietly even if a single status poll misses.
+      }
+    };
+
+    void pollStatus();
+    const timer = window.setInterval(() => {
+      void pollStatus();
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [architectLoopJobId, architectLoopRunning]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -240,7 +359,12 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   }, [selectedProvider, selectedModel]);
 
   async function buildProjectContext(queryText: string): Promise<ProjectContextPayload | null> {
-    if (projectFiles.length === 0) {
+    const architectAllowsGeneratedReuse = architectPromptRequestsReuse(queryText);
+    const sourceProjectFiles = queryText.includes('Project name: "') || queryText.includes('Feature Mode: fpga_vhdl_architect')
+      ? filterArchitectReferenceFiles(projectFiles, { allowGeneratedReuse: architectAllowsGeneratedReuse })
+      : projectFiles;
+
+    if (sourceProjectFiles.length === 0) {
       return null;
     }
 
@@ -254,7 +378,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       '.c', '.cc', '.cpp', '.h', '.hpp', '.py', '.tcl', '.md', '.txt'
     ]);
 
-    const scoredFiles = projectFiles
+    const scoredFiles = sourceProjectFiles
       .map((file) => {
         let score = 0;
         if (preferredExtensions.has(file.extension)) score += 4;
@@ -304,8 +428,8 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
     return {
       name: projectName,
-      fileCount: projectFiles.length,
-      filePaths: projectFiles.slice(0, 80).map((file) => file.path),
+      fileCount: sourceProjectFiles.length,
+      filePaths: sourceProjectFiles.slice(0, 80).map((file) => file.path),
       excerpts,
     };
   }
@@ -322,6 +446,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     testGenerateResult,
     handleSendMessage,
     handleMacroSendMessage,
+    handleRetryLastMacro,
     handleApproveRemoteExportPreview,
     handleCancelRemoteExportPreview,
     handleStopJob,
@@ -335,6 +460,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     hasFinishedJobCard,
     jobWasCancelled,
     jobFailed,
+    lastRetryableMacroRequest,
     statusPanelText,
     statusPanelTone,
     jobCardTitle,
@@ -370,7 +496,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         behavior: 'smooth',
       });
     });
-  }, [isOpen, messages, loading, showTbComposer, testGenerateResult]);
+  }, [isOpen, messages, loading, showTbComposer, showArchitectComposer, testGenerateResult, architectLoopResult]);
 
   useEffect(() => {
     if (!isOpen || !onMacrosPanelHeightChange) return;
@@ -394,9 +520,13 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     const observer = new ResizeObserver(() => publishHeight());
     observer.observe(element);
     return () => observer.disconnect();
-  }, [isOpen, loading, onMacrosPanelHeightChange, showTbComposer, testGenerateResult]);
+  }, [isOpen, loading, onMacrosPanelHeightChange, showTbComposer, showArchitectComposer, testGenerateResult, architectLoopResult]);
 
   const vhdlProjectFiles = projectFiles.filter((file) => file.extension === '.vhd' || file.extension === '.vhdl');
+  const architectAllowsGeneratedReuse = architectPromptRequestsReuse(architectPromptDraft);
+  const architectReferenceFiles = filterArchitectReferenceFiles(vhdlProjectFiles, {
+    allowGeneratedReuse: architectAllowsGeneratedReuse,
+  });
   const visibleSignalNames = signals.slice(0, 12).map((signal) => signal.name);
 
   const buildProjectTbPrompt = () => {
@@ -434,6 +564,40 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const getTbPromptForMode = (mode: TbGenerationMode) => (
     mode === 'project_entities' ? buildProjectTbPrompt() : buildReverseTbPrompt()
   );
+
+  const buildArchitectFixedPrompt = () => {
+    const fileList = architectReferenceFiles.slice(0, 20).map((file) => `- ${file.path}`).join('\n');
+    return [
+      `Project name: "${architectProjectName || 'fpga_vhdl_project'}".`,
+      projectPath
+        ? `Use the currently selected project folder as the save root: ${projectPath}. Create the generated project under that folder.`
+        : 'Use the currently selected project folder as the save root once available.',
+      architectTargetFpga ? `Target FPGA / board: ${architectTargetFpga}.` : 'Target FPGA / board: infer a generic portable target unless the requirements imply otherwise.',
+      `Preferred clock: ${architectClockHz}.`,
+      `Reset style: ${architectResetStyle}.`,
+      architectInterfacePrefs ? `Interface preferences: ${architectInterfacePrefs}.` : 'Interface preferences: choose clean, maintainable interfaces based on the requirement.',
+      architectIncludeTb ? 'Generate a self-checking VHDL testbench.' : 'Do not generate a testbench unless it is necessary to explain the architecture.',
+      architectIncludeGhdl ? 'Generate GHDL scripts, analysis order, and simulation instructions.' : 'GHDL script generation is optional.',
+      'Return a compact Markdown project manifest with one "# FILE:" block per generated file and a fenced full file body for each file.',
+      'Split documentation and metadata into short files: a project overview, a top-level architecture note, unit-level notes for major entities/packages, a short verification note, and a short GHDL plan JSON file.',
+      architectReferenceFiles.length > 0
+        ? `These existing VHDL files are available for reuse or reference:\n${fileList}`
+        : architectAllowsGeneratedReuse && vhdlProjectFiles.length > 0
+        ? 'Only generated VHDL files were found in the project browser. Reuse was requested, but no eligible source files remain after filtering.'
+        : 'Ignore generated project folders by default and generate from the stated requirements only unless I explicitly ask to reuse existing generated files.',
+      'Produce a complete FPGA/VHDL project with requirements notes, architecture documentation, synthesizable VHDL RTL, testbench, simulation scripts, constraints placeholder, and design report.',
+      'Keep the project maintainable, GHDL-friendly, and explicit about assumptions and warnings.',
+    ].join('\n\n');
+  };
+
+  const buildArchitectPrompt = () => {
+    const fixedPrompt = buildArchitectFixedPrompt();
+    const userPrompt = architectPromptDraft.trim();
+
+    return userPrompt
+      ? `${fixedPrompt}\n\nUser design request:\n${userPrompt}`
+      : fixedPrompt;
+  };
 
   const parsedMessages = useMemo(
     () => messages.map((message) => message.role === 'assistant' ? buildDisplayReport(message.text, message.meta) : null),
@@ -503,9 +667,23 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   if (!isOpen) return null;
 
   const openTbComposer = (mode: TbGenerationMode) => {
+    setShowArchitectComposer(false);
     setTbGenerationMode(mode);
     setTbPromptDraft(getTbPromptForMode(mode));
     setShowTbComposer(true);
+  };
+
+  const openArchitectComposer = () => {
+    setShowTbComposer(false);
+    setArchitectProjectName(projectName && projectName !== 'Select Project Folder' ? projectName : 'fpga_vhdl_project');
+    setArchitectTargetFpga('');
+    setArchitectClockHz('100 MHz');
+    setArchitectResetStyle('Synchronous active-high reset');
+    setArchitectInterfacePrefs('');
+    setArchitectIncludeTb(true);
+    setArchitectIncludeGhdl(true);
+    setArchitectPromptDraft('');
+    setShowArchitectComposer(true);
   };
 
   const handleSubmitTbPrompt = async () => {
@@ -516,6 +694,123 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       macroId: 'generate_vhdl_tb',
       tbGenerationMode,
     });
+  };
+
+  const handleSubmitArchitectPrompt = async () => {
+    const promptToSend = buildArchitectPrompt().trim();
+    if (!promptToSend) return;
+    setShowArchitectComposer(false);
+    await handleMacroSendMessage(promptToSend, {
+      macroId: 'fpga_vhdl_architect',
+      tbGenerationMode: null,
+    });
+  };
+
+  const handleRunArchitectLoop = async () => {
+    const promptToSend = buildArchitectPrompt().trim();
+    if (
+      architectLoopRunning
+      || !selectedProvider
+      || !selectedModel
+      || !projectPath
+      || !promptToSend
+      || loading
+      || testGenerating
+      || selectedProviderDeployment !== 'local'
+    ) {
+      return;
+    }
+
+    const loopJobId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `architect-loop-${Date.now()}`;
+    flushSync(() => {
+      architectLoopStopRequestedRef.current = false;
+      setArchitectLoopRunning(true);
+      setArchitectLoopJobId(loopJobId);
+      setArchitectLoopCurrent(0);
+      setArchitectLoopCompletedAttempts(0);
+      setArchitectLoopFailures(0);
+      setArchitectLoopSuccesses(0);
+      setArchitectLoopCurrentDesignLabel('');
+      setArchitectLoopCurrentDesignAttempt(0);
+      setArchitectLoopResult(null);
+    });
+    await new Promise<void>((resolve) => {
+      window.requestAnimationFrame(() => resolve());
+    });
+    try {
+      const response = await apiFetch('/api/ai/fpga-architect-loop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId: loopJobId,
+          provider: selectedProvider,
+          model: selectedModel,
+          query: promptToSend,
+          projectPath,
+          workspaceFileName,
+        }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(data?.error || `FPGA Architect multi-design sweep failed (${response.status})`);
+      }
+
+      setArchitectLoopResult({
+        failures: Number.isFinite(Number(data?.failures)) ? Number(data.failures) : architectLoopAttempts,
+        attempts: Number.isFinite(Number(data?.attempts)) ? Number(data.attempts) : architectLoopAttempts,
+        logFilePath: typeof data?.logFilePath === 'string' ? data.logFilePath : '',
+        masterLogPath: typeof data?.masterLogPath === 'string' ? data.masterLogPath : '',
+        designSummaries: Array.isArray(data?.designSummaries) ? data.designSummaries : [],
+        error: null,
+      });
+      setArchitectLoopCurrent(Number.isFinite(Number(data?.completedAttempts)) ? Number(data.completedAttempts) : architectLoopAttempts);
+      setArchitectLoopCompletedAttempts(Number.isFinite(Number(data?.completedAttempts)) ? Number(data.completedAttempts) : architectLoopAttempts);
+      setArchitectLoopFailures(Number.isFinite(Number(data?.failures)) ? Number(data.failures) : architectLoopAttempts);
+      setArchitectLoopSuccesses(Number.isFinite(Number(data?.successes)) ? Number(data.successes) : 0);
+      setArchitectLoopCurrentDesignLabel('');
+      setArchitectLoopCurrentDesignAttempt(0);
+    } catch (error: any) {
+      if (architectLoopStopRequestedRef.current) {
+        setArchitectLoopResult(null);
+        return;
+      }
+      setArchitectLoopResult({
+        failures: architectLoopAttempts,
+        attempts: architectLoopAttempts,
+        logFilePath: '',
+        error: error?.message || String(error),
+      });
+    } finally {
+      architectLoopStopRequestedRef.current = false;
+      setArchitectLoopRunning(false);
+      setArchitectLoopJobId(null);
+    }
+  };
+
+  const handleStopArchitectLoop = async () => {
+    if (!architectLoopRunning) {
+      return;
+    }
+
+    architectLoopStopRequestedRef.current = true;
+
+    try {
+      if (architectLoopJobId) {
+        await apiFetch(`/api/ai-jobs/${architectLoopJobId}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    } catch {
+      // The in-flight loop request will still settle and clear the local state.
+    } finally {
+      setArchitectLoopRunning(false);
+      setArchitectLoopJobId(null);
+      setArchitectLoopCurrentDesignLabel('');
+      setArchitectLoopCurrentDesignAttempt(0);
+    }
   };
 
   return (
@@ -590,23 +885,107 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => void handleTestGenerate()}
-            disabled={!selectedProvider || !selectedModel || loading || testGenerating}
-            className="rounded border border-brand-cyan/30 bg-brand-cyan/10 px-2 py-1 text-[12px] font-bold uppercase tracking-wide text-brand-cyan disabled:opacity-40 cursor-pointer"
-          >
-            {testGenerating ? 'Testing...' : 'TEST'}
-          </button>
-          {testGenerateResult && (
-            <div className={`min-w-0 flex-1 rounded border px-2 py-1 text-[12px] font-mono font-bold ${
-              testGenerateResult === 'PASS'
-                ? 'border-lime-400/50 bg-lime-500/10 text-lime-300'
-                : 'border-red-400/50 bg-red-500/10 text-red-300'
-            }`}>
-              {testGenerateResult}
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={() => void handleTestGenerate()}
+              disabled={!selectedProvider || !selectedModel || loading || testGenerating}
+              className="rounded border border-brand-cyan/30 bg-brand-cyan/10 px-2 py-1 text-[12px] font-bold uppercase tracking-wide text-brand-cyan disabled:opacity-40 cursor-pointer"
+            >
+              {testGenerating ? 'Testing...' : 'TEST'}
+            </button>
+            {testGenerateResult && (
+              <div className={`min-w-0 rounded border px-2 py-1 text-[12px] font-mono font-bold ${
+                testGenerateResult === 'PASS'
+                  ? 'border-lime-400/50 bg-lime-500/10 text-lime-300'
+                  : 'border-red-400/50 bg-red-500/10 text-red-300'
+              }`}>
+                {testGenerateResult}
+              </div>
+            )}
+          </div>
+          <div className="ml-auto flex items-center gap-2 min-w-0">
+            {!architectLoopRunning && architectLoopResult && (
+              <div
+                className={`min-w-0 rounded border px-2 py-1 text-[12px] font-mono font-bold ${
+                  architectLoopResult.error
+                    ? 'border-red-400/50 bg-red-500/10 text-red-300'
+                    : architectLoopResult.failures > 0
+                      ? 'border-brand-amber/50 bg-brand-amber/10 text-brand-amber'
+                      : 'border-lime-400/50 bg-lime-500/10 text-lime-300'
+                }`}
+                title={architectLoopResult.error || architectLoopResult.masterLogPath || architectLoopResult.logFilePath || 'FPGA Architect multi-design sweep result'}
+              >
+                {architectLoopResult.error
+                  ? 'LOOP FAIL'
+                  : `${architectLoopResult.failures} / ${architectLoopResult.attempts} FAIL`}
+              </div>
+            )}
+            <div
+              className="flex min-w-[88px] items-center justify-center whitespace-nowrap rounded border border-brand-amber/25 bg-brand-amber/10 px-2 py-1 text-center text-[11px] font-mono font-bold uppercase tracking-wide tabular-nums text-brand-amber/90"
+              title={`Current FPGA Architect loop trial: ${architectLoopCurrent} of ${architectLoopAttempts}. Completed trials: ${architectLoopCompletedAttempts}.`}
+            >
+              {architectLoopRunning ? `${architectLoopCurrent} / ${architectLoopAttempts}` : architectLoopCurrent}
             </div>
-          )}
+            {(architectLoopRunning || architectLoopCompletedAttempts > 0 || architectLoopResult) && (
+              <>
+                <div
+                  className="flex min-w-[72px] items-center justify-center whitespace-nowrap rounded border border-lime-400/30 bg-lime-500/10 px-2 py-1 text-center text-[11px] font-mono font-bold uppercase tracking-wide tabular-nums text-lime-300"
+                  title={`Successful FPGA Architect trials so far: ${architectLoopSuccesses}.`}
+                >
+                  {architectLoopSuccesses} PASS
+                </div>
+                <div
+                  className="flex min-w-[72px] items-center justify-center whitespace-nowrap rounded border border-red-400/30 bg-red-500/10 px-2 py-1 text-center text-[11px] font-mono font-bold uppercase tracking-wide tabular-nums text-red-300"
+                  title={`Failed FPGA Architect trials so far: ${architectLoopFailures}.`}
+                >
+                  {architectLoopFailures} FAIL
+                </div>
+              </>
+            )}
+            {(architectLoopRunning || architectLoopCurrentDesignLabel) && (
+              <div
+                className="max-w-[180px] truncate rounded border border-brand-cyan/25 bg-brand-cyan/10 px-2 py-1 text-[12px] font-mono font-bold text-brand-cyan/90"
+                title={
+                  architectLoopCurrentDesignLabel
+                    ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` (${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN})` : ''}`
+                    : 'Waiting for the first design in the FPGA Architect sweep.'
+                }
+              >
+                {architectLoopCurrentDesignLabel
+                  ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` ${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN}` : ''}`
+                  : `0 / ${architectLoopDesignCount} DESIGNS`}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => void (architectLoopRunning ? handleStopArchitectLoop() : handleRunArchitectLoop())}
+              disabled={
+                !selectedProvider
+                || !selectedModel
+                || !projectPath
+                || loading
+                || testGenerating
+                || selectedProviderDeployment !== 'local'
+              }
+              className={`rounded border px-2 py-1 text-[12px] font-bold uppercase tracking-wide disabled:opacity-40 cursor-pointer ${
+                architectLoopRunning
+                  ? 'border-red-400/40 bg-red-500/10 text-red-300'
+                  : 'border-brand-amber/30 bg-brand-amber/10 text-brand-amber'
+              }`}
+              title={
+                architectLoopRunning
+                  ? 'Stop the active FPGA Architect multi-design sweep.'
+                  : selectedProviderDeployment !== 'local'
+                  ? 'The FPGA Architect multi-design sweep currently supports local providers only.'
+                  : !projectPath
+                    ? 'Open a project folder before running the FPGA Architect multi-design sweep.'
+                    : `Run the fixed FPGA Architect sweep: ${FPGA_ARCHITECT_SWEEP_DESIGNS.length} designs, ${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN} attempts each, ${architectLoopAttempts} total attempts.`
+              }
+            >
+              {architectLoopRunning ? 'Stop' : 'Fine Tune LLM'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -821,8 +1200,19 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   Stop
                 </button>
               ) : (
-                <div className={`flex-none rounded-lg border px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide ${jobCardBadgeTone}`}>
-                  {jobCardBadge}
+                <div className="flex items-center gap-2">
+                  <div className={`flex-none rounded-lg border px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide ${jobCardBadgeTone}`}>
+                    {jobCardBadge}
+                  </div>
+                  {jobFailed && lastRetryableMacroRequest && (
+                    <button
+                      type="button"
+                      onClick={() => void handleRetryLastMacro()}
+                      className="flex-none rounded-lg border border-amber-400/55 bg-amber-500/10 px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide text-amber-100 cursor-pointer hover:bg-amber-500/20"
+                    >
+                      Retry
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -835,15 +1225,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         {/* Suggestion Chips */}
         <div className="p-2 border-t border-brand-outline-variant/30 bg-brand-surface-lowest text-[12px] space-y-1.5 select-none">
           <span className="text-[12px] uppercase text-slate-400 font-bold tracking-wider px-1 inline-block">ENGINEERING MACROS:</span>
-          <div className="grid grid-cols-3 gap-1.5">
-            {getVisibleAiMacros().map((macro) => {
+          {(() => {
+            const visibleMacros = getVisibleAiMacros();
+            const fpgaArchitectMacro = visibleMacros.find((macro) => macro.id === 'fpga_vhdl_architect');
+            const remainingMacros = visibleMacros.filter((macro) => macro.id !== 'fpga_vhdl_architect');
+            const renderMacroButton = (macro: ReturnType<typeof getVisibleAiMacros>[number], fullWidth = false) => {
               const icon = macro.id === 'generate_vhdl_tb'
                 ? <FileCode size={11} />
                 : macro.id === 'inspect_race_hazards' || macro.id === 'verify_clock_reset_sequence'
                   ? <Bug size={11} />
                   : macro.id === 'protocol_decoder_details' || macro.id === 'summarize_protocol_timeline'
                     ? <Layers size={11} />
-                    : macro.id === 'generate_vhdl_assertions' || macro.id === 'draft_rtl_skeleton'
+                : macro.id === 'generate_vhdl_assertions' || macro.id === 'draft_rtl_skeleton' || macro.id === 'fpga_vhdl_architect'
                       ? <FileCode size={11} />
                       : <Sparkles size={11} />;
               const invocation = resolveMacroInvocation(macro.id);
@@ -852,6 +1245,10 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                 key={macro.id}
                 type="button"
                 onClick={() => {
+                  if (macro.id === 'fpga_vhdl_architect') {
+                    openArchitectComposer();
+                    return;
+                  }
                   if (invocation.kind === 'composer') {
                     openTbComposer(invocation.tbGenerationMode);
                     return;
@@ -859,13 +1256,20 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   void handleMacroSendMessage(invocation.prompt, { macroId: invocation.macroId });
                 }}
                 disabled={loading || (!hasRemoteExportConsent && selectedProviderRequiresRemoteConsent)}
-                className="min-w-0 rounded bg-brand-surface-low px-2 py-1 transition-all text-[12px] cursor-pointer text-left border border-brand-outline-variant/30 hover:border-brand-cyan/40 hover:bg-brand-surface-high flex items-center justify-start gap-1.5"
+                className={`min-w-0 rounded bg-brand-surface-low px-2 py-1 transition-all text-[12px] cursor-pointer text-left border border-brand-outline-variant/30 hover:border-brand-cyan/40 hover:bg-brand-surface-high flex items-center gap-1.5 ${fullWidth ? 'col-span-3 justify-center' : 'justify-start'}`}
               >
                 <span className={`flex-none ${getMacroButtonTone(macro.id)}`}>{icon}</span>
-                <span className={`min-w-0 truncate text-left ${getMacroButtonTone(macro.id)}`}>{macro.label}</span>
+                <span className={`min-w-0 truncate ${fullWidth ? 'text-center text-yellow-300' : 'text-left'} ${fullWidth ? '' : getMacroButtonTone(macro.id)}`}>{macro.label}</span>
               </button>
-            )})}
-          </div>
+            )};
+
+            return (
+              <div className="grid grid-cols-3 gap-1.5">
+                {fpgaArchitectMacro ? renderMacroButton(fpgaArchitectMacro, true) : null}
+                {remainingMacros.map((macro) => renderMacroButton(macro))}
+              </div>
+            );
+          })()}
 
           {showTbComposer && (
             <div className="mt-2 rounded border border-brand-outline-variant/30 bg-[#060a12] p-2.5 space-y-2">
@@ -958,6 +1362,116 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   className="px-2 py-1 rounded bg-brand-amber text-[12px] font-bold text-brand-surface-lowest disabled:opacity-40 cursor-pointer"
                 >
                   Run Prompt
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showArchitectComposer && (
+            <div className="mt-2 rounded border border-brand-outline-variant/30 bg-[#060a12] p-2.5 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[12px] font-bold uppercase tracking-wide text-brand-cyan">FPGA VHDL Architect</div>
+                <button
+                  type="button"
+                  onClick={() => setShowArchitectComposer(false)}
+                  className="text-[12px] text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1.5">
+                <input
+                  value={architectProjectName}
+                  onChange={(event) => setArchitectProjectName(event.target.value)}
+                  placeholder="Project name"
+                  className="rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-1.5 text-[12px] text-slate-200 outline-none"
+                />
+                <select
+                  value={architectTargetFpga}
+                  onChange={(event) => setArchitectTargetFpga(event.target.value)}
+                  className="rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-1.5 text-[12px] text-slate-200 outline-none cursor-pointer"
+                  title="Select target FPGA or board family"
+                >
+                  {FPGA_TARGET_OPTIONS.map((option) => (
+                    <option key={option.label} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={architectClockHz}
+                  onChange={(event) => setArchitectClockHz(event.target.value)}
+                  placeholder="Clock preference"
+                  className="rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-1.5 text-[12px] text-slate-200 outline-none"
+                />
+                <select
+                  value={architectResetStyle}
+                  onChange={(event) => setArchitectResetStyle(event.target.value)}
+                  className="rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-1.5 text-[12px] text-slate-200 outline-none cursor-pointer"
+                  title="Select reset style"
+                >
+                  {RESET_STYLE_OPTIONS.map((option) => (
+                    <option key={option.label} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <input
+                value={architectInterfacePrefs}
+                onChange={(event) => setArchitectInterfacePrefs(event.target.value)}
+                placeholder="Interface preferences"
+                className="w-full rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-1.5 text-[12px] text-slate-200 outline-none"
+              />
+
+              <div className="grid grid-cols-2 gap-1.5 text-[12px] text-slate-300">
+                <label className="flex items-center gap-2 rounded border border-brand-outline-variant/30 bg-brand-surface-low px-2 py-1.5">
+                  <input type="checkbox" checked={architectIncludeTb} onChange={(event) => setArchitectIncludeTb(event.target.checked)} />
+                  <span>Include self-checking TB</span>
+                </label>
+                <label className="flex items-center gap-2 rounded border border-brand-outline-variant/30 bg-brand-surface-low px-2 py-1.5">
+                  <input type="checkbox" checked={architectIncludeGhdl} onChange={(event) => setArchitectIncludeGhdl(event.target.checked)} />
+                  <span>Include GHDL scripts</span>
+                </label>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[12px] uppercase font-bold tracking-wide text-slate-400">User Prompt To Append</span>
+                  <button
+                    type="button"
+                    onClick={() => setArchitectPromptDraft('')}
+                    className="text-[12px] text-brand-amber hover:text-yellow-300 cursor-pointer"
+                  >
+                    Clear User Prompt
+                  </button>
+                </div>
+                <textarea
+                  value={architectPromptDraft}
+                  onChange={(event) => setArchitectPromptDraft(event.target.value)}
+                  rows={8}
+                  placeholder="Describe the actual FPGA/VHDL design you want, such as the module behavior, interfaces, protocols, resource goals, or verification expectations."
+                  className="w-full resize-y rounded border border-brand-outline-variant/40 bg-brand-surface px-2 py-2 text-[12px] font-mono text-slate-200 outline-none focus:border-brand-cyan"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowArchitectComposer(false)}
+                  className="px-2 py-1 rounded border border-brand-outline-variant/30 bg-brand-surface-low text-[12px] font-bold text-slate-300 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSubmitArchitectPrompt()}
+                  disabled={loading || !projectPath || (!hasRemoteExportConsent && selectedProviderRequiresRemoteConsent)}
+                  className="px-2 py-1 rounded bg-brand-amber text-[12px] font-bold text-brand-surface-lowest disabled:opacity-40 cursor-pointer"
+                >
+                  Run Architect
                 </button>
               </div>
             </div>

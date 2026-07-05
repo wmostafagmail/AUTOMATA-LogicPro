@@ -1,0 +1,18 @@
+{
+  "project_name": "ALU",
+  "top_entity": "alu_tb",
+  "vhdl_standard": "--std=08",
+  "analysis_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/alu_tb.vhd"
+  ],
+  "elaborate_command": "ghdl -e --std=08 alu_tb",
+  "run_commands": [
+    {
+      "command": "ghdl -r --std=08 alu_tb --wave=tb.ghw --vcd=tb.vcd --stop-time=2us",
+      "expected_result": "Test bench passed successfully."
+    }
+  ],
+  "top_testbench": "alu_tb"
+}

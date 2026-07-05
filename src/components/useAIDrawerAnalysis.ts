@@ -55,6 +55,8 @@ interface JobTelemetry {
   inputTokens: number | null;
   latestAttemptInputTokens: number | null;
   jobInputTokens: number | null;
+  attemptCount?: number | null;
+  retryCount?: number | null;
   sessionInputTokens: number | null;
   outputTokens: number | null;
   jobOutputTokens: number | null;
@@ -62,6 +64,12 @@ interface JobTelemetry {
   tokensPerSecond: number | null;
   endToEndTokensPerSecond?: number | null;
   durationMs: number | null;
+}
+
+interface RetryableMacroRequest {
+  queryText: string;
+  macroId: AiMacroId;
+  tbMode: TbGenerationMode | null;
 }
 
 export function useAIDrawerAnalysis(params: {
@@ -110,6 +118,7 @@ export function useAIDrawerAnalysis(params: {
   });
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [activeMacroId, setActiveMacroId] = useState<AiMacroId | null>(null);
+  const [lastRetryableMacroRequest, setLastRetryableMacroRequest] = useState<RetryableMacroRequest | null>(null);
   const [testGenerating, setTestGenerating] = useState(false);
   const [testGenerateResult, setTestGenerateResult] = useState<string | null>(null);
   const activeRequestControllerRef = useRef<AbortController | null>(null);
@@ -213,6 +222,11 @@ export function useAIDrawerAnalysis(params: {
     activeRequestControllerRef.current = controller;
     setActiveJobId(jobId);
     setActiveMacroId(macroId);
+    setLastRetryableMacroRequest({
+      queryText,
+      macroId,
+      tbMode,
+    });
     setPendingRemoteExportPreview(null);
 
     try {
@@ -221,6 +235,8 @@ export function useAIDrawerAnalysis(params: {
         inputTokens: null,
         latestAttemptInputTokens: null,
         jobInputTokens: null,
+        attemptCount: null,
+        retryCount: null,
         sessionInputTokens: sessionTokenTotalsRef.current.inputTokens,
         outputTokens: null,
         jobOutputTokens: null,
@@ -266,6 +282,7 @@ export function useAIDrawerAnalysis(params: {
           retryUsed: Boolean(data.retryUsed),
           outputDirectory: data.outputDirectory || null,
           generatedFiles: Array.isArray(data.generatedFiles) ? data.generatedFiles : [],
+          architectProject: data.architectProject || null,
           validation: data.validation || null,
           hazardMarkdown: data.hazardScan?.markdown || null,
           hazardFindings: Array.isArray(data.hazardScan?.findings) ? data.hazardScan.findings : [],
@@ -406,6 +423,17 @@ export function useAIDrawerAnalysis(params: {
     tbGenerationMode: null,
   });
 
+  const handleRetryLastMacro = async () => {
+    if (!lastRetryableMacroRequest || loading) {
+      return;
+    }
+
+    await handleMacroSendMessage(lastRetryableMacroRequest.queryText, {
+      macroId: lastRetryableMacroRequest.macroId,
+      tbGenerationMode: lastRetryableMacroRequest.tbMode,
+    });
+  };
+
   const handleApproveRemoteExportPreview = async () => {
     if (!pendingRemoteExportPreview || loading) {
       return;
@@ -518,6 +546,8 @@ export function useAIDrawerAnalysis(params: {
     inputTokens: null,
     latestAttemptInputTokens: null,
     jobInputTokens: null,
+    attemptCount: null,
+    retryCount: null,
     sessionInputTokens: sessionTokenTotalsRef.current.inputTokens,
     outputTokens: null,
     jobOutputTokens: null,
@@ -589,6 +619,7 @@ export function useAIDrawerAnalysis(params: {
     sessionTokenTotals,
     handleSendMessage,
     handleMacroSendMessage,
+    handleRetryLastMacro,
     handleApproveRemoteExportPreview,
     handleCancelRemoteExportPreview,
     handleStopJob,
@@ -604,6 +635,7 @@ export function useAIDrawerAnalysis(params: {
     jobCompletedSuccessfully,
     jobWasCancelled,
     jobFailed,
+    lastRetryableMacroRequest,
     statusPanelText,
     statusPanelTone,
     jobCardTitle,

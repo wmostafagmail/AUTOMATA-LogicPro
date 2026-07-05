@@ -5,6 +5,7 @@ import {
   type RemoteExportPreviewPayload,
 } from '../exportPolicy';
 import type { PreparedVhdlSkillPrompt } from './vhdlSkillOrchestrator';
+import { buildMacroExecutionPrompt, normalizePreparedPrompt } from './aiPromptUtils';
 
 type PreparedAnalyzeRequest = {
   selectedProvider: string;
@@ -43,14 +44,15 @@ export async function buildPreparedRemoteExportPreview(params: {
     userQuery,
     tbGenerationMode,
   });
-  const promptTask = `${preparedRequest.systemPrompt}\n\n${macroContract}`;
+  const promptTask = buildMacroExecutionPrompt({
+    systemPrompt: preparedRequest.systemPrompt,
+    buildMacroPromptContract: preparedRequest.buildMacroPromptContract,
+    macroId,
+    userQuery,
+    tbGenerationMode,
+  });
   const preparedPrompt = await applyMandatoryVhdlSkill(promptTask);
-  const normalizedPreparedPrompt: PreparedVhdlSkillPrompt = typeof preparedPrompt === 'string'
-    ? {
-        prompt: preparedPrompt,
-        selection: null,
-      }
-    : preparedPrompt;
+  const normalizedPreparedPrompt: PreparedVhdlSkillPrompt = normalizePreparedPrompt(preparedPrompt);
 
   const notes = preparedRequest.exportPolicyText
     .split('\n')

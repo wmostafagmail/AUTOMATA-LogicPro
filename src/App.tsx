@@ -21,6 +21,7 @@ import { WaveformViewport } from './components/WaveformViewport';
 import { AIDrawer } from './components/AIDrawer';
 import { AIBottomDrawer, AIAnalysisContent } from './components/AIBottomDrawer';
 import { AIDiagramContent } from './components/AIDiagramViewer';
+import { AIArchitectWorkspace } from './components/AIArchitectWorkspace';
 import { AIWorkspaceReport } from './aiReport';
 import {
   Wrench,
@@ -111,6 +112,7 @@ export default function App() {
   const workspaceInputRef = useRef<HTMLInputElement | null>(null);
   const startupWorkspaceRecoveryRef = useRef(false);
   const startupProjectRestorePathRef = useRef<string | null>(null);
+  const lastAutoOpenedArchitectReportRef = useRef<string | null>(null);
   const aiOutputWindow = useFloatingWindow({
     defaultBounds: DEFAULT_AI_OUTPUT_WINDOW_BOUNDS,
     minWidth: 520,
@@ -198,6 +200,26 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [aiDiagramWindow.isOpen, aiDiagramWindow.setIsOpen, aiOutputWindow.isOpen, aiOutputWindow.setIsOpen]);
+
+  useEffect(() => {
+    if (latestAiReport?.meta.macroId !== 'fpga_vhdl_architect' || !latestAiReport.meta.architectProject) {
+      return;
+    }
+
+    const architectProject = latestAiReport.meta.architectProject;
+    const reportKey = [
+      latestAiReport.meta.macroId,
+      architectProject.outputDirectory || architectProject.projectName,
+      latestAiReport.text.slice(0, 160),
+    ].join('::');
+
+    if (lastAutoOpenedArchitectReportRef.current === reportKey) {
+      return;
+    }
+
+    lastAutoOpenedArchitectReportRef.current = reportKey;
+    aiOutputWindow.openWindow();
+  }, [latestAiReport, aiOutputWindow.openWindow]);
 
   // 5. Compute Live logic simulation of all clocks, outputs and decoders in parallel
   const simulatedSignals = useMemo(() => {
@@ -608,6 +630,9 @@ export default function App() {
       if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
         resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
         return;
+      }
+      if (Array.isArray(error?.logs) && error.logs.length > 0) {
+        setGhdlLogs(error.logs.join('\n'));
       }
       setGhdlJobStatus(`Simulation failed: ${error?.message || 'GHDL simulation failed.'}`);
       setWorkspaceError(error?.message || 'GHDL simulation failed.');
@@ -1188,24 +1213,28 @@ export default function App() {
                 </div>
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto bg-brand-surface-lowest p-4">
-                <AIAnalysisContent
-                  report={latestAiReport}
-                  hazardMarkers={visibleIssueMarkers}
-                  hazardSeverityFilter={hazardSeverityFilter}
-                  hazardFilterCounts={hazardFilterCounts}
-                  filteredMarkerCount={filteredIssueMarkers.length}
-                  markerFamilyCounts={markerFamilyCounts}
-                  markerFamilyVisibility={markerFamilyVisibility}
-                  markerDisplayLimit={markerDisplayLimit}
-                  selectedHazardId={selectedIssueMarkerId}
-                  onSelectHazard={handleSelectIssueMarker}
-                  onChangeHazardSeverityFilter={setHazardSeverityFilter}
-                  onToggleMarkerFamily={(family) => setMarkerFamilyVisibility((current) => ({
-                    ...current,
-                    [family]: !current[family],
-                  }))}
-                  onChangeMarkerDisplayLimit={setMarkerDisplayLimit}
-                />
+                {latestAiReport?.meta.architectProject ? (
+                  <AIArchitectWorkspace report={latestAiReport} />
+                ) : (
+                  <AIAnalysisContent
+                    report={latestAiReport}
+                    hazardMarkers={visibleIssueMarkers}
+                    hazardSeverityFilter={hazardSeverityFilter}
+                    hazardFilterCounts={hazardFilterCounts}
+                    filteredMarkerCount={filteredIssueMarkers.length}
+                    markerFamilyCounts={markerFamilyCounts}
+                    markerFamilyVisibility={markerFamilyVisibility}
+                    markerDisplayLimit={markerDisplayLimit}
+                    selectedHazardId={selectedIssueMarkerId}
+                    onSelectHazard={handleSelectIssueMarker}
+                    onChangeHazardSeverityFilter={setHazardSeverityFilter}
+                    onToggleMarkerFamily={(family) => setMarkerFamilyVisibility((current) => ({
+                      ...current,
+                      [family]: !current[family],
+                    }))}
+                    onChangeMarkerDisplayLimit={setMarkerDisplayLimit}
+                  />
+                )}
               </div>
             </div>
           </div>

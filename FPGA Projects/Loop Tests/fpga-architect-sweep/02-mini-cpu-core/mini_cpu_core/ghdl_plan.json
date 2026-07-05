@@ -1,0 +1,21 @@
+{
+  "project_name": "mini_cpu_core",
+  "top_entity": "cpu_core",
+  "top_testbench": "tb_cpu_core",
+  "vhdl_standard": "2008",
+  "analysis_order": [
+    "src/cpu_pkg.vhd",
+    "src/cpu_core.vhd",
+    "tb/tb_cpu_core.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 src/cpu_pkg.vhd",
+    "ghdl -a --std=08 src/cpu_core.vhd",
+    "ghdl -a --std=08 tb/tb_cpu_core.vhd",
+    "ghdl -e --std=08 cpu_core",
+    "ghdl -r --std=08 tb_cpu_core --workdir=. --vcd=mini_cpu_core.vcd"
+  ],
+  "expected_result": "PASS",
+  "clock_period_ps": 10000,
+  "reset_style": "synchronous_active_high"
+}

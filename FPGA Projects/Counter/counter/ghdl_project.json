@@ -1,0 +1,17 @@
+{
+  "top_entity": "alu",
+  "top_testbench": "tb_alu",
+  "vhdl_standard": "vhdl-2008",
+  "compile_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/tb_alu.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 src/alu_pkg.vhd",
+    "ghdl -a --std=08 src/alu.vhd",
+    "ghdl -a --std=08 tb/tb_alu.vhd",
+    "ghdl -e --std=08 tb_alu",
+    "ghdl -r --std=08 tb_alu --wave=tb_alu.fst"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "project": "Counter",
+  "dut": "alu",
+  "tb": "tb_alu",
+  "top": "tb_alu",
+  "vhdl_standard": "2008",
+  "clock_period": "10.0ns",
+  "reset_style": "sync_active_high",
+  "compile_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/tb_alu.vhd"
+  ],
+  "sim_commands": [
+    "ghdl -a --std=08 src/alu_pkg.vhd",
+    "ghdl -a --std=08 src/alu.vhd",
+    "ghdl -a --std=08 tb/tb_alu.vhd",
+    "ghdl -e --std=08 tb_alu",
+    "ghdl -r --std=08 tb_alu --wave=alu.vcd"
+  ],
+  "expected_exit": 0,
+  "waveform_output": "alu.vcd",
+  "timing_constraints": "constraints/alu.xdc"
+}

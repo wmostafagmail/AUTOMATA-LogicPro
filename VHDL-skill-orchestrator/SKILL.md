@@ -30,6 +30,7 @@ The VHDL Skill Orchestrator ensures the agent does not randomly choose skills or
 7. Pass only the relevant task scope to each skill.
 8. Merge the outputs into one consistent answer or implementation.
 9. Verify that the final output satisfies the user request and all selected skill rules.
+10. Enforce repository-local GHDL/VHDL conformance rules before finalizing any generated RTL, package, or testbench output.
 
 ---
 
@@ -237,6 +238,22 @@ Execution order:
 1. <skill-name> - <task>
 2. <skill-name> - <task>
 3. Merge and verify final output.
+
+### 7. Mandatory GHDL / VHDL Conformance Checklist
+
+When the task produces or edits VHDL, packages, or testbenches, the orchestrator must preserve these rules across all selected skills:
+
+- Target VHDL-2008 by default unless the task explicitly says otherwise.
+- Use `ieee.std_logic_1164` and `ieee.numeric_std`; do not use non-standard arithmetic libraries.
+- Every generated design unit must include the `library` and `use` clauses it actually needs in that same file.
+- Testbenches must be GHDL-compatible and must stop cleanly on success with `std.env.stop(0)` or equivalent std-library usage, never `severity failure`.
+- Testbench helper procedures/functions must be declared before `begin`.
+- Do not place plain variables in the architecture body.
+- Keep reset polarity/style consistent between DUT and TB, and sample synchronous outputs only after the active edge update takes effect.
+- Do not use reserved words/operator tokens as identifiers.
+- Do not emit invalid boolean/bitwise expressions such as `a_int and b_int = 0`.
+- Generate explicit compile-order-safe `work` package usage and avoid unresolved work units.
+- The final result should be suitable for a full `ghdl -a`, `ghdl -e`, `ghdl -r` flow as written.
 
 Assumptions:
 - <assumption>

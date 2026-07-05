@@ -1,0 +1,16 @@
+{
+  "project": "ALU",
+  "top_entity": "alu",
+  "top_testbench": "alu_tb",
+  "vhdl_standard": "2008",
+  "compile_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/alu_tb.vhd"
+  ],
+  "run_command": "ghdl -r alu_tb --stop-time=100us",
+  "flags": [
+    "--std=08",
+    "--work=work"
+  ]
+}

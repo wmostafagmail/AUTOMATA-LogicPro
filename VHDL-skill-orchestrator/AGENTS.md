@@ -26,6 +26,19 @@ When FPGA, RTL, VHDL, IEEE 1076, Vivado, Quartus, GHDL, ModelSim, Questa, synthe
 3. Use `vhdl-language` for VHDL RTL, testbench, synthesis-aware coding, and debug.
 4. Require a self-checking testbench or explain why one is not applicable.
 5. Include compile/simulation commands where useful.
+6. Enforce repository-local GHDL conformance rules for generated RTL, packages, and testbenches.
+
+## GHDL Conformance Baseline
+
+- Default to VHDL-2008 unless told otherwise.
+- Use `ieee.std_logic_1164` and `ieee.numeric_std`.
+- Keep required `library` / `use` clauses in each generated file.
+- Ensure `work` package references are generated and compile-order safe.
+- Use clean pass-stop behavior such as `std.env.stop(0)` instead of success-by-failure.
+- Keep helper procedures/functions in the testbench declarative region before `begin`.
+- Avoid architecture-body plain variable declarations for runtime state.
+- Avoid reserved-word identifiers and invalid boolean/bitwise pseudo-English expressions.
+- Aim for output that should pass a full GHDL analyze -> elaborate -> simulate flow.
 
 ## Minimal Prompt
 

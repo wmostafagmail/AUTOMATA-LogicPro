@@ -2,6 +2,7 @@ import type express from 'express';
 import type { GoogleGenAI } from '@google/genai';
 import { createSessionManager, type LogicProSession } from './sessionManager';
 import type { PreparedVhdlSkillPrompt } from './vhdlSkillOrchestrator';
+import { normalizePreparedPrompt } from './aiPromptUtils';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -137,7 +138,7 @@ export function createAiMetaRouteContext(params: {
         'TEST_OK',
         'Do not add explanation, markdown, quotes, code fences, labels, or reasoning.'
       ].join('\n'));
-      const testPrompt = typeof preparedPrompt === 'string' ? preparedPrompt : preparedPrompt.prompt;
+      const testPrompt = normalizePreparedPrompt(preparedPrompt).prompt;
       const result = await runModelAnalysis({
         ai,
         provider,

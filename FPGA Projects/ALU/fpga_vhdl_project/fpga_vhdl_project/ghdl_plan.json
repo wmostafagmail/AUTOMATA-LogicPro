@@ -1,0 +1,19 @@
+{
+  "project": "fpga_vhdl_project",
+  "top_entity": "alu",
+  "top_testbench": "alu_tb",
+  "vhdl_standard": "2008",
+  "analysis_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/alu_tb.vhd"
+  ],
+  "compile_commands": [
+    "ghdl -a --std=08 src/alu_pkg.vhd",
+    "ghdl -a --std=08 src/alu.vhd",
+    "ghdl -a --std=08 tb/alu_tb.vhd"
+  ],
+  "elab_command": "ghdl -e --std=08 alu_tb",
+  "run_command": "ghdl -r --std=08 alu_tb --stop-time=120us",
+  "expected_result": "PASS"
+}

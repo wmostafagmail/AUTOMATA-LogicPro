@@ -1,0 +1,12 @@
+# Verification Plan
+- **Simulator**: GHDL (VHDL-2008)
+- **Commands**: `make compile sim`
+- **Waveform**: `alu.vcd` generated automatically
+- **Checklist**:
+   - [ ] Reset deasserts correctly
+   - [ ] ADD produces correct sum/overflow
+   - [ ] SUB produces correct difference/underflow
+   - [ ] AND/OR/XOR/NOT match truth tables
+   - [ ] SHL/SHR shift correctly
+   - [ ] Testbench exits cleanly (code 0)
+   - [ ] No timing violations in 100 MHz domain

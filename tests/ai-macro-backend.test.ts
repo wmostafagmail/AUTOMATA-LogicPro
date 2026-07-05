@@ -29,6 +29,8 @@ test('project-entity VHDL TB prompt includes macro contract and mode', () => {
   assert.match(prompt, /## Selected Skills|Selected Skills section/i);
   assert.match(prompt, /Include at least one fenced code block tagged as `vhdl`/);
   assert.match(prompt, /Required sections or equivalents/);
+  assert.match(prompt, /clean pass stop rather than severity failure/i);
+  assert.match(prompt, /sample synchronous outputs after the relevant clock edge update/i);
 });
 
 test('reverse-from-vcd VHDL TB prompt includes waveform-specific guidance', () => {
@@ -40,6 +42,7 @@ test('reverse-from-vcd VHDL TB prompt includes waveform-specific guidance', () =
 
   assert.match(prompt, /reverse-from-VCD mode/i);
   assert.match(prompt, /waveform-based assumptions/i);
+  assert.match(prompt, /std\.env\.stop\(0\)/i);
 });
 
 test('VHDL TB validator passes minimally structured VHDL output', () => {
@@ -201,6 +204,23 @@ test('custom query prompt treats general design requests as non-waveform tasks',
   assert.match(prompt, /general FPGA\/VHDL design request/i);
   assert.match(prompt, /Do not force waveform decoding, protocol analysis, or logic-analyzer interpretation/i);
   assert.doesNotMatch(prompt, /You must use the deterministic protocol pre-decode as required grounding context/i);
+});
+
+test('FPGA Architect prompt includes the local JSON generation skill contract', () => {
+  const prompt = buildMacroPromptContract({
+    macroId: 'fpga_vhdl_architect',
+    userQuery: 'Design a counter project.',
+    tbGenerationMode: null,
+  });
+
+  assert.match(prompt, /local-llm-json-generation/i);
+  assert.match(prompt, /Output only strict JSON/i);
+  assert.match(prompt, /JSON\.parse/i);
+  assert.match(prompt, /python3 -m json\.tool/i);
+  assert.match(prompt, /jq empty/i);
+  assert.match(prompt, /one short project-level overview file/i);
+  assert.match(prompt, /unit-level Markdown file per major entity\/package\/unit/i);
+  assert.match(prompt, /short machine-readable JSON metadata file for the GHDL plan/i);
 });
 
 test('clock/reset validator passes with grounded structured output', () => {

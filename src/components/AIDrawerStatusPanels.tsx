@@ -170,6 +170,8 @@ export const JobTelemetryPanel: React.FC<{
     jobInputTokens: number | null;
     latestAttemptInputTokens: number | null;
     inputTokens: number | null;
+    attemptCount?: number | null;
+    retryCount?: number | null;
     sessionInputTokens: number | null;
     jobOutputTokens: number | null;
     outputTokens: number | null;
@@ -202,8 +204,17 @@ export const JobTelemetryPanel: React.FC<{
     </div>
     <div className="mt-1.5 grid grid-cols-2 gap-1.5 text-[12px]">
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
-        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">AI Engine</div>
-        <div className="mt-auto pt-1.5 text-brand-cyan">{statusPanelTelemetry.engineLabel}</div>
+        <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Attempts / Retries</div>
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-1.5">
+          <div className="min-w-0 text-left">
+            <div className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Attempts</div>
+            <div className="pt-0.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.attemptCount ?? null, { loading })}</div>
+          </div>
+          <div className="min-w-0 text-right">
+            <div className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Retries</div>
+            <div className="pt-0.5 text-slate-200">{renderTelemetryValue(statusPanelTelemetry.retryCount ?? null, { loading })}</div>
+          </div>
+        </div>
       </div>
       <div className="flex min-h-[64px] flex-col rounded border border-white/5 bg-[#060a12] px-2 py-1.5">
         <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Tokens / Sec</div>
