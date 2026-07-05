@@ -6,7 +6,7 @@ use work.uart_spi_bridge_pkg.all;
 entity uart_spi_bridge is
   generic (
     CLK_FREQ_HZ : natural := 100000000
-  );
+   );
   port (
     clk_i             : in  std_logic;
     rst_i             : in  std_logic;
@@ -19,12 +19,12 @@ entity uart_spi_bridge is
     rx_valid_i        : in  std_logic;
     rx_data_i         : in  fifo_data_t;
     tx_ready_o        : out std_logic;
-    spi_miso_valid_i  : in  std_logic;
-    spi_miso_data_i   : in  fifo_data_t;
-    spi_tx_ready_o    : out std_logic;
-    bridge_busy_o     : out std_logic;
-    bridge_error_o    : out std_logic
-  );
+    spi_miso_valid_i   : in  std_logic;
+    spi_miso_data_i    : in  fifo_data_t;
+    spi_tx_ready_o     : out std_logic;
+    bridge_busy_o      : out std_logic;
+    bridge_error_o     : out std_logic
+   );
 end entity uart_spi_bridge;
 
 architecture rtl of uart_spi_bridge is
@@ -55,14 +55,18 @@ begin
         rx_ctrl.wr_ptr <= 0;
       else
         if tx_wr_en = '1' and tx_ctrl.count < FIFO_DEPTH then
-          tx_mem(to_integer(tx_ctrl.wr_ptr)) <= rx_data_i;
+          if tx_ctrl.wr_ptr < FIFO_DEPTH then
+            tx_mem(to_integer(tx_ctrl.wr_ptr)) <= rx_data_i;
+          end if;
           tx_ctrl.wr_ptr <= tx_ctrl.wr_ptr + 1;
-          tx_ctrl.count   <= tx_ctrl.count + 1;
+          tx_ctrl.count    <= tx_ctrl.count + 1;
         end if;
         if rx_wr_en = '1' and rx_ctrl.count < FIFO_DEPTH then
-          rx_mem(to_integer(rx_ctrl.wr_ptr)) <= spi_miso_data_i;
+          if rx_ctrl.wr_ptr < FIFO_DEPTH then
+            rx_mem(to_integer(rx_ctrl.wr_ptr)) <= spi_miso_data_i;
+          end if;
           rx_ctrl.wr_ptr <= rx_ctrl.wr_ptr + 1;
-          rx_ctrl.count   <= rx_ctrl.count + 1;
+          rx_ctrl.count    <= rx_ctrl.count + 1;
         end if;
       end if;
     end if;
@@ -76,20 +80,26 @@ begin
         rx_ctrl.rd_ptr <= 0;
       else
         if tx_rd_en = '1' and tx_ctrl.count > 0 then
+          if tx_ctrl.rd_ptr < FIFO_DEPTH then
+            null;
+          end if;
           tx_ctrl.rd_ptr <= tx_ctrl.rd_ptr + 1;
-          tx_ctrl.count  <= tx_ctrl.count - 1;
+          tx_ctrl.count   <= tx_ctrl.count - 1;
         end if;
         if rx_rd_en = '1' and rx_ctrl.count > 0 then
+          if rx_ctrl.rd_ptr < FIFO_DEPTH then
+            null;
+          end if;
           rx_ctrl.rd_ptr <= rx_ctrl.rd_ptr + 1;
-          rx_ctrl.count  <= rx_ctrl.count - 1;
+          rx_ctrl.count   <= rx_ctrl.count - 1;
         end if;
       end if;
     end if;
   end process rd_proc;
 
-  tx_full  <= '1' when tx_ctrl.count = FIFO_DEPTH else '0';
+  tx_full   <= '1' when tx_ctrl.count = FIFO_DEPTH else '0';
   tx_empty <= '0' when tx_ctrl.count = 0 else '1';
-  rx_full  <= '1' when rx_ctrl.count = FIFO_DEPTH else '0';
+  rx_full   <= '1' when rx_ctrl.count = FIFO_DEPTH else '0';
   rx_empty <= '0' when rx_ctrl.count = 0 else '1';
 
   main_proc : process(clk_i)
@@ -135,7 +145,9 @@ begin
             end if;
           when "0001" =>
             tx_rd_en <= '1';
-            uart_shift <= tx_mem(to_integer(tx_ctrl.rd_ptr));
+            if tx_ctrl.rd_ptr < FIFO_DEPTH then
+              uart_shift <= tx_mem(to_integer(tx_ctrl.rd_ptr));
+            end if;
             uart_cnt <= 0;
             spi_shift <= (others => '0');
             spi_cnt <= 0;

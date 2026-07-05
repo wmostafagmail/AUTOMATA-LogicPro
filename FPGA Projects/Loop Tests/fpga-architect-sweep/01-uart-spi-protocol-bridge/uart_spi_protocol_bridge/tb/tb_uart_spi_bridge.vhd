@@ -36,6 +36,7 @@ architecture sim of tb_uart_spi_bridge is
       report "FAIL: " & msg severity failure;
     end if;
   end procedure verify_flag;
+
 begin
   clk_i <= not clk_i after CLK_PERIOD / 2;
 
@@ -47,7 +48,7 @@ begin
       rx_valid_i => rx_valid_i, rx_data_i => rx_data_i, tx_ready_o => tx_ready_o,
       spi_miso_valid_i => spi_miso_valid_i, spi_miso_data_i => spi_miso_data_i, spi_tx_ready_o => spi_tx_ready_o,
       bridge_busy_o => bridge_busy_o, bridge_error_o => bridge_error_o
-    );
+     );
 
   stim_proc : process
   begin
