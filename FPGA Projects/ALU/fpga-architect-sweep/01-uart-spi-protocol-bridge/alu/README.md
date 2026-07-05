@@ -1,4 +1,9 @@
 # ALU Project
-Simple 8-bit ALU with add, sub, and, or, xor operations.
-Clock: 100 MHz, Synchronous active-high reset.
-GHDL simulation: make sim
+A synthesizable 8-bit Arithmetic Logic Unit in VHDL-2008.
+Includes opcode package, registered inputs, synchronous active-high reset, and self-checking testbench.
+
+## Quick Start
+```bash
+make sim
+# or
+./run_ghdl.sh

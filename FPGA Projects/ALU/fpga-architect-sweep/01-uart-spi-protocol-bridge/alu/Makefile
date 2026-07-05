@@ -1,14 +1,15 @@
 GHDL := ghdl
-STD := 08
+TOP := tb_alu
+SRC := src/alu_pkg.vhd src/alu.vhd tb/tb_alu.vhd
 
 all: sim
 
-sim:
-	$(GHDL) -a --std=$(STD) src/alu_pkg.vhd
-	$(GHDL) -a --std=$(STD) src/alu.vhd
-	$(GHDL) -a --std=$(STD) tb/tb_alu.vhd
-	$(GHDL) -e --std=$(STD) tb_alu
-	$(GHDL) -r --std=$(STD) tb_alu --vcd=tb_alu.vcd
+sim: $(SRC)
+	$(GHDL) -a --std=08 $(SRC)
+	$(GHDL) -e --std=08 $(TOP)
+	$(GHDL) -r --std=08 $(TOP) --vcd=tb_alu.vcd
 
 clean:
-	rm -f *.vhd *.vhdl *.o *.cf *.ghw *.vcd *.exe
+	rm -f *.o *.vcd *.ghw $(TOP)
+
+.PHONY: all sim clean
