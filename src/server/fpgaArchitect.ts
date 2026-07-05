@@ -9,6 +9,7 @@ import {
   SHARED_GHDL_CONFORMANCE_RULES,
   STRICT_CODE_GENERATION_RULES,
 } from './vhdlSkillRules';
+import { buildRecurringVhdlFailureGuardSection } from './recurringVhdlFailureGuards';
 
 export type FpgaArchitectFile = {
   path: string;
@@ -816,6 +817,11 @@ ${buildNumberedRuleList(structuralRules)}
 Strict GHDL / VHDL rules:
 ${buildNumberedRuleList(FPGA_ARCHITECT_STRICT_RULE_LIST, structuralRules.length + 1)}
 
+${buildRecurringVhdlFailureGuardSection({
+  heading: 'Recurring failure guards you must explicitly self-audit before returning',
+  numbered: true,
+})}
+
 Start from this exact scaffold and fill it in:
 ${FPGA_ARCHITECT_MANIFEST_SCAFFOLD}
 `;
@@ -862,6 +868,11 @@ ${buildNumberedRuleList(structuralRules)}
 
 Strict GHDL / VHDL rules:
 ${buildNumberedRuleList(FPGA_ARCHITECT_STRICT_RULE_LIST, structuralRules.length + 1)}
+
+${buildRecurringVhdlFailureGuardSection({
+  heading: 'Recurring failure guards you must explicitly self-audit before returning',
+  numbered: true,
+})}
 
 Use this exact scaffold:
 ${FPGA_ARCHITECT_MANIFEST_SCAFFOLD}
@@ -926,6 +937,10 @@ ${buildNumberedRuleList(structuralRules)}
 
 Strict GHDL / VHDL rules:
 ${buildNumberedRuleList(FPGA_ARCHITECT_STRICT_RULE_LIST, structuralRules.length + 1)}
+${buildRecurringVhdlFailureGuardSection({
+  heading: 'Recurring failure guards you must explicitly self-audit before returning',
+  numbered: true,
+})}
 ${compactingRules}
 
 Use this exact scaffold:
@@ -977,6 +992,11 @@ ${buildNumberedRuleList(structuralRules)}
 
 Strict GHDL / VHDL rules:
 ${buildNumberedRuleList(FPGA_ARCHITECT_STRICT_RULE_LIST, structuralRules.length + 1)}
+
+${buildRecurringVhdlFailureGuardSection({
+  heading: 'Recurring failure guards you must explicitly self-audit before returning',
+  numbered: true,
+})}
 
 Additional compact-mode rules:
 ${buildNumberedRuleList(compactionRules, structuralRules.length + FPGA_ARCHITECT_STRICT_RULE_LIST.length + 1)}

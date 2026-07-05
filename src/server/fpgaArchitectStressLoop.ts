@@ -17,6 +17,12 @@ import {
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
+type SweepContinuationFile = {
+  relativePath: string;
+  content: string;
+  kind: 'vhdl' | 'markdown' | 'script' | 'constraints' | 'text' | 'other';
+};
+
 type PreparedAiAnalyzeRequestLike = {
   selectedProvider: string;
   selectedModel: string;
@@ -169,6 +175,108 @@ async function resetDesignOutputRoot(outputRoot: string) {
   await fs.mkdir(outputRoot, { recursive: true });
 }
 
+function shouldIncludeContinuationFile(relativePath: string) {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  const baseName = path.basename(normalized);
+  return (
+    normalized.endsWith('.vhd')
+    || normalized.endsWith('.vhdl')
+    || normalized.endsWith('.md')
+    || normalized.endsWith('.txt')
+    || normalized.endsWith('.sh')
+    || normalized.endsWith('.tcl')
+    || normalized.endsWith('.xdc')
+    || normalized.endsWith('.do')
+    || baseName === 'makefile'
+  );
+}
+
+function inferContinuationFileKind(relativePath: string): SweepContinuationFile['kind'] {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  const baseName = path.basename(normalized);
+  if (normalized.endsWith('.vhd') || normalized.endsWith('.vhdl')) return 'vhdl';
+  if (normalized.endsWith('.md')) return 'markdown';
+  if (normalized.endsWith('.sh') || normalized.endsWith('.tcl') || normalized.endsWith('.do') || baseName === 'makefile') return 'script';
+  if (normalized.endsWith('.xdc')) return 'constraints';
+  if (normalized.endsWith('.txt')) return 'text';
+  return 'other';
+}
+
+function getContinuationFence(kind: SweepContinuationFile['kind']) {
+  switch (kind) {
+    case 'markdown':
+      return 'md';
+    case 'script':
+      return 'sh';
+    case 'constraints':
+      return 'tcl';
+    case 'text':
+      return 'text';
+    default:
+      return 'vhdl';
+  }
+}
+
+async function collectSweepContinuationFiles(outputRoot: string) {
+  const discoveredPaths: string[] = [];
+
+  const walk = async (currentPath: string) => {
+    let entries;
+    try {
+      entries = await fs.readdir(currentPath, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    entries.sort((left, right) => left.name.localeCompare(right.name));
+    for (const entry of entries) {
+      const absolutePath = path.join(currentPath, entry.name);
+      if (entry.isDirectory()) {
+        await walk(absolutePath);
+        continue;
+      }
+      const relativePath = path.relative(outputRoot, absolutePath);
+      if (!shouldIncludeContinuationFile(relativePath)) {
+        continue;
+      }
+      discoveredPaths.push(relativePath);
+    }
+  };
+
+  await walk(outputRoot);
+
+  const files: SweepContinuationFile[] = [];
+  let totalBytes = 0;
+  for (const relativePath of discoveredPaths.slice(0, 18)) {
+    const absolutePath = path.join(outputRoot, relativePath);
+    try {
+      const content = await fs.readFile(absolutePath, 'utf8');
+      const trimmed = content.slice(0, 12_000);
+      if (totalBytes + trimmed.length > 72_000) {
+        break;
+      }
+      totalBytes += trimmed.length;
+      files.push({
+        relativePath: relativePath.replace(/\\/g, '/'),
+        content: trimmed,
+        kind: inferContinuationFileKind(relativePath),
+      });
+    } catch {
+      continue;
+    }
+  }
+
+  return files;
+}
+
+function renderContinuationFiles(files: SweepContinuationFile[]) {
+  return files.map((file) => [
+    `### ${file.relativePath}`,
+    `\`\`\`${getContinuationFence(file.kind)}`,
+    file.content.trimEnd(),
+    '```',
+  ].join('\n')).join('\n\n');
+}
+
 function buildFeedbackItemKey(params: {
   failureCode: string | null;
   failureCategory: string;
@@ -301,8 +409,11 @@ export function buildSweepDesignPrompt(params: {
   outputRoot: string;
   designIndex: number;
   failureFeedbackItems?: FpgaArchitectSweepFeedbackItem[] | null;
+  continuationFiles?: SweepContinuationFile[] | null;
 }) {
   const failureFeedbackSection = buildFailureFeedbackSection(params.failureFeedbackItems || []);
+  const continuationFiles = params.continuationFiles || [];
+  const isRepairContinuation = continuationFiles.length > 0;
   return [
     params.basePrompt.trim(),
     '---',
@@ -311,7 +422,9 @@ export function buildSweepDesignPrompt(params: {
     `- Sweep design ${params.designIndex + 1}/${FPGA_ARCHITECT_SWEEP_DESIGNS.length}: ${params.preset.label}`,
     `- Project name: ${params.preset.projectName}`,
     `- Output root: ${params.outputRoot}`,
-    '- Clean-context rule: do not reuse prior generated files from any other sweep design or prior attempt.',
+    isRepairContinuation
+      ? '- Continuation rule: repair the current generated project in place. Do not start from a blank project or switch to a different architecture unless the failures prove the current structure cannot be repaired legally.'
+      : '- Clean-context rule: do not reuse prior generated files from any other sweep design or prior attempt.',
     `- Why this design is included: ${params.preset.whyItTests}`,
     '',
     '## Objective',
@@ -330,10 +443,23 @@ export function buildSweepDesignPrompt(params: {
     renderMarkdownBulletSection('Acceptance Criteria', params.preset.acceptanceCriteria),
     '',
     renderMarkdownBulletSection('Forbidden Shortcuts', params.preset.forbiddenShortcuts),
+    ...(isRepairContinuation ? [
+      '',
+      '## Repair Continuation Mode',
+      '- A previous attempt for this same design already generated project files in the selected output root.',
+      '- Treat those existing files as the baseline to fix, not as disposable draft output.',
+      '- Preserve already-valid files whenever possible and change only the files necessary to resolve the current failure classes.',
+      '- Return a complete corrected Markdown manifest for the repaired project, not prose, not diffs, and not partial patch instructions.',
+      '',
+      '## Existing Generated Files To Repair',
+      renderContinuationFiles(continuationFiles),
+    ] : []),
     ...(failureFeedbackSection ? ['', failureFeedbackSection] : []),
     '',
     '## User Request',
-    'Use the structured design spec above as mandatory source-of-truth detail for this sweep attempt.',
+    isRepairContinuation
+      ? 'Use the structured design spec above together with the existing generated files below. Repair the current project until it satisfies the validator and GHDL flow.'
+      : 'Use the structured design spec above as mandatory source-of-truth detail for this sweep attempt.',
   ].join('\n\n');
 }
 
@@ -522,6 +648,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
     const designResults: RunLoopAttemptResult[] = [];
     const designFeedbackMap = new Map<string, FpgaArchitectSweepFeedbackItem>();
+    let continuationFiles: SweepContinuationFile[] = [];
 
     for (let designAttempt = 1; designAttempt <= attemptsPerDesign; designAttempt += 1) {
       if (signal?.aborted) {
@@ -552,7 +679,10 @@ export async function runFpgaArchitectStressLoop(params: {
       });
       await appendLog(designLogPath, attemptHeader);
       await appendLog(masterLogPath, attemptHeader);
-      await resetDesignOutputRoot(designOutputRoot);
+      const isRepairContinuation = continuationFiles.length > 0;
+      if (!isRepairContinuation) {
+        await resetDesignOutputRoot(designOutputRoot);
+      }
       const activeFeedbackItems = getSortedFeedbackItems(designFeedbackMap);
       const feedbackSnapshot = activeFeedbackItems.length > 0
         ? buildFailureFeedbackSection(activeFeedbackItems)
@@ -560,6 +690,7 @@ export async function runFpgaArchitectStressLoop(params: {
       await appendLog(
         designLogPath,
         [
+          `Continuation mode: ${isRepairContinuation ? 'yes' : 'no'}`,
           `Feedback injected: ${activeFeedbackItems.length > 0 ? 'yes' : 'no'}`,
           feedbackSnapshot,
         ].join('\n'),
@@ -567,6 +698,7 @@ export async function runFpgaArchitectStressLoop(params: {
       await appendLog(
         masterLogPath,
         [
+          `Continuation mode: ${isRepairContinuation ? 'yes' : 'no'}`,
           `Feedback injected: ${activeFeedbackItems.length > 0 ? 'yes' : 'no'}`,
           feedbackSnapshot,
         ].join('\n'),
@@ -579,6 +711,7 @@ export async function runFpgaArchitectStressLoop(params: {
           outputRoot: designOutputRoot,
           designIndex,
           failureFeedbackItems: activeFeedbackItems,
+          continuationFiles,
         });
 
         const preparedRequest = await prepareAiAnalyzeRequest({
@@ -680,11 +813,16 @@ export async function runFpgaArchitectStressLoop(params: {
         });
         await appendLog(designLogPath, successMessage);
         await appendLog(masterLogPath, `PASS\n${preset.label}\n${successMessage}`);
+        continuationFiles = [];
       } catch (error: any) {
         globalFailures += 1;
         const message = error?.message || String(error);
         const feedbackItems = collectFeedbackItemsFromFailure(error, message);
         const feedbackMergeResult = mergeFeedbackItems(designFeedbackMap, feedbackItems);
+        const nextContinuationFiles = await collectSweepContinuationFiles(designOutputRoot);
+        if (nextContinuationFiles.length > 0) {
+          continuationFiles = nextContinuationFiles;
+        }
         const resultEntry: RunLoopAttemptResult = {
           attempt: currentGlobalAttempt,
           designKey: preset.key,

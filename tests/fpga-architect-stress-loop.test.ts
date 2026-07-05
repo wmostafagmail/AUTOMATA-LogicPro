@@ -434,6 +434,30 @@ test('buildSweepDesignPrompt appends a compact prior-failure feedback section wh
   assert.match(prompt, /Forbidden construct: reserved identifier "label" used as enum literal/);
 });
 
+test('buildSweepDesignPrompt switches to repair continuation mode when prior generated files are provided', () => {
+  const preset = createTestPreset('alpha', 'Alpha Design');
+
+  const prompt = buildSweepDesignPrompt({
+    basePrompt: 'Base FPGA architect contract.',
+    preset,
+    outputRoot: '/tmp/alpha-output',
+    designIndex: 0,
+    continuationFiles: [
+      {
+        relativePath: 'src/alu.vhd',
+        content: 'entity alu is end entity;',
+        kind: 'vhdl',
+      },
+    ],
+  });
+
+  assert.match(prompt, /## Repair Continuation Mode/);
+  assert.match(prompt, /repair the current generated project in place/i);
+  assert.match(prompt, /## Existing Generated Files To Repair/);
+  assert.match(prompt, /### src\/alu\.vhd/);
+  assert.doesNotMatch(prompt, /Clean-context rule: do not reuse prior generated files/);
+});
+
 test('runFpgaArchitectStressLoop feeds back only prior failures from the same design into later attempts', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-feedback-scope-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -544,6 +568,38 @@ test('runFpgaArchitectStressLoop appends newly introduced failure classes to the
   assert.match(seenPrompts[1] || '', /numeric_std_typing/);
   assert.match(seenPrompts[2] || '', /numeric_std_typing/);
   assert.match(seenPrompts[2] || '', /architecture_variable/);
+});
+
+test('runFpgaArchitectStressLoop carries failed generated files into the next attempt as repair continuation context', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-repair-continuation-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      if (runCount === 1) {
+        const generatedPath = path.join(params.normalizedProjectPath, 'src', 'alu.vhd');
+        await fs.mkdir(path.dirname(generatedPath), { recursive: true });
+        await fs.writeFile(generatedPath, 'entity alu is end entity;\n', 'utf8');
+        throw new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"');
+      }
+      throw new Error('Core logic simulation analysis failed: src/alu.vhd:47:24:error: no function declarations for operator "and"');
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.doesNotMatch(seenPrompts[0] || '', /## Repair Continuation Mode/);
+  assert.match(seenPrompts[1] || '', /## Repair Continuation Mode/);
+  assert.match(seenPrompts[1] || '', /### src\/alu\.vhd/);
+  assert.match(seenPrompts[1] || '', /entity alu is end entity;/);
 });
 
 test('summarizeFpgaArchitectLoopFailures groups newer validator classes into explicit root-cause families', () => {

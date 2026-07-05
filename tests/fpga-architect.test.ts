@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import {
+  buildFpgaArchitectRetryPrompt,
   buildFpgaArchitectCompactRetryPrompt,
   buildFpgaArchitectJsonRepairPrompt,
   buildFpgaArchitectTestRunPrompt,
@@ -97,6 +98,39 @@ test('parseFpgaArchitectResponse repairs missing commas inside content_lines arr
   assert.equal(project.ghdl.topTestbench, 'tb_updown_counter');
   assert.match(project.files.find((file) => file.path === 'src/updown_counter.vhd')?.content || '', /entity updown_counter is/);
   assert.match(project.files.find((file) => file.path === 'tb/tb_updown_counter.vhd')?.content || '', /entity tb_updown_counter is/);
+});
+
+test('FPGA Architect retry prompts include recurring failure guards for repeated sweep blockers', () => {
+  const prompt = buildFpgaArchitectRetryPrompt({
+    originalPrompt: 'base architect prompt',
+    errorSummary: 'tb/example.vhd: declares procedure after begin',
+  });
+
+  assert.match(prompt, /Recurring failure guards you must explicitly self-audit before returning/);
+  assert.match(prompt, /Failure code: declaration_after_begin/);
+  assert.match(prompt, /Failure code: output_port_readback/);
+  assert.match(prompt, /Failure code: reserved_identifier/);
+  assert.match(prompt, /Failure code: runtime_bound_check_risk/);
+  assert.match(prompt, /Failure code: missing_waveform_generation_contract/);
+});
+
+test('FPGA Architect compact and test-run prompts include recurring failure guards for repeated sweep blockers', () => {
+  const compactPrompt = buildFpgaArchitectCompactRetryPrompt({
+    originalPrompt: 'base architect prompt',
+    errorSummary: 'summary',
+    compactMode: 'minimal',
+  });
+  const testRunPrompt = buildFpgaArchitectTestRunPrompt({
+    originalPrompt: 'base architect prompt',
+    compactMode: 'minimal',
+  });
+
+  assert.match(compactPrompt, /Failure code: declaration_after_begin/);
+  assert.match(compactPrompt, /Failure code: output_port_readback/);
+  assert.match(compactPrompt, /Failure code: missing_waveform_generation_contract/);
+  assert.match(testRunPrompt, /Failure code: declaration_after_begin/);
+  assert.match(testRunPrompt, /Failure code: reserved_identifier/);
+  assert.match(testRunPrompt, /Failure code: runtime_bound_check_risk/);
 });
 
 test('parseFpgaArchitectResponse accepts JSON aliases and infers top entity from generated files', () => {

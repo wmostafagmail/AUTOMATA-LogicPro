@@ -39,6 +39,8 @@ type SavedGeneratedVhdlArtifact = {
   path: string;
 };
 
+const FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS = 10;
+
 type SavedFpgaArchitectArtifact = {
   name: string;
   path: string;
@@ -257,7 +259,6 @@ export async function runAiAnalyzeJob(params: {
     saveGeneratedVhdlArtifacts,
     formatValidationFailureDetails,
     parseFpgaArchitectResponse,
-    buildFpgaArchitectRetryPrompt,
     buildFpgaArchitectJsonRepairPrompt,
     buildFpgaArchitectCompactRetryPrompt,
     buildFpgaArchitectTestRunPrompt,
@@ -446,52 +447,26 @@ export async function runAiAnalyzeJob(params: {
     }
   };
 
-  const buildGhdlFailureSummary = (validationResult: GeneratedVhdlValidationResult) => {
-    const validationLabel = describeValidationGate(validationResult.stage);
-    const recentLogs = validationResult.logs
-      .filter((line) => typeof line === 'string' && line.trim().length > 0)
-      .slice(-12);
-    const machineFailureSection = (validationResult.failureDetails || []).slice(0, 5)
-      .map((detail) => {
-        const lines = [
-          `- Failure class: ${detail.category} / ${detail.code}`,
-          ...(detail.ruleIds && detail.ruleIds.length > 0 ? [`  Rule IDs: ${detail.ruleIds.join(', ')}`] : []),
-          `  Summary: ${detail.message}`,
-        ];
-        if (detail.forbiddenConstruct) {
-          lines.push(`  Forbidden construct: ${detail.forbiddenConstruct}`);
-        }
-        if (detail.legalReplacementPattern) {
-          lines.push(`  Legal replacement pattern: ${detail.legalReplacementPattern}`);
-        }
-        return lines.join('\n');
-      })
-      .join('\n');
-    const logSection = recentLogs.length > 0
-      ? `\nRecent validation log lines:\n${recentLogs.map((line) => `- ${line}`).join('\n')}`
-      : '';
-    const detailSection = machineFailureSection
-      ? `\nMachine-readable validation classes:\n${machineFailureSection}`
-      : '';
-    return `Generated project failed ${validationLabel}.\nSummary: ${validationResult.summary}${detailSection}${logSection}`;
-  };
-
   const attemptSharedGeneratedCodeRepair = async (params: {
     validationResult: GeneratedVhdlValidationResult;
     files: RepairableGeneratedFile[];
+    repairAttempt?: number;
+    repairAttemptLimit?: number;
   }) => {
     if (params.files.length === 0 || !validateGeneratedVhdlWithGhdl) {
       return null;
     }
 
     retryUsed = true;
-    const repairPrompt = buildGeneratedCodeRepairPrompt({
+    const repairPrompt = `${buildGeneratedCodeRepairPrompt({
       originalPrompt: initialPrompt,
       macroId,
       macroLabel: macroSpec.label,
       validation: params.validationResult,
       availableFiles: params.files,
-    });
+    })}${typeof params.repairAttempt === 'number' && typeof params.repairAttemptLimit === 'number'
+      ? `\nRepair loop attempt: ${params.repairAttempt}/${params.repairAttemptLimit}\n`
+      : ''}`;
     aiResult = await runModelAnalysis({
       ai,
       provider: selectedProvider,
@@ -609,14 +584,23 @@ export async function runAiAnalyzeJob(params: {
     ghdlValidation = saveResult.validationResult;
 
     if (ghdlValidation && !ghdlValidation.ok) {
-      const sharedRepair = await attemptSharedGeneratedCodeRepair({
-        validationResult: ghdlValidation,
-        files: repairableFiles,
-      });
-      if (sharedRepair?.parsedRepairs.length) {
+      for (
+        let repairAttempt = 1;
+        repairAttempt <= FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS && ghdlValidation && !ghdlValidation.ok;
+        repairAttempt += 1
+      ) {
+        const sharedRepair = await attemptSharedGeneratedCodeRepair({
+          validationResult: ghdlValidation,
+          files: repairableFiles,
+          repairAttempt,
+          repairAttemptLimit: FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS,
+        });
+        if (!sharedRepair) {
+          break;
+        }
         repairableFiles = sharedRepair.repairedFiles;
         ghdlValidation = sharedRepair.validationResult;
-        if (ghdlValidation.ok) {
+        if (sharedRepair.parsedRepairs.length > 0) {
           savedGeneratedFiles = savedGeneratedFiles.map((artifact) => {
             const repaired = repairableFiles.find((file) => file.absolutePath === artifact.path);
             return repaired ? { ...artifact, content: repaired.content } : artifact;
@@ -631,48 +615,11 @@ export async function runAiAnalyzeJob(params: {
       }
 
       if (ghdlValidation && !ghdlValidation.ok) {
-        const validationLabel = describeValidationGate(ghdlValidation.stage);
-        if (!buildFpgaArchitectRetryPrompt) {
-          throw buildAnnotatedAiAnalyzeError(
-            `FPGA Architect hard-failed because the generated project did not pass ${validationLabel}. The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`,
-            { generatedVhdlValidation: ghdlValidation },
-          );
-        }
-
-        retryUsed = true;
-        const retryPrompt = buildFpgaArchitectRetryPrompt({
-          originalPrompt: initialPrompt,
-          errorSummary: buildGhdlFailureSummary(ghdlValidation),
-        });
-        aiResult = await runModelAnalysis({
-          ai,
-          provider: selectedProvider,
-          model: selectedModel,
-          prompt: retryPrompt,
-          signal,
-        });
-        attemptTelemetries.push(aiResult.telemetry);
-        responseText = aiResult.text;
-        responseTelemetry = aiResult.telemetry;
-
-        try {
-          architectProject = await repairFpgaArchitectManifestIfNeeded(responseText);
-        } catch (error: any) {
-          throw buildAnnotatedAiAnalyzeError(
-            `FPGA Architect hard-failed because the GHDL repair retry returned an invalid project manifest before VHDL validation. The app did not modify or auto-fix any generated VHDL files. ${error?.message || String(error)}`,
-            { generatedVhdlValidation: ghdlValidation },
-          );
-        }
-
-        saveResult = await saveAndValidateArchitectProject(architectProject);
-        ghdlValidation = saveResult.validationResult;
-        if (ghdlValidation && !ghdlValidation.ok) {
-          const retryValidationLabel = describeValidationGate(ghdlValidation.stage);
-          throw buildAnnotatedAiAnalyzeError(
-            `FPGA Architect hard-failed because the generated project did not pass ${retryValidationLabel} after GHDL repair retry. The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`,
-            { generatedVhdlValidation: ghdlValidation },
-          );
-        }
+        const retryValidationLabel = describeValidationGate(ghdlValidation.stage);
+        throw buildAnnotatedAiAnalyzeError(
+          `FPGA Architect hard-failed because the generated project did not pass ${retryValidationLabel} after ${FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS} repair attempt(s). The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`,
+          { generatedVhdlValidation: ghdlValidation },
+        );
       }
     }
 

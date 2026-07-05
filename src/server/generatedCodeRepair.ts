@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { AiMacroId } from '../aiMacros';
 import type { GeneratedVhdlFailureDetail, GeneratedVhdlValidationResult } from './generatedVhdlValidation';
+import { buildRecurringVhdlFailureGuardSection } from './recurringVhdlFailureGuards';
 
 export type RepairableGeneratedFile = {
   relativePath: string;
@@ -123,6 +124,11 @@ ${targetList}
 
 Machine-readable failure classes:
 ${renderFailureDetails(validation.failureDetails || [])}
+
+${buildRecurringVhdlFailureGuardSection({
+  heading: 'Always-on recurring failure guards',
+  numbered: true,
+})}
 
 Recent validator / GHDL log lines:
 ${renderLogTail(validation)}

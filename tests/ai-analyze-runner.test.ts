@@ -184,7 +184,7 @@ test('runAiAnalyzeJob uses FPGA Architect compact test-run prompt on the initial
     macroId: 'fpga_vhdl_architect' as const,
     artifactDirectory: '.',
     macroSpec: { label: 'FPGA Architect' },
-    normalizedProjectPath: '/workspace/project',
+    normalizedProjectPath: '/Users/waleedmostafa/Documents/Automata LogicPro/tmp/ai-analyze-runner-repair-project',
     fpgaArchitectExecutionMode: 'test_compact' as const,
     runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
       params.__runCalls.push({ prompt, provider, model });
@@ -660,6 +660,11 @@ test('runAiAnalyzeJob repairs generated VHDL artifacts through the shared repair
   assert.equal(params.__runCalls.length, 2);
   assert.match(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
   assert.match(params.__runCalls[1].prompt, /severity failure used for pass termination/);
+  assert.match(params.__runCalls[1].prompt, /Always-on recurring failure guards/);
+  assert.match(params.__runCalls[1].prompt, /Failure code: declaration_after_begin/);
+  assert.match(params.__runCalls[1].prompt, /Failure code: output_port_readback/);
+  assert.match(params.__runCalls[1].prompt, /Failure code: reserved_identifier/);
+  assert.match(params.__runCalls[1].prompt, /Failure code: missing_waveform_generation_contract/);
   assert.equal(result.retryUsed, true);
   assert.equal(result.telemetry.attemptCount, 2);
   assert.equal(result.telemetry.retryCount, 1);
@@ -786,7 +791,7 @@ test('runAiAnalyzeJob hard-fails FPGA Architect when generated project fails GHD
     macroId: 'fpga_vhdl_architect' as const,
     artifactDirectory: '.',
     macroSpec: { label: 'FPGA Architect' },
-    normalizedProjectPath: '/workspace/project',
+    normalizedProjectPath: '/Users/waleedmostafa/Documents/Automata LogicPro/tmp/ai-analyze-runner-repair-project',
     runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
       params.__runCalls.push({ prompt, provider, model });
       return {
@@ -876,12 +881,12 @@ test('runAiAnalyzeJob hard-fails FPGA Architect when generated project fails GHD
         throw error;
       }
     },
-    /FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after GHDL repair retry\. The app does not auto-fix VHDL file issues\./i
+    /FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt\(s\)\. The app does not auto-fix VHDL file issues\./i
   );
-  assert.equal(params.__runCalls.length, 3);
+  assert.equal(params.__runCalls.length, 11);
   assert.match(params.__runCalls[1]?.prompt || '', /Shared Generated-Code Repair Pipeline/i);
-  assert.match(params.__runCalls[2]?.prompt || '', /Recent validation log lines:/i);
-  assert.match(params.__runCalls[2]?.prompt || '', /tb_counter failed reset expectation/i);
+  assert.match(params.__runCalls[10]?.prompt || '', /Repair loop attempt: 10\/10/i);
+  assert.match(params.__runCalls[10]?.prompt || '', /Repair loop attempt: 10\/10/i);
 });
 
 test('runAiAnalyzeJob reports FPGA Architect strict-rule violations as pre-GHDL validation failures before retry', async () => {
@@ -889,7 +894,7 @@ test('runAiAnalyzeJob reports FPGA Architect strict-rule violations as pre-GHDL 
     macroId: 'fpga_vhdl_architect' as const,
     artifactDirectory: '.',
     macroSpec: { label: 'FPGA Architect' },
-    normalizedProjectPath: '/workspace/project',
+    normalizedProjectPath: '/Users/waleedmostafa/Documents/Automata LogicPro/tmp/ai-analyze-runner-repair-project',
     runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
       params.__runCalls.push({ prompt, provider, model });
       return {
@@ -970,12 +975,12 @@ test('runAiAnalyzeJob reports FPGA Architect strict-rule violations as pre-GHDL 
 
   await assert.rejects(
     () => runAiAnalyzeJob(params),
-    /FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after GHDL repair retry\. The app does not auto-fix VHDL file issues\./i,
+    /FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt\(s\)\. The app does not auto-fix VHDL file issues\./i,
   );
-  assert.equal(params.__runCalls.length, 3);
+  assert.equal(params.__runCalls.length, 11);
   assert.match(params.__runCalls[1]?.prompt || '', /Shared Generated-Code Repair Pipeline/i);
-  assert.match(params.__runCalls[2]?.prompt || '', /Generated project failed strict pre-GHDL validation\./i);
-  assert.match(params.__runCalls[2]?.prompt || '', /reserved VHDL identifier "body"/i);
+  assert.match(params.__runCalls[10]?.prompt || '', /Repair loop attempt: 10\/10/i);
+  assert.match(params.__runCalls[10]?.prompt || '', /reserved VHDL identifier "body"/i);
 });
 
 test('runAiAnalyzeJob treats FPGA Architect analyze-only GHDL success as a failure and hard-fails without auto-fixing', async () => {
@@ -983,7 +988,7 @@ test('runAiAnalyzeJob treats FPGA Architect analyze-only GHDL success as a failu
     macroId: 'fpga_vhdl_architect' as const,
     artifactDirectory: '.',
     macroSpec: { label: 'FPGA Architect' },
-    normalizedProjectPath: '/workspace/project',
+    normalizedProjectPath: '/Users/waleedmostafa/Documents/Automata LogicPro/tmp/ai-analyze-runner-repair-project',
     runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
       params.__runCalls.push({ prompt, provider, model });
       return {
@@ -1062,9 +1067,9 @@ test('runAiAnalyzeJob treats FPGA Architect analyze-only GHDL success as a failu
 
   await assert.rejects(
     () => runAiAnalyzeJob(params),
-    /FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after GHDL repair retry\. The app does not auto-fix VHDL file issues\./i
+    /FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt\(s\)\. The app does not auto-fix VHDL file issues\./i
   );
-  assert.equal(params.__runCalls.length, 3);
+  assert.equal(params.__runCalls.length, 11);
 });
 
 test('runAiAnalyzeJob lets FPGA Architect recover from a GHDL failure via one repair retry', async () => {
@@ -1100,11 +1105,19 @@ test('runAiAnalyzeJob lets FPGA Architect recover from a GHDL failure via one re
     macroId: 'fpga_vhdl_architect' as const,
     artifactDirectory: '.',
     macroSpec: { label: 'FPGA Architect' },
-    normalizedProjectPath: '/workspace/project',
+    normalizedProjectPath: '/Users/waleedmostafa/Documents/Automata LogicPro/tmp/ai-analyze-runner-repair-project',
     runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
       params.__runCalls.push({ prompt, provider, model });
+      const repairResponse = [
+        '### proj/src/counter.vhd',
+        '```vhdl',
+        'entity counter is end entity;',
+        'architecture rtl of counter is begin',
+        'end architecture;',
+        '```',
+      ].join('\n');
       return {
-        text: validProject,
+        text: prompt.includes('Shared Generated-Code Repair Pipeline') ? repairResponse : validProject,
         telemetry: {
           inputTokens: 50,
           outputTokens: 20,
@@ -1166,7 +1179,7 @@ test('runAiAnalyzeJob lets FPGA Architect recover from a GHDL failure via one re
   });
 
   const result = await runAiAnalyzeJob(params);
-  assert.equal(params.__runCalls.length, 3);
+  assert.equal(params.__runCalls.length, 2);
   assert.equal(result.retryUsed, true);
   assert.match(result.analysis, /## GHDL Validation/i);
   assert.match(result.analysis, /Status: PASS/i);
@@ -1282,9 +1295,12 @@ test('runAiAnalyzeJob includes validator failure class guidance in FPGA Architec
     },
   });
 
-  await runAiAnalyzeJob(params);
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt\(s\)\. The app does not auto-fix VHDL file issues\./i,
+  );
 
-  assert.equal(params.__runCalls.length, 3);
+  assert.equal(params.__runCalls.length, 11);
   assert.match(params.__runCalls[1].prompt, /Failure class: numeric_std_type_discipline \/ resize_on_raw_std_logic_vector/);
   assert.match(params.__runCalls[1].prompt, /Forbidden construct: resize\(a, WIDTH\) on std_logic_vector/);
   assert.match(params.__runCalls[1].prompt, /Legal replacement pattern: resize\(unsigned\(a\), WIDTH\)/);
