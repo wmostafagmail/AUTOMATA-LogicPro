@@ -1,0 +1,17 @@
+{
+  "project_name": "axi_stream_packet_router",
+  "top_entity": "axi_stream_router",
+  "top_testbench": "tb_axi_stream_router",
+  "vhdl_standard": "08",
+  "analysis_order": [
+    "src/axi_stream_router.vhd",
+    "tb/tb_axi_stream_router.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 src/axi_stream_router.vhd",
+    "ghdl -a --std=08 tb/tb_axi_stream_router.vhd",
+    "ghdl -e --std=08 axi_stream_router",
+    "ghdl -r --std=08 axi_stream_router --vcd=wave.vcd"
+  ],
+  "expected_result": "PASS"
+}

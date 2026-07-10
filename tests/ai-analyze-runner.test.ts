@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'fs/promises';
 import { runAiAnalyzeJob } from '../src/server/aiAnalyzeRunner';
+import { buildFailureCodeSpecificRepairShaping, buildRepairLoopCallerContract } from '../src/server/aiAnalyzeRunner';
 import { createSessionManager } from '../src/server/sessionManager';
 
 function createBaseParams(overrides: Record<string, any> = {}) {
@@ -226,15 +228,23 @@ test('runAiAnalyzeJob uses FPGA Architect compact test-run prompt on the initial
       };
     },
     parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
-    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
-      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
-      savedFiles: project.files.map((file: any) => ({
-        ...file,
-        name: file.path.split('/').pop(),
-        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
-        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
-      })),
-    }),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        await fs.mkdir(fullPath.slice(0, fullPath.lastIndexOf('/')), { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
     buildFpgaArchitectMarkdownReport: () => 'architect report',
     buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
     buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
@@ -256,6 +266,40 @@ test('runAiAnalyzeJob uses FPGA Architect compact test-run prompt on the initial
   assert.equal(params.__runCalls.length, 1);
   assert.match(params.__runCalls[0]?.prompt || '', /^wrapped:system prompt\n\ncontract:check waveform\nTEST-RUN-COMPACT:minimal$/);
   assert.equal(result.retryUsed, false);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds typed port-map guidance and stronger architecture-variable testbench guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'fail',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'architecture_body_variable',
+        category: 'declaration_scope',
+        message: 'tb/tb_axi_stream_packet_router.vhd: declares plain architecture-body variable "local_res".',
+        excerpt: 'local_res',
+        relativePath: 'tb/tb_axi_stream_packet_router.vhd',
+        forbiddenConstruct: 'plain architecture-body variable "local_res" (process_local_scratch)',
+        legalReplacementPattern: 'move "local_res" into the nearest process/subprogram declarative region as a local variable unless persistent shared state is truly required',
+      },
+      {
+        code: 'typed_port_association_mismatch',
+        category: 'numeric_std_type_discipline',
+        message: 'src/dsp_chain.vhd: cannot associate "std_logic_vector(fir_sample)" with port "sample_o".',
+        excerpt: 'sample_o',
+        relativePath: 'src/dsp_chain.vhd',
+        forbiddenConstruct: 'port-map association with mismatched typed actual/formal domains',
+        legalReplacementPattern: 'convert the actual expression into the exact formal type at the port association boundary',
+      },
+    ],
+  });
+
+  assert.match(text, /For testbenches, keep helper subprogram declarations before architecture\/process begin/i);
+  assert.match(text, /Repair the failing port map locally instead of regenerating the design/i);
+  assert.match(text, /Match the actual expression to the formal type exactly at the association boundary/i);
 });
 
 test('runAiAnalyzeJob hard-fails artifact macros after retry when required artifacts are still missing', async () => {
@@ -399,6 +443,202 @@ test('runAiAnalyzeJob saves generated files and appends relative saved-file list
   assert.match(result.analysis, /## Saved Generated Files/);
   assert.match(result.analysis, /AI Generated TB\/generated_tb\.vhd/);
   assert.match(result.analysis, /AI Generated TB\/generated_module\.vhd/);
+});
+
+test('runAiAnalyzeJob adds failure-code-specific repair shaping for recurring local fix classes', async () => {
+  const params = createBaseParams({
+    macroId: 'generate_vhdl_tb' as const,
+    tbGenerationMode: 'project_entities' as const,
+    artifactDirectory: 'AI Generated TB',
+    macroSpec: { label: 'Generate TB' },
+    normalizedProjectPath: '/workspace/project',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: params.__runCalls.length === 1
+          ? [
+              '## Generated Artifact(s)',
+              '### broken_tb.vhd',
+              '```vhdl',
+              'entity broken_tb is end entity;',
+              'architecture sim of broken_tb is begin',
+              '  process',
+              '    variable label : integer := 0;',
+              '  begin',
+              '    label := 1;',
+              '    wait;',
+              '  end process;',
+              'end architecture;',
+              '```',
+            ].join('\n')
+          : 'no repairs',
+        telemetry: {
+          inputTokens: 30,
+          outputTokens: 10,
+          totalTokens: 40,
+          tokensPerSecond: 10,
+          durationMs: 100,
+        },
+      };
+    },
+    validateMacroOutput: () => ({
+      macroId: 'generate_vhdl_tb' as const,
+      status: 'pass' as const,
+      summary: 'artifact generated',
+      warnings: [],
+      checks: [{ id: 'code:vhdl', label: 'VHDL code', status: 'pass' as const, detail: 'present' }],
+    }),
+    extractGeneratedVhdlArtifacts: () => [
+      {
+        fileName: 'broken_tb.vhd',
+        content: [
+          'entity broken_tb is end entity;',
+          'architecture sim of broken_tb is begin',
+          '  process',
+          '    variable label : integer := 0;',
+          '  begin',
+          '    label := 1;',
+          '    wait;',
+          '  end process;',
+          'end architecture;',
+        ].join('\n'),
+        kind: 'testbench' as const,
+      },
+    ],
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+      const filePath = savedArtifacts[0]?.path || '/workspace/project/AI Generated TB/broken_tb.vhd';
+      return {
+        ok: false,
+        stage: 'prevalidate' as const,
+        summary: `${filePath}: uses reserved VHDL identifier "label" as a variable name.`,
+        logs: [`${filePath}: uses reserved VHDL identifier "label" as a variable name.`],
+        validatedTopEntities: [],
+        failureCode: 'reserved_identifier',
+        failureCategory: 'identifier_reserved_word' as const,
+        failureDetails: [
+          {
+            code: 'reserved_identifier',
+            category: 'identifier_reserved_word' as const,
+            message: `${filePath}: uses reserved VHDL identifier "label" as a variable name.`,
+            excerpt: 'identifier "label" is reserved',
+            relativePath: 'AI Generated TB/broken_tb.vhd',
+            forbiddenConstruct: 'reserved identifier "label"',
+            legalReplacementPattern: 'rename "label" to a safe descriptive non-keyword identifier such as op_label or state_label',
+          },
+        ],
+      };
+    },
+  });
+
+  await assert.rejects(() => runAiAnalyzeJob(params));
+  assert.equal(params.__runCalls.length, 2);
+  assert.match(params.__runCalls[1].prompt, /Repair-loop caller guidance:/);
+  assert.match(params.__runCalls[1].prompt, /reserved_identifier/);
+  assert.match(params.__runCalls[1].prompt, /Rename only the reserved-word identifiers that violate VHDL legality\./);
+  assert.match(params.__runCalls[1].prompt, /Use safe descriptive replacements and keep the rest of the file structure unchanged\./);
+});
+
+test('repair shaping includes package-body misuse guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'package failure',
+    logs: [],
+    validatedTopEntities: [],
+    failureCode: 'subprogram_body_inside_package_declaration',
+    failureCategory: 'package_type_definition',
+    failureDetails: [
+      {
+        code: 'subprogram_body_inside_package_declaration',
+        category: 'package_type_definition',
+        message: 'src/pkg.vhd: subprogram body is inside the package declaration.',
+        excerpt: 'subprogram body inside package declaration',
+        relativePath: 'src/pkg.vhd',
+        forbiddenConstruct: 'package declaration contains executable subprogram body',
+        legalReplacementPattern: 'keep signatures in package and move bodies into package body',
+      },
+    ],
+  });
+
+  assert.match(text, /subprogram_body_inside_package_declaration/);
+  assert.match(text, /Keep only declarations\/signatures in the package declaration and move executable bodies into a package body for the same package\./);
+  assert.match(text, /Preserve package names, public API, and dependent file structure unless the validator class explicitly forces a rename\./);
+});
+
+test('repair shaping includes import and array/subtype repair guidance for recurring raw analyze families', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'import and array issues',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'missing_numeric_std_clause',
+        category: 'missing_ieee_clause',
+        message: 'src/alu.vhd: numeric_std helpers used without local import.',
+        excerpt: 'missing numeric_std',
+        relativePath: 'src/alu.vhd',
+        forbiddenConstruct: 'numeric_std helpers used without a local use clause',
+        legalReplacementPattern: 'add use ieee.numeric_std.all;',
+      },
+      {
+        code: 'reconstrained_subtype_alias',
+        category: 'array_subtype_misuse',
+        message: 'src/pkg.vhd: subtype data_word_t is nibble_t(3 downto 0);',
+        excerpt: 'reconstrained subtype',
+        relativePath: 'src/pkg.vhd',
+        forbiddenConstruct: 'subtype declaration that re-constrains an already constrained alias',
+        legalReplacementPattern: 'reuse the alias unchanged or derive from the true base type',
+      },
+      {
+        code: 'anonymous_array_object_declaration',
+        category: 'array_subtype_misuse',
+        message: 'src/core.vhd: signal regs : array(0 to 7) of unsigned(7 downto 0);',
+        excerpt: 'anonymous array',
+        relativePath: 'src/core.vhd',
+        forbiddenConstruct: 'inline array(...) of ... object declaration',
+        legalReplacementPattern: 'declare a named array type first and use that type for the object',
+      },
+    ],
+  });
+
+  assert.match(text, /Repair the existing file locally by adding the missing IEEE import in that same file only\./);
+  assert.match(text, /Add use ieee\.numeric_std\.all; before relying on unsigned, signed, resize, to_integer, to_unsigned, or to_signed\./);
+  assert.match(text, /Reuse the existing constrained subtype directly, or derive the new subtype from the true unconstrained base type instead of re-constraining the alias\./);
+  assert.match(text, /Declare a named array type or subtype first, then declare the object using that named type instead of inline array\(\.\.\.\) of \.\.\. syntax\./);
+});
+
+test('repair caller contract includes declaration-scope guidance for hidden outer-scope mutation', () => {
+  const text = buildRepairLoopCallerContract({
+    validation: {
+      ok: false,
+      stage: 'prevalidate',
+      summary: 'scope failure',
+      logs: [],
+      validatedTopEntities: [],
+      failureCode: 'procedure_outer_scope_write',
+      failureCategory: 'declaration_scope',
+      failureDetails: [
+        {
+          code: 'procedure_outer_scope_write',
+          category: 'declaration_scope',
+          message: 'tb/broken_tb.vhd: procedure mutates outer-scope state.',
+          excerpt: 'procedure mutates outer-scope state',
+          relativePath: 'tb/broken_tb.vhd',
+          forbiddenConstruct: 'procedure with hidden outer-scope write',
+          legalReplacementPattern: 'pass mutated object explicitly as a formal parameter',
+        },
+      ],
+    },
+    repairAttempt: 2,
+    repairAttemptLimit: 10,
+  });
+
+  assert.match(text, /Repair-loop caller contract:/);
+  assert.match(text, /Repair loop attempt: 2\/10/);
+  assert.match(text, /procedure_outer_scope_write/);
+  assert.match(text, /Replace hidden outer-scope mutation by passing the mutated object explicitly as a formal parameter or by keeping mutable state local to the caller process\./);
 });
 
 test('runAiAnalyzeJob session token accumulation continues across multiple jobs on the same session', async () => {
@@ -661,6 +901,9 @@ test('runAiAnalyzeJob repairs generated VHDL artifacts through the shared repair
   assert.match(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
   assert.match(params.__runCalls[1].prompt, /severity failure used for pass termination/);
   assert.match(params.__runCalls[1].prompt, /Always-on recurring failure guards/);
+  assert.match(params.__runCalls[1].prompt, /Repair-loop caller contract:/);
+  assert.match(params.__runCalls[1].prompt, /This is a local continuation of the existing generated file set, not a fresh regeneration\./);
+  assert.match(params.__runCalls[1].prompt, /Preserve files that are already passing unless a listed dependency must change with the target repair\./);
   assert.match(params.__runCalls[1].prompt, /Failure code: declaration_after_begin/);
   assert.match(params.__runCalls[1].prompt, /Failure code: output_port_readback/);
   assert.match(params.__runCalls[1].prompt, /Failure code: reserved_identifier/);
@@ -730,15 +973,24 @@ test('runAiAnalyzeJob repairs FPGA Architect generated VHDL through the shared r
       };
     },
     parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
-    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
-      outputDirectory: `${projectPath}/${project.sanitized_project_name}`,
-      savedFiles: project.files.map((file: any) => ({
-        ...file,
-        name: file.path.split('/').pop(),
-        path: `${projectPath}/${project.sanitized_project_name}/${file.path}`,
-        kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
-      })),
-    }),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        const directory = fullPath.slice(0, fullPath.lastIndexOf('/'));
+        await fs.mkdir(directory, { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
     buildFpgaArchitectMarkdownReport: () => 'architect report',
     buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
     buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
@@ -780,10 +1032,698 @@ test('runAiAnalyzeJob repairs FPGA Architect generated VHDL through the shared r
 
   assert.equal(params.__runCalls.length, 2);
   assert.match(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
+  assert.match(params.__runCalls[1].prompt, /Repair-loop caller contract:/);
+  assert.match(params.__runCalls[1].prompt, /This is a local continuation of the existing generated file set, not a fresh regeneration\./);
   assert.doesNotMatch(params.__runCalls[1].prompt, /Generated project failed/);
   assert.equal(result.retryUsed, true);
   assert.match(result.analysis, /architect report/);
   assert.match(result.analysis, /## GHDL Validation/);
+});
+
+test('runAiAnalyzeJob applies deterministic generated-code repairs before invoking the LLM repair prompt', async () => {
+  const projectRoot = '/private/tmp/logicpro-deterministic-repair';
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: projectRoot,
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            {
+              path: 'src/counter.vhd',
+              file_type: 'vhdl_rtl',
+              purpose: 'rtl',
+              content: [
+                'library ieee;',
+                'use ieee.std_logic_1164.all;',
+                '',
+                'entity counter is',
+                'end entity;',
+                '',
+                'architecture rtl of counter is',
+                'begin',
+                '  process',
+                '    variable temp_v : integer := 0;',
+                '  begin',
+                '    temp_v <= 1;',
+                '    wait;',
+                '  end process;',
+                'end architecture;',
+                '',
+              ].join('\n'),
+            },
+            {
+              path: 'tb/tb_counter.vhd',
+              file_type: 'vhdl_testbench',
+              purpose: 'tb',
+              content: 'entity tb_counter is end entity;\narchitecture sim of tb_counter is begin\nend architecture;\n',
+            },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'Makefile', file_type: 'makefile', purpose: 'build', content: 'all:' },
+            { path: 'README.md', file_type: 'markdown', purpose: 'docs', content: 'readme' },
+            { path: 'sim/run_ghdl.sh', file_type: 'script', purpose: 'simulation', content: 'ghdl -a' },
+            { path: 'requirements/spec.md', file_type: 'markdown', purpose: 'requirements', content: 'req' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        const directory = fullPath.slice(0, fullPath.lastIndexOf('/'));
+        await fs.mkdir(directory, { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+      const sourcePath = savedArtifacts.find((artifact) => artifact.path.endsWith('src/counter.vhd'))?.path;
+      assert.ok(sourcePath);
+      const content = await fs.readFile(sourcePath!, 'utf8');
+      if (content.includes('temp_v <=')) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".',
+          logs: ['src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".'],
+          validatedTopEntities: [],
+          failureCode: 'variable_assigned_with_signal_operator',
+          failureCategory: 'signal_variable_assignment_misuse' as const,
+          failureDetails: [
+            {
+              code: 'variable_assigned_with_signal_operator',
+              category: 'signal_variable_assignment_misuse' as const,
+              ruleIds: ['ghdl-variable-signal-assignment'],
+              message: 'src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".',
+              excerpt: 'src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".',
+              relativePath: 'src/counter.vhd',
+              forbiddenConstruct: 'variable "temp_v" assigned with "<="',
+              legalReplacementPattern: 'replace "<=" with ":=" for variable "temp_v"',
+            },
+          ],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_counter'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 1);
+  assert.equal(result.retryUsed, true);
+  assert.equal(result.telemetry.attemptCount, 1);
+  assert.equal(result.telemetry.retryCount, 0);
+  const repairedSource = result.architectProject?.files.find((file) => file.path === 'src/counter.vhd')?.content || '';
+  assert.match(repairedSource, /temp_v := 1;/);
+  assert.doesNotMatch(repairedSource, /temp_v <= 1;/);
+});
+
+test('runAiAnalyzeJob cascades deterministic generated-code repairs across multiple local validation passes before invoking the LLM', async () => {
+  const projectRoot = '/private/tmp/logicpro-deterministic-cascade-repair';
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: projectRoot,
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            {
+              path: 'src/counter.vhd',
+              file_type: 'vhdl_rtl',
+              purpose: 'rtl',
+              content: [
+                'library ieee;',
+                'use ieee.std_logic_1164.all;',
+                '',
+                'entity counter is',
+                'end entity;',
+                '',
+                'architecture rtl of counter is',
+                '  variable temp_v : integer := 0;',
+                'begin',
+                '  process',
+                '  begin',
+                '    temp_v <= 1;',
+                '    wait;',
+                '  end process;',
+                'end architecture;',
+                '',
+              ].join('\n'),
+            },
+            {
+              path: 'tb/tb_counter.vhd',
+              file_type: 'vhdl_testbench',
+              purpose: 'tb',
+              content: 'entity tb_counter is end entity;\narchitecture sim of tb_counter is begin\nend architecture;\n',
+            },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'Makefile', file_type: 'makefile', purpose: 'build', content: 'all:' },
+            { path: 'README.md', file_type: 'markdown', purpose: 'docs', content: 'readme' },
+            { path: 'sim/run_ghdl.sh', file_type: 'script', purpose: 'simulation', content: 'ghdl -a' },
+            { path: 'requirements/spec.md', file_type: 'markdown', purpose: 'requirements', content: 'req' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        const directory = fullPath.slice(0, fullPath.lastIndexOf('/'));
+        await fs.mkdir(directory, { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+      const sourcePath = savedArtifacts.find((artifact) => artifact.path.endsWith('src/counter.vhd'))?.path;
+      assert.ok(sourcePath);
+      const content = await fs.readFile(sourcePath!, 'utf8');
+
+      if (content.includes('architecture rtl of counter is\n  variable temp_v')) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'src/counter.vhd: declares plain architecture-body variable "temp_v".',
+          logs: ['src/counter.vhd: declares plain architecture-body variable "temp_v".'],
+          validatedTopEntities: [],
+          failureCode: 'architecture_body_variable',
+          failureCategory: 'declaration_scope' as const,
+          failureDetails: [
+            {
+              code: 'architecture_body_variable',
+              category: 'declaration_scope' as const,
+              ruleIds: ['ghdl-architecture-body-variable'],
+              message: 'src/counter.vhd: declares plain architecture-body variable "temp_v".',
+              excerpt: 'plain architecture-body variable "temp_v"',
+              relativePath: 'src/counter.vhd',
+              forbiddenConstruct: 'plain architecture-body variable "temp_v" (process_local_scratch)',
+              legalReplacementPattern: 'move "temp_v" into the nearest process/subprogram declarative region as a local variable unless persistent shared state is truly required',
+            },
+          ],
+        };
+      }
+
+      if (content.includes('temp_v <= 1;')) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".',
+          logs: ['src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".'],
+          validatedTopEntities: [],
+          failureCode: 'variable_assigned_with_signal_operator',
+          failureCategory: 'signal_variable_assignment_misuse' as const,
+          failureDetails: [
+            {
+              code: 'variable_assigned_with_signal_operator',
+              category: 'signal_variable_assignment_misuse' as const,
+              ruleIds: ['ghdl-variable-signal-assignment'],
+              message: 'src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".',
+              excerpt: 'src/counter.vhd: assigns variable "temp_v" with the signal assignment operator "<=".',
+              relativePath: 'src/counter.vhd',
+              forbiddenConstruct: 'variable "temp_v" assigned with "<="',
+              legalReplacementPattern: 'replace "<=" with ":=" for variable "temp_v"',
+            },
+          ],
+        };
+      }
+
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_counter'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 1);
+  assert.equal(result.retryUsed, true);
+  assert.equal(result.telemetry.attemptCount, 1);
+  assert.equal(result.telemetry.retryCount, 0);
+  const repairedSource = result.architectProject?.files.find((file) => file.path === 'src/counter.vhd')?.content || '';
+  assert.match(repairedSource, /process\s+    variable temp_v : integer := 0;\s+  begin/is);
+  assert.match(repairedSource, /temp_v := 1;/);
+  assert.doesNotMatch(repairedSource, /architecture rtl of counter is\s+  variable temp_v/i);
+  assert.doesNotMatch(repairedSource, /temp_v <= 1;/);
+});
+
+test('runAiAnalyzeJob repairs procedure outer-scope writes before invoking the LLM repair prompt', async () => {
+  const projectRoot = '/private/tmp/logicpro-procedure-outer-scope-repair';
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: projectRoot,
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'counter',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            {
+              path: 'tb/tb_counter.vhd',
+              file_type: 'vhdl_testbench',
+              purpose: 'tb',
+              content: [
+                'library ieee;',
+                'use ieee.std_logic_1164.all;',
+                '',
+                'entity tb_counter is',
+                'end entity;',
+                '',
+                'architecture sim of tb_counter is',
+                "  signal test_failed : std_logic := '0';",
+                'begin',
+                '  stimulus : process',
+                '    procedure mark_fail(msg_name : string) is',
+                '    begin',
+                "      test_failed <= '1';",
+                '      report msg_name;',
+                '    end procedure;',
+                '  begin',
+                '    mark_fail("boom");',
+                '    wait;',
+                '  end process;',
+                'end architecture;',
+                '',
+              ].join('\n'),
+            },
+            {
+              path: 'src/counter.vhd',
+              file_type: 'vhdl_rtl',
+              purpose: 'rtl',
+              content: 'entity counter is end entity;\narchitecture rtl of counter is begin\nend architecture;\n',
+            },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'Makefile', file_type: 'makefile', purpose: 'build', content: 'all:' },
+            { path: 'README.md', file_type: 'markdown', purpose: 'docs', content: 'readme' },
+            { path: 'sim/run_ghdl.sh', file_type: 'script', purpose: 'simulation', content: 'ghdl -a' },
+            { path: 'requirements/spec.md', file_type: 'markdown', purpose: 'requirements', content: 'req' },
+          ],
+          ghdl: {
+            analysis_order: ['src/counter.vhd', 'tb/tb_counter.vhd'],
+            top_testbench: 'tb_counter',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        const directory = fullPath.slice(0, fullPath.lastIndexOf('/'));
+        await fs.mkdir(directory, { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+      const tbPath = savedArtifacts.find((artifact) => artifact.path.endsWith('tb/tb_counter.vhd'))?.path;
+      assert.ok(tbPath);
+      const content = await fs.readFile(tbPath!, 'utf8');
+      if (content.includes('procedure mark_fail(msg_name : string) is') && content.includes("test_failed <= '1';")) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'tb/tb_counter.vhd: procedure "mark_fail" assigns to outer-scope object "test_failed" without passing it as a formal parameter.',
+          logs: ['tb/tb_counter.vhd: procedure "mark_fail" assigns to outer-scope object "test_failed" without passing it as a formal parameter.'],
+          validatedTopEntities: [],
+          failureCode: 'procedure_outer_scope_write',
+          failureCategory: 'declaration_scope' as const,
+          failureDetails: [
+            {
+              code: 'procedure_outer_scope_write',
+              category: 'declaration_scope' as const,
+              ruleIds: ['ghdl-procedure-outer-scope-write'],
+              message: 'tb/tb_counter.vhd: procedure "mark_fail" assigns to outer-scope object "test_failed" without passing it as a formal parameter.',
+              excerpt: 'tb/tb_counter.vhd: procedure "mark_fail" assigns to outer-scope object "test_failed" without passing it as a formal parameter.',
+              relativePath: 'tb/tb_counter.vhd',
+              forbiddenConstruct: 'procedure "mark_fail" mutates outer-scope object "test_failed"',
+              legalReplacementPattern: 'add the object as a formal parameter and write through that formal instead of closing over outer state',
+            },
+          ],
+        };
+      }
+
+      assert.match(content, /procedure mark_fail\(msg_name : string; signal test_failed_io : out std_logic\) is/);
+      assert.match(content, /test_failed_io <= '1';/);
+      assert.match(content, /mark_fail\("boom", test_failed\);/);
+
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_counter.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_counter'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 1);
+  assert.equal(result.retryUsed, true);
+  assert.equal(result.telemetry.attemptCount, 1);
+  assert.equal(result.telemetry.retryCount, 0);
+});
+
+test('runAiAnalyzeJob applies deterministic cleanup to LLM repair output before the next repair attempt', async () => {
+  const projectRoot = '/private/tmp/logicpro-post-llm-deterministic-repair';
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: projectRoot,
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      if (prompt.includes('Automatic Retry: Shared Generated-Code Repair Pipeline')) {
+        return {
+          text: [
+            '### proj/tb/tb_axi_stream_router.vhd',
+            '```vhdl',
+            'library ieee;',
+            'use ieee.std_logic_1164.all;',
+            'use ieee.numeric_std.all;',
+            '',
+            'entity tb_axi_stream_router is',
+            'end entity;',
+            '',
+            'architecture sim of tb_axi_stream_router is',
+            'begin',
+            '  process',
+            '  begin',
+            "    REPAIRED: Moved function declaration before 'function to_slv' after validator feedback",
+            '    function to_slv(value : integer) return std_logic_vector is',
+            '    begin',
+            '      return std_logic_vector(to_unsigned(value, 8));',
+            '    end function;',
+            '    wait;',
+            '  end process;',
+            'end architecture;',
+            '```',
+          ].join('\n'),
+          telemetry: {
+            inputTokens: 30,
+            outputTokens: 15,
+            totalTokens: 45,
+            tokensPerSecond: 10,
+            durationMs: 100,
+          },
+        };
+      }
+
+      return {
+        text: JSON.stringify({
+          project_name: 'proj',
+          sanitized_project_name: 'proj',
+          top_entity: 'axi_stream_router',
+          vhdl_standard: 'VHDL-2008',
+          target_fpga: null,
+          summary: 'summary',
+          assumptions: [],
+          warnings: [],
+          folder_tree: '',
+          files: [
+            {
+              path: 'src/axi_stream_router.vhd',
+              file_type: 'vhdl_rtl',
+              purpose: 'rtl',
+              content: 'entity axi_stream_router is end entity;\narchitecture rtl of axi_stream_router is begin\nend architecture;\n',
+            },
+            {
+              path: 'tb/tb_axi_stream_router.vhd',
+              file_type: 'vhdl_testbench',
+              purpose: 'tb',
+              content: [
+                'library ieee;',
+                'use ieee.std_logic_1164.all;',
+                '',
+                'entity tb_axi_stream_router is',
+                'end entity;',
+                '',
+                'architecture sim of tb_axi_stream_router is',
+                'begin',
+                '  process',
+                '  begin',
+                "    assert false report \"pre-repair placeholder\" severity note;",
+                '    wait;',
+                '  end process;',
+                'end architecture;',
+                '',
+              ].join('\n'),
+            },
+            { path: 'constraints/top.xdc', file_type: 'constraints', purpose: 'xdc', content: '#' },
+            { path: 'Makefile', file_type: 'makefile', purpose: 'build', content: 'all:' },
+            { path: 'README.md', file_type: 'markdown', purpose: 'docs', content: 'readme' },
+            { path: 'sim/run_ghdl.sh', file_type: 'script', purpose: 'simulation', content: 'ghdl -a' },
+            { path: 'requirements/spec.md', file_type: 'markdown', purpose: 'requirements', content: 'req' },
+          ],
+          ghdl: {
+            analysis_order: ['src/axi_stream_router.vhd', 'tb/tb_axi_stream_router.vhd'],
+            top_testbench: 'tb_axi_stream_router',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        const directory = fullPath.slice(0, fullPath.lastIndexOf('/'));
+        await fs.mkdir(directory, { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+      const tbPath = savedArtifacts.find((artifact) => artifact.path.endsWith('tb/tb_axi_stream_router.vhd'))?.path;
+      assert.ok(tbPath);
+      const content = await fs.readFile(tbPath!, 'utf8');
+
+      if (/REPAIRED:/i.test(content)) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'tb/tb_axi_stream_router.vhd: contains repair/meta commentary inside VHDL source.',
+          logs: ['tb/tb_axi_stream_router.vhd: contains repair/meta commentary inside VHDL source.'],
+          validatedTopEntities: [],
+          failureCode: 'natural_language_leakage',
+          failureCategory: 'other' as const,
+          failureDetails: [
+            {
+              code: 'natural_language_leakage',
+              category: 'other' as const,
+              message: 'tb/tb_axi_stream_router.vhd: contains repair/meta commentary inside VHDL source.',
+              excerpt: 'REPAIRED: Moved function declaration before',
+              relativePath: 'tb/tb_axi_stream_router.vhd',
+              forbiddenConstruct: 'repair/meta commentary embedded in VHDL source',
+              legalReplacementPattern: 'keep any explanatory text only as VHDL comments starting with "--", and never emit markdown headings, bullets, or repair labels in source files',
+            },
+          ],
+        };
+      }
+
+      if (/process\s+begin[\s\S]*function to_slv/i.test(content)) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'tb/tb_axi_stream_router.vhd: declares function "to_slv" inside an executable region after "begin".',
+          logs: ['tb/tb_axi_stream_router.vhd: declares function "to_slv" inside an executable region after "begin".'],
+          validatedTopEntities: [],
+          failureCode: 'declaration_after_begin',
+          failureCategory: 'declaration_scope' as const,
+          failureDetails: [
+            {
+              code: 'declaration_after_begin',
+              category: 'declaration_scope' as const,
+              message: 'tb/tb_axi_stream_router.vhd: declares function "to_slv" inside an executable region after "begin".',
+              excerpt: 'function declaration for "to_slv" after begin',
+              relativePath: 'tb/tb_axi_stream_router.vhd',
+              forbiddenConstruct: 'function declaration for "to_slv" after begin',
+              legalReplacementPattern: 'move "to_slv" into an enclosing declarative region before begin',
+            },
+          ],
+        };
+      }
+
+      if (/pre-repair placeholder/i.test(content)) {
+        return {
+          ok: false,
+          stage: 'analyze' as const,
+          summary: 'tb/tb_axi_stream_router.vhd: no declaration for "to_unsigned".',
+          logs: ['tb/tb_axi_stream_router.vhd: no declaration for "to_unsigned".'],
+          validatedTopEntities: [],
+          failureCode: 'ghdl_analyze_failure',
+          failureCategory: 'ghdl_analyze_failure' as const,
+          failureDetails: [],
+        };
+      }
+
+      assert.match(content, /process\s+    function to_slv\(value : integer\) return std_logic_vector is[\s\S]*\s+begin/is);
+      assert.doesNotMatch(content, /REPAIRED:/i);
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_axi_stream_router.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_axi_stream_router'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 2);
+  assert.equal(result.retryUsed, true);
+  assert.equal(result.telemetry.attemptCount, 2);
+  assert.equal(result.telemetry.retryCount, 1);
+  const repairedTb = result.architectProject?.files.find((file) => file.path === 'tb/tb_axi_stream_router.vhd')?.content || '';
+  assert.match(repairedTb, /process\s+    function to_slv\(value : integer\) return std_logic_vector is[\s\S]*\s+begin/is);
+  assert.doesNotMatch(repairedTb, /REPAIRED:/i);
+  assert.doesNotMatch(repairedTb, /process\s+begin[\s\S]*function to_slv/i);
 });
 
 test('runAiAnalyzeJob hard-fails FPGA Architect when generated project fails GHDL validation and does not auto-fix the files', async () => {

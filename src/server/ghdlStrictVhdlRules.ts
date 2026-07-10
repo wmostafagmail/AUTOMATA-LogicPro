@@ -40,6 +40,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
   declarationScope: [
     'Any local helper procedure/function in a testbench must be declared in the architecture declarative region before `begin`.',
     'Do not declare helper procedures/functions inside a process body or after the architecture `begin`. Put helper signatures/bodies in a legal declarative region before executable statements start.',
+    'Helper declarations such as `check_eq`, `check_result`, `to_slv`, `encode_dest_port`, `decode_dest_port`, and similar local utilities must appear as complete subprogram blocks before executable statements start. Never leave them after `begin`, partially inline them, or split their header/body across declarative and executable regions.',
     'Local helper procedures/functions must not mutate outer-scope variables or signals implicitly. If helper logic needs to update `test_failed`, `out_test_failed`, pass/fail counters, expected values, scoreboards, or other mutable state, pass those targets explicitly as formal parameters or keep the state local to the calling process.',
     'A helper procedure such as `check_eq`, `check_result`, `mark_fail`, or `expect_result` must not assign directly to architecture-scope bookkeeping objects like `test_failed`, `out_test_failed`, `pass_count`, or `fail_count` unless those objects are passed in through legal VHDL formal arguments.',
     'In a process, declare variables only in the declarative region between the process header and `begin`. Never declare variables after the first sequential statement.',
@@ -69,6 +70,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Numeric_std functions such as `resize`, `shift_left`, and `shift_right` operate on `unsigned` or `signed`, not raw `std_logic_vector`. Convert first, for example `resize(unsigned(a), WIDTH)`.',
     'If a helper package/function accepts raw `std_logic_vector` arguments, normalize them into typed local operands before arithmetic, bitwise logic, shifts, or `resize` calls.',
     'If an internal result is kept as `unsigned` or `signed`, every branch assigning it must return that same type; do not mix in raw `std_logic_vector` expressions without explicit conversion at the boundary.',
+    'At entity instantiation and port-map boundaries, the actual expression must already match the formal typed domain. Do not pass raw `std_logic_vector` actuals into `unsigned`/`signed` formals, and do not wrap already typed actuals in mismatching conversions.',
     'Do not call `to_integer` on raw `std_logic` or `std_logic_vector`; convert first with `unsigned(...)` or `signed(...)`.',
     'Do not perform direct bitwise/logical operators on integers. Convert to typed vector/numeric operands or rewrite as boolean comparisons/arithmetic as appropriate.',
     'Do not read back `out` ports for internal decisions or flag generation. Compute from internal typed signals/variables first, then drive the port.',
@@ -79,6 +81,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'When constraining an existing scalar type such as `integer`, `natural`, or `positive`, use `subtype`, not `type`. For example write `subtype op_index_t is integer range 0 to 7;`, never `type op_index_t is integer range 0 to 7;`.',
     'For scalar numeric types such as `integer`, `natural`, and `positive`, use numeric literals/expressions on assignment. Do not assign bit-string or hex-string literals such as `"00"` or `x"3"` to scalar numeric declarations; use `0`, `3`, or an explicit typed conversion instead.',
     'No multidimensional `std_logic_vector(...) (...)` declarations. For vectors of vectors, declare a named array type and then use that type, or flatten the storage into a one-dimensional vector.',
+    'Do not declare signals, variables, or constants with inline anonymous `array(...) of ...` object syntax. Declare a named array type or subtype first, then declare the object using that named type.',
     'Do not re-constrain an already constrained subtype or alias. If you need a different width/range, declare a new type/subtype legally from the base type.',
     'Package declarations may declare subprogram signatures only. Subprogram bodies must live in a separate `package body`, not inside the package declaration.',
     'Do not generate malformed packed-bus subtype expressions with nested `downto` arithmetic inside one subtype declaration. Precompute widths cleanly or use simple legal range expressions.',

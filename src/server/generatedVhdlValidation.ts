@@ -4,7 +4,10 @@ import path from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import type { AiMacroId, TbGenerationMode } from '../aiMacros';
-import type { FpgaArchitectProject } from './fpgaArchitect';
+import {
+  buildDeterministicArchitectGhdlRunCommands,
+  type FpgaArchitectProject,
+} from './fpgaArchitect';
 import {
   getCanonicalRuleIdsForFailureCode,
   VHDL_OPERATOR_KEYWORDS,
@@ -49,6 +52,8 @@ export type GeneratedVhdlFailureDetail = {
   ruleIds?: string[];
   message: string;
   excerpt: string;
+  relativePath?: string;
+  lineHint?: number | null;
   forbiddenConstruct?: string;
   legalReplacementPattern?: string;
 };
@@ -79,6 +84,50 @@ type VhdlSourceDescriptor = {
   dependencies: string[];
   isTestbench: boolean;
 };
+
+function classifyArchitectureBodyVariableIntent(params: {
+  relativePath: string;
+  variableName: string;
+  subtype: string;
+}) {
+  const lowerName = params.variableName.toLowerCase();
+  const lowerSubtype = params.subtype.toLowerCase();
+  const isTestbenchPath = /(^|\/)(tb|testbench)\//i.test(params.relativePath)
+    || /(^|[_-])(tb|testbench)([_-]|$)/i.test(path.basename(params.relativePath, path.extname(params.relativePath)));
+  const isBookkeepingName = /(pass|fail|error|done|finished|status|count|score|flag)/i.test(params.variableName);
+  const isLogicStateType = /\bstd_(u)?logic(_vector)?\b/.test(lowerSubtype) || /\bunsigned\b|\bsigned\b/.test(lowerSubtype);
+
+  if (isTestbenchPath && isBookkeepingName) {
+    return {
+      flavor: 'testbench_bookkeeping',
+      messageTail:
+        `This looks like testbench bookkeeping or shared status state. ` +
+        `Prefer a signal for sampled DUT-visible state, or a shared variable only when shared testbench bookkeeping is truly required.`,
+      legalReplacementPattern:
+        `replace "${params.variableName}" with a signal for sampled state, or use a shared variable only for deliberate shared testbench bookkeeping`,
+    } as const;
+  }
+
+  if (isLogicStateType) {
+    return {
+      flavor: 'persistent_signal_intent',
+      messageTail:
+        `This looks like persistent design state, not a process-local scratch value. ` +
+        `Prefer a signal declared in the architecture declarative region, or move the scratch use into a process-local variable if the state is temporary.`,
+      legalReplacementPattern:
+        `replace "${params.variableName}" with a signal if persistent state is intended, or move it into a process-local variable if it is only temporary scratch state`,
+    } as const;
+  }
+
+  return {
+    flavor: 'process_local_scratch',
+    messageTail:
+      `This most likely represents temporary local scratch state. ` +
+      `Move it into the nearest process/subprogram declarative region unless persistent cross-process state is truly required.`,
+    legalReplacementPattern:
+      `move "${params.variableName}" into the nearest process/subprogram declarative region as a local variable unless persistent shared state is truly required`,
+  } as const;
+}
 
 function shouldSkipProjectEntry(name: string) {
   return ['.git', 'node_modules', 'dist', 'build', '.next', '.automata-logicpro'].includes(name);
@@ -257,6 +306,66 @@ function normalizeRelativePath(rootPath: string, absolutePath: string) {
   return path.relative(rootPath, absolutePath).split(path.sep).join('/');
 }
 
+function collectExecutableRegionDeclarations(content: string) {
+  const declarationExpression = /\b(type|subtype|procedure|function|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\b/i;
+  const scopedRegions = [
+    /\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+architecture\b[^;]*;/gi,
+    /\bprocess(?:\s*\([^)]*\))?\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+process\b[^;]*;/gi,
+    /\bfunction\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+function\b[^;]*;/gi,
+    /\bprocedure\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+procedure\b[^;]*;/gi,
+  ];
+  const findings: Array<{ kind: string; name: string }> = [];
+  const seen = new Set<string>();
+
+  for (const regionExpression of scopedRegions) {
+    for (const match of content.matchAll(regionExpression)) {
+      const executableRegion = match[1];
+      if (!executableRegion) continue;
+      const declarationMatch = declarationExpression.exec(executableRegion);
+      if (declarationMatch) {
+        const finding = {
+          kind: declarationMatch[1].toLowerCase(),
+          name: declarationMatch[2],
+        };
+        const signature = `${finding.kind}:${finding.name.toLowerCase()}`;
+        if (seen.has(signature)) continue;
+        seen.add(signature);
+        findings.push(finding);
+      }
+    }
+  }
+
+  return findings;
+}
+
+function collectExecutableRegionSignalDeclarations(content: string) {
+  const signalExpression = /\bsignal\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/i;
+  const scopedRegions = [
+    /\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+architecture\b[^;]*;/gi,
+    /\bprocess(?:\s*\([^)]*\))?\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+process\b[^;]*;/gi,
+    /\bfunction\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+function\b[^;]*;/gi,
+    /\bprocedure\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+procedure\b[^;]*;/gi,
+  ];
+  const findings: string[] = [];
+  const seen = new Set<string>();
+
+  for (const regionExpression of scopedRegions) {
+    for (const match of content.matchAll(regionExpression)) {
+      const executableRegion = match[1];
+      if (!executableRegion) continue;
+      const signalMatch = signalExpression.exec(executableRegion);
+      if (!signalMatch) continue;
+      const signalName = signalMatch[1];
+      const signature = signalName.toLowerCase();
+      if (seen.has(signature)) continue;
+      seen.add(signature);
+      findings.push(signalName);
+    }
+  }
+
+  return findings;
+}
+
 function dedupe(values: string[]) {
   return Array.from(new Set(values));
 }
@@ -267,23 +376,43 @@ function trimFailureExcerpt(message: string, maxLength = 220) {
   return `${compact.slice(0, maxLength - 3)}...`;
 }
 
+function extractQuotedGhdlToken(message: string) {
+  const singleQuoted = message.match(/(?:unexpected token|\(found:)\s+'([^']+)'/i)?.[1];
+  if (singleQuoted) {
+    return singleQuoted;
+  }
+  const doubleQuoted = message.match(/operator\s+"([^"]+)"/i)?.[1];
+  return doubleQuoted || null;
+}
+
+function isReservedVhdlIdentifierToken(token: string | null) {
+  if (!token) return false;
+  return VHDL_RESERVED_IDENTIFIERS.includes(token.toLowerCase());
+}
+
 function createFailureDetail(params: {
   code: string;
   category: GeneratedVhdlFailureCategory;
   ruleId?: string | null;
   ruleIds?: string[];
   message: string;
+  relativePath?: string;
+  lineHint?: number | null;
   forbiddenConstruct?: string;
   legalReplacementPattern?: string;
 }): GeneratedVhdlFailureDetail {
   const canonicalRuleIds = params.ruleIds && params.ruleIds.length > 0
     ? params.ruleIds
     : getCanonicalRuleIdsForFailureCode(params.code);
+  const inferredPathMatch = params.message.match(/^([^:\n]+\.(?:vhd|vhdl)):/i);
+  const inferredLineMatch = params.message.match(/\.vhd[l]?:([0-9]+):/i);
   return {
     ...params,
     ruleId: params.ruleId ?? canonicalRuleIds[0] ?? null,
     ruleIds: canonicalRuleIds,
     excerpt: trimFailureExcerpt(params.message),
+    relativePath: params.relativePath ?? inferredPathMatch?.[1],
+    lineHint: params.lineHint ?? (inferredLineMatch?.[1] ? Number.parseInt(inferredLineMatch[1], 10) : null),
   };
 }
 
@@ -291,14 +420,206 @@ function summarizeFailureDetails(details: GeneratedVhdlFailureDetail[]) {
   return details.map((detail) => detail.message).join('\n');
 }
 
+export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVhdlFailureDetail[] {
+  const details: GeneratedVhdlFailureDetail[] = [];
+  const push = (params: Parameters<typeof createFailureDetail>[0]) => {
+    details.push(createFailureDetail(params));
+  };
+
+  if (/unit\s+".*"\s+not\s+found\s+in\s+library\s+"work"|unresolved work units/i.test(message)) {
+    push({
+      code: 'unresolved_work_unit',
+      category: 'unresolved_work_unit',
+      message,
+      forbiddenConstruct: 'reference to a work unit that was not compiled into the active work library',
+      legalReplacementPattern: 'compile the dependency first and keep analysis_order so every package/entity is analyzed before the dependent file',
+    });
+  }
+
+  if (/non-shared variable declaration not allowed in architecture body/i.test(message)) {
+    push({
+      code: 'architecture_body_variable',
+      category: 'declaration_scope',
+      message,
+      forbiddenConstruct: 'plain architecture-body variable emitted into the architecture declarative region',
+      legalReplacementPattern:
+        'move temporary scratch variables into the nearest process/subprogram declarative region, or use a signal/shared variable only when persistent or shared state is truly intended',
+    });
+  }
+
+  if (/no declaration for "std_logic(?:_vector)?"|no declaration for "std_ulogic"/i.test(message)) {
+    push({
+      code: 'missing_std_logic_1164_clause',
+      category: 'missing_ieee_clause',
+      message,
+      forbiddenConstruct: 'logic types used without a local ieee.std_logic_1164 import in the same file',
+      legalReplacementPattern: 'add library ieee; and use ieee.std_logic_1164.all; to the file that declares or uses the logic type',
+    });
+  }
+
+  if (/no declaration for "unsigned"|no declaration for "signed"|no declaration for "resize"|no declaration for "to_integer"|no declaration for "to_unsigned"|no declaration for "to_signed"/i.test(message)) {
+    push({
+      code: 'missing_numeric_std_clause',
+      category: 'missing_ieee_clause',
+      message,
+      forbiddenConstruct: 'numeric_std types or helpers used without a local ieee.numeric_std import in the same file',
+      legalReplacementPattern: 'add use ieee.numeric_std.all; to the file that declares or uses numeric_std types/functions',
+    });
+  }
+
+  if (/no overloaded function found matching "resize"|calls resize on raw std_logic_vector/i.test(message)) {
+    push({
+      code: 'resize_on_raw_std_logic_vector',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: 'calling resize on a raw std_logic_vector operand',
+      legalReplacementPattern: 'convert the operand into unsigned(...) or signed(...) first, then call resize on the typed value',
+    });
+  }
+
+  if (/no function declarations for operator "(?:and|or|xor|not)"/i.test(message)) {
+    push({
+      code: 'illegal_numeric_logical_hybrid',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: 'bitwise/logical operator use on mismatched or non-typed operands',
+      legalReplacementPattern: 'ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator',
+    });
+  }
+
+  if (/can't match ".*" with type array type "UNRESOLVED_UNSIGNED"|can't match ".*" with type array type "UNRESOLVED_SIGNED"/i.test(message)) {
+    push({
+      code: 'typed_bitwise_mismatch',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: 'assignment or operator result whose operand types do not match the destination typed domain',
+      legalReplacementPattern: 'convert operands and temporaries into the exact destination type before assignment or operator use',
+    });
+  }
+
+  if (/can't match function call with type array type "UNRESOLVED_UNSIGNED"|can't match function call with type array type "UNRESOLVED_SIGNED"/i.test(message)) {
+    push({
+      code: 'typed_function_result_mismatch',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: 'function call result whose return type does not match the typed destination domain',
+      legalReplacementPattern: 'make the helper return unsigned/signed directly, or convert the function result explicitly at the assignment site',
+    });
+  }
+
+  if (/can't associate ".*" with port ".*"|cannot associate ".*" with port ".*"|type of ".*" is .*type of port ".*" is/i.test(message)) {
+    push({
+      code: 'typed_port_association_mismatch',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: 'port map actual whose type does not match the formal port type',
+      legalReplacementPattern: 'pass an actual with the same declared type as the formal port, or convert at the boundary only into the exact formal type expected by the instantiated entity',
+    });
+  }
+
+  if (
+    /type mark expected in a subtype indication/i.test(message)
+    && /\b(?:signal|variable|constant)\s+[a-zA-Z][a-zA-Z0-9_]*\s*:\s*array\s*\(/i.test(message)
+  ) {
+    push({
+      code: 'anonymous_array_object_declaration',
+      category: 'array_subtype_misuse',
+      message,
+      forbiddenConstruct: 'anonymous object declaration that uses array(...) of ... directly in a signal/variable declaration',
+      legalReplacementPattern: 'declare a named array type or subtype first, then declare the object using that named type instead of inline array(...) syntax',
+    });
+  }
+
+  const illegalPrefixOperatorSnippet = /\b(xnor|nand|nor)\s+[a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?\s*,\s*[a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?\b/i.test(message);
+  const illegalPrefixOperatorToken = message.match(/unexpected token '(xnor|nand|nor)' in a primary/i)?.[1]
+    || message.match(/missing ";" at end of statement[\s\S]*?\b(xnor|nand|nor)\b/i)?.[1]
+    || null;
+  if (illegalPrefixOperatorSnippet || illegalPrefixOperatorToken) {
+    const operatorToken = illegalPrefixOperatorToken
+      || message.match(/\b(xnor|nand|nor)\b/i)?.[1]
+      || 'xnor';
+    push({
+      code: 'illegal_prefix_operator_form',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: `illegal prefix/function-style VHDL operator form "${operatorToken} a, b"`,
+      legalReplacementPattern: `rewrite the expression into legal infix VHDL operator form such as "a ${operatorToken} b" on operands of matching type`,
+    });
+  }
+
+  const reservedToken = extractQuotedGhdlToken(message);
+  if (
+    isReservedVhdlIdentifierToken(reservedToken)
+    && (
+      /unexpected token/i.test(message)
+      || /\(found:/i.test(message)
+      || /identifier or character expected/i.test(message)
+    )
+    && !(
+      /^(xnor|nand|nor)$/i.test(reservedToken || '')
+      && (illegalPrefixOperatorSnippet || Boolean(illegalPrefixOperatorToken))
+    )
+  ) {
+    push({
+      code: 'reserved_identifier',
+      category: 'identifier_reserved_word',
+      message,
+      forbiddenConstruct: `reserved VHDL identifier "${reservedToken}" reused as an identifier, enum literal, or declaration token`,
+      legalReplacementPattern: `rename "${reservedToken}" to a descriptive non-keyword identifier such as ${reservedToken.toLowerCase()}_op or ${reservedToken.toLowerCase()}_value`,
+    });
+  }
+
+  if (/identifier or character expected.*\bSLL\b|identifier or character expected.*\bSRL\b|identifier or character expected.*\bROL\b|identifier or character expected.*\bROR\b/i.test(message)
+    || /unexpected token 'sll'|unexpected token 'srl'|unexpected token 'rol'|unexpected token 'ror'/i.test(message)
+    || /\(found: 'sll'\)|\(found: 'srl'\)|\(found: 'rol'\)|\(found: 'ror'\)/i.test(message)) {
+    push({
+      code: 'reserved_identifier',
+      category: 'identifier_reserved_word',
+      message,
+      forbiddenConstruct: 'reserved VHDL shift/rotate operator keyword reused as an enum literal or identifier',
+      legalReplacementPattern: 'rename the identifier to a safe descriptive non-keyword form such as shift_left_op or rotate_right_op',
+    });
+  }
+
+  if (/subprogram body inside package declaration|package declarations may contain only subprogram signatures|package body .* was not analysed|package ".*" was not analysed/i.test(message)) {
+    push({
+      code: 'subprogram_body_inside_package_declaration',
+      category: 'package_type_definition',
+      message,
+      forbiddenConstruct: 'executable subprogram body or invalid package/body split inside a package declaration',
+      legalReplacementPattern: 'keep only declarations/signatures in the package declaration and move executable bodies into a separate package body',
+    });
+  }
+
+  if (/interface declaration expected.*\bprocedure\b|missing ";" at end of statement.*\bprocedure\b|unexpected token 'label' in a primary/i.test(message)) {
+    push({
+      code: 'declaration_after_begin',
+      category: 'declaration_scope',
+      message,
+      forbiddenConstruct: 'procedure/helper declaration that escaped into an executable region or uses an illegal reserved token in its declaration',
+      legalReplacementPattern: 'move the full helper declaration into the nearest declarative region before begin and rename any reserved argument identifiers',
+    });
+  }
+
+  if (details.length === 0) {
+    push({
+      code: 'ghdl_analyze_failure',
+      category: classifyKnownFailureCategory(message),
+      message,
+    });
+  }
+
+  return details;
+}
+
 function classifyKnownFailureCategory(message: string): GeneratedVhdlFailureCategory {
   if (/reserved VHDL identifier/i.test(message)) return 'identifier_reserved_word';
   if (/without a local "use ieee/i.test(message) || /no declaration for "std_logic/i.test(message)) return 'missing_ieee_clause';
   if (/plain architecture-body variable|inside an executable region|outer-scope object|not allowed in the architecture declarative region/i.test(message)) return 'declaration_scope';
-  if (/calls resize|calls to_integer|shift_left|shift_right|logical-operator expression on numeric operands|raw std_logic_vector|typed operands|output-port/i.test(message)) return 'numeric_std_type_discipline';
+  if (/calls resize|calls to_integer|shift_left|shift_right|logical-operator expression on numeric operands|raw std_logic_vector|typed operands|output-port|can't associate ".*" with port ".*"|cannot associate ".*" with port ".*"/i.test(message)) return 'numeric_std_type_discipline';
   if (/package body|constrained scalar alias|bit-string literal|end statements|subprogram bodies inside package|missing IEEE import for package/i.test(message)) return 'package_type_definition';
   if (/association syntax|generic and port|undeclared generics|interface declaration/i.test(message)) return 'interface_generic_port_syntax';
-  if (/multidimensional|re-constrain|vector of vectors|flatten/i.test(message)) return 'array_subtype_misuse';
+  if (/multidimensional|re-constrain|vector of vectors|flatten|type mark expected in a subtype indication.*array\s*\(|anonymous object declaration.*array\(\)/i.test(message)) return 'array_subtype_misuse';
   if (/use `<=` only for signals|use `:=` only for variables|assignment operator/i.test(message)) return 'signal_variable_assignment_misuse';
   if (/width|literal mismatch|sized literals|bit-string/i.test(message)) return 'width_literal_mismatch';
   if (/runtime-unsafe|overflow bounds|out of range|bounds/i.test(message)) return 'runtime_bound_risk';
@@ -355,6 +676,89 @@ function splitIdentifierList(value: string) {
     .filter(Boolean);
 }
 
+function splitTopLevelArguments(value: string) {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+
+  for (const char of value) {
+    if (char === '(') {
+      depth += 1;
+      current += char;
+      continue;
+    }
+    if (char === ')') {
+      depth = Math.max(0, depth - 1);
+      current += char;
+      continue;
+    }
+    if (char === ',' && depth === 0) {
+      if (current.trim()) {
+        parts.push(current.trim());
+      }
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+
+  if (current.trim()) {
+    parts.push(current.trim());
+  }
+
+  return parts;
+}
+
+function extractActualBaseIdentifier(actual: string) {
+  const trimmed = actual.trim();
+  const namedAssociationMatch = trimmed.match(/^(?:[a-zA-Z][a-zA-Z0-9_]*\s*=>\s*)(.+)$/);
+  const rhs = namedAssociationMatch ? namedAssociationMatch[1].trim() : trimmed;
+  const baseIdentifierMatch = rhs.match(/^([a-zA-Z][a-zA-Z0-9_]*)(?:\s*\([^)]*\))?$/);
+  if (!baseIdentifierMatch) {
+    return null;
+  }
+  return {
+    actualExpression: rhs,
+    baseIdentifier: baseIdentifierMatch[1],
+  };
+}
+
+function collectPotentialSubprogramCalls(content: string) {
+  const calls: Array<{ name: string; actualText: string; index: number }> = [];
+  const expression = /\b([a-zA-Z][a-zA-Z0-9_]*)\s*\(/g;
+
+  for (const match of content.matchAll(expression)) {
+    const name = match[1];
+    const startIndex = match.index ?? -1;
+    if (!name || startIndex < 0) continue;
+
+    const openParenIndex = startIndex + match[0].lastIndexOf('(');
+    let depth = 0;
+    let closeParenIndex = -1;
+    for (let index = openParenIndex; index < content.length; index += 1) {
+      const char = content[index];
+      if (char === '(') {
+        depth += 1;
+      } else if (char === ')') {
+        depth -= 1;
+        if (depth === 0) {
+          closeParenIndex = index;
+          break;
+        }
+      }
+    }
+
+    if (closeParenIndex < 0) continue;
+    calls.push({
+      name,
+      actualText: content.slice(openParenIndex + 1, closeParenIndex),
+      index: startIndex,
+    });
+  }
+
+  return calls;
+}
+
 function normalizeDeclaredType(typeText: string): NormalizedDeclaredType {
   const normalized = typeText.replace(/\s+/g, ' ').trim().toLowerCase();
   if (normalized.includes('std_logic_vector')) return 'std_logic_vector';
@@ -365,10 +769,45 @@ function normalizeDeclaredType(typeText: string): NormalizedDeclaredType {
   return 'other';
 }
 
-function collectDeclaredIdentifierTypes(content: string) {
+function normalizeDeclaredTypeWithAliases(
+  typeText: string,
+  aliases: Map<string, NormalizedDeclaredType>,
+): NormalizedDeclaredType {
+  const direct = normalizeDeclaredType(typeText);
+  if (direct !== 'other') return direct;
+
+  const normalized = typeText.replace(/\s+/g, ' ').trim().toLowerCase();
+  const simpleAliasMatch = normalized.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/);
+  if (!simpleAliasMatch) return 'other';
+  return aliases.get(simpleAliasMatch[1]) || 'other';
+}
+
+function collectDeclaredTypeAliases(
+  content: string,
+  inheritedAliases?: Map<string, NormalizedDeclaredType>,
+) {
+  const declaredTypeAliases = new Map<string, NormalizedDeclaredType>(inheritedAliases || []);
+  for (const match of content.matchAll(/\b(type|subtype)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+([^;]+?)\s*;/gi)) {
+    const aliasName = match[2].toLowerCase();
+    const aliasType = normalizeDeclaredTypeWithAliases(match[3], declaredTypeAliases);
+    declaredTypeAliases.set(aliasName, aliasType);
+  }
+  return declaredTypeAliases;
+}
+
+function collectDeclaredIdentifierTypes(
+  content: string,
+  inheritedAliases?: Map<string, NormalizedDeclaredType>,
+) {
   const declaredTypes = new Map<string, NormalizedDeclaredType>();
+  const declaredTypeAliases = collectDeclaredTypeAliases(content, inheritedAliases);
+
+  for (const [aliasName, aliasType] of declaredTypeAliases.entries()) {
+    declaredTypes.set(aliasName, aliasType);
+  }
+
   const recordType = (names: string[], typeText: string) => {
-    const normalizedType = normalizeDeclaredType(typeText);
+    const normalizedType = normalizeDeclaredTypeWithAliases(typeText, declaredTypeAliases);
     names.forEach((name) => declaredTypes.set(name.toLowerCase(), normalizedType));
   };
 
@@ -401,10 +840,20 @@ type SubprogramSignature = {
   name: string;
   kind: 'function' | 'procedure';
   parameters: NormalizedDeclaredType[];
+  returnType?: NormalizedDeclaredType;
 };
 
-function collectSubprogramSignatures(content: string) {
+type InterfaceSignature = {
+  name: string;
+  ports: Map<string, NormalizedDeclaredType>;
+};
+
+function collectSubprogramSignatures(
+  content: string,
+  inheritedAliases?: Map<string, NormalizedDeclaredType>,
+) {
   const signatures = new Map<string, SubprogramSignature[]>();
+  const declaredTypeAliases = collectDeclaredTypeAliases(content, inheritedAliases);
 
   const addSignature = (signature: SubprogramSignature) => {
     const key = signature.name.toLowerCase();
@@ -419,17 +868,18 @@ function collectSubprogramSignatures(content: string) {
       const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
       if (!match) continue;
       const identifiers = splitIdentifierList(match[1]);
-      const normalizedType = normalizeDeclaredType(match[2]);
+      const normalizedType = normalizeDeclaredTypeWithAliases(match[2], declaredTypeAliases);
       identifiers.forEach(() => parameterTypes.push(normalizedType));
     }
     return parameterTypes;
   };
 
-  for (const match of content.matchAll(/\bfunction\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*return\b/gi)) {
+  for (const match of content.matchAll(/\bfunction\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*return\s+([^;\n]+?)(?:\s+is\b|\s*;)/gi)) {
     addSignature({
       name: match[1],
       kind: 'function',
       parameters: parseParameterTypes(match[2]),
+      returnType: normalizeDeclaredTypeWithAliases(match[3], declaredTypeAliases),
     });
   }
 
@@ -442,6 +892,122 @@ function collectSubprogramSignatures(content: string) {
   }
 
   return signatures;
+}
+
+function mergeSubprogramSignatures(
+  target: Map<string, SubprogramSignature[]>,
+  source: Map<string, SubprogramSignature[]>,
+) {
+  for (const [name, signatures] of source) {
+    const existing = target.get(name) || [];
+    existing.push(...signatures);
+    target.set(name, existing);
+  }
+}
+
+function collectInterfaceSignatures(
+  content: string,
+  inheritedAliases?: Map<string, NormalizedDeclaredType>,
+) {
+  const signatures = new Map<string, InterfaceSignature>();
+  const declaredTypeAliases = collectDeclaredTypeAliases(content, inheritedAliases);
+
+  const addInterfaceSignature = (name: string, interfaceBody: string) => {
+    const ports = new Map<string, NormalizedDeclaredType>();
+    for (const segment of interfaceBody.split(';')) {
+      const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
+      if (!match) continue;
+      const normalizedType = normalizeDeclaredTypeWithAliases(match[2], declaredTypeAliases);
+      splitIdentifierList(match[1]).forEach((identifier) => ports.set(identifier.toLowerCase(), normalizedType));
+    }
+    signatures.set(name.toLowerCase(), {
+      name,
+      ports,
+    });
+  };
+
+  for (const match of content.matchAll(/\b(entity|component)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is[\s\S]*?\bport\s*\(([\s\S]*?)\)\s*;/gi)) {
+    addInterfaceSignature(match[2], match[3]);
+  }
+
+  return signatures;
+}
+
+async function collectProjectInterfaceSignatures(projectRoot: string, sourcePaths: string[]) {
+  const signatures = new Map<string, InterfaceSignature>();
+  const sharedTypeAliases = await collectProjectDeclaredTypeAliases(projectRoot, sourcePaths);
+
+  for (const relativePath of sourcePaths) {
+    const absolutePath = path.join(projectRoot, relativePath);
+    let content = '';
+    try {
+      content = stripVhdlComments(await fs.readFile(absolutePath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    for (const [key, signature] of collectInterfaceSignatures(content, sharedTypeAliases)) {
+      if (!signatures.has(key)) {
+        signatures.set(key, signature);
+      }
+    }
+  }
+
+  return signatures;
+}
+
+async function collectProjectDeclaredTypeAliases(projectRoot: string, sourcePaths: string[]) {
+  const aliases = new Map<string, NormalizedDeclaredType>();
+
+  for (const relativePath of sourcePaths) {
+    const absolutePath = path.join(projectRoot, relativePath);
+    let content = '';
+    try {
+      content = stripVhdlComments(await fs.readFile(absolutePath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    const localAliases = collectDeclaredTypeAliases(content, aliases);
+    for (const [aliasName, aliasType] of localAliases.entries()) {
+      if (!aliases.has(aliasName)) {
+        aliases.set(aliasName, aliasType);
+      }
+    }
+  }
+
+  return aliases;
+}
+
+async function collectProjectSubprogramSignatures(projectRoot: string, sourcePaths: string[]) {
+  const signatures = new Map<string, SubprogramSignature[]>();
+  const sharedTypeAliases = await collectProjectDeclaredTypeAliases(projectRoot, sourcePaths);
+
+  for (const relativePath of sourcePaths) {
+    const absolutePath = path.join(projectRoot, relativePath);
+    let content = '';
+    try {
+      content = stripVhdlComments(await fs.readFile(absolutePath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    mergeSubprogramSignatures(signatures, collectSubprogramSignatures(content, sharedTypeAliases));
+  }
+
+  return signatures;
+}
+
+function inferActualExpressionType(actualExpression: string, declaredTypes: Map<string, NormalizedDeclaredType>): NormalizedDeclaredType | null {
+  const trimmed = actualExpression.trim();
+  const wrappedMatch = trimmed.match(/^(std_logic_vector|unsigned|signed)\s*\(\s*([a-zA-Z][a-zA-Z0-9_]*)(?:\s*\([^)]*\))?\s*\)$/i);
+  if (wrappedMatch) {
+    return normalizeDeclaredType(wrappedMatch[1]);
+  }
+
+  const baseIdentifierMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*)(?:\s*\([^)]*\))?$/);
+  if (!baseIdentifierMatch) return null;
+  return declaredTypes.get(baseIdentifierMatch[1].toLowerCase()) || null;
 }
 
 function collectReservedIdentifierFindings(relativePath: string, content: string) {
@@ -499,6 +1065,9 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
   const logicalKeywordsPattern = [...new Set([...VHDL_OPERATOR_KEYWORDS, 'nand', 'nor'])]
     .map((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
+  const projectTypeAliases = await collectProjectDeclaredTypeAliases(projectRoot, sourcePaths);
+  const projectInterfaceSignatures = await collectProjectInterfaceSignatures(projectRoot, sourcePaths);
+  const projectSubprogramSignatures = await collectProjectSubprogramSignatures(projectRoot, sourcePaths);
 
   for (const relativePath of sourcePaths) {
     const absolutePath = path.join(projectRoot, relativePath);
@@ -511,36 +1080,40 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
 
     findings.push(...collectReservedIdentifierFindings(relativePath, content));
 
-    const declaredTypes = collectDeclaredIdentifierTypes(content);
-    const subprogramSignatures = collectSubprogramSignatures(content);
+    const declaredTypes = collectDeclaredIdentifierTypes(content, projectTypeAliases);
+    const subprogramSignatures = projectSubprogramSignatures;
+    const interfaceSignatures = projectInterfaceSignatures;
 
     const architectureDeclarativeRegion = content.match(/\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b([\s\S]*?)\bbegin\b/i);
     if (architectureDeclarativeRegion) {
-      const architectureVariable = architectureDeclarativeRegion[1].match(/\bvariable\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/i);
-      if (architectureVariable) {
+      for (const architectureVariable of architectureDeclarativeRegion[1].matchAll(/\bvariable\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*([^;:=\n]+(?:\([^;\n]*\))?)/gi)) {
+        const intent = classifyArchitectureBodyVariableIntent({
+          relativePath,
+          variableName: architectureVariable[1],
+          subtype: architectureVariable[2].trim(),
+        });
         findings.push(createFailureDetail({
           code: 'architecture_body_variable',
           category: 'declaration_scope',
           message:
             `${relativePath}: declares plain architecture-body variable "${architectureVariable[1]}". ` +
             `Ordinary variables are not allowed in the architecture declarative region for GHDL-compatible VHDL. ` +
-            `Move it into a process/subprogram or convert it into a signal/shared variable only if that design intent is truly required.`,
-          forbiddenConstruct: `plain architecture-body variable "${architectureVariable[1]}"`,
-          legalReplacementPattern: `move "${architectureVariable[1]}" into a process/subprogram declarative region or replace it with a signal if persistent state is intended`,
+            `${intent.messageTail}`,
+          forbiddenConstruct: `plain architecture-body variable "${architectureVariable[1]}" (${intent.flavor})`,
+          legalReplacementPattern: intent.legalReplacementPattern,
         }));
       }
     }
 
-    const executableSignalDeclaration = content.match(/\bbegin\b[\s\S]*?\bsignal\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/i);
-    if (executableSignalDeclaration) {
+    for (const executableSignalDeclaration of collectExecutableRegionSignalDeclarations(content)) {
       findings.push(createFailureDetail({
         code: 'executable_region_signal_declaration',
         category: 'declaration_scope',
         message:
-          `${relativePath}: declares signal "${executableSignalDeclaration[1]}" inside an executable region after "begin". ` +
+          `${relativePath}: declares signal "${executableSignalDeclaration}" inside an executable region after "begin". ` +
           `Signal declarations belong only in the architecture/block declarative region before "begin"; for temporary sequential intermediates, declare a process-local variable before the process "begin" instead.`,
-        forbiddenConstruct: `signal declaration for "${executableSignalDeclaration[1]}" after begin`,
-        legalReplacementPattern: `declare "${executableSignalDeclaration[1]}" before the enclosing begin, or use a process-local variable declared before the process begin`,
+        forbiddenConstruct: `signal declaration for "${executableSignalDeclaration}" after begin`,
+        legalReplacementPattern: `declare "${executableSignalDeclaration}" before the enclosing begin, or use a process-local variable declared before the process begin`,
       }));
     }
 
@@ -599,6 +1172,21 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
           `Complete the VHDL declaration first and move any explanation into a trailing "--" comment after the terminating semicolon.`,
         forbiddenConstruct: 'natural-language prose embedded in a VHDL declaration',
         legalReplacementPattern: 'keep prose only in VHDL comments after syntactically complete statements',
+      }));
+    }
+
+    const repairMetaLeak = content.match(
+      /^(?:\s*(?:REPAIRED|FIXED|UPDATED|CHANGED|NOTE|EXPLANATION)\s*:.*|\s*#{1,6}\s+.*|\s*[-*]\s+(?:REPAIRED|FIXED|UPDATED|CHANGED|NOTE|EXPLANATION)\b.*)$/im,
+    );
+    if (repairMetaLeak) {
+      findings.push(createFailureDetail({
+        code: 'natural_language_leakage',
+        category: 'other',
+        message:
+          `${relativePath}: contains repair/meta commentary inside VHDL source ("${repairMetaLeak[0].trim()}"). ` +
+          `Generated VHDL must contain code and VHDL comments only; convert repair notes, markdown headings, and bullet summaries into "--" comments or remove them entirely.`,
+        forbiddenConstruct: 'repair/meta commentary embedded in VHDL source',
+        legalReplacementPattern: 'keep any explanatory text only as VHDL comments starting with "--", and never emit markdown headings, bullets, or repair labels in source files',
       }));
     }
 
@@ -783,8 +1371,8 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }
     }
 
-    for (const match of content.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*\(([^()\n;]+)\)/g)) {
-      const subprogramName = match[1];
+    for (const match of collectPotentialSubprogramCalls(content)) {
+      const subprogramName = match.name;
       const lowerName = subprogramName.toLowerCase();
       const linePrefix = content.slice(Math.max(0, match.index - 24), match.index + subprogramName.length);
       if (/\b(function|procedure)\s+$/i.test(linePrefix)) continue;
@@ -792,33 +1380,86 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       const signatures = subprogramSignatures.get(lowerName);
       if (!signatures?.length) continue;
 
-      const actuals = match[2]
-        .split(',')
-        .map((value) => value.trim())
-        .filter(Boolean);
+      const actuals = splitTopLevelArguments(match.actualText);
 
       for (const signature of signatures) {
         const checkCount = Math.min(actuals.length, signature.parameters.length);
         for (let index = 0; index < checkCount; index += 1) {
           const formalType = signature.parameters[index];
           if (formalType !== 'unsigned' && formalType !== 'signed') continue;
-          const actualIdentifierMatch = actuals[index].match(/^[a-zA-Z][a-zA-Z0-9_]*$/);
-          if (!actualIdentifierMatch) continue;
-          const actualIdentifier = actualIdentifierMatch[0];
-          const actualType = declaredTypes.get(actualIdentifier.toLowerCase());
+          const actualInfo = extractActualBaseIdentifier(actuals[index]);
+          if (!actualInfo) continue;
+          const actualType = declaredTypes.get(actualInfo.baseIdentifier.toLowerCase());
           if (actualType !== 'std_logic_vector') continue;
 
           findings.push(createFailureDetail({
             code: 'typed_helper_actual_mismatch',
             category: 'numeric_std_type_discipline',
             message:
-              `${relativePath}: calls ${signature.kind} "${subprogramName}" with raw std_logic_vector actual "${actualIdentifier}" for ${formalType} formal parameter #${index + 1}. ` +
-              `Convert "${actualIdentifier}" at the call site, for example unsigned(${actualIdentifier}) or signed(${actualIdentifier}), or normalize it into a typed local before calling "${subprogramName}".`,
-            forbiddenConstruct: `raw std_logic_vector actual "${actualIdentifier}" passed to ${formalType} formal parameter of ${subprogramName}`,
-            legalReplacementPattern: `convert "${actualIdentifier}" to ${formalType} at the call site or change the formal parameter type`,
+              `${relativePath}: calls ${signature.kind} "${subprogramName}" with raw std_logic_vector actual "${actualInfo.actualExpression}" for ${formalType} formal parameter #${index + 1}. ` +
+              `Convert "${actualInfo.actualExpression}" at the call site, for example ${formalType}(${actualInfo.actualExpression}), or normalize it into a typed local before calling "${subprogramName}".`,
+            forbiddenConstruct: `raw std_logic_vector actual "${actualInfo.actualExpression}" passed to ${formalType} formal parameter of ${subprogramName}`,
+            legalReplacementPattern: `convert "${actualInfo.actualExpression}" to ${formalType} at the call site or change the formal parameter type`,
           }));
           break;
         }
+      }
+    }
+
+    for (const [lowerName, signatures] of subprogramSignatures.entries()) {
+      for (const signature of signatures) {
+        if (signature.kind !== 'function' || signature.returnType !== 'std_logic_vector') continue;
+        const assignmentExpression = new RegExp(`\\b([a-zA-Z][a-zA-Z0-9_]*)\\s*(?::=|<=|=)\\s*${lowerName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`, 'gi');
+        for (const assignmentMatch of content.matchAll(assignmentExpression)) {
+          const lhsName = assignmentMatch[1];
+          if (!lhsName) continue;
+          const lhsType = declaredTypes.get(lhsName.toLowerCase());
+          if (lhsType !== 'unsigned' && lhsType !== 'signed') continue;
+
+          findings.push(createFailureDetail({
+            code: 'typed_function_result_mismatch',
+            category: 'numeric_std_type_discipline',
+            message:
+              `${relativePath}: assigns std_logic_vector function result "${signature.name}(...)" into ${lhsType} destination "${lhsName}". ` +
+              `Return ${lhsType} directly from "${signature.name}" or convert the function result explicitly at the assignment site before driving "${lhsName}".`,
+            forbiddenConstruct: `std_logic_vector function result from "${signature.name}" assigned into ${lhsType} destination "${lhsName}"`,
+            legalReplacementPattern: `change "${signature.name}" to return ${lhsType} or wrap the call with ${lhsType}(...) at the assignment site`,
+          }));
+          break;
+        }
+      }
+    }
+
+    for (const match of content.matchAll(
+      /(?:^|\n)\s*[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:entity\s+work\.)?(?!(?:in|out|inout|buffer|linkage|signal|variable|constant|unsigned|signed|std_logic|std_logic_vector)\b)([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bport\s+map\s*\(([\s\S]*?)\)\s*;/gi,
+    )) {
+      const instantiatedName = match[1];
+      const interfaceSignature = interfaceSignatures.get(instantiatedName.toLowerCase());
+      if (!interfaceSignature) continue;
+
+      const associations = splitTopLevelArguments(match[2]);
+      for (const association of associations) {
+        const associationMatch = association.match(/^\s*([a-zA-Z][a-zA-Z0-9_]*)\s*=>\s*(.+)\s*$/i);
+        if (!associationMatch) continue;
+
+        const formalPortName = associationMatch[1];
+        const actualExpression = associationMatch[2].trim();
+        const formalType = interfaceSignature.ports.get(formalPortName.toLowerCase());
+        if (formalType !== 'unsigned' && formalType !== 'signed') continue;
+
+        const actualType = inferActualExpressionType(actualExpression, declaredTypes);
+        if (!actualType || actualType === formalType) continue;
+
+        const actualTypeDescriptor = actualType === 'std_logic_vector' ? 'raw std_logic_vector actual' : `${actualType} actual`;
+        findings.push(createFailureDetail({
+          code: 'typed_port_association_mismatch',
+          category: 'numeric_std_type_discipline',
+          message:
+            `${relativePath}: drives ${formalType} formal port "${formalPortName}" of "${interfaceSignature.name}" with ${actualTypeDescriptor} "${actualExpression}" in a port map. ` +
+            `Convert the actual at the entity boundary into the exact formal type expected by the instantiated design unit.`,
+          forbiddenConstruct: `${actualTypeDescriptor} "${actualExpression}" passed to ${formalType} formal port "${formalPortName}" of ${interfaceSignature.name}`,
+          legalReplacementPattern: `wrap "${actualExpression}" with ${formalType}(...) at the port-map boundary or change the formal/actual types so they match exactly`,
+        }));
       }
     }
 
@@ -892,6 +1533,21 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }));
     }
 
+    const anonymousArrayObjectDeclaration = content.match(
+      /\b(signal|variable|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*array\s*\(([^)\n]+)\)\s+of\s+([^;:=\n]+)/i,
+    );
+    if (anonymousArrayObjectDeclaration) {
+      findings.push(createFailureDetail({
+        code: 'anonymous_array_object_declaration',
+        category: 'array_subtype_misuse',
+        message:
+          `${relativePath}: declares ${anonymousArrayObjectDeclaration[1]} "${anonymousArrayObjectDeclaration[2]}" with inline anonymous array(...) of ... syntax. ` +
+          `Declare a named array type or subtype first, then declare the object using that named type instead of inline array(...) syntax.`,
+        forbiddenConstruct: `${anonymousArrayObjectDeclaration[1]} ${anonymousArrayObjectDeclaration[2]} : array(${anonymousArrayObjectDeclaration[3]}) of ${anonymousArrayObjectDeclaration[4]}`,
+        legalReplacementPattern: 'declare a named array type or subtype first, then declare the object using that named type instead of inline array(...) syntax',
+      }));
+    }
+
     const reconstrainedSubtype = content.match(/\bsubtype\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\([^)]*\)\s*;/i);
     if (reconstrainedSubtype && declaredTypes.has(reconstrainedSubtype[2].toLowerCase())) {
       findings.push(createFailureDetail({
@@ -939,33 +1595,39 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }
     }
 
-    const executableTypeDeclaration = content.match(/\bbegin\b[\s\S]*?\b(type|subtype|procedure|function|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\b/i);
-    if (executableTypeDeclaration) {
+    for (const executableTypeDeclaration of collectExecutableRegionDeclarations(content)) {
       findings.push(createFailureDetail({
         code: 'declaration_after_begin',
         category: 'declaration_scope',
         message:
-          `${relativePath}: declares ${executableTypeDeclaration[1].toLowerCase()} "${executableTypeDeclaration[2]}" inside an executable region after "begin". ` +
+          `${relativePath}: declares ${executableTypeDeclaration.kind} "${executableTypeDeclaration.name}" inside an executable region after "begin". ` +
           `All such declarations must appear in a legal declarative region before executable statements start.`,
-        forbiddenConstruct: `${executableTypeDeclaration[1].toLowerCase()} declaration for "${executableTypeDeclaration[2]}" after begin`,
-        legalReplacementPattern: `move "${executableTypeDeclaration[2]}" into an enclosing declarative region before begin`,
+        forbiddenConstruct: `${executableTypeDeclaration.kind} declaration for "${executableTypeDeclaration.name}" after begin`,
+        legalReplacementPattern: `move "${executableTypeDeclaration.name}" into an enclosing declarative region before begin`,
       }));
     }
 
-    const outputPortReadback = content.match(/\bport\s*\(([\s\S]*?)\)\s*;[\s\S]*?\bbegin\b[\s\S]*?\b([a-zA-Z][a-zA-Z0-9_]*)\b[^;\n]*:=?[^;\n]*\b\2\b/i);
-    if (outputPortReadback) {
-      const outputName = Array.from(outputPortReadback[1].matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*out\b/gi))[0]?.[1];
-      if (outputName) {
-        findings.push(createFailureDetail({
-          code: 'output_port_readback',
-          category: 'numeric_std_type_discipline',
-          message:
-            `${relativePath}: appears to read back output port "${outputName}" inside implementation logic. ` +
-            `Do not derive internal behavior from an out port; compute through internal typed signals/variables first, then drive the out port.`,
-          forbiddenConstruct: `internal logic reading output port "${outputName}"`,
-          legalReplacementPattern: `use an internal signal/variable for the computed value and assign the out port from that internal object`,
-        }));
+    const portSection = content.match(/\bport\s*\(([\s\S]*?)\)\s*;/i)?.[1] || '';
+    const architectureBody = content.match(/\bbegin\b([\s\S]*)$/i)?.[1] || '';
+    const outputPortNames = Array.from(portSection.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*out\b/gi))
+      .map((match) => match[1])
+      .filter((value): value is string => typeof value === 'string' && value.length > 0);
+    for (const outputName of outputPortNames) {
+      const escapedOutput = outputName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const rhsAssignmentReadback = new RegExp(`\\b[a-zA-Z][a-zA-Z0-9_]*\\b[^;\\n]*(?:<=|:=)[^;\\n]*\\b${escapedOutput}\\b`, 'i');
+      const conditionalReadback = new RegExp(`\\b(?:if|elsif|when|assert|report)\\b[^;\\n]*\\b${escapedOutput}\\b`, 'i');
+      if (!rhsAssignmentReadback.test(architectureBody) && !conditionalReadback.test(architectureBody)) {
+        continue;
       }
+      findings.push(createFailureDetail({
+        code: 'output_port_readback',
+        category: 'numeric_std_type_discipline',
+        message:
+          `${relativePath}: appears to read back output port "${outputName}" inside implementation logic. ` +
+          `Do not derive internal behavior from an out port; compute through internal typed signals/variables first, then drive the out port.`,
+        forbiddenConstruct: `internal logic reading output port "${outputName}"`,
+        legalReplacementPattern: `use an internal signal/variable for the computed value and assign the out port from that internal object`,
+      }));
     }
 
     const runtimeBoundRisk = content.match(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*\(\s*to_integer\([^)]+\)\s*\)/i);
@@ -1106,7 +1768,20 @@ export async function validateGeneratedProjectContracts(params: {
   const architectProject = params.architectProject || null;
   const isArchitect = params.macroId === 'fpga_vhdl_architect';
 
-  const explicitStandardTokens = (architectProject?.ghdl.runCommands || [])
+  const synthesizedArchitectRunCommands = architectProject
+    ? buildDeterministicArchitectGhdlRunCommands({
+      analysisOrder: architectProject.ghdl.analysisOrder || [],
+      topTestbench: architectProject.ghdl.topTestbench || '',
+      vhdlStandard: architectProject.vhdlStandard,
+    })
+    : [];
+  const effectiveArchitectRunCommands = architectProject
+    ? ((architectProject.ghdl.runCommands && architectProject.ghdl.runCommands.length > 0)
+      ? architectProject.ghdl.runCommands
+      : synthesizedArchitectRunCommands)
+    : [];
+
+  const explicitStandardTokens = effectiveArchitectRunCommands
     .flatMap((command) => Array.from(command.matchAll(/--std=([0-9a-z]+)/gi)).map((match) => match[1].toLowerCase()));
   if (explicitStandardTokens.length > 0) {
     const uniqueStandards = Array.from(new Set(explicitStandardTokens));
@@ -1124,7 +1799,7 @@ export async function validateGeneratedProjectContracts(params: {
   }
 
   if (isArchitect) {
-    const runCommands = architectProject?.ghdl.runCommands || [];
+    const runCommands = effectiveArchitectRunCommands;
     const analysisOrder = architectProject?.ghdl.analysisOrder || [];
     if (
       runCommands.length === 0
@@ -1482,20 +2157,14 @@ export async function validateGeneratedVhdlWithGhdl(params: {
         logs,
       });
     } catch (error: any) {
-      logs.push(error?.message || String(error));
+      const errorMessage = error?.message || String(error);
+      logs.push(errorMessage);
+      const failureDetails = inferFailureDetailsFromGhdlMessage(errorMessage);
       return buildValidationFailureResult({
         stage: 'analyze',
-        summary: error?.message || 'Generated VHDL did not pass GHDL analysis.',
+        summary: errorMessage || 'Generated VHDL did not pass GHDL analysis.',
         logs,
-        failureDetails: [
-          createFailureDetail({
-            code: 'ghdl_analyze_failure',
-            category: /unit\s+".*"\s+not\s+found\s+in\s+library\s+"work"|unresolved work units/i.test(error?.message || '')
-              ? 'unresolved_work_unit'
-              : classifyKnownFailureCategory(error?.message || ''),
-            message: error?.message || 'Generated VHDL did not pass GHDL analysis.',
-          }),
-        ],
+        failureDetails,
       });
     }
 

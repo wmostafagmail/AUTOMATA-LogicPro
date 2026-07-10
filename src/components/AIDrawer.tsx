@@ -27,7 +27,9 @@ import {
   Check,
   SlidersHorizontal,
   Bot,
-  ChevronRight
+  ChevronRight,
+  Gauge,
+  OctagonX
 } from 'lucide-react';
 
 interface AIDrawerProps {
@@ -451,6 +453,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     handleCancelRemoteExportPreview,
     handleStopJob,
     handleTestGenerate,
+    handleStopTestGenerate,
     handleCopyText,
     selectedProviderInfo,
     selectedProviderRequiresRemoteConsent,
@@ -664,8 +667,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     onLatestStructuredReportChange?.(latestStructuredReport);
   }, [latestStructuredReport, onLatestStructuredReportChange]);
 
-  if (!isOpen) return null;
-
   const openTbComposer = (mode: TbGenerationMode) => {
     setShowArchitectComposer(false);
     setTbGenerationMode(mode);
@@ -814,7 +815,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   };
 
   return (
-    <div className="w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex flex-col h-full z-20 select-none flex-none font-sans">
+    <div className={`${isOpen ? 'flex' : 'hidden'} w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex-col h-full z-20 select-none flex-none font-sans`}>
       
       {/* Drawer Header */}
       <div className="border-b border-brand-outline-variant/40 px-3 py-2 bg-brand-surface-lowest flex-none select-none space-y-2">
@@ -884,107 +885,129 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <button
-              type="button"
-              onClick={() => void handleTestGenerate()}
-              disabled={!selectedProvider || !selectedModel || loading || testGenerating}
-              className="rounded border border-brand-cyan/30 bg-brand-cyan/10 px-2 py-1 text-[12px] font-bold uppercase tracking-wide text-brand-cyan disabled:opacity-40 cursor-pointer"
-            >
-              {testGenerating ? 'Testing...' : 'TEST'}
-            </button>
-            {testGenerateResult && (
-              <div className={`min-w-0 rounded border px-2 py-1 text-[12px] font-mono font-bold ${
-                testGenerateResult === 'PASS'
-                  ? 'border-lime-400/50 bg-lime-500/10 text-lime-300'
-                  : 'border-red-400/50 bg-red-500/10 text-red-300'
-              }`}>
-                {testGenerateResult}
-              </div>
-            )}
-          </div>
-          <div className="ml-auto flex items-center gap-2 min-w-0">
-            {!architectLoopRunning && architectLoopResult && (
-              <div
-                className={`min-w-0 rounded border px-2 py-1 text-[12px] font-mono font-bold ${
-                  architectLoopResult.error
-                    ? 'border-red-400/50 bg-red-500/10 text-red-300'
-                    : architectLoopResult.failures > 0
-                      ? 'border-brand-amber/50 bg-brand-amber/10 text-brand-amber'
-                      : 'border-lime-400/50 bg-lime-500/10 text-lime-300'
+        <div className="test-dashboard flex min-w-0 flex-col gap-3">
+          <div className="test-control-row flex flex-wrap items-start gap-3">
+            <div className="test-actions flex flex-col items-stretch gap-3">
+              <button
+                type="button"
+                onClick={() => void (testGenerating ? handleStopTestGenerate() : handleTestGenerate())}
+                disabled={!testGenerating && (!selectedProvider || !selectedModel || loading)}
+                className={`test-button min-h-12 w-36 rounded-xl border bg-brand-surface-low px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] transition-all hover:bg-brand-surface-high disabled:opacity-40 cursor-pointer ${
+                  testGenerating
+                    ? 'border-red-400/45 text-red-300 hover:border-red-300/55'
+                    : 'border-brand-outline-variant/30 text-brand-cyan hover:border-brand-cyan/40'
                 }`}
-                title={architectLoopResult.error || architectLoopResult.masterLogPath || architectLoopResult.logFilePath || 'FPGA Architect multi-design sweep result'}
               >
-                {architectLoopResult.error
-                  ? 'LOOP FAIL'
-                  : `${architectLoopResult.failures} / ${architectLoopResult.attempts} FAIL`}
-              </div>
-            )}
-            <div
-              className="flex min-w-[88px] items-center justify-center whitespace-nowrap rounded border border-brand-amber/25 bg-brand-amber/10 px-2 py-1 text-center text-[11px] font-mono font-bold uppercase tracking-wide tabular-nums text-brand-amber/90"
-              title={`Current FPGA Architect loop trial: ${architectLoopCurrent} of ${architectLoopAttempts}. Completed trials: ${architectLoopCompletedAttempts}.`}
-            >
-              {architectLoopRunning ? `${architectLoopCurrent} / ${architectLoopAttempts}` : architectLoopCurrent}
+                {testGenerating ? 'STOP' : 'TEST'}
+              </button>
+              {testGenerateResult && (
+                <div className={`flex min-h-12 items-center justify-center rounded-xl border px-4 py-3 text-[12px] font-mono font-bold ${
+                  testGenerateResult === 'PASS'
+                    ? 'border-lime-400/45 bg-lime-500/10 text-lime-300'
+                    : 'border-red-400/45 bg-red-500/10 text-red-300'
+                }`}>
+                  {testGenerateResult}
+                </div>
+              )}
             </div>
-            {(architectLoopRunning || architectLoopCompletedAttempts > 0 || architectLoopResult) && (
-              <>
-                <div
-                  className="flex min-w-[72px] items-center justify-center whitespace-nowrap rounded border border-lime-400/30 bg-lime-500/10 px-2 py-1 text-center text-[11px] font-mono font-bold uppercase tracking-wide tabular-nums text-lime-300"
-                  title={`Successful FPGA Architect trials so far: ${architectLoopSuccesses}.`}
-                >
-                  {architectLoopSuccesses} PASS
+
+            <div className="ml-auto flex min-w-0 flex-1 justify-end">
+              <div className="flex min-w-0 w-full max-w-[720px] flex-col gap-3">
+                <div className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <div
+                    className="test-title flex min-h-12 min-w-0 items-center rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-3 text-[12px] font-mono font-bold tracking-[0.04em] text-brand-cyan"
+                    title={
+                      architectLoopCurrentDesignLabel
+                        ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` (${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN})` : ''}`
+                        : 'Waiting for the first design in the FPGA Architect sweep.'
+                    }
+                  >
+                    <span className="block w-full truncate text-center sm:text-left">
+                      {architectLoopCurrentDesignLabel
+                        ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` ${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN}` : ''}`
+                        : `0 / ${architectLoopDesignCount} DESIGNS`}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => void (architectLoopRunning ? handleStopArchitectLoop() : handleRunArchitectLoop())}
+                    disabled={
+                      !selectedProvider
+                      || !selectedModel
+                      || !projectPath
+                      || loading
+                      || testGenerating
+                      || selectedProviderDeployment !== 'local'
+                    }
+                    className={`test-button test-button-danger flex min-h-12 w-36 items-center justify-center rounded-xl border bg-brand-surface-low px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] transition-all hover:bg-brand-surface-high disabled:opacity-40 cursor-pointer ${
+                      architectLoopRunning
+                        ? 'border-red-400/45 text-red-300 hover:border-red-300/55'
+                        : 'border-brand-outline-variant/30 text-brand-amber hover:border-brand-amber/40'
+                    }`}
+                    title={
+                      architectLoopRunning
+                        ? 'Stop the active FPGA Architect multi-design sweep.'
+                        : selectedProviderDeployment !== 'local'
+                        ? 'The FPGA Architect multi-design sweep currently supports local providers only.'
+                        : !projectPath
+                          ? 'Open a project folder before running the FPGA Architect multi-design sweep.'
+                          : `Run the fixed FPGA Architect sweep: ${FPGA_ARCHITECT_SWEEP_DESIGNS.length} designs, ${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN} attempts each, ${architectLoopAttempts} total attempts.`
+                    }
+                  >
+                    {architectLoopRunning ? <OctagonX size={18} aria-hidden="true" /> : <Gauge size={18} aria-hidden="true" />}
+                  </button>
                 </div>
-                <div
-                  className="flex min-w-[72px] items-center justify-center whitespace-nowrap rounded border border-red-400/30 bg-red-500/10 px-2 py-1 text-center text-[11px] font-mono font-bold uppercase tracking-wide tabular-nums text-red-300"
-                  title={`Failed FPGA Architect trials so far: ${architectLoopFailures}.`}
-                >
-                  {architectLoopFailures} FAIL
+
+                <div className="test-status-row flex justify-end">
+                  <div className="grid w-full max-w-[720px] grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div
+                      className="status-card status-card-total flex h-12 items-center justify-center rounded-xl border border-brand-amber/35 bg-brand-amber/10 px-5 py-0 text-center"
+                      title={`Current FPGA Architect loop trial: ${architectLoopCurrent} of ${architectLoopAttempts}. Completed trials: ${architectLoopCompletedAttempts}.`}
+                    >
+                      <span className="status-value whitespace-nowrap text-[12px] font-mono font-bold uppercase tracking-[0.12em] tabular-nums text-brand-amber">
+                        {architectLoopRunning ? `${architectLoopCurrent} / ${architectLoopAttempts}` : architectLoopCurrent}
+                      </span>
+                    </div>
+
+                    <div
+                      className="status-card status-card-pass flex h-12 items-center justify-center rounded-xl border border-lime-400/35 bg-lime-500/10 px-5 py-0 text-center"
+                      title={`Successful FPGA Architect trials so far: ${architectLoopSuccesses}.`}
+                    >
+                      <span className="status-value whitespace-nowrap text-[12px] font-mono font-bold uppercase tracking-[0.12em] tabular-nums text-lime-300">
+                        {architectLoopSuccesses} PASS
+                      </span>
+                    </div>
+
+                    <div
+                      className="status-card status-card-fail flex h-12 items-center justify-center rounded-xl border border-red-400/35 bg-red-500/10 px-5 py-0 text-center"
+                      title={`Failed FPGA Architect trials so far: ${architectLoopFailures}.`}
+                    >
+                      <span className="status-value whitespace-nowrap text-[12px] font-mono font-bold uppercase tracking-[0.12em] tabular-nums text-red-300">
+                        {architectLoopFailures} FAIL
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </>
-            )}
-            {(architectLoopRunning || architectLoopCurrentDesignLabel) && (
-              <div
-                className="max-w-[180px] truncate rounded border border-brand-cyan/25 bg-brand-cyan/10 px-2 py-1 text-[12px] font-mono font-bold text-brand-cyan/90"
-                title={
-                  architectLoopCurrentDesignLabel
-                    ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` (${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN})` : ''}`
-                    : 'Waiting for the first design in the FPGA Architect sweep.'
-                }
-              >
-                {architectLoopCurrentDesignLabel
-                  ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` ${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN}` : ''}`
-                  : `0 / ${architectLoopDesignCount} DESIGNS`}
+
+                {!architectLoopRunning && architectLoopResult && (
+                  <div
+                    className={`flex min-h-12 items-center justify-center rounded-xl border px-4 py-3 text-center text-[12px] font-mono font-bold ${
+                      architectLoopResult.error
+                        ? 'border-red-400/45 bg-red-500/10 text-red-300'
+                        : architectLoopResult.failures > 0
+                          ? 'border-brand-amber/40 bg-brand-amber/10 text-brand-amber'
+                          : 'border-lime-400/40 bg-lime-500/10 text-lime-300'
+                    }`}
+                    title={architectLoopResult.error || architectLoopResult.masterLogPath || architectLoopResult.logFilePath || 'FPGA Architect multi-design sweep result'}
+                  >
+                    {architectLoopResult.error
+                      ? 'LOOP FAIL'
+                      : `${architectLoopResult.failures} / ${architectLoopResult.attempts} FAIL`}
+                  </div>
+                )}
               </div>
-            )}
-            <button
-              type="button"
-              onClick={() => void (architectLoopRunning ? handleStopArchitectLoop() : handleRunArchitectLoop())}
-              disabled={
-                !selectedProvider
-                || !selectedModel
-                || !projectPath
-                || loading
-                || testGenerating
-                || selectedProviderDeployment !== 'local'
-              }
-              className={`rounded border px-2 py-1 text-[12px] font-bold uppercase tracking-wide disabled:opacity-40 cursor-pointer ${
-                architectLoopRunning
-                  ? 'border-red-400/40 bg-red-500/10 text-red-300'
-                  : 'border-brand-amber/30 bg-brand-amber/10 text-brand-amber'
-              }`}
-              title={
-                architectLoopRunning
-                  ? 'Stop the active FPGA Architect multi-design sweep.'
-                  : selectedProviderDeployment !== 'local'
-                  ? 'The FPGA Architect multi-design sweep currently supports local providers only.'
-                  : !projectPath
-                    ? 'Open a project folder before running the FPGA Architect multi-design sweep.'
-                    : `Run the fixed FPGA Architect sweep: ${FPGA_ARCHITECT_SWEEP_DESIGNS.length} designs, ${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN} attempts each, ${architectLoopAttempts} total attempts.`
-              }
-            >
-              {architectLoopRunning ? 'Stop' : 'Fine Tune LLM'}
-            </button>
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { AiMacroId } from '../aiMacros';
 import type { GeneratedVhdlFailureDetail, GeneratedVhdlValidationResult } from './generatedVhdlValidation';
+import { buildCodeGeneratingMacroRuleSection } from './ghdlStrictVhdlRules';
 import { buildRecurringVhdlFailureGuardSection } from './recurringVhdlFailureGuards';
 
 export type RepairableGeneratedFile = {
@@ -20,11 +21,35 @@ function normalizePromptPath(value: string) {
   return value.replace(/\\/g, '/');
 }
 
+function pathsReferToSameFile(left: string, right: string) {
+  const normalizedLeft = normalizePromptPath(left).toLowerCase();
+  const normalizedRight = normalizePromptPath(right).toLowerCase();
+  return normalizedLeft === normalizedRight
+    || normalizedLeft.endsWith(`/${normalizedRight}`)
+    || normalizedRight.endsWith(`/${normalizedLeft}`);
+}
+
 function normalizeFileName(value: string) {
   return path.basename(value).toLowerCase();
 }
 
 function extractExplicitFailurePaths(validation: GeneratedVhdlValidationResult, availableFiles: RepairableGeneratedFile[]) {
+  const explicitPaths = new Set(
+    (validation.failureDetails || [])
+      .map((detail) => detail.relativePath)
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .map((value) => normalizePromptPath(value).toLowerCase()),
+  );
+  if (explicitPaths.size > 0) {
+    const directMatches = availableFiles.filter((file) => {
+      const filePath = normalizePromptPath(file.relativePath).toLowerCase();
+      return Array.from(explicitPaths).some((detailPath) => pathsReferToSameFile(filePath, detailPath));
+    });
+    if (directMatches.length > 0) {
+      return directMatches;
+    }
+  }
+
   const haystacks = [
     validation.summary,
     ...validation.logs,
@@ -53,6 +78,12 @@ function renderFailureDetails(details: GeneratedVhdlFailureDetail[]) {
       `${index + 1}. Failure class: ${detail.category} / ${detail.code}`,
       `   Summary: ${detail.message}`,
     ];
+    if (detail.relativePath) {
+      lines.push(`   File: ${normalizePromptPath(detail.relativePath)}`);
+    }
+    if (typeof detail.lineHint === 'number' && Number.isFinite(detail.lineHint)) {
+      lines.push(`   Line hint: ${detail.lineHint}`);
+    }
     if (detail.ruleIds && detail.ruleIds.length > 0) {
       lines.push(`   Canonical rules: ${detail.ruleIds.join(', ')}`);
     }
@@ -86,6 +117,64 @@ function renderTargetFiles(files: RepairableGeneratedFile[]) {
       `\`\`\`${fenceLang}`,
       file.content.trimEnd(),
       '```',
+    ].join('\n');
+  }).join('\n\n');
+}
+
+function renderFileScopedRepairPlan(details: GeneratedVhdlFailureDetail[], relevantFiles: RepairableGeneratedFile[]) {
+  const relevantPathMap = new Map(
+    relevantFiles.map((file) => [normalizePromptPath(file.relativePath).toLowerCase(), normalizePromptPath(file.relativePath)]),
+  );
+  const grouped = new Map<string, GeneratedVhdlFailureDetail[]>();
+
+  details.forEach((detail) => {
+    const rawPath = typeof detail.relativePath === 'string' ? normalizePromptPath(detail.relativePath).toLowerCase() : '';
+    const matchedPath = Array.from(relevantPathMap.keys()).find((candidate) => rawPath && pathsReferToSameFile(candidate, rawPath));
+    const key = matchedPath ? relevantPathMap.get(matchedPath)! : '__global__';
+    const list = grouped.get(key) || [];
+    list.push(detail);
+    grouped.set(key, list);
+  });
+
+  if (grouped.size === 0) {
+    return [
+      '- Repair the listed target files only.',
+      '- If multiple validator/GHDL failures point at the same file, fix all of them in one replacement for that file.',
+      '- Preserve design intent and preserve unchanged files exactly unless a dependency must move with the target repair.',
+    ].join('\n');
+  }
+
+  return Array.from(grouped.entries()).map(([targetPath, fileDetails]) => {
+    if (targetPath === '__global__') {
+      return [
+        '### Global repair constraints',
+        '- Apply these constraints while repairing the listed target files.',
+        ...fileDetails.map((detail) => {
+          const summary = [`- ${detail.category} / ${detail.code}: ${detail.message}`];
+          if (detail.forbiddenConstruct) {
+            summary.push(`  forbidden: ${detail.forbiddenConstruct}`);
+          }
+          if (detail.legalReplacementPattern) {
+            summary.push(`  replace with: ${detail.legalReplacementPattern}`);
+          }
+          return summary.join('\n');
+        }),
+      ].join('\n');
+    }
+
+    return [
+      `### ${targetPath}`,
+      '- Return one full replacement for this file that resolves every listed class below in the same pass.',
+      ...fileDetails.map((detail) => {
+        const summary = [`- ${detail.category} / ${detail.code}: ${detail.message}`];
+        if (detail.forbiddenConstruct) {
+          summary.push(`  forbidden: ${detail.forbiddenConstruct}`);
+        }
+        if (detail.legalReplacementPattern) {
+          summary.push(`  replace with: ${detail.legalReplacementPattern}`);
+        }
+        return summary.join('\n');
+      }),
     ].join('\n');
   }).join('\n\n');
 }
@@ -125,10 +214,15 @@ ${targetList}
 Machine-readable failure classes:
 ${renderFailureDetails(validation.failureDetails || [])}
 
+File-scoped repair plan:
+${renderFileScopedRepairPlan(validation.failureDetails || [], relevantFiles)}
+
 ${buildRecurringVhdlFailureGuardSection({
   heading: 'Always-on recurring failure guards',
   numbered: true,
 })}
+
+${buildCodeGeneratingMacroRuleSection(macroId)}
 
 Recent validator / GHDL log lines:
 ${renderLogTail(validation)}
@@ -143,6 +237,9 @@ Hard output contract:
 6. Keep file paths relative and exactly matched to the generated file set above.
 7. Every returned VHDL file must satisfy the strict GHDL/VHDL rules already active in this prompt.
 8. Do not modify the design intent unless the failure itself proves a construct is illegal or inconsistent.
+9. Prefer minimal file-local repairs: preserve passing files, preserve names/interfaces unless a listed failure requires change, and do not redesign the architecture when a localized correction is sufficient.
+10. Do not insert meta-comments or repair annotations such as "REPAIRED", "FIXED", "CHANGED", "UPDATED", or similar commentary anywhere in the returned code.
+11. When fixing declarations after "begin", move the exact declaration or subprogram block intact into a legal declarative region. Do not split parameter lists, paraphrase declarations, or leave behind orphaned header/body fragments.
 
 Existing generated files to repair:
 

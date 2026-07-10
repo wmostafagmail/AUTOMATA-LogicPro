@@ -11,7 +11,7 @@ import {
   type FpgaArchitectSweepFeedbackItem,
   type RunLoopAttemptResult,
 } from '../src/server/fpgaArchitectStressLoop';
-import { summarizeFpgaArchitectLoopFailures } from '../src/server/fpgaArchitectLoopDiagnostics';
+import { classifyFpgaArchitectLoopFailure, summarizeFpgaArchitectLoopFailures } from '../src/server/fpgaArchitectLoopDiagnostics';
 import type { FpgaArchitectSweepPreset } from '../src/fpgaArchitectSweepConfig';
 
 function createTestPreset(key: string, label: string): FpgaArchitectSweepPreset {
@@ -570,6 +570,61 @@ test('runFpgaArchitectStressLoop appends newly introduced failure classes to the
   assert.match(seenPrompts[2] || '', /architecture_variable/);
 });
 
+test('runFpgaArchitectStressLoop does not feed provider/runtime failures into the next attempt feedback', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-feedback-provider-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      if (runCount === 1) {
+        throw new Error('Core logic simulation analysis failed: Ollama is reachable at http://127.0.0.1:11434, but text generation failed for model "gemma4:latest". Original error: fetch failed');
+      }
+      throw new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"');
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.doesNotMatch(seenPrompts[1] || '', /provider_runtime/);
+  assert.doesNotMatch(seenPrompts[1] || '', /## Prior Failure Feedback/);
+});
+
+test('runFpgaArchitectStressLoop does not feed manifest or source-selection failures into the next attempt feedback', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-feedback-non-code-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      if (runCount === 1) {
+        throw new Error('Core logic simulation analysis failed: FPGA Architect hard-failed because the generated project manifest was still invalid before VHDL validation.');
+      }
+      throw new Error('Core logic simulation analysis failed: The generated validation source set was empty after selection.');
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.doesNotMatch(seenPrompts[1] || '', /manifest_structure/);
+  assert.doesNotMatch(seenPrompts[1] || '', /source_selection/);
+  assert.doesNotMatch(seenPrompts[1] || '', /## Prior Failure Feedback/);
+});
+
 test('runFpgaArchitectStressLoop carries failed generated files into the next attempt as repair continuation context', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-repair-continuation-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -625,4 +680,254 @@ test('summarizeFpgaArchitectLoopFailures groups newer validator classes into exp
     buckets.map((bucket) => bucket.label),
     ['Package / Body Misuse', 'Array / Subtype Misuse', 'Signal vs Variable Assignment'],
   );
+});
+
+test('classifyFpgaArchitectLoopFailure isolates provider/runtime transport failures from VHDL categories', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Core logic simulation analysis failed: Ollama is reachable at http://127.0.0.1:11434, but text generation failed for model "gemma4:latest". Original error: fetch failed',
+  );
+
+  assert.equal(diagnostic.category, 'provider_runtime');
+  assert.equal(diagnostic.label, 'Provider / Runtime');
+  assert.deepEqual(diagnostic.ruleIds, []);
+});
+
+test('runFpgaArchitectStressLoop reports provider/runtime failures separately from code-quality failures', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-provider-counts-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  let runCount = 0;
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      runCount += 1;
+      if (runCount === 1) {
+        throw new Error('Core logic simulation analysis failed: Ollama is reachable at http://127.0.0.1:11434, but text generation failed for model "gemma4:latest". Original error: fetch failed');
+      }
+      throw new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"');
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(result.failures, 2);
+  assert.equal(result.providerRuntimeFailures, 1);
+  assert.equal(result.codeQualityFailures, 1);
+  assert.equal(result.designSummaries[0]?.providerRuntimeFailures, 1);
+  assert.equal(result.designSummaries[0]?.codeQualityFailures, 1);
+});
+
+test('classifyFpgaArchitectLoopFailure maps typed function return mismatches into numeric_std typing', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Core logic simulation analysis failed: src/alu.vhd:35:23:error: can\'t match function call with type array type "UNRESOLVED_UNSIGNED"',
+  );
+
+  assert.equal(diagnostic.category, 'numeric_std_typing');
+  assert.equal(diagnostic.label, 'numeric_std Typing');
+});
+
+test('classifyFpgaArchitectLoopFailure maps typed port associations and anonymous array declarations into stable categories', () => {
+  const typedPortDiagnostic = classifyFpgaArchitectLoopFailure(
+    'Core logic simulation analysis failed: src/dsp_chain.vhd:32:22:error: can\'t associate "fir_sample" with port "sample_o"',
+  );
+  assert.equal(typedPortDiagnostic.category, 'numeric_std_typing');
+
+  const anonymousArrayDiagnostic = classifyFpgaArchitectLoopFailure(
+    "Core logic simulation analysis failed: src/cpu_core.vhd:27:20:error: type mark expected in a subtype indication signal regs : array(reg_idx_t range 0 to 7) of data_t := (others => (others => '0'));",
+  );
+  assert.equal(anonymousArrayDiagnostic.category, 'array_subtype_misuse');
+});
+
+test('summarizeFpgaArchitectLoopFailures keeps recurring raw analyze declaration and type escapes out of the Other bucket', () => {
+  const buckets = summarizeFpgaArchitectLoopFailures([
+    {
+      attempt: 1,
+      ok: false,
+      message: 'Core logic simulation analysis failed: tb/router_tb.vhd:33:3:error: non-shared variable declaration not allowed in architecture body',
+    },
+    {
+      attempt: 2,
+      ok: false,
+      message: 'Core logic simulation analysis failed: src/cpu_core.vhd:27:20:error: type mark expected in a subtype indication signal regs : array(reg_idx_t range 0 to 7) of data_t := (others => (others => \'0\'));',
+    },
+    {
+      attempt: 3,
+      ok: false,
+      message: 'Core logic simulation analysis failed: src/dsp_chain.vhd:32:22:error: can\'t associate "fir_sample" with port "sample_o"',
+    },
+    {
+      attempt: 4,
+      ok: false,
+      message: 'Core logic simulation analysis failed: src/alu.vhd:35:23:error: can\'t match function call with type array type "UNRESOLVED_UNSIGNED"',
+    },
+  ]);
+
+  const categories = buckets.map((bucket) => bucket.category);
+  const uniqueCategories = [...new Set(categories)];
+
+  assert.deepEqual(uniqueCategories, ['architecture_variable', 'array_subtype_misuse', 'numeric_std_typing']);
+  assert.equal(buckets.some((bucket) => bucket.category === 'other'), false);
+  assert.equal(
+    buckets
+      .filter((bucket) => bucket.category === 'numeric_std_typing')
+      .reduce((sum, bucket) => sum + bucket.count, 0),
+    2,
+  );
+});
+
+test('runFpgaArchitectStressLoop carries architecture-body variable failures forward as repair continuation and clears the class on the next attempt', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-archvar-proof-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      const generatedRoot = path.join(params.normalizedProjectPath, 'alpha');
+      await fs.mkdir(path.join(generatedRoot, 'tb'), { recursive: true });
+      await fs.writeFile(
+        path.join(generatedRoot, 'tb', 'alpha_tb.vhd'),
+        [
+          'library ieee;',
+          'use ieee.std_logic_1164.all;',
+          '',
+          'entity alpha_tb is end entity;',
+          'architecture sim of alpha_tb is',
+          '  variable pass_count : integer := 0;',
+          'begin',
+          '  process begin wait; end process;',
+          'end architecture;',
+        ].join('\n'),
+        'utf8',
+      );
+
+      if (runCount === 1) {
+        const failure = new Error(
+          'Core logic simulation analysis failed: tb/alpha_tb.vhd:6:3:error: non-shared variable declaration not allowed in architecture body',
+        ) as Error & { generatedVhdlValidation?: any };
+        failure.generatedVhdlValidation = {
+          ok: false,
+          stage: 'prevalidate',
+          summary: 'tb/alpha_tb.vhd: plain architecture-body variable "pass_count" violates GHDL declarative-scope rules.',
+          logs: [],
+          validatedTopEntities: [],
+          failureCode: 'architecture_body_variable',
+          failureCategory: 'declaration_scope',
+          failureDetails: [
+            {
+              code: 'architecture_body_variable',
+              category: 'declaration_scope',
+              message: 'tb/alpha_tb.vhd: plain architecture-body variable "pass_count" violates GHDL declarative-scope rules.',
+              relativePath: 'tb/alpha_tb.vhd',
+              forbiddenConstruct: 'plain architecture-body variable "pass_count" (testbench_bookkeeping)',
+              legalReplacementPattern: 'convert testbench bookkeeping into shared-state intent only when required, otherwise move scratch storage into the owning process declarative region',
+            },
+          ],
+        };
+        throw failure;
+      }
+
+      assert.match(params.userQuery, /## Repair Continuation Mode/);
+      assert.match(params.userQuery, /## Existing Generated Files To Repair/);
+      assert.match(params.userQuery, /Failure family: declaration_scope \/ architecture_body_variable/);
+      assert.match(params.userQuery, /plain architecture-body variable "pass_count"/);
+
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation for alpha_tb.' },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(runCount, 2);
+  assert.equal(result.failures, 1);
+  assert.equal(result.successes, 1);
+  assert.doesNotMatch(seenPrompts[0] || '', /## Repair Continuation Mode/);
+  assert.match(seenPrompts[1] || '', /## Repair Continuation Mode/);
+});
+
+test('runFpgaArchitectStressLoop carries typed interface mismatches forward as repair continuation and clears the class on the next attempt', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-typed-proof-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      const generatedRoot = path.join(params.normalizedProjectPath, 'alpha');
+      await fs.mkdir(path.join(generatedRoot, 'src'), { recursive: true });
+      await fs.writeFile(
+        path.join(generatedRoot, 'src', 'top.vhd'),
+        [
+          'library ieee;',
+          'use ieee.std_logic_1164.all;',
+          'use ieee.numeric_std.all;',
+          '',
+          'entity top is end entity;',
+          'architecture rtl of top is',
+          '  signal fir_sample : std_logic_vector(15 downto 0);',
+          'begin',
+          '  null;',
+          'end architecture;',
+        ].join('\n'),
+        'utf8',
+      );
+
+      if (runCount === 1) {
+        const failure = new Error(
+          'Core logic simulation analysis failed: src/top.vhd:32:22:error: can\'t associate "fir_sample" with port "sample_o"',
+        ) as Error & { generatedVhdlValidation?: any };
+        failure.generatedVhdlValidation = {
+          ok: false,
+          stage: 'prevalidate',
+          summary: 'src/top.vhd: drives signed formal port "sample_o" with std_logic_vector actual "fir_sample" in a port map.',
+          logs: [],
+          validatedTopEntities: [],
+          failureCode: 'typed_port_association_mismatch',
+          failureCategory: 'numeric_std_type_discipline',
+          failureDetails: [
+            {
+              code: 'typed_port_association_mismatch',
+              category: 'numeric_std_type_discipline',
+              message: 'src/top.vhd: drives signed formal port "sample_o" with std_logic_vector actual "fir_sample" in a port map.',
+              relativePath: 'src/top.vhd',
+              forbiddenConstruct: 'std_logic_vector actual "fir_sample" passed to signed formal port "sample_o"',
+              legalReplacementPattern: 'convert the actual at the boundary into the exact formal type or change the declarations so the types already match',
+            },
+          ],
+        };
+        throw failure;
+      }
+
+      assert.match(params.userQuery, /## Repair Continuation Mode/);
+      assert.match(params.userQuery, /Failure family: numeric_std_type_discipline \/ typed_port_association_mismatch/);
+      assert.match(params.userQuery, /convert the actual at the boundary into the exact formal type/i);
+
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation for alpha_top.' },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(runCount, 2);
+  assert.equal(result.failures, 1);
+  assert.equal(result.successes, 1);
+  assert.match(seenPrompts[1] || '', /## Repair Continuation Mode/);
 });

@@ -1,0 +1,21 @@
+{
+  "project": "dsp_chain",
+  "top_entity": "dsp_chain_top",
+  "testbench": "tb_dsp_chain",
+  "vhdl_standard": "--std=08",
+  "analysis_order": [
+    "src/fir_filter.vhd",
+    "src/fft_lite_analyzer.vhd",
+    "src/dsp_chain_top.vhd",
+    "tb/tb_dsp_chain.vhd"
+  ],
+  "elaborate_command": ["ghdl", "-e", "--std=08", "dsp_chain_top"],
+  "run_commands": [
+    {
+      "command": ["ghdl", "-r", "--std=08", "dsp_chain_top", "--vcd=out/waveform.vcd", "--stop-time=2us"],
+      "expected_result": "pass"
+    }
+  ],
+  "waveform_output": "out/waveform.vcd",
+  "stop_time": "2us"
+}

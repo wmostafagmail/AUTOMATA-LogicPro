@@ -122,6 +122,7 @@ export function useAIDrawerAnalysis(params: {
   const [testGenerating, setTestGenerating] = useState(false);
   const [testGenerateResult, setTestGenerateResult] = useState<string | null>(null);
   const activeRequestControllerRef = useRef<AbortController | null>(null);
+  const testGenerateControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!loading || !jobStartedAt) {
@@ -496,12 +497,15 @@ export function useAIDrawerAnalysis(params: {
       return;
     }
 
+    const controller = new AbortController();
+    testGenerateControllerRef.current = controller;
     setTestGenerating(true);
     setTestGenerateResult(null);
     try {
       const response = await apiFetch('/api/ai/test-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           provider: selectedProvider,
           model: selectedModel,
@@ -520,11 +524,23 @@ export function useAIDrawerAnalysis(params: {
       }
 
       setTestGenerateResult(data.passedExactMatch ? 'PASS' : 'FAIL');
-    } catch {
+    } catch (error: any) {
+      if (error?.name === 'AbortError') {
+        setTestGenerateResult(null);
+        return;
+      }
       setTestGenerateResult('FAIL');
     } finally {
+      testGenerateControllerRef.current = null;
       setTestGenerating(false);
     }
+  };
+
+  const handleStopTestGenerate = () => {
+    if (!testGenerating) {
+      return;
+    }
+    testGenerateControllerRef.current?.abort();
   };
 
   const handleCopyText = (text: string, idx: number) => {
@@ -624,6 +640,7 @@ export function useAIDrawerAnalysis(params: {
     handleCancelRemoteExportPreview,
     handleStopJob,
     handleTestGenerate,
+    handleStopTestGenerate,
     handleCopyText,
     selectedProviderInfo,
     selectedProviderLabel,

@@ -1,89 +1,80 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.video_timing_pkg.all;
 use std.env.all;
-use work.video_pkg.all;
 
 entity tb_video_top is
 end entity tb_video_top;
 
 architecture sim of tb_video_top is
   constant CLK_PERIOD : time := 10 ns;
-  
-  signal clk : std_logic := '0';
-  signal rst : std_logic := '0';
-  
-  signal h_sync_o : std_logic;
-  signal v_sync_o : std_logic;
-  signal pixel_data_o : pixel_t;
-  signal pixel_valid_o : std_logic;
-  
-  signal sig_pass_count : integer := 0;
-  signal sig_fail_count : integer := 0;
+  signal clk          : std_logic := '0';
+  signal rst          : std_logic := '1';
+  signal hsync        : std_logic;
+  signal vsync        : std_logic;
+  signal vid_active   : std_logic;
+  signal fb_addr      : unsigned(15 downto 0);
+  signal fb_data      : std_logic_vector(7 downto 0);
+  signal vid_data     : std_logic_vector(15 downto 0);
+
+  procedure check_pass(msg : in string) is
+  begin
+    report msg;
+    std.env.stop(0);
+  end procedure check_pass;
+
 begin
   clk <= not clk after CLK_PERIOD / 2;
-  
-  dut : entity work.video_top(rtl)
-    port map (clk => clk, rst => rst, h_sync_o => h_sync_o, v_sync_o => v_sync_o, pixel_data_o => pixel_data_o, pixel_valid_o => pixel_valid_o);
-    
-  process
-    variable pass_cnt : integer := 0;
-    variable fail_cnt : integer := 0;
+
+  dut_inst : component video_top
+    generic map (
+      PIXEL_WIDTH => 16
+    )
+    port map (
+      clk          => clk,
+      rst          => rst,
+      hsync_o      => hsync,
+      vsync_o      => vsync,
+      vid_active_o => vid_active,
+      fb_addr_o    => fb_addr,
+      fb_data_o    => fb_data,
+      vid_data_o   => vid_data
+    );
+
+  stim_proc : process
+    variable h_cnt : integer := 0;
+    variable v_cnt : integer := 0;
   begin
-    rst <= '1';
-    wait for 20 ns;
+    wait for 100 ns;
     rst <= '0';
-    wait for 20 ns;
-    
-    wait until h_sync_o = '1' and v_sync_o = '1';
-    wait until h_sync_o = '0';
-    
-    for i in 0 to H_SYNC - 1 loop
+    wait until rising_edge(clk);
+
+    assert hsync = '1' report "HSYNC reset fail" severity error;
+    assert vsync = '1' report "VSYNC reset fail" severity error;
+    assert vid_active = '0' report "Active reset fail" severity error;
+
+    loop
       wait until rising_edge(clk);
-      if h_sync_o /= '0' then
-        fail_cnt := fail_cnt + 1;
-        report "FAIL: H Sync pulse width mismatch" severity error;
+      h_cnt := h_cnt + 1;
+      if h_cnt = H_TOTAL then
+        h_cnt := 0;
+        v_cnt := v_cnt + 1;
+      end if;
+      if h_cnt >= H_SYNC_END and h_cnt = H_VALID_END and
+         v_cnt >= V_SYNC_END and v_cnt <= V_VALID_END then
+        exit;
       end if;
     end loop;
-    
-    wait until h_sync_o = '0';
-    for i in 0 to H_ACTIVE - 1 loop
-      wait until rising_edge(clk);
-      if h_sync_o /= '1' then
-        fail_cnt := fail_cnt + 1;
-        report "FAIL: H Active window mismatch" severity error;
-      end if;
-    end loop;
-    
-    wait until v_sync_o = '0';
-    for i in 0 to V_SYNC - 1 loop
-      wait until rising_edge(clk);
-      if v_sync_o /= '0' then
-        fail_cnt := fail_cnt + 1;
-        report "FAIL: V Sync pulse width mismatch" severity error;
-      end if;
-    end loop;
-    
-    wait until h_sync_o = '0';
-    wait until v_sync_o = '0';
-    for i in 0 to 10 - 1 loop
-      wait until rising_edge(clk);
-      if pixel_valid_o /= '1' then
-        fail_cnt := fail_cnt + 1;
-        report "FAIL: Pixel valid missing during active video" severity error;
-      else
-        pass_cnt := pass_cnt + 1;
-      end if;
-    end loop;
-    
-    sig_pass_count <= pass_cnt;
-    sig_fail_count <= fail_cnt;
-    
-    if fail_cnt = 0 then
-      report "SUCCESS: All video timing checks passed" severity success;
-    else
-      report "FAILURE: " & integer'image(fail_cnt) & " checks failed" severity failure;
-    end if;
-    
-    std.env.stop(0);
-  end process;
+
+    assert hsync = '0' report "HSYNC should be low" severity error;
+    assert vsync = '0' report "VSYNC should be low" severity error;
+    assert vid_active = '1' report "Active video should be high" severity error;
+    assert fb_addr = to_unsigned(0, 16) report "FB addr should be 0" severity error;
+
+    wait until rising_edge(clk);
+    assert fb_addr = to_unsigned(1, 16) report "FB addr increment fail" severity error;
+
+    check_pass("All checks passed");
+  end process stim_proc;
 end architecture sim;

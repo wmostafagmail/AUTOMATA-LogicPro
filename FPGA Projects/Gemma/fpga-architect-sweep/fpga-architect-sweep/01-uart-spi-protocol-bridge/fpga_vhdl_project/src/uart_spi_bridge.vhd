@@ -1,0 +1,141 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.bridge_pkg.all;
+
+entity uart_spi_bridge is
+    generic (
+        FIFO_DEPTH_G : natural := 16
+    );
+    port (
+        clk_i           : in  std_logic;
+        rst_i           : in  std_logic;
+        uart_rx_i       : in  std_logic;
+        uart_tx_o       : out std_logic;
+        uart_rx_valid_i : in  std_logic;
+        uart_rx_data_i  : in  byte_t;
+        uart_tx_ready_o : out std_logic;
+        spi_sclk_o      : out std_logic;
+        spi_mosi_o      : out std_logic;
+        spi_miso_i      : in  std_logic;
+        spi_csn_o       : out std_logic;
+        spi_tx_valid_o  : out std_logic;
+        spi_tx_data_o   : out byte_t;
+        spi_rx_valid_i  : in  std_logic;
+        spi_rx_data_i   : in  byte_t;
+        spi_rx_ready_i  : in  std_logic;
+        busy_o          : out std_logic;
+        error_o         : out std_logic
+    );
+end entity uart_spi_bridge;
+
+architecture rtl of uart_spi_bridge is
+    type fifo_mem_t is array (natural range <>) of byte_t;
+    type fifo_ctrl_t is record
+        wr_ptr : natural;
+        rd_ptr : natural;
+        count  : natural;
+        full   : std_logic;
+        empty  : std_logic;
+    end record;
+
+    signal tx_fifo_ctrl : fifo_ctrl_t := (wr_ptr => 0, rd_ptr => 0, count => 0, full => '1', empty => '1');
+    signal tx_fifo_mem  : fifo_mem_t(0 to FIFO_DEPTH_G - 1);
+
+    type bridge_state_t is (IDLE, TX_SHIFT, RX_SHIFT, ERROR);
+    signal state_reg : bridge_state_t := IDLE;
+
+    signal spi_shift_reg : byte_t := (others => '0');
+    signal uart_bit_cnt  : natural range 0 to 7 := 0;
+    signal error_int     : std_logic := '0';
+    signal tx_active_int : std_logic := '0';
+
+begin
+    fifo_proc : process (clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if rst_i = '1' then
+                tx_fifo_ctrl.count <= 0;
+                tx_fifo_ctrl.full  <= '1';
+                tx_fifo_ctrl.empty <= '1';
+                tx_fifo_ctrl.wr_ptr <= 0;
+                tx_fifo_ctrl.rd_ptr <= 0;
+            else
+                if uart_rx_valid_i = '1' and tx_fifo_ctrl.full = '0' then
+                    tx_fifo_mem(tx_fifo_ctrl.wr_ptr) <= uart_rx_data_i;
+                    tx_fifo_ctrl.wr_ptr <= (tx_fifo_ctrl.wr_ptr + 1) mod FIFO_DEPTH_G;
+                    if tx_fifo_ctrl.count = FIFO_DEPTH_G - 1 then
+                        tx_fifo_ctrl.full <= '1';
+                    else
+                        tx_fifo_ctrl.count <= tx_fifo_ctrl.count + 1;
+                        tx_fifo_ctrl.empty <= '0';
+                    end if;
+                elsif spi_rx_ready_i = '1' and tx_fifo_ctrl.empty = '0' then
+                    if tx_fifo_ctrl.count = 1 then
+                        tx_fifo_ctrl.empty <= '1';
+                    else
+                        tx_fifo_ctrl.count <= tx_fifo_ctrl.count - 1;
+                    end if;
+                    tx_fifo_ctrl.rd_ptr <= (tx_fifo_ctrl.rd_ptr + 1) mod FIFO_DEPTH_G;
+                    tx_fifo_ctrl.full <= '0';
+                end if;
+            end if;
+        end if;
+    end process fifo_proc;
+
+    bridge_proc : process (clk_i)
+    begin
+        if rising_edge(clk_i) then
+            if rst_i = '1' then
+                state_reg       <= IDLE;
+                spi_shift_reg   <= (others => '0');
+                uart_bit_cnt    <= 0;
+                tx_active_int   <= '0';
+                error_int       <= '0';
+            else
+                uart_tx_o        <= '1';
+                uart_tx_ready_o <= '0';
+                spi_csn_o        <= '1';
+                spi_tx_valid_o   <= '0';
+                spi_sclk_o       <= '0';
+                busy_o           <= '0';
+                error_o          <= error_int;
+
+                case state_reg is
+                    when IDLE =>
+                        busy_o <= '1';
+                        uart_tx_ready_o <= '1';
+                        uart_bit_cnt    <= 0;
+                        tx_active_int   <= '0';
+                        if tx_fifo_ctrl.empty = '0' then
+                            spi_shift_reg <= tx_fifo_mem(tx_fifo_ctrl.rd_ptr);
+                            state_reg     <= TX_SHIFT;
+                        end if;
+                    when TX_SHIFT =>
+                        uart_tx_o <= spi_shift_reg(uart_bit_cnt);
+                        uart_bit_cnt <= uart_bit_cnt + 1;
+                        spi_sclk_o   <= '1';
+                        if uart_bit_cnt = 7 then
+                            state_reg <= RX_SHIFT;
+                        end if;
+                    when RX_SHIFT =>
+                        uart_bit_cnt    <= 0;
+                        tx_active_int   <= '0';
+                        spi_csn_o       <= '0';
+                        spi_tx_valid_o <= '1';
+                        spi_tx_data_o  <= spi_shift_reg;
+                        spi_sclk_o     <= '0';
+                        if spi_rx_ready_i = '1' and spi_rx_valid_i = '1' then
+                            state_reg <= IDLE;
+                        elsif spi_rx_ready_i = '0' then
+                            error_int <= '1';
+                            state_reg <= ERROR;
+                        end if;
+                    when ERROR =>
+                        error_int <= '1';
+                        state_reg <= IDLE;
+                end case;
+            end if;
+        end if;
+    end process bridge_proc;
+end architecture rtl;

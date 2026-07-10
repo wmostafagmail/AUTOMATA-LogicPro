@@ -45,9 +45,21 @@ test('shared strict VHDL rules are grouped into explicit families and exposed to
   assert.ok(GHDL_STRICT_VHDL_RULE_FAMILIES.simulationSuccess.length > 0);
 
   assert.ok(rules.some((rule) => rule.includes('No multidimensional `std_logic_vector(...) (...)` declarations')));
+  assert.ok(rules.some((rule) => rule.includes('Do not declare signals, variables, or constants with inline anonymous `array(...) of ...` object syntax')));
   assert.ok(rules.some((rule) => rule.includes('Do not re-constrain an already constrained subtype or alias')));
   assert.ok(rules.some((rule) => rule.includes('Use `<=` only for signals and `:=` only for variables/constants')));
   assert.ok(rules.some((rule) => rule.includes('Do not reference undeclared generics, constants, widths, or helper identifiers inside interface/type declarations')));
   assert.ok(rules.some((rule) => rule.includes('Do not declare helper procedures/functions inside a process body or after the architecture `begin`')));
   assert.ok(rules.some((rule) => rule.includes('compute through an internal mirror signal/variable first')));
+});
+
+test('shared strict VHDL rules explicitly cover the core phase 2 legality classes', () => {
+  const rules = buildCodeGeneratingMacroRuleList('fpga_vhdl_architect');
+
+  assert.ok(rules.some((rule) => rule.includes('Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code.')));
+  assert.ok(rules.some((rule) => rule.includes('Use VHDL operator keywords exactly as defined by the language')));
+  assert.ok(rules.some((rule) => rule.includes('Inside entity/component generic and port declarations, use `:` between the interface name and its subtype/mode. Never use `=>` there')));
+  assert.ok(rules.some((rule) => rule.includes('Do not insert explanatory prose inside VHDL declarations or executable statements.')));
+  assert.ok(rules.some((rule) => rule.includes('End design units with legal VHDL terminators only')));
+  assert.ok(rules.some((rule) => rule.includes("Never emit Verilog/SystemVerilog-sized literals such as `3'b000`, `8'hFF`, `4'd7`, or `6'o77` inside VHDL.")));
 });

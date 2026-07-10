@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import {
+  buildDeterministicArchitectGhdlRunCommands,
   buildFpgaArchitectRetryPrompt,
   buildFpgaArchitectCompactRetryPrompt,
   buildFpgaArchitectJsonRepairPrompt,
@@ -393,6 +394,97 @@ readme
   assert.equal(project.ghdl.topTestbench, 'tb_updown_counter');
   assert.equal(project.assumptions[0], '100 MHz board clock');
   assert.match(project.files.find((file) => file.path === 'src/updown_counter.vhd')?.content || '', /entity updown_counter is/);
+  assert.deepEqual(
+    project.ghdl.runCommands,
+    buildDeterministicArchitectGhdlRunCommands({
+      analysisOrder: ['src/updown_counter.vhd', 'tb/tb_updown_counter.vhd'],
+      topTestbench: 'tb_updown_counter',
+      vhdlStandard: 'VHDL-2008',
+    }),
+  );
+});
+
+test('parseFpgaArchitectResponse synthesizes deterministic GHDL commands when the manifest omits run_commands', () => {
+  const manifest = `# PROJECT
+project_name: Counter
+sanitized_project_name: counter
+top_entity: updown_counter
+vhdl_standard: VHDL-2008
+target_fpga: Xilinx Artix-7
+summary: Compact counter project
+
+## GHDL
+top_testbench: tb_updown_counter
+expected_result: pass
+analysis_order:
+- src/updown_counter.vhd
+- tb/tb_updown_counter.vhd
+
+# FILE: src/updown_counter.vhd
+file_type: vhdl_rtl
+purpose: rtl
+\`\`\`vhdl
+entity updown_counter is
+end entity;
+architecture rtl of updown_counter is begin end architecture;
+\`\`\`
+
+# FILE: tb/tb_updown_counter.vhd
+file_type: vhdl_testbench
+purpose: testbench
+\`\`\`vhdl
+entity tb_updown_counter is
+end entity;
+architecture sim of tb_updown_counter is begin end architecture;
+\`\`\`
+
+# FILE: requirements/spec.md
+file_type: markdown
+purpose: requirements
+\`\`\`md
+spec
+\`\`\`
+
+# FILE: architecture/design.md
+file_type: markdown
+purpose: architecture
+\`\`\`md
+design
+\`\`\`
+
+# FILE: sim/run.sh
+file_type: script
+purpose: simulation
+\`\`\`sh
+ghdl
+\`\`\`
+
+# FILE: constraints/top.xdc
+file_type: constraints
+purpose: constraints
+\`\`\`xdc
+#
+\`\`\`
+
+# FILE: docs/readme.md
+file_type: markdown
+purpose: docs
+\`\`\`md
+readme
+\`\`\`
+`;
+
+  const project = parseFpgaArchitectResponse(manifest);
+
+  assert.deepEqual(
+    project.ghdl.runCommands,
+    [
+      'ghdl -a --std=08 src/updown_counter.vhd',
+      'ghdl -a --std=08 tb/tb_updown_counter.vhd',
+      'ghdl -e --std=08 tb_updown_counter',
+      'ghdl -r --std=08 tb_updown_counter --vcd=sim/tb_updown_counter.vcd --stop-time=1us',
+    ],
+  );
 });
 
 test('parseFpgaArchitectResponse accepts a Markdown manifest with a leading wrapper prefix', () => {

@@ -1,0 +1,1 @@
+entity tb_counter is end entity; architecture sim of tb_counter is begin end architecture;

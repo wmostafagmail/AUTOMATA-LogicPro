@@ -39,6 +39,37 @@ export type FpgaArchitectProject = {
   qualityChecklist: string[];
 };
 
+export function normalizeArchitectVhdlStandardToken(value: string | null | undefined) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (!normalized) return '08';
+  if (normalized === '08' || normalized === '2008' || normalized === 'vhdl-2008' || normalized === 'vhdl 2008') return '08';
+  if (normalized === '93' || normalized === '1993' || normalized === 'vhdl-1993' || normalized === 'vhdl 1993') return '93';
+  if (normalized === '19' || normalized === '2019' || normalized === 'vhdl-2019' || normalized === 'vhdl 2019') return '19';
+  return normalized.replace(/^vhdl[-\s]?/, '') || '08';
+}
+
+export function buildDeterministicArchitectGhdlRunCommands(params: {
+  analysisOrder: string[];
+  topTestbench: string;
+  vhdlStandard?: string | null;
+}) {
+  const analysisOrder = params.analysisOrder
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  const topTestbench = params.topTestbench.trim();
+  if (analysisOrder.length === 0 || !topTestbench) {
+    return [];
+  }
+
+  const stdToken = normalizeArchitectVhdlStandardToken(params.vhdlStandard);
+  const waveformPath = `sim/${topTestbench}.vcd`;
+  return [
+    ...analysisOrder.map((relativePath) => `ghdl -a --std=${stdToken} ${relativePath}`),
+    `ghdl -e --std=${stdToken} ${topTestbench}`,
+    `ghdl -r --std=${stdToken} ${topTestbench} --vcd=${waveformPath} --stop-time=1us`,
+  ];
+}
+
 const FPGA_ARCHITECT_MANIFEST_SCAFFOLD = `# PROJECT
 project_name: <string>
 sanitized_project_name: <string>
@@ -61,8 +92,6 @@ top_testbench: <string>
 expected_result: <string>
 analysis_order:
 - <relative/path/file.vhd>
-run_commands:
-- <command>
 
 ## QUALITY_CHECKLIST
 - <item>
@@ -118,6 +147,7 @@ Constraints:
 - Prefer clean synthesizable VHDL RTL, self-checking testbenches, and GHDL-compatible scripts.
 - The generated DUT and testbench must compile, elaborate, and simulate under GHDL as written.
 - The app will automatically run a strict generate -> compile -> elaborate -> simulate acceptance flow and will reject any project that does not pass it completely.
+- The app will synthesize the exact GHDL analyze/elaborate/run command list deterministically from your \`analysis_order\`, \`top_testbench\`, and selected VHDL standard. Do not spend output budget listing raw run_commands unless you need to mirror that plan in docs.
 - Before returning the manifest, self-audit every generated VHDL file and regenerate any file that still contains declarations after begin, helper procedures/functions that mutate outer-scope state, output-port readback, or signal/variable assignment misuse.
 - ${buildCodeGeneratingCommandContractSection('fpga_vhdl_architect').replace(/^## Exact GHDL Command \/ Output Contract\n/, '').replace(/\n/g, '\n- ')}
 - ${STRICT_CODE_GENERATION_RULES.replace(/^## Strict Code-Generation Rules\n/, '').replace(/\n/g, '\n- ')}
@@ -699,7 +729,7 @@ function coerceParsedFpgaArchitectProject(parsed: any, sourceLabel: 'Markdown ma
       ? parsed.simulation
       : null;
   if (!ghdlSource) {
-    throw new Error(`The FPGA architect ${sourceLabel} must include a ghdl object with analysis_order, top_testbench, run_commands, and expected_result.`);
+    throw new Error(`The FPGA architect ${sourceLabel} must include a ghdl object with analysis_order, top_testbench, and expected_result metadata.`);
   }
   const topTestbenchRaw = readFirstStringField(ghdlSource, ['top_testbench', 'topTestbench', 'testbench']);
   if (!topTestbenchRaw) {
@@ -711,10 +741,15 @@ function coerceParsedFpgaArchitectProject(parsed: any, sourceLabel: 'Markdown ma
     throw new Error(`The FPGA architect ${sourceLabel} must include a non-empty top_entity field.`);
   }
   const topEntity = sanitizeSnakeCase(rawTopEntity, sanitizedProjectName);
+  const analysisOrder = coerceStringArray(ghdlSource.analysis_order ?? ghdlSource.analysisOrder);
   const ghdl = {
-    analysisOrder: coerceStringArray(ghdlSource.analysis_order ?? ghdlSource.analysisOrder),
+    analysisOrder,
     topTestbench: topTestbenchRaw,
-    runCommands: coerceStringArray(ghdlSource.run_commands ?? ghdlSource.runCommands),
+    runCommands: buildDeterministicArchitectGhdlRunCommands({
+      analysisOrder,
+      topTestbench: topTestbenchRaw,
+      vhdlStandard,
+    }),
     expectedResult: readFirstStringField(ghdlSource, ['expected_result', 'expectedResult']) || 'GHDL analysis, elaboration, and simulation complete successfully.',
   };
 

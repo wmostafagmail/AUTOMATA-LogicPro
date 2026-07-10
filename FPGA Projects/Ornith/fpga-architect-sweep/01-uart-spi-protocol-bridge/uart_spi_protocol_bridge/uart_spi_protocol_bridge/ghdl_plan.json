@@ -1,0 +1,27 @@
+{
+  "project_name": "uart_spi_protocol_bridge",
+  "vhdl_standard": "--std=08",
+  "top_entity": "bridge_ctrl",
+  "top_testbench": "tb_uart_spi_bridge",
+  "analysis_order": [
+    "src/fifo_8x8.vhd",
+    "src/uart_rx.vhd",
+    "src/uart_tx.vhd",
+    "src/spi_master.vhd",
+    "src/bridge_ctrl.vhd",
+    "tb/tb_uart_spi_bridge.vhd"
+  ],
+  "elaborate": {
+    "command": "ghdl -e --std=08 tb_uart_spi_bridge",
+    "top": "tb_uart_spi_bridge"
+  },
+  "run_commands": [
+    {
+      "command": "ghdl -r --std=08 tb_uart_spi_bridge --vcd=output.vcd --stop-time=500us",
+      "expected_result": "ALL TESTS PASSED",
+      "waveform_flag": "--vcd=output.vcd"
+    }
+  ],
+  "constraints_file": "constraints/bridge_constraints.xdc",
+  "summary": "Single-clock UART-to-SPI bridge with FIFOs, control FSM, and self-checking testbench."
+}

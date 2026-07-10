@@ -1,0 +1,19 @@
+{
+  "project_name": "video_pattern_generator",
+  "top_entity": "video_top",
+  "top_testbench": "tb_video_top",
+  "vhdl_standard": "08",
+  "analysis_order": [
+    "src/video_timing_pkg.vhd",
+    "src/video_top.vhd",
+    "tb/tb_video_top.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 src/video_timing_pkg.vhd",
+    "ghdl -a --std=08 src/video_top.vhd",
+    "ghdl -a --std=08 tb/tb_video_top.vhd",
+    "ghdl -e --std=08 tb_video_top",
+    "ghdl -r --std=08 tb_video_top --vcd=tb_video_top.vcd --stop-time=10us"
+  ],
+  "expected_result": "Simulation passes all assertions and exits with code 0."
+}

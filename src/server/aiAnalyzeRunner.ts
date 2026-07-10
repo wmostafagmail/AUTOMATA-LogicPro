@@ -11,6 +11,7 @@ import {
   parseGeneratedCodeRepairs,
   type RepairableGeneratedFile,
 } from './generatedCodeRepair';
+import { applyDeterministicGeneratedCodeRepairs } from './deterministicGeneratedCodeRepair';
 import type {
   GeneratedVhdlArtifactForValidation,
   GeneratedVhdlValidationResult,
@@ -40,6 +41,7 @@ type SavedGeneratedVhdlArtifact = {
 };
 
 const FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS = 10;
+const GENERATED_CODE_MAX_DETERMINISTIC_REPAIR_PASSES = 5;
 
 type SavedFpgaArchitectArtifact = {
   name: string;
@@ -102,6 +104,200 @@ function buildAnnotatedAiAnalyzeError(
     error.generatedVhdlValidation = metadata.generatedVhdlValidation;
   }
   return error;
+}
+
+export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlValidationResult) {
+  const details = validation.failureDetails || [];
+  const seenCodes = new Set<string>();
+  const sections: string[] = [];
+
+  for (const detail of details) {
+    if (!detail.code || seenCodes.has(detail.code)) {
+      continue;
+    }
+    seenCodes.add(detail.code);
+
+    if (detail.code === 'architecture_body_variable') {
+      const lowerPattern = (detail.legalReplacementPattern || '').toLowerCase();
+      sections.push([
+        `- ${detail.code}`,
+        '  Fix the existing file locally by moving plain architecture-body variables into a legal form.',
+        '  For testbenches, keep helper subprogram declarations before architecture/process begin and keep bookkeeping state local to the owning process whenever shared architecture-level state is not truly required.',
+        lowerPattern.includes('shared testbench bookkeeping')
+          ? '  Treat this as testbench bookkeeping or shared status state: prefer a signal for sampled state, or a shared variable only when shared TB bookkeeping is truly required.'
+          : lowerPattern.includes('persistent state')
+            ? '  Treat this as likely persistent state: convert it into a signal in the architecture declarative region and normalize any local assignments to signal semantics.'
+            : '  Treat this as likely temporary scratch state: move it into the nearest process/subprogram declarative region instead of keeping it at architecture scope.',
+        '  Do not redesign unrelated logic or rename interfaces unless the file cannot compile otherwise.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'declaration_after_begin'
+      || detail.code === 'executable_region_signal_declaration'
+      || detail.code === 'procedure_outer_scope_write'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Hoist declarations into the nearest legal declarative region before begin.',
+        detail.code === 'declaration_after_begin'
+          ? '  When the failing construct is a function or procedure, move the exact existing subprogram block intact. Do not rewrite its header, split its parameter list, insert repair commentary, or leave orphaned declaration fragments behind.'
+          : '  Do not introduce repair annotations, explanatory comments, or partial placeholder lines while moving the declaration.',
+        detail.code === 'procedure_outer_scope_write'
+          ? '  Replace hidden outer-scope mutation by passing the mutated object explicitly as a formal parameter or by keeping mutable state local to the caller process.'
+          : '  Keep executable statements and design behavior intact; repair placement, not architecture intent.',
+      ].join('\n'));
+    } else if (detail.code === 'subprogram_body_inside_package_declaration') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Keep only declarations/signatures in the package declaration and move executable bodies into a package body for the same package.',
+        '  Preserve package names, public API, and dependent file structure unless the validator class explicitly forces a rename.',
+      ].join('\n'));
+    } else if (detail.code === 'missing_std_logic_1164_clause' || detail.code === 'missing_numeric_std_clause') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing file locally by adding the missing IEEE import in that same file only.',
+        detail.code === 'missing_std_logic_1164_clause'
+          ? '  Add library ieee; and use ieee.std_logic_1164.all; before relying on std_logic, std_ulogic, or std_logic_vector.'
+          : '  Add use ieee.numeric_std.all; before relying on unsigned, signed, resize, to_integer, to_unsigned, or to_signed.',
+        '  Do not redesign ports, types, or logic when the failure is only a missing local import clause.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'illegal_scalar_type_alias'
+      || detail.code === 'end_statement_file_extension'
+      || detail.code === 'natural_language_leakage'
+      || detail.code === 'reconstrained_subtype_alias'
+      || detail.code === 'anonymous_array_object_declaration'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the package/type definition locally without changing overall design intent.',
+        detail.code === 'illegal_scalar_type_alias'
+          ? '  Use subtype for constrained scalar aliases derived from integer/natural/positive instead of declaring a new type.'
+          : detail.code === 'reconstrained_subtype_alias'
+            ? '  Reuse the existing constrained subtype directly, or derive the new subtype from the true unconstrained base type instead of re-constraining the alias.'
+            : detail.code === 'anonymous_array_object_declaration'
+              ? '  Declare a named array type or subtype first, then declare the object using that named type instead of inline array(...) of ... syntax.'
+          : detail.code === 'end_statement_file_extension'
+            ? '  End the design unit with only the legal unit identifier or a bare end statement; never include a filename suffix.'
+            : '  Remove prose from executable/declarative syntax and keep any explanation only in trailing VHDL comments after a legal statement.',
+      ].join('\n'));
+    } else if (detail.code === 'variable_assigned_with_signal_operator' || detail.code === 'signal_assigned_with_variable_operator') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair assignment operators in place: variables use := and signals use <=.',
+        '  Do not convert objects between signal and variable form unless operator repair alone cannot satisfy the file.',
+      ].join('\n'));
+    } else if (detail.code === 'typed_port_association_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the failing port map locally instead of regenerating the design.',
+        '  Match the actual expression to the formal type exactly at the association boundary: use unsigned(...) or signed(...) only when the formal port requires that type, and remove raw std_logic_vector wrapping that breaks typed formals.',
+        '  Preserve the entity interface and keep the fix at the specific instantiation unless the same typed mismatch is structurally repeated elsewhere in the same file.',
+      ].join('\n'));
+    } else if (detail.code === 'output_port_readback') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Introduce or reuse an internal mirror signal/variable for the computation and drive the out port from that internal object.',
+        '  Preserve the external port interface exactly while repairing the internal implementation locally.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'numeric_std_operator_misuse'
+      || detail.code === 'illegal_numeric_logical_hybrid'
+      || detail.code === 'illegal_prefix_operator_form'
+      || detail.code === 'resize_on_raw_std_logic_vector'
+      || detail.code === 'resize_with_range_attribute'
+      || detail.code === 'to_integer_on_raw_logic_type'
+      || detail.code === 'typed_bitwise_mismatch'
+      || detail.code === 'typed_unary_mismatch'
+      || detail.code === 'typed_helper_actual_mismatch'
+      || detail.code === 'typed_function_result_mismatch'
+      || detail.code === 'typed_port_association_mismatch'
+      || detail.code === 'shift_left_on_raw_std_logic_vector'
+      || detail.code === 'shift_right_on_raw_std_logic_vector'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair numeric_std typing locally: convert operands into unsigned/signed before resize, bitwise operations, shifts, or to_integer.',
+        detail.code === 'illegal_prefix_operator_form'
+          ? '  Replace function-style/prefix operator forms with legal infix VHDL operators on operands of matching type and width.'
+          : '  Replace pseudo-boolean arithmetic hybrids with explicit comparisons or typed intermediate values.',
+      ].join('\n'));
+    } else if (detail.code === 'reserved_identifier') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Rename only the reserved-word identifiers that violate VHDL legality.',
+        '  Use safe descriptive replacements and keep the rest of the file structure unchanged.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'illegal_multidimensional_logic_vector'
+      || detail.code === 'anonymous_array_object_declaration'
+      || detail.code === 'reconstrained_subtype_alias'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the array/subtype declaration locally without redesigning consuming logic unless the declaration itself forces a compatible type update.',
+        detail.code === 'illegal_multidimensional_logic_vector'
+          ? '  Replace packed vector-of-vector syntax with a named array type or a flattened legal vector.'
+          : detail.code === 'anonymous_array_object_declaration'
+            ? '  Do not declare objects with inline array(...) of ... syntax. Declare a named array type/subtype first, then declare the signal/variable with that named type.'
+          : '  Remove illegal re-constraints from already constrained aliases, or derive a new legal subtype from the real base type.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'interface_arrow_syntax'
+      || detail.code === 'undeclared_interface_dimension_reference'
+      || detail.code === 'top_level_generic_default_missing'
+      || detail.code === 'top_level_port_unconstrained'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the interface declaration contract locally and keep external naming stable.',
+        detail.code === 'interface_arrow_syntax'
+          ? '  Use ":" inside entity/component generic and port declarations; reserve "=>" for maps and aggregates only.'
+          : detail.code === 'undeclared_interface_dimension_reference'
+            ? '  Declare every width/generic/constant before using it in a port, generic, or type declaration.'
+            : detail.code === 'top_level_generic_default_missing'
+              ? '  Add legal default values for top-level generics so the generated top/test flow remains analyzable and runnable.'
+              : '  Constrain top-level simulation-facing ports explicitly instead of leaving dimensions open.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'missing_std_logic_1164_clause'
+      || detail.code === 'missing_numeric_std_clause'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Add the required local IEEE library/use clauses in the same file that uses the referenced types or functions.',
+        '  Do not rely on imports from other files, packages, or context outside the current file.',
+      ].join('\n'));
+    }
+  }
+
+  if (sections.length === 0) {
+    return '';
+  }
+
+  return `Repair-loop caller guidance:\n${sections.join('\n')}`;
+}
+
+export function buildRepairLoopCallerContract(params: {
+  validation: GeneratedVhdlValidationResult;
+  repairAttempt?: number;
+  repairAttemptLimit?: number;
+}) {
+  const attemptLine = typeof params.repairAttempt === 'number' && typeof params.repairAttemptLimit === 'number'
+    ? `- Repair loop attempt: ${params.repairAttempt}/${params.repairAttemptLimit}`
+    : null;
+  const classSpecific = buildFailureCodeSpecificRepairShaping(params.validation);
+
+  return [
+    'Repair-loop caller contract:',
+    '- This is a local continuation of the existing generated file set, not a fresh regeneration.',
+    '- Fix the already generated files completely enough to pass the active validation gate.',
+    '- Preserve files that are already passing unless a listed dependency must change with the target repair.',
+    '- If several failure classes hit the same file, resolve all of them in the same replacement for that file.',
+    '- Prefer the smallest coherent file-local correction that satisfies the validator and GHDL.',
+    '- Do not redesign the project, rename unrelated interfaces, or introduce new files unless the listed failure requires it.',
+    ...(attemptLine ? [attemptLine] : []),
+    ...(classSpecific ? ['', classSpecific] : []),
+  ].join('\n');
 }
 
 function requirePassingSimulationForMacro(params: {
@@ -458,15 +654,95 @@ export async function runAiAnalyzeJob(params: {
     }
 
     retryUsed = true;
+    const runDeterministicRepairPasses = async (input: {
+      files: RepairableGeneratedFile[];
+      validation: GeneratedVhdlValidationResult;
+    }) => {
+      let deterministicFiles = input.files;
+      let deterministicValidation = input.validation;
+      let deterministicChangedAny = false;
+
+      for (
+        let deterministicPass = 1;
+        deterministicPass <= GENERATED_CODE_MAX_DETERMINISTIC_REPAIR_PASSES;
+        deterministicPass += 1
+      ) {
+        const deterministicRepair = await applyDeterministicGeneratedCodeRepairs({
+          validation: deterministicValidation,
+          availableFiles: deterministicFiles,
+        });
+        if (!deterministicRepair.changed) {
+          break;
+        }
+
+        deterministicChangedAny = true;
+        deterministicFiles = deterministicRepair.repairedFiles;
+        deterministicValidation = requirePassingSimulationForMacro({
+          macroId,
+          validation: await validateGeneratedVhdlWithGhdl({
+            macroId,
+            projectPath: normalizedProjectPath,
+            tbGenerationMode,
+            artifactDirectory,
+            savedArtifacts: deterministicFiles.map((file) => ({
+              fileName: path.basename(file.relativePath),
+              path: file.absolutePath,
+              kind: file.kind,
+            })),
+            architectProject,
+          }),
+        });
+        if (deterministicValidation.ok) {
+          break;
+        }
+      }
+
+      return {
+        files: deterministicFiles,
+        validation: deterministicValidation,
+        changed: deterministicChangedAny,
+      };
+    };
+
+    const deterministicBeforeLlm = await runDeterministicRepairPasses({
+      files: params.files,
+      validation: params.validationResult,
+    });
+
+    if (deterministicBeforeLlm.changed) {
+      if (deterministicBeforeLlm.validation.ok) {
+        return {
+          repairedFiles: deterministicBeforeLlm.files,
+          validationResult: deterministicBeforeLlm.validation,
+          parsedRepairs: deterministicBeforeLlm.files
+            .filter((file) => {
+              const before = params.files.find((candidate) => candidate.absolutePath === file.absolutePath);
+              return before && before.content !== file.content;
+            })
+            .map((file) => ({
+              relativePath: file.relativePath,
+              content: file.content,
+            })),
+        };
+      }
+      params = {
+        ...params,
+        files: deterministicBeforeLlm.files,
+        validationResult: deterministicBeforeLlm.validation,
+      };
+    }
+
     const repairPrompt = `${buildGeneratedCodeRepairPrompt({
       originalPrompt: initialPrompt,
       macroId,
       macroLabel: macroSpec.label,
       validation: params.validationResult,
       availableFiles: params.files,
-    })}${typeof params.repairAttempt === 'number' && typeof params.repairAttemptLimit === 'number'
-      ? `\nRepair loop attempt: ${params.repairAttempt}/${params.repairAttemptLimit}\n`
-      : ''}`;
+    })}\n\n${buildRepairLoopCallerContract({
+      validation: params.validationResult,
+      repairAttempt: params.repairAttempt,
+      repairAttemptLimit: params.repairAttemptLimit,
+    })}\n`;
     aiResult = await runModelAnalysis({
       ai,
       provider: selectedProvider,
@@ -512,9 +788,20 @@ export async function runAiAnalyzeJob(params: {
       }),
     });
 
+    const deterministicAfterLlm = repairedValidation.ok
+      ? {
+        files: updatedFiles,
+        validation: repairedValidation,
+        changed: false,
+      }
+      : await runDeterministicRepairPasses({
+        files: updatedFiles,
+        validation: repairedValidation,
+      });
+
     return {
-      repairedFiles: updatedFiles,
-      validationResult: repairedValidation,
+      repairedFiles: deterministicAfterLlm.files,
+      validationResult: deterministicAfterLlm.validation,
       parsedRepairs,
     };
   };
@@ -598,9 +885,16 @@ export async function runAiAnalyzeJob(params: {
         if (!sharedRepair) {
           break;
         }
+        const previousRepairableFiles = repairableFiles;
         repairableFiles = sharedRepair.repairedFiles;
         ghdlValidation = sharedRepair.validationResult;
-        if (sharedRepair.parsedRepairs.length > 0) {
+        const changedArtifactPaths = repairableFiles
+          .filter((file) => {
+            const previous = previousRepairableFiles.find((candidate) => candidate.absolutePath === file.absolutePath);
+            return previous && previous.content !== file.content;
+          })
+          .map((file) => file.absolutePath);
+        if (changedArtifactPaths.length > 0) {
           savedGeneratedFiles = savedGeneratedFiles.map((artifact) => {
             const repaired = repairableFiles.find((file) => file.absolutePath === artifact.path);
             return repaired ? { ...artifact, content: repaired.content } : artifact;

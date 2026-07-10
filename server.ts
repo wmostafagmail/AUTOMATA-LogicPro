@@ -1853,9 +1853,11 @@ async function runModelAnalysis(params: {
 }
 
 async function bootstrap() {
+  console.log('Bootstrap: starting server initialization.');
   const app = express();
   const PORT = 3000;
   const HOST = '127.0.0.1';
+  console.log('Bootstrap: creating session security context.');
   const {
     sessionManager,
     getRequiredSession,
@@ -1866,6 +1868,7 @@ async function bootstrap() {
     normalizeFilesystemPath,
     isPathWithinRoot,
   });
+  console.log('Bootstrap: creating AI job security context.');
   const {
     cancelAiJobHandler,
     getAiJobStatusHandler,
@@ -1877,6 +1880,7 @@ async function bootstrap() {
 
   // Middleware for body parsing
   app.use(express.json({ limit: '10mb' }));
+  console.log('Bootstrap: express middleware configured.');
 
   // Initialize Gemini Client safely
   let ai: GoogleGenAI | null = null;
@@ -1892,6 +1896,7 @@ async function bootstrap() {
   } else {
     console.warn('GEMINI_API_KEY environment variable is not defined. Gemini is disabled; AI Assist defaults to available local providers such as Ollama.');
   }
+  console.log('Bootstrap: building route contexts.');
   const {
     getProvidersHandler,
     getRemoteExportConsentHandler,
@@ -1996,6 +2001,7 @@ async function bootstrap() {
   });
 
   // --- API ROUTES ---
+  console.log('Bootstrap: registering API routes.');
 
   app.get('/api/health', (req, res) => {
     res.json({ status: 'healthy', database: 'local_persistence' });
@@ -2065,6 +2071,7 @@ async function bootstrap() {
   // --- VITE MIDDLEWARE OR STATIC SERVER ---
 
   if (process.env.NODE_ENV !== 'production') {
+    console.log('Bootstrap: creating Vite development middleware.');
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: {
@@ -2091,6 +2098,7 @@ async function bootstrap() {
     app.use(vite.middlewares);
     console.log('Mounted Vite development middleware.');
   } else {
+    console.log('Bootstrap: configuring static production serving.');
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {

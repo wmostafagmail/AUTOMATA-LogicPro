@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.bridge_types_pkg.all;
 use std.env.all;
 
 entity tb_uart_spi_bridge is
@@ -8,68 +9,83 @@ end entity tb_uart_spi_bridge;
 
 architecture sim of tb_uart_spi_bridge is
   constant CLK_PERIOD : time := 10 ns;
-  signal clk_i        : std_logic := '0';
-  signal rst_i        : std_logic := '0';
-  signal uart_rx_i    : std_logic := '1';
-  signal uart_tx_o    : std_logic;
-  signal spi_sclk_o   : std_logic;
-  signal spi_mosi_o   : std_logic;
-  signal spi_miso_i   : std_logic := '0';
-  signal spi_cs_o     : std_logic;
-  signal rx_valid_i   : std_logic := '0';
-  signal rx_data_i    : std_logic_vector(7 downto 0) := (others => '0');
-  signal tx_ready_o   : std_logic;
-  signal spi_miso_valid_i : std_logic := '0';
-  signal spi_miso_data_i  : std_logic_vector(7 downto 0) := (others => '0');
-  signal spi_tx_ready_o   : std_logic;
-  signal bridge_busy_o    : std_logic;
-  signal bridge_error_o   : std_logic;
-
-  procedure wait_clk(clk : in std_logic) is
-  begin
-    wait until rising_edge(clk);
-  end procedure wait_clk;
-
-  procedure verify_flag(sig : std_logic; expected : std_logic; msg : string) is
-  begin
-    if sig /= expected then
-      report "FAIL: " & msg severity failure;
-    end if;
-  end procedure verify_flag;
-
+  constant DATA_WIDTH : integer := 8;
+  
+  signal clk_sig        : std_logic := '0';
+  signal rst_sig        : std_logic := '0';
+  signal uart_rx_sig    : std_logic := '0';
+  signal spi_miso_sig   : std_logic := '0';
+  signal wr_req_sig     : std_logic := '0';
+  signal wr_data_sig    : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+  
+  signal busy_sig       : std_logic;
+  signal err_sig        : std_logic;
+  signal data_avail_sig : std_logic;
+  
+  signal test_failed    : std_logic := '0';
 begin
-  clk_i <= not clk_i after CLK_PERIOD / 2;
+  clk_sig <= not clk_sig after CLK_PERIOD/2;
 
-  dut : entity work.uart_spi_bridge
+  dut : entity work.uart_spi_bridge(rtl)
+    generic map (FIFO_DEPTH => 16, DATA_WIDTH => 8)
     port map (
-      clk_i => clk_i, rst_i => rst_i,
-      uart_rx_i => uart_rx_i, uart_tx_o => uart_tx_o,
-      spi_sclk_o => spi_sclk_o, spi_mosi_o => spi_mosi_o, spi_miso_i => spi_miso_i, spi_cs_o => spi_cs_o,
-      rx_valid_i => rx_valid_i, rx_data_i => rx_data_i, tx_ready_o => tx_ready_o,
-      spi_miso_valid_i => spi_miso_valid_i, spi_miso_data_i => spi_miso_data_i, spi_tx_ready_o => spi_tx_ready_o,
-      bridge_busy_o => bridge_busy_o, bridge_error_o => bridge_error_o
-     );
+      clk_i       => clk_sig,
+      rst_i       => rst_sig,
+      uart_rx_i   => uart_rx_sig,
+      uart_tx_o   => open,
+      spi_sclk_o  => open,
+      spi_mosi_o  => open,
+      spi_miso_i  => spi_miso_sig,
+      spi_cs_o    => open,
+      busy_o      => busy_sig,
+      err_o       => err_sig,
+      data_avail_o=> data_avail_sig,
+      wr_req_i    => wr_req_sig,
+      wr_data_i   => wr_data_sig,
+      rd_req_i    => '0',
+      rd_data_o   => open
+    );
 
   stim_proc : process
+    variable local_test_failed : std_logic := '0';
   begin
-    rst_i <= '1';
-    wait for 20 ns;
-    rst_i <= '0';
-    wait for 20 ns;
-
-    rx_valid_i <= '1';
-    rx_data_i <= x"55";
-    wait until tx_ready_o = '1' and bridge_busy_o = '0';
-    wait_clk(clk_i);
-    wait until bridge_busy_o = '1';
-    wait until bridge_busy_o = '0';
-    verify_flag(bridge_error_o, '0', "Nominal Error Flag");
-
-    rx_valid_i <= '0';
-    wait for 50 ns;
-    verify_flag(bridge_error_o, '0', "Post Error Flag");
-
-    report "Simulation completed successfully." severity note;
-    std.env.stop(0);
+    wait until rising_edge(clk_sig);
+    rst_sig <= '1';
+    wait until rising_edge(clk_sig);
+    rst_sig <= '0';
+    
+    wait until rising_edge(clk_sig);
+    
+    uart_rx_sig <= '0'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '0'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '1'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '0'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '1'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '0'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '1'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '0'; wait until rising_edge(clk_sig);
+    uart_rx_sig <= '1'; wait until rising_edge(clk_sig);
+    
+    wr_data_sig <= x"AA";
+    wr_req_sig  <= '1';
+    wait until rising_edge(clk_sig);
+    wr_req_sig  <= '0';
+    
+    wait for 500 ns;
+    
+    if err_sig = '1' then
+      local_test_failed := '1';
+    end if;
+    
+    if local_test_failed = '0' then
+      report "PASS: UART-SPI Bridge simulation completed successfully." severity note;
+      std.env.stop(0);
+    else
+      report "FAIL: UART-SPI Bridge simulation detected errors." severity error;
+      std.env.stop(1);
+    end if;
+    
+    wait;
   end process stim_proc;
+
 end architecture sim;

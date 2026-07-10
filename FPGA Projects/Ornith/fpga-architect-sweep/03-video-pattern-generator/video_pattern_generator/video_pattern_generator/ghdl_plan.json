@@ -1,0 +1,24 @@
+{
+  "project_name": "video_pattern_generator",
+  "vhdl_standard": "--std=08",
+  "top_testbench": "tb_top_video_gen",
+  "expected_result": "Simulation PASSED (exit 0, no [FAIL] reports)",
+  "analysis_order": [
+    "src/vga_timing_pkg.vhd",
+    "src/vga_timing_gen.vhd",
+    "src/vga_pixel_window.vhd",
+    "src/video_pattern_gen.vhd",
+    "src/top_video_gen.vhd",
+    "tb/tb_top_video_gen.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 src/vga_timing_pkg.vhd",
+    "ghdl -a --std=08 src/vga_timing_gen.vhd",
+    "ghdl -a --std=08 src/vga_pixel_window.vhd",
+    "ghdl -a --std=08 src/video_pattern_gen.vhd",
+    "ghdl -a --std=08 src/top_video_gen.vhd",
+    "ghdl -a --std=08 tb/tb_top_video_gen.vhd",
+    "ghdl -e --std=08 -o vpid_tb tb_top_video_gen",
+    "ghdl -r --std=08 -o vpid_tb tb_top_video_gen --vcd=sim/vga_waveform.vcd --stop-time=20ms"
+  ]
+}

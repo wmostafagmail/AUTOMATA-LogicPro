@@ -68,6 +68,8 @@ export type FpgaArchitectStressLoopDesignSummary = {
   attempts: number;
   completedAttempts: number;
   failures: number;
+  providerRuntimeFailures: number;
+  codeQualityFailures: number;
   successes: number;
   results: RunLoopAttemptResult[];
   failureBuckets: Array<{
@@ -85,6 +87,8 @@ export type FpgaArchitectStressLoopResult = {
   attempts: number;
   completedAttempts: number;
   failures: number;
+  providerRuntimeFailures: number;
+  codeQualityFailures: number;
   successes: number;
   logFilePath: string;
   masterLogPath: string;
@@ -320,13 +324,31 @@ function normalizeDiagnosticFeedbackItem(message: string) {
   };
 }
 
+const NON_CODE_FEEDBACK_CATEGORIES = new Set([
+  'provider_runtime',
+  'other',
+  'manifest_structure',
+  'source_selection',
+]);
+
+function isCodeRelevantFeedbackCategory(category: string) {
+  return !NON_CODE_FEEDBACK_CATEGORIES.has(category);
+}
+
+function isFeedbackEligible(item: FpgaArchitectSweepFeedbackItem) {
+  if (item.source === 'validator') {
+    return true;
+  }
+  return isCodeRelevantFeedbackCategory(item.failureCategory);
+}
+
 function collectFeedbackItemsFromFailure(error: unknown, fallbackMessage: string) {
   const annotatedError = error as FpgaArchitectAttemptErrorLike | undefined;
   const details = annotatedError?.generatedVhdlValidation?.failureDetails || [];
   if (details.length > 0) {
-    return normalizeValidatorFeedbackItems(details);
+    return normalizeValidatorFeedbackItems(details).filter(isFeedbackEligible);
   }
-  return [normalizeDiagnosticFeedbackItem(fallbackMessage)];
+  return [normalizeDiagnosticFeedbackItem(fallbackMessage)].filter(isFeedbackEligible);
 }
 
 function mergeFeedbackItems(
@@ -603,6 +625,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
   const designSummaries: FpgaArchitectStressLoopDesignSummary[] = [];
   let globalFailures = 0;
+  let globalProviderRuntimeFailures = 0;
   const results: RunLoopAttemptResult[] = [];
   let currentGlobalAttempt = 0;
 
@@ -649,6 +672,7 @@ export async function runFpgaArchitectStressLoop(params: {
     const designResults: RunLoopAttemptResult[] = [];
     const designFeedbackMap = new Map<string, FpgaArchitectSweepFeedbackItem>();
     let continuationFiles: SweepContinuationFile[] = [];
+    let designProviderRuntimeFailures = 0;
 
     for (let designAttempt = 1; designAttempt <= attemptsPerDesign; designAttempt += 1) {
       if (signal?.aborted) {
@@ -817,6 +841,11 @@ export async function runFpgaArchitectStressLoop(params: {
       } catch (error: any) {
         globalFailures += 1;
         const message = error?.message || String(error);
+        const diagnostic = classifyFpgaArchitectLoopFailure(message);
+        if (diagnostic.category === 'provider_runtime') {
+          globalProviderRuntimeFailures += 1;
+          designProviderRuntimeFailures += 1;
+        }
         const feedbackItems = collectFeedbackItemsFromFailure(error, message);
         const feedbackMergeResult = mergeFeedbackItems(designFeedbackMap, feedbackItems);
         const nextContinuationFiles = await collectSweepContinuationFiles(designOutputRoot);
@@ -851,6 +880,7 @@ export async function runFpgaArchitectStressLoop(params: {
           [
             'FAIL',
             message,
+            `Failure category: ${diagnostic.label}`,
             `Repeated known failures: ${feedbackMergeResult.repeatedKnownFailures}`,
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
           ].join('\n'),
@@ -861,6 +891,7 @@ export async function runFpgaArchitectStressLoop(params: {
             'FAIL',
             preset.label,
             message,
+            `Failure category: ${diagnostic.label}`,
             `Repeated known failures: ${feedbackMergeResult.repeatedKnownFailures}`,
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
           ].join('\n'),
@@ -870,6 +901,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
     const designFailureBuckets = summarizeFpgaArchitectLoopFailures(designResults);
     const designFailures = designResults.filter((entry) => !entry.ok).length;
+    const designCodeQualityFailures = Math.max(0, designFailures - designProviderRuntimeFailures);
     const designSuccesses = designResults.length - designFailures;
     if (designFailureBuckets.length > 0) {
       await appendLog(
@@ -893,6 +925,8 @@ export async function runFpgaArchitectStressLoop(params: {
         `Attempts: ${attemptsPerDesign}`,
         `Completed Attempts: ${designResults.length}`,
         `Failures: ${designFailures}`,
+        `Provider/runtime failures: ${designProviderRuntimeFailures}`,
+        `Code-quality failures: ${designCodeQualityFailures}`,
         `Successes: ${designSuccesses}`,
       ].join('\n'),
     );
@@ -900,6 +934,8 @@ export async function runFpgaArchitectStressLoop(params: {
       masterLogPath,
       [
         `Summary for ${preset.label}: ${designFailures} failure(s), ${designSuccesses} success(es), ${designResults.length}/${attemptsPerDesign} completed.`,
+        `Provider/runtime failures: ${designProviderRuntimeFailures}`,
+        `Code-quality failures: ${designCodeQualityFailures}`,
         `Detailed Log: ${designLogPath}`,
         '',
       ].join('\n'),
@@ -913,6 +949,8 @@ export async function runFpgaArchitectStressLoop(params: {
       attempts: attemptsPerDesign,
       completedAttempts: designResults.length,
       failures: designFailures,
+      providerRuntimeFailures: designProviderRuntimeFailures,
+      codeQualityFailures: designCodeQualityFailures,
       successes: designSuccesses,
       results: designResults,
       failureBuckets: designFailureBuckets,
@@ -922,6 +960,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
   const failureBuckets = summarizeFpgaArchitectLoopFailures(results);
   const successes = results.filter((entry) => entry.ok).length;
+  const globalCodeQualityFailures = Math.max(0, globalFailures - globalProviderRuntimeFailures);
   if (failureBuckets.length > 0) {
     await appendLog(
       masterLogPath,
@@ -945,6 +984,8 @@ export async function runFpgaArchitectStressLoop(params: {
       `Attempts: ${totalAttempts}`,
       `Completed Attempts: ${results.length}`,
       `Failures: ${globalFailures}`,
+      `Provider/runtime failures: ${globalProviderRuntimeFailures}`,
+      `Code-quality failures: ${globalCodeQualityFailures}`,
       `Successes: ${successes}`,
       'Stopped Early: no',
     ].join('\n'),
@@ -954,6 +995,8 @@ export async function runFpgaArchitectStressLoop(params: {
     attempts: totalAttempts,
     completedAttempts: results.length,
     failures: globalFailures,
+    providerRuntimeFailures: globalProviderRuntimeFailures,
+    codeQualityFailures: globalCodeQualityFailures,
     successes,
     logFilePath: masterLogPath,
     masterLogPath,

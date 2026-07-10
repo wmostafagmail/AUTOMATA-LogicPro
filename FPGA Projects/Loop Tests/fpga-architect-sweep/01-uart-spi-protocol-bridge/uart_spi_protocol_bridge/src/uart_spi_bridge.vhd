@@ -1,210 +1,191 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.uart_spi_bridge_pkg.all;
+use work.bridge_types_pkg.all;
 
 entity uart_spi_bridge is
   generic (
-    CLK_FREQ_HZ : natural := 100000000
-   );
+    FIFO_DEPTH : integer := 16;
+    DATA_WIDTH : integer := 8
+  );
   port (
-    clk_i             : in  std_logic;
-    rst_i             : in  std_logic;
-    uart_rx_i         : in  std_logic;
-    uart_tx_o         : out std_logic;
-    spi_sclk_o        : out std_logic;
-    spi_mosi_o        : out std_logic;
-    spi_miso_i        : in  std_logic;
-    spi_cs_o          : out std_logic;
-    rx_valid_i        : in  std_logic;
-    rx_data_i         : in  fifo_data_t;
-    tx_ready_o        : out std_logic;
-    spi_miso_valid_i   : in  std_logic;
-    spi_miso_data_i    : in  fifo_data_t;
-    spi_tx_ready_o     : out std_logic;
-    bridge_busy_o      : out std_logic;
-    bridge_error_o     : out std_logic
-   );
+    clk_i       : in  std_logic;
+    rst_i       : in  std_logic;
+    uart_rx_i   : in  std_logic;
+    uart_tx_o   : out std_logic;
+    spi_sclk_o  : out std_logic;
+    spi_mosi_o  : out std_logic;
+    spi_miso_i  : in  std_logic;
+    spi_cs_o    : out std_logic;
+    busy_o      : out std_logic;
+    err_o       : out std_logic;
+    data_avail_o: out std_logic;
+    wr_req_i    : in  std_logic;
+    wr_data_i   : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+    rd_req_i    : in  std_logic;
+    rd_data_o   : out std_logic_vector(DATA_WIDTH-1 downto 0)
+  );
 end entity uart_spi_bridge;
 
 architecture rtl of uart_spi_bridge is
-  signal tx_ctrl : fifo_ctrl_t;
-  signal rx_ctrl : fifo_ctrl_t;
-  signal tx_mem  : std_logic_vector(0 to FIFO_DEPTH - 1) := (others => '0');
-  signal rx_mem  : std_logic_vector(0 to FIFO_DEPTH - 1) := (others => '0');
-  signal tx_wr_en : std_logic;
-  signal tx_rd_en : std_logic;
-  signal rx_wr_en : std_logic;
-  signal rx_rd_en : std_logic;
-  signal state_reg : std_logic_vector(3 downto 0) := (others => '0');
-  signal uart_shift : std_logic_vector(7 downto 0) := (others => '0');
-  signal uart_cnt   : natural range 0 to 8 := 0;
-  signal spi_shift  : std_logic_vector(7 downto 0) := (others => '0');
-  signal spi_cnt    : natural range 0 to 8 := 0;
-  signal spi_cs_reg : std_logic := '1';
-  signal err_reg    : std_logic := '0';
-  signal busy_reg   : std_logic := '0';
+  signal tx_fifo_sig : fifo_ctrl_t := fifo_init;
+  signal rx_fifo_sig : fifo_ctrl_t := fifo_init;
+
+  signal spi_busy_int : std_logic := '0';
+  signal spi_cs_int   : std_logic := '1';
+  signal spi_sclk_int : std_logic := '0';
+  signal spi_mosi_int : std_logic := '0';
+  signal spi_shift_reg: std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+  signal spi_bit_cnt  : integer range 0 to DATA_WIDTH := 0;
+
+  signal uart_rx_reg     : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+  signal uart_rx_valid   : std_logic := '0';
+  signal uart_rx_cnt     : integer range 0 to DATA_WIDTH := 0;
+
+  type ctrl_state_t is (IDLE, TX_WAIT, SPI_SHIFT, RX_WAIT, DONE);
+  signal ctrl_state_sig  : ctrl_state_t := IDLE;
+  signal ctrl_next_state : ctrl_state_t := IDLE;
+  signal ctrl_busy_int   : std_logic := '0';
+  signal ctrl_err_int    : std_logic := '0';
+  signal ctrl_data_avail : std_logic := '0';
+
 begin
-  wr_proc : process(clk_i)
+  uart_tx_o        <= '1' when uart_rx_valid = '0' else uart_rx_reg(DATA_WIDTH-1);
+  spi_cs_o         <= spi_cs_int;
+  spi_sclk_o       <= spi_sclk_int;
+  spi_mosi_o       <= spi_mosi_int;
+  busy_o           <= ctrl_busy_int;
+  err_o            <= ctrl_err_int;
+  data_avail_o     <= ctrl_data_avail;
+  rd_data_o        <= rx_fifo_sig.data when rx_fifo_sig.valid = '1' else (others => '0');
+
+  fifo_proc : process(clk_i)
+    variable fifo_var : fifo_ctrl_t;
+  begin
+    fifo_var := tx_fifo_sig;
+    if rising_edge(clk_i) then
+      if rst_i = '1' then
+        fifo_var := fifo_init;
+      else
+        if wr_req_i = '1' and fifo_var.full = '0' then
+          fifo_var.data := wr_data_i;
+          fifo_var.valid := '1';
+          fifo_var.wr_ptr := fifo_var.wr_ptr + 1;
+          fifo_var.count  := fifo_var.count + 1;
+          if fifo_var.count = FIFO_DEPTH - 1 then
+            fifo_var.full := '1';
+          end if;
+        end if;
+        if spi_busy_int = '0' and fifo_var.valid = '1' then
+          fifo_var.valid := '0';
+          fifo_var.rd_ptr := fifo_var.rd_ptr + 1;
+          fifo_var.count  := fifo_var.count - 1;
+          if fifo_var.count = 0 then
+            fifo_var.empty := '1';
+            fifo_var.full  := '0';
+          end if;
+        end if;
+        tx_fifo_sig <= fifo_var;
+      end if;
+    end if;
+  end process fifo_proc;
+
+  spi_proc : process(clk_i)
   begin
     if rising_edge(clk_i) then
       if rst_i = '1' then
-        tx_ctrl.count <= 0;
-        tx_ctrl.wr_ptr <= 0;
-        rx_ctrl.count <= 0;
-        rx_ctrl.wr_ptr <= 0;
+        spi_busy_int      <= '0';
+        spi_cs_int        <= '1';
+        spi_sclk_int      <= '0';
+        spi_mosi_int      <= '0';
+        spi_shift_reg     <= (others => '0');
+        spi_bit_cnt       <= 0;
       else
-        if tx_wr_en = '1' and tx_ctrl.count < FIFO_DEPTH then
-          if tx_ctrl.wr_ptr < FIFO_DEPTH then
-            tx_mem(to_integer(tx_ctrl.wr_ptr)) <= rx_data_i;
+        if ctrl_state_sig = TX_WAIT then
+          spi_busy_int      <= '1';
+          spi_cs_int        <= '0';
+          spi_sclk_int      <= '0';
+          spi_shift_reg     <= tx_fifo_sig.data;
+          spi_bit_cnt       <= 1;
+        elsif spi_busy_int = '1' then
+          if spi_bit_cnt < DATA_WIDTH then
+            spi_sclk_int    <= not spi_sclk_int;
+            spi_mosi_int    <= spi_shift_reg(DATA_WIDTH-1);
+            spi_shift_reg   <= spi_shift_reg(DATA_WIDTH-2 downto 0) & spi_miso_i;
+            spi_bit_cnt     <= spi_bit_cnt + 1;
+          else
+            spi_busy_int    <= '0';
+            spi_cs_int      <= '1';
+            spi_bit_cnt     <= 0;
           end if;
-          tx_ctrl.wr_ptr <= tx_ctrl.wr_ptr + 1;
-          tx_ctrl.count    <= tx_ctrl.count + 1;
-        end if;
-        if rx_wr_en = '1' and rx_ctrl.count < FIFO_DEPTH then
-          if rx_ctrl.wr_ptr < FIFO_DEPTH then
-            rx_mem(to_integer(rx_ctrl.wr_ptr)) <= spi_miso_data_i;
-          end if;
-          rx_ctrl.wr_ptr <= rx_ctrl.wr_ptr + 1;
-          rx_ctrl.count    <= rx_ctrl.count + 1;
         end if;
       end if;
     end if;
-  end process wr_proc;
+  end process spi_proc;
 
-  rd_proc : process(clk_i)
+  uart_rx_proc : process(clk_i)
   begin
     if rising_edge(clk_i) then
       if rst_i = '1' then
-        tx_ctrl.rd_ptr <= 0;
-        rx_ctrl.rd_ptr <= 0;
+        uart_rx_reg    <= (others => '0');
+        uart_rx_valid <= '0';
+        uart_rx_cnt    <= 0;
       else
-        if tx_rd_en = '1' and tx_ctrl.count > 0 then
-          if tx_ctrl.rd_ptr < FIFO_DEPTH then
-            null;
+        if uart_rx_i = '0' then
+          if uart_rx_cnt < DATA_WIDTH then
+            uart_rx_reg <= uart_rx_reg(DATA_WIDTH-2 downto 0) & uart_rx_i;
+            uart_rx_cnt <= uart_rx_cnt + 1;
           end if;
-          tx_ctrl.rd_ptr <= tx_ctrl.rd_ptr + 1;
-          tx_ctrl.count   <= tx_ctrl.count - 1;
-        end if;
-        if rx_rd_en = '1' and rx_ctrl.count > 0 then
-          if rx_ctrl.rd_ptr < FIFO_DEPTH then
-            null;
-          end if;
-          rx_ctrl.rd_ptr <= rx_ctrl.rd_ptr + 1;
-          rx_ctrl.count   <= rx_ctrl.count - 1;
+        else
+          uart_rx_valid <= '1';
         end if;
       end if;
     end if;
-  end process rd_proc;
+  end process uart_rx_proc;
 
-  tx_full   <= '1' when tx_ctrl.count = FIFO_DEPTH else '0';
-  tx_empty <= '0' when tx_ctrl.count = 0 else '1';
-  rx_full   <= '1' when rx_ctrl.count = FIFO_DEPTH else '0';
-  rx_empty <= '0' when rx_ctrl.count = 0 else '1';
+  ctrl_comb : process(ctrl_state_sig, tx_fifo_sig, spi_busy_int, uart_rx_valid)
+  begin
+    ctrl_next_state <= ctrl_state_sig;
+    ctrl_busy_int   <= '0';
+    ctrl_err_int    <= '0';
+    ctrl_data_avail <= '0';
+    case ctrl_state_sig is
+      when IDLE =>
+        if tx_fifo_sig.valid = '1' then
+          ctrl_next_state <= TX_WAIT;
+          ctrl_busy_int   <= '1';
+        end if;
+      when TX_WAIT =>
+        if spi_busy_int = '0' then
+          ctrl_next_state <= SPI_SHIFT;
+        end if;
+      when SPI_SHIFT =>
+        ctrl_next_state <= RX_WAIT;
+      when RX_WAIT =>
+        if spi_busy_int = '0' then
+          ctrl_next_state <= DONE;
+        end if;
+      when DONE =>
+        ctrl_next_state <= IDLE;
+        ctrl_data_avail <= '1';
+        if uart_rx_valid = '1' then
+          ctrl_next_state <= IDLE;
+        end if;
+      when others =>
+        ctrl_next_state <= IDLE;
+        ctrl_err_int    <= '1';
+    end case;
+  end process ctrl_comb;
 
-  main_proc : process(clk_i)
+  ctrl_seq : process(clk_i)
   begin
     if rising_edge(clk_i) then
       if rst_i = '1' then
-        state_reg <= "0000";
-        uart_shift <= (others => '0');
-        uart_cnt <= 0;
-        spi_shift <= (others => '0');
-        spi_cnt <= 0;
-        spi_cs_reg <= '1';
-        err_reg <= '0';
-        busy_reg <= '0';
-        tx_wr_en <= '0';
-        tx_rd_en <= '0';
-        rx_wr_en <= '0';
-        rx_rd_en <= '0';
-        uart_tx_o <= '1';
-        spi_sclk_o <= '0';
-        spi_mosi_o <= '0';
+        ctrl_state_sig <= IDLE;
       else
-        tx_wr_en <= '0';
-        tx_rd_en <= '0';
-        rx_wr_en <= '0';
-        rx_rd_en <= '0';
-        uart_tx_o <= '1';
-        spi_sclk_o <= '0';
-        spi_mosi_o <= '0';
-        spi_cs_reg <= '1';
-        err_reg <= '0';
-
-        case state_reg is
-          when "0000" =>
-            if rx_valid_i = '1' and tx_empty = '1' then
-              tx_wr_en <= '1';
-              if tx_full = '0' then
-                state_reg <= "0001";
-              else
-                err_reg <= '1';
-                state_reg <= "1111";
-              end if;
-            end if;
-          when "0001" =>
-            tx_rd_en <= '1';
-            if tx_ctrl.rd_ptr < FIFO_DEPTH then
-              uart_shift <= tx_mem(to_integer(tx_ctrl.rd_ptr));
-            end if;
-            uart_cnt <= 0;
-            spi_shift <= (others => '0');
-            spi_cnt <= 0;
-            spi_cs_reg <= '0';
-            state_reg <= "0010";
-          when "0010" =>
-            uart_tx_o <= uart_shift(0);
-            uart_shift <= '0' & uart_shift(7 downto 1);
-            uart_cnt <= uart_cnt + 1;
-            if uart_cnt = 8 then
-              state_reg <= "0011";
-            end if;
-          when "0011" =>
-            if uart_rx_i = '0' then
-              state_reg <= "0100";
-            end if;
-          when "0100" =>
-            spi_mosi_o <= spi_shift(7);
-            spi_sclk_o <= '1';
-            spi_cnt <= spi_cnt + 1;
-            if spi_cnt = 8 then
-              spi_sclk_o <= '0';
-              spi_cs_reg <= '1';
-              state_reg <= "0101";
-            end if;
-          when "0101" =>
-            spi_sclk_o <= '1';
-            spi_cnt <= spi_cnt + 1;
-            if spi_miso_valid_i = '1' then
-              spi_shift <= spi_shift(6 downto 0) & spi_miso_i;
-            end if;
-            if spi_cnt = 8 then
-              spi_sclk_o <= '0';
-              spi_cs_reg <= '1';
-              state_reg <= "0110";
-            end if;
-          when "0110" =>
-            if rx_empty = '0' then
-              rx_wr_en <= '1';
-              state_reg <= "1000";
-            else
-              err_reg <= '1';
-              state_reg <= "1111";
-            end if;
-          when "1000" =>
-            state_reg <= "0000";
-          when "1111" =>
-            err_reg <= '1';
-          when others =>
-            state_reg <= "0000";
-        end case;
+        ctrl_state_sig <= ctrl_next_state;
       end if;
     end if;
-  end process main_proc;
+  end process ctrl_seq;
 
-  bridge_busy_o <= busy_reg;
-  bridge_error_o <= err_reg;
-  tx_ready_o <= tx_empty;
-  spi_tx_ready_o <= rx_empty;
 end architecture rtl;

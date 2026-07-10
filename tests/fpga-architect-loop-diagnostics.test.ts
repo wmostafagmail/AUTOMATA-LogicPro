@@ -61,3 +61,21 @@ test('summarizeFpgaArchitectLoopFailures buckets repeated messages by refined ca
   assert.ok(summary.some((bucket) => bucket.ruleIds.includes('ghdl-top-generic-defaults')));
   assert.ok(summary.some((bucket) => bucket.ruleIds.includes('ghdl-clean-command-contract')));
 });
+
+test('classifyFpgaArchitectLoopFailure maps summary-only subtype-indication GHDL errors into array/subtype misuse', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/cpu_core.vhd:27:20:error: type mark expected in a subtype indication',
+  );
+
+  assert.equal(diagnostic.category, 'array_subtype_misuse');
+  assert.equal(diagnostic.label, 'Array / Subtype Misuse');
+});
+
+test('classifyFpgaArchitectLoopFailure maps illegal prefix operator failures into illegal operator usage', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Core logic simulation analysis failed: src/alu_pkg.vhd:81:35:error: missing ";" at end of statement res.data := xnor a, b;',
+  );
+
+  assert.equal(diagnostic.category, 'illegal_operator_usage');
+  assert.equal(diagnostic.label, 'Illegal Operator Usage');
+});

@@ -970,10 +970,13 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   typed_bitwise_mismatch: ['ghdl-no-raw-slv-arithmetic'],
   typed_unary_mismatch: ['ghdl-no-raw-slv-arithmetic'],
   typed_helper_actual_mismatch: ['ghdl-explicit-boundary-conversions'],
+  typed_function_result_mismatch: ['ghdl-explicit-boundary-conversions'],
+  typed_port_association_mismatch: ['ghdl-explicit-boundary-conversions', 'ghdl-instantiation-rules'],
   procedure_outer_scope_write: ['ghdl-clocked-variable-discipline'],
   variable_assigned_with_signal_operator: ['ghdl-clocked-variable-discipline'],
   signal_assigned_with_variable_operator: ['ghdl-clocked-variable-discipline'],
   illegal_multidimensional_logic_vector: ['ghdl-array-memory-rules'],
+  anonymous_array_object_declaration: ['ghdl-array-memory-rules'],
   reconstrained_subtype_alias: ['ghdl-array-memory-rules'],
   subprogram_body_inside_package_declaration: ['ghdl-record-package-rules'],
   undeclared_interface_dimension_reference: ['ghdl-top-port-constraints'],
@@ -1076,7 +1079,7 @@ export function buildCodeGeneratingCommandContract(macroId: AiMacroId) {
   ];
 
   if (macroId === 'fpga_vhdl_architect') {
-    sharedLines.push('Include explicit `analysis_order`, `top_testbench`, `run_commands`, and `expected_result` metadata that matches the generated files exactly.');
+    sharedLines.push('Include explicit `analysis_order`, `top_testbench`, and `expected_result` metadata that matches the generated files exactly. The app will synthesize deterministic `run_commands` from that structured plan.');
   } else if (macroId === 'generate_vhdl_tb') {
     sharedLines.push('Return a concrete GHDL command sequence for the DUT and testbench, including waveform output and the expected simulation result.');
   } else {

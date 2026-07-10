@@ -1,0 +1,5 @@
+create_clock -name sys_clk -period 10.0 [get_ports clk_i]
+set_property OUTPUT_DELAY 2.0 [get_ports uart_tx_o]
+set_property OUTPUT_DELAY 2.0 [get_ports spi_csn_o]
+set_property OUTPUT_DELAY 2.0 [get_ports spi_mosi_o]
+set_property OUTPUT_DELAY 2.0 [get_ports spi_sclk_o]
