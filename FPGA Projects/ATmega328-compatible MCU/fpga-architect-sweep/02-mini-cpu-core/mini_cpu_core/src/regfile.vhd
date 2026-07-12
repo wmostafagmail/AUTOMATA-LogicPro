@@ -15,7 +15,8 @@ entity regfile is
 end entity regfile;
 
 architecture rtl of regfile is
-  signal regs : reg_file_t := (others => (others => '0'));
+  type reg_array_t is array (0 to 7) of cpu_t;
+  signal regs : reg_array_t := (others => (others => '0'));
 begin
   process(clk_i)
   begin
@@ -27,6 +28,5 @@ begin
       end if;
     end if;
   end process;
-  
   src_o <= regs(src_i);
 end architecture rtl;

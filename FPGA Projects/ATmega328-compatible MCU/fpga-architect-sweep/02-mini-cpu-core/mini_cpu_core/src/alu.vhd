@@ -13,26 +13,20 @@ entity alu is
 end entity alu;
 
 architecture rtl of alu is
+  signal res_s : cpu_t;
 begin
   process(a_i, b_i, op_i)
-    variable res_v : cpu_t;
   begin
-    res_v := (others => '0');
+    res_s <= (others => '0');
     case op_i is
-      when OP_ADD =>
-        res_v := a_i + b_i;
-      when OP_SUB =>
-        res_v := a_i - b_i;
-      when OP_AND =>
-        res_v := a_i and b_i;
-      when OP_OR =>
-        res_v := a_i or b_i;
-      when OP_LDI =>
-        res_v := b_i;
-      when others =>
-        res_v := (others => '0');
+      when OP_ADD => res_s <= a_i + b_i;
+      when OP_SUB => res_s <= a_i - b_i;
+      when OP_AND => res_s <= a_i and b_i;
+      when OP_OR  => res_s <= a_i or b_i;
+      when OP_LDI => res_s <= b_i;
+      when others => res_s <= (others => '0');
     end case;
-    res_o <= res_v;
-    zero_o <= '1' when (res_v = to_unsigned(0, CPU_W)) else '0';
   end process;
+  res_o <= res_s;
+  zero_o <= '1' when (res_s = to_unsigned(0, CPU_W)) else '0';
 end architecture rtl;
