@@ -41,8 +41,10 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Any local helper procedure/function in a testbench must be declared in the architecture declarative region before `begin`.',
     'Do not declare helper procedures/functions inside a process body or after the architecture `begin`. Put helper signatures/bodies in a legal declarative region before executable statements start.',
     'Helper declarations such as `check_eq`, `check_result`, `to_slv`, `encode_dest_port`, `decode_dest_port`, and similar local utilities must appear as complete subprogram blocks before executable statements start. Never leave them after `begin`, partially inline them, or split their header/body across declarative and executable regions.',
+    'If a helper procedure/function uses `rising_edge(...)` or `falling_edge(...)` on a formal clock argument, declare that formal as a signal input formal, for example `signal clk_i : in std_logic`. Do not call edge functions on non-signal helper formals.',
     'Local helper procedures/functions must not mutate outer-scope variables or signals implicitly. If helper logic needs to update `test_failed`, `out_test_failed`, pass/fail counters, expected values, scoreboards, or other mutable state, pass those targets explicitly as formal parameters or keep the state local to the calling process.',
     'A helper procedure such as `check_eq`, `check_result`, `mark_fail`, or `expect_result` must not assign directly to architecture-scope bookkeeping objects like `test_failed`, `out_test_failed`, `pass_count`, or `fail_count` unless those objects are passed in through legal VHDL formal arguments.',
+    'Treat helper placement and bookkeeping ownership as one atomic legality rule set in self-checking testbenches: helpers such as `wait_clk`, `check_eq`, `check_result`, or `expect_*` belong in one legal declarative region before executable statements, while mutable bookkeeping state such as `cnt`, `loop_cnt`, `pass_count`, `fail_count`, `current_test`, or `test_failed` belongs inside the owning process by default unless a true architecture-level signal/shared-variable requirement exists.',
     'In a process, declare variables only in the declarative region between the process header and `begin`. Never declare variables after the first sequential statement.',
     'Declare architecture-level signals only in the architecture declarative region before `begin`. Never declare a `signal` inside executable regions such as process bodies, if/case branches, or sequential statements; use a process-local variable declared before the process `begin` if you need a temporary intermediate.',
     'Do not emit pragma translate_on/translate_off lines.',
@@ -50,6 +52,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Do not place helper state such as `current_test`, `expected_count`, `pass_count`, `fail_count`, `res_int`, result trackers, or temporary bookkeeping variables in the architecture declarative region. Put them inside a process/subprogram or model them as signals/constants if they must persist across cycles.',
     'For self-checking testbenches, flags such as test_failed must be signals or process-local variables.',
     'No executable-region declarations after `begin`. All signals, constants, procedures, functions, types, subtypes, and helper declarations must appear in a legal declarative region before executable statements start.',
+    'Do not declare unconstrained local string variables such as `variable msg : string;` in generated testbenches. Use a directly reported string literal, a constant with an explicit bound, or a legal helper contract that does not require an unconstrained mutable string object.',
   ],
   identifierReservedWord: [
     'Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code.',
@@ -99,12 +102,14 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Keep DUT reset style/polarity consistent with the generated testbench.',
     'For synchronous checks, sample outputs only after the active clock edge update has taken effect.',
     'For sequential DUTs such as counters, registers, and FSM outputs, wait for the correct post-edge observation point, allow reset to settle, and do not assert next-state values one clock too early.',
+    'In testbenches, never index memories or scoreboards with direct raw logic-vector conversions such as `mem(to_integer(unsigned(addr_slv)))` on DUT-visible address/debug buses. Route those conversions through a local guarded helper that first verifies every bit is `0` or `1` and returns a safe default if unknown/metavalue bits are present.',
     'Any report/assert message must use valid VHDL string concatenation with `&`.',
     'If any RTL or testbench file references a work package/helper package/shared declaration such as `work.counter_pkg`, that package file must be generated explicitly and must appear before dependents in GHDL analysis order.',
     'Do not reference unresolved work units. Every entity, package, component, and helper used from work must either be generated in the project or removed from the design/testbench.',
     'Use VHDL literal syntax only. Never emit Verilog/SystemVerilog-sized literals such as `3\'b000`, `8\'hFF`, `4\'d7`, or `6\'o77` inside VHDL. Use VHDL forms like `"000"`, `x"FF"`, `to_unsigned(7, 4)`, or explicit typed conversions instead.',
     'Avoid runtime-unsafe placeholder indexing and array math. Any generated indexing, slicing, resize, shift count, and loop bounds must stay within declared widths/ranges for the intended stimuli.',
     'The generated DUT and testbench must be suitable for a full GHDL analyze -> elaborate -> simulate flow as written.',
+    'In self-checking testbench helper procedures/functions, do not constrain string formals with fixed ranges such as `name : string(1 to 32)` when the helper is called with varying string literals. Prefer an unconstrained read-only `string` formal for message text, or avoid string helper formals entirely and report literals directly at the call site.',
   ],
 } as const;
 
@@ -150,6 +155,7 @@ export const STRICT_CODE_GENERATION_RULE_LIST = [
   'Do not insert explanatory prose inside VHDL declarations or executable statements. Keep comments on their own side of a valid `--` comment boundary after a syntactically complete VHDL statement.',
   'End design units with legal VHDL terminators only, for example `end package;`, `end package pkg_name;`, `end entity;`, or `end architecture rtl;`. Never append file extensions such as `.vhd` or `.vhdl` inside end statements.',
   'Use `<=` only for signals and `:=` only for variables/constants. Never assign to a variable with `<=` or to a signal with `:=`.',
+  'Never use `:=` inside boolean conditions (`if`, `elsif`, `when`, or `assert`). Conditions must use comparison operators such as `=`, `/=`, `<`, `<=`, `>`, or `>=`; keep `:=` only as a standalone variable assignment statement.',
 ];
 
 const CODE_GENERATING_MACRO_IDS: AiMacroId[] = [

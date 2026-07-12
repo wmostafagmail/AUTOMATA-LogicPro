@@ -3,20 +3,20 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 package cpu_pkg is
-    -- Data and Address Widths
-    constant DATA_WIDTH : integer := 8;
-    constant ADDR_WIDTH : integer := 8;
-    constant INST_WIDTH : integer := 16;
+    -- Register count and width
+    constant REG_COUNT : integer := 8;
+    constant WORD_WIDTH : integer := 8;
 
-    -- Opcode definitions (Avoiding reserved keywords)
+    -- Opcode Definitions
     subtype opcode_t is std_logic_vector(3 downto 0);
-    constant OP_HALT      : opcode_t := x"0";
-    constant OP_LOAD      : opcode_t := x"1"; -- Load Reg, Addr
-    constant OP_STORE     : opcode_t := x"2"; -- Store Reg, Addr
-    constant OP_ADD       : opcode_t := x"3"; -- RegD = RegA + Imm
-    constant OP_SUB       : opcode_t := x"4"; -- RegD = RegA - Imm
-    constant OP_LOGIC_AND : opcode_t := x"5"; 
-    constant OP_LOGIC_OR  : opcode_t := x"6";
-    constant OP_JUMP      : opcode_t := x"7"; -- PC = Addr
+    constant OP_NOP   : opcode_t := "0000"; -- No Operation
+    constant OP_LOAD  : opcode_t := "0001"; -- LOAD R_dest, Addr (R[dest] = Mem[Addr])
+    constant OP_STORE : opcode_t := "0010"; -- STORE R_src, Addr (Mem[Addr] = R[src])
+    constant OP_ADD   : opcode_t := "0011"; -- ADD R_dest, R_src (R[dest] = R[dest] + R[src])
+    constant OP_SUB   : opcode_t := "0100"; -- SUB R_dest, R_src (R[dest] = R[dest] - R[src])
+    constant OP_AND   : opcode_t := "0101"; -- AND R_dest, R_src (R[dest] = R[dest] and R[src])
+    constant OP_OR    : opcode_t := "0110"; -- OR R_dest, R_src (R[dest] = R[dest] or R[src])
+    constant OP_JUMP  : opcode_t := "0111"; -- JUMP Addr (PC = Addr)
+    constant OP_BZ    : opcode_t := "1000"; -- BZ R_src, Offset (If R[src]==0 PC = PC + Offset)
 
 end package cpu_pkg;

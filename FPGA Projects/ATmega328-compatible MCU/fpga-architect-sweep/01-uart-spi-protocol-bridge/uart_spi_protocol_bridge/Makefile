@@ -1,13 +1,15 @@
-SIM_CMD := ghdl
-STANDARD := 08
-VCD_OUT := sim/bridge_sim.vcd
+GHDL = ghdl
+STD = --std=08
+SRC = src/uart_spi_bridge_pkg.vhd src/uart_spi_bridge_pkg_body.vhd src/uart_spi_bridge.vhd
+TB = tb/tb_uart_spi_bridge.vhd
 
 all: sim
 
-clean:
-	-rm -rf work-* *.o *~ *.vcd
+sim:
+	$(GHDL) -a $(STD) $(SRC)
+	$(GHDL) -a $(STD) $(TB)
+	$(GHDL) -e $(STD) tb_uart_spi_bridge
+	$(GHDL) -r $(STD) tb_uart_spi_bridge --vcd=tb_uart_spi_bridge.vcd
 
-sim: clean
-	$(SIM_CMD) -a --std=$(STANDARD) src/*.vhd tb/*.vhd
-	$(SIM_CMD) -e tb_uart_spi_bridge
-	./tb_uart_spi_bridge --vcd=$(VCD_OUT)
+clean:
+	rm -f *.vcd *.o *.cf

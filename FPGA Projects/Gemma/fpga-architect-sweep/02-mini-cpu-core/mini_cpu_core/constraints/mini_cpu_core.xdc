@@ -1,5 +1,5 @@
-# Clock definition: 100MHz
+# Constraints for mini_cpu_core
+# Clock definition (100MHz)
 create_clock -period 10.000 -name sys_clk [get_ports clk]
 
-# Reset and IO placeholders (Generic)
-# set_input_delay -clock sys_clk 2.0 [get_ports reset]
+# I/O mapping would go here based on board selection

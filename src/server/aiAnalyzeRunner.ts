@@ -106,10 +106,36 @@ function buildAnnotatedAiAnalyzeError(
   return error;
 }
 
+function hasBundledDeclarationScopeCluster(validation: GeneratedVhdlValidationResult) {
+  return (validation.failureDetails || []).some((detail) => (
+    detail.code === 'architecture_body_variable'
+    || detail.code === 'declaration_after_begin'
+    || detail.code === 'executable_region_signal_declaration'
+    || detail.code === 'procedure_outer_scope_write'
+  ));
+}
+
 export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlValidationResult) {
   const details = validation.failureDetails || [];
   const seenCodes = new Set<string>();
   const sections: string[] = [];
+  const hasDeclarationScopeCluster = details.some((detail) => (
+    detail.code === 'architecture_body_variable'
+    || detail.code === 'declaration_after_begin'
+    || detail.code === 'executable_region_signal_declaration'
+    || detail.code === 'procedure_outer_scope_write'
+  ));
+
+  if (hasDeclarationScopeCluster) {
+    sections.push([
+      '- declaration_scope_cluster',
+      '  Treat declaration placement, helper placement, and bookkeeping ownership as one bundled local repair pass in the existing file.',
+      '  For self-checking testbenches, move helper procedures/functions such as `wait_clk`, `check_eq`, `check_result`, and `expect_*` into one legal declarative region before executable statements start.',
+      '  Move mutable bookkeeping objects such as `cnt`, `loop_cnt`, `pass_count`, `fail_count`, `current_test`, and `test_failed` out of the architecture body and into the owning process declarative region unless a true architecture-level signal/shared-variable requirement exists.',
+      '  If a helper needs to update mutable state, pass that state explicitly as a formal parameter or keep the state local to the caller process. Do not keep hidden outer-scope writes.',
+      '  Repair the whole file-local declaration-scope cluster in one pass. Do not regenerate unrelated files or rename stable interfaces just to fix placement/scope legality.',
+    ].join('\n'));
+  }
 
   for (const detail of details) {
     if (!detail.code || seenCodes.has(detail.code)) {
@@ -144,6 +170,36 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         detail.code === 'procedure_outer_scope_write'
           ? '  Replace hidden outer-scope mutation by passing the mutated object explicitly as a formal parameter or by keeping mutable state local to the caller process.'
           : '  Keep executable statements and design behavior intact; repair placement, not architecture intent.',
+      ].join('\n'));
+    } else if (detail.code === 'tb_unconstrained_string_variable') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing testbench file locally. Do not regenerate unrelated files just because a message/report helper is illegal.',
+        '  Remove mutable unconstrained local string variables such as `variable msg : string;` or `variable fail_msg : string;`.',
+        '  Replace them with only these legal patterns: a direct report/assert literal at the call site, a constant with an explicit bound, or a helper/report path that does not require mutable string storage.',
+        '  Do not introduce placeholder string buffers, deferred string assembly, or unconstrained mutable string bookkeeping anywhere in the testbench.',
+      ].join('\n'));
+    } else if (detail.code === 'clock_edge_helper_requires_signal_formal') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing helper header locally instead of regenerating the testbench.',
+        '  Any helper formal referenced by `rising_edge(...)` or `falling_edge(...)` must be declared as a signal input formal, for example `signal clk_i : in std_logic`.',
+        '  Preserve the helper body and call sites. Only normalize the formal clause so the edge test is legal to GHDL before the file reaches compile/analyze.',
+      ].join('\n'));
+    } else if (detail.code === 'tb_unguarded_logic_index_conversion') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing testbench file locally by removing direct raw-logic array indexing such as `mem(to_integer(unsigned(addr_slv)))`.',
+        '  Introduce or reuse a local guarded helper such as `tb_safe_slv_to_index(...)` that first verifies every bit is `0` or `1`, then converts to an index only after that check passes.',
+        '  Preserve the existing memory model and stimuli. Do not redesign the DUT or regenerate unrelated files just to normalize the testbench indexing path.',
+      ].join('\n'));
+    } else if (detail.code === 'tb_string_formal_actual_constraint_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing helper/subprogram contract locally instead of regenerating the whole testbench.',
+        '  Do not declare constrained string formals such as `name : string(1 to 32)` or `msg : string(1 to N)` in self-checking helper procedures/functions.',
+        '  Replace constrained helper string formals with unconstrained read-only `string`, or remove the helper string formal entirely and report the literal directly at the call site.',
+        '  Preserve helper behavior and the self-checking flow; only normalize the string contract so actual/formal lengths can vary safely across calls.',
       ].join('\n'));
     } else if (detail.code === 'subprogram_body_inside_package_declaration') {
       sections.push([
@@ -667,6 +723,7 @@ export async function runAiAnalyzeJob(params: {
         deterministicPass <= GENERATED_CODE_MAX_DETERMINISTIC_REPAIR_PASSES;
         deterministicPass += 1
       ) {
+        const declarationScopeClusterActive = hasBundledDeclarationScopeCluster(deterministicValidation);
         const deterministicRepair = await applyDeterministicGeneratedCodeRepairs({
           validation: deterministicValidation,
           availableFiles: deterministicFiles,
@@ -694,6 +751,9 @@ export async function runAiAnalyzeJob(params: {
         });
         if (deterministicValidation.ok) {
           break;
+        }
+        if (declarationScopeClusterActive && hasBundledDeclarationScopeCluster(deterministicValidation)) {
+          continue;
         }
       }
 

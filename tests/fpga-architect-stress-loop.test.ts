@@ -95,8 +95,22 @@ function buildLoopDependencies(projectRoot: string, overrideRunAiAnalyzeJob: (pa
 test('runFpgaArchitectStressLoop writes master and per-design logs and returns grouped summaries', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-'));
   const staleMasterLogPath = path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.log');
+  const staleMetaPath = path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.meta.json');
+  const staleOutputRoot = path.join(projectRoot, 'fpga-architect-sweep');
   await fs.mkdir(path.dirname(staleMasterLogPath), { recursive: true });
   await fs.writeFile(staleMasterLogPath, 'stale-master-content\n', 'utf8');
+  await fs.mkdir(staleOutputRoot, { recursive: true });
+  await fs.writeFile(path.join(staleOutputRoot, 'stale.txt'), 'stale', 'utf8');
+  await fs.writeFile(
+    staleMetaPath,
+    JSON.stringify({
+      runtimeFingerprint: 'stalefinger01',
+      runtimePid: 99999,
+      sourceFiles: ['src/server/generatedVhdlValidation.ts'],
+      createdAt: '2026-07-10T00:00:00.000Z',
+    }, null, 2),
+    'utf8',
+  );
   const { sessionManager, session } = createLoopHarness(projectRoot);
   const presets = [createTestPreset('alpha', 'Alpha Design'), createTestPreset('beta', 'Beta Design')];
 
@@ -125,6 +139,9 @@ test('runFpgaArchitectStressLoop writes master and per-design logs and returns g
   assert.equal(result.successes, 2);
   assert.equal(result.logFilePath, result.masterLogPath);
   assert.equal(result.stoppedEarly, false);
+  assert.equal(typeof result.runtimeFingerprint, 'string');
+  assert.equal(result.runtimeFingerprint.length, 12);
+  assert.equal(result.staleSweepStateDiscarded, true);
   assert.equal(result.designSummaries.length, 2);
   assert.deepEqual(
     result.designSummaries.map((summary) => ({
@@ -157,6 +174,9 @@ test('runFpgaArchitectStressLoop writes master and per-design logs and returns g
   const masterLogContent = await fs.readFile(result.masterLogPath, 'utf8');
   assert.equal(masterLogContent.includes('stale-master-content'), false);
   assert.match(masterLogContent, /FPGA Architect multi-design sweep/);
+  assert.match(masterLogContent, /Runtime Fingerprint: /);
+  assert.match(masterLogContent, /Stale Sweep State Discarded: yes/);
+  assert.match(masterLogContent, /Previous Runtime Fingerprint: stalefinger01/);
   assert.match(masterLogContent, /=== Design 1\/2: Alpha Design ===/);
   assert.match(masterLogContent, /=== Design 2\/2: Beta Design ===/);
   assert.match(masterLogContent, /Summary for Alpha Design: 1 failure\(s\), 1 success\(es\), 2\/2 completed\./);
@@ -167,9 +187,12 @@ test('runFpgaArchitectStressLoop writes master and per-design logs and returns g
   for (const summary of result.designSummaries) {
     const designLogContent = await fs.readFile(summary.logFilePath, 'utf8');
     assert.match(designLogContent, new RegExp(`Design: ${summary.label}`));
+    assert.match(designLogContent, /Runtime Fingerprint: /);
     assert.match(designLogContent, /=== Design Summary @/);
     assert.match(designLogContent, /Completed Attempts: 2/);
   }
+
+  await assert.rejects(fs.stat(path.join(staleOutputRoot, 'stale.txt')));
 });
 
 test('runFpgaArchitectStressLoop executes the full sweep even when the same failure repeats from the start', async () => {
@@ -203,6 +226,49 @@ test('runFpgaArchitectStressLoop executes the full sweep even when the same fail
   assert.match(masterLogContent, /Completed Attempts: 6/);
 });
 
+test('runFpgaArchitectStressLoop logs validator-backed categories instead of Other when machine-readable failure details exist', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-validator-category-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      const failure = new Error(
+        'FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation. tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
+      ) as Error & { generatedVhdlValidation?: any };
+      failure.generatedVhdlValidation = {
+        ok: false,
+        stage: 'prevalidate',
+        summary: 'validator failed',
+        logs: [],
+        validatedTopEntities: [],
+        failureCode: 'declaration_after_begin',
+        failureCategory: 'declaration_scope',
+        ruleIds: ['ghdl-clocked-variable-discipline'],
+        failureDetails: [
+          {
+            code: 'declaration_after_begin',
+            category: 'declaration_scope',
+            ruleIds: ['ghdl-clocked-variable-discipline'],
+            message: 'tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
+            excerpt: 'declares procedure "wait_clk" inside an executable region after "begin"',
+            relativePath: 'tb/tb_uart_spi_bridge.vhd',
+          },
+        ],
+      };
+      throw failure;
+    }),
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 1,
+  });
+
+  assert.equal(result.failureBuckets[0]?.label, 'Procedure / Testbench Scope');
+  const masterLogContent = await fs.readFile(result.masterLogPath, 'utf8');
+  assert.match(masterLogContent, /Failure category: Procedure \/ Testbench Scope/);
+  assert.doesNotMatch(masterLogContent, /Failure category: Other/);
+});
+
 test('runFpgaArchitectStressLoop emits expanded progress metadata with global and per-design counters', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-progress-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -213,6 +279,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
     completedAttempts: number;
     failures: number;
     successes: number;
+    providerPaused?: boolean;
+    providerMessage?: string;
+    providerRetryAt?: string;
     currentDesignKey: string;
     currentDesignLabel: string;
     currentDesignIndex: number;
@@ -241,6 +310,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
     completedAttempts: 0,
     failures: 0,
     successes: 0,
+    providerPaused: false,
+    providerMessage: '',
+    providerRetryAt: '',
     currentDesignKey: 'alpha',
     currentDesignLabel: 'Alpha Design',
     currentDesignIndex: 1,
@@ -255,6 +327,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 0,
       failures: 0,
       successes: 0,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'alpha',
       currentDesignLabel: 'Alpha Design',
       currentDesignIndex: 1,
@@ -268,6 +343,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 1,
       failures: 0,
       successes: 1,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'alpha',
       currentDesignLabel: 'Alpha Design',
       currentDesignIndex: 1,
@@ -281,6 +359,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 1,
       failures: 0,
       successes: 1,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'alpha',
       currentDesignLabel: 'Alpha Design',
       currentDesignIndex: 1,
@@ -294,6 +375,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 2,
       failures: 0,
       successes: 2,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'alpha',
       currentDesignLabel: 'Alpha Design',
       currentDesignIndex: 1,
@@ -307,6 +391,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 2,
       failures: 0,
       successes: 2,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'beta',
       currentDesignLabel: 'Beta Design',
       currentDesignIndex: 2,
@@ -320,6 +407,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 3,
       failures: 0,
       successes: 3,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'beta',
       currentDesignLabel: 'Beta Design',
       currentDesignIndex: 2,
@@ -333,6 +423,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 3,
       failures: 0,
       successes: 3,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'beta',
       currentDesignLabel: 'Beta Design',
       currentDesignIndex: 2,
@@ -346,6 +439,9 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       completedAttempts: 4,
       failures: 0,
       successes: 4,
+      providerPaused: false,
+      providerMessage: '',
+      providerRetryAt: '',
       currentDesignKey: 'beta',
       currentDesignLabel: 'Beta Design',
       currentDesignIndex: 2,
@@ -354,6 +450,98 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       attemptsPerDesign: 2,
     },
   ]);
+});
+
+test('runFpgaArchitectStressLoop disables broad project-context rebuilding for sweep attempts', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-project-context-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const prepareCalls: any[] = [];
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => ({
+      validation: { summary: `Generated VHDL passed GHDL simulation for ${params.normalizedProjectPath}.` },
+      outputDirectory: params.normalizedProjectPath,
+    })),
+    prepareAiAnalyzeRequest: async (params: any) => {
+      prepareCalls.push(params);
+      return {
+        selectedProvider: 'ollama',
+        selectedModel: 'gemma4:latest',
+        hazardScan: { findings: [] },
+        protocolScan: { frames: [] },
+        normalizedProjectPath: params.projectPath,
+        macroSpec: { label: 'FPGA Architect' },
+        artifactDirectory: null,
+        systemPrompt: 'system',
+      };
+    },
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 1,
+  });
+
+  assert.equal(prepareCalls.length, 1);
+  assert.equal(prepareCalls[0]?.skipProjectContextBuild, true);
+});
+
+test('runFpgaArchitectStressLoop narrows continuation context to the failing file set', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-continuation-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const prompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      runCount += 1;
+      prompts.push(params.userQuery);
+      if (runCount === 1) {
+        await fs.mkdir(path.join(params.normalizedProjectPath, 'tb'), { recursive: true });
+        await fs.mkdir(path.join(params.normalizedProjectPath, 'docs'), { recursive: true });
+        await fs.writeFile(
+          path.join(params.normalizedProjectPath, 'tb', 'tb_uart_spi_bridge.vhd'),
+          'architecture sim of tb_uart_spi_bridge is\nbegin\nend architecture;\n',
+          'utf8',
+        );
+        await fs.writeFile(
+          path.join(params.normalizedProjectPath, 'docs', 'notes.md'),
+          '# very long unrelated notes\n'.repeat(500),
+          'utf8',
+        );
+        const error = new Error('tb/tb_uart_spi_bridge.vhd: procedure "check_eq" assigns to outer-scope object "fail_flag"');
+        (error as any).generatedVhdlValidation = {
+          ok: false,
+          stage: 'prevalidate',
+          summary: 'Generated helper violated declaration scope rules.',
+          logs: [],
+          validatedTopEntities: [],
+          failureCode: 'procedure_outer_scope_write',
+          failureCategory: 'declaration_scope',
+          failureDetails: [{
+            code: 'procedure_outer_scope_write',
+            category: 'declaration_scope',
+            message: 'tb/tb_uart_spi_bridge.vhd: procedure "check_eq" assigns to outer-scope object "fail_flag" without passing it as a formal parameter.',
+            relativePath: 'tb/tb_uart_spi_bridge.vhd',
+            forbiddenConstruct: 'procedure "check_eq" mutates outer-scope object "fail_flag"',
+            legalReplacementPattern: 'pass "fail_flag" as a formal parameter or keep the mutable state local to the caller',
+          }],
+        };
+        throw error;
+      }
+      return {
+        validation: { summary: `Generated VHDL passed GHDL simulation for ${params.normalizedProjectPath}.` },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(prompts.length, 2);
+  assert.match(prompts[1], /### tb\/tb_uart_spi_bridge\.vhd/);
+  assert.doesNotMatch(prompts[1], /### docs\/notes\.md/);
 });
 
 test('runFpgaArchitectStressLoop rejects remote providers', async () => {
@@ -485,10 +673,10 @@ test('runFpgaArchitectStressLoop feeds back only prior failures from the same de
   assert.equal(seenPrompts.length, 4);
   assert.doesNotMatch(seenPrompts[0]?.prompt || '', /## Prior Failure Feedback/);
   assert.match(seenPrompts[1]?.prompt || '', /## Prior Failure Feedback/);
-  assert.match(seenPrompts[1]?.prompt || '', /numeric_std_typing/);
-  assert.doesNotMatch(seenPrompts[2]?.prompt || '', /numeric_std_typing/);
+  assert.match(seenPrompts[1]?.prompt || '', /resize_on_raw_std_logic_vector/);
+  assert.doesNotMatch(seenPrompts[2]?.prompt || '', /resize_on_raw_std_logic_vector/);
   assert.doesNotMatch(seenPrompts[2]?.prompt || '', /## Prior Failure Feedback/);
-  assert.match(seenPrompts[3]?.prompt || '', /architecture_variable/);
+  assert.match(seenPrompts[3]?.prompt || '', /architecture_body_variable/);
 });
 
 test('runFpgaArchitectStressLoop prefers validator failure details and deduplicates repeated classes by count', async () => {
@@ -540,7 +728,7 @@ test('runFpgaArchitectStressLoop prefers validator failure details and deduplica
   assert.match(seenPrompts[1] || '', /identifier_reserved_word \/ reserved_identifier/);
   assert.match(seenPrompts[1] || '', /Seen: 1 prior attempt\(s\)/);
   assert.match(seenPrompts[2] || '', /Seen: 2 prior attempt\(s\)/);
-  assert.doesNotMatch(seenPrompts[1] || '', /numeric_std_typing/);
+  assert.doesNotMatch(seenPrompts[1] || '', /resize_on_raw_std_logic_vector/);
 });
 
 test('runFpgaArchitectStressLoop appends newly introduced failure classes to the next attempt feedback', async () => {
@@ -565,9 +753,9 @@ test('runFpgaArchitectStressLoop appends newly introduced failure classes to the
     attemptsPerDesign: 3,
   });
 
-  assert.match(seenPrompts[1] || '', /numeric_std_typing/);
-  assert.match(seenPrompts[2] || '', /numeric_std_typing/);
-  assert.match(seenPrompts[2] || '', /architecture_variable/);
+  assert.match(seenPrompts[1] || '', /resize_on_raw_std_logic_vector/);
+  assert.match(seenPrompts[2] || '', /resize_on_raw_std_logic_vector/);
+  assert.match(seenPrompts[2] || '', /architecture_body_variable/);
 });
 
 test('runFpgaArchitectStressLoop does not feed provider/runtime failures into the next attempt feedback', async () => {
@@ -590,11 +778,14 @@ test('runFpgaArchitectStressLoop does not feed provider/runtime failures into th
     sessionManager,
     designPresets: presets,
     attemptsPerDesign: 2,
+    providerRetryDelayMs: 0,
   });
 
-  assert.equal(seenPrompts.length, 2);
+  assert.equal(seenPrompts.length, 3);
   assert.doesNotMatch(seenPrompts[1] || '', /provider_runtime/);
   assert.doesNotMatch(seenPrompts[1] || '', /## Prior Failure Feedback/);
+  assert.doesNotMatch(seenPrompts[2] || '', /provider_runtime/);
+  assert.match(seenPrompts[2] || '', /resize_on_raw_std_logic_vector/);
 });
 
 test('runFpgaArchitectStressLoop does not feed manifest or source-selection failures into the next attempt feedback', async () => {
@@ -657,6 +848,54 @@ test('runFpgaArchitectStressLoop carries failed generated files into the next at
   assert.match(seenPrompts[1] || '', /entity alu is end entity;/);
 });
 
+test('runFpgaArchitectStressLoop narrows repair continuation to file paths extracted from raw failure text', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-raw-path-continuation-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+
+      const generatedRoot = path.join(params.normalizedProjectPath, 'alpha');
+      const srcPath = path.join(generatedRoot, 'src', 'alu.vhd');
+      const tbPath = path.join(generatedRoot, 'tb', 'alu_tb.vhd');
+      const notesPath = path.join(generatedRoot, 'docs', 'notes.md');
+      await fs.mkdir(path.dirname(srcPath), { recursive: true });
+      await fs.mkdir(path.dirname(tbPath), { recursive: true });
+      await fs.mkdir(path.dirname(notesPath), { recursive: true });
+      await fs.writeFile(srcPath, 'entity alu is end entity;\n', 'utf8');
+      await fs.writeFile(tbPath, 'entity alu_tb is end entity;\n', 'utf8');
+      await fs.writeFile(notesPath, '# unrelated notes\n', 'utf8');
+
+      if (runCount === 1) {
+        throw new Error(`Core logic simulation analysis failed: ${srcPath}:39:28:error: no overloaded function found matching "resize"`);
+      }
+
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation for alpha_tb.' },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(runCount, 2);
+  assert.match(seenPrompts[1] || '', /## Existing Generated Files To Repair/);
+  assert.match(seenPrompts[1] || '', /### alpha\/src\/alu\.vhd/);
+  assert.match(seenPrompts[1] || '', /Failure family: numeric_std_type_discipline \/ resize_on_raw_std_logic_vector/);
+  assert.match(seenPrompts[1] || '', /Forbidden construct: calling resize on a raw std_logic_vector operand/);
+  assert.match(seenPrompts[1] || '', /Legal replacement pattern: convert the operand into unsigned\(\.\.\.\) or signed\(\.\.\.\) first, then call resize on the typed value/);
+  assert.doesNotMatch(seenPrompts[1] || '', /### alpha\/tb\/alu_tb\.vhd/);
+  assert.doesNotMatch(seenPrompts[1] || '', /### alpha\/docs\/notes\.md/);
+});
+
 test('summarizeFpgaArchitectLoopFailures groups newer validator classes into explicit root-cause families', () => {
   const buckets = summarizeFpgaArchitectLoopFailures([
     {
@@ -692,11 +931,12 @@ test('classifyFpgaArchitectLoopFailure isolates provider/runtime transport failu
   assert.deepEqual(diagnostic.ruleIds, []);
 });
 
-test('runFpgaArchitectStressLoop reports provider/runtime failures separately from code-quality failures', async () => {
+test('runFpgaArchitectStressLoop pauses and retries provider/runtime failures without counting them as failed attempts', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-provider-counts-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
   const presets = [createTestPreset('alpha', 'Alpha Design')];
   let runCount = 0;
+  const progressEvents: any[] = [];
 
   const result = await runFpgaArchitectStressLoop({
     ...buildLoopDependencies(projectRoot, async () => {
@@ -704,19 +944,37 @@ test('runFpgaArchitectStressLoop reports provider/runtime failures separately fr
       if (runCount === 1) {
         throw new Error('Core logic simulation analysis failed: Ollama is reachable at http://127.0.0.1:11434, but text generation failed for model "gemma4:latest". Original error: fetch failed');
       }
-      throw new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"');
+      if (runCount === 2) {
+        throw new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"');
+      }
+      return { validation: { summary: 'passed' }, outputDirectory: projectRoot };
     }),
     session,
     sessionManager,
     designPresets: presets,
     attemptsPerDesign: 2,
+    providerRetryDelayMs: 0,
+    onProgress: (progress) => {
+      progressEvents.push(progress);
+    },
   });
 
-  assert.equal(result.failures, 2);
+  assert.equal(runCount, 3);
+  assert.equal(result.completedAttempts, 2);
+  assert.equal(result.failures, 1);
   assert.equal(result.providerRuntimeFailures, 1);
   assert.equal(result.codeQualityFailures, 1);
+  assert.equal(result.successes, 1);
   assert.equal(result.designSummaries[0]?.providerRuntimeFailures, 1);
   assert.equal(result.designSummaries[0]?.codeQualityFailures, 1);
+  assert.equal(result.designSummaries[0]?.completedAttempts, 2);
+  assert.equal(progressEvents.some((event) => event.providerPaused === true), true);
+  assert.equal(
+    progressEvents
+      .filter((event) => event.providerPaused === true)
+      .every((event) => event.failures === 0 && event.completedAttempts === 0),
+    true,
+  );
 });
 
 test('classifyFpgaArchitectLoopFailure maps typed function return mismatches into numeric_std typing', () => {

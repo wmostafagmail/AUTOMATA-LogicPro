@@ -120,6 +120,7 @@ export async function prepareAiAnalyzeRequest(params: {
     tbGenerationMode: TbGenerationMode | null;
   }) => string;
   skipRemoteExportConsentCheck?: boolean;
+  skipProjectContextBuild?: boolean;
 }) {
   const {
     provider,
@@ -150,6 +151,7 @@ export async function prepareAiAnalyzeRequest(params: {
     scrubProjectContextForRemoteExport,
     buildMacroPromptContract,
     skipRemoteExportConsentCheck = false,
+    skipProjectContextBuild = false,
   } = params;
 
   const resolvedTickDuration = Number.isFinite(Number(tickDuration)) ? Number(tickDuration) : 1;
@@ -326,9 +328,12 @@ export async function prepareAiAnalyzeRequest(params: {
   let exportPolicyText = '';
 
   if (
+    !skipProjectContextBuild
+    && (
     (!resolvedProjectContext || typeof resolvedProjectContext !== 'object')
     && normalizedProjectPath
     && providerDeployment === 'local'
+    )
   ) {
     resolvedProjectContext = await buildProjectContextFromPath(
       normalizedProjectPath,

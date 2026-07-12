@@ -24,6 +24,9 @@ type BeginTrackedJobResult = {
     completedAttempts?: number;
     failures?: number;
     successes?: number;
+    providerPaused?: boolean;
+    providerMessage?: string;
+    providerRetryAt?: string;
     currentDesignKey?: string;
     currentDesignLabel?: string;
     currentDesignIndex?: number;
@@ -503,13 +506,16 @@ export function createAiAnalyzeRouteContext(params: {
         saveFpgaArchitectProject,
         buildFpgaArchitectMarkdownReport,
         validateGeneratedVhdlWithGhdl,
-        onProgress: ({ currentLoop, totalLoops, completedAttempts, failures, successes, currentDesignKey, currentDesignLabel, currentDesignIndex, totalDesigns, currentDesignAttempt, attemptsPerDesign }) => {
+        onProgress: ({ currentLoop, totalLoops, completedAttempts, failures, successes, providerPaused, providerMessage, providerRetryAt, currentDesignKey, currentDesignLabel, currentDesignIndex, totalDesigns, currentDesignAttempt, attemptsPerDesign }) => {
           updateTrackedJobProgress({
             currentLoop,
             totalLoops,
             completedAttempts,
             failures,
             successes,
+            providerPaused,
+            providerMessage,
+            providerRetryAt,
             currentDesignKey,
             currentDesignLabel,
             currentDesignIndex,

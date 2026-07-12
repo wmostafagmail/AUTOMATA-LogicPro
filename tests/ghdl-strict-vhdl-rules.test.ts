@@ -62,4 +62,6 @@ test('shared strict VHDL rules explicitly cover the core phase 2 legality classe
   assert.ok(rules.some((rule) => rule.includes('Do not insert explanatory prose inside VHDL declarations or executable statements.')));
   assert.ok(rules.some((rule) => rule.includes('End design units with legal VHDL terminators only')));
   assert.ok(rules.some((rule) => rule.includes("Never emit Verilog/SystemVerilog-sized literals such as `3'b000`, `8'hFF`, `4'd7`, or `6'o77` inside VHDL.")));
+  assert.ok(rules.some((rule) => rule.includes('If a helper procedure/function uses `rising_edge(...)` or `falling_edge(...)` on a formal clock argument, declare that formal as a signal input formal')));
+  assert.ok(rules.some((rule) => rule.includes('never index memories or scoreboards with direct raw logic-vector conversions such as `mem(to_integer(unsigned(addr_slv)))`')));
 });

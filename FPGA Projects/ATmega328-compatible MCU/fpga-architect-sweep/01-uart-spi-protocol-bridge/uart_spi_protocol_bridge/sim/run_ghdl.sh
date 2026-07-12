@@ -1,9 +1,10 @@
 #!/bin/bash
-ghdl -a --std=08 ../src/uart_spi_bridge_top.vhd ../tb/tb_uart_spi_bridge.vhd
-if [ $? -ne 0 ]; then exit 1; fi
+GHDL=ghdl
+STD="--std=08"
+SRC="src/uart_spi_bridge_pkg.vhd src/uart_spi_bridge_pkg_body.vhd src/uart_spi_bridge.vhd"
+TB="tb/tb_uart_spi_bridge.vhd"
 
-ghdl -e tb_uart_spi_bridge
-if [ $? -ne 0 ]; then exit 1; fi
-
-./tb_uart_spi_bridge --vcd=bridge_sim.vcd
-echo "Simulation completed."
+$GHDL -a $STD $SRC
+$GHDL -a $STD $TB
+$GHDL -e $STD tb_uart_spi_bridge
+$GHDL -r $STD tb_uart_spi_bridge --vcd=tb_uart_spi_bridge.vcd

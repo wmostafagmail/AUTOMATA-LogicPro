@@ -7,6 +7,9 @@ export interface RegisteredAiJob {
     completedAttempts: number;
     failures: number;
     successes: number;
+    providerPaused: boolean;
+    providerMessage: string;
+    providerRetryAt: string;
     currentDesignKey: string;
     currentDesignLabel: string;
     currentDesignIndex: number;
@@ -30,6 +33,9 @@ export function createAiJobRegistry() {
           completedAttempts: 0,
           failures: 0,
           successes: 0,
+          providerPaused: false,
+          providerMessage: '',
+          providerRetryAt: '',
           currentDesignKey: '',
           currentDesignLabel: '',
           currentDesignIndex: 0,

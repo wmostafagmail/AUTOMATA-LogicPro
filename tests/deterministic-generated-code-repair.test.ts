@@ -20,16 +20,20 @@ async function createRepairableFile(relativePath: string, content: string): Prom
   };
 }
 
-function createValidation(detail: GeneratedVhdlFailureDetail): GeneratedVhdlValidationResult {
+function createValidation(...details: GeneratedVhdlFailureDetail[]): GeneratedVhdlValidationResult {
+  const [firstDetail] = details;
+  if (!firstDetail) {
+    throw new Error('createValidation requires at least one failure detail');
+  }
   return {
     ok: false,
     stage: 'prevalidate',
-    summary: detail.message,
-    logs: [detail.message],
+    summary: firstDetail.message,
+    logs: details.map((detail) => detail.message),
     validatedTopEntities: [],
-    failureCode: detail.code,
-    failureCategory: detail.category,
-    failureDetails: [detail],
+    failureCode: firstDetail.code,
+    failureCategory: firstDetail.category,
+    failureDetails: details,
   };
 }
 
@@ -66,7 +70,7 @@ test('deterministic fixer converts plain architecture-body variables into shared
   });
 
   assert.equal(result.changed, true);
-  assert.deepEqual(result.appliedCodes, ['architecture_body_variable']);
+  assert.ok(result.appliedCodes.includes('architecture_body_variable'));
   assert.match(result.repairedFiles[0].content, /shared variable pass_count : integer := 0;/i);
 });
 
@@ -334,7 +338,7 @@ test('deterministic fixer hoists full procedure blocks from executable regions i
   });
 
   assert.equal(result.changed, true);
-  assert.match(result.repairedFiles[0].content, /process\s+    procedure check_eq\(actual : integer; expected : integer\) is\s+      begin\s+        assert actual = expected report "mismatch" severity failure;\s+      end procedure;\s+begin/is);
+  assert.match(result.repairedFiles[0].content, /process[\s\S]*procedure check_eq\(actual : integer; expected : integer\) is[\s\S]*assert actual = expected report "mismatch" severity failure;[\s\S]*end procedure;\s+begin/is);
   assert.doesNotMatch(result.repairedFiles[0].content, /process\s+begin\s+[\s\S]*procedure check_eq\(actual : integer; expected : integer\) is/i);
 });
 
@@ -448,7 +452,10 @@ test('deterministic fixer repairs combined declaration-scope issues from one fil
   });
 
   assert.equal(result.changed, true);
-  assert.match(result.repairedFiles[0].content, /process\s+    variable sample_count : integer := 0;\s+    procedure check_eq\(actual : integer; expected : integer\) is[\s\S]*?end procedure;\s+begin/is);
+  assert.match(
+    result.repairedFiles[0].content,
+    /process[\s\S]*variable sample_count : integer := 0;[\s\S]*procedure check_eq\(actual : integer; expected : integer\) is[\s\S]*end procedure;[\s\S]*begin/is,
+  );
   assert.doesNotMatch(result.repairedFiles[0].content, /architecture sim of tb_combo is\s+  variable sample_count : integer := 0;/is);
   assert.doesNotMatch(result.repairedFiles[0].content, /process\s+begin\s+[\s\S]*procedure check_eq/i);
 });
@@ -637,6 +644,93 @@ test('deterministic fixer splits package-declaration subprogram bodies with cons
   assert.equal(result.changed, true);
   assert.match(result.repairedFiles[0].content, /package vector_pkg is[\s\S]*function reset_word return std_logic_vector\(7 downto 0\);[\s\S]*end package;/i);
   assert.match(result.repairedFiles[0].content, /package body vector_pkg is[\s\S]*function reset_word return std_logic_vector\(7 downto 0\) is[\s\S]*return \(others => '0'\);[\s\S]*end function;[\s\S]*end package body vector_pkg;/i);
+});
+
+test('deterministic fixer runs bundled package-body repair across sibling subprogram bodies from one reported detail', async () => {
+  const file = await createRepairableFile(
+    'src/bridge_pkg.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'package bridge_pkg is',
+      '  function op_name return string is',
+      '  begin',
+      '    return "ADD";',
+      '  end function;',
+      '',
+      '  procedure clear_flags is',
+      '  begin',
+      '    null;',
+      '  end procedure;',
+      'end package;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'subprogram_body_inside_package_declaration',
+      category: 'package_type_definition',
+      message: 'src/bridge_pkg.vhd: places a subprogram body inside package declaration "bridge_pkg".',
+      excerpt: 'subprogram body inside package declaration "bridge_pkg"',
+      relativePath: 'src/bridge_pkg.vhd',
+      forbiddenConstruct: 'subprogram body inside package bridge_pkg declaration',
+      legalReplacementPattern: 'keep signature in package and move body into package body',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('subprogram_body_inside_package_declaration'));
+  assert.match(result.repairedFiles[0].content, /package bridge_pkg is[\s\S]*function op_name return string;[\s\S]*procedure clear_flags;[\s\S]*end package;/i);
+  assert.match(result.repairedFiles[0].content, /package body bridge_pkg is[\s\S]*function op_name return string is[\s\S]*return "ADD";[\s\S]*end function;[\s\S]*procedure clear_flags is[\s\S]*null;[\s\S]*end procedure;[\s\S]*end package body bridge_pkg;/i);
+});
+
+test('deterministic fixer runs bundled package-body repair across multiple package declarations in one file', async () => {
+  const file = await createRepairableFile(
+    'src/multi_pkg.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'package alpha_pkg is',
+      '  function alpha_name return string is',
+      '  begin',
+      '    return "ALPHA";',
+      '  end function;',
+      'end package;',
+      '',
+      'package beta_pkg is',
+      '  procedure beta_ping is',
+      '  begin',
+      '    null;',
+      '  end procedure;',
+      'end package;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'subprogram_body_inside_package_declaration',
+      category: 'package_type_definition',
+      message: 'src/multi_pkg.vhd: places a subprogram body inside package declaration "alpha_pkg".',
+      excerpt: 'subprogram body inside package declaration "alpha_pkg"',
+      relativePath: 'src/multi_pkg.vhd',
+      forbiddenConstruct: 'subprogram body inside package alpha_pkg declaration',
+      legalReplacementPattern: 'keep signature in package and move body into package body',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('package_body_cluster'));
+  assert.match(next, /package alpha_pkg is[\s\S]*function alpha_name return string;[\s\S]*end package;/i);
+  assert.match(next, /package beta_pkg is[\s\S]*procedure beta_ping;[\s\S]*end package;/i);
+  assert.match(next, /package body alpha_pkg is[\s\S]*function alpha_name return string is[\s\S]*return "ALPHA";[\s\S]*end function;[\s\S]*end package body alpha_pkg;/i);
+  assert.match(next, /package body beta_pkg is[\s\S]*procedure beta_ping is[\s\S]*null;[\s\S]*end procedure;[\s\S]*end package body beta_pkg;/i);
 });
 
 test('deterministic fixer rewrites malformed interface declaration arrows into legal colons', async () => {
@@ -833,6 +927,49 @@ test('deterministic fixer swaps variable and signal assignment operators when th
   assert.match(signalFix.repairedFiles[0].content, /\bdone_reg\s*<=\s*tmp_done;/i);
 });
 
+test('deterministic fixer rewrites assignment operator misuse inside boolean bounds checks', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_cpu_core.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_cpu_core is end entity;',
+      'architecture sim of tb_cpu_core is',
+      '  signal mem_rdata_i : std_logic_vector(7 downto 0);',
+      'begin',
+      '  mem_bind : process',
+      '    variable addr_int : integer;',
+      '  begin',
+      '    addr_int := 3;',
+      '    if addr_int >= 0 and addr_int := 15 then',
+      '      mem_rdata_i <= (others => \'0\');',
+      '    end if;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'conditional_assignment_operator_misuse',
+      category: 'signal_variable_assignment_misuse',
+      message: 'tb/tb_cpu_core.vhd: uses variable assignment operator ":=" inside a boolean condition.',
+      excerpt: 'condition "addr_int >= 0 and addr_int := 15" contains "addr_int := 15"',
+      relativePath: 'tb/tb_cpu_core.vhd',
+      forbiddenConstruct: 'condition "addr_int >= 0 and addr_int := 15" contains "addr_int := 15"',
+      legalReplacementPattern: 'replace "addr_int := 15" with "addr_int <= 15" for upper-bound checks',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.match(result.repairedFiles[0].content, /if addr_int >= 0 and addr_int <= 15 then/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /if addr_int >= 0 and addr_int := 15 then/i);
+});
+
 test('deterministic fixer rewrites common output-port readback into an internal signal bridge', async () => {
   const file = await createRepairableFile(
     'src/uart_tx.vhd',
@@ -922,10 +1059,122 @@ test('deterministic fixer rewrites outer-scope procedure writes into explicit fo
   });
 
   assert.equal(result.changed, true);
-  assert.deepEqual(result.appliedCodes, ['procedure_outer_scope_write']);
+  assert.ok(result.appliedCodes.includes('procedure_outer_scope_write'));
   assert.match(result.repairedFiles[0].content, /procedure mark_fail\(msg_name : string; signal test_failed_io : out std_logic\) is/i);
   assert.match(result.repairedFiles[0].content, /\btest_failed_io\s*<=\s*'1';/i);
   assert.match(result.repairedFiles[0].content, /\bmark_fail\("boom", test_failed\);/i);
+});
+
+test('deterministic fixer fully normalizes a helper declared after begin that also writes outer-scope state', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_uart_spi_bridge.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_uart_spi_bridge is',
+      'end entity;',
+      '',
+      'architecture sim of tb_uart_spi_bridge is',
+      "  signal fail_flag : std_logic := '0';",
+      'begin',
+      '  process',
+      '  begin',
+      '    procedure check_eq(actual : integer; expected : integer) is',
+      '    begin',
+      "      fail_flag <= '1';",
+      '      assert actual = expected report "mismatch" severity failure;',
+      '    end procedure;',
+      '    check_eq(1, 2);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'declaration_after_begin',
+      category: 'declaration_scope',
+      message: 'tb/tb_uart_spi_bridge.vhd: declares procedure "check_eq" inside an executable region after "begin".',
+      excerpt: 'procedure declaration for "check_eq" after begin',
+      relativePath: 'tb/tb_uart_spi_bridge.vhd',
+      forbiddenConstruct: 'procedure declaration for "check_eq" after begin',
+      legalReplacementPattern: 'move "check_eq" into an enclosing declarative region before begin',
+    }, {
+      code: 'procedure_outer_scope_write',
+      category: 'declaration_scope',
+      message: 'tb/tb_uart_spi_bridge.vhd: procedure "check_eq" assigns to outer-scope object "fail_flag" without passing it as a formal parameter.',
+      excerpt: 'procedure "check_eq" assigns to outer-scope object "fail_flag"',
+      relativePath: 'tb/tb_uart_spi_bridge.vhd',
+      forbiddenConstruct: 'procedure "check_eq" mutates outer-scope object "fail_flag"',
+      legalReplacementPattern: 'pass "fail_flag" as a formal parameter or keep the mutable state local to the caller',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.match(result.repairedFiles[0].content, /process[\s\S]*procedure check_eq\(actual : integer; expected : integer; signal fail_flag_io : out std_logic\) is[\s\S]*?end procedure;\s+begin/is);
+  assert.match(result.repairedFiles[0].content, /\bfail_flag_io\s*<=\s*'1';/i);
+  assert.match(result.repairedFiles[0].content, /\bcheck_eq\(1, 2, fail_flag\);/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /process\s+begin\s+[\s\S]*procedure check_eq/i);
+});
+
+test('deterministic fixer rewrites only the nested helper that owns the outer-scope write', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_nested_scope.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_nested_scope is',
+      'end entity;',
+      '',
+      'architecture sim of tb_nested_scope is',
+      'begin',
+      '  stim_proc : process',
+      '    variable fail_cnt : integer := 0;',
+      '    procedure outer_proc is',
+      '      variable local_state : integer := 0;',
+      '      procedure inner_proc(step_value : integer) is',
+      '      begin',
+      '        fail_cnt := fail_cnt + step_value;',
+      '      end procedure inner_proc;',
+      '    begin',
+      '      local_state := local_state + 1;',
+      '      inner_proc(local_state);',
+      '    end procedure outer_proc;',
+      '  begin',
+      '    outer_proc;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'procedure_outer_scope_write',
+      category: 'declaration_scope',
+      message: 'tb/tb_nested_scope.vhd: procedure "inner_proc" assigns to outer-scope object "fail_cnt" without passing it as a formal parameter.',
+      excerpt: 'procedure "inner_proc" assigns to outer-scope object "fail_cnt"',
+      relativePath: 'tb/tb_nested_scope.vhd',
+      forbiddenConstruct: 'procedure "inner_proc" mutates outer-scope object "fail_cnt"',
+      legalReplacementPattern: 'pass "fail_cnt" as a formal parameter or keep the mutable state local to the caller',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('procedure_outer_scope_write'));
+  assert.match(next, /procedure inner_proc\(step_value : integer; variable fail_cnt_io : inout integer\) is/i);
+  assert.match(next, /\bfail_cnt_io\s*:=\s*fail_cnt_io\s*\+\s*step_value;/i);
+  assert.match(next, /\binner_proc\(local_state, fail_cnt\);/i);
+  assert.match(next, /procedure outer_proc is/i);
+  assert.doesNotMatch(next, /procedure outer_proc\([^)]*fail_cnt/i);
 });
 
 test('deterministic fixer rewrites illegal scalar type aliases into legal subtypes', async () => {
@@ -1461,6 +1710,393 @@ test('deterministic fixer wraps source-level typed port-map mismatch actuals bef
   });
 
   assert.match(repair.repairedFiles[0].content, /\bsample_o\s*=>\s*signed\(std_logic_vector\(fir_sample\)\)/i);
+});
+
+test('deterministic fixer repairs a combined testbench declaration-scope cluster in one pass', async () => {
+  const file = await createRepairableFile(
+    'tb/router_tb.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity router_tb is',
+      'end entity;',
+      '',
+      'architecture sim of router_tb is',
+      '  variable loop_cnt : integer := 0;',
+      'begin',
+      '  stimulus : process',
+      '  begin',
+      '    procedure wait_clk is',
+      '    begin',
+      '      loop_cnt := loop_cnt + 1;',
+      '      wait until rising_edge(clk);',
+      '    end procedure;',
+      '    wait_clk;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: {
+      ok: false,
+      stage: 'prevalidate',
+      summary: 'cluster failure',
+      logs: ['tb/router_tb.vhd: declaration-scope cluster'],
+      validatedTopEntities: [],
+      failureCode: 'declaration_after_begin',
+      failureCategory: 'declaration_scope',
+      failureDetails: [
+        {
+          code: 'architecture_body_variable',
+          category: 'declaration_scope',
+          message: 'tb/router_tb.vhd: declares plain architecture-body variable "loop_cnt".',
+          excerpt: 'loop_cnt',
+          relativePath: 'tb/router_tb.vhd',
+          forbiddenConstruct: 'plain architecture-body variable "loop_cnt" (process_local_scratch)',
+          legalReplacementPattern: 'move "loop_cnt" into the nearest process/subprogram declarative region as a local variable unless persistent shared state is truly required',
+        },
+        {
+          code: 'declaration_after_begin',
+          category: 'declaration_scope',
+          message: 'tb/router_tb.vhd: procedure wait_clk is declared after begin.',
+          excerpt: 'procedure wait_clk',
+          relativePath: 'tb/router_tb.vhd',
+          forbiddenConstruct: 'procedure declaration for "wait_clk"',
+          legalReplacementPattern: 'hoist declaration before begin',
+        },
+        {
+          code: 'procedure_outer_scope_write',
+          category: 'declaration_scope',
+          message: 'tb/router_tb.vhd: procedure wait_clk mutates outer-scope object loop_cnt.',
+          excerpt: 'wait_clk writes loop_cnt',
+          relativePath: 'tb/router_tb.vhd',
+          forbiddenConstruct: 'procedure "wait_clk" mutates outer-scope object "loop_cnt"',
+          legalReplacementPattern: 'pass loop_cnt explicitly as a formal parameter or keep it local to the caller',
+        },
+      ],
+    },
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.match(next, /procedure wait_clk\s*\(\s*variable loop_cnt_io : inout integer\s*\)\s*is/i);
+  assert.match(next, /procedure wait_clk\s*\(\s*variable loop_cnt_io : inout integer\s*\)\s*is/i);
+  assert.match(next, /wait_clk\(loop_cnt\);/i);
+  assert.doesNotMatch(next, /begin[\s\S]*procedure wait_clk is/i);
+});
+
+test('deterministic fixer runs bundled testbench declaration-scope repair from a lone declaration_after_begin detail', async () => {
+  const file = await createRepairableFile(
+    'tb/router_tb.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity router_tb is',
+      'end entity;',
+      '',
+      'architecture sim of router_tb is',
+      '  variable loop_cnt : integer := 0;',
+      'begin',
+      '  stimulus : process',
+      '  begin',
+      '    procedure wait_clk is',
+      '    begin',
+      '      loop_cnt := loop_cnt + 1;',
+      '      wait until rising_edge(clk);',
+      '    end procedure;',
+      '    wait_clk;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'declaration_after_begin',
+      category: 'declaration_scope',
+      message: 'tb/router_tb.vhd: procedure wait_clk is declared after begin.',
+      excerpt: 'procedure wait_clk',
+      relativePath: 'tb/router_tb.vhd',
+      forbiddenConstruct: 'procedure declaration for "wait_clk" after begin',
+      legalReplacementPattern: 'move "wait_clk" into an enclosing declarative region before begin',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.match(next, /procedure wait_clk\s*\(\s*variable loop_cnt_io : inout integer\s*\)\s*is/i);
+  assert.match(next, /wait_clk\(loop_cnt\);/i);
+  assert.doesNotMatch(next, /begin[\s\S]*procedure wait_clk is/i);
+  assert.ok(
+    result.appliedCodes.includes('declaration_after_begin') ||
+      result.appliedCodes.includes('procedure_outer_scope_write'),
+  );
+});
+
+test('deterministic fixer runs bundled testbench declaration-scope repair from a lone architecture_body_variable detail', async () => {
+  const file = await createRepairableFile(
+    'tb/router_tb.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity router_tb is',
+      'end entity;',
+      '',
+      'architecture sim of router_tb is',
+      '  variable loop_cnt : integer := 0;',
+      'begin',
+      '  stimulus : process',
+      '  begin',
+      '    procedure wait_clk is',
+      '    begin',
+      '      loop_cnt := loop_cnt + 1;',
+      '      wait until rising_edge(clk);',
+      '    end procedure;',
+      '    wait_clk;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'architecture_body_variable',
+      category: 'declaration_scope',
+      message: 'tb/router_tb.vhd: declares plain architecture-body variable "loop_cnt".',
+      excerpt: 'loop_cnt',
+      relativePath: 'tb/router_tb.vhd',
+      forbiddenConstruct: 'plain architecture-body variable "loop_cnt" (process_local_scratch)',
+      legalReplacementPattern: 'move "loop_cnt" into the nearest process/subprogram declarative region as a local variable unless persistent shared state is truly required',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('architecture_body_variable'));
+  assert.ok(result.appliedCodes.includes('declaration_scope_cluster'));
+  assert.match(next, /procedure wait_clk\s*\(\s*variable loop_cnt_io : inout integer\s*\)\s*is/i);
+  assert.match(next, /wait_clk\(loop_cnt\);/i);
+  assert.doesNotMatch(next, /begin[\s\S]*procedure wait_clk is/i);
+});
+
+test('deterministic fixer relaxes constrained string helper formals in testbench procedures', async () => {
+  const file = await createRepairableFile(
+    'tb/router_tb.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity router_tb is',
+      'end entity;',
+      '',
+      'architecture sim of router_tb is',
+      'begin',
+      '  stimulus : process',
+      '    procedure check_eq(',
+      '      actual : in std_logic;',
+      '      expected : in std_logic;',
+      '      msg_name : in string(1 to 32)',
+      '    ) is',
+      '    begin',
+      '      if actual /= expected then',
+      '        report msg_name severity error;',
+      '      end if;',
+      '    end procedure check_eq;',
+      '  begin',
+      '    check_eq(\'0\', \'0\', "ok");',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'tb_string_formal_actual_constraint_mismatch',
+      category: 'width_literal_mismatch',
+      message: 'tb/router_tb.vhd: helper procedure "check_eq" declares constrained string formal "msg_name".',
+      excerpt: 'msg_name : string(1 to 32)',
+      relativePath: 'tb/router_tb.vhd',
+      forbiddenConstruct: 'procedure "check_eq" declares constrained string formal "msg_name"',
+      legalReplacementPattern: 'use an unconstrained read-only string formal for "msg_name", or remove the helper string formal and report literals directly at the call site',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('tb_string_formal_actual_constraint_mismatch'));
+  assert.match(result.repairedFiles[0].content, /msg_name : in string\s*\)/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /msg_name : in string\(1 to 32\)/i);
+});
+
+test('deterministic fixer canonicalizes malformed helper formals and removes unconstrained string scratch variables', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_bridge.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_bridge is',
+      'end entity;',
+      '',
+      'architecture sim of tb_bridge is',
+      "  signal test_failed : std_logic := '0';",
+      'begin',
+      '  stimulus : process',
+      '    procedure mark_fail(',
+      '      msg_name : in string;',
+      '      inout test_failed_io : inout std_logic',
+      '    ) is',
+      '      variable msg : string;',
+      '    begin',
+      '      msg := "FAIL";',
+      "      test_failed_io <= '1';",
+      '      report msg severity error;',
+      '    end procedure mark_fail;',
+      '  begin',
+      '    mark_fail("boom", test_failed);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation(
+      {
+        code: 'invalid_subprogram_formal_syntax',
+        category: 'interface_generic_port_syntax',
+        message: 'tb/tb_bridge.vhd: helper procedure "mark_fail" declares malformed formal clause "inout test_failed_io : inout std_logic".',
+        excerpt: 'inout test_failed_io : inout std_logic',
+        relativePath: 'tb/tb_bridge.vhd',
+        forbiddenConstruct: 'procedure "mark_fail" declares malformed formal clause "inout test_failed_io : inout std_logic"',
+        legalReplacementPattern: 'rewrite "inout test_failed_io : inout std_logic" into canonical VHDL formal syntax and keep signal/variable actual kinds aligned with the helper body',
+      },
+      {
+        code: 'tb_unconstrained_string_variable',
+        category: 'declaration_scope',
+        message: 'tb/tb_bridge.vhd: declares unconstrained local string variable "msg".',
+        excerpt: 'variable msg : string;',
+        relativePath: 'tb/tb_bridge.vhd',
+        forbiddenConstruct: 'unconstrained local string variable "msg"',
+        legalReplacementPattern: 'replace "msg" with a direct report literal, a constant with an explicit bound, or a helper contract that does not require a mutable string variable',
+      },
+    ),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('invalid_subprogram_formal_syntax'));
+  assert.ok(result.appliedCodes.includes('tb_unconstrained_string_variable'));
+  assert.match(next, /procedure mark_fail\(\s*msg_name : in string;\s*signal test_failed_io : out std_logic\s*\) is/i);
+  assert.doesNotMatch(next, /inout test_failed_io : inout std_logic/i);
+  assert.doesNotMatch(next, /\bvariable msg : string;/i);
+  assert.doesNotMatch(next, /\bmsg := "FAIL";/i);
+  assert.match(next, /report "FAIL" severity error;/i);
+});
+
+test('deterministic fixer converts clock-edge helper formals into signal inputs', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_edge_helper.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_edge_helper is',
+      'end entity;',
+      '',
+      'architecture sim of tb_edge_helper is',
+      'begin',
+      '  stimulus : process',
+      '    procedure wait_clk(clk : in std_logic) is',
+      '    begin',
+      '      wait until rising_edge(clk);',
+      '    end procedure wait_clk;',
+      '  begin',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'clock_edge_helper_requires_signal_formal',
+      category: 'interface_generic_port_syntax',
+      message: 'tb/tb_edge_helper.vhd: helper procedure "wait_clk" uses rising_edge on non-signal formal "clk".',
+      excerpt: 'wait until rising_edge(clk);',
+      relativePath: 'tb/tb_edge_helper.vhd',
+      forbiddenConstruct: 'procedure "wait_clk" uses rising_edge(...) on non-signal formal clause "clk : in std_logic"',
+      legalReplacementPattern: 'rewrite the helper formal as signal clk : in std_logic',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('clock_edge_helper_requires_signal_formal'));
+  assert.match(result.repairedFiles[0].content, /procedure wait_clk\(signal clk : in std_logic\) is/i);
+  assert.match(result.repairedFiles[0].content, /wait until rising_edge\(clk\);/i);
+});
+
+test('deterministic fixer rewrites unsafe raw testbench indexing to a guarded helper', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_indexing.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_indexing is',
+      'end entity;',
+      '',
+      'architecture sim of tb_indexing is',
+      '  type mem_t is array (0 to 15) of std_logic_vector(7 downto 0);',
+      '  signal rom : mem_t := (others => (others => \'0\'));',
+      '  signal addr_slv : std_logic_vector(3 downto 0);',
+      '  signal data_o : std_logic_vector(7 downto 0);',
+      'begin',
+      '  data_o <= rom(to_integer(unsigned(addr_slv)));',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'tb_unguarded_logic_index_conversion',
+      category: 'runtime_bound_risk',
+      message: 'tb/tb_indexing.vhd: uses direct array indexing from raw logic vector "addr_slv".',
+      excerpt: 'rom(to_integer(unsigned(addr_slv)))',
+      relativePath: 'tb/tb_indexing.vhd',
+      forbiddenConstruct: 'direct array indexing expression "rom(to_integer(unsigned(addr_slv)))"',
+      legalReplacementPattern: 'rewrite as rom(tb_safe_slv_to_index(addr_slv))',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('tb_unguarded_logic_index_conversion'));
+  assert.match(next, /function tb_safe_slv_to_index\(value : std_logic_vector\) return natural is/i);
+  assert.match(next, /data_o <= rom\(tb_safe_slv_to_index\(addr_slv\)\);/i);
+  assert.doesNotMatch(next, /rom\(to_integer\(unsigned\(addr_slv\)\)\)/i);
 });
 
 test('generated code repair prompt includes file-scoped repair guidance and shared strict rule section', async () => {

@@ -5,15 +5,25 @@ import type { LogicProSession, createSessionManager } from './sessionManager';
 import { buildFpgaArchitectTestRunPrompt } from './fpgaArchitect';
 import {
   classifyFpgaArchitectLoopFailure,
+  classifyFpgaArchitectLoopFailureWithValidation,
   summarizeFpgaArchitectLoopFailures,
 } from './fpgaArchitectLoopDiagnostics';
-import type { GeneratedVhdlFailureDetail, GeneratedVhdlValidationResult } from './generatedVhdlValidation';
+import {
+  inferFailureDetailsFromGhdlMessage,
+  type GeneratedVhdlFailureDetail,
+  type GeneratedVhdlValidationResult,
+} from './generatedVhdlValidation';
 import {
   FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN,
   FPGA_ARCHITECT_SWEEP_DESIGNS,
   FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS,
   type FpgaArchitectSweepPreset,
 } from '../fpgaArchitectSweepConfig';
+import {
+  buildFpgaArchitectSweepRuntimeInfo,
+  readFpgaArchitectSweepMeta,
+  writeFpgaArchitectSweepMeta,
+} from './fpgaArchitectSweepRuntime';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -58,6 +68,17 @@ export type RunLoopAttemptResult = {
   designAttempt: number;
   ok: boolean;
   message: string;
+  generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+};
+
+export type FpgaArchitectProviderPauseEvent = {
+  attempt: number;
+  designKey: string;
+  designLabel: string;
+  designAttempt: number;
+  message: string;
+  retryDelayMs: number;
+  retryAt: string;
 };
 
 export type FpgaArchitectStressLoopDesignSummary = {
@@ -92,6 +113,8 @@ export type FpgaArchitectStressLoopResult = {
   successes: number;
   logFilePath: string;
   masterLogPath: string;
+  runtimeFingerprint: string;
+  staleSweepStateDiscarded: boolean;
   results: RunLoopAttemptResult[];
   stoppedEarly: boolean;
   failureBuckets: Array<{
@@ -126,6 +149,8 @@ function buildDesignLogHeader(params: {
   selectedModel: string;
   projectPath: string;
   outputRoot: string;
+  runtimeFingerprint: string;
+  runtimePid: number;
 }) {
   return [
     `FPGA Architect design sweep`,
@@ -134,6 +159,8 @@ function buildDesignLogHeader(params: {
     `Model: ${params.selectedModel}`,
     `Project Root: ${params.projectPath}`,
     `Design Output Root: ${params.outputRoot}`,
+    `Runtime Fingerprint: ${params.runtimeFingerprint}`,
+    `Runtime PID: ${params.runtimePid}`,
     `Started: ${new Date().toISOString()}`,
     `Why it tests the generator: ${params.preset.whyItTests}`,
     '',
@@ -145,15 +172,23 @@ function buildMasterLogHeader(params: {
   selectedModel: string;
   projectPath: string;
   totalAttempts: number;
+  runtimeFingerprint: string;
+  runtimePid: number;
+  staleSweepStateDiscarded: boolean;
+  previousRuntimeFingerprint?: string | null;
 }) {
   return [
     `FPGA Architect multi-design sweep`,
     `Provider: ${params.selectedProvider}`,
     `Model: ${params.selectedModel}`,
     `Project: ${params.projectPath}`,
+    `Runtime Fingerprint: ${params.runtimeFingerprint}`,
+    `Runtime PID: ${params.runtimePid}`,
     `Designs: ${FPGA_ARCHITECT_SWEEP_DESIGNS.length}`,
     `Attempts per design: ${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN}`,
     `Total attempts: ${params.totalAttempts}`,
+    `Stale Sweep State Discarded: ${params.staleSweepStateDiscarded ? 'yes' : 'no'}`,
+    ...(params.previousRuntimeFingerprint ? [`Previous Runtime Fingerprint: ${params.previousRuntimeFingerprint}`] : []),
     `Started: ${new Date().toISOString()}`,
     '',
   ].join('\n');
@@ -187,10 +222,6 @@ function shouldIncludeContinuationFile(relativePath: string) {
     || normalized.endsWith('.vhdl')
     || normalized.endsWith('.md')
     || normalized.endsWith('.txt')
-    || normalized.endsWith('.sh')
-    || normalized.endsWith('.tcl')
-    || normalized.endsWith('.xdc')
-    || normalized.endsWith('.do')
     || baseName === 'makefile'
   );
 }
@@ -221,8 +252,81 @@ function getContinuationFence(kind: SweepContinuationFile['kind']) {
   }
 }
 
-async function collectSweepContinuationFiles(outputRoot: string) {
+function normalizeContinuationCandidatePath(outputRoot: string, candidatePath: string) {
+  const trimmed = candidatePath.trim().replace(/^["'`]+|["'`]+$/g, '').replace(/\\/g, '/');
+  if (!trimmed) {
+    return null;
+  }
+
+  const normalizedOutputRoot = outputRoot.replace(/\\/g, '/');
+  if (path.isAbsolute(trimmed)) {
+    const normalizedAbsolute = trimmed.replace(/\\/g, '/');
+    if (!normalizedAbsolute.startsWith(normalizedOutputRoot)) {
+      return null;
+    }
+    const relativePath = path.relative(outputRoot, trimmed).replace(/\\/g, '/');
+    return relativePath.startsWith('..') ? null : relativePath.toLowerCase();
+  }
+
+  const relativePath = trimmed.replace(/^\.\/+/, '');
+  if (relativePath.startsWith('../')) {
+    return null;
+  }
+  return relativePath.toLowerCase();
+}
+
+function extractContinuationPathsFromMessage(outputRoot: string, message: string) {
+  const matches = message.match(/[A-Za-z0-9_./\\-]+\.(?:vhd|vhdl|md|txt|sh|tcl|do|xdc)\b/g) || [];
+  const extractedPaths = new Set<string>();
+  for (const match of matches) {
+    const normalizedPath = normalizeContinuationCandidatePath(outputRoot, match);
+    if (normalizedPath) {
+      extractedPaths.add(normalizedPath);
+    }
+  }
+  return extractedPaths;
+}
+
+function buildFocusedContinuationPathSet(
+  outputRoot: string,
+  failureDetails: GeneratedVhdlFailureDetail[],
+  fallbackMessage = '',
+) {
+  const focused = new Set<string>();
+  for (const detail of failureDetails) {
+    if (typeof detail.relativePath !== 'string' || detail.relativePath.trim().length === 0) {
+      continue;
+    }
+    const normalizedPath = normalizeContinuationCandidatePath(outputRoot, detail.relativePath);
+    if (normalizedPath) {
+      focused.add(normalizedPath);
+    }
+  }
+  if (focused.size === 0 && fallbackMessage.trim().length > 0) {
+    for (const fallbackPath of extractContinuationPathsFromMessage(outputRoot, fallbackMessage)) {
+      focused.add(fallbackPath);
+    }
+  }
+  return focused;
+}
+
+function continuationPathMatchesFocusedPath(relativePath: string, focusedPaths: Set<string>) {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  for (const focusedPath of focusedPaths) {
+    if (normalized === focusedPath || normalized.endsWith(`/${focusedPath}`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function collectSweepContinuationFiles(
+  outputRoot: string,
+  failureDetails: GeneratedVhdlFailureDetail[] = [],
+  fallbackMessage = '',
+) {
   const discoveredPaths: string[] = [];
+  const focusedPaths = buildFocusedContinuationPathSet(outputRoot, failureDetails, fallbackMessage);
 
   const walk = async (currentPath: string) => {
     let entries;
@@ -248,14 +352,25 @@ async function collectSweepContinuationFiles(outputRoot: string) {
 
   await walk(outputRoot);
 
+  const prioritizedPaths = focusedPaths.size > 0
+    ? discoveredPaths.filter((relativePath) => continuationPathMatchesFocusedPath(relativePath, focusedPaths))
+    : discoveredPaths;
+  const candidatePaths = focusedPaths.size > 0
+    ? prioritizedPaths
+    : discoveredPaths;
+  const isFocusedFallback = focusedPaths.size > 0;
+  const fileLimit = isFocusedFallback ? 4 : 10;
+  const perFileCharLimit = isFocusedFallback ? 6_000 : 10_000;
+  const totalCharLimit = isFocusedFallback ? 16_000 : 40_000;
+
   const files: SweepContinuationFile[] = [];
   let totalBytes = 0;
-  for (const relativePath of discoveredPaths.slice(0, 18)) {
+  for (const relativePath of candidatePaths.slice(0, fileLimit)) {
     const absolutePath = path.join(outputRoot, relativePath);
     try {
       const content = await fs.readFile(absolutePath, 'utf8');
-      const trimmed = content.slice(0, 12_000);
-      if (totalBytes + trimmed.length > 72_000) {
+      const trimmed = content.slice(0, perFileCharLimit);
+      if (totalBytes + trimmed.length > totalCharLimit) {
         break;
       }
       totalBytes += trimmed.length;
@@ -347,6 +462,20 @@ function collectFeedbackItemsFromFailure(error: unknown, fallbackMessage: string
   const details = annotatedError?.generatedVhdlValidation?.failureDetails || [];
   if (details.length > 0) {
     return normalizeValidatorFeedbackItems(details).filter(isFeedbackEligible);
+  }
+  const diagnostic = classifyFpgaArchitectLoopFailure(fallbackMessage);
+  if (!isCodeRelevantFeedbackCategory(diagnostic.category)) {
+    return [normalizeDiagnosticFeedbackItem(fallbackMessage)].filter(isFeedbackEligible);
+  }
+  const inferredDetails = inferFailureDetailsFromGhdlMessage(fallbackMessage);
+  const inferredFeedbackItems = normalizeValidatorFeedbackItems(inferredDetails).filter((item) => (
+    isFeedbackEligible(item)
+    && item.failureCode !== 'ghdl_analyze_failure'
+    && item.failureCode !== 'ghdl_elaborate_failure'
+    && item.failureCode !== 'ghdl_simulate_failure'
+  ));
+  if (inferredFeedbackItems.length > 0) {
+    return inferredFeedbackItems;
   }
   return [normalizeDiagnosticFeedbackItem(fallbackMessage)].filter(isFeedbackEligible);
 }
@@ -540,12 +669,16 @@ export async function runFpgaArchitectStressLoop(params: {
   validateGeneratedVhdlWithGhdl: (...args: any[]) => Promise<any>;
   designPresets?: FpgaArchitectSweepPreset[];
   attemptsPerDesign?: number;
+  providerRetryDelayMs?: number;
   onProgress?: (progress: {
     currentLoop: number;
     totalLoops: number;
     completedAttempts: number;
     failures: number;
     successes: number;
+    providerPaused?: boolean;
+    providerMessage?: string;
+    providerRetryAt?: string;
     currentDesignKey: string;
     currentDesignLabel: string;
     currentDesignIndex: number;
@@ -599,6 +732,7 @@ export async function runFpgaArchitectStressLoop(params: {
     validateGeneratedVhdlWithGhdl,
     designPresets = FPGA_ARCHITECT_SWEEP_DESIGNS,
     attemptsPerDesign = FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN,
+    providerRetryDelayMs = 60_000,
     onProgress,
   } = params;
 
@@ -609,8 +743,18 @@ export async function runFpgaArchitectStressLoop(params: {
   const totalAttempts = designPresets.length * attemptsPerDesign;
   const logDirectory = path.join(projectPath, '.automata-logicpro');
   const masterLogPath = path.join(logDirectory, 'fpga-architect-sweep.log');
+  const metaPath = path.join(logDirectory, 'fpga-architect-sweep.meta.json');
   const sweepOutputRoot = path.join(projectPath, 'fpga-architect-sweep');
+  const runtimeInfo = await buildFpgaArchitectSweepRuntimeInfo();
+  const previousMeta = await readFpgaArchitectSweepMeta(metaPath);
+  const staleSweepStateDiscarded = Boolean(
+    previousMeta
+    && previousMeta.runtimeFingerprint !== runtimeInfo.fingerprint,
+  );
   await fs.mkdir(logDirectory, { recursive: true });
+  if (staleSweepStateDiscarded) {
+    await fs.rm(sweepOutputRoot, { recursive: true, force: true });
+  }
   await fs.mkdir(sweepOutputRoot, { recursive: true });
   await fs.writeFile(
     masterLogPath,
@@ -619,9 +763,14 @@ export async function runFpgaArchitectStressLoop(params: {
       selectedModel,
       projectPath,
       totalAttempts,
+      runtimeFingerprint: runtimeInfo.fingerprint,
+      runtimePid: runtimeInfo.pid,
+      staleSweepStateDiscarded,
+      previousRuntimeFingerprint: previousMeta?.runtimeFingerprint || null,
     }),
     'utf8',
   );
+  await writeFpgaArchitectSweepMeta(metaPath, runtimeInfo);
 
   const designSummaries: FpgaArchitectStressLoopDesignSummary[] = [];
   let globalFailures = 0;
@@ -629,12 +778,45 @@ export async function runFpgaArchitectStressLoop(params: {
   const results: RunLoopAttemptResult[] = [];
   let currentGlobalAttempt = 0;
 
+  const waitForProviderRetry = async () => {
+    if (providerRetryDelayMs <= 0) {
+      return;
+    }
+    await new Promise<void>((resolve, reject) => {
+      let settled = false;
+      const onAbort = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(timer);
+        reject(signal?.reason instanceof Error ? signal.reason : new Error('FPGA Architect multi-design sweep was cancelled.'));
+      };
+      const timer = setTimeout(() => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        signal?.removeEventListener('abort', onAbort);
+        resolve();
+      }, providerRetryDelayMs);
+      if (signal?.aborted) {
+        onAbort();
+        return;
+      }
+      signal?.addEventListener('abort', onAbort, { once: true });
+    });
+  };
+
   onProgress?.({
     currentLoop: 0,
     totalLoops: totalAttempts,
     completedAttempts: 0,
     failures: 0,
     successes: 0,
+    providerPaused: false,
+    providerMessage: '',
+    providerRetryAt: '',
     currentDesignKey: designPresets[0]?.key || '',
     currentDesignLabel: designPresets[0]?.label || '',
     currentDesignIndex: designPresets.length > 0 ? 1 : 0,
@@ -656,6 +838,8 @@ export async function runFpgaArchitectStressLoop(params: {
         selectedModel,
         projectPath,
         outputRoot: designOutputRoot,
+        runtimeFingerprint: runtimeInfo.fingerprint,
+        runtimePid: runtimeInfo.pid,
       }),
       'utf8',
     );
@@ -664,6 +848,7 @@ export async function runFpgaArchitectStressLoop(params: {
       [
         `=== Design ${designIndex + 1}/${designPresets.length}: ${preset.label} ===`,
         `Output Root: ${designOutputRoot}`,
+        `Runtime Fingerprint: ${runtimeInfo.fingerprint}`,
         `Started: ${new Date().toISOString()}`,
         '',
       ].join('\n'),
@@ -674,18 +859,22 @@ export async function runFpgaArchitectStressLoop(params: {
     let continuationFiles: SweepContinuationFile[] = [];
     let designProviderRuntimeFailures = 0;
 
-    for (let designAttempt = 1; designAttempt <= attemptsPerDesign; designAttempt += 1) {
+    let designAttempt = 1;
+    while (designAttempt <= attemptsPerDesign) {
       if (signal?.aborted) {
         throw signal.reason instanceof Error ? signal.reason : new Error('FPGA Architect multi-design sweep was cancelled.');
       }
 
-      currentGlobalAttempt += 1;
+      const activeGlobalAttempt = currentGlobalAttempt + 1;
       onProgress?.({
-        currentLoop: currentGlobalAttempt,
+        currentLoop: activeGlobalAttempt,
         totalLoops: totalAttempts,
         completedAttempts: results.length,
         failures: globalFailures,
         successes: results.length - globalFailures,
+        providerPaused: false,
+        providerMessage: '',
+        providerRetryAt: '',
         currentDesignKey: preset.key,
         currentDesignLabel: preset.label,
         currentDesignIndex: designIndex + 1,
@@ -695,7 +884,7 @@ export async function runFpgaArchitectStressLoop(params: {
       });
 
       const attemptHeader = buildAttemptLogHeader({
-        attempt: currentGlobalAttempt,
+        attempt: activeGlobalAttempt,
         totalAttempts,
         designAttempt,
         designAttempts: attemptsPerDesign,
@@ -763,11 +952,12 @@ export async function runFpgaArchitectStressLoop(params: {
           getSignalName,
           formatSignalValue,
           buildSignalTransitionSummary,
-          buildProjectContextFromPath,
-          scrubProjectContextForRemoteExport,
-          buildMacroPromptContract,
-          skipRemoteExportConsentCheck: false,
-        });
+        buildProjectContextFromPath,
+        scrubProjectContextForRemoteExport,
+        buildMacroPromptContract,
+        skipRemoteExportConsentCheck: false,
+        skipProjectContextBuild: true,
+      });
 
         const effectiveModel = preparedRequest.selectedModel || selectedModel || '';
         const analysisResult = await runAiAnalyzeJob({
@@ -813,21 +1003,26 @@ export async function runFpgaArchitectStressLoop(params: {
           analysisResult?.outputDirectory ? `Output: ${analysisResult.outputDirectory}` : '',
         ].filter(Boolean).join('\n');
         const resultEntry: RunLoopAttemptResult = {
-          attempt: currentGlobalAttempt,
+          attempt: activeGlobalAttempt,
           designKey: preset.key,
           designLabel: preset.label,
           designAttempt,
           ok: true,
           message: successMessage,
+          generatedVhdlValidation: null,
         };
+        currentGlobalAttempt = activeGlobalAttempt;
         results.push(resultEntry);
         designResults.push(resultEntry);
         onProgress?.({
-          currentLoop: currentGlobalAttempt,
+          currentLoop: activeGlobalAttempt,
           totalLoops: totalAttempts,
           completedAttempts: results.length,
           failures: globalFailures,
           successes: results.length - globalFailures,
+          providerPaused: false,
+          providerMessage: '',
+          providerRetryAt: '',
           currentDesignKey: preset.key,
           currentDesignLabel: preset.label,
           currentDesignIndex: designIndex + 1,
@@ -838,36 +1033,106 @@ export async function runFpgaArchitectStressLoop(params: {
         await appendLog(designLogPath, successMessage);
         await appendLog(masterLogPath, `PASS\n${preset.label}\n${successMessage}`);
         continuationFiles = [];
+        designAttempt += 1;
       } catch (error: any) {
-        globalFailures += 1;
         const message = error?.message || String(error);
-        const diagnostic = classifyFpgaArchitectLoopFailure(message);
+        const annotatedError = error as FpgaArchitectAttemptErrorLike | undefined;
+        const failureDetails = annotatedError?.generatedVhdlValidation?.failureDetails || [];
+        const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
+          message,
+          generatedVhdlValidation: annotatedError?.generatedVhdlValidation || null,
+        });
         if (diagnostic.category === 'provider_runtime') {
           globalProviderRuntimeFailures += 1;
           designProviderRuntimeFailures += 1;
+          const retryAt = new Date(Date.now() + Math.max(0, providerRetryDelayMs)).toISOString();
+          const pauseMessage = `Provider issue detected. The sweep is paused and will retry attempt ${activeGlobalAttempt}/${totalAttempts} at ${retryAt} without counting this as a failed attempt.`;
+          onProgress?.({
+            currentLoop: activeGlobalAttempt,
+            totalLoops: totalAttempts,
+            completedAttempts: results.length,
+            failures: globalFailures,
+            successes: results.length - globalFailures,
+            providerPaused: true,
+            providerMessage: pauseMessage,
+            providerRetryAt: retryAt,
+            currentDesignKey: preset.key,
+            currentDesignLabel: preset.label,
+            currentDesignIndex: designIndex + 1,
+            totalDesigns: designPresets.length,
+            currentDesignAttempt: designAttempt,
+            attemptsPerDesign,
+          });
+          await appendLog(
+            designLogPath,
+            [
+              'PROVIDER PAUSE',
+              message,
+              pauseMessage,
+              `Retry delay ms: ${Math.max(0, providerRetryDelayMs)}`,
+            ].join('\n'),
+          );
+          await appendLog(
+            masterLogPath,
+            [
+              'PROVIDER PAUSE',
+              preset.label,
+              message,
+              pauseMessage,
+              `Retry delay ms: ${Math.max(0, providerRetryDelayMs)}`,
+            ].join('\n'),
+          );
+          await waitForProviderRetry();
+          onProgress?.({
+            currentLoop: activeGlobalAttempt,
+            totalLoops: totalAttempts,
+            completedAttempts: results.length,
+            failures: globalFailures,
+            successes: results.length - globalFailures,
+            providerPaused: false,
+            providerMessage: '',
+            providerRetryAt: '',
+            currentDesignKey: preset.key,
+            currentDesignLabel: preset.label,
+            currentDesignIndex: designIndex + 1,
+            totalDesigns: designPresets.length,
+            currentDesignAttempt: designAttempt,
+            attemptsPerDesign,
+          });
+          continue;
         }
+        globalFailures += 1;
         const feedbackItems = collectFeedbackItemsFromFailure(error, message);
         const feedbackMergeResult = mergeFeedbackItems(designFeedbackMap, feedbackItems);
-        const nextContinuationFiles = await collectSweepContinuationFiles(designOutputRoot);
+        const nextContinuationFiles = await collectSweepContinuationFiles(
+          designOutputRoot,
+          failureDetails,
+          message,
+        );
         if (nextContinuationFiles.length > 0) {
           continuationFiles = nextContinuationFiles;
         }
         const resultEntry: RunLoopAttemptResult = {
-          attempt: currentGlobalAttempt,
+          attempt: activeGlobalAttempt,
           designKey: preset.key,
           designLabel: preset.label,
           designAttempt,
           ok: false,
           message,
+          generatedVhdlValidation: annotatedError?.generatedVhdlValidation || null,
         };
+        currentGlobalAttempt = activeGlobalAttempt;
         results.push(resultEntry);
         designResults.push(resultEntry);
         onProgress?.({
-          currentLoop: currentGlobalAttempt,
+          currentLoop: activeGlobalAttempt,
           totalLoops: totalAttempts,
           completedAttempts: results.length,
           failures: globalFailures,
           successes: results.length - globalFailures,
+          providerPaused: false,
+          providerMessage: '',
+          providerRetryAt: '',
           currentDesignKey: preset.key,
           currentDesignLabel: preset.label,
           currentDesignIndex: designIndex + 1,
@@ -896,12 +1161,13 @@ export async function runFpgaArchitectStressLoop(params: {
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
           ].join('\n'),
         );
+        designAttempt += 1;
       }
     }
 
     const designFailureBuckets = summarizeFpgaArchitectLoopFailures(designResults);
     const designFailures = designResults.filter((entry) => !entry.ok).length;
-    const designCodeQualityFailures = Math.max(0, designFailures - designProviderRuntimeFailures);
+    const designCodeQualityFailures = designFailures;
     const designSuccesses = designResults.length - designFailures;
     if (designFailureBuckets.length > 0) {
       await appendLog(
@@ -960,7 +1226,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
   const failureBuckets = summarizeFpgaArchitectLoopFailures(results);
   const successes = results.filter((entry) => entry.ok).length;
-  const globalCodeQualityFailures = Math.max(0, globalFailures - globalProviderRuntimeFailures);
+  const globalCodeQualityFailures = globalFailures;
   if (failureBuckets.length > 0) {
     await appendLog(
       masterLogPath,
@@ -988,6 +1254,7 @@ export async function runFpgaArchitectStressLoop(params: {
       `Code-quality failures: ${globalCodeQualityFailures}`,
       `Successes: ${successes}`,
       'Stopped Early: no',
+      `Runtime Fingerprint: ${runtimeInfo.fingerprint}`,
     ].join('\n'),
   );
 
@@ -1000,6 +1267,8 @@ export async function runFpgaArchitectStressLoop(params: {
     successes,
     logFilePath: masterLogPath,
     masterLogPath,
+    runtimeFingerprint: runtimeInfo.fingerprint,
+    staleSweepStateDiscarded,
     results,
     stoppedEarly: false,
     failureBuckets,

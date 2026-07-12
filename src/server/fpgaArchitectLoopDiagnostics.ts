@@ -1,4 +1,8 @@
-import { inferFailureDetailsFromGhdlMessage } from './generatedVhdlValidation';
+import {
+  inferFailureDetailsFromGhdlMessage,
+  type GeneratedVhdlFailureDetail,
+  type GeneratedVhdlValidationResult,
+} from './generatedVhdlValidation';
 import { getCanonicalRuleIdsForFailureCode } from './vhdlSkillRules';
 
 export type FpgaArchitectLoopFailureCategory =
@@ -39,6 +43,14 @@ export type FpgaArchitectLoopFailureDiagnostic = {
   signature: string;
   normalizedMessage: string;
   excerpt: string;
+};
+
+type FpgaArchitectFailureLike = {
+  message: string;
+  generatedVhdlValidation?: Pick<
+    GeneratedVhdlValidationResult,
+    'failureCode' | 'failureCategory' | 'ruleIds' | 'failureDetails'
+  > | null;
 };
 
 export type FpgaArchitectLoopFailureBucket = {
@@ -187,6 +199,36 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
   }
 }
 
+function buildDiagnosticFromValidationDetail(
+  message: string,
+  detail: Pick<GeneratedVhdlFailureDetail, 'code' | 'category' | 'ruleId' | 'ruleIds' | 'excerpt' | 'message'>,
+): FpgaArchitectLoopFailureDiagnostic | null {
+  const category = mapGeneratedFailureCodeToLoopCategory(detail.code)
+    || (detail.category === 'declaration_scope' ? 'procedure_scope' : null);
+  if (!category) {
+    return null;
+  }
+
+  const explicitRuleIds = Array.isArray(detail.ruleIds)
+    ? detail.ruleIds.filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    : [];
+  const mergedRuleIds = Array.from(new Set([
+    ...explicitRuleIds,
+    ...(detail.ruleId ? [detail.ruleId] : []),
+    ...getCanonicalRuleIdsForFailureCode(detail.code || null),
+  ]));
+  const normalizedMessage = normalizeFailureMessage(message);
+
+  return {
+    category,
+    label: CATEGORY_LABELS[category],
+    ruleIds: mergedRuleIds,
+    signature: `${category}:${mergedRuleIds.join(',')}:${normalizedMessage}`,
+    normalizedMessage,
+    excerpt: trimExcerpt(detail.message || message),
+  };
+}
+
 function trimExcerpt(message: string, maxLength = 220) {
   const compact = message.replace(/\s+/g, ' ').trim();
   if (compact.length <= maxLength) return compact;
@@ -297,12 +339,52 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
   };
 }
 
-export function summarizeFpgaArchitectLoopFailures(results: Array<{ attempt: number; ok: boolean; message: string }>) {
+export function classifyFpgaArchitectLoopFailureWithValidation(failure: FpgaArchitectFailureLike): FpgaArchitectLoopFailureDiagnostic {
+  const validation = failure.generatedVhdlValidation;
+  const detail = validation?.failureDetails?.[0];
+  if (detail) {
+    const directDiagnostic = buildDiagnosticFromValidationDetail(failure.message, detail);
+    if (directDiagnostic) {
+      return directDiagnostic;
+    }
+  }
+
+  if (validation?.failureCode) {
+    const category = mapGeneratedFailureCodeToLoopCategory(validation.failureCode);
+    if (category) {
+      const ruleIds = Array.from(new Set([
+        ...(Array.isArray(validation.ruleIds) ? validation.ruleIds : []),
+        ...getCanonicalRuleIdsForFailureCode(validation.failureCode),
+      ]));
+      const normalizedMessage = normalizeFailureMessage(failure.message);
+      return {
+        category,
+        label: CATEGORY_LABELS[category],
+        ruleIds,
+        signature: `${category}:${ruleIds.join(',')}:${normalizedMessage}`,
+        normalizedMessage,
+        excerpt: trimExcerpt(failure.message),
+      };
+    }
+  }
+
+  return classifyFpgaArchitectLoopFailure(failure.message);
+}
+
+export function summarizeFpgaArchitectLoopFailures(results: Array<{
+  attempt: number;
+  ok: boolean;
+  message: string;
+  generatedVhdlValidation?: Pick<
+    GeneratedVhdlValidationResult,
+    'failureCode' | 'failureCategory' | 'ruleIds' | 'failureDetails'
+  > | null;
+}>) {
   const buckets = new Map<string, FpgaArchitectLoopFailureBucket>();
 
   for (const result of results) {
     if (result.ok) continue;
-    const diagnostic = classifyFpgaArchitectLoopFailure(result.message);
+    const diagnostic = classifyFpgaArchitectLoopFailureWithValidation(result);
     const existing = buckets.get(diagnostic.signature);
     if (existing) {
       existing.count += 1;

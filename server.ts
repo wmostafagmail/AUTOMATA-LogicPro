@@ -1286,7 +1286,15 @@ function isAppleScriptCancel(error: any) {
 }
 
 function shouldSkipProjectEntry(name: string) {
-  return ['.git', 'node_modules', 'dist', 'build', '.next', '.automata-logicpro'].includes(name);
+  return [
+    '.git',
+    'node_modules',
+    'dist',
+    'build',
+    '.next',
+    '.automata-logicpro',
+    'fpga-architect-sweep',
+  ].includes(name);
 }
 
 async function listProjectFiles(rootPath: string, currentPath = rootPath): Promise<Array<{

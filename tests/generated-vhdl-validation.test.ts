@@ -346,6 +346,85 @@ test('detectKnownVhdlAntiPatternDetails reports multiple architecture-body varia
   );
 });
 
+test('detectKnownVhdlAntiPatternDetails does not flag function-local variables before architecture begin as architecture-body variables', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-archvar-local-fn-'));
+  const sourcePath = path.join(root, 'src');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'alu_pkg.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity alu_pkg is',
+      'end entity;',
+      '',
+      'architecture rtl of alu_pkg is',
+      '  function carry_or_zero(flag_i : std_logic) return integer is',
+      '    variable local_value : integer := 0;',
+      '  begin',
+      '    if flag_i = \'1\' then',
+      '      local_value := 1;',
+      '    end if;',
+      '    return local_value;',
+      '  end function carry_or_zero;',
+      'begin',
+      '  process(all)',
+      '  begin',
+      '    null;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/alu_pkg.vhd']);
+  const codes = new Set(details.map((detail) => detail.code));
+
+  assert.equal(codes.has('architecture_body_variable'), false);
+});
+
+test('detectKnownVhdlAntiPatternDetails does not flag process-local helper variables as architecture-body variables', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-archvar-process-helper-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+  await fs.writeFile(
+    path.join(tbPath, 'tb_nested_helper.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_nested_helper is',
+      'end entity;',
+      '',
+      'architecture sim of tb_nested_helper is',
+      'begin',
+      '  stim_proc : process',
+      '    function next_count(seed_i : integer) return integer is',
+      '      variable local_count : integer := seed_i;',
+      '    begin',
+      '      local_count := local_count + 1;',
+      '      return local_count;',
+      '    end function next_count;',
+      '    variable pass_cnt : integer := 0;',
+      '  begin',
+      '    pass_cnt := next_count(pass_cnt);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_nested_helper.vhd']);
+  const codes = new Set(details.map((detail) => detail.code));
+
+  assert.equal(codes.has('architecture_body_variable'), false);
+  assert.equal(codes.has('declaration_after_begin'), false);
+});
+
 test('inferFailureDetailsFromGhdlMessage maps recurring analyze errors into canonical failure codes', () => {
   const architectureDetails = inferFailureDetailsFromGhdlMessage(
     'tb/router_tb.vhd:33:3:error: non-shared variable declaration not allowed in architecture body',
@@ -434,6 +513,19 @@ test('inferFailureDetailsFromGhdlMessage recognizes typed port associations and 
   );
   assert.equal(anonymousArrayDetails[0]?.code, 'anonymous_array_object_declaration');
   assert.equal(anonymousArrayDetails[0]?.category, 'array_subtype_misuse');
+});
+
+test('inferFailureDetailsFromGhdlMessage recognizes recurring string-contract testbench failures', () => {
+  const unconstrainedStringDetails = inferFailureDetailsFromGhdlMessage(
+    'tb/router_tb.vhd:33:5:error: declaration of variable "fail_msg" with unconstrained array type "string" is not allowed',
+  );
+  assert.equal(unconstrainedStringDetails[0]?.code, 'tb_unconstrained_string_variable');
+
+  const constrainedFormalDetails = inferFailureDetailsFromGhdlMessage(
+    'tb/router_tb.vhd:80:9:error: string length does not match that of anonymous interface\n'
+      + 'tb/router_tb.vhd:80:9:error: actual constraints don\'t match formal ones',
+  );
+  assert.equal(constrainedFormalDetails[0]?.code, 'tb_string_formal_actual_constraint_mismatch');
 });
 
 test('detectKnownVhdlAntiPatterns flags signal declarations inside executable regions', async () => {
@@ -1431,6 +1523,243 @@ test('detectKnownVhdlAntiPatternDetails returns machine-readable metadata for re
   assert.ok(codes.has('output_port_readback'));
 });
 
+test('detectKnownVhdlAntiPatternDetails does not flag process-local helper procedures declared before the local process begin', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-local-helper-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_uart_spi_bridge.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_uart_spi_bridge is',
+      'end entity;',
+      '',
+      'architecture sim of tb_uart_spi_bridge is',
+      "  signal clk : std_logic := '0';",
+      'begin',
+      '  stim_proc : process',
+      '    variable pass_cnt : integer := 0;',
+      '    variable fail_cnt : integer := 0;',
+      "    variable t_fail : std_logic := '0';",
+      '    procedure check_eq(',
+      '      a : in std_logic;',
+      '      b : in std_logic;',
+      '      name : in string;',
+      '      pass_cnt : inout integer;',
+      '      fail_cnt : inout integer;',
+      '      t_fail : inout std_logic',
+      '    ) is',
+      '    begin',
+      '      if a = b then',
+      '        pass_cnt := pass_cnt + 1;',
+      '      else',
+      '        fail_cnt := fail_cnt + 1;',
+      "        t_fail := '1';",
+      '      end if;',
+      '    end procedure check_eq;',
+      '    procedure wait_clk(clk_sig : in std_logic) is',
+      '    begin',
+      '      wait until rising_edge(clk_sig);',
+      '    end procedure wait_clk;',
+      '  begin',
+      '    wait_clk(clk);',
+      '    check_eq(\'0\', \'0\', "ok", pass_cnt, fail_cnt, t_fail);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_uart_spi_bridge.vhd']);
+  const codes = new Set(details.map((detail) => detail.code));
+
+  assert.equal(codes.has('declaration_after_begin'), false);
+});
+
+test('detectKnownVhdlAntiPatternDetails tracks nested procedure ownership without misclassifying the parent helper', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-nested-procedure-scope-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_nested_scope.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_nested_scope is',
+      'end entity;',
+      '',
+      'architecture sim of tb_nested_scope is',
+      'begin',
+      '  stim_proc : process',
+      '    variable fail_cnt : integer := 0;',
+      '    procedure outer_proc is',
+      '      variable local_state : integer := 0;',
+      '      procedure inner_proc(step_value : integer) is',
+      '      begin',
+      '        fail_cnt := fail_cnt + step_value;',
+      '      end procedure inner_proc;',
+      '    begin',
+      '      local_state := local_state + 1;',
+      '      inner_proc(local_state);',
+      '    end procedure outer_proc;',
+      '  begin',
+      '    outer_proc;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_nested_scope.vhd']);
+  const procedureWriteDetails = details.filter((detail) => detail.code === 'procedure_outer_scope_write');
+  const messages = procedureWriteDetails.map((detail) => detail.message);
+
+  assert.equal(details.some((detail) => detail.code === 'declaration_after_begin'), false);
+  assert.equal(details.some((detail) => detail.code === 'architecture_body_variable'), false);
+  assert.ok(messages.some((message) => message.includes('procedure "inner_proc" assigns to outer-scope object "fail_cnt"')));
+  assert.equal(messages.some((message) => message.includes('procedure "outer_proc" assigns to outer-scope object')), false);
+});
+
+test('detectKnownVhdlAntiPatternDetails flags unsafe testbench string helper contracts before GHDL', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-string-contracts-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_router.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_router is',
+      'end entity;',
+      '',
+      'architecture sim of tb_router is',
+      'begin',
+      '  stimulus : process',
+      '    variable fail_msg : string;',
+      '    procedure check_eq(',
+      '      actual : in std_logic;',
+      '      expected : in std_logic;',
+      '      msg_name : in string(1 to 32)',
+      '    ) is',
+      '    begin',
+      '      if actual /= expected then',
+      '        report msg_name severity error;',
+      '      end if;',
+      '    end procedure check_eq;',
+      '  begin',
+      '    fail_msg := "FAIL";',
+      '    check_eq(\'0\', \'0\', "ok");',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_router.vhd']);
+  const codes = new Set(details.map((detail) => detail.code));
+
+  assert.ok(codes.has('tb_unconstrained_string_variable'));
+  assert.ok(codes.has('tb_string_formal_actual_constraint_mismatch'));
+});
+
+test('detectKnownVhdlAntiPatternDetails flags malformed helper formal syntax before GHDL', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-malformed-formals-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_bridge.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_bridge is',
+      'end entity;',
+      '',
+      'architecture sim of tb_bridge is',
+      "  signal test_failed : std_logic := '0';",
+      'begin',
+      '  stimulus : process',
+      '    procedure mark_fail(',
+      '      msg_name : in string;',
+      '      inout test_failed_io : inout std_logic',
+      '    ) is',
+      '    begin',
+      "      test_failed_io <= '1';",
+      '      report msg_name severity error;',
+      '    end procedure mark_fail;',
+      '  begin',
+      '    mark_fail("boom", test_failed);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_bridge.vhd']);
+  const malformedFormal = details.find((detail) => detail.code === 'invalid_subprogram_formal_syntax');
+
+  assert.ok(malformedFormal);
+  assert.equal(malformedFormal?.category, 'interface_generic_port_syntax');
+  assert.match(malformedFormal?.message || '', /malformed formal clause/i);
+  assert.match(malformedFormal?.forbiddenConstruct || '', /inout test_failed_io : inout std_logic/i);
+});
+
+test('detectKnownVhdlAntiPatternDetails flags clock-edge helpers that use non-signal formals', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-clock-edge-formal-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_edge_helper.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_edge_helper is',
+      'end entity;',
+      '',
+      'architecture sim of tb_edge_helper is',
+      'begin',
+      '  stimulus : process',
+      '    procedure wait_clk(clk : in std_logic) is',
+      '    begin',
+      '      wait until rising_edge(clk);',
+      '    end procedure wait_clk;',
+      '  begin',
+      "    wait_clk('0');",
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_edge_helper.vhd']);
+  const failure = details.find((detail) => detail.code === 'clock_edge_helper_requires_signal_formal');
+
+  assert.ok(failure);
+  assert.equal(failure?.category, 'interface_generic_port_syntax');
+  assert.match(failure?.message || '', /rising_edge/i);
+  assert.match(failure?.legalReplacementPattern || '', /signal clk : in std_logic/i);
+});
+
 test('detectKnownVhdlAntiPatternDetails returns machine-readable metadata for phase 2 core legality failures', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-phase2-details-'));
   const srcPath = path.join(root, 'src');
@@ -1571,6 +1900,43 @@ test('detectKnownVhdlAntiPatternDetails flags typed helper mismatches for named 
   assert.ok(helperMismatch);
   assert.match(helperMismatch.message, /"a_slv"/);
   assert.match(helperMismatch.message, /unsigned formal parameter #1/i);
+});
+
+test('detectKnownVhdlAntiPatternDetails flags unsafe raw logic-vector testbench indexing before runtime', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-unsafe-indexing-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_indexing.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_indexing is',
+      'end entity;',
+      '',
+      'architecture sim of tb_indexing is',
+      '  type mem_t is array (0 to 15) of std_logic_vector(7 downto 0);',
+      '  signal rom : mem_t := (others => (others => \'0\'));',
+      '  signal addr_slv : std_logic_vector(3 downto 0);',
+      '  signal data_o : std_logic_vector(7 downto 0);',
+      'begin',
+      '  data_o <= rom(to_integer(unsigned(addr_slv)));',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_indexing.vhd']);
+  const failure = details.find((detail) => detail.code === 'tb_unguarded_logic_index_conversion');
+
+  assert.ok(failure);
+  assert.equal(failure?.category, 'runtime_bound_risk');
+  assert.match(failure?.message || '', /direct array indexing/i);
+  assert.match(failure?.legalReplacementPattern || '', /tb_safe_slv_to_index/i);
 });
 
 test('detectKnownVhdlAntiPatternDetails flags std_logic_vector function returns assigned into typed destinations', async () => {
@@ -1718,6 +2084,43 @@ test('detectKnownVhdlAntiPatterns flags signal and variable assignment operator 
   const findings = await detectKnownVhdlAntiPatterns(root, ['src/mix.vhd']);
   assert.ok(findings.some((entry) => entry.includes('Variables must use ":="')));
   assert.ok(findings.some((entry) => entry.includes('Signals must use "<="')));
+});
+
+test('detectKnownVhdlAntiPatterns flags assignment operator inside boolean conditions', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-condition-assignment-'));
+  const sourcePath = path.join(root, 'tb');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'tb_cpu_core.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_cpu_core is end entity;',
+      'architecture sim of tb_cpu_core is',
+      '  signal mem_rdata_i : std_logic_vector(7 downto 0);',
+      'begin',
+      '  mem_bind : process',
+      '    variable addr_int : integer;',
+      '  begin',
+      '    addr_int := 3;',
+      '    if addr_int >= 0 and addr_int := 15 then',
+      '      mem_rdata_i <= (others => \'0\');',
+      '    end if;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_cpu_core.vhd']);
+  const conditionMisuse = details.find((detail) => detail.code === 'conditional_assignment_operator_misuse');
+
+  assert.ok(conditionMisuse);
+  assert.equal(conditionMisuse.category, 'signal_variable_assignment_misuse');
+  assert.match(conditionMisuse.message, /uses variable assignment operator ":=" inside a boolean condition/i);
 });
 
 test('detectKnownVhdlAntiPatterns flags helper procedures declared after begin', async () => {

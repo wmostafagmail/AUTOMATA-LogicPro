@@ -13,6 +13,7 @@ import {
   VHDL_OPERATOR_KEYWORDS,
   VHDL_RESERVED_IDENTIFIERS,
 } from './vhdlSkillRules';
+import { collectProcedureScopeSnapshots } from './vhdlScopeAnalysis';
 
 const execFileAsync = promisify(execFile);
 
@@ -152,6 +153,10 @@ async function listProjectFiles(rootPath: string, currentPath = rootPath): Promi
 
 function stripVhdlComments(content: string) {
   return content.replace(/--.*$/gm, '');
+}
+
+function lineNumberForIndex(content: string, index: number) {
+  return content.slice(0, Math.max(0, index)).split(/\r\n|\r|\n/).length;
 }
 
 function extractUniqueMatches(content: string, expression: RegExp, transform: (value: string) => string = (value) => value) {
@@ -306,64 +311,286 @@ function normalizeRelativePath(rootPath: string, absolutePath: string) {
   return path.relative(rootPath, absolutePath).split(path.sep).join('/');
 }
 
-function collectExecutableRegionDeclarations(content: string) {
-  const declarationExpression = /\b(type|subtype|procedure|function|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\b/i;
-  const scopedRegions = [
-    /\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+architecture\b[^;]*;/gi,
-    /\bprocess(?:\s*\([^)]*\))?\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+process\b[^;]*;/gi,
-    /\bfunction\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+function\b[^;]*;/gi,
-    /\bprocedure\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+procedure\b[^;]*;/gi,
-  ];
-  const findings: Array<{ kind: string; name: string }> = [];
-  const seen = new Set<string>();
+function maskVhdlCommentsAndStrings(content: string) {
+  let result = '';
+  let index = 0;
 
-  for (const regionExpression of scopedRegions) {
-    for (const match of content.matchAll(regionExpression)) {
-      const executableRegion = match[1];
-      if (!executableRegion) continue;
-      const declarationMatch = declarationExpression.exec(executableRegion);
-      if (declarationMatch) {
-        const finding = {
-          kind: declarationMatch[1].toLowerCase(),
-          name: declarationMatch[2],
+  while (index < content.length) {
+    const current = content[index];
+    const next = content[index + 1];
+
+    if (current === '-' && next === '-') {
+      while (index < content.length && content[index] !== '\n') {
+        result += ' ';
+        index += 1;
+      }
+      continue;
+    }
+
+    if (current === '"') {
+      result += ' ';
+      index += 1;
+      while (index < content.length) {
+        const char = content[index];
+        if (char === '"') {
+          result += ' ';
+          index += 1;
+          break;
+        }
+        result += char === '\n' ? '\n' : ' ';
+        index += 1;
+      }
+      continue;
+    }
+
+    result += current;
+    index += 1;
+  }
+
+  return result;
+}
+
+type VhdlScopeKind = 'architecture' | 'process' | 'function' | 'procedure';
+
+type VhdlToken = {
+  lower: string;
+  raw: string;
+  index: number;
+};
+
+type ExecutableRegionDeclarationFinding = {
+  kind: string;
+  name: string;
+};
+
+type ArchitectureVariableFinding = {
+  name: string;
+  subtype: string;
+};
+
+function tokenizeVhdlStructure(content: string): VhdlToken[] {
+  const masked = maskVhdlCommentsAndStrings(content);
+  return Array.from(masked.matchAll(/\b[a-zA-Z][a-zA-Z0-9_]*\b|:=|<=|=>|[():;,.]/g)).map((match) => ({
+    lower: match[0].toLowerCase(),
+    raw: match[0],
+    index: match.index ?? 0,
+  }));
+}
+
+function collectExecutableRegionFindings(content: string) {
+  const trackedScopeKinds = new Set<VhdlScopeKind>(['architecture', 'process', 'function', 'procedure']);
+  const declarationKinds = new Set(['type', 'subtype', 'procedure', 'function', 'constant']);
+  const signalFindings: string[] = [];
+  const declarationFindings: ExecutableRegionDeclarationFinding[] = [];
+  const architectureVariableFindings: ArchitectureVariableFinding[] = [];
+  const seenSignals = new Set<string>();
+  const seenDeclarations = new Set<string>();
+  const seenArchitectureVariables = new Set<string>();
+  const tokens = tokenizeVhdlStructure(content);
+  const scopeStack: Array<{ kind: VhdlScopeKind; beginSeen: boolean }> = [];
+  let pendingArchitecture = false;
+  let pendingSubprogram: { kind: 'function' | 'procedure'; parenthesisDepth: number } | null = null;
+
+  const pushDeclarationFinding = (kind: string, name: string) => {
+    const signature = `${kind}:${name.toLowerCase()}`;
+    if (seenDeclarations.has(signature)) return;
+    seenDeclarations.add(signature);
+    declarationFindings.push({ kind, name });
+  };
+
+  const pushSignalFinding = (name: string) => {
+    const signature = name.toLowerCase();
+    if (seenSignals.has(signature)) return;
+    seenSignals.add(signature);
+    signalFindings.push(name);
+  };
+
+  const findNextIdentifierBeforeSemicolon = (startIndex: number) => {
+    for (let cursor = startIndex; cursor < tokens.length; cursor += 1) {
+      const token = tokens[cursor];
+      if (token.lower === ';') return null;
+      if (/^[a-z]/i.test(token.raw)) return token.raw;
+    }
+    return null;
+  };
+
+  const extractStatementTextFromToken = (startIndex: number) => {
+    const startToken = tokens[startIndex];
+    if (!startToken) {
+      return '';
+    }
+    for (let cursor = startIndex; cursor < tokens.length; cursor += 1) {
+      if (tokens[cursor].lower !== ';') {
+        continue;
+      }
+      const statementEnd = tokens[cursor].index + tokens[cursor].raw.length;
+      return content.slice(startToken.index, statementEnd);
+    }
+    return content.slice(startToken.index);
+  };
+
+  const pushArchitectureVariableFindings = (startIndex: number) => {
+    const statement = extractStatementTextFromToken(startIndex);
+    const declarationMatch = statement.match(/\bvariable\s+([^:;]+?)\s*:\s*([^;:=\n]+(?:\([^;\n]*\))?)/i);
+    if (!declarationMatch) {
+      return;
+    }
+
+    const variableNames = splitIdentifierList(declarationMatch[1]);
+    const subtype = declarationMatch[2].trim();
+    for (const variableName of variableNames) {
+      const signature = variableName.toLowerCase();
+      if (seenArchitectureVariables.has(signature)) {
+        continue;
+      }
+      seenArchitectureVariables.add(signature);
+      architectureVariableFindings.push({
+        name: variableName,
+        subtype,
+      });
+    }
+  };
+
+  const subprogramHasBody = (startIndex: number) => {
+    let parenthesisDepth = 0;
+    for (let cursor = startIndex + 1; cursor < tokens.length; cursor += 1) {
+      const token = tokens[cursor];
+      if (token.lower === '(') {
+        parenthesisDepth += 1;
+        continue;
+      }
+      if (token.lower === ')') {
+        parenthesisDepth = Math.max(0, parenthesisDepth - 1);
+        continue;
+      }
+      if (token.lower === ';' && parenthesisDepth === 0) return false;
+      if (token.lower === 'is') return true;
+    }
+    return false;
+  };
+
+  const popScopeByKind = (kind: VhdlScopeKind) => {
+    for (let cursor = scopeStack.length - 1; cursor >= 0; cursor -= 1) {
+      if (scopeStack[cursor].kind === kind) {
+        scopeStack.splice(cursor, 1);
+        return;
+      }
+    }
+  };
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    const previous = index > 0 ? tokens[index - 1] : null;
+    const topScope = scopeStack.at(-1) ?? null;
+
+    if (pendingArchitecture && token.lower === 'is') {
+      scopeStack.push({ kind: 'architecture', beginSeen: false });
+      pendingArchitecture = false;
+      continue;
+    }
+    if (pendingArchitecture && token.lower === ';') {
+      pendingArchitecture = false;
+    }
+
+    if (pendingSubprogram) {
+      if (token.lower === '(') {
+        pendingSubprogram.parenthesisDepth += 1;
+      } else if (token.lower === ')') {
+        pendingSubprogram.parenthesisDepth = Math.max(0, pendingSubprogram.parenthesisDepth - 1);
+      }
+      if (token.lower === 'is') {
+        scopeStack.push({ kind: pendingSubprogram.kind, beginSeen: false });
+        pendingSubprogram = null;
+        continue;
+      }
+      if (token.lower === ';' && pendingSubprogram.parenthesisDepth === 0) {
+        pendingSubprogram = null;
+      }
+    }
+
+    if (token.lower === 'begin' && topScope && !topScope.beginSeen) {
+      topScope.beginSeen = true;
+      continue;
+    }
+
+    if (token.lower === 'end') {
+      let matchedKind: VhdlScopeKind | null = null;
+      for (let cursor = index + 1; cursor < tokens.length; cursor += 1) {
+        const lookahead = tokens[cursor];
+        if (lookahead.lower === ';') break;
+        if (trackedScopeKinds.has(lookahead.lower as VhdlScopeKind)) {
+          matchedKind = lookahead.lower as VhdlScopeKind;
+          break;
+        }
+      }
+      if (matchedKind) {
+        popScopeByKind(matchedKind);
+      }
+      continue;
+    }
+
+    if (token.lower === 'architecture' && previous?.lower !== 'end') {
+      pendingArchitecture = true;
+      continue;
+    }
+
+    if (token.lower === 'process' && previous?.lower !== 'end') {
+      scopeStack.push({ kind: 'process', beginSeen: false });
+      continue;
+    }
+
+    if ((token.lower === 'procedure' || token.lower === 'function') && previous?.lower !== 'end') {
+      const declarationName = findNextIdentifierBeforeSemicolon(index + 1);
+      if (topScope?.beginSeen && declarationName) {
+        pushDeclarationFinding(token.lower, declarationName);
+      }
+      if (declarationName && subprogramHasBody(index)) {
+        pendingSubprogram = {
+          kind: token.lower as 'function' | 'procedure',
+          parenthesisDepth: 0,
         };
-        const signature = `${finding.kind}:${finding.name.toLowerCase()}`;
-        if (seen.has(signature)) continue;
-        seen.add(signature);
-        findings.push(finding);
+      }
+      continue;
+    }
+
+    if (token.lower === 'variable' && topScope?.kind === 'architecture' && !topScope.beginSeen) {
+      pushArchitectureVariableFindings(index);
+      continue;
+    }
+
+    if (token.lower === 'signal' && topScope?.beginSeen) {
+      const signalName = findNextIdentifierBeforeSemicolon(index + 1);
+      if (signalName) {
+        pushSignalFinding(signalName);
+      }
+      continue;
+    }
+
+    if (declarationKinds.has(token.lower) && token.lower !== 'procedure' && token.lower !== 'function' && topScope?.beginSeen) {
+      const declarationName = findNextIdentifierBeforeSemicolon(index + 1);
+      if (declarationName) {
+        pushDeclarationFinding(token.lower, declarationName);
       }
     }
   }
 
-  return findings;
+  return {
+    declarations: declarationFindings,
+    signals: signalFindings,
+    architectureVariables: architectureVariableFindings,
+  };
+}
+
+function collectExecutableRegionDeclarations(content: string) {
+  return collectExecutableRegionFindings(content).declarations;
 }
 
 function collectExecutableRegionSignalDeclarations(content: string) {
-  const signalExpression = /\bsignal\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/i;
-  const scopedRegions = [
-    /\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+architecture\b[^;]*;/gi,
-    /\bprocess(?:\s*\([^)]*\))?\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+process\b[^;]*;/gi,
-    /\bfunction\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+function\b[^;]*;/gi,
-    /\bprocedure\s+[a-zA-Z][a-zA-Z0-9_]*\b[\s\S]*?\bis\b[\s\S]*?\bbegin\b([\s\S]*?)\bend\s+procedure\b[^;]*;/gi,
-  ];
-  const findings: string[] = [];
-  const seen = new Set<string>();
+  return collectExecutableRegionFindings(content).signals;
+}
 
-  for (const regionExpression of scopedRegions) {
-    for (const match of content.matchAll(regionExpression)) {
-      const executableRegion = match[1];
-      if (!executableRegion) continue;
-      const signalMatch = signalExpression.exec(executableRegion);
-      if (!signalMatch) continue;
-      const signalName = signalMatch[1];
-      const signature = signalName.toLowerCase();
-      if (seen.has(signature)) continue;
-      seen.add(signature);
-      findings.push(signalName);
-    }
-  }
-
-  return findings;
+function collectArchitectureBodyVariables(content: string) {
+  return collectExecutableRegionFindings(content).architectureVariables;
 }
 
 function dedupe(values: string[]) {
@@ -436,6 +663,17 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     });
   }
 
+  const conditionalAssignmentOperator = message.match(/\bif\s+([^\n;]*?\b([a-zA-Z][a-zA-Z0-9_]*)\s*:=\s*([^\s;]+)[^\n;]*?)\s+then\b/i);
+  if (conditionalAssignmentOperator) {
+    push({
+      code: 'conditional_assignment_operator_misuse',
+      category: 'signal_variable_assignment_misuse',
+      message,
+      forbiddenConstruct: `condition "${conditionalAssignmentOperator[1].trim()}" contains "${conditionalAssignmentOperator[2]} := ${conditionalAssignmentOperator[3]}"`,
+      legalReplacementPattern: `replace "${conditionalAssignmentOperator[2]} := ${conditionalAssignmentOperator[3]}" with a comparison such as "${conditionalAssignmentOperator[2]} <= ${conditionalAssignmentOperator[3]}" for upper-bound checks or "${conditionalAssignmentOperator[2]} = ${conditionalAssignmentOperator[3]}" for equality checks`,
+    });
+  }
+
   if (/non-shared variable declaration not allowed in architecture body/i.test(message)) {
     push({
       code: 'architecture_body_variable',
@@ -444,6 +682,43 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       forbiddenConstruct: 'plain architecture-body variable emitted into the architecture declarative region',
       legalReplacementPattern:
         'move temporary scratch variables into the nearest process/subprogram declarative region, or use a signal/shared variable only when persistent or shared state is truly intended',
+    });
+  }
+
+  if (/declaration of variable ".*" with unconstrained array type "string" is not allowed/i.test(message)) {
+    push({
+      code: 'tb_unconstrained_string_variable',
+      category: 'declaration_scope',
+      message,
+      forbiddenConstruct: 'unconstrained local string variable declaration in generated VHDL/testbench code',
+      legalReplacementPattern:
+        'replace the mutable unconstrained string variable with a direct report literal, a legal constant with an explicit bound, or a helper contract that does not require a mutable string variable',
+    });
+  }
+
+  if (/string length does not match that of anonymous interface|actual constraints don't match formal ones/i.test(message)) {
+    push({
+      code: 'tb_string_formal_actual_constraint_mismatch',
+      category: 'width_literal_mismatch',
+      message,
+      forbiddenConstruct: 'constrained string helper contract or fixed-width string message path whose actual/formal lengths diverge across calls',
+      legalReplacementPattern:
+        'use an unconstrained read-only string formal for helper message text, or remove the helper string formal and report literals directly at the call site',
+    });
+  }
+
+  if (
+    /interface declaration expected/i.test(message)
+    || /variable parameter must be a variable/i.test(message)
+    || /formal parameter .* must be a signal/i.test(message)
+  ) {
+    push({
+      code: 'invalid_subprogram_formal_syntax',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: 'malformed helper procedure/function formal declaration or signal-vs-variable formal/actual mismatch',
+      legalReplacementPattern:
+        'rebuild helper formals in canonical VHDL form such as "name : in type", "signal name : out std_logic", or "variable name : inout integer", and keep actual kinds aligned with those formals',
     });
   }
 
@@ -615,7 +890,9 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
 function classifyKnownFailureCategory(message: string): GeneratedVhdlFailureCategory {
   if (/reserved VHDL identifier/i.test(message)) return 'identifier_reserved_word';
   if (/without a local "use ieee/i.test(message) || /no declaration for "std_logic/i.test(message)) return 'missing_ieee_clause';
+  if (/unconstrained array type "string"/i.test(message)) return 'declaration_scope';
   if (/plain architecture-body variable|inside an executable region|outer-scope object|not allowed in the architecture declarative region/i.test(message)) return 'declaration_scope';
+  if (/string length does not match that of anonymous interface|actual constraints don't match formal ones/i.test(message)) return 'width_literal_mismatch';
   if (/calls resize|calls to_integer|shift_left|shift_right|logical-operator expression on numeric operands|raw std_logic_vector|typed operands|output-port|can't associate ".*" with port ".*"|cannot associate ".*" with port ".*"/i.test(message)) return 'numeric_std_type_discipline';
   if (/package body|constrained scalar alias|bit-string literal|end statements|subprogram bodies inside package|missing IEEE import for package/i.test(message)) return 'package_type_definition';
   if (/association syntax|generic and port|undeclared generics|interface declaration/i.test(message)) return 'interface_generic_port_syntax';
@@ -667,6 +944,7 @@ type NormalizedDeclaredType =
   | 'unsigned'
   | 'signed'
   | 'integer'
+  | 'string'
   | 'other';
 
 function splitIdentifierList(value: string) {
@@ -677,6 +955,10 @@ function splitIdentifierList(value: string) {
 }
 
 function splitTopLevelArguments(value: string) {
+  return splitTopLevelSegments(value, ',');
+}
+
+function splitTopLevelSegments(value: string, delimiter: ',' | ';') {
   const parts: string[] = [];
   let depth = 0;
   let current = '';
@@ -692,7 +974,7 @@ function splitTopLevelArguments(value: string) {
       current += char;
       continue;
     }
-    if (char === ',' && depth === 0) {
+    if (char === delimiter && depth === 0) {
       if (current.trim()) {
         parts.push(current.trim());
       }
@@ -707,6 +989,167 @@ function splitTopLevelArguments(value: string) {
   }
 
   return parts;
+}
+
+function collectMalformedSubprogramFormalClauses(content: string) {
+  const issues: Array<{
+    kind: 'function' | 'procedure';
+    name: string;
+    clause: string;
+  }> = [];
+
+  for (const subprogram of content.matchAll(/\b(function|procedure)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*(?:return\s+[^;\n]+?(?:\s+is\b|\s*;)|is\b)/gi)) {
+    const kind = subprogram[1]?.toLowerCase() as 'function' | 'procedure' | undefined;
+    const name = subprogram[2];
+    const formals = subprogram[3];
+    if (!kind || !name || !formals) continue;
+
+    for (const clause of splitTopLevelSegments(formals, ';')) {
+      const normalizedClause = clause.trim();
+      if (!normalizedClause) continue;
+
+      if (
+        /^(?:in|out|inout|buffer|linkage)\s+[a-zA-Z][a-zA-Z0-9_]*\s*:/i.test(normalizedClause)
+        || /:\s*(?:signal|variable|constant)\b/i.test(normalizedClause)
+        || /^(?:signal|variable|constant)\s+[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:signal|variable|constant)\b/i.test(normalizedClause)
+      ) {
+        issues.push({ kind, name, clause: normalizedClause });
+      }
+    }
+  }
+
+  return issues;
+}
+
+type ParsedSubprogramFormalClause = {
+  objectClass: 'signal' | 'variable' | 'constant' | null;
+  names: string[];
+  mode: 'in' | 'out' | 'inout' | 'buffer' | 'linkage' | null;
+  subtype: string;
+};
+
+function parseSubprogramFormalClause(clause: string): ParsedSubprogramFormalClause | null {
+  const match = clause.match(
+    /^\s*(?:(signal|variable|constant)\s+)?([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(in|out|inout|buffer|linkage)\s+)?(.+?)\s*$/i,
+  );
+  if (!match) {
+    return null;
+  }
+
+  return {
+    objectClass: (match[1]?.toLowerCase() as ParsedSubprogramFormalClause['objectClass']) || null,
+    names: splitIdentifierList(match[2]),
+    mode: (match[3]?.toLowerCase() as ParsedSubprogramFormalClause['mode']) || null,
+    subtype: match[4].trim(),
+  };
+}
+
+function collectClockEdgeHelperFormalMismatches(content: string) {
+  const issues: Array<{
+    kind: 'function' | 'procedure';
+    name: string;
+    formalName: string;
+    edgeFunction: 'rising_edge' | 'falling_edge';
+    clause: string;
+    requiredClause: string;
+  }> = [];
+
+  const subprogramPattern =
+    /\b(function|procedure)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*(?:return\s+[^;\n]+?\s+is\b|is\b)([\s\S]*?)end\s+(?:function|procedure)(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi;
+
+  for (const subprogram of content.matchAll(subprogramPattern)) {
+    const kind = subprogram[1]?.toLowerCase() as 'function' | 'procedure' | undefined;
+    const name = subprogram[2];
+    const formals = subprogram[3];
+    const body = subprogram[4];
+    if (!kind || !name || !formals || !body) continue;
+
+    const clauses = splitTopLevelSegments(formals, ';');
+    const parsedClauses = clauses
+      .map((clause) => ({ clause: clause.trim(), parsed: parseSubprogramFormalClause(clause) }))
+      .filter((entry) => entry.parsed && entry.clause.length > 0) as Array<{
+      clause: string;
+      parsed: ParsedSubprogramFormalClause;
+    }>;
+
+    const seen = new Set<string>();
+    for (const edgeMatch of body.matchAll(/\b(rising_edge|falling_edge)\s*\(\s*([a-zA-Z][a-zA-Z0-9_]*)\s*\)/gi)) {
+      const edgeFunction = edgeMatch[1]?.toLowerCase() as 'rising_edge' | 'falling_edge' | undefined;
+      const formalName = edgeMatch[2];
+      if (!edgeFunction || !formalName) continue;
+
+      const ownerClause = parsedClauses.find((entry) => entry.parsed.names.some((namePart) => namePart.toLowerCase() === formalName.toLowerCase()));
+      if (!ownerClause || ownerClause.parsed.objectClass === 'signal') {
+        continue;
+      }
+
+      const dedupeKey = `${name.toLowerCase()}::${formalName.toLowerCase()}::${edgeFunction}`;
+      if (seen.has(dedupeKey)) {
+        continue;
+      }
+      seen.add(dedupeKey);
+
+      issues.push({
+        kind,
+        name,
+        formalName,
+        edgeFunction,
+        clause: ownerClause.clause,
+        requiredClause: `signal ${formalName} : in ${ownerClause.parsed.subtype}`,
+      });
+    }
+  }
+
+  return issues;
+}
+
+function collectUnsafeTbLogicIndexConversions(params: {
+  relativePath: string;
+  content: string;
+  declaredTypes: Map<string, NormalizedDeclaredType>;
+}) {
+  const issues: Array<{
+    arrayName: string;
+    conversionKind: 'unsigned' | 'signed';
+    indexIdentifier: string;
+    expression: string;
+  }> = [];
+  const seen = new Set<string>();
+
+  const directIndexPattern =
+    /\b([a-zA-Z][a-zA-Z0-9_]*)\s*\(\s*to_integer\s*\(\s*(unsigned|signed)\s*\(\s*([a-zA-Z][a-zA-Z0-9_]*)\s*\)\s*\)\s*\)/gi;
+
+  for (const match of params.content.matchAll(directIndexPattern)) {
+    const arrayName = match[1];
+    const conversionKind = match[2]?.toLowerCase() as 'unsigned' | 'signed' | undefined;
+    const indexIdentifier = match[3];
+    if (!arrayName || !conversionKind || !indexIdentifier) continue;
+
+    const declaredType = params.declaredTypes.get(indexIdentifier.toLowerCase());
+    if (declaredType !== 'std_logic_vector' && declaredType !== 'std_logic') {
+      continue;
+    }
+
+    const expression = match[0].trim();
+    if (/tb_safe_(?:slv|signed)_to_index\s*\(/i.test(expression)) {
+      continue;
+    }
+
+    const dedupeKey = `${arrayName.toLowerCase()}::${conversionKind}::${indexIdentifier.toLowerCase()}`;
+    if (seen.has(dedupeKey)) {
+      continue;
+    }
+    seen.add(dedupeKey);
+
+    issues.push({
+      arrayName,
+      conversionKind,
+      indexIdentifier,
+      expression,
+    });
+  }
+
+  return issues;
 }
 
 function extractActualBaseIdentifier(actual: string) {
@@ -766,6 +1209,7 @@ function normalizeDeclaredType(typeText: string): NormalizedDeclaredType {
   if (normalized.includes('signed')) return 'signed';
   if (/\bstd_(u)?logic\b/.test(normalized)) return 'std_logic';
   if (normalized.includes('integer') || normalized.includes('natural') || normalized.includes('positive')) return 'integer';
+  if (normalized === 'string' || /\bstring\s*\(/.test(normalized)) return 'string';
   return 'other';
 }
 
@@ -1084,23 +1528,99 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
     const subprogramSignatures = projectSubprogramSignatures;
     const interfaceSignatures = projectInterfaceSignatures;
 
-    const architectureDeclarativeRegion = content.match(/\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b([\s\S]*?)\bbegin\b/i);
-    if (architectureDeclarativeRegion) {
-      for (const architectureVariable of architectureDeclarativeRegion[1].matchAll(/\bvariable\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*([^;:=\n]+(?:\([^;\n]*\))?)/gi)) {
-        const intent = classifyArchitectureBodyVariableIntent({
-          relativePath,
-          variableName: architectureVariable[1],
-          subtype: architectureVariable[2].trim(),
-        });
+    for (const architectureVariable of collectArchitectureBodyVariables(content)) {
+      const intent = classifyArchitectureBodyVariableIntent({
+        relativePath,
+        variableName: architectureVariable.name,
+        subtype: architectureVariable.subtype,
+      });
+      findings.push(createFailureDetail({
+        code: 'architecture_body_variable',
+        category: 'declaration_scope',
+        message:
+          `${relativePath}: declares plain architecture-body variable "${architectureVariable.name}". ` +
+          `Ordinary variables are not allowed in the architecture declarative region for GHDL-compatible VHDL. ` +
+          `${intent.messageTail}`,
+        forbiddenConstruct: `plain architecture-body variable "${architectureVariable.name}" (${intent.flavor})`,
+        legalReplacementPattern: intent.legalReplacementPattern,
+      }));
+    }
+
+    const isLikelyTestbench = /(^|\/)(tb|testbench)\//i.test(relativePath)
+      || /(^|[_-])(tb|testbench)([_-]|$)/i.test(path.basename(relativePath, path.extname(relativePath)));
+    if (isLikelyTestbench) {
+      for (const localStringVariable of content.matchAll(/\bvariable\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*string\b(?!\s*\()/gi)) {
         findings.push(createFailureDetail({
-          code: 'architecture_body_variable',
+          code: 'tb_unconstrained_string_variable',
           category: 'declaration_scope',
           message:
-            `${relativePath}: declares plain architecture-body variable "${architectureVariable[1]}". ` +
-            `Ordinary variables are not allowed in the architecture declarative region for GHDL-compatible VHDL. ` +
-            `${intent.messageTail}`,
-          forbiddenConstruct: `plain architecture-body variable "${architectureVariable[1]}" (${intent.flavor})`,
-          legalReplacementPattern: intent.legalReplacementPattern,
+            `${relativePath}: declares unconstrained local string variable "${localStringVariable[1]}". ` +
+            `Generated testbenches must not rely on mutable unconstrained string variables because they are illegal in GHDL-compatible VHDL. ` +
+            `Use a directly reported string literal, a constant with an explicit bound, or a helper/report path that does not require a mutable string variable.`,
+          forbiddenConstruct: `unconstrained local string variable "${localStringVariable[1]}"`,
+          legalReplacementPattern: `replace "${localStringVariable[1]}" with a direct report literal, a constant with an explicit bound, or a helper contract that does not require a mutable string variable`,
+        }));
+      }
+
+      for (const clockEdgeFormalMismatch of collectClockEdgeHelperFormalMismatches(content)) {
+        findings.push(createFailureDetail({
+          code: 'clock_edge_helper_requires_signal_formal',
+          category: 'interface_generic_port_syntax',
+          message:
+            `${relativePath}: helper ${clockEdgeFormalMismatch.kind} "${clockEdgeFormalMismatch.name}" calls ${clockEdgeFormalMismatch.edgeFunction} on formal "${clockEdgeFormalMismatch.formalName}" but declares it as "${clockEdgeFormalMismatch.clause}". ` +
+            `Any helper formal passed to ${clockEdgeFormalMismatch.edgeFunction}(...) must be declared as a signal formal so GHDL accepts the edge test inside the helper body.`,
+          forbiddenConstruct:
+            `${clockEdgeFormalMismatch.kind} "${clockEdgeFormalMismatch.name}" calls ${clockEdgeFormalMismatch.edgeFunction} on non-signal formal clause "${clockEdgeFormalMismatch.clause}"`,
+          legalReplacementPattern:
+            `rewrite the helper formal as "${clockEdgeFormalMismatch.requiredClause}" and preserve the existing helper body/call sites`,
+        }));
+      }
+
+      for (const malformedFormal of collectMalformedSubprogramFormalClauses(content)) {
+        findings.push(createFailureDetail({
+          code: 'invalid_subprogram_formal_syntax',
+          category: 'interface_generic_port_syntax',
+          message:
+            `${relativePath}: helper ${malformedFormal.kind} "${malformedFormal.name}" declares malformed formal clause "${malformedFormal.clause}". ` +
+            `Generated helper interfaces must use canonical VHDL formal syntax only: "name : in type", ` +
+            `"signal name : out std_logic", or "variable name : inout integer". ` +
+            `Never place mode keywords before the identifier and never place signal/variable/constant after the colon.`,
+          forbiddenConstruct: `${malformedFormal.kind} "${malformedFormal.name}" declares malformed formal clause "${malformedFormal.clause}"`,
+          legalReplacementPattern:
+            `rewrite "${malformedFormal.clause}" into canonical VHDL formal syntax and keep signal/variable actual kinds aligned with the helper body`,
+        }));
+      }
+
+      for (const constrainedStringFormal of content.matchAll(/\b(function|procedure)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*(?:return\s+[^;\n]+?(?:\s+is\b|\s*;)|is\b)/gi)) {
+        const constrainedFormalMatch = constrainedStringFormal[3].match(/([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?string\s*\([^)]*\)/i);
+        if (!constrainedFormalMatch) continue;
+        findings.push(createFailureDetail({
+          code: 'tb_string_formal_actual_constraint_mismatch',
+          category: 'width_literal_mismatch',
+          message:
+            `${relativePath}: helper ${constrainedStringFormal[1].toLowerCase()} "${constrainedStringFormal[2]}" declares constrained string formal "${constrainedFormalMatch[1]}". ` +
+            `Generated self-checking testbench helpers must not constrain string message formals because varying literal lengths across call sites can trigger actual/formal constraint mismatches in GHDL.`,
+          forbiddenConstruct: `${constrainedStringFormal[1].toLowerCase()} "${constrainedStringFormal[2]}" declares constrained string formal "${constrainedFormalMatch[1]}"`,
+          legalReplacementPattern: `use an unconstrained read-only string formal for "${constrainedFormalMatch[1]}", or remove the helper string formal and report literals directly at the call site`,
+        }));
+      }
+
+      for (const unsafeIndexConversion of collectUnsafeTbLogicIndexConversions({
+        relativePath,
+        content,
+        declaredTypes,
+      })) {
+        findings.push(createFailureDetail({
+          code: 'tb_unguarded_logic_index_conversion',
+          category: 'runtime_bound_risk',
+          message:
+            `${relativePath}: performs direct array indexing "${unsafeIndexConversion.expression}" using raw ${declaredTypes.get(unsafeIndexConversion.indexIdentifier.toLowerCase())} "${unsafeIndexConversion.indexIdentifier}". ` +
+            `Self-checking testbenches must not convert DUT-visible logic vectors directly into array indexes because X/U/Z bits can trigger runtime metavalue failures before the DUT is stable.`,
+          forbiddenConstruct: `direct raw logic index conversion "${unsafeIndexConversion.expression}"`,
+          legalReplacementPattern:
+            unsafeIndexConversion.conversionKind === 'signed'
+              ? `replace "${unsafeIndexConversion.expression}" with a local guarded helper such as ${unsafeIndexConversion.arrayName}(tb_safe_signed_to_index(${unsafeIndexConversion.indexIdentifier})) after validating every bit is '0'/'1'`
+              : `replace "${unsafeIndexConversion.expression}" with a local guarded helper such as ${unsafeIndexConversion.arrayName}(tb_safe_slv_to_index(${unsafeIndexConversion.indexIdentifier})) after validating every bit is '0'/'1'`,
         }));
       }
     }
@@ -1228,6 +1748,37 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
         forbiddenConstruct: `numeric operands combined with ${illegalLogicalHybrid[2].toLowerCase()} as if they were booleans`,
         legalReplacementPattern: `compare each numeric expression explicitly or derive the condition from a typed final result`,
       }));
+    }
+
+    const conditionAssignmentExpressions = [
+      /\b(if|elsif)\s+([^;\n]*?:=[^;\n]*?)\s+then\b/gi,
+      /\bassert\s+([^;\n]*?:=[^;\n]*?)(?:\s+report|\s+severity|;)/gi,
+      /\bwhen\s+([^;\n]*?:=[^;\n]*?)(?:\s+else|\s*,|\s*;)/gi,
+    ];
+    for (const expression of conditionAssignmentExpressions) {
+      for (const conditionMatch of content.matchAll(expression)) {
+        const conditionText = (conditionMatch[2] || conditionMatch[1] || '').trim();
+        const assignmentMatch = conditionText.match(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*:=\s*([^;\n,)]+)/);
+        findings.push(createFailureDetail({
+          code: 'conditional_assignment_operator_misuse',
+          category: 'signal_variable_assignment_misuse',
+          message:
+            `${relativePath}: uses variable assignment operator ":=" inside a boolean condition ("${conditionText}"). ` +
+            `Conditions must use comparison operators such as =, /=, <, <=, >, or >=. Use ":=" only as a standalone variable assignment statement.`,
+          relativePath,
+          lineHint: conditionMatch.index == null ? null : lineNumberForIndex(content, conditionMatch.index),
+          forbiddenConstruct: assignmentMatch
+            ? `condition "${conditionText}" contains "${assignmentMatch[1]} := ${assignmentMatch[2].trim()}"`
+            : `condition "${conditionText}" contains ":="`,
+          legalReplacementPattern: assignmentMatch
+            ? `replace "${assignmentMatch[1]} := ${assignmentMatch[2].trim()}" with a comparison such as "${assignmentMatch[1]} <= ${assignmentMatch[2].trim()}" for upper-bound checks or "${assignmentMatch[1]} = ${assignmentMatch[2].trim()}" for equality checks`
+            : 'replace assignment inside the condition with a legal comparison operator',
+        }));
+        break;
+      }
+      if (findings.some((detail) => detail.code === 'conditional_assignment_operator_misuse')) {
+        break;
+      }
     }
 
     const prefixOperatorForm = content.match(/\b(xnor|nand|nor)\s+[a-zA-Z][a-zA-Z0-9_]*\s*,\s*[a-zA-Z][a-zA-Z0-9_]*\b/i);
@@ -1463,32 +2014,26 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }
     }
 
-    for (const match of content.matchAll(/\bprocedure\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*is([\s\S]*?)end\s+procedure\b/gi)) {
-      const [, procedureName, parameterList, procedureBody] = match;
-      const formalNames = new Set<string>();
-      for (const segment of parameterList.split(';')) {
-        const parameterMatch = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:/i);
-        if (!parameterMatch) continue;
-        splitIdentifierList(parameterMatch[1]).forEach((identifier) => formalNames.add(identifier.toLowerCase()));
-      }
+    for (const procedureScope of collectProcedureScopeSnapshots(content)) {
+      const formalNames = new Set(procedureScope.formalNames.map((name) => name.toLowerCase()));
+      const localNames = new Set(procedureScope.localNames.map((name) => name.toLowerCase()));
 
-      const localNames = new Set<string>();
-      for (const localMatch of procedureBody.matchAll(/\b(signal|variable|constant)\s+([^:;]+?)\s*:/gi)) {
-        splitIdentifierList(localMatch[2]).forEach((identifier) => localNames.add(identifier.toLowerCase()));
-      }
-
-      for (const assignmentMatch of procedureBody.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*(<=|:=)/gi)) {
-        const assignee = assignmentMatch[1].toLowerCase();
-        if (formalNames.has(assignee) || localNames.has(assignee)) continue;
-        if (!declaredTypes.has(assignee)) continue;
+      for (const assignmentTarget of procedureScope.assignmentTargets) {
+        const normalizedAssignee = assignmentTarget.toLowerCase();
+        if (formalNames.has(normalizedAssignee) || localNames.has(normalizedAssignee)) {
+          continue;
+        }
+        if (!declaredTypes.has(normalizedAssignee)) {
+          continue;
+        }
         findings.push(createFailureDetail({
           code: 'procedure_outer_scope_write',
           category: 'declaration_scope',
           message:
-            `${relativePath}: procedure "${procedureName}" assigns to outer-scope object "${assignmentMatch[1]}" without passing it as a formal parameter. ` +
+            `${relativePath}: procedure "${procedureScope.name}" assigns to outer-scope object "${assignmentTarget}" without passing it as a formal parameter. ` +
             `Pass the target in explicitly, or keep that state local to the calling process.`,
-          forbiddenConstruct: `procedure "${procedureName}" mutates outer-scope object "${assignmentMatch[1]}"`,
-          legalReplacementPattern: `pass "${assignmentMatch[1]}" as a formal parameter or keep the mutable state local to the caller`,
+          forbiddenConstruct: `procedure "${procedureScope.name}" mutates outer-scope object "${assignmentTarget}"`,
+          legalReplacementPattern: `pass "${assignmentTarget}" as a formal parameter or keep the mutable state local to the caller`,
         }));
         break;
       }

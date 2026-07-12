@@ -1,15 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "Analyzing VHDL files..."
-ghdl -a --std=08 -Work=work src/cpu_pkg.vhd
-ghdl -a --std=08 -Work=work src/alu.vhd
-ghdl -a --std=08 -Work=work src/reg_file.vhd
-ghdl -a --std=08 -Work=work src/cpu_core.vhd
-ghdl -a --std=08 -Work=work tb/tb_mini_cpu.vhd
+# Analysis order is critical (package -> RTL -> TB)
+ghdl -a --std=08 ../src/cpu_pkg.vhd
+ghdl -a --std=08 ../src/mini_cpu_core.vhd
+ghdl -a --std=08 ../tb/tb_mini_cpu_core.vhd
 
-echo "Elaborating testbench..."
-ghdl -e --std=08 -Work=work tb_mini_cpu
+# Elaborate the testbench
+ghdl -e --std=08 tb_mini_cpu_core
 
-echo "Running simulation with VCD output..."
-ghdl -r --std=08 -Work=work tb_mini_cpu --vcd=wave.vcd
+# Run simulation and dump VCD waveform
+ghdl -r --std=08 tb_mini_cpu_core --vcd=mini_cpu_core.vcd

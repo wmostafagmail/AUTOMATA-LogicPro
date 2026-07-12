@@ -7,110 +7,102 @@ entity tb_uart_spi_bridge is
 end entity tb_uart_spi_bridge;
 
 architecture tb of tb_uart_spi_bridge is
+  constant CLK_PERIOD_NS : integer := 10;
+  
+  signal clk_i         : std_logic := '0';
+  signal rst_i         : std_logic := '0';
+  signal uart_rx_i     : std_logic := '1';
+  signal uart_tx_o     : std_logic;
+  signal spi_sclk_o    : std_logic;
+  signal spi_mosi_o    : std_logic;
+  signal spi_miso_i    : std_logic := '0';
+  signal spi_csn_o     : std_logic;
+  signal busy_o        : std_logic;
+  signal err_o         : std_logic;
+  signal data_valid_o  : std_logic;
+  
+  signal test_failed : std_logic := '0';
+  
+  procedure wait_clk(signal clk : in std_logic; times : in integer) is
+  begin
+    for i in 1 to times loop
+      wait until rising_edge(clk);
+    end loop;
+  end procedure wait_clk;
 
-    component uart_spi_bridge_top is
-        generic (
-            g_clk_hz   : natural := 100_000_000;
-            g_baud_div : natural := 83;
-            g_spi_div  : natural := 4
-         );
-        port (
-            sysclk      : in  std_logic;
-            reset_i     : in  std_logic;
-            uart_rx     : in  std_logic;
-            uart_tx_o   : out std_logic;
-            spi_sclk_o  : out std_logic;
-            spi_mosi_o  : out std_logic;
-            spi_miso    : in  std_logic;
-            spi_csn_o   : out std_logic;
-            status_err_o: out std_logic
-         );
-    end component;
-
-    constant c_clk_period : time := 10 ns;
-
-    signal s_sysclk      : std_logic := '0';
-    signal s_reset_i     : std_logic := '1';
-    signal s_uart_rx     : std_logic := '1';
-    signal s_uart_tx_o   : std_logic;
-    signal s_spi_sclk_o  : std_logic;
-    signal s_spi_mosi_o  : std_logic;
-    signal s_spi_miso    : std_logic := '0';
-    signal s_spi_csn_o   : std_logic;
-    signal s_status_err_o: std_logic;
-
-     -- Helper procedures declared in architecture declarative region before begin
-    procedure check_pass_fail(
-        constant p_condition : in boolean;
-        constant p_label     : in string
-     ) is
-    begin
-        assert p_condition
-            report "FAIL: " & p_label severity error;
-    end procedure check_pass_fail;
+  procedure check_status(expected_busy : in std_logic;
+                         expected_err : in std_logic;
+                         expected_valid : in std_logic;
+                         msg : in string;
+                         signal err_flag : out std_logic) is
+  begin
+    if busy_o /= expected_busy or err_o /= expected_err or data_valid_o /= expected_valid then
+      err_flag <= '1';
+      report "FAIL: " & msg & " Expected busy=" & std_logic'image(expected_busy) & " err=" & std_logic'image(expected_err) & " valid=" & std_logic'image(expected_valid);
+    else
+      report "PASS: " & msg;
+    end if;
+  end procedure check_status;
 
 begin
 
-     -- DUT Instantiation
-    dut_inst : uart_spi_bridge_top
-        generic map (
-            g_clk_hz   => 100_000_000,
-            g_baud_div => 83,
-            g_spi_div  => 4
-         )
-        port map (
-            sysclk      => s_sysclk,
-            reset_i     => s_reset_i,
-            uart_rx     => s_uart_rx,
-            uart_tx_o   => s_uart_tx_o,
-            spi_sclk_o  => s_spi_sclk_o,
-            spi_mosi_o  => s_spi_mosi_o,
-            spi_miso    => s_spi_miso,
-            spi_csn_o   => s_spi_csn_o,
-            status_err_o=> s_status_err_o
-         );
+  dut : entity work.uart_spi_bridge
+    port map (
+      clk_i         => clk_i,
+      rst_i         => rst_i,
+      uart_rx_i     => uart_rx_i,
+      uart_tx_o     => uart_tx_o,
+      spi_sclk_o    => spi_sclk_o,
+      spi_mosi_o    => spi_mosi_o,
+      spi_miso_i    => spi_miso_i,
+      spi_csn_o     => spi_csn_o,
+      busy_o        => busy_o,
+      err_o         => err_o,
+      data_valid_o  => data_valid_o
+    );
 
-     -- Clock Generation Process
-    clk_proc : process
-    begin
-        s_sysclk <= '0';
-        wait for c_clk_period / 2;
-        s_sysclk <= '1';
-        wait for c_clk_period / 2;
-    end process clk_proc;
+  clk_proc : process
+  begin
+    clk_i <= '0';
+    wait for (CLK_PERIOD_NS / 2) * 1 ns;
+    clk_i <= '1';
+    wait for (CLK_PERIOD_NS / 2) * 1 ns;
+  end process clk_proc;
 
-     -- Test Stimulus Process
-    stim_proc : process
-        variable v_fail_count : natural := 0;
-    begin
-        report "Starting UART-SPI Bridge Testbench";
-
-         -- Reset sequence
-        s_reset_i <= '1';
-        wait for 20 ns;
-        s_reset_i <= '0';
-        wait for c_clk_period * 2;
-
-        check_pass_fail(s_spi_csn_o = '1', "CSN should be high after reset");
-
-         -- UART RX Stimulus (Simulated Start bit detection sequence)
-        s_uart_rx <= '0';
-        wait for c_clk_period * 85; -- Drive low longer than baud divisor to trigger sampler
-
-        report "UART RX start bit applied. Waiting for SPI activity.";
-        wait for 1 us;
-
-        check_pass_fail(s_spi_csn_o = '0', "CSN should go low when TX not empty");
-
-        report "Test sequence complete.";
-        if v_fail_count = 0 then
-            report "ALL TESTS PASSED" severity note;
-        else
-            report "TEST FAILURES DETECTED" severity error;
-        end if;
-
-        std.env.stop(0);
-        wait;
-    end process stim_proc;
+  tb_proc : process
+  begin
+    rst_i <= '0';
+    uart_rx_i <= '1';
+    wait for (CLK_PERIOD_NS * 5) * 1 ns;
+    rst_i <= '1';
+    wait for (CLK_PERIOD_NS * 5) * 1 ns;
+    rst_i <= '0';
+    wait for (CLK_PERIOD_NS * 5) * 1 ns;
+    
+    wait_clk(clk_i, 10);
+    check_status('0', '0', '0', "Reset Status", test_failed);
+    
+    uart_rx_i <= '0';
+    wait_clk(clk_i, 1);
+    wait_clk(clk_i, 1);
+    uart_rx_i <= '1';
+    
+    wait_clk(clk_i, 1);
+    check_status('1', '0', '0', "RX State", test_failed);
+    
+    wait_clk(clk_i, 1);
+    check_status('1', '0', '1', "TX State", test_failed);
+    
+    wait_clk(clk_i, 1);
+    check_status('0', '0', '0', "Idle State", test_failed);
+    
+    if test_failed = '0' then
+      report "SUCCESS: All tests passed.";
+    else
+      report "FAILURE: Tests failed.";
+    end if;
+    
+    std.env.stop(0);
+  end process tb_proc;
 
 end architecture tb;

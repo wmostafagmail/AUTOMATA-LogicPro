@@ -302,6 +302,86 @@ test('buildFailureCodeSpecificRepairShaping adds typed port-map guidance and str
   assert.match(text, /Match the actual expression to the formal type exactly at the association boundary/i);
 });
 
+test('buildFailureCodeSpecificRepairShaping bundles declaration-scope cluster guidance for testbench repair', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'scope cluster',
+    logs: [],
+    validatedTopEntities: [],
+    failureCode: 'declaration_after_begin',
+    failureCategory: 'declaration_scope',
+    failureDetails: [
+      {
+        code: 'declaration_after_begin',
+        category: 'declaration_scope',
+        message: 'tb/router_tb.vhd: procedure wait_clk is declared after begin.',
+        excerpt: 'procedure wait_clk',
+        relativePath: 'tb/router_tb.vhd',
+        forbiddenConstruct: 'procedure declaration for "wait_clk"',
+        legalReplacementPattern: 'hoist declaration before begin',
+      },
+      {
+        code: 'architecture_body_variable',
+        category: 'declaration_scope',
+        message: 'tb/router_tb.vhd: declares plain architecture-body variable "loop_cnt".',
+        excerpt: 'loop_cnt',
+        relativePath: 'tb/router_tb.vhd',
+        forbiddenConstruct: 'plain architecture-body variable "loop_cnt" (process_local_scratch)',
+        legalReplacementPattern: 'move "loop_cnt" into the nearest process/subprogram declarative region as a local variable unless persistent shared state is truly required',
+      },
+      {
+        code: 'procedure_outer_scope_write',
+        category: 'declaration_scope',
+        message: 'tb/router_tb.vhd: procedure wait_clk mutates outer-scope object loop_cnt.',
+        excerpt: 'wait_clk writes loop_cnt',
+        relativePath: 'tb/router_tb.vhd',
+        forbiddenConstruct: 'procedure "wait_clk" mutates outer-scope object "loop_cnt"',
+        legalReplacementPattern: 'pass loop_cnt explicitly as a formal parameter or keep it local to the caller',
+      },
+    ],
+  });
+
+  assert.match(text, /declaration_scope_cluster/);
+  assert.match(text, /Treat declaration placement, helper placement, and bookkeeping ownership as one bundled local repair pass/i);
+  assert.match(text, /Move mutable bookkeeping objects such as `cnt`, `loop_cnt`, `pass_count`, `fail_count`, `current_test`, and `test_failed` out of the architecture body/i);
+  assert.match(text, /If a helper needs to update mutable state, pass that state explicitly as a formal parameter/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds string-contract repair guidance for testbench helpers', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'string contract issues',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'tb_unconstrained_string_variable',
+        category: 'declaration_scope',
+        message: 'tb/router_tb.vhd: declares unconstrained local string variable "fail_msg".',
+        excerpt: 'variable fail_msg : string;',
+        relativePath: 'tb/router_tb.vhd',
+        forbiddenConstruct: 'unconstrained local string variable "fail_msg"',
+        legalReplacementPattern: 'replace "fail_msg" with a direct report literal, a constant with an explicit bound, or a helper contract that does not require a mutable string variable',
+      },
+      {
+        code: 'tb_string_formal_actual_constraint_mismatch',
+        category: 'width_literal_mismatch',
+        message: 'tb/router_tb.vhd: helper procedure "check_eq" declares constrained string formal "msg_name".',
+        excerpt: 'msg_name : string(1 to 32)',
+        relativePath: 'tb/router_tb.vhd',
+        forbiddenConstruct: 'procedure "check_eq" declares constrained string formal "msg_name"',
+        legalReplacementPattern: 'use an unconstrained read-only string formal for "msg_name", or remove the helper string formal and report literals directly at the call site',
+      },
+    ],
+  });
+
+  assert.match(text, /Remove mutable unconstrained local string variables/i);
+  assert.match(text, /Do not declare constrained string formals/i);
+  assert.match(text, /Replace constrained helper string formals with unconstrained read-only `string`/i);
+});
+
 test('runAiAnalyzeJob hard-fails artifact macros after retry when required artifacts are still missing', async () => {
   const artifactRetryCalls: Array<{
     originalPrompt: string;
@@ -607,6 +687,43 @@ test('repair shaping includes import and array/subtype repair guidance for recur
   assert.match(text, /Add use ieee\.numeric_std\.all; before relying on unsigned, signed, resize, to_integer, to_unsigned, or to_signed\./);
   assert.match(text, /Reuse the existing constrained subtype directly, or derive the new subtype from the true unconstrained base type instead of re-constraining the alias\./);
   assert.match(text, /Declare a named array type or subtype first, then declare the object using that named type instead of inline array\(\.\.\.\) of \.\.\. syntax\./);
+});
+
+test('repair shaping includes local-first guidance for clock-edge helpers and guarded testbench indexing', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'testbench helper legality issues',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'clock_edge_helper_requires_signal_formal',
+        category: 'interface_generic_port_syntax',
+        message: 'tb/tb_edge_helper.vhd: helper procedure "wait_clk" uses rising_edge on non-signal formal "clk".',
+        excerpt: 'wait until rising_edge(clk);',
+        relativePath: 'tb/tb_edge_helper.vhd',
+        forbiddenConstruct: 'procedure "wait_clk" uses rising_edge(...) on non-signal formal clause "clk : in std_logic"',
+        legalReplacementPattern: 'rewrite the helper formal as signal clk : in std_logic',
+      },
+      {
+        code: 'tb_unguarded_logic_index_conversion',
+        category: 'runtime_bound_risk',
+        message: 'tb/tb_indexing.vhd: uses direct array indexing from raw logic vector "addr_slv".',
+        excerpt: 'rom(to_integer(unsigned(addr_slv)))',
+        relativePath: 'tb/tb_indexing.vhd',
+        forbiddenConstruct: 'direct array indexing expression "rom(to_integer(unsigned(addr_slv)))"',
+        legalReplacementPattern: 'rewrite as rom(tb_safe_slv_to_index(addr_slv))',
+      },
+    ],
+  });
+
+  assert.match(text, /Repair the existing helper header locally instead of regenerating the testbench\./);
+  assert.match(text, /must be declared as a signal input formal, for example `signal clk_i : in std_logic`/);
+  assert.match(text, /Preserve the helper body and call sites\./);
+  assert.match(text, /Repair the existing testbench file locally by removing direct raw-logic array indexing/);
+  assert.match(text, /Introduce or reuse a local guarded helper such as `tb_safe_slv_to_index\(\.\.\.\)`/);
+  assert.match(text, /Do not redesign the DUT or regenerate unrelated files just to normalize the testbench indexing path\./);
 });
 
 test('repair caller contract includes declaration-scope guidance for hidden outer-scope mutation', () => {
@@ -1724,6 +1841,160 @@ test('runAiAnalyzeJob applies deterministic cleanup to LLM repair output before 
   assert.match(repairedTb, /process\s+    function to_slv\(value : integer\) return std_logic_vector is[\s\S]*\s+begin/is);
   assert.doesNotMatch(repairedTb, /REPAIRED:/i);
   assert.doesNotMatch(repairedTb, /process\s+begin[\s\S]*function to_slv/i);
+});
+
+test('runAiAnalyzeJob repairs bundled testbench declaration-scope failures locally before invoking the LLM repair prompt', async () => {
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect',
+    projectPath: '/tmp/project',
+    runModelAnalysis: async ({ prompt }: { prompt: string }) => {
+      params.__runCalls.push({ prompt });
+      return {
+        text: JSON.stringify({
+          project_name: 'UART to SPI Bridge',
+          sanitized_project_name: 'uart_spi_bridge',
+          summary: 'generated project',
+          requirements: [],
+          architecture: [],
+          files: [
+            {
+              path: 'src/uart_spi_bridge.vhd',
+              file_type: 'vhdl',
+              purpose: 'rtl',
+              content: [
+                'library ieee;',
+                'use ieee.std_logic_1164.all;',
+                '',
+                'entity uart_spi_bridge is',
+                'end entity;',
+                '',
+                'architecture rtl of uart_spi_bridge is',
+                'begin',
+                'end architecture;',
+                '',
+              ].join('\n'),
+            },
+            {
+              path: 'tb/tb_uart_spi_bridge.vhd',
+              file_type: 'vhdl_testbench',
+              purpose: 'tb',
+              content: [
+                'library ieee;',
+                'use ieee.std_logic_1164.all;',
+                '',
+                'entity tb_uart_spi_bridge is',
+                'end entity;',
+                '',
+                'architecture sim of tb_uart_spi_bridge is',
+                '  variable loop_cnt : integer := 0;',
+                'begin',
+                '  stimulus : process',
+                '  begin',
+                '    procedure wait_clk is',
+                '    begin',
+                '      loop_cnt := loop_cnt + 1;',
+                '      wait until rising_edge(clk);',
+                '    end procedure;',
+                '    wait_clk;',
+                '    wait;',
+                '  end process;',
+                'end architecture;',
+                '',
+              ].join('\n'),
+            },
+          ],
+          ghdl: {
+            analysis_order: ['src/uart_spi_bridge.vhd', 'tb/tb_uart_spi_bridge.vhd'],
+            top_testbench: 'tb_uart_spi_bridge',
+            run_commands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+            expected_result: 'pass',
+          },
+          quality_checklist: [],
+        }),
+        telemetry: {
+          inputTokens: 40,
+          outputTokens: 18,
+          totalTokens: 58,
+          tokensPerSecond: 12,
+          durationMs: 150,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => {
+      const outputDirectory = `${projectPath}/${project.sanitized_project_name}`;
+      await Promise.all(project.files.map(async (file: any) => {
+        const fullPath = `${outputDirectory}/${file.path}`;
+        const directory = fullPath.slice(0, fullPath.lastIndexOf('/'));
+        await fs.mkdir(directory, { recursive: true });
+        await fs.writeFile(fullPath, file.content, 'utf8');
+      }));
+      return {
+        outputDirectory,
+        savedFiles: project.files.map((file: any) => ({
+          ...file,
+          name: file.path.split('/').pop(),
+          path: `${outputDirectory}/${file.path}`,
+          kind: file.file_type === 'vhdl_testbench' ? 'testbench' : 'module',
+        })),
+      };
+    },
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+      const tbPath = savedArtifacts.find((artifact) => artifact.path.endsWith('tb/tb_uart_spi_bridge.vhd'))?.path;
+      assert.ok(tbPath);
+      const content = await fs.readFile(tbPath!, 'utf8');
+
+      if (/begin[\s\S]*procedure wait_clk is/i.test(content)) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
+          logs: ['tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".'],
+          validatedTopEntities: [],
+          failureCode: 'declaration_after_begin',
+          failureCategory: 'declaration_scope' as const,
+          failureDetails: [
+            {
+              code: 'declaration_after_begin',
+              category: 'declaration_scope' as const,
+              message: 'tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
+              excerpt: 'procedure wait_clk',
+              relativePath: 'tb/tb_uart_spi_bridge.vhd',
+              forbiddenConstruct: 'procedure declaration for "wait_clk" after begin',
+              legalReplacementPattern: 'move "wait_clk" into an enclosing declarative region before begin',
+            },
+          ],
+        };
+      }
+
+      assert.match(content, /stimulus : process[\s\S]*variable loop_cnt : integer := 0;/i);
+      assert.match(content, /procedure wait_clk\s*\(\s*variable loop_cnt_io : inout integer\s*\)\s*is/i);
+      assert.match(content, /wait_clk\(loop_cnt\);/i);
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_uart_spi_bridge.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_uart_spi_bridge'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 1);
+  assert.equal(result.retryUsed, true);
+  assert.equal(result.telemetry.attemptCount, 1);
+  assert.equal(result.telemetry.retryCount, 0);
+  const repairedTb = result.architectProject?.files.find((file) => file.path === 'tb/tb_uart_spi_bridge.vhd')?.content || '';
+  assert.match(repairedTb, /stimulus : process[\s\S]*variable loop_cnt : integer := 0;/i);
+  assert.match(repairedTb, /procedure wait_clk\s*\(\s*variable loop_cnt_io : inout integer\s*\)\s*is/i);
+  assert.match(repairedTb, /wait_clk\(loop_cnt\);/i);
+  assert.doesNotMatch(repairedTb, /begin[\s\S]*procedure wait_clk is/i);
 });
 
 test('runAiAnalyzeJob hard-fails FPGA Architect when generated project fails GHDL validation and does not auto-fix the files', async () => {

@@ -179,6 +179,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [architectLoopCompletedAttempts, setArchitectLoopCompletedAttempts] = useState(0);
   const [architectLoopFailures, setArchitectLoopFailures] = useState(0);
   const [architectLoopSuccesses, setArchitectLoopSuccesses] = useState(0);
+  const [architectLoopProviderPaused, setArchitectLoopProviderPaused] = useState(false);
+  const [architectLoopProviderMessage, setArchitectLoopProviderMessage] = useState('');
+  const [architectLoopProviderRetryAt, setArchitectLoopProviderRetryAt] = useState('');
   const [architectLoopResult, setArchitectLoopResult] = useState<{
     failures: number;
     attempts: number;
@@ -240,6 +243,13 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         if (Number.isFinite(nextDesignAttempt)) {
           setArchitectLoopCurrentDesignAttempt(nextDesignAttempt);
         }
+        setArchitectLoopProviderPaused(Boolean(data?.progress?.providerPaused));
+        setArchitectLoopProviderMessage(typeof data?.progress?.providerMessage === 'string'
+          ? data.progress.providerMessage
+          : '');
+        setArchitectLoopProviderRetryAt(typeof data?.progress?.providerRetryAt === 'string'
+          ? data.progress.providerRetryAt
+          : '');
       } catch {
         // Keep the loop running quietly even if a single status poll misses.
       }
@@ -733,6 +743,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       setArchitectLoopCompletedAttempts(0);
       setArchitectLoopFailures(0);
       setArchitectLoopSuccesses(0);
+      setArchitectLoopProviderPaused(false);
+      setArchitectLoopProviderMessage('');
+      setArchitectLoopProviderRetryAt('');
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
       setArchitectLoopResult(null);
@@ -770,6 +783,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       setArchitectLoopCompletedAttempts(Number.isFinite(Number(data?.completedAttempts)) ? Number(data.completedAttempts) : architectLoopAttempts);
       setArchitectLoopFailures(Number.isFinite(Number(data?.failures)) ? Number(data.failures) : architectLoopAttempts);
       setArchitectLoopSuccesses(Number.isFinite(Number(data?.successes)) ? Number(data.successes) : 0);
+      setArchitectLoopProviderPaused(false);
+      setArchitectLoopProviderMessage('');
+      setArchitectLoopProviderRetryAt('');
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
     } catch (error: any) {
@@ -787,6 +803,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       architectLoopStopRequestedRef.current = false;
       setArchitectLoopRunning(false);
       setArchitectLoopJobId(null);
+      setArchitectLoopProviderPaused(false);
     }
   };
 
@@ -917,13 +934,17 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   <div
                     className="test-title flex min-h-12 min-w-0 items-center rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-3 text-[12px] font-mono font-bold tracking-[0.04em] text-brand-cyan"
                     title={
-                      architectLoopCurrentDesignLabel
-                        ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` (${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN})` : ''}`
-                        : 'Waiting for the first design in the FPGA Architect sweep.'
+                      architectLoopProviderPaused
+                        ? architectLoopProviderMessage || 'Provider issue detected. The sweep is paused and will retry this attempt without counting it as failed.'
+                        : architectLoopCurrentDesignLabel
+                          ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` (${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN})` : ''}`
+                          : 'Waiting for the first design in the FPGA Architect sweep.'
                     }
                   >
                     <span className="block w-full truncate text-center sm:text-left">
-                      {architectLoopCurrentDesignLabel
+                      {architectLoopProviderPaused
+                        ? 'PROVIDER ISSUE - RETRYING'
+                        : architectLoopCurrentDesignLabel
                         ? `${architectLoopCurrentDesignLabel}${architectLoopCurrentDesignAttempt > 0 ? ` ${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN}` : ''}`
                         : `0 / ${architectLoopDesignCount} DESIGNS`}
                     </span>
@@ -989,6 +1010,20 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {architectLoopProviderPaused && (
+                  <div
+                    className="rounded-xl border border-brand-amber/40 bg-brand-amber/10 px-4 py-3 text-[12px] font-mono font-bold leading-relaxed text-brand-amber"
+                    title={architectLoopProviderMessage || 'Provider issue detected.'}
+                  >
+                    <div>Provider issue detected. Sweep paused; this attempt is not counted as failed.</div>
+                    <div className="text-brand-amber/80">
+                      {architectLoopProviderRetryAt
+                        ? `Retry scheduled at ${new Date(architectLoopProviderRetryAt).toLocaleTimeString()}.`
+                        : 'Retry scheduled in about 1 minute.'}
+                    </div>
+                  </div>
+                )}
 
                 {!architectLoopRunning && architectLoopResult && (
                   <div

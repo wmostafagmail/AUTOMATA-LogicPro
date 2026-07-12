@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   classifyFpgaArchitectLoopFailure,
+  classifyFpgaArchitectLoopFailureWithValidation,
   summarizeFpgaArchitectLoopFailures,
 } from '../src/server/fpgaArchitectLoopDiagnostics';
 
@@ -78,4 +79,32 @@ test('classifyFpgaArchitectLoopFailure maps illegal prefix operator failures int
 
   assert.equal(diagnostic.category, 'illegal_operator_usage');
   assert.equal(diagnostic.label, 'Illegal Operator Usage');
+});
+
+test('classifyFpgaArchitectLoopFailureWithValidation prefers machine-readable validator details over flattened error text', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
+    message: 'FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation. tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
+    generatedVhdlValidation: {
+      ok: false,
+      stage: 'prevalidate',
+      summary: 'validator failed',
+      logs: [],
+      validatedTopEntities: [],
+      failureCode: 'declaration_after_begin',
+      failureCategory: 'declaration_scope',
+      failureDetails: [
+        {
+          code: 'declaration_after_begin',
+          category: 'declaration_scope',
+          ruleIds: ['ghdl-clocked-variable-discipline'],
+          message: 'tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
+          excerpt: 'declares procedure "wait_clk" inside an executable region after "begin"',
+        },
+      ],
+    },
+  });
+
+  assert.equal(diagnostic.category, 'procedure_scope');
+  assert.equal(diagnostic.label, 'Procedure / Testbench Scope');
+  assert.ok(diagnostic.ruleIds.includes('ghdl-clocked-variable-discipline'));
 });

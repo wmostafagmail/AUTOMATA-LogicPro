@@ -41,6 +41,9 @@ export function createAiJobSecurityContext(params: {
       completedAttempts?: number;
       failures?: number;
       successes?: number;
+      providerPaused?: boolean;
+      providerMessage?: string;
+      providerRetryAt?: string;
       currentDesignKey?: string;
       currentDesignLabel?: string;
       currentDesignIndex?: number;
@@ -80,6 +83,9 @@ export function createAiJobSecurityContext(params: {
         completedAttempts: job.progress.completedAttempts,
         failures: job.progress.failures,
         successes: job.progress.successes,
+        providerPaused: job.progress.providerPaused,
+        providerMessage: job.progress.providerMessage,
+        providerRetryAt: job.progress.providerRetryAt,
         currentDesignKey: job.progress.currentDesignKey,
         currentDesignLabel: job.progress.currentDesignLabel,
         currentDesignIndex: job.progress.currentDesignIndex,
