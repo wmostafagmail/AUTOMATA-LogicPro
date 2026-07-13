@@ -191,7 +191,7 @@ export function createSessionManager(options: CreateSessionManagerOptions) {
       }
 
       const error = new Error(
-        `${label} is not approved for this app session. Re-select the project folder from inside AUTOMATA LogicPro and try again.`
+        `${label} needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.`
       );
       (error as any).statusCode = 403;
       throw error;

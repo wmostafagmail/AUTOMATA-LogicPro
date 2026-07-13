@@ -115,6 +115,18 @@ const REQUIRED_FILE_PREFIXES = [
 
 const FPGA_ARCHITECT_STRICT_RULE_LIST = buildCodeGeneratingMacroRuleList('fpga_vhdl_architect');
 
+function buildFpgaArchitectFailureEvidenceContract(errorSummary: string) {
+  return [
+    'Failure evidence contract:',
+    '- Do not infer or guess a different failure reason than the one reported below.',
+    '- Treat the reported parser/validator/GHDL failure text as authoritative evidence.',
+    '- If the failure text includes a file, line, snippet, missing unit, parser position, forbidden construct, or required replacement, repair that exact item first.',
+    '- If the failure text is structural, fix the manifest structure without changing unrelated VHDL design intent.',
+    '- If the failure text is VHDL/GHDL-related, regenerate or repair only the affected generated file blocks needed to satisfy that exact failure.',
+    `Reported failure: ${errorSummary || 'No failure summary was provided.'}`,
+  ].join('\n');
+}
+
 export const FPGA_VHDL_ARCHITECT_SYSTEM_PROMPT = `You are a senior FPGA architect, digital design engineer, VHDL expert, and verification engineer.
 
 Transform the user's natural-language FPGA design request into a complete, high-quality, GHDL-simulatable VHDL project.
@@ -846,6 +858,8 @@ Your previous response did not satisfy the required machine-readable FPGA projec
 Failure summary:
 - ${errorSummary}
 
+${buildFpgaArchitectFailureEvidenceContract(errorSummary)}
+
 Hard requirements:
 ${buildNumberedRuleList(structuralRules)}
 
@@ -892,6 +906,8 @@ Your previous FPGA Architect response contained the right kind of project conten
 
 Parser failure:
 - ${errorSummary}
+
+${buildFpgaArchitectFailureEvidenceContract(errorSummary)}
 
 Broken response to repair:
 \`\`\`
@@ -964,6 +980,8 @@ The previous FPGA Architect responses were still structurally invalid after repa
 
 Failure summary:
 - ${errorSummary}
+
+${buildFpgaArchitectFailureEvidenceContract(errorSummary)}
 
 You must regenerate the full project again, but keep the response compact enough to avoid truncation while preserving the required manifest structure and all essential project files.
 

@@ -32,6 +32,7 @@ export type FpgaArchitectLoopFailureCategory =
   | 'mixed_clock_edge'
   | 'illegal_operator_usage'
   | 'unresolved_work_unit'
+  | 'protocol_functional_mismatch'
   | 'simulation_assertion'
   | 'source_selection'
   | 'other';
@@ -90,6 +91,7 @@ const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
   mixed_clock_edge: 'Mixed Clock Edge',
   illegal_operator_usage: 'Illegal Operator Usage',
   unresolved_work_unit: 'Unresolved Work Unit',
+  protocol_functional_mismatch: 'Protocol / Functional Mismatch',
   simulation_assertion: 'Simulation Assertion',
   source_selection: 'Validation Source Selection',
   other: 'Other',
@@ -120,6 +122,7 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
   generated_clock: 'generated_clock_in_rtl',
   mixed_clock_edge: 'mixed_clock_edge_domain',
   unresolved_work_unit: 'unresolved_work_unit',
+  protocol_functional_mismatch: 'ghdl_simulate_failure',
   source_selection: 'source_selection',
   simulation_assertion: 'ghdl_simulate_failure',
 };
@@ -154,6 +157,7 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'scalar_bit_string_assignment':
       return 'width_literal_mismatch';
     case 'runtime_bound_check_risk':
+    case 'invalid_range_membership_syntax':
       return 'runtime_bound_risk';
     case 'top_level_generic_default_missing':
       return 'top_level_generic_default';
@@ -164,6 +168,7 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'missing_ghdl_command_contract':
       return 'command_contract';
     case 'invalid_source_order_contract':
+    case 'source_order_dependency_inversion':
       return 'source_order_contract';
     case 'multiple_architecture_elaboration_ambiguity':
       return 'architecture_target_ambiguity';
@@ -189,10 +194,13 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'illegal_prefix_operator_form':
       return 'illegal_operator_usage';
     case 'unresolved_work_unit':
+    case 'missing_work_package_file':
       return 'unresolved_work_unit';
     case 'source_selection':
       return 'source_selection';
     case 'ghdl_simulate_failure':
+    case 'simulation_assertion_expected_actual_mismatch':
+    case 'simulation_valid_latency_mismatch':
       return 'simulation_assertion';
     default:
       return null;
@@ -287,7 +295,7 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
     category = 'interface_declaration_misuse';
   } else if (category === 'other' && /bit-string literal|Verilog-style literal|sized literals|width\/count|scalar numeric declarations/i.test(message)) {
     category = 'width_literal_mismatch';
-  } else if (category === 'other' && /bounds explicitly|range errors|unchecked to_integer|runtime-unsafe/i.test(message)) {
+  } else if (category === 'other' && /bounds explicitly|range errors|unchecked to_integer|runtime-unsafe|bound check failure|index .* out of bounds|range check failed/i.test(message)) {
     category = 'runtime_bound_risk';
   } else if (category === 'other' && /top-level generic .*default|generic ".*" does not declare a default/i.test(message)) {
     category = 'top_level_generic_default';
@@ -321,6 +329,8 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
     category = 'illegal_operator_usage';
   } else if (category === 'other' && /unresolved work units|unit ".*" not found in library "work"/i.test(message)) {
     category = 'unresolved_work_unit';
+  } else if (category === 'other' && /fail:\s+.*mismatch detected|mismatch detected|nominal transfer mismatch|second transfer mismatch|protocol.*mismatch/i.test(message)) {
+    category = 'protocol_functional_mismatch';
   } else if (category === 'other' && /assertion failure|simulation failed|generated vhdl failed ghdl simulation/i.test(message)) {
     category = 'simulation_assertion';
   } else if (category === 'other' && /validation source set was empty|no generated vhdl artifacts were available|no vhdl sources were found/i.test(message)) {

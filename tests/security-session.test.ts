@@ -23,7 +23,7 @@ test('session manager only allows paths within the active approved root', () => 
     '/Users/test/other/outside.vhd',
     'Project file',
     (candidate, root) => candidate === root || candidate.startsWith(`${root}/`)
-  ), /not approved for this app session/i);
+  ), /needs to be selected again/i);
 });
 
 test('session manager remote export consents are server-owned and provider-specific', () => {

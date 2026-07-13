@@ -957,6 +957,7 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   tb_string_formal_actual_constraint_mismatch: ['ghdl-self-checking-testbenches'],
   clock_edge_helper_requires_signal_formal: ['ghdl-self-checking-testbenches', 'ghdl-clocked-variable-discipline'],
   tb_unguarded_logic_index_conversion: ['ghdl-unknown-z-rules', 'ghdl-arithmetic-width-rules'],
+  invalid_range_membership_syntax: ['ghdl-arithmetic-width-rules', 'ghdl-clocked-variable-discipline'],
   interface_arrow_syntax: ['ghdl-entity-format'],
   illegal_scalar_type_alias: ['ghdl-record-package-rules'],
   scalar_bit_string_assignment: ['ghdl-arithmetic-width-rules'],
@@ -992,6 +993,9 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   mixed_vhdl_standard_group: ['ghdl-no-mixed-standard-groups'],
   missing_ghdl_command_contract: ['ghdl-clean-command-contract', 'ghdl-command-rules'],
   invalid_source_order_contract: ['ghdl-source-ordering'],
+  source_order_dependency_inversion: ['ghdl-source-ordering'],
+  unresolved_work_unit: ['ghdl-source-ordering', 'ghdl-clean-command-contract'],
+  missing_work_package_file: ['ghdl-source-ordering', 'ghdl-clean-command-contract'],
   multiple_architecture_elaboration_ambiguity: ['ghdl-multiple-architectures'],
   rtl_contains_tb_only_construct: ['ghdl-rtl-tb-separation', 'ghdl-no-wait-in-rtl'],
   unsupported_textio_package_policy: ['ghdl-textio-rules'],
@@ -1001,6 +1005,9 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   ghdl_analyze_failure: ['ghdl-command-rules'],
   ghdl_elaborate_failure: ['ghdl-command-rules'],
   ghdl_simulate_failure: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
+  simulation_assertion_expected_actual_mismatch: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
+  simulation_valid_latency_mismatch: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
+  simulation_unknown_metavalue: ['ghdl-reset-discipline', 'ghdl-self-checking-testbenches', 'ghdl-numeric-std-rules'],
 };
 
 export function getCanonicalRuleIdsForFailureCode(failureCode: string | null | undefined) {

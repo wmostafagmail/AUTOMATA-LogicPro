@@ -528,6 +528,20 @@ test('inferFailureDetailsFromGhdlMessage recognizes recurring string-contract te
   assert.equal(constrainedFormalDetails[0]?.code, 'tb_string_formal_actual_constraint_mismatch');
 });
 
+test('inferFailureDetailsFromGhdlMessage recognizes unknown/metavalue simulation failures', () => {
+  const unknownOutputDetails = inferFailureDetailsFromGhdlMessage(
+    'tb_bridge.vhd:100:9:@25ns:(assertion failure): idle_busy expected \'0\' got \'U\'',
+  );
+  assert.equal(unknownOutputDetails[0]?.code, 'simulation_unknown_metavalue');
+  assert.equal(unknownOutputDetails[0]?.category, 'simulation_success');
+
+  const numericStdDetails = inferFailureDetailsFromGhdlMessage(
+    '../../src/ieee2008/numeric_std-body.vhdl:3036:7:@0ms:(assertion warning): NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0',
+  );
+  assert.equal(numericStdDetails[0]?.code, 'simulation_unknown_metavalue');
+  assert.match(numericStdDetails[0]?.legalReplacementPattern || '', /reset/i);
+});
+
 test('detectKnownVhdlAntiPatterns flags signal declarations inside executable regions', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-exec-signal-'));
   const sourcePath = path.join(root, 'src');
@@ -1939,6 +1953,46 @@ test('detectKnownVhdlAntiPatternDetails flags unsafe raw logic-vector testbench 
   assert.match(failure?.legalReplacementPattern || '', /tb_safe_slv_to_index/i);
 });
 
+test('detectKnownVhdlAntiPatternDetails flags invalid conditional range-membership syntax', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-range-membership-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(tbPath, 'tb_range.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_range is',
+      'end entity;',
+      '',
+      'architecture sim of tb_range is',
+      'begin',
+      '  process',
+      '    variable idx : integer := 0;',
+      '  begin',
+      '    if idx in 0 to 15 then',
+      '      report "inside range";',
+      '    end if;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_range.vhd']);
+  const failure = details.find((detail) => detail.code === 'invalid_range_membership_syntax');
+
+  assert.ok(failure);
+  assert.equal(failure?.category, 'runtime_bound_risk');
+  assert.match(failure?.message || '', /range-membership condition/i);
+  assert.match(failure?.legalReplacementPattern || '', /idx >= 0 and idx <= 15/i);
+});
+
 test('detectKnownVhdlAntiPatternDetails flags std_logic_vector function returns assigned into typed destinations', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-typed-helper-returns-'));
   const srcPath = path.join(root, 'src');
@@ -2121,6 +2175,89 @@ test('detectKnownVhdlAntiPatterns flags assignment operator inside boolean condi
   assert.ok(conditionMisuse);
   assert.equal(conditionMisuse.category, 'signal_variable_assignment_misuse');
   assert.match(conditionMisuse.message, /uses variable assignment operator ":=" inside a boolean condition/i);
+});
+
+test('detectKnownVhdlAntiPatterns treats <= in boolean conditions as comparison, not assignment', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-condition-comparison-'));
+  const sourcePath = path.join(root, 'src');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'cpu_top.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity cpu_top is end entity;',
+      'architecture rtl of cpu_top is',
+      '  type reg_file_t is array (0 to 3) of std_logic_vector(7 downto 0);',
+      'begin',
+      '  p : process(all)',
+      '    variable idx_b : integer;',
+      '    variable reg_file : reg_file_t;',
+      '    variable b_val : std_logic_vector(7 downto 0);',
+      '  begin',
+      '    idx_b := 2;',
+      '    if idx_b >= 0 and idx_b <= 3 then',
+      '      b_val := reg_file(idx_b);',
+      '    end if;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/cpu_top.vhd']);
+
+  assert.equal(
+    details.some((detail) => detail.code === 'variable_assigned_with_signal_operator'),
+    false,
+  );
+  assert.equal(
+    details.some((detail) => detail.code === 'conditional_assignment_operator_misuse'),
+    false,
+  );
+});
+
+test('detectKnownVhdlAntiPatterns allows case branch variable assignments', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-case-branch-assignment-'));
+  const sourcePath = path.join(root, 'src');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'alu.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity alu is end entity;',
+      'architecture rtl of alu is',
+      '  type alu_op_t is (OP_AND, OP_OR);',
+      'begin',
+      '  p : process(all)',
+      '    variable op : alu_op_t;',
+      '    variable a_u : unsigned(7 downto 0);',
+      '    variable b_u : unsigned(7 downto 0);',
+      '    variable res_u : unsigned(7 downto 0);',
+      '  begin',
+      '    case op is',
+      '      when OP_AND => res_u := a_u and b_u;',
+      '      when OP_OR => res_u := a_u or b_u;',
+      '    end case;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/alu.vhd']);
+
+  assert.equal(
+    details.some((detail) => detail.code === 'conditional_assignment_operator_misuse'),
+    false,
+  );
 });
 
 test('detectKnownVhdlAntiPatterns flags helper procedures declared after begin', async () => {
@@ -2487,7 +2624,258 @@ test('validateGeneratedProjectContracts flags missing command contract and inval
 
   assert.ok(findings.some((detail) => detail.code === 'missing_ghdl_command_contract'));
   assert.ok(!findings.some((detail) => detail.code === 'missing_waveform_generation_contract'));
-  assert.ok(findings.some((detail) => detail.code === 'invalid_source_order_contract'));
+  assert.ok(findings.some((detail) => detail.code === 'source_order_dependency_inversion'));
+});
+
+test('validateGeneratedProjectContracts flags generated hierarchy references with missing child entities before GHDL', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-missing-work-unit-'));
+  const sourcePath = path.join(root, 'src');
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.mkdir(tbPath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'uart_spi_bridge.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity uart_spi_bridge is end entity;',
+      '',
+      'architecture rtl of uart_spi_bridge is',
+      'begin',
+      '  fifo_i : entity work.sync_fifo',
+      '    port map ();',
+      '  ctrl_i : entity work.bridge_ctrl',
+      '    port map ();',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+  await fs.writeFile(
+    path.join(tbPath, 'tb_uart_spi_bridge.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_uart_spi_bridge is end entity;',
+      '',
+      'architecture sim of tb_uart_spi_bridge is',
+      'begin',
+      '  dut : entity work.uart_spi_bridge',
+      '    port map ();',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await validateGeneratedProjectContracts({
+    macroId: 'fpga_vhdl_architect',
+    validationRoot: root,
+    selectedSources: [
+      {
+        path: 'src/uart_spi_bridge.vhd',
+        entities: ['uart_spi_bridge'],
+        packages: [],
+        packageBodies: [],
+        dependencies: ['sync_fifo', 'bridge_ctrl'],
+        isTestbench: false,
+      },
+      {
+        path: 'tb/tb_uart_spi_bridge.vhd',
+        entities: ['tb_uart_spi_bridge'],
+        packages: [],
+        packageBodies: [],
+        dependencies: ['uart_spi_bridge'],
+        isTestbench: true,
+      },
+    ],
+    topEntities: ['tb_uart_spi_bridge'],
+    architectProject: {
+      projectName: 'uart_spi_bridge',
+      sanitizedProjectName: 'uart_spi_bridge',
+      topEntity: 'uart_spi_bridge',
+      vhdlStandard: '08',
+      targetFpga: null,
+      summary: '',
+      assumptions: [],
+      warnings: [],
+      folderTree: '',
+      files: [],
+      ghdl: {
+        analysisOrder: ['src/uart_spi_bridge.vhd', 'tb/tb_uart_spi_bridge.vhd'],
+        topTestbench: 'tb_uart_spi_bridge',
+        runCommands: [],
+        expectedResult: 'PASS',
+      },
+      qualityChecklist: [],
+    },
+  });
+
+  const unresolved = findings.find((detail) => detail.code === 'unresolved_work_unit');
+  assert.ok(unresolved);
+  assert.equal(unresolved?.relativePath, 'src/uart_spi_bridge.vhd');
+  assert.match(unresolved?.message || '', /sync_fifo/);
+  assert.match(unresolved?.message || '', /bridge_ctrl/);
+  assert.match(unresolved?.legalReplacementPattern || '', /generate entity\/architecture source file/i);
+  assert.match(unresolved?.legalReplacementPattern || '', /entity sync_fifo is/i);
+});
+
+test('validateGeneratedProjectContracts reports exact missing work package reference location and package repair', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-unresolved-package-contract-'));
+  const tbPath = path.join(root, 'tb');
+  await fs.mkdir(tbPath, { recursive: true });
+  await fs.writeFile(
+    path.join(tbPath, 'tb_video_pattern_gen.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use work.video_timing_pkg.all;',
+      '',
+      'entity tb_video_pattern_gen is end entity;',
+      'architecture sim of tb_video_pattern_gen is',
+      'begin',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await validateGeneratedProjectContracts({
+    macroId: 'fpga_vhdl_architect',
+    validationRoot: root,
+    selectedSources: [
+      {
+        path: 'tb/tb_video_pattern_gen.vhd',
+        entities: ['tb_video_pattern_gen'],
+        packages: [],
+        packageBodies: [],
+        dependencies: ['video_timing_pkg'],
+        isTestbench: true,
+      },
+    ],
+    topEntities: ['tb_video_pattern_gen'],
+    architectProject: {
+      projectName: 'video_pattern_gen',
+      sanitizedProjectName: 'video_pattern_gen',
+      topEntity: 'video_pattern_gen',
+      vhdlStandard: '08',
+      targetFpga: null,
+      summary: '',
+      assumptions: [],
+      warnings: [],
+      folderTree: '',
+      files: [],
+      ghdl: {
+        analysisOrder: ['tb/tb_video_pattern_gen.vhd'],
+        topTestbench: 'tb_video_pattern_gen',
+        runCommands: [],
+        expectedResult: 'PASS',
+      },
+      qualityChecklist: [],
+    },
+  });
+
+  const unresolved = findings.find((detail) => detail.code === 'missing_work_package_file');
+  assert.ok(unresolved);
+  assert.equal(unresolved?.relativePath, 'tb/tb_video_pattern_gen.vhd');
+  assert.equal(unresolved?.lineHint, 3);
+  assert.match(unresolved?.message || '', /line 3: use work\.video_timing_pkg\.all;/i);
+  assert.match(unresolved?.forbiddenConstruct || '', /use work\.video_timing_pkg\.all;/i);
+  assert.match(unresolved?.legalReplacementPattern || '', /package video_timing_pkg is/i);
+});
+
+test('validateGeneratedProjectContracts classifies source-order dependency inversion separately from missing packages', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-source-order-inversion-'));
+  const sourcePath = path.join(root, 'src');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'video_top.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use work.video_top_pkg.all;',
+      '',
+      'entity video_top is end entity;',
+      'architecture rtl of video_top is begin end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+  await fs.writeFile(
+    path.join(sourcePath, 'video_top_pkg.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'package video_top_pkg is',
+      '  constant ACTIVE_WIDTH : natural := 640;',
+      'end package;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await validateGeneratedProjectContracts({
+    macroId: 'fpga_vhdl_architect',
+    validationRoot: root,
+    selectedSources: [
+      {
+        path: 'src/video_top.vhd',
+        entities: ['video_top'],
+        packages: [],
+        packageBodies: [],
+        dependencies: ['video_top_pkg'],
+        isTestbench: false,
+      },
+      {
+        path: 'src/video_top_pkg.vhd',
+        entities: [],
+        packages: ['video_top_pkg'],
+        packageBodies: [],
+        dependencies: [],
+        isTestbench: false,
+      },
+    ],
+    topEntities: ['video_top'],
+    architectProject: {
+      projectName: 'video_top',
+      sanitizedProjectName: 'video_top',
+      topEntity: 'video_top',
+      vhdlStandard: '08',
+      targetFpga: null,
+      summary: '',
+      assumptions: [],
+      warnings: [],
+      folderTree: '',
+      files: [],
+      ghdl: {
+        analysisOrder: ['src/video_top.vhd', 'src/video_top_pkg.vhd'],
+        topTestbench: 'video_top',
+        runCommands: [],
+        expectedResult: 'PASS',
+      },
+      qualityChecklist: [],
+    },
+  });
+
+  assert.ok(findings.some((detail) => detail.code === 'source_order_dependency_inversion'));
+  assert.ok(!findings.some((detail) => detail.code === 'missing_work_package_file'));
+});
+
+test('inferFailureDetailsFromGhdlMessage extracts simulation assertion expected/actual evidence', () => {
+  const details = inferFailureDetailsFromGhdlMessage([
+    '/tmp/project/tb/tb_dsp_chain.vhd:44:13:@115ns:(report error): FAIL: FIR Peak Output expected valid but got invalid',
+    './tb_dsp_chain:error: simulation failed',
+  ].join('\n'));
+
+  const assertion = details.find((detail) => detail.code === 'simulation_assertion_expected_actual_mismatch');
+  assert.ok(assertion);
+  assert.equal(assertion?.lineHint, 44);
+  assert.match(assertion?.message || '', /115ns/);
+  assert.match(assertion?.forbiddenConstruct || '', /FIR Peak Output expected valid but got invalid/);
+  assert.match(assertion?.legalReplacementPattern || '', /do not delete, weaken, or rename the assertion/i);
 });
 
 test('validateGeneratedProjectContracts accepts synthesized FPGA Architect command plans when analysis_order and top_testbench are present', async () => {

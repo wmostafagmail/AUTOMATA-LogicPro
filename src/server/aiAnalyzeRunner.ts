@@ -3,7 +3,10 @@ import path from 'path';
 import type { AiMacroId, AiMacroValidationResult, TbGenerationMode } from '../aiMacros';
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { DeterministicSkillSelection, PreparedVhdlSkillPrompt } from './vhdlSkillOrchestrator';
-import type { FpgaArchitectProject } from './fpgaArchitect';
+import {
+  buildDeterministicArchitectGhdlRunCommands,
+  type FpgaArchitectProject,
+} from './fpgaArchitect';
 import { buildMacroExecutionPrompt } from './aiPromptUtils';
 import {
   applyGeneratedCodeRepairs,
@@ -115,10 +118,47 @@ function hasBundledDeclarationScopeCluster(validation: GeneratedVhdlValidationRe
   ));
 }
 
+function buildFailureEvidenceSummary(validation: GeneratedVhdlValidationResult) {
+  const details = (validation.failureDetails || []).slice(0, 8);
+  if (details.length === 0) {
+    return [
+      'Failure evidence contract:',
+      '- Do not infer or guess a new failure reason. Use only the validator/GHDL summary and log text provided by the app.',
+      `- Validation gate: ${describeValidationGate(validation.stage)}.`,
+      `- Summary: ${validation.summary || 'No structured summary was provided.'}`,
+    ].join('\n');
+  }
+
+  return [
+    'Failure evidence contract:',
+    '- Do not infer or guess a new failure reason. Use only the exact evidence below.',
+    '- Repair each listed file/line/expression locally. If a line or snippet is present, treat it as the primary repair target.',
+    '- If evidence is incomplete, preserve behavior and make the smallest legal VHDL correction implied by the failure code; do not invent unrelated design changes.',
+    ...details.flatMap((detail, index) => {
+      const lines = [
+        `- Issue ${index + 1}: ${detail.category || validation.failureCategory || 'unknown_category'} / ${detail.code || validation.failureCode || 'unknown_code'}`,
+        `  file: ${detail.relativePath || 'unknown'}`,
+        `  line: ${typeof detail.lineHint === 'number' ? detail.lineHint : 'unknown'}`,
+        `  message: ${detail.message || validation.summary || 'No failure message was provided.'}`,
+      ];
+      if (detail.excerpt) {
+        lines.push(`  exact snippet/expression: ${detail.excerpt}`);
+      }
+      if (detail.forbiddenConstruct) {
+        lines.push(`  forbidden construct: ${detail.forbiddenConstruct}`);
+      }
+      if (detail.legalReplacementPattern) {
+        lines.push(`  required replacement: ${detail.legalReplacementPattern}`);
+      }
+      return lines;
+    }),
+  ].join('\n');
+}
+
 export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlValidationResult) {
   const details = validation.failureDetails || [];
   const seenCodes = new Set<string>();
-  const sections: string[] = [];
+  const sections: string[] = [buildFailureEvidenceSummary(validation)];
   const hasDeclarationScopeCluster = details.some((detail) => (
     detail.code === 'architecture_body_variable'
     || detail.code === 'declaration_after_begin'
@@ -193,6 +233,14 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Introduce or reuse a local guarded helper such as `tb_safe_slv_to_index(...)` that first verifies every bit is `0` or `1`, then converts to an index only after that check passes.',
         '  Preserve the existing memory model and stimuli. Do not redesign the DUT or regenerate unrelated files just to normalize the testbench indexing path.',
       ].join('\n'));
+    } else if (detail.code === 'invalid_range_membership_syntax') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing file locally. Do not regenerate the design just because a bounds-check condition used invalid syntax.',
+        '  VHDL does not support `if idx in 0 to 15 then` or similar conditional range-membership syntax.',
+        '  Rewrite it as explicit comparisons, for example `if idx >= 0 and idx <= 15 then`.',
+        '  Preserve the guarded-indexing intent and all surrounding testbench/DUT behavior.',
+      ].join('\n'));
     } else if (detail.code === 'tb_string_formal_actual_constraint_mismatch') {
       sections.push([
         `- ${detail.code}`,
@@ -235,6 +283,13 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
           : detail.code === 'end_statement_file_extension'
             ? '  End the design unit with only the legal unit identifier or a bare end statement; never include a filename suffix.'
             : '  Remove prose from executable/declarative syntax and keep any explanation only in trailing VHDL comments after a legal statement.',
+      ].join('\n'));
+    } else if (detail.code === 'conditional_assignment_operator_misuse') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair only true boolean-condition assignment misuse. In `if`, `elsif`, `assert`, or conditional `when ... else` expressions, never use `:=`; use `=`, `/=`, `<`, `<=`, `>`, or `>=` as appropriate.',
+        '  For bounds checks such as `idx >= 0 and idx := 7`, rewrite the second half to `idx <= 7`.',
+        '  Do not rewrite legal `case` statement branches such as `when OP_AND => result_v := a_u and b_u;`; that is a standalone variable assignment and is valid VHDL.',
       ].join('\n'));
     } else if (detail.code === 'variable_assigned_with_signal_operator' || detail.code === 'signal_assigned_with_variable_operator') {
       sections.push([
@@ -283,6 +338,32 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Rename only the reserved-word identifiers that violate VHDL legality.',
         '  Use safe descriptive replacements and keep the rest of the file structure unchanged.',
       ].join('\n'));
+    } else if (detail.code === 'simulation_unknown_metavalue') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair unknown/metavalue simulation behavior locally; do not mask the failure by weakening testbench checks.',
+        '  In RTL: initialize every output, state register, flag, FIFO/status signal, and memory-visible control value on reset, and assign deterministic combinational defaults before case/if branches.',
+        '  In the testbench: assert reset long enough, release it on a clock edge, wait at least one full clock after reset release before checking idle/status outputs, and avoid to_integer on vectors until they are known or explicitly guarded.',
+        '  Preserve passing files/checks and repair only the files needed to remove U/X/metavalue behavior.',
+      ].join('\n'));
+    } else if (
+      detail.code === 'simulation_assertion_expected_actual_mismatch'
+      || detail.code === 'simulation_valid_latency_mismatch'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Treat this as an exact self-checking simulation failure with file, line, time, and assertion text already supplied above.',
+        '  Do not delete, weaken, skip, rename, or silence the failing assertion/report statement.',
+        '  Repair the smallest existing RTL or testbench timing/behavior cause that makes the asserted expected value true at the reported simulation time.',
+        '  Preserve already-passing checks and do not broadly regenerate unrelated files.',
+      ].join('\n'));
+    } else if (detail.code === 'ghdl_simulate_failure') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Treat this as a functional mismatch, not a syntax repair.',
+        '  Repair the smallest existing RTL or testbench logic that contradicts the stated design behavior. Do not only edit expected values to hide a real DUT bug.',
+        '  Preserve already-passing checks and rerun the same self-checking testbench behavior after the local fix.',
+      ].join('\n'));
     } else if (
       detail.code === 'illegal_multidimensional_logic_vector'
       || detail.code === 'anonymous_array_object_declaration'
@@ -312,7 +393,33 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
             ? '  Declare every width/generic/constant before using it in a port, generic, or type declaration.'
             : detail.code === 'top_level_generic_default_missing'
               ? '  Add legal default values for top-level generics so the generated top/test flow remains analyzable and runnable.'
-              : '  Constrain top-level simulation-facing ports explicitly instead of leaving dimensions open.',
+            : '  Constrain top-level simulation-facing ports explicitly instead of leaving dimensions open.',
+      ].join('\n'));
+    } else if (detail.code === 'source_order_dependency_inversion') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the generated GHDL analysis_order and command plan only when the provider file already exists.',
+        '  Move package declarations before all files that use work.<package>.all, move package bodies after their declarations, and move entities before testbenches that instantiate them.',
+        '  Do not create duplicate package/entity files just to fix ordering. Do not rename units. Preserve generated file contents unless another failure code also requires code edits.',
+      ].join('\n'));
+    } else if (detail.code === 'missing_work_package_file') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair hierarchy completeness locally by generating the missing package source file, not by only editing analysis_order.',
+        '  For every `use work.<package>.all` reference, ensure a generated VHDL source file declares exactly `package <package> is ... end package;` and is included before dependents in analysis_order.',
+        '  If the package was accidental, remove the use clause and inline the needed declarations in a legal existing package/source. Do not leave dangling work package references.',
+        '  Preserve already-passing generated files and stable top/testbench interfaces.',
+      ].join('\n'));
+    } else if (detail.code === 'unresolved_work_unit') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair hierarchy completeness locally. Do not only reorder compile commands when the referenced unit does not exist in the generated file set.',
+        '  For every `entity work.<unit>` or `use work.<package>.all` reference, ensure a generated VHDL source file declares that exact entity/package and is included before dependents in analysis_order.',
+        '  If the missing name ends in `_pkg` or `_package`, generate a real package file such as `src/<name>.vhd` containing `package <name> is ... end package;` and add it before every source that says `use work.<name>.all;`.',
+        '  If the missing name is an entity/component, generate the matching entity/architecture file or remove the instantiation and inline the behavior.',
+        '  Do not only add a missing unit to analysis_order. The file that declares the missing package/entity must also exist in the generated project.',
+        '  If the missing unit was accidental, remove the instantiation/use and inline or simplify the logic so the project has no unresolved work references.',
+        '  Regenerate or repair the minimum missing child files only; preserve already-passing generated files and stable top/testbench interfaces.',
       ].join('\n'));
     } else if (
       detail.code === 'missing_std_logic_1164_clause'
@@ -642,6 +749,73 @@ export async function runAiAnalyzeJob(params: {
     return `${text.trimEnd()}\n\n## GHDL Validation\n- Status: PASS\n- Stage: ${validationResult.stage}\n- Summary: ${validationResult.summary}${logSection}\n`;
   };
 
+  const normalizeArchitectProjectGhdlPlan = (project: FpgaArchitectProject | null) => {
+    if (!project) return;
+
+    const vhdlFiles = project.files
+      .filter((file) => /\.(?:vhd|vhdl)$/i.test(file.path))
+      .map((file) => ({
+        path: path.normalize(file.path),
+        content: file.content || '',
+      }));
+    if (vhdlFiles.length === 0) return;
+
+    const fileByPath = new Map(vhdlFiles.map((file) => [file.path, file]));
+    const providerByUnit = new Map<string, string>();
+    for (const file of vhdlFiles) {
+      for (const match of file.content.matchAll(/\bpackage\s+(?!body\b)([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/gi)) {
+        providerByUnit.set(match[1].toLowerCase(), file.path);
+      }
+      for (const match of file.content.matchAll(/\bentity\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/gi)) {
+        providerByUnit.set(match[1].toLowerCase(), file.path);
+      }
+    }
+
+    const requestedOrder = (project.ghdl.analysisOrder || [])
+      .map((entry) => path.normalize(entry))
+      .filter((entry) => fileByPath.has(entry));
+    const orderedPaths = Array.from(new Set([
+      ...requestedOrder,
+      ...vhdlFiles.map((file) => file.path),
+    ]));
+
+    const dependenciesByPath = new Map<string, Set<string>>();
+    for (const file of vhdlFiles) {
+      const dependencies = new Set<string>();
+      for (const match of file.content.matchAll(/\buse\s+work\.([a-zA-Z][a-zA-Z0-9_]*)(?:\.[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)) {
+        const providerPath = providerByUnit.get(match[1].toLowerCase());
+        if (providerPath && providerPath !== file.path) dependencies.add(providerPath);
+      }
+      for (const match of file.content.matchAll(/\bentity\s+work\.([a-zA-Z][a-zA-Z0-9_]*)\b/gi)) {
+        const providerPath = providerByUnit.get(match[1].toLowerCase());
+        if (providerPath && providerPath !== file.path) dependencies.add(providerPath);
+      }
+      dependenciesByPath.set(file.path, dependencies);
+    }
+
+    const sorted: string[] = [];
+    const pending = new Set(orderedPaths);
+    while (pending.size > 0) {
+      const ready = Array.from(pending).find((candidate) => {
+        const dependencies = dependenciesByPath.get(candidate) || new Set<string>();
+        return Array.from(dependencies).every((dependency) => !pending.has(dependency));
+      });
+      if (!ready) break;
+      sorted.push(ready);
+      pending.delete(ready);
+    }
+    sorted.push(...Array.from(pending));
+
+    if (sorted.length > 0) {
+      project.ghdl.analysisOrder = sorted;
+      project.ghdl.runCommands = buildDeterministicArchitectGhdlRunCommands({
+        analysisOrder: sorted,
+        topTestbench: project.ghdl.topTestbench || '',
+        vhdlStandard: project.vhdlStandard,
+      });
+    }
+  };
+
   const repairFpgaArchitectManifestIfNeeded = async (currentResponseText: string) => {
     if (!parseFpgaArchitectResponse || !buildFpgaArchitectJsonRepairPrompt || !buildFpgaArchitectCompactRetryPrompt) {
       throw new Error('FPGA Architect JSON repair dependencies are unavailable.');
@@ -710,6 +884,26 @@ export async function runAiAnalyzeJob(params: {
     }
 
     retryUsed = true;
+    const syncArchitectProjectFilesFromRepairableFiles = (files: RepairableGeneratedFile[]) => {
+      if (!architectProject) return;
+
+      architectProject.files = architectProject.files.map((projectFile) => {
+        const savedPath = projectFile.savedPath ? path.resolve(projectFile.savedPath) : null;
+        const projectRelativePath = path.normalize(projectFile.path);
+        const repaired = files.find((file) => {
+          const absolutePath = path.resolve(file.absolutePath);
+          const relativePath = path.normalize(file.relativePath);
+          return (
+            (savedPath !== null && absolutePath === savedPath)
+            || relativePath.endsWith(projectRelativePath)
+            || absolutePath.endsWith(projectRelativePath)
+          );
+        });
+        return repaired ? { ...projectFile, content: repaired.content } : projectFile;
+      });
+      normalizeArchitectProjectGhdlPlan(architectProject);
+    };
+
     const runDeterministicRepairPasses = async (input: {
       files: RepairableGeneratedFile[];
       validation: GeneratedVhdlValidationResult;
@@ -734,6 +928,7 @@ export async function runAiAnalyzeJob(params: {
 
         deterministicChangedAny = true;
         deterministicFiles = deterministicRepair.repairedFiles;
+        syncArchitectProjectFilesFromRepairableFiles(deterministicFiles);
         deterministicValidation = requirePassingSimulationForMacro({
           macroId,
           validation: await validateGeneratedVhdlWithGhdl({
@@ -831,6 +1026,7 @@ export async function runAiAnalyzeJob(params: {
       availableFiles: params.files,
       repairs: parsedRepairs,
     });
+    syncArchitectProjectFilesFromRepairableFiles(updatedFiles);
 
     const repairedValidation = requirePassingSimulationForMacro({
       macroId,
@@ -882,6 +1078,7 @@ export async function runAiAnalyzeJob(params: {
       const saved = saveResult.savedFiles.find((savedFile) => savedFile.path.endsWith(path.normalize(file.path)));
       return saved ? { ...file, savedPath: saved.path } : file;
     });
+    normalizeArchitectProjectGhdlPlan(project);
     repairableFiles = saveResult.savedFiles
       .filter((file) => file.path.toLowerCase().endsWith('.vhd') || file.path.toLowerCase().endsWith('.vhdl'))
       .map((file) => ({

@@ -159,6 +159,62 @@ function lineNumberForIndex(content: string, index: number) {
   return content.slice(0, Math.max(0, index)).split(/\r\n|\r|\n/).length;
 }
 
+function collectDeclaredObjectNames(content: string, declarationKind: 'signal' | 'variable') {
+  const names = new Set<string>();
+  const declarationExpression = new RegExp(`\\b${declarationKind}\\s+([^:;]+)\\s*:`, 'gi');
+  for (const match of content.matchAll(declarationExpression)) {
+    const declarationList = match[1] || '';
+    for (const rawName of declarationList.split(',')) {
+      const name = rawName.trim().match(/^([a-zA-Z][a-zA-Z0-9_]*)$/)?.[1];
+      if (name) names.add(name.toLowerCase());
+    }
+  }
+  return names;
+}
+
+function collectStatementLevelAssignmentOperatorMisuse(content: string) {
+  const cleanContent = stripVhdlComments(content);
+  const declaredVariables = collectDeclaredObjectNames(cleanContent, 'variable');
+  const declaredSignals = collectDeclaredObjectNames(cleanContent, 'signal');
+  const findings: Array<{
+    code: 'variable_assigned_with_signal_operator' | 'signal_assigned_with_variable_operator';
+    name: string;
+    operator: '<=' | ':=';
+    lineHint: number;
+    statement: string;
+  }> = [];
+
+  const lines = cleanContent.split(/\r\n|\r|\n/);
+  for (const [lineIndex, rawLine] of lines.entries()) {
+    const statement = rawLine.trim();
+    const assignmentMatch = statement.match(/^([a-zA-Z][a-zA-Z0-9_]*)(?:\s*\([^)]*\))?\s*(<=|:=)\s*.+;?\s*$/);
+    if (!assignmentMatch) continue;
+
+    const name = assignmentMatch[1];
+    const normalizedName = name.toLowerCase();
+    const operator = assignmentMatch[2] as '<=' | ':=';
+    if (operator === '<=' && declaredVariables.has(normalizedName)) {
+      findings.push({
+        code: 'variable_assigned_with_signal_operator',
+        name,
+        operator,
+        lineHint: lineIndex + 1,
+        statement,
+      });
+    } else if (operator === ':=' && declaredSignals.has(normalizedName)) {
+      findings.push({
+        code: 'signal_assigned_with_variable_operator',
+        name,
+        operator,
+        lineHint: lineIndex + 1,
+        statement,
+      });
+    }
+  }
+
+  return findings;
+}
+
 function extractUniqueMatches(content: string, expression: RegExp, transform: (value: string) => string = (value) => value) {
   const matches = new Set<string>();
   for (const match of content.matchAll(expression)) {
@@ -643,6 +699,42 @@ function createFailureDetail(params: {
   };
 }
 
+function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
+  const details: GeneratedVhdlFailureDetail[] = [];
+  const assertionLinePattern = /([^\n:]+\.vhdl?):(\d+):(\d+):@([^:\n]+):\((?:assertion failure|report error|report failure)\):\s*([^\n]+)/gi;
+
+  for (const match of message.matchAll(assertionLinePattern)) {
+    const sourcePath = match[1];
+    const lineHint = Number.parseInt(match[2], 10);
+    const timeText = match[4].trim();
+    const assertionText = match[5].trim();
+    if (/expected\s+'?[01]'?\s+got\s+'?[UXZW-]'?/i.test(assertionText) || /got\s+'?[UXZW-]'?/i.test(assertionText)) {
+      continue;
+    }
+    const expectedActual = assertionText.match(/\bexpected\s+(.+?)\s+but\s+got\s+(.+)$/i);
+    const code = expectedActual
+      ? 'simulation_assertion_expected_actual_mismatch'
+      : /valid|ready|enable|done|empty|full/i.test(assertionText)
+        ? 'simulation_valid_latency_mismatch'
+        : 'ghdl_simulate_failure';
+    const legalReplacementPattern = expectedActual
+      ? `repair the existing RTL/TB logic so the value at ${timeText} matches expected ${expectedActual[1].trim()} instead of actual ${expectedActual[2].trim()}; do not delete, weaken, or rename the assertion`
+      : `repair the existing RTL/TB timing or handshake behavior that triggers this assertion at ${timeText}; do not delete, weaken, or rename the assertion`;
+
+    details.push(createFailureDetail({
+      code,
+      category: 'simulation_success',
+      message: `${sourcePath}:${lineHint}: assertion failed at ${timeText}: ${assertionText}`,
+      relativePath: sourcePath,
+      lineHint,
+      forbiddenConstruct: `self-checking assertion/report failure at ${timeText}: ${assertionText}`,
+      legalReplacementPattern,
+    }));
+  }
+
+  return details;
+}
+
 function summarizeFailureDetails(details: GeneratedVhdlFailureDetail[]) {
   return details.map((detail) => detail.message).join('\n');
 }
@@ -653,6 +745,8 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     details.push(createFailureDetail(params));
   };
 
+  details.push(...buildSimulationAssertionDetailsFromGhdlMessage(message));
+
   if (/unit\s+".*"\s+not\s+found\s+in\s+library\s+"work"|unresolved work units/i.test(message)) {
     push({
       code: 'unresolved_work_unit',
@@ -660,6 +754,21 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: 'reference to a work unit that was not compiled into the active work library',
       legalReplacementPattern: 'compile the dependency first and keep analysis_order so every package/entity is analyzed before the dependent file',
+    });
+  }
+
+  if (
+    /metavalue detected|returning FALSE|returning 0/i.test(message)
+    || /expected\s+'[01]'\s+got\s+'[UXZW-]'/i.test(message)
+    || /got\s+'[UXZW-]'/i.test(message)
+  ) {
+    push({
+      code: 'simulation_unknown_metavalue',
+      category: 'simulation_success',
+      message,
+      forbiddenConstruct: 'simulation checks observe U/X/Z/W/- values, numeric_std metavalue conversions, or outputs checked before deterministic reset/default initialization',
+      legalReplacementPattern:
+        'initialize every RTL output/state register on reset, provide deterministic combinational defaults before every branch, hold TB reset long enough, wait at least one full clock after reset release before checking outputs, and guard or avoid to_integer on vectors that may contain unknown values',
     });
   }
 
@@ -819,6 +928,18 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: `illegal prefix/function-style VHDL operator form "${operatorToken} a, b"`,
       legalReplacementPattern: `rewrite the expression into legal infix VHDL operator form such as "a ${operatorToken} b" on operands of matching type`,
+    });
+  }
+
+  if (/\b(?:if|elsif)\s+[a-zA-Z][a-zA-Z0-9_]*\s+in\s+[^;\n]+?\s+to\s+[^;\n]+?\s+then\b/i.test(message)
+    || /unexpected token 'in' in a primary/i.test(message)
+    || /\(found: 'in'\)/i.test(message)) {
+    push({
+      code: 'invalid_range_membership_syntax',
+      category: 'runtime_bound_risk',
+      message,
+      forbiddenConstruct: 'invalid VHDL conditional range-membership syntax such as "if idx in 0 to 15 then"',
+      legalReplacementPattern: 'rewrite the bounds check as "if idx >= 0 and idx <= 15 then"',
     });
   }
 
@@ -1623,6 +1744,23 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
               : `replace "${unsafeIndexConversion.expression}" with a local guarded helper such as ${unsafeIndexConversion.arrayName}(tb_safe_slv_to_index(${unsafeIndexConversion.indexIdentifier})) after validating every bit is '0'/'1'`,
         }));
       }
+
+      for (const rangeMembership of content.matchAll(/\b(if|elsif)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+in\s+([^;\n]+?)\s+to\s+([^;\n]+?)\s+then\b/gi)) {
+        const keyword = rangeMembership[1].toLowerCase();
+        const subject = rangeMembership[2].trim();
+        const lowerBound = rangeMembership[3].trim();
+        const upperBound = rangeMembership[4].trim();
+        findings.push(createFailureDetail({
+          code: 'invalid_range_membership_syntax',
+          category: 'runtime_bound_risk',
+          message:
+            `${relativePath}: uses invalid VHDL range-membership condition "${rangeMembership[0]}". ` +
+            `VHDL does not support "${subject} in ${lowerBound} to ${upperBound}" inside ${keyword} conditions. ` +
+            `Generated bounds checks must use explicit comparisons.`,
+          forbiddenConstruct: rangeMembership[0],
+          legalReplacementPattern: `${keyword} ${subject} >= ${lowerBound} and ${subject} <= ${upperBound} then`,
+        }));
+      }
     }
 
     for (const executableSignalDeclaration of collectExecutableRegionSignalDeclarations(content)) {
@@ -1753,7 +1891,9 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
     const conditionAssignmentExpressions = [
       /\b(if|elsif)\s+([^;\n]*?:=[^;\n]*?)\s+then\b/gi,
       /\bassert\s+([^;\n]*?:=[^;\n]*?)(?:\s+report|\s+severity|;)/gi,
-      /\bwhen\s+([^;\n]*?:=[^;\n]*?)(?:\s+else|\s*,|\s*;)/gi,
+      // Only conditional expressions use `when ... else`. A `case` branch such as
+      // `when OP_AND => res := a_u and b_u;` is a legal variable assignment.
+      /\bwhen\s+([^;\n]*?:=[^;\n]*?)\s+else\b/gi,
     ];
     for (const expression of conditionAssignmentExpressions) {
       for (const conditionMatch of content.matchAll(expression)) {
@@ -2039,30 +2179,30 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }
     }
 
-    const variableSignalAssignmentMisuse = content.match(/\bvariable\s+([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bbegin\b[\s\S]*?\b\1\s*<=/i);
-    if (variableSignalAssignmentMisuse) {
-      findings.push(createFailureDetail({
-        code: 'variable_assigned_with_signal_operator',
-        category: 'signal_variable_assignment_misuse',
-        message:
-          `${relativePath}: assigns variable "${variableSignalAssignmentMisuse[1]}" with the signal assignment operator "<=". ` +
-          `Variables must use ":="; reserve "<=" for signals only.`,
-        forbiddenConstruct: `variable "${variableSignalAssignmentMisuse[1]}" assigned with "<="`,
-        legalReplacementPattern: `replace "<=" with ":=" for variable "${variableSignalAssignmentMisuse[1]}" or convert it into a signal if that was the intent`,
-      }));
-    }
-
-    const signalVariableAssignmentMisuse = content.match(/\bsignal\s+([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bbegin\b[\s\S]*?\b\1\s*:=/i);
-    if (signalVariableAssignmentMisuse) {
-      findings.push(createFailureDetail({
-        code: 'signal_assigned_with_variable_operator',
-        category: 'signal_variable_assignment_misuse',
-        message:
-          `${relativePath}: assigns signal "${signalVariableAssignmentMisuse[1]}" with the variable assignment operator ":=". ` +
-          `Signals must use "<="; reserve ":=" for variables/constants only.`,
-        forbiddenConstruct: `signal "${signalVariableAssignmentMisuse[1]}" assigned with ":="`,
-        legalReplacementPattern: `replace ":=" with "<=" for signal "${signalVariableAssignmentMisuse[1]}" or convert it into a variable if it is process-local temporary state`,
-      }));
+    for (const assignmentMisuse of collectStatementLevelAssignmentOperatorMisuse(content)) {
+      if (assignmentMisuse.code === 'variable_assigned_with_signal_operator') {
+        findings.push(createFailureDetail({
+          code: assignmentMisuse.code,
+          category: 'signal_variable_assignment_misuse',
+          message:
+            `${relativePath}: assigns variable "${assignmentMisuse.name}" with the signal assignment operator "<=". ` +
+            `Variables must use ":="; reserve "<=" for signals only.`,
+          lineHint: assignmentMisuse.lineHint,
+          forbiddenConstruct: `variable "${assignmentMisuse.name}" assigned with "<=" in statement "${assignmentMisuse.statement}"`,
+          legalReplacementPattern: `replace "<=" with ":=" for variable "${assignmentMisuse.name}" or convert it into a signal if that was the intent`,
+        }));
+      } else {
+        findings.push(createFailureDetail({
+          code: assignmentMisuse.code,
+          category: 'signal_variable_assignment_misuse',
+          message:
+            `${relativePath}: assigns signal "${assignmentMisuse.name}" with the variable assignment operator ":=". ` +
+            `Signals must use "<="; reserve ":=" for variables/constants only.`,
+          lineHint: assignmentMisuse.lineHint,
+          forbiddenConstruct: `signal "${assignmentMisuse.name}" assigned with ":=" in statement "${assignmentMisuse.statement}"`,
+          legalReplacementPattern: `replace ":=" with "<=" for signal "${assignmentMisuse.name}" or convert it into a variable if it is process-local temporary state`,
+        }));
+      }
     }
 
     const multidimensionalStdLogicVector = content.match(/\b(std_logic_vector|unsigned|signed)\s*\([^)]*\)\s*\([^)]*\)/i);
@@ -2284,6 +2424,50 @@ async function readSourceContentsMap(projectRoot: string, sources: VhdlSourceDes
   return new Map(entries);
 }
 
+function findWorkUnitReferenceContext(content: string, unitName: string) {
+  const escapedUnit = unitName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const patterns = [
+    new RegExp(`\\buse\\s+work\\.${escapedUnit}(?:\\.[a-zA-Z][a-zA-Z0-9_]*)?\\s*;`, 'i'),
+    new RegExp(`\\bentity\\s+work\\.${escapedUnit}\\b`, 'i'),
+  ];
+
+  for (const pattern of patterns) {
+    const match = content.match(pattern);
+    if (match?.index != null) {
+      const lineHint = lineNumberForIndex(content, match.index);
+      const line = content.split(/\r\n|\r|\n/)[lineHint - 1]?.trim() || match[0].trim();
+      return {
+        lineHint,
+        construct: line,
+      };
+    }
+  }
+
+  return {
+    lineHint: null,
+    construct: `reference to work.${unitName}`,
+  };
+}
+
+function describeMissingWorkUnitReplacement(missingUnits: string[]) {
+  const likelyPackages = missingUnits.filter((unit) => /(?:^|_)pkg$/i.test(unit) || /_package$/i.test(unit));
+  const likelyEntities = missingUnits.filter((unit) => !likelyPackages.includes(unit));
+  const actions: string[] = [];
+
+  if (likelyPackages.length > 0) {
+    actions.push(
+      `generate package source file(s) declaring ${likelyPackages.map((unit) => `package ${unit} is`).join(', ')} and add them before dependents in analysis_order`,
+    );
+  }
+  if (likelyEntities.length > 0) {
+    actions.push(
+      `generate entity/architecture source file(s) declaring ${likelyEntities.map((unit) => `entity ${unit} is`).join(', ')} and add them before dependents in analysis_order`,
+    );
+  }
+  actions.push('or remove/inline the reference so no missing work unit is used');
+  return actions.join('; ');
+}
+
 function hasWaveformArgument(command: string) {
   return /--(?:vcd|ghw|fst)=/i.test(command);
 }
@@ -2301,6 +2485,35 @@ function extractEntityBlock(content: string, entityName: string) {
   return content.match(expression)?.[1] || null;
 }
 
+function collectProvidedWorkUnits(sources: VhdlSourceDescriptor[]) {
+  return new Set(
+    sources.flatMap((source) => [
+      ...source.entities,
+      ...source.packages,
+      ...source.packageBodies,
+    ]).map((unit) => unit.toLowerCase())
+  );
+}
+
+function findUnresolvedWorkUnitContracts(sources: VhdlSourceDescriptor[]) {
+  const providedUnits = collectProvidedWorkUnits(sources);
+  const findings: Array<{ source: VhdlSourceDescriptor; missing: string[] }> = [];
+
+  for (const source of sources) {
+    const missing = Array.from(new Set(
+      source.dependencies
+        .map((dependency) => dependency.toLowerCase())
+        .filter((dependency) => !providedUnits.has(dependency))
+    )).sort((left, right) => left.localeCompare(right));
+
+    if (missing.length > 0) {
+      findings.push({ source, missing });
+    }
+  }
+
+  return findings;
+}
+
 export async function validateGeneratedProjectContracts(params: {
   macroId: AiMacroId;
   validationRoot: string;
@@ -2312,6 +2525,32 @@ export async function validateGeneratedProjectContracts(params: {
   const sourceContents = await readSourceContentsMap(params.validationRoot, params.selectedSources);
   const architectProject = params.architectProject || null;
   const isArchitect = params.macroId === 'fpga_vhdl_architect';
+  const unresolvedWorkUnitContracts = findUnresolvedWorkUnitContracts(params.selectedSources);
+
+  for (const unresolved of unresolvedWorkUnitContracts) {
+    const missingText = unresolved.missing.join(', ');
+    const missingLooksPackageOnly = unresolved.missing.every((unit) => /(?:^|_)pkg$/i.test(unit) || /_package$/i.test(unit));
+    const sourceContent = sourceContents.get(unresolved.source.path) || '';
+    const firstReference = unresolved.missing
+      .map((unit) => ({ unit, ...findWorkUnitReferenceContext(sourceContent, unit) }))
+      .find((reference) => reference.lineHint !== null);
+    const referenceSummary = firstReference
+      ? ` First unresolved reference appears at line ${firstReference.lineHint}: ${firstReference.construct}.`
+      : '';
+    findings.push(createFailureDetail({
+      code: missingLooksPackageOnly ? 'missing_work_package_file' : 'unresolved_work_unit',
+      category: 'unresolved_work_unit',
+      relativePath: unresolved.source.path,
+      lineHint: firstReference?.lineHint ?? null,
+      message:
+        `${unresolved.source.path}: references work unit(s) that are not generated or selected for validation: ${missingText}. ` +
+        `Every entity/package referenced through work must have a matching generated source file in the current project file set.${referenceSummary}`,
+      forbiddenConstruct: firstReference
+        ? `unresolved work unit reference "${firstReference.construct}" for missing unit(s): ${missingText}`
+        : `unresolved work unit reference(s): ${missingText}`,
+      legalReplacementPattern: describeMissingWorkUnitReplacement(unresolved.missing),
+    }));
+  }
 
   const synthesizedArchitectRunCommands = architectProject
     ? buildDeterministicArchitectGhdlRunCommands({
@@ -2409,7 +2648,7 @@ export async function validateGeneratedProjectContracts(params: {
 
       if (unresolvedDependencies.length > 0) {
         findings.push(createFailureDetail({
-          code: 'invalid_source_order_contract',
+          code: 'source_order_dependency_inversion',
           category: 'invalid_source_order_contract',
           message:
             `The generated analysis_order does not satisfy internal compile dependencies: ${unresolvedDependencies.slice(0, 5).join(', ')}.` +
@@ -2753,19 +2992,24 @@ export async function validateGeneratedVhdlWithGhdl(params: {
         if (stdout) logs.push(stdout);
         if (stderr) logs.push(stderr);
       } catch (error: any) {
-        logs.push(error?.message || String(error));
+        const errorMessage = error?.message || String(error);
+        logs.push(errorMessage);
+        const inferredDetails = inferFailureDetailsFromGhdlMessage(errorMessage)
+          .filter((detail) => detail.code !== 'ghdl_analyze_failure');
         return buildValidationFailureResult({
           stage: 'simulate',
-          summary: `Generated VHDL failed GHDL simulation for ${topEntity}: ${error?.message || String(error)}`,
+          summary: `Generated VHDL failed GHDL simulation for ${topEntity}: ${errorMessage}`,
           logs,
           validatedTopEntities,
-          failureDetails: [
-            createFailureDetail({
-              code: 'ghdl_simulate_failure',
-              category: classifyKnownFailureCategory(error?.message || ''),
-              message: `Generated VHDL failed GHDL simulation for ${topEntity}: ${error?.message || String(error)}`,
-            }),
-          ],
+          failureDetails: inferredDetails.length > 0
+            ? inferredDetails
+            : [
+                createFailureDetail({
+                  code: 'ghdl_simulate_failure',
+                  category: classifyKnownFailureCategory(errorMessage),
+                  message: `Generated VHDL failed GHDL simulation for ${topEntity}: ${errorMessage}`,
+                }),
+              ],
         });
       }
 

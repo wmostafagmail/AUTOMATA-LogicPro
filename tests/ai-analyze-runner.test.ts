@@ -298,8 +298,38 @@ test('buildFailureCodeSpecificRepairShaping adds typed port-map guidance and str
   });
 
   assert.match(text, /For testbenches, keep helper subprogram declarations before architecture\/process begin/i);
+  assert.match(text, /Failure evidence contract:/);
+  assert.match(text, /Do not infer or guess a new failure reason/);
+  assert.match(text, /file: tb\/tb_axi_stream_packet_router\.vhd/);
+  assert.match(text, /exact snippet\/expression: local_res/);
+  assert.match(text, /required replacement: move "local_res" into the nearest process\/subprogram declarative region/i);
   assert.match(text, /Repair the failing port map locally instead of regenerating the design/i);
   assert.match(text, /Match the actual expression to the formal type exactly at the association boundary/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds reset/metavalue repair guidance for simulation failures', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'simulate',
+    summary: 'tb_bridge.vhd: idle_busy expected \'0\' got \'U\'',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'simulation_unknown_metavalue',
+        category: 'simulation_success',
+        message: 'tb_bridge.vhd: idle_busy expected \'0\' got \'U\'',
+        excerpt: 'got U',
+        relativePath: 'tb/tb_bridge.vhd',
+        forbiddenConstruct: 'simulation checks observe unknown outputs',
+        legalReplacementPattern: 'initialize reset/default assignments and wait after reset',
+      },
+    ],
+  });
+
+  assert.match(text, /Repair unknown\/metavalue simulation behavior locally/i);
+  assert.match(text, /initialize every output, state register, flag/i);
+  assert.match(text, /wait at least one full clock after reset release/i);
 });
 
 test('buildFailureCodeSpecificRepairShaping bundles declaration-scope cluster guidance for testbench repair', () => {
@@ -346,6 +376,100 @@ test('buildFailureCodeSpecificRepairShaping bundles declaration-scope cluster gu
   assert.match(text, /Treat declaration placement, helper placement, and bookkeeping ownership as one bundled local repair pass/i);
   assert.match(text, /Move mutable bookkeeping objects such as `cnt`, `loop_cnt`, `pass_count`, `fail_count`, `current_test`, and `test_failed` out of the architecture body/i);
   assert.match(text, /If a helper needs to update mutable state, pass that state explicitly as a formal parameter/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping tells unresolved hierarchy repairs to generate missing child files', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'src/uart_spi_bridge.vhd: unresolved work units -> sync_fifo, bridge_ctrl',
+    logs: [],
+    validatedTopEntities: [],
+    failureCode: 'unresolved_work_unit',
+    failureCategory: 'unresolved_work_unit',
+    failureDetails: [
+      {
+        code: 'unresolved_work_unit',
+        category: 'unresolved_work_unit',
+        message: 'src/uart_spi_bridge.vhd: references work unit(s) that are not generated or selected for validation: sync_fifo, bridge_ctrl.',
+        excerpt: 'entity work.sync_fifo',
+        relativePath: 'src/uart_spi_bridge.vhd',
+        forbiddenConstruct: 'unresolved work unit reference(s): sync_fifo, bridge_ctrl',
+        legalReplacementPattern: 'generate complete source file(s) declaring sync_fifo, bridge_ctrl, add them to analysis_order before dependents, or remove/inline the hierarchy',
+      },
+    ],
+  });
+
+  assert.match(text, /Repair hierarchy completeness locally/i);
+  assert.match(text, /ensure a generated VHDL source file declares that exact entity\/package/i);
+  assert.match(text, /included before dependents in analysis_order/i);
+  assert.match(text, /ends in `_pkg` or `_package`/i);
+  assert.match(text, /file that declares the missing package\/entity must also exist/i);
+  assert.match(text, /remove the instantiation\/use and inline or simplify the logic/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping gives package and source-order specific repair guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'project contract failures',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'missing_work_package_file',
+        category: 'unresolved_work_unit',
+        message: 'tb/tb_video_top.vhd: use work.video_top_pkg.all is missing.',
+        excerpt: 'use work.video_top_pkg.all;',
+        relativePath: 'tb/tb_video_top.vhd',
+        lineHint: 3,
+        forbiddenConstruct: 'use work.video_top_pkg.all;',
+        legalReplacementPattern: 'generate package video_top_pkg is and add it before dependents',
+      },
+      {
+        code: 'source_order_dependency_inversion',
+        category: 'invalid_source_order_contract',
+        message: 'src/video_top.vhd -> video_top_pkg',
+        excerpt: 'analysis_order',
+        forbiddenConstruct: 'analysis_order with internal dependency inversion',
+        legalReplacementPattern: 'reorder analysis_order so providers compile before dependents',
+      },
+    ],
+  });
+
+  assert.match(text, /missing_work_package_file/);
+  assert.match(text, /generating the missing package source file/i);
+  assert.match(text, /source_order_dependency_inversion/);
+  assert.match(text, /Move package declarations before all files/i);
+  assert.match(text, /Do not create duplicate package\/entity files/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping preserves exact simulation assertion evidence', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'simulate',
+    summary: 'Generated VHDL failed GHDL simulation',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'simulation_assertion_expected_actual_mismatch',
+        category: 'simulation_success',
+        message: 'tb/tb_dsp_chain.vhd:44: assertion failed at 115ns: FAIL: FIR Peak Output expected valid but got invalid',
+        excerpt: 'FAIL: FIR Peak Output expected valid but got invalid',
+        relativePath: 'tb/tb_dsp_chain.vhd',
+        lineHint: 44,
+        forbiddenConstruct: 'self-checking assertion/report failure at 115ns: FAIL: FIR Peak Output expected valid but got invalid',
+        legalReplacementPattern: 'repair existing logic; do not delete, weaken, or rename the assertion',
+      },
+    ],
+  });
+
+  assert.match(text, /simulation_assertion_expected_actual_mismatch/);
+  assert.match(text, /file: tb\/tb_dsp_chain\.vhd/i);
+  assert.match(text, /line: 44/i);
+  assert.match(text, /do not delete, weaken, skip, rename, or silence/i);
+  assert.match(text, /reported simulation time/i);
 });
 
 test('buildFailureCodeSpecificRepairShaping adds string-contract repair guidance for testbench helpers', () => {
@@ -1159,6 +1283,7 @@ test('runAiAnalyzeJob repairs FPGA Architect generated VHDL through the shared r
 
 test('runAiAnalyzeJob applies deterministic generated-code repairs before invoking the LLM repair prompt', async () => {
   const projectRoot = '/private/tmp/logicpro-deterministic-repair';
+  let validationCalls = 0;
   const params = createBaseParams({
     macroId: 'fpga_vhdl_architect' as const,
     artifactDirectory: '.',
@@ -1253,7 +1378,14 @@ test('runAiAnalyzeJob applies deterministic generated-code repairs before invoki
     buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
     buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
     buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
-    validateGeneratedVhdlWithGhdl: async ({ savedArtifacts }: { savedArtifacts: Array<{ path: string }> }) => {
+    validateGeneratedVhdlWithGhdl: async ({
+      savedArtifacts,
+      architectProject,
+    }: {
+      savedArtifacts: Array<{ path: string }>;
+      architectProject?: any;
+    }) => {
+      validationCalls += 1;
       const sourcePath = savedArtifacts.find((artifact) => artifact.path.endsWith('src/counter.vhd'))?.path;
       assert.ok(sourcePath);
       const content = await fs.readFile(sourcePath!, 'utf8');
@@ -1279,6 +1411,11 @@ test('runAiAnalyzeJob applies deterministic generated-code repairs before invoki
             },
           ],
         };
+      }
+      if (validationCalls > 1) {
+        const projectSource = architectProject?.files?.find((file: any) => file.path === 'src/counter.vhd')?.content || '';
+        assert.match(projectSource, /temp_v := 1;/);
+        assert.doesNotMatch(projectSource, /temp_v <= 1;/);
       }
       return {
         ok: true,
@@ -1847,8 +1984,8 @@ test('runAiAnalyzeJob repairs bundled testbench declaration-scope failures local
   const params = createBaseParams({
     macroId: 'fpga_vhdl_architect',
     projectPath: '/tmp/project',
-    runModelAnalysis: async ({ prompt }: { prompt: string }) => {
-      params.__runCalls.push({ prompt });
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
       return {
         text: JSON.stringify({
           project_name: 'UART to SPI Bridge',

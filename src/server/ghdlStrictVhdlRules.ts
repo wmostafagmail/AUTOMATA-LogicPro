@@ -103,9 +103,13 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'For synchronous checks, sample outputs only after the active clock edge update has taken effect.',
     'For sequential DUTs such as counters, registers, and FSM outputs, wait for the correct post-edge observation point, allow reset to settle, and do not assert next-state values one clock too early.',
     'In testbenches, never index memories or scoreboards with direct raw logic-vector conversions such as `mem(to_integer(unsigned(addr_slv)))` on DUT-visible address/debug buses. Route those conversions through a local guarded helper that first verifies every bit is `0` or `1` and returns a safe default if unknown/metavalue bits are present.',
+    'VHDL does not support conditional range-membership syntax such as `if idx in 0 to 15 then`. For bounds checks, always write explicit comparisons: `if idx >= 0 and idx <= 15 then`.',
     'Any report/assert message must use valid VHDL string concatenation with `&`.',
     'If any RTL or testbench file references a work package/helper package/shared declaration such as `work.counter_pkg`, that package file must be generated explicitly and must appear before dependents in GHDL analysis order.',
+    'For names ending in `_pkg` or `_package`, a `use work.<name>.all;` reference requires a generated VHDL source file that declares `package <name> is ... end package;`; adding the name to analysis_order without the package source is invalid.',
     'Do not reference unresolved work units. Every entity, package, component, and helper used from work must either be generated in the project or removed from the design/testbench.',
+    'For hierarchical designs, every `entity work.<child>` instantiation must have a matching generated VHDL source file that declares `entity <child> is`, and that file must appear in analysis_order before any file that instantiates it.',
+    'If you mention helper blocks such as FIFOs, controllers, arbiters, protocol engines, packages, scoreboards, or monitors, either generate their complete VHDL files or inline/remove those references. Never leave placeholder hierarchy names unresolved.',
     'Use VHDL literal syntax only. Never emit Verilog/SystemVerilog-sized literals such as `3\'b000`, `8\'hFF`, `4\'d7`, or `6\'o77` inside VHDL. Use VHDL forms like `"000"`, `x"FF"`, `to_unsigned(7, 4)`, or explicit typed conversions instead.',
     'Avoid runtime-unsafe placeholder indexing and array math. Any generated indexing, slicing, resize, shift count, and loop bounds must stay within declared widths/ranges for the intended stimuli.',
     'The generated DUT and testbench must be suitable for a full GHDL analyze -> elaborate -> simulate flow as written.',
@@ -155,7 +159,7 @@ export const STRICT_CODE_GENERATION_RULE_LIST = [
   'Do not insert explanatory prose inside VHDL declarations or executable statements. Keep comments on their own side of a valid `--` comment boundary after a syntactically complete VHDL statement.',
   'End design units with legal VHDL terminators only, for example `end package;`, `end package pkg_name;`, `end entity;`, or `end architecture rtl;`. Never append file extensions such as `.vhd` or `.vhdl` inside end statements.',
   'Use `<=` only for signals and `:=` only for variables/constants. Never assign to a variable with `<=` or to a signal with `:=`.',
-  'Never use `:=` inside boolean conditions (`if`, `elsif`, `when`, or `assert`). Conditions must use comparison operators such as `=`, `/=`, `<`, `<=`, `>`, or `>=`; keep `:=` only as a standalone variable assignment statement.',
+  'Never use `:=` inside boolean conditions (`if`, `elsif`, `assert`, or conditional `when ... else` expressions). Conditions must use comparison operators such as `=`, `/=`, `<`, `<=`, `>`, or `>=`; keep `:=` only as a standalone variable assignment statement. Do not confuse this with legal `case` branches like `when OP_AND => result_v := ...;`.',
 ];
 
 const CODE_GENERATING_MACRO_IDS: AiMacroId[] = [

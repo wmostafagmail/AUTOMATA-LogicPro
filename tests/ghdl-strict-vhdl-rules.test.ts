@@ -31,6 +31,8 @@ test('all code-generating macro system prompts include the shared strict GHDL/VH
     assert.match(prompt, /Do not place helper state such as `current_test`, `expected_count`, `pass_count`, `fail_count`, `res_int`/);
     assert.match(prompt, /Before returning the final answer, run a zero-tolerance self-audit across every generated VHDL file\./);
     assert.match(prompt, /Blocked constructs include declarations after any architecture\/process\/subprogram `begin`, helper procedures\/functions that mutate outer-scope state, output-port readback inside implementation logic, and signal\/variable assignment operator misuse\./);
+    assert.match(prompt, /When explaining a FAIL, validation issue, hazard, protocol issue, or generated-code problem, do not guess the reason\./);
+    assert.match(prompt, /Tie every issue to explicit evidence from the supplied file path, line\/snippet, signal\/timestamp, validator code, GHDL log line, or deterministic scan result\./);
   }
 });
 

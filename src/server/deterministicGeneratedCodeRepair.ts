@@ -193,6 +193,39 @@ function repairConditionalAssignmentOperatorMisuse(content: string, objectName: 
   return { content: nextContent, changed };
 }
 
+function repairAllConditionalAssignmentOperatorMisuse(content: string) {
+  let changed = false;
+  const conditionExpression = /\b(if|elsif)\s+([^;\n]*?:=[^;\n]*?)\s+then\b/gi;
+  const nextContent = content.replace(conditionExpression, (match, keyword, conditionText) => {
+    let conditionChanged = false;
+    const repairedCondition = String(conditionText).replace(
+      /\b([a-zA-Z][a-zA-Z0-9_]*)\s*:=\s*([^;\n,)]+?)(?=\s+(?:and|or)\b|\s*$)/gi,
+      (assignmentMatch, objectName, rhsExpression, offset, fullCondition) => {
+        const conditionPrefix = String(fullCondition).slice(0, offset);
+        const escapedName = String(objectName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const isUpperBoundCheck = new RegExp(`\\b${escapedName}\\s*(?:>=|>)\\s*`, 'i').test(conditionPrefix);
+        const isLowerBoundCheck = new RegExp(`\\b${escapedName}\\s*(?:<=|<)\\s*`, 'i').test(conditionPrefix);
+        conditionChanged = true;
+        if (isUpperBoundCheck) {
+          return `${objectName} <= ${String(rhsExpression).trim()}`;
+        }
+        if (isLowerBoundCheck) {
+          return `${objectName} >= ${String(rhsExpression).trim()}`;
+        }
+        return `${objectName} = ${String(rhsExpression).trim()}`;
+      },
+    );
+
+    if (!conditionChanged) {
+      return match;
+    }
+    changed = true;
+    return `${keyword} ${repairedCondition} then`;
+  });
+
+  return { content: nextContent, changed };
+}
+
 function ensureUseClause(content: string, clause: string) {
   if (new RegExp(`^\\s*use\\s+${clause.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*;`, 'im').test(content)) {
     return { content, changed: false };
@@ -710,6 +743,20 @@ function rewriteUnsafeTbLogicIndexConversion(params: {
   const helperResult = ensureTbSafeLogicIndexHelper(nextContent, helperName);
   nextContent = helperResult.content;
   changed = changed || helperResult.changed;
+  return { content: nextContent, changed };
+}
+
+function rewriteInvalidRangeMembershipSyntax(content: string) {
+  const rangeMembershipPattern = /\b(if|elsif)(\s+)([a-zA-Z][a-zA-Z0-9_]*)\s+in\s+([^;\n]+?)\s+to\s+([^;\n]+?)\s+then\b/gi;
+  let changed = false;
+  const nextContent = content.replace(rangeMembershipPattern, (match, keyword, spacing, subject, lowerBound, upperBound, offset, whole) => {
+    if (typeof offset === 'number' && isIndexInsideLineComment(whole, offset)) {
+      return match;
+    }
+    changed = true;
+    return `${keyword}${spacing}${subject.trim()} >= ${lowerBound.trim()} and ${subject.trim()} <= ${upperBound.trim()} then`;
+  });
+
   return { content: nextContent, changed };
 }
 
@@ -2237,6 +2284,9 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
       nextContent = result.content;
       changed = result.changed;
     }
+    const result = repairAllConditionalAssignmentOperatorMisuse(nextContent);
+    nextContent = result.content;
+    changed = changed || result.changed;
   } else if (detail.code === 'variable_assigned_with_signal_operator') {
     const variableName = detail.forbiddenConstruct?.match(/variable\s+"([^"]+)"/i)?.[1];
     if (variableName) {
@@ -2286,6 +2336,10 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
       nextContent = result.content;
       changed = result.changed;
     }
+  } else if (detail.code === 'invalid_range_membership_syntax') {
+    const result = rewriteInvalidRangeMembershipSyntax(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
   } else if (detail.code === 'invalid_subprogram_formal_syntax') {
     const subprogramName = detail.forbiddenConstruct?.match(/(?:function|procedure)\s+"([^"]+)"/i)?.[1];
     if (subprogramName) {

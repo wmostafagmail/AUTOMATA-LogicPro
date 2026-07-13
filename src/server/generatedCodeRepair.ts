@@ -97,6 +97,79 @@ function renderFailureDetails(details: GeneratedVhdlFailureDetail[]) {
   }).join('\n');
 }
 
+function findRelevantFileForDetail(
+  detail: GeneratedVhdlFailureDetail,
+  relevantFiles: RepairableGeneratedFile[],
+) {
+  const rawPath = typeof detail.relativePath === 'string' ? normalizePromptPath(detail.relativePath).toLowerCase() : '';
+  if (!rawPath) return null;
+  return relevantFiles.find((file) => pathsReferToSameFile(normalizePromptPath(file.relativePath).toLowerCase(), rawPath)) || null;
+}
+
+function renderLineContext(file: RepairableGeneratedFile | null, lineHint: number | null | undefined) {
+  if (!file || typeof lineHint !== 'number' || !Number.isFinite(lineHint) || lineHint < 1) {
+    return null;
+  }
+
+  const lines = file.content.split(/\r?\n/);
+  const startLine = Math.max(1, lineHint - 1);
+  const endLine = Math.min(lines.length, lineHint + 1);
+  const width = String(endLine).length;
+  const snippet = lines
+    .slice(startLine - 1, endLine)
+    .map((line, index) => {
+      const lineNumber = startLine + index;
+      const marker = lineNumber === lineHint ? '>' : ' ';
+      return `${marker} ${String(lineNumber).padStart(width, ' ')} | ${line}`;
+    })
+    .join('\n');
+
+  return snippet.trimEnd();
+}
+
+function renderExactIssuePackets(details: GeneratedVhdlFailureDetail[], relevantFiles: RepairableGeneratedFile[]) {
+  if (details.length === 0) {
+    return '- No exact validator issue packets were available. Use the recent logs and target files below.';
+  }
+
+  return details.map((detail, index) => {
+    const file = findRelevantFileForDetail(detail, relevantFiles);
+    const issueLines = [
+      `### Issue ${index + 1}: ${detail.code}`,
+      `File: ${detail.relativePath ? normalizePromptPath(detail.relativePath) : 'unknown'}`,
+      `Line: ${typeof detail.lineHint === 'number' && Number.isFinite(detail.lineHint) ? detail.lineHint : 'unknown'}`,
+      `Failure: ${detail.category} / ${detail.code}`,
+    ];
+
+    const lineContext = renderLineContext(file, detail.lineHint);
+    if (lineContext) {
+      issueLines.push([
+        'Bad code context:',
+        '```vhdl',
+        lineContext,
+        '```',
+      ].join('\n'));
+    } else if (detail.excerpt || detail.forbiddenConstruct) {
+      issueLines.push([
+        'Bad code or expression:',
+        '```text',
+        detail.excerpt || detail.forbiddenConstruct || '',
+        '```',
+      ].join('\n'));
+    }
+
+    if (detail.forbiddenConstruct) {
+      issueLines.push(`Forbidden construct: ${detail.forbiddenConstruct}`);
+    }
+    if (detail.legalReplacementPattern) {
+      issueLines.push(`Required local replacement: ${detail.legalReplacementPattern}`);
+    }
+    issueLines.push('Repair instruction: fix this exact local issue and any directly coupled same-file instances only; do not rewrite unrelated legal code.');
+
+    return issueLines.join('\n');
+  }).join('\n\n');
+}
+
 function renderLogTail(validation: GeneratedVhdlValidationResult) {
   const recentLogs = validation.logs
     .filter((line) => typeof line === 'string' && line.trim().length > 0)
@@ -213,6 +286,15 @@ ${targetList}
 
 Machine-readable failure classes:
 ${renderFailureDetails(validation.failureDetails || [])}
+
+Failure evidence contract:
+- Do not infer or guess the failure reason. Use only the machine-readable classes, exact issue packets, file-scoped repair plan, and validator/GHDL log lines below.
+- The exact file, line, snippet/expression, forbidden construct, and required replacement are authoritative whenever present.
+- If a detail lacks a line number, repair only the smallest same-file construct identified by its failure code/message; do not redesign unrelated logic.
+- If multiple issues appear in one file, return one complete replacement for that file that fixes the whole coupled cluster.
+
+Exact issue packets:
+${renderExactIssuePackets(validation.failureDetails || [], relevantFiles)}
 
 File-scoped repair plan:
 ${renderFileScopedRepairPlan(validation.failureDetails || [], relevantFiles)}

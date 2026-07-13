@@ -970,6 +970,97 @@ test('deterministic fixer rewrites assignment operator misuse inside boolean bou
   assert.doesNotMatch(result.repairedFiles[0].content, /if addr_int >= 0 and addr_int := 15 then/i);
 });
 
+test('deterministic fixer rewrites every assignment operator misuse inside conditions in the same file', async () => {
+  const file = await createRepairableFile(
+    'src/mini_cpu_core.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity mini_cpu_core is end entity;',
+      'architecture rtl of mini_cpu_core is',
+      'begin',
+      '  p : process',
+      '    variable idx_a : integer;',
+      '    variable idx_b : integer;',
+      '  begin',
+      '    if idx_a >= 0 and idx_a := 255 then',
+      '      idx_b := 1;',
+      '    elsif idx_b := 3 then',
+      '      idx_a := 0;',
+      '    end if;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'conditional_assignment_operator_misuse',
+      category: 'signal_variable_assignment_misuse',
+      message: 'src/mini_cpu_core.vhd: uses variable assignment operator ":=" inside a boolean condition.',
+      excerpt: 'condition "idx_a >= 0 and idx_a := 255" contains "idx_a := 255"',
+      relativePath: 'src/mini_cpu_core.vhd',
+      forbiddenConstruct: 'condition "idx_a >= 0 and idx_a := 255" contains "idx_a := 255"',
+      legalReplacementPattern: 'replace assignment inside the condition with a comparison operator',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.match(result.repairedFiles[0].content, /if idx_a >= 0 and idx_a <= 255 then/i);
+  assert.match(result.repairedFiles[0].content, /elsif idx_b = 3 then/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /\b(?:if|elsif)\b[^\n;]*:=/i);
+});
+
+test('deterministic fixer preserves legal case branch variable assignments', async () => {
+  const file = await createRepairableFile(
+    'src/alu.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity alu is end entity;',
+      'architecture rtl of alu is',
+      '  type alu_op_t is (OP_AND, OP_OR);',
+      'begin',
+      '  p : process(all)',
+      '    variable op : alu_op_t;',
+      '    variable a_u : unsigned(7 downto 0);',
+      '    variable b_u : unsigned(7 downto 0);',
+      '    variable res_u : unsigned(7 downto 0);',
+      '  begin',
+      '    case op is',
+      '      when OP_AND => res_u := a_u and b_u;',
+      '      when OP_OR => res_u := a_u or b_u;',
+      '    end case;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'conditional_assignment_operator_misuse',
+      category: 'signal_variable_assignment_misuse',
+      message: 'src/alu.vhd: uses variable assignment operator ":=" inside a boolean condition.',
+      excerpt: 'case branches are not conditions',
+      relativePath: 'src/alu.vhd',
+      forbiddenConstruct: 'case branches are not conditions',
+      legalReplacementPattern: 'do not rewrite legal case branch variable assignments',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, false);
+  assert.match(result.repairedFiles[0].content, /when OP_AND => res_u := a_u and b_u;/);
+  assert.match(result.repairedFiles[0].content, /when OP_OR => res_u := a_u or b_u;/);
+});
+
 test('deterministic fixer rewrites common output-port readback into an internal signal bridge', async () => {
   const file = await createRepairableFile(
     'src/uart_tx.vhd',
@@ -2099,6 +2190,52 @@ test('deterministic fixer rewrites unsafe raw testbench indexing to a guarded he
   assert.doesNotMatch(next, /rom\(to_integer\(unsigned\(addr_slv\)\)\)/i);
 });
 
+test('deterministic fixer rewrites invalid VHDL range-membership checks to explicit comparisons', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_range.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_range is',
+      'end entity;',
+      '',
+      'architecture sim of tb_range is',
+      'begin',
+      '  process',
+      '    variable idx : integer := 0;',
+      '  begin',
+      '    if idx in 0 to 15 then',
+      '      report "inside range";',
+      '    end if;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'invalid_range_membership_syntax',
+      category: 'runtime_bound_risk',
+      message: 'tb/tb_range.vhd: uses invalid VHDL range-membership condition "if idx in 0 to 15 then".',
+      excerpt: 'if idx in 0 to 15 then',
+      relativePath: 'tb/tb_range.vhd',
+      forbiddenConstruct: 'if idx in 0 to 15 then',
+      legalReplacementPattern: 'if idx >= 0 and idx <= 15 then',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('invalid_range_membership_syntax'));
+  assert.match(next, /if idx >= 0 and idx <= 15 then/i);
+  assert.doesNotMatch(next, /if idx in 0 to 15 then/i);
+});
+
 test('generated code repair prompt includes file-scoped repair guidance and shared strict rule section', async () => {
   const files = [
     await createRepairableFile(
@@ -2107,7 +2244,16 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
         'library ieee;',
         'use ieee.std_logic_1164.all;',
         'entity alu is end entity;',
-        'architecture rtl of alu is begin end architecture;',
+        'architecture rtl of alu is',
+        'begin',
+        '  p : process',
+        '    variable idx : integer := 0;',
+        '  begin',
+        '    if idx >= 0 and idx := 255 then',
+        '      null;',
+        '    end if;',
+        '  end process;',
+        'end architecture;',
       ].join('\n'),
     ),
     await createRepairableFile(
@@ -2139,14 +2285,17 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
           code: 'numeric_std_operator_misuse',
           category: 'numeric_std_type_discipline',
           message: 'src/alu.vhd: uses integer logical operator form that GHDL rejects.',
+          excerpt: 'if idx >= 0 and idx := 255 then',
           relativePath: 'src/alu.vhd',
-          forbiddenConstruct: 'integer operands with logical operator keywords',
-          legalReplacementPattern: 'convert to unsigned/signed or compare explicitly before boolean logic',
+          lineHint: 9,
+          forbiddenConstruct: 'condition "idx >= 0 and idx := 255" contains "idx := 255"',
+          legalReplacementPattern: 'replace "idx := 255" with "idx <= 255"',
         },
         {
           code: 'declaration_after_begin',
           category: 'declaration_scope',
           message: 'tb/alu_tb.vhd: declares helper signal after begin.',
+          excerpt: 'tb/alu_tb.vhd: declares helper signal after begin.',
           relativePath: 'tb/alu_tb.vhd',
           forbiddenConstruct: 'declaration after begin',
           legalReplacementPattern: 'hoist declarations into the declarative region before begin',
@@ -2156,6 +2305,16 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
   });
 
   assert.match(prompt, /### Automatic Retry: Shared Generated-Code Repair Pipeline/);
+  assert.match(prompt, /Failure evidence contract:/);
+  assert.match(prompt, /Do not infer or guess the failure reason/);
+  assert.match(prompt, /exact file, line, snippet\/expression, forbidden construct, and required replacement are authoritative/i);
+  assert.match(prompt, /Exact issue packets:/);
+  assert.match(prompt, /### Issue 1: numeric_std_operator_misuse/);
+  assert.match(prompt, /File: src\/alu\.vhd/);
+  assert.match(prompt, /Line: 9/);
+  assert.match(prompt, />\s+9 \|\s+if idx >= 0 and idx := 255 then/);
+  assert.match(prompt, /Required local replacement: replace "idx := 255" with "idx <= 255"/);
+  assert.match(prompt, /Repair instruction: fix this exact local issue and any directly coupled same-file instances only/);
   assert.match(prompt, /File-scoped repair plan:/);
   assert.match(prompt, /### src\/alu\.vhd[\s\S]*Return one full replacement for this file that resolves every listed class below in the same pass\./);
   assert.match(prompt, /### tb\/alu_tb\.vhd[\s\S]*hoist declarations into the declarative region before begin/i);

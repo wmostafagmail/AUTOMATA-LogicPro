@@ -108,6 +108,9 @@ test('FPGA Architect retry prompts include recurring failure guards for repeated
   });
 
   assert.match(prompt, /Recurring failure guards you must explicitly self-audit before returning/);
+  assert.match(prompt, /Failure evidence contract:/);
+  assert.match(prompt, /Do not infer or guess a different failure reason/);
+  assert.match(prompt, /Reported failure: tb\/example\.vhd: declares procedure after begin/);
   assert.match(prompt, /Failure code: declaration_after_begin/);
   assert.match(prompt, /Failure code: output_port_readback/);
   assert.match(prompt, /Failure code: reserved_identifier/);
@@ -127,6 +130,8 @@ test('FPGA Architect compact and test-run prompts include recurring failure guar
   });
 
   assert.match(compactPrompt, /Failure code: declaration_after_begin/);
+  assert.match(compactPrompt, /Failure evidence contract:/);
+  assert.match(compactPrompt, /Reported failure: summary/);
   assert.match(compactPrompt, /Failure code: output_port_readback/);
   assert.match(compactPrompt, /Failure code: missing_waveform_generation_contract/);
   assert.match(testRunPrompt, /Failure code: declaration_after_begin/);

@@ -15,7 +15,7 @@ export type FpgaArchitectSweepPreset = {
   forbiddenShortcuts: string[];
 };
 
-export const FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN = 10;
+export const FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN = 3;
 export const FPGA_ARCHITECT_SWEEP_DESIGNS: FpgaArchitectSweepPreset[] = [
   {
     key: 'uart_spi_bridge',

@@ -81,15 +81,28 @@ test('classifyFpgaArchitectLoopFailure maps illegal prefix operator failures int
   assert.equal(diagnostic.label, 'Illegal Operator Usage');
 });
 
+test('classifyFpgaArchitectLoopFailure maps GHDL bound-check failures into runtime bound risk', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Generated VHDL failed GHDL simulation for tb_dsp_chain: src/dsp_chain.vhd:87:9:error: bound check failure at fft_stage_proc',
+  );
+
+  assert.equal(diagnostic.category, 'runtime_bound_risk');
+  assert.equal(diagnostic.label, 'Runtime Bound Risk');
+});
+
+test('classifyFpgaArchitectLoopFailure maps protocol mismatch assertions into protocol mismatch', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Generated VHDL failed GHDL simulation for tb_uart_spi_bridge: FAIL: Nominal Transfer mismatch detected at 115 ns. FAIL: Second Transfer mismatch detected at 215 ns.',
+  );
+
+  assert.equal(diagnostic.category, 'protocol_functional_mismatch');
+  assert.equal(diagnostic.label, 'Protocol / Functional Mismatch');
+});
+
 test('classifyFpgaArchitectLoopFailureWithValidation prefers machine-readable validator details over flattened error text', () => {
   const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
     message: 'FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation. tb/tb_uart_spi_bridge.vhd: declares procedure "wait_clk" inside an executable region after "begin".',
     generatedVhdlValidation: {
-      ok: false,
-      stage: 'prevalidate',
-      summary: 'validator failed',
-      logs: [],
-      validatedTopEntities: [],
       failureCode: 'declaration_after_begin',
       failureCategory: 'declaration_scope',
       failureDetails: [

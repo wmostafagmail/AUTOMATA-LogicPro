@@ -70,5 +70,9 @@ export function clearStoredProjectSelection() {
 }
 
 export function isProjectApprovalErrorMessage(message: string) {
-  return message.toLowerCase().includes('not approved for this app session');
+  const normalizedMessage = message.toLowerCase();
+  return (
+    normalizedMessage.includes('not approved for this app session') ||
+    normalizedMessage.includes('needs to be selected again')
+  );
 }
