@@ -4,12 +4,17 @@ import { LOCAL_LLM_JSON_GENERATION_CONTRACT, LOCAL_LLM_JSON_GENERATION_SKILL_NAM
 import {
   buildCodeGeneratingMacroRuleList,
   buildCodeGeneratingCommandContractSection,
+  buildGenerationQualityPromptSection,
   buildNumberedRuleList,
   FPGA_ARCHITECT_EXTRA_GHDL_RULES,
   SHARED_GHDL_CONFORMANCE_RULES,
   STRICT_CODE_GENERATION_RULES,
 } from './vhdlSkillRules';
 import { buildRecurringVhdlFailureGuardSection } from './recurringVhdlFailureGuards';
+import {
+  buildArchitectureBlueprintPromptSection,
+  buildConstrainedRegionPromptSection,
+} from './fpgaArchitectureBlueprint';
 
 export type FpgaArchitectFile = {
   path: string;
@@ -170,6 +175,10 @@ Constraints:
 - Keep folder_tree concise; quality_checklist short; docs/requirements/architecture markdown practical and compact.
 - top_entity must be explicit and must exactly match a generated DUT entity name.
 - ghdl.top_testbench must be explicit and must exactly match a generated testbench entity name.
+
+${buildGenerationQualityPromptSection('fpga_vhdl_architect')}
+
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
 `;
 
 function sanitizeSnakeCase(value: string, fallback: string) {
@@ -871,6 +880,17 @@ ${buildRecurringVhdlFailureGuardSection({
   numbered: true,
 })}
 
+${buildGenerationQualityPromptSection('fpga_vhdl_architect', {
+  includeRepairScope: true,
+})}
+
+${buildArchitectureBlueprintPromptSection({
+  macroId: 'fpga_vhdl_architect',
+  promptText: originalPrompt,
+})}
+
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
+
 Start from this exact scaffold and fill it in:
 ${FPGA_ARCHITECT_MANIFEST_SCAFFOLD}
 `;
@@ -924,6 +944,17 @@ ${buildRecurringVhdlFailureGuardSection({
   heading: 'Recurring failure guards you must explicitly self-audit before returning',
   numbered: true,
 })}
+
+${buildGenerationQualityPromptSection('fpga_vhdl_architect', {
+  includeRepairScope: true,
+})}
+
+${buildArchitectureBlueprintPromptSection({
+  macroId: 'fpga_vhdl_architect',
+  promptText: originalPrompt,
+})}
+
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
 
 Use this exact scaffold:
 ${FPGA_ARCHITECT_MANIFEST_SCAFFOLD}
@@ -994,6 +1025,14 @@ ${buildRecurringVhdlFailureGuardSection({
   heading: 'Recurring failure guards you must explicitly self-audit before returning',
   numbered: true,
 })}
+${buildGenerationQualityPromptSection('fpga_vhdl_architect', {
+  includeRepairScope: true,
+})}
+${buildArchitectureBlueprintPromptSection({
+  macroId: 'fpga_vhdl_architect',
+  promptText: originalPrompt,
+})}
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
 ${compactingRules}
 
 Use this exact scaffold:
@@ -1050,6 +1089,15 @@ ${buildRecurringVhdlFailureGuardSection({
   heading: 'Recurring failure guards you must explicitly self-audit before returning',
   numbered: true,
 })}
+
+${buildGenerationQualityPromptSection('fpga_vhdl_architect')}
+
+${buildArchitectureBlueprintPromptSection({
+  macroId: 'fpga_vhdl_architect',
+  promptText: originalPrompt,
+})}
+
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
 
 Additional compact-mode rules:
 ${buildNumberedRuleList(compactionRules, structuralRules.length + FPGA_ARCHITECT_STRICT_RULE_LIST.length + 1)}

@@ -287,8 +287,8 @@ function splitTopLevelSegments(value: string, delimiter: ',' | ';') {
 
 function extractFormalIdentifier(clause: string) {
   const normalizedClause = clause.trim();
-  return normalizedClause.match(/^(?:(?:signal|variable|constant)\s+)?([a-zA-Z][a-zA-Z0-9_]*)\s*:/i)?.[1]
-    || normalizedClause.match(/^(?:signal|variable|constant|in|out|inout|buffer|linkage)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/i)?.[1]
+  return normalizedClause.match(/^(?:(?:shared\s+)?(?:signal|variable|constant)\s+)?([a-zA-Z][a-zA-Z0-9_]*)\s*:/i)?.[1]
+    || normalizedClause.match(/^(?:shared\s+)?(?:signal|variable|constant|in|out|inout|buffer|linkage)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/i)?.[1]
     || null;
 }
 
@@ -303,31 +303,80 @@ function inferFormalUsageStyle(body: string, formalName: string) {
   return null;
 }
 
+function trimRepeatedFormalModePrefix(value: string) {
+  let next = value.trim();
+  let changed = false;
+  while (/^(?:in|out|inout|buffer|linkage)\b/i.test(next)) {
+    next = next.replace(/^(?:in|out|inout|buffer|linkage)\s+/i, '').trim();
+    changed = true;
+  }
+  return { value: next, changed };
+}
+
+function trimRepeatedFormalObjectClassPrefix(value: string) {
+  let next = value.trim();
+  let changed = false;
+  while (/^(?:shared\s+)?(?:signal|variable|constant)\b/i.test(next)) {
+    next = next.replace(/^(?:shared\s+)?(?:signal|variable|constant)\s+/i, '').trim();
+    changed = true;
+  }
+  return { value: next, changed };
+}
+
 function normalizeMalformedFormalClause(clause: string, body: string) {
-  const normalizedClause = clause.trim();
+  const normalizedClause = clause
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\b(in|out|inout|buffer|linkage)(?:\s+\1\b)+/gi, '$1')
+    .replace(/\b(?:shared\s+)?(signal|variable|constant)\s+(?:shared\s+)?\1\b/gi, '$1');
   if (!normalizedClause) {
     return { clause, changed: false };
   }
 
+  const canonicalMatch = normalizedClause.match(
+    /^(?:(?:shared\s+)?(signal|variable|constant)\s+)?([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:(in|out|inout|buffer|linkage)\s+)?(.+)$/i,
+  );
+  if (canonicalMatch) {
+    const objectClass = canonicalMatch[1]?.toLowerCase() || null;
+    const formalName = canonicalMatch[2];
+    const mode = canonicalMatch[3]?.toLowerCase() || null;
+    let subtype = canonicalMatch[4].trim();
+    const modeTrim = trimRepeatedFormalModePrefix(subtype);
+    subtype = modeTrim.value;
+    const classTrim = trimRepeatedFormalObjectClassPrefix(subtype);
+    subtype = classTrim.value;
+    if ((modeTrim.changed || classTrim.changed) && subtype.length > 0) {
+      const usage = inferFormalUsageStyle(body, formalName);
+      const nextObjectClass = objectClass || usage?.objectClass || null;
+      const nextMode = mode || usage?.mode || (nextObjectClass === 'signal' ? 'out' : nextObjectClass === 'variable' ? 'inout' : 'in');
+      return {
+        clause: `${nextObjectClass ? `${nextObjectClass} ` : ''}${formalName} : ${nextMode} ${subtype}`,
+        changed: true,
+      };
+    }
+  }
+
   const duplicateClassMatch = normalizedClause.match(
-    /^(signal|variable|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(signal|variable|constant)\s+(.*)$/i,
+    /^(?:shared\s+)?(signal|variable|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:shared\s+)?(signal|variable|constant)\s+(.*)$/i,
   );
   if (duplicateClassMatch) {
+    const subtype = trimRepeatedFormalModePrefix(trimRepeatedFormalObjectClassPrefix(duplicateClassMatch[4]).value).value;
     return {
-      clause: `${duplicateClassMatch[1]} ${duplicateClassMatch[2]} : ${duplicateClassMatch[4].trim()}`,
+      clause: `${duplicateClassMatch[1].toLowerCase()} ${duplicateClassMatch[2]} : ${subtype}`,
       changed: true,
     };
   }
 
   const postColonClassMatch = normalizedClause.match(
-    /^([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(signal|variable|constant)(?:\s+(in|out|inout|buffer|linkage))?\s+(.+)$/i,
+    /^([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*(?:shared\s+)?(signal|variable|constant)(?:\s+(in|out|inout|buffer|linkage))?\s+(.+)$/i,
   );
   if (postColonClassMatch) {
     const usage = inferFormalUsageStyle(body, postColonClassMatch[1]);
     const objectClass = postColonClassMatch[2].toLowerCase();
     const mode = (postColonClassMatch[3] || usage?.mode || (objectClass === 'signal' ? 'out' : 'inout')).toLowerCase();
+    const subtype = trimRepeatedFormalModePrefix(trimRepeatedFormalObjectClassPrefix(postColonClassMatch[4]).value).value;
     return {
-      clause: `${objectClass} ${postColonClassMatch[1]} : ${mode} ${postColonClassMatch[4].trim()}`,
+      clause: `${objectClass} ${postColonClassMatch[1]} : ${mode} ${subtype}`,
       changed: true,
     };
   }
@@ -339,8 +388,9 @@ function normalizeMalformedFormalClause(clause: string, body: string) {
     const usage = inferFormalUsageStyle(body, duplicateModeMatch[2]);
     const prefix = usage ? `${usage.objectClass} ` : '';
     const mode = usage?.mode || duplicateModeMatch[3].toLowerCase();
+    const subtype = trimRepeatedFormalModePrefix(trimRepeatedFormalObjectClassPrefix(duplicateModeMatch[4]).value).value;
     return {
-      clause: `${prefix}${duplicateModeMatch[2]} : ${mode} ${duplicateModeMatch[4].trim()}`,
+      clause: `${prefix}${duplicateModeMatch[2]} : ${mode} ${subtype}`,
       changed: true,
     };
   }
@@ -352,8 +402,9 @@ function normalizeMalformedFormalClause(clause: string, body: string) {
     const usage = inferFormalUsageStyle(body, leadingModeMatch[2]);
     const prefix = usage ? `${usage.objectClass} ` : '';
     const mode = usage?.mode || leadingModeMatch[1].toLowerCase();
+    const subtype = trimRepeatedFormalModePrefix(trimRepeatedFormalObjectClassPrefix(leadingModeMatch[3]).value).value;
     return {
-      clause: `${prefix}${leadingModeMatch[2]} : ${mode} ${leadingModeMatch[3].trim()}`,
+      clause: `${prefix}${leadingModeMatch[2]} : ${mode} ${subtype}`,
       changed: true,
     };
   }
@@ -446,20 +497,76 @@ function normalizeNamedProcedureFormalSyntax(content: string, procedureName: str
 
   const parameterClauses = splitTopLevelSegments(procedureMatch[2], ';');
   let changed = false;
-  const rewrittenClauses = parameterClauses.map((clause) => {
+  const seenClauses = new Set<string>();
+  const rewrittenClauses = parameterClauses.flatMap((clause) => {
     const normalized = normalizeMalformedFormalClause(clause, procedureMatch[4]);
     changed = changed || normalized.changed;
-    return normalized.clause.trim();
+    const nextClause = normalized.clause.trim();
+    if (!nextClause) return [];
+    const identifier = extractFormalIdentifier(nextClause)?.toLowerCase();
+    const normalizedIdentifier = identifier?.replace(/(?:_io)+(?=_\d+$|$)/g, '_io') || null;
+    const duplicateKey = normalizedIdentifier || nextClause.toLowerCase();
+    if (seenClauses.has(duplicateKey)) {
+      changed = true;
+      return [];
+    }
+    seenClauses.add(duplicateKey);
+    return [nextClause];
   });
   if (!changed) {
     return { content, changed: false };
   }
 
   const nextParameterText = rewrittenClauses.join('; ');
-  const replacement = `${procedureMatch[1]}${nextParameterText}${procedureMatch[3]}${procedureMatch[4]}`;
+  const cleanedBody = procedureMatch[4].replace(/^\s*\)\s*is\b\s*/i, '\n');
+  changed = changed || cleanedBody !== procedureMatch[4];
+  const bodySeparator = /^\s/.test(cleanedBody) ? '' : '\n';
+  const replacement = `${procedureMatch[1]}${nextParameterText}) is${bodySeparator}${cleanedBody}`;
   return {
     content: `${content.slice(0, procedureMatch.index)}${replacement}${content.slice(procedureMatch.index + procedureMatch[0].length)}`,
     changed: true,
+  };
+}
+
+function isRepairFormalForObject(objectName: string, formalName: string | null | undefined) {
+  if (!formalName) return false;
+  const escapedObjectName = objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${escapedObjectName}(?:_io)*(?:_\\d+)?$`, 'i').test(formalName);
+}
+
+function isLikelyRepairArtifactName(name: string) {
+  return /(?:_io){1,}(?:_\d+)?$/i.test(name);
+}
+
+function isPoisonedRepairDeclarationSubtype(subtype: string) {
+  return /^(?:in|out|inout|buffer|linkage)\b/i.test(subtype.trim());
+}
+
+function collectPoisonedRepairVariableNames(content: string) {
+  const names = new Set<string>();
+  const declarationExpression = /^\s*(?:shared\s+)?variable\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*([^;]+);?/gim;
+  for (const match of content.matchAll(declarationExpression)) {
+    const name = match[1];
+    const subtype = match[2] || '';
+    if (name && isLikelyRepairArtifactName(name) && isPoisonedRepairDeclarationSubtype(subtype)) {
+      names.add(name);
+    }
+  }
+  return names;
+}
+
+function removePoisonedRepairVariableDeclarations(content: string, poisonedNames: Set<string>) {
+  if (poisonedNames.size === 0) {
+    return { content, changed: false };
+  }
+
+  const nextContent = content.replace(
+    /^\s*(?:shared\s+)?variable\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*[^;]+;\s*\n?/gim,
+    (match, name) => (poisonedNames.has(name) ? '' : match),
+  );
+  return {
+    content: nextContent,
+    changed: nextContent !== content,
   };
 }
 
@@ -470,6 +577,32 @@ function isIndexInsideLineComment(content: string, index: number) {
   return commentIndex >= 0;
 }
 
+function isIndexInsideDoubleQuotedString(content: string, index: number) {
+  const lineStart = content.lastIndexOf('\n', Math.max(0, index - 1)) + 1;
+  let inString = false;
+  for (let offset = lineStart; offset < index; offset += 1) {
+    if (content[offset] !== '"') continue;
+    if (content[offset + 1] === '"') {
+      offset += 1;
+      continue;
+    }
+    inString = !inString;
+  }
+  return inString;
+}
+
+function repairMalformedCharacterLiterals(content: string) {
+  let changed = false;
+  const nextContent = content.replace(/'([01])(?=\s*[);,])/g, (match, bit, offset) => {
+    if (isIndexInsideLineComment(content, offset) || isIndexInsideDoubleQuotedString(content, offset)) {
+      return match;
+    }
+    changed = true;
+    return `'${bit}'`;
+  });
+  return { content: nextContent, changed };
+}
+
 function collectNamedCallSpans(content: string, subprogramName: string) {
   const spans: Array<{ start: number; end: number; actualText: string }> = [];
   const escapedName = subprogramName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -478,6 +611,10 @@ function collectNamedCallSpans(content: string, subprogramName: string) {
   for (const match of content.matchAll(expression)) {
     const start = match.index ?? -1;
     if (start < 0) continue;
+    const prefix = content.slice(Math.max(0, start - 32), start);
+    if (/\b(?:function|procedure)\s+$/i.test(prefix)) {
+      continue;
+    }
     const openParenIndex = start + match[0].lastIndexOf('(');
     let depth = 0;
     let closeParenIndex = -1;
@@ -529,6 +666,289 @@ function relaxConstrainedStringFormals(content: string, subprogramName: string) 
     content: `${content.slice(0, headerMatch.index)}${replacement}${content.slice(headerMatch.index + headerMatch[0].length)}`,
     changed: true,
   };
+}
+
+function splitCallActuals(actualText: string) {
+  return splitTopLevelSegments(actualText, ',')
+    .map((actual) => actual.trim())
+    .filter(Boolean);
+}
+
+function inferCheckEqTypeFromActual(actual: string | undefined) {
+  if (!actual) return 'std_logic_vector';
+  const trimmed = actual.trim();
+  const qualified = trimmed.match(/\b([a-zA-Z][a-zA-Z0-9_]*)'\s*\(/);
+  if (qualified?.[1]) return qualified[1];
+  if (/^'.*'$/.test(trimmed)) return 'std_logic';
+  if (/^"(?:[^"]|"")*"$/.test(trimmed) || /\bx"[0-9a-f_]*"/i.test(trimmed)) return 'std_logic_vector';
+  if (/\bto_signed\s*\(/i.test(trimmed)) return 'signed';
+  if (/\bto_unsigned\s*\(/i.test(trimmed)) return 'unsigned';
+  if (/^[+-]?\d+$/.test(trimmed)) return 'integer';
+  if (/_t\b/i.test(trimmed)) return trimmed.replace(/[^a-zA-Z0-9_].*$/, '');
+  return 'std_logic_vector';
+}
+
+function inferCheckEqComparisonType(gotActual: string | undefined, expectedActual: string | undefined) {
+  const expectedType = inferCheckEqTypeFromActual(expectedActual);
+  if (expectedType !== 'std_logic_vector') return expectedType;
+
+  const gotType = inferCheckEqTypeFromActual(gotActual);
+  return gotType;
+}
+
+function inferCheckEqFailureFormal(content: string, callActuals: string[]) {
+  const failureActual = callActuals[callActuals.length - 1]?.trim() || 'failed';
+  const signalExpression = new RegExp(`\\bsignal\\s+${failureActual.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*([^;]+);`, 'i');
+  const signalMatch = signalExpression.exec(content);
+  if (signalMatch) {
+    const subtype = signalMatch[1].trim();
+    return {
+      clause: `signal ${failureActual}_io : out ${subtype}`,
+      assignment: `${failureActual}_io <= ${/\bboolean\b/i.test(subtype) ? 'true' : "'1'"};`,
+    };
+  }
+
+  return {
+    clause: 'variable failed_io : inout boolean',
+    assignment: 'failed_io := true;',
+  };
+}
+
+function findCheckEqReplacementEnd(content: string, startIndex: number) {
+  const endMatch = /\bend\s+procedure(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/i.exec(content.slice(startIndex));
+  if (endMatch?.index != null) {
+    return startIndex + endMatch.index + endMatch[0].length;
+  }
+  const nextBegin = /^\s*begin\b/im.exec(content.slice(startIndex));
+  if (nextBegin?.index != null) {
+    return startIndex + nextBegin.index;
+  }
+  return -1;
+}
+
+function extractProcedureNameFromIncompleteSubprogramDetail(detail: GeneratedVhdlFailureDetail) {
+  return detail.forbiddenConstruct?.match(/procedure\s+"([^"]+)"/i)?.[1]
+    || detail.message.match(/procedure\s+"([^"]+)"/i)?.[1]
+    || null;
+}
+
+function rebuildIncompleteCheckHelper(content: string, procedureName: string) {
+  const escapedProcedureName = procedureName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const headerMatch = new RegExp(`\\bprocedure\\s+${escapedProcedureName}\\s*\\(`, 'i').exec(content);
+  if (!headerMatch || headerMatch.index == null) {
+    return { content, changed: false };
+  }
+
+  const replacementEnd = findCheckEqReplacementEnd(content, headerMatch.index);
+  if (replacementEnd < 0) {
+    return { content, changed: false };
+  }
+
+  const calls = collectNamedCallSpans(content, procedureName)
+    .filter((span) => span.start < headerMatch.index || span.start > replacementEnd);
+  const firstCallActuals = calls.length > 0 ? splitCallActuals(calls[0].actualText) : [];
+  const gotActual = firstCallActuals[1];
+  const expectedActual = firstCallActuals[2];
+  const gotType = inferCheckEqComparisonType(gotActual, expectedActual);
+  const failureFormal = inferCheckEqFailureFormal(content, firstCallActuals);
+  const failureActual = firstCallActuals.length >= 4 ? firstCallActuals[firstCallActuals.length - 1]?.trim() : null;
+  const formalClause = failureActual ? failureFormal.clause : 'variable failed_io : inout boolean';
+  const assignment = failureActual ? failureFormal.assignment : 'failed_io := true;';
+
+  const helper = [
+    `procedure ${procedureName}(`,
+    '  constant label_text : in string;',
+    `  constant got : in ${gotType};`,
+    `  constant expected : in ${gotType};`,
+    `  ${formalClause}`,
+    ') is',
+    'begin',
+    '  if got /= expected then',
+    `    ${assignment}`,
+    '    report "FAIL " & label_text severity error;',
+    '  end if;',
+    `end procedure ${procedureName};`,
+  ].join('\n');
+
+  let nextContent = `${content.slice(0, headerMatch.index)}${helper}${content.slice(replacementEnd)}`;
+
+  if (failureActual) {
+    for (const span of collectNamedCallSpans(nextContent, procedureName).reverse()) {
+      const actuals = splitCallActuals(span.actualText);
+      if (actuals.length <= 4) continue;
+      const rewrittenActuals = actuals.slice(0, 4);
+      nextContent = `${nextContent.slice(0, span.start)}${procedureName}(${rewrittenActuals.join(', ')})${nextContent.slice(span.end)}`;
+    }
+  }
+
+  return { content: nextContent, changed: nextContent !== content };
+}
+
+function repairMalformedCheckHelperBlocks(content: string) {
+  let nextContent = content;
+  let changed = false;
+  const procedureNames = new Set<string>();
+
+  for (const match of content.matchAll(/\bprocedure\s+(check_[a-zA-Z0-9_]*)\s*\(/gi)) {
+    const procedureName = match[1];
+    const start = match.index ?? -1;
+    if (!procedureName || start < 0) {
+      continue;
+    }
+
+    const end = findCheckEqReplacementEnd(content, start);
+    if (end < 0) {
+      continue;
+    }
+
+    const block = content.slice(start, end);
+    if (/\)\s*is\b/i.test(block) && /\bbegin\b/i.test(block)) {
+      continue;
+    }
+
+    if (/\b(?:report|assert|if|wait)\b/i.test(block)) {
+      procedureNames.add(procedureName);
+    }
+  }
+
+  for (const procedureName of procedureNames) {
+    const result = rebuildIncompleteCheckHelper(nextContent, procedureName);
+    nextContent = result.content;
+    changed = changed || result.changed;
+  }
+
+  return { content: nextContent, changed };
+}
+
+function actualLooksScalarStdLogic(content: string, actual: string | undefined) {
+  if (!actual) return false;
+  const trimmed = actual.trim().replace(/^[a-zA-Z][a-zA-Z0-9_]*\s*=>\s*/i, '').trim();
+  if (/^'[01UXZWLH-]'$/i.test(trimmed)) return true;
+  const identifier = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/)?.[1];
+  if (!identifier) return false;
+  const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`\\b(?:signal|variable|constant)\\s+${escaped}\\s*:\\s*std_(?:u)?logic\\b`, 'i').test(content);
+}
+
+function repairWaitClkArityMismatch(content: string) {
+  const declarationExpression = /\bprocedure\s+wait_clk\s*\([\s\S]*?\)\s*is[\s\S]*?end\s+procedure(?:\s+wait_clk)?\s*;/i;
+  const declarationMatch = declarationExpression.exec(content);
+  if (!declarationMatch || declarationMatch.index == null) {
+    return { content, changed: false };
+  }
+
+  const calls = collectNamedCallSpans(content, 'wait_clk');
+  if (calls.length === 0 || calls.some((call) => splitCallActuals(call.actualText).length !== 1)) {
+    return { content, changed: false };
+  }
+
+  const helper = [
+    'procedure wait_clk(signal clk_i : in std_logic) is',
+    'begin',
+    '  wait until rising_edge(clk_i);',
+    'end procedure wait_clk;',
+  ].join('\n');
+
+  return {
+    content: `${content.slice(0, declarationMatch.index)}${helper}${content.slice(declarationMatch.index + declarationMatch[0].length)}`,
+    changed: true,
+  };
+}
+
+function repairScalarCheckEqSlHelper(content: string) {
+  const declarationExpression = /\bprocedure\s+check_eq_sl\s*\([\s\S]*?\)\s*is[\s\S]*?end\s+procedure(?:\s+check_eq_sl)?\s*;/i;
+  const declarationMatch = declarationExpression.exec(content);
+  if (!declarationMatch || declarationMatch.index == null) {
+    return { content, changed: false };
+  }
+
+  const calls = collectNamedCallSpans(content, 'check_eq_sl')
+    .filter((call) => call.start < declarationMatch.index! || call.start > declarationMatch.index! + declarationMatch[0].length);
+  const scalarCall = calls
+    .map((call) => splitCallActuals(call.actualText))
+    .find((actuals) => actuals.length >= 3 && actualLooksScalarStdLogic(content, actuals[1]) && actualLooksScalarStdLogic(content, actuals[2]));
+  if (!scalarCall) {
+    return { content, changed: false };
+  }
+
+  const failureFormal = inferCheckEqFailureFormal(content, scalarCall);
+  const helper = [
+    'procedure check_eq_sl(',
+    '  constant label_text : in string;',
+    '  constant got : in std_logic;',
+    '  constant expected : in std_logic;',
+    `  ${failureFormal.clause}`,
+    ') is',
+    'begin',
+    '  if got /= expected then',
+    `    ${failureFormal.assignment}`,
+    '    report "FAIL " & label_text severity error;',
+    '  end if;',
+    'end procedure check_eq_sl;',
+  ].join('\n');
+
+  return {
+    content: `${content.slice(0, declarationMatch.index)}${helper}${content.slice(declarationMatch.index + declarationMatch[0].length)}`,
+    changed: true,
+  };
+}
+
+function repairIllegalOthersAggregateComparisons(content: string) {
+  let changed = false;
+  const nextContent = content.replace(
+    /\b([a-zA-Z][a-zA-Z0-9_]*)\s*(=|\/=)\s*\(\s*others\s*=>\s*'([01])'\s*\)/gi,
+    (match, objectName, operator, bit, offset) => {
+      if (isIndexInsideLineComment(content, offset) || isIndexInsideDoubleQuotedString(content, offset)) {
+        return match;
+      }
+      changed = true;
+      return `${objectName} ${operator} (${objectName}'range => '${bit}')`;
+    },
+  );
+  return { content: nextContent, changed };
+}
+
+function repairCommaSeparatedPackedVectorSubtypes(content: string) {
+  let changed = false;
+  const nextContent = content.replace(
+    /\b(std_logic_vector|unsigned|signed)\s*\(\s*([A-Za-z][A-Za-z0-9_]*)\s*-\s*1\s+downto\s+0\s*,\s*([A-Za-z][A-Za-z0-9_]*)\s*-\s*1\s+downto\s+0\s*\)/gi,
+    (match, typeName, leftWidth, rightWidth, offset) => {
+      if (isIndexInsideLineComment(content, offset) || isIndexInsideDoubleQuotedString(content, offset)) {
+        return match;
+      }
+      changed = true;
+      return `${typeName}((${leftWidth} * ${rightWidth}) - 1 downto 0)`;
+    },
+  );
+  return { content: nextContent, changed };
+}
+
+function repairPackageBodySignatureMismatch(content: string, detail: GeneratedVhdlFailureDetail) {
+  const bodyHeader = detail.forbiddenConstruct;
+  const specHeader = detail.legalReplacementPattern?.match(/replace body header with "([\s\S]+?) is"/i)?.[1];
+  if (!bodyHeader || !specHeader) {
+    return { content, changed: false };
+  }
+  const index = content.indexOf(bodyHeader);
+  if (index < 0) {
+    return { content, changed: false };
+  }
+  return {
+    content: `${content.slice(0, index)}${specHeader}${content.slice(index + bodyHeader.length)}`,
+    changed: true,
+  };
+}
+
+function repairTypedResizeReturnMismatch(content: string) {
+  let changed = false;
+  const nextContent = content.replace(
+    /(\bfunction\s+[a-zA-Z][a-zA-Z0-9_]*\s*\([^)]*\)\s*return\s+(unsigned|signed)\b[\s\S]*?)\breturn\s+resize\s*\(([^;]+)\)\s*;/gi,
+    (match, prefix, returnType, resizeArgs) => {
+      changed = true;
+      return `${prefix}return ${String(returnType).toLowerCase()}(resize(${String(resizeArgs).trim()}));`;
+    },
+  );
+  return { content: nextContent, changed };
 }
 
 function rewriteUnconstrainedStringVariable(content: string, variableName: string) {
@@ -894,6 +1314,32 @@ function rewriteTypedPortAssociationMismatch(params: {
   nextContent = nextContent.replace(genericAssociationExpression, (_match, prefix, suffix) => {
     changed = true;
     return `${prefix}${wrappedActual}${suffix}`;
+  });
+
+  return { content: nextContent, changed };
+}
+
+function repairOutPortActualConversion(content: string, detail: GeneratedVhdlFailureDetail) {
+  const associationMatch = detail.forbiddenConstruct?.match(/"([A-Za-z][A-Za-z0-9_]*)\s*=>\s*([A-Za-z][A-Za-z0-9_]*)\s*\(\s*([A-Za-z][A-Za-z0-9_]*)\s*\)"/i);
+  if (!associationMatch) {
+    return { content, changed: false };
+  }
+
+  const [, portName, conversionType, signalName] = associationMatch;
+  const escapedPort = portName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedConversionType = conversionType.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedSignal = signalName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const associationExpression = new RegExp(
+    `(\\b${escapedPort}\\s*=>\\s*)${escapedConversionType}\\s*\\(\\s*${escapedSignal}\\s*\\)`,
+    'g',
+  );
+  let changed = false;
+  const nextContent = content.replace(associationExpression, (match, prefix, offset) => {
+    if (isIndexInsideLineComment(content, offset) || isIndexInsideDoubleQuotedString(content, offset)) {
+      return match;
+    }
+    changed = true;
+    return `${prefix}${signalName}`;
   });
 
   return { content: nextContent, changed };
@@ -1311,6 +1757,18 @@ function isSubprogramInsideProcessDeclarativeRegion(params: {
 
 function getDeterministicRepairPriority(code: string) {
   switch (code) {
+    case 'malformed_character_literal':
+      return 5;
+    case 'incomplete_subprogram_interface':
+      return 8;
+    case 'subprogram_call_arity_mismatch':
+    case 'subprogram_actual_type_mismatch':
+      return 8;
+    case 'illegal_others_aggregate_context':
+    case 'illegal_multidimensional_logic_vector':
+    case 'package_body_signature_mismatch':
+    case 'typed_resize_return_mismatch':
+      return 9;
     case 'subprogram_body_inside_package_declaration':
       return 10;
     case 'architecture_body_variable':
@@ -1328,6 +1786,8 @@ function getDeterministicRepairPriority(code: string) {
       return 46;
     case 'output_port_readback':
       return 50;
+    case 'interface_constant_not_visible':
+      return 52;
     case 'conditional_assignment_operator_misuse':
       return 55;
     case 'variable_assigned_with_signal_operator':
@@ -1408,7 +1868,7 @@ function shouldConvertArchitectureVariableToSignal(detail: GeneratedVhdlFailureD
 }
 
 function splitSubprogramBodiesFromPackageDeclaration(content: string, packageName: string) {
-  const packageExpression = new RegExp(`\\bpackage\\s+${packageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+is\\b([\\s\\S]*?)\\bend\\s+package\\b[^;]*;`, 'i');
+  const packageExpression = new RegExp(`\\bpackage\\s+${packageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+is\\b([\\s\\S]*?)\\bend\\s+package(?:\\s+body)?\\b[^;]*;`, 'i');
   const packageMatch = packageExpression.exec(content);
   if (!packageMatch || packageMatch.index == null) {
     return { content, changed: false };
@@ -1432,7 +1892,9 @@ function splitSubprogramBodiesFromPackageDeclaration(content: string, packageNam
     return { content, changed: false };
   }
 
-  const rebuiltDeclaration = packageMatch[0].replace(declarationBody, declarationWithoutBodies);
+  const rebuiltDeclaration = packageMatch[0]
+    .replace(declarationBody, declarationWithoutBodies)
+    .replace(/\bend\s+package\s+body\b[^;]*;/i, `end package ${packageName};`);
   let nextContent = `${content.slice(0, packageMatch.index)}${rebuiltDeclaration}${content.slice(packageMatch.index + packageMatch[0].length)}`;
 
   const packageBodyExpression = new RegExp(`\\bpackage\\s+body\\s+${packageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+is\\b([\\s\\S]*?)\\bend\\s+package\\s+body\\b[^;]*;`, 'i');
@@ -1461,7 +1923,7 @@ function splitSubprogramBodiesFromPackageDeclaration(content: string, packageNam
 
 function collectPackageDeclarationsWithEmbeddedBodies(content: string) {
   const packages = new Set<string>();
-  const packageExpression = /\bpackage\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+package\b[^;]*;/gi;
+  const packageExpression = /\bpackage\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+package(?:\s+body)?\b[^;]*;/gi;
 
   for (const match of content.matchAll(packageExpression)) {
     const packageName = match[1];
@@ -1714,8 +2176,20 @@ function repairOutputPortReadback(content: string, outputName: string) {
     return { content, changed: false };
   }
 
+  const defaultInternalName = `${outputName}_int`;
+  const alreadyMirrored = new RegExp(
+    `\\bsignal\\s+${defaultInternalName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`,
+    'i',
+  ).test(content) && new RegExp(
+    `\\b${outputName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*<=\\s*${defaultInternalName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*;`,
+    'i',
+  ).test(content);
+  if (alreadyMirrored) {
+    return { content, changed: false };
+  }
+
   const declaredIdentifiers = collectDeclaredIdentifiers(content);
-  let internalName = `${outputName}_int`;
+  let internalName = defaultInternalName;
   let suffix = 1;
   while (declaredIdentifiers.has(internalName.toLowerCase())) {
     internalName = `${outputName}_int_${suffix}`;
@@ -1752,6 +2226,69 @@ function repairOutputPortReadback(content: string, outputName: string) {
   return { content: nextContent, changed };
 }
 
+function findBalancedParen(content: string, openParenIndex: number) {
+  let depth = 0;
+  for (let index = openParenIndex; index < content.length; index += 1) {
+    const char = content[index];
+    if (char === '(') {
+      depth += 1;
+    } else if (char === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        return index;
+      }
+    }
+  }
+  return -1;
+}
+
+function repairMissingInterfaceConstant(content: string, constantName: string) {
+  const escapedName = constantName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (new RegExp(`\\bgeneric\\s*\\([\\s\\S]*?\\b${escapedName}\\s*:`, 'i').test(content)) {
+    return { content, changed: false };
+  }
+  if (new RegExp(`\\bconstant\\s+${escapedName}\\s*:`, 'i').test(content)) {
+    return { content, changed: false };
+  }
+
+  const entityMatch = /\bentity\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/i.exec(content);
+  if (!entityMatch || entityMatch.index == null) {
+    return { content, changed: false };
+  }
+
+  const entityBodyStart = entityMatch.index + entityMatch[0].length;
+  const portMatch = /\bport\s*\(/i.exec(content.slice(entityBodyStart));
+  if (portMatch?.index == null) {
+    return { content, changed: false };
+  }
+  const portIndex = entityBodyStart + portMatch.index;
+  const genericBlockMatch = /\bgeneric\s*\(/i.exec(content.slice(entityBodyStart, portIndex));
+  const defaultValue = /width/i.test(constantName) ? '8' : '1';
+
+  if (!genericBlockMatch) {
+    const insertion = `\n  generic (\n    ${constantName} : positive := ${defaultValue}\n  );\n`;
+    return {
+      content: `${content.slice(0, portIndex)}${insertion}${content.slice(portIndex)}`,
+      changed: true,
+    };
+  }
+
+  const genericOpenIndex = entityBodyStart + genericBlockMatch.index + genericBlockMatch[0].lastIndexOf('(');
+  const genericCloseIndex = findBalancedParen(content, genericOpenIndex);
+  if (genericCloseIndex < 0) {
+    return { content, changed: false };
+  }
+
+  const existingBody = content.slice(genericOpenIndex + 1, genericCloseIndex).trim();
+  const prefix = existingBody ? '\n    ' : '\n    ';
+  const separator = existingBody ? ';\n    ' : '';
+  const insertion = `${separator}${constantName} : positive := ${defaultValue}`;
+  return {
+    content: `${content.slice(0, genericCloseIndex)}${prefix}${insertion}\n  ${content.slice(genericCloseIndex)}`,
+    changed: true,
+  };
+}
+
 function repairProcedureOuterScopeWrite(content: string, procedureName: string, objectName: string) {
   const declaration = findMutableObjectDeclaration(content, objectName);
   if (!declaration) {
@@ -1778,7 +2315,7 @@ function repairProcedureOuterScopeWrite(content: string, procedureName: string, 
   const candidateFormalClauses = splitTopLevelSegments(normalizedProcedureMatch[1] || '', ';');
   const existingFormalName = candidateFormalClauses
     .map((clause) => extractFormalIdentifier(clause))
-    .find((name) => name && new RegExp(`^${objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:_io(?:_\\d+)?)?$`, 'i').test(name))
+    .find((name) => isRepairFormalForObject(objectName, name))
     || null;
 
   const targetName = existingFormalName || objectName;
@@ -1809,7 +2346,7 @@ function repairProcedureOuterScopeWrite(content: string, procedureName: string, 
   const nextParams = candidateFormalClauses
     .filter((clause) => {
       const identifier = extractFormalIdentifier(clause);
-      return !(identifier && new RegExp(`^${objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:_io(?:_\\d+)?)?$`, 'i').test(identifier));
+      return !isRepairFormalForObject(objectName, identifier);
     })
     .map((clause) => clause.trim())
     .filter(Boolean);
@@ -1846,13 +2383,21 @@ function repairProcedureOuterScopeWrite(content: string, procedureName: string, 
       return match;
     }
     const existingArgs = splitTopLevelArguments(String(args).trim());
-    if (existingArgs.some((arg) => arg.trim() === objectName || arg.trim().endsWith(`=> ${objectName}`))) {
-      return match;
+    let sawObjectActual = false;
+    const nextActuals = existingArgs.filter((arg) => {
+      const trimmed = arg.trim();
+      const namedAssociationMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*\s*=>\s*)([a-zA-Z][a-zA-Z0-9_]*)$/);
+      const actualName = namedAssociationMatch ? namedAssociationMatch[2] : trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/)?.[1];
+      if (actualName === objectName) {
+        sawObjectActual = true;
+        return true;
+      }
+      return !isRepairFormalForObject(objectName, actualName);
+    });
+    if (!sawObjectActual) {
+      nextActuals.push(objectName);
     }
-    const trimmedArgs = String(args).trim();
-    const nextArgs = trimmedArgs.length > 0
-      ? `${trimmedArgs}, ${objectName}`
-      : objectName;
+    const nextArgs = nextActuals.join(', ');
     return `${procedureName}(${nextArgs});`;
   });
 
@@ -1911,6 +2456,165 @@ function repairProcedureOuterScopeWritesInNamedProcedure(content: string, proced
     changed = changed || result.changed;
   }
 
+  return { content: nextContent, changed };
+}
+
+function inferRealMutableActualForPoisonedProcedure(params: {
+  content: string;
+  procedureName: string;
+  procedureStart: number;
+  procedureEnd: number;
+  poisonedNames: Set<string>;
+}) {
+  for (const span of collectNamedCallSpans(params.content, params.procedureName)) {
+    if (span.start >= params.procedureStart && span.start <= params.procedureEnd) {
+      continue;
+    }
+    const actuals = splitTopLevelArguments(span.actualText);
+    for (let index = actuals.length - 1; index >= 0; index -= 1) {
+      const actual = actuals[index].trim();
+      const namedAssociationMatch = actual.match(/^([a-zA-Z][a-zA-Z0-9_]*\s*=>\s*)([a-zA-Z][a-zA-Z0-9_]*)$/);
+      const actualName = namedAssociationMatch ? namedAssociationMatch[2] : actual.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/)?.[1];
+      if (!actualName || params.poisonedNames.has(actualName) || isLikelyRepairArtifactName(actualName)) {
+        continue;
+      }
+      if (findMutableObjectDeclaration(params.content, actualName)) {
+        return actualName;
+      }
+    }
+  }
+  return null;
+}
+
+function collapsePoisonedProcedureRepairArtifacts(params: {
+  content: string;
+  procedureName: string;
+  poisonedNames: Set<string>;
+}) {
+  const escapedProcedureName = params.procedureName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const procedureExpression = new RegExp(
+    `\\bprocedure\\s+${escapedProcedureName}(?:\\s*\\(([^)]*)\\))?\\s*is([\\s\\S]*?)end\\s+procedure(?:\\s+${escapedProcedureName})?\\s*;`,
+    'i',
+  );
+  const normalizedHeaderResult = normalizeNamedProcedureFormalSyntax(params.content, params.procedureName);
+  const normalizedContent = normalizedHeaderResult.content;
+  const procedureMatch = procedureExpression.exec(normalizedContent);
+  if (!procedureMatch || procedureMatch.index == null) {
+    return normalizedHeaderResult;
+  }
+
+  const procedureEnd = procedureMatch.index + procedureMatch[0].length;
+  const realObjectName = inferRealMutableActualForPoisonedProcedure({
+    content: normalizedContent,
+    procedureName: params.procedureName,
+    procedureStart: procedureMatch.index,
+    procedureEnd,
+    poisonedNames: params.poisonedNames,
+  });
+  if (!realObjectName) {
+    return normalizedHeaderResult;
+  }
+
+  const declaration = findMutableObjectDeclaration(normalizedContent, realObjectName);
+  if (!declaration) {
+    return normalizedHeaderResult;
+  }
+
+  const formalName = `${realObjectName}_io`;
+  const formalObjectClass = declaration.kind === 'signal' ? 'signal' : 'variable';
+  const formalDirection = declaration.kind === 'signal' ? 'out' : 'inout';
+  const canonicalFormal = `${formalObjectClass} ${formalName} : ${formalDirection} ${declaration.subtype}`;
+  const candidateFormalClauses = splitTopLevelSegments(procedureMatch[1] || '', ';');
+  const nextFormals = candidateFormalClauses
+    .filter((clause) => {
+      const identifier = extractFormalIdentifier(clause);
+      return identifier && !params.poisonedNames.has(identifier) && !isLikelyRepairArtifactName(identifier);
+    })
+    .map((clause) => clause.trim())
+    .filter(Boolean);
+  nextFormals.push(canonicalFormal);
+
+  let rewrittenBody = procedureMatch[2];
+  for (const poisonedName of params.poisonedNames) {
+    rewrittenBody = rewrittenBody.replace(
+      new RegExp(`\\b${poisonedName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'),
+      formalName,
+    );
+  }
+  rewrittenBody = rewrittenBody.replace(
+    new RegExp(`\\b${realObjectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'),
+    formalName,
+  );
+  rewrittenBody = replaceAssignmentOperator({
+    content: rewrittenBody,
+    objectName: formalName,
+    nextOperator: declaration.kind === 'signal' ? '<=' : ':=',
+  }).content;
+
+  const replacement = procedureMatch[0]
+    .replace(procedureMatch[1] || '', nextFormals.join('; '))
+    .replace(procedureMatch[2], rewrittenBody);
+  let nextContent = `${normalizedContent.slice(0, procedureMatch.index)}${replacement}${normalizedContent.slice(procedureEnd)}`;
+
+  for (const span of collectNamedCallSpans(nextContent, params.procedureName).reverse()) {
+    if (span.start >= procedureMatch.index && span.start <= procedureMatch.index + replacement.length) {
+      continue;
+    }
+    const actuals = splitTopLevelArguments(span.actualText);
+    let sawRealObject = false;
+    const nextActuals = actuals.filter((actual) => {
+      const trimmed = actual.trim();
+      const namedAssociationMatch = trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*\s*=>\s*)([a-zA-Z][a-zA-Z0-9_]*)$/);
+      const actualName = namedAssociationMatch ? namedAssociationMatch[2] : trimmed.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/)?.[1];
+      if (actualName === realObjectName) {
+        sawRealObject = true;
+        return true;
+      }
+      return !actualName || (!params.poisonedNames.has(actualName) && !isLikelyRepairArtifactName(actualName));
+    });
+    if (!sawRealObject) {
+      nextActuals.push(realObjectName);
+    }
+    nextContent = `${nextContent.slice(0, span.start)}${params.procedureName}(${nextActuals.join(', ')})${nextContent.slice(span.end)}`;
+  }
+
+  const removalResult = removePoisonedRepairVariableDeclarations(nextContent, params.poisonedNames);
+  nextContent = removalResult.content;
+  return {
+    content: nextContent,
+    changed: normalizedHeaderResult.changed || removalResult.changed || nextContent !== params.content,
+  };
+}
+
+function normalizePoisonedTestbenchRepairArtifacts(content: string) {
+  let nextContent = content;
+  let changed = false;
+  const initialPoisonedNames = collectPoisonedRepairVariableNames(nextContent);
+  const poisonedNames = new Set(initialPoisonedNames);
+
+  for (const procedureMatch of nextContent.matchAll(/\bprocedure\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*is/gi)) {
+    const procedureName = procedureMatch[1];
+    const formalText = procedureMatch[2] || '';
+    for (const clause of splitTopLevelSegments(formalText, ';')) {
+      const identifier = extractFormalIdentifier(clause);
+      if (identifier && isLikelyRepairArtifactName(identifier)) {
+        poisonedNames.add(identifier);
+      }
+    }
+    if (procedureName && poisonedNames.size > 0) {
+      const result = collapsePoisonedProcedureRepairArtifacts({
+        content: nextContent,
+        procedureName,
+        poisonedNames,
+      });
+      nextContent = result.content;
+      changed = changed || result.changed;
+    }
+  }
+
+  const removalResult = removePoisonedRepairVariableDeclarations(nextContent, poisonedNames);
+  nextContent = removalResult.content;
+  changed = changed || removalResult.changed;
   return { content: nextContent, changed };
 }
 
@@ -2147,7 +2851,46 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
   let nextContent = content;
   let changed = false;
 
-  if (detail.code === 'missing_std_logic_1164_clause') {
+  if (detail.code === 'malformed_character_literal') {
+    const result = repairMalformedCharacterLiterals(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'incomplete_subprogram_interface') {
+    const procedureName = extractProcedureNameFromIncompleteSubprogramDetail(detail);
+    if (procedureName && /^check_/i.test(procedureName)) {
+      const result = rebuildIncompleteCheckHelper(nextContent, procedureName);
+      nextContent = result.content;
+      changed = result.changed;
+    }
+  } else if (detail.code === 'subprogram_call_arity_mismatch') {
+    if (/wait_clk/i.test(detail.message) || /wait_clk/i.test(detail.forbiddenConstruct || '')) {
+      const result = repairWaitClkArityMismatch(nextContent);
+      nextContent = result.content;
+      changed = result.changed;
+    }
+  } else if (detail.code === 'subprogram_actual_type_mismatch') {
+    if (/check_eq_sl/i.test(detail.message) || /check_eq_sl/i.test(detail.forbiddenConstruct || '')) {
+      const result = repairScalarCheckEqSlHelper(nextContent);
+      nextContent = result.content;
+      changed = result.changed;
+    }
+  } else if (detail.code === 'illegal_others_aggregate_context') {
+    const result = repairIllegalOthersAggregateComparisons(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'illegal_multidimensional_logic_vector') {
+    const result = repairCommaSeparatedPackedVectorSubtypes(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'package_body_signature_mismatch') {
+    const result = repairPackageBodySignatureMismatch(nextContent, detail);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'typed_resize_return_mismatch') {
+    const result = repairTypedResizeReturnMismatch(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'missing_std_logic_1164_clause') {
     const result = ensureUseClause(nextContent, 'ieee.std_logic_1164.all');
     nextContent = result.content;
     changed = result.changed;
@@ -2274,6 +3017,19 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
         portName: actualMatch[2] || formalTypeMatch[2],
         formalType: formalTypeMatch[1].toLowerCase() === 'unsigned' ? 'unsigned' : 'signed',
       });
+      nextContent = result.content;
+      changed = result.changed;
+    }
+  } else if (detail.code === 'out_port_actual_conversion') {
+    const result = repairOutPortActualConversion(nextContent, detail);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'interface_constant_not_visible') {
+    const constantName = detail.forbiddenConstruct?.match(/undeclared\s+"([A-Za-z][A-Za-z0-9_]*)"/i)?.[1]
+      || detail.message.match(/references\s+"([A-Za-z][A-Za-z0-9_]*)"/i)?.[1]
+      || detail.message.match(/no declaration for "([A-Za-z][A-Za-z0-9_]*)"/i)?.[1];
+    if (constantName) {
+      const result = repairMissingInterfaceConstant(nextContent, constantName);
       nextContent = result.content;
       changed = result.changed;
     }
@@ -2540,6 +3296,7 @@ export async function applyDeterministicGeneratedCodeRepairs(params: {
       || detail.code === 'declaration_after_begin'
       || detail.code === 'executable_region_signal_declaration'
       || detail.code === 'procedure_outer_scope_write'
+      || detail.code === 'invalid_subprogram_formal_syntax'
     ));
     if (shouldRunBundledTestbenchDeclarationScopeRepair({
       content: nextContent,
@@ -2554,6 +3311,22 @@ export async function applyDeterministicGeneratedCodeRepairs(params: {
       if (clusterResult.changed) {
         fileChanged = true;
         appliedCodes.add('declaration_scope_cluster');
+      }
+    }
+
+    if (isLikelyTestbenchRelativePath(file.relativePath)) {
+      const poisonedRepairResult = normalizePoisonedTestbenchRepairArtifacts(nextContent);
+      nextContent = poisonedRepairResult.content;
+      if (poisonedRepairResult.changed) {
+        fileChanged = true;
+        appliedCodes.add('poisoned_helper_repair_artifacts');
+      }
+
+      const malformedCheckHelperResult = repairMalformedCheckHelperBlocks(nextContent);
+      nextContent = malformedCheckHelperResult.content;
+      if (malformedCheckHelperResult.changed) {
+        fileChanged = true;
+        appliedCodes.add('malformed_check_helper_block');
       }
     }
 

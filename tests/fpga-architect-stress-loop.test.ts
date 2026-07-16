@@ -544,6 +544,35 @@ test('runFpgaArchitectStressLoop narrows continuation context to the failing fil
   assert.doesNotMatch(prompts[1], /### docs\/notes\.md/);
 });
 
+test('runFpgaArchitectStressLoop reports oversized prompt assembly as context budget, not code quality', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-context-budget-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  let modelCalls = 0;
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      modelCalls += 1;
+      return {
+        validation: { summary: 'should not be called' },
+        outputDirectory: projectRoot,
+      };
+    }),
+    userQuery: 'Oversized prompt '.repeat(20_000),
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 1,
+  });
+
+  assert.equal(modelCalls, 0);
+  assert.equal(result.failures, 1);
+  assert.equal(result.contextBudgetFailures, 1);
+  assert.equal(result.codeQualityFailures, 0);
+  assert.equal(result.designSummaries[0]?.contextBudgetFailures, 1);
+  assert.equal(result.designSummaries[0]?.codeQualityFailures, 0);
+  assert.equal(result.failureBuckets[0]?.category, 'context_budget');
+});
+
 test('runFpgaArchitectStressLoop rejects remote providers', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-remote-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -571,6 +600,12 @@ test('buildSweepDesignPrompt renders a structured Markdown design spec instead o
     preset,
     outputRoot: '/tmp/alpha-output',
     designIndex: 0,
+    modelQualityGuidance: [
+      '## Model Quality Scoreboard Guidance',
+      'Recurring model-specific failure families to avoid in this attempt:',
+      '1. numeric_std Typing (3 occurrence(s))',
+      '   Canonical rules: ghdl-no-raw-slv-arithmetic',
+    ].join('\n'),
   });
 
   assert.match(prompt, /# FPGA Architect Design Spec/);
@@ -583,6 +618,9 @@ test('buildSweepDesignPrompt renders a structured Markdown design spec instead o
   assert.match(prompt, /## Verification Requirements/);
   assert.match(prompt, /## Acceptance Criteria/);
   assert.match(prompt, /## Forbidden Shortcuts/);
+  assert.match(prompt, /## Model Quality Scoreboard Guidance/);
+  assert.match(prompt, /numeric_std Typing \(3 occurrence\(s\)\)/);
+  assert.match(prompt, /ghdl-no-raw-slv-arithmetic/);
   assert.match(prompt, /## User Request/);
   assert.match(prompt, /Project name: alpha/);
   assert.match(prompt, /Output root: \/tmp\/alpha-output/);
@@ -620,6 +658,33 @@ test('buildSweepDesignPrompt appends a compact prior-failure feedback section wh
   assert.match(prompt, /Failure family: identifier_reserved_word \/ reserved_identifier/);
   assert.match(prompt, /Seen: 2 prior attempt\(s\)/);
   assert.match(prompt, /Forbidden construct: reserved identifier "label" used as enum literal/);
+});
+
+test('buildSweepDesignPrompt caps oversized prior-failure feedback sections', () => {
+  const preset = createTestPreset('alpha', 'Alpha Design');
+  const feedbackItems: FpgaArchitectSweepFeedbackItem[] = Array.from({ length: 12 }, (_, index) => ({
+    failureCode: `failure_${index}`,
+    failureCategory: 'numeric_std_type_discipline',
+    ruleId: null,
+    ruleIds: [],
+    count: index + 1,
+    summary: `Very long repeated failure ${index} ${'x'.repeat(1200)}`,
+    forbiddenConstruct: `bad construct ${index} ${'y'.repeat(500)}`,
+    legalReplacementPattern: `legal replacement ${index} ${'z'.repeat(500)}`,
+    source: 'validator',
+  }));
+
+  const prompt = buildSweepDesignPrompt({
+    basePrompt: 'Base FPGA architect contract.',
+    preset,
+    outputRoot: '/tmp/alpha-output',
+    designIndex: 0,
+    failureFeedbackItems: feedbackItems,
+  });
+
+  const feedbackSection = prompt.slice(prompt.indexOf('## Prior Failure Feedback'));
+  assert.ok(feedbackSection.length < 3_300);
+  assert.match(feedbackSection, /Additional prior failures omitted|Failure family:/);
 });
 
 test('buildSweepDesignPrompt switches to repair continuation mode when prior generated files are provided', () => {
@@ -676,6 +741,7 @@ test('runFpgaArchitectStressLoop feeds back only prior failures from the same de
   assert.match(seenPrompts[1]?.prompt || '', /resize_on_raw_std_logic_vector/);
   assert.doesNotMatch(seenPrompts[2]?.prompt || '', /resize_on_raw_std_logic_vector/);
   assert.doesNotMatch(seenPrompts[2]?.prompt || '', /## Prior Failure Feedback/);
+  assert.doesNotMatch(seenPrompts[2]?.prompt || '', /## Model Quality Scoreboard Guidance/);
   assert.match(seenPrompts[3]?.prompt || '', /architecture_body_variable/);
 });
 
@@ -729,6 +795,135 @@ test('runFpgaArchitectStressLoop prefers validator failure details and deduplica
   assert.match(seenPrompts[1] || '', /Seen: 1 prior attempt\(s\)/);
   assert.match(seenPrompts[2] || '', /Seen: 2 prior attempt\(s\)/);
   assert.doesNotMatch(seenPrompts[1] || '', /resize_on_raw_std_logic_vector/);
+});
+
+test('runFpgaArchitectStressLoop records model quality failures and injects them into later attempts', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-model-quality-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  const structuredFailure = Object.assign(
+    new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"'),
+    {
+      generatedVhdlValidation: {
+        ok: false,
+        stage: 'prevalidate' as const,
+        summary: 'resize called on an untyped std_logic_vector operand.',
+        logs: [],
+        validatedTopEntities: [],
+        failureCode: 'resize_on_raw_std_logic_vector',
+        failureCategory: 'numeric_std_typing',
+        ruleIds: ['ghdl-no-raw-slv-arithmetic'],
+        failureDetails: [
+          {
+            code: 'resize_on_raw_std_logic_vector',
+            category: 'numeric_std_typing',
+            ruleId: 'ghdl-no-raw-slv-arithmetic',
+            ruleIds: ['ghdl-no-raw-slv-arithmetic'],
+            message: 'src/alu.vhd:39:28: resize called on raw std_logic_vector operand.',
+            excerpt: 'res_val := resize(a, DATA_WIDTH);',
+            relativePath: 'src/alu.vhd',
+          },
+        ],
+      },
+    },
+  );
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      if (runCount === 1) {
+        throw structuredFailure;
+      }
+      return {
+        validation: { summary: `Generated VHDL passed GHDL simulation for ${params.normalizedProjectPath}.` },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.doesNotMatch(seenPrompts[0] || '', /## Model Quality Scoreboard Guidance/);
+  assert.match(seenPrompts[1] || '', /## Model Quality Scoreboard Guidance/);
+  assert.match(seenPrompts[1] || '', /numeric_std Typing/);
+  assert.match(seenPrompts[1] || '', /ghdl-no-raw-slv-arithmetic/);
+  assert.equal(result.failures, 1);
+  assert.equal(result.successes, 1);
+
+  const scoreboardRaw = await fs.readFile(result.modelQualityScoreboardPath, 'utf8');
+  const scoreboard = JSON.parse(scoreboardRaw);
+  const entry = Object.values(scoreboard.models)[0] as any;
+  assert.equal(entry.provider, 'ollama');
+  assert.equal(entry.model, 'gemma4:latest');
+  assert.equal(entry.macroId, 'fpga_vhdl_architect');
+  assert.equal(entry.attempts, 2);
+  assert.equal(entry.successes, 1);
+  assert.equal(entry.codeQualityFailures, 1);
+  assert.equal(entry.designs.alpha.attempts, 2);
+  assert.equal(entry.designs.alpha.codeQualityFailures, 1);
+});
+
+test('runFpgaArchitectStressLoop keeps first design attempts free of prior model-quality guidance', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-model-quality-clean-first-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design'), createTestPreset('beta', 'Beta Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      if (runCount === 1) {
+        throw Object.assign(
+          new Error('Core logic simulation analysis failed: src/alu.vhd:39:28:error: no overloaded function found matching "resize"'),
+          {
+            generatedVhdlValidation: {
+              ok: false,
+              stage: 'prevalidate' as const,
+              summary: 'resize called on raw std_logic_vector operand.',
+              logs: [],
+              validatedTopEntities: [],
+              failureCode: 'resize_on_raw_std_logic_vector',
+              failureCategory: 'numeric_std_type_discipline',
+              failureDetails: [
+                {
+                  code: 'resize_on_raw_std_logic_vector',
+                  category: 'numeric_std_type_discipline',
+                  ruleId: 'ghdl-no-raw-slv-arithmetic',
+                  ruleIds: ['ghdl-no-raw-slv-arithmetic'],
+                  message: 'src/alu.vhd:39:28: resize called on raw std_logic_vector operand.',
+                  relativePath: 'src/alu.vhd',
+                  lineHint: 39,
+                },
+              ],
+            },
+          },
+        );
+      }
+      return {
+        validation: { summary: `Generated VHDL passed GHDL simulation for ${params.normalizedProjectPath}.` },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 4);
+  assert.doesNotMatch(seenPrompts[0] || '', /## Model Quality Scoreboard Guidance/);
+  assert.match(seenPrompts[1] || '', /## Model Quality Scoreboard Guidance/);
+  assert.doesNotMatch(seenPrompts[2] || '', /## Model Quality Scoreboard Guidance/);
+  assert.doesNotMatch(seenPrompts[2] || '', /resize_on_raw_std_logic_vector/);
 });
 
 test('runFpgaArchitectStressLoop appends newly introduced failure classes to the next attempt feedback', async () => {
@@ -848,6 +1043,107 @@ test('runFpgaArchitectStressLoop carries failed generated files into the next at
   assert.match(seenPrompts[1] || '', /entity alu is end entity;/);
 });
 
+test('runFpgaArchitectStressLoop enriches CPU halt simulation failures with TB stimulus and CPU RTL context', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-cpu-behavior-context-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('mini-cpu', 'Mini CPU Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+
+      const tbPath = path.join(params.normalizedProjectPath, 'tb', 'tb_cpu_top.vhd');
+      const decoderPath = path.join(params.normalizedProjectPath, 'src', 'decoder.vhd');
+      const controlPath = path.join(params.normalizedProjectPath, 'src', 'control_fsm.vhd');
+      const docsPath = path.join(params.normalizedProjectPath, 'docs', 'notes.md');
+      await fs.mkdir(path.dirname(tbPath), { recursive: true });
+      await fs.mkdir(path.dirname(decoderPath), { recursive: true });
+      await fs.mkdir(path.dirname(controlPath), { recursive: true });
+      await fs.mkdir(path.dirname(docsPath), { recursive: true });
+      await fs.writeFile(
+        tbPath,
+        [
+          'entity tb_cpu_top is end entity;',
+          'architecture sim of tb_cpu_top is',
+          '  signal clk : std_logic := \'0\';',
+          '  signal rst : std_logic := \'1\';',
+          '  signal instr_data : std_logic_vector(7 downto 0);',
+          'begin',
+          '  stimulus : process',
+          '  begin',
+          '    rst <= \'1\';',
+          '    wait for 20 ns;',
+          '    rst <= \'0\';',
+          ...Array.from({ length: 70 }, (_, index) => `    -- filler ${index + 1}`),
+          '    instr_data <= "00000000"; wait until rising_edge(clk);',
+          '    instr_data <= "11111111"; wait until rising_edge(clk);',
+          '    report "FAIL halt_cycle_1" severity error;',
+          '    wait;',
+          '  end process;',
+          'end architecture;',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+      await fs.writeFile(decoderPath, 'entity decoder is end entity;\narchitecture rtl of decoder is begin end architecture;\n', 'utf8');
+      await fs.writeFile(controlPath, 'entity control_fsm is end entity;\narchitecture rtl of control_fsm is begin end architecture;\n', 'utf8');
+      await fs.writeFile(docsPath, '# unrelated notes\n'.repeat(100), 'utf8');
+
+      if (runCount === 1) {
+        const error = new Error(`${tbPath}:84:5:@206ns:(report error): FAIL halt_cycle_1`);
+        (error as any).generatedVhdlValidation = {
+          ok: false,
+          stage: 'simulate',
+          summary: 'Generated VHDL failed GHDL simulation for tb_cpu_top.',
+          logs: [],
+          validatedTopEntities: ['tb_cpu_top'],
+          failureCode: 'cpu_halt_behavior_mismatch',
+          failureCategory: 'simulation_success',
+          failureDetails: [{
+            code: 'cpu_halt_behavior_mismatch',
+            category: 'simulation_success',
+            message: 'tb/tb_cpu_top.vhd:84: assertion failed at 206ns: FAIL halt_cycle_1',
+            excerpt: 'FAIL halt_cycle_1',
+            relativePath: 'tb/tb_cpu_top.vhd',
+            lineHint: 84,
+            forbiddenConstruct: 'self-checking assertion/report failure at 206ns: FAIL halt_cycle_1',
+            legalReplacementPattern: 'repair the CPU decoder/control/TB timing contract so the halt-cycle expectation is true at 206ns; do not delete, weaken, skip, rename, or silence the assertion',
+            assertionLabel: 'halt_cycle_1',
+            simulationTime: '206ns',
+            expectedBehavior: 'CPU halt/control behavior must match the self-checking halt-cycle expectation at the reported simulation time.',
+            relatedSourcePaths: ['src/decoder.vhd', 'src/control_fsm.vhd', 'src/cpu_top.vhd'],
+          }],
+        };
+        throw error;
+      }
+
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation for tb_cpu_top.' },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.match(seenPrompts[1] || '', /cpu_halt_behavior_mismatch/);
+  assert.match(seenPrompts[1] || '', /### tb\/tb_cpu_top\.vhd/);
+  assert.match(seenPrompts[1] || '', /AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus/);
+  assert.match(seenPrompts[1] || '', /instr_data <= "11111111"/);
+  assert.match(seenPrompts[1] || '', /### src\/decoder\.vhd/);
+  assert.match(seenPrompts[1] || '', /### src\/control_fsm\.vhd/);
+  assert.doesNotMatch(seenPrompts[1] || '', /### docs\/notes\.md/);
+
+  const masterLog = await fs.readFile(path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.log'), 'utf8');
+  assert.match(masterLog, /Behavioral context: failing TB window included=yes instruction sequence found=yes CPU RTL files included=/);
+});
+
 test('runFpgaArchitectStressLoop narrows repair continuation to file paths extracted from raw failure text', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-raw-path-continuation-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -894,6 +1190,48 @@ test('runFpgaArchitectStressLoop narrows repair continuation to file paths extra
   assert.match(seenPrompts[1] || '', /Legal replacement pattern: convert the operand into unsigned\(\.\.\.\) or signed\(\.\.\.\) first, then call resize on the typed value/);
   assert.doesNotMatch(seenPrompts[1] || '', /### alpha\/tb\/alu_tb\.vhd/);
   assert.doesNotMatch(seenPrompts[1] || '', /### alpha\/docs\/notes\.md/);
+});
+
+test('runFpgaArchitectStressLoop narrows poisoned repeated repair continuations to tight line windows', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-poisoned-repair-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  const makeLargeFile = () => Array.from({ length: 150 }, (_, index) => {
+    const line = index + 1;
+    if (line === 80) return 'res_val := resize(a, DATA_WIDTH); -- FAIL_LINE';
+    if (line === 120) return '-- MARKER_ONLY_IN_WIDE_WINDOW';
+    return `-- filler ${line}`;
+  }).join('\n');
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+      const generatedPath = path.join(params.normalizedProjectPath, 'src', 'alu.vhd');
+      await fs.mkdir(path.dirname(generatedPath), { recursive: true });
+      await fs.writeFile(generatedPath, makeLargeFile(), 'utf8');
+      throw new Error(`Core logic simulation analysis failed: ${generatedPath}:80:28:error: no overloaded function found matching "resize"`);
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 3,
+  });
+
+  assert.equal(seenPrompts.length, 3);
+  assert.match(seenPrompts[1] || '', /MARKER_ONLY_IN_WIDE_WINDOW/);
+  assert.doesNotMatch(seenPrompts[2] || '', /MARKER_ONLY_IN_WIDE_WINDOW/);
+
+  const masterLog = await fs.readFile(path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.log'), 'utf8');
+  assert.match(masterLog, /Context mode: clean generation/);
+  assert.match(masterLog, /Context mode: repair continuation/);
+  assert.match(masterLog, /Design-specific feedback packets:/);
+  assert.match(masterLog, /Model-quality feedback packets:/);
+  assert.match(masterLog, /Continuation file count:/);
+  assert.match(masterLog, /Poisoned repair continuation: yes/);
 });
 
 test('summarizeFpgaArchitectLoopFailures groups newer validator classes into explicit root-cause families', () => {

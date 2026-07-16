@@ -1,6 +1,7 @@
 import type { AiMacroId } from '../aiMacros';
 import {
   buildCodeGeneratingCommandContract,
+  buildCanonicalRuleActionabilitySection,
   buildGhdlRuleCoverageReport,
   GHDL_EXTERNAL_RULE_REGISTRY,
   getCanonicalRuleIdsForFailureCode,
@@ -25,13 +26,21 @@ import {
   VHDL_OPERATOR_KEYWORDS,
   VHDL_RESERVED_IDENTIFIERS,
 } from './ghdlStrictVhdlRules';
+import { buildGenerationQualityPromptSection } from './vhdlGenerationQuality';
+import { buildLegalIdiomPromptSection } from './vhdlLegalIdioms';
 
 export * from './ghdlRuleCoverage';
 export * from './ghdlStrictVhdlRules';
+export * from './vhdlGenerationQuality';
+export * from './vhdlLegalIdioms';
+export * from './fpgaArchitectureBlueprint';
 
 export type SharedCodeMacroRuleBundle = {
   strictRuleSection: string;
   commandContractSection: string;
+  legalIdiomSection: string;
+  generationQualitySection: string;
+  canonicalRuleContractSection: string;
   applicableCanonicalRules: CanonicalGhdlRule[];
 };
 
@@ -43,10 +52,21 @@ export function getCanonicalRulesForMacro(macroId: AiMacroId) {
   return GHDL_EXTERNAL_RULE_REGISTRY.filter((rule) => ruleAppliesToMacro(rule, macroId));
 }
 
-export function buildSharedCodeMacroRuleBundle(macroId: AiMacroId): SharedCodeMacroRuleBundle {
+export function buildSharedCodeMacroRuleBundle(macroId: AiMacroId, params?: {
+  promptText?: string;
+}): SharedCodeMacroRuleBundle {
   return {
     strictRuleSection: buildCodeGeneratingMacroRuleSection(macroId),
     commandContractSection: buildCodeGeneratingCommandContractSection(macroId),
+    legalIdiomSection: buildLegalIdiomPromptSection(macroId),
+    generationQualitySection: buildGenerationQualityPromptSection(macroId, {
+      promptText: params?.promptText,
+    }),
+    canonicalRuleContractSection: buildCanonicalRuleActionabilitySection({
+      macroId,
+      maxRules: 8,
+      heading: 'Canonical GHDL Rule Contracts',
+    }),
     applicableCanonicalRules: getCanonicalRulesForMacro(macroId),
   };
 }

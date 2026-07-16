@@ -611,6 +611,47 @@ test('deterministic fixer splits subprogram bodies out of package declarations',
   assert.match(result.repairedFiles[0].content, /package body alu_pkg is[\s\S]*function op_name return string is[\s\S]*return "ADD";[\s\S]*end function;[\s\S]*end package body alu_pkg;/i);
 });
 
+test('deterministic fixer repairs package declarations accidentally closed as package bodies', async () => {
+  const file = await createRepairableFile(
+    'src/uart_spi_bridge_pkg.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'package uart_spi_bridge_pkg is',
+      '  constant BYTE_WIDTH : natural := 8;',
+      '  subtype byte_t is unsigned(BYTE_WIDTH - 1 downto 0);',
+      '  function to_byte(val : natural) return byte_t is',
+      '  begin',
+      '    return to_unsigned(val, BYTE_WIDTH);',
+      '  end function;',
+      'end package body;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'subprogram_body_inside_package_declaration',
+      category: 'package_type_definition',
+      message: 'src/uart_spi_bridge_pkg.vhd: places a subprogram body inside package declaration "uart_spi_bridge_pkg".',
+      excerpt: 'subprogram body inside package declaration "uart_spi_bridge_pkg"',
+      relativePath: 'src/uart_spi_bridge_pkg.vhd',
+      forbiddenConstruct: 'subprogram body inside package uart_spi_bridge_pkg declaration',
+      legalReplacementPattern: 'keep signature in package and move body into package body',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('subprogram_body_inside_package_declaration'));
+  assert.match(next, /package uart_spi_bridge_pkg is[\s\S]*function to_byte\(val : natural\) return byte_t;[\s\S]*end package uart_spi_bridge_pkg;/i);
+  assert.match(next, /package body uart_spi_bridge_pkg is[\s\S]*function to_byte\(val : natural\) return byte_t is[\s\S]*return to_unsigned\(val, BYTE_WIDTH\);[\s\S]*end function;[\s\S]*end package body uart_spi_bridge_pkg;/i);
+  assert.doesNotMatch(next, /package uart_spi_bridge_pkg is[\s\S]*end package body;/i);
+});
+
 test('deterministic fixer splits package-declaration subprogram bodies with constrained return types', async () => {
   const file = await createRepairableFile(
     'src/vector_pkg.vhd',
@@ -1803,6 +1844,80 @@ test('deterministic fixer wraps source-level typed port-map mismatch actuals bef
   assert.match(repair.repairedFiles[0].content, /\bsample_o\s*=>\s*signed\(std_logic_vector\(fir_sample\)\)/i);
 });
 
+test('deterministic fixer removes safe output-port type conversion associations', async () => {
+  const file = await createRepairableFile(
+    'src/top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity top is end entity;',
+      'architecture rtl of top is',
+      '  signal pc_addr_sig : std_logic_vector(7 downto 0);',
+      'begin',
+      '  u_pc : entity work.pc',
+      '    port map (',
+      '      pc_out => unsigned(pc_addr_sig)',
+      '    );',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const repair = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'out_port_actual_conversion',
+      category: 'interface_generic_port_syntax',
+      message: 'src/top.vhd: maps output port "pc_out" through conversion expression "unsigned(pc_addr_sig)".',
+      excerpt: 'pc_out => unsigned(pc_addr_sig)',
+      relativePath: 'src/top.vhd',
+      forbiddenConstruct: 'output port association "pc_out => unsigned(pc_addr_sig)"',
+      legalReplacementPattern: 'connect "pc_out" to a correctly typed internal signal',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.match(repair.repairedFiles[0].content, /\bpc_out\s*=>\s*pc_addr_sig\b/i);
+  assert.doesNotMatch(repair.repairedFiles[0].content, /\bpc_out\s*=>\s*unsigned\(pc_addr_sig\)/i);
+});
+
+test('deterministic fixer does not unsafe-wrap custom record type port mismatches', async () => {
+  const file = await createRepairableFile(
+    'src/top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use work.cpu_pkg.all;',
+      '',
+      'entity top is end entity;',
+      'architecture rtl of top is',
+      '  signal instr_bits : std_logic_vector(15 downto 0);',
+      'begin',
+      '  u_dec : entity work.decoder',
+      '    port map (instr_i => instr_bits);',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const repair = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'custom_type_port_association_mismatch',
+      category: 'package_type_definition',
+      message: 'src/top.vhd: connects std_logic_vector expression "instr_bits" to custom typed formal port "instr_i" (instr_t).',
+      excerpt: 'instr_i => instr_bits',
+      relativePath: 'src/top.vhd',
+      forbiddenConstruct: 'std_logic_vector actual "instr_bits" passed to custom instr_t formal port "instr_i"',
+      legalReplacementPattern: 'declare or reuse an internal signal of type instr_t',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(repair.changed, false);
+  assert.equal(repair.repairedFiles[0].content, file.content);
+});
+
 test('deterministic fixer repairs a combined testbench declaration-scope cluster in one pass', async () => {
   const file = await createRepairableFile(
     'tb/router_tb.vhd',
@@ -2102,6 +2217,486 @@ test('deterministic fixer canonicalizes malformed helper formals and removes unc
   assert.match(next, /report "FAIL" severity error;/i);
 });
 
+test('deterministic fixer collapses repeated helper repair artifacts into one legal formal', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_axi_stream_switch.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_axi_stream_switch is',
+      'end entity;',
+      '',
+      'architecture sim of tb_axi_stream_switch is',
+      '  signal failed : std_logic := \'0\';',
+      'begin',
+      '  stimulus : process',
+      '    procedure check_eq(',
+      '      constant label_text : in string;',
+      '      constant got : in std_logic_vector;',
+      '      constant expected : in std_logic_vector;',
+      '      shared variable failed_io : inout inout boolean;',
+      '      variable failed_io_io : inout inout inout boolean',
+      '    ) is) is',
+      '    begin',
+      '      if got /= expected then',
+      '        failed <= \'1\';',
+      '      end if;',
+      '    end procedure;',
+      '  begin',
+      '    check_eq("x", "0", "1");',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation(
+      {
+        code: 'invalid_subprogram_formal_syntax',
+        category: 'interface_generic_port_syntax',
+        message: 'tb/tb_axi_stream_switch.vhd: helper procedure "check_eq" declares malformed formal clause.',
+        excerpt: 'shared variable failed_io : inout inout boolean',
+        relativePath: 'tb/tb_axi_stream_switch.vhd',
+        forbiddenConstruct: 'procedure "check_eq" declares malformed formal clause "shared variable failed_io : inout inout boolean"',
+        legalReplacementPattern: 'rewrite malformed helper formals into canonical VHDL formal syntax',
+      },
+      {
+        code: 'procedure_outer_scope_write',
+        category: 'declaration_scope',
+        message: 'tb/tb_axi_stream_switch.vhd: procedure "check_eq" assigns to outer-scope object "failed".',
+        excerpt: 'failed <= \'1\';',
+        relativePath: 'tb/tb_axi_stream_switch.vhd',
+        forbiddenConstruct: 'procedure "check_eq" mutates outer-scope object "failed"',
+        legalReplacementPattern: 'pass "failed" as an explicit signal formal and write that formal inside the helper',
+      },
+    ),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('invalid_subprogram_formal_syntax'));
+  assert.ok(result.appliedCodes.includes('procedure_outer_scope_write'));
+  assert.match(next, /procedure check_eq\(\s*constant label_text : in string;\s*constant got : in std_logic_vector;\s*constant expected : in std_logic_vector;\s*signal failed_io : out std_logic\s*\) is/i);
+  assert.match(next, /\bfailed_io\s*<=\s*'1';/i);
+  assert.match(next, /check_eq\("x", "0", "1", failed\);/i);
+  assert.doesNotMatch(next, /\bshared\s+variable\b/i);
+  assert.doesNotMatch(next, /\binout\s+inout\b/i);
+  assert.doesNotMatch(next, /\bis\s*\)\s*is\b/i);
+  assert.equal((next.match(/\bfailed_io(?:_io)*\b/g) || []).filter((name) => /failed_io/.test(name)).length <= 3, true);
+});
+
+test('deterministic fixer collapses poisoned helper artifacts back to the real testbench status object', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_uart_spi_bridge.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_uart_spi_bridge is',
+      'end entity;',
+      '',
+      'architecture sim of tb_uart_spi_bridge is',
+      "  signal tb_failed : boolean := false;",
+      "  signal busy_o : std_logic := '0';",
+      'begin',
+      '  stimulus : process',
+      '    variable failed_io   : inout boolean;',
+      '    procedure check_eq(constant label_text : in string; constant got : in std_logic; constant expected : in std_logic; shared variable failed_io_io : inout inout boolean; variable failed_io_io_io : inout inout inout boolean) is) is',
+      '    begin',
+      '      if got /= expected then',
+      '        failed_io_io_io := true;',
+      '        report "FAIL " & label_text severity error;',
+      '      end if;',
+      '    end procedure;',
+      '  begin',
+      '    check_eq("BUSY_LOW", busy_o, \'0\', tb_failed, failed_io, failed_io_io);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'architecture_body_variable',
+      category: 'declaration_scope',
+      message: 'tb/tb_uart_spi_bridge.vhd: declares plain architecture-body variable "failed_io".',
+      excerpt: 'plain architecture-body variable "failed_io"',
+      relativePath: 'tb/tb_uart_spi_bridge.vhd',
+      forbiddenConstruct: 'plain architecture-body variable "failed_io" (testbench_bookkeeping)',
+      legalReplacementPattern: 'replace "failed_io" with a signal for sampled state, or use a shared variable only for deliberate shared testbench bookkeeping',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('poisoned_helper_repair_artifacts'));
+  assert.match(next, /procedure check_eq\(\s*constant label_text : in string;\s*constant got : in std_logic;\s*constant expected : in std_logic;\s*signal tb_failed_io : out boolean\s*\) is/i);
+  assert.match(next, /\btb_failed_io\s*<=\s*true;/i);
+  assert.match(next, /check_eq\("BUSY_LOW", busy_o, '0', tb_failed\);/i);
+  assert.doesNotMatch(next, /\bfailed_io\b/i);
+  assert.doesNotMatch(next, /\binout\s+inout\b/i);
+  assert.doesNotMatch(next, /\bis\s*\)\s*is\b/i);
+});
+
+test('deterministic fixer repairs malformed one-bit character literals without touching valid literals', async () => {
+  const file = await createRepairableFile(
+    'src/alu.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity alu is end entity;',
+      'architecture rtl of alu is',
+      'begin',
+      '  process(all)',
+      '    variable res_u : unsigned(7 downto 0);',
+      '    variable bit_v : std_logic;',
+      '  begin',
+      "    res_u := (others => '0);",
+      "    bit_v := '1;",
+      "    report \"keep text '0) unchanged\";",
+      "    -- keep comment '1) unchanged",
+      "    bit_v := '0';",
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'malformed_character_literal',
+      category: 'width_literal_mismatch',
+      message: 'src/alu.vhd:12: contains malformed one-bit character literal.',
+      excerpt: "res_u := (others => '0);",
+      relativePath: 'src/alu.vhd',
+      lineHint: 12,
+      forbiddenConstruct: 'malformed one-bit character literal "\'0"',
+      legalReplacementPattern: 'replace "\'0" with "\'0\'" in the same expression',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('malformed_character_literal'));
+  assert.match(next, /res_u\s*:=\s*\(others\s*=>\s*'0'\);/i);
+  assert.match(next, /bit_v\s*:=\s*'1';/i);
+  assert.match(next, /"keep text '0\) unchanged"/i);
+  assert.match(next, /-- keep comment '1\) unchanged/i);
+  assert.match(next, /bit_v\s*:=\s*'0';/i);
+});
+
+test('deterministic fixer rebuilds incomplete check_eq helper from call shape', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_cpu_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_cpu_top is end entity;',
+      'architecture sim of tb_cpu_top is',
+      '  subtype data_t is std_logic_vector(7 downto 0);',
+      'begin',
+      '  stimulus : process',
+      '    variable failed : boolean := false;',
+      '    variable dbg : data_t := (others => \'0\');',
+      '    procedure check_eq(',
+      '      constant label_text : in string;',
+      '      constant got         : in data_t;',
+      '      constant expected    : in data_t;',
+      '    report "FAIL " & label_text severity error;',
+      '    if got /= expected then',
+      '      failed := true;',
+      '    end if;',
+      '    end procedure check_eq;',
+      '  begin',
+      '    check_eq("Reset fetch", dbg, data_t\'(x"00"), failed);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'incomplete_subprogram_interface',
+      category: 'interface_generic_port_syntax',
+      message: 'tb/tb_cpu_top.vhd:15: procedure "check_eq" has executable token "report" before the formal parameter list is closed.',
+      excerpt: 'report "FAIL " & label_text severity error;',
+      relativePath: 'tb/tb_cpu_top.vhd',
+      lineHint: 15,
+      forbiddenConstruct: 'procedure "check_eq" executable token "report" before ") is"',
+      legalReplacementPattern: 'replace "check_eq" with a complete canonical self-checking helper',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('incomplete_subprogram_interface'));
+  assert.match(next, /procedure check_eq\(\s*constant label_text : in string;\s*constant got : in data_t;\s*constant expected : in data_t;\s*variable failed_io : inout boolean\s*\) is/i);
+  assert.match(next, /\bfailed_io\s*:=\s*true;/i);
+  assert.match(next, /check_eq\("Reset fetch", dbg, data_t'\(x"00"\), failed\);/i);
+  assert.doesNotMatch(next, /procedure check_eq\([\s\S]*report "FAIL"[\s\S]*\) is/i);
+});
+
+test('deterministic fixer rebuilds generic incomplete check helper from call shape', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_video_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_video_top is end entity;',
+      'architecture sim of tb_video_top is',
+      'begin',
+      '  stimulus : process',
+      '    signal hsync_o : std_logic;',
+      '    variable failed : boolean := false;',
+      '    procedure check_sync_timing(',
+      '      constant label_text : in string;',
+      '      constant got : in std_logic;',
+      '    report "FAIL " & label_text & ": HSYNC not low" severity error;',
+      '    end procedure check_sync_timing;',
+      '  begin',
+      '    check_sync_timing("HSYNC low", hsync_o, \'0\', failed);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'incomplete_subprogram_interface',
+      category: 'interface_generic_port_syntax',
+      message: 'tb/tb_video_top.vhd:13: procedure "check_sync_timing" has executable token "report" before the formal parameter list is closed.',
+      excerpt: 'report "FAIL " & label_text & ": HSYNC not low" severity error;',
+      relativePath: 'tb/tb_video_top.vhd',
+      lineHint: 13,
+      forbiddenConstruct: 'procedure "check_sync_timing" executable token "report" before ") is"',
+      legalReplacementPattern: 'replace "check_sync_timing" with a complete canonical self-checking helper',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('incomplete_subprogram_interface'));
+  assert.match(next, /procedure check_sync_timing\(\s*constant label_text : in string;\s*constant got : in std_logic;\s*constant expected : in std_logic;\s*variable failed_io : inout boolean\s*\) is/i);
+  assert.match(next, /if got \/= expected then/i);
+  assert.match(next, /failed_io\s*:=\s*true;/i);
+  assert.doesNotMatch(next, /procedure check_sync_timing\([\s\S]*report "FAIL"[\s\S]*\) is/i);
+});
+
+test('deterministic fixer rebuilds architecture-level malformed check helpers after cleanup passes', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_video_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_video_top is end entity;',
+      'architecture sim of tb_video_top is',
+      '  signal pix_r_s : unsigned(7 downto 0);',
+      '',
+      '  procedure check_sl(constant label_text : in string; constant got : in std_logic; constant expected : in std_logic; variable failed_io : inout boolean) is',
+      '  begin',
+      '    if got /= expected then',
+      '      failed_io := true;',
+      '      report "FAIL " & label_text severity error;',
+      '    end if;',
+      '  end procedure check_sl;',
+      '',
+      '  procedure check_vec(',
+      '  constant label_text : in string;',
+      '  constant got : in unsigned;',
+      '  constant expected : in unsigned;',
+      'report "FAIL " & label_text severity error;',
+      '  end if;',
+      'end procedure check_vec;',
+      '',
+      'begin',
+      '  stimulus : process',
+      '    variable failed : boolean := false;',
+      '  begin',
+      '    check_vec("PIXEL_R", pix_r_s, to_unsigned(255, 8), failed);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'incomplete_subprogram_interface',
+      category: 'interface_generic_port_syntax',
+      message: 'tb/tb_video_top.vhd:13: procedure "check_vec" has executable token "report" before the formal parameter list is closed.',
+      excerpt: 'report "FAIL " & label_text severity error;',
+      relativePath: 'tb/tb_video_top.vhd',
+      lineHint: 13,
+      forbiddenConstruct: 'procedure "check_vec" executable token "report" before ") is"',
+      legalReplacementPattern: 'close the formal parameter list with ") is" before any report/if/wait/assert/assignment/process statements',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(
+    result.appliedCodes.includes('incomplete_subprogram_interface')
+    || result.appliedCodes.includes('malformed_check_helper_block'),
+  );
+  assert.match(next, /procedure check_vec\(\s*constant label_text : in string;\s*constant got : in unsigned;\s*constant expected : in unsigned;\s*variable failed_io : inout boolean\s*\) is/i);
+  assert.match(next, /if got \/= expected then/i);
+  assert.match(next, /failed_io\s*:=\s*true;/i);
+  assert.match(next, /check_vec\("PIXEL_R", pix_r_s, to_unsigned\(255, 8\), failed\);/i);
+  assert.doesNotMatch(next, /procedure check_vec\([\s\S]*report "FAIL"[\s\S]*\) is/i);
+});
+
+test('deterministic fixer repairs illegal others aggregate comparisons', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_dsp_chain.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_dsp_chain is end entity;',
+      'architecture sim of tb_dsp_chain is',
+      '  signal out_o : std_logic_vector(7 downto 0);',
+      'begin',
+      '  process begin',
+      "    if out_o = (others => '0') then",
+      '      null;',
+      '    end if;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'illegal_others_aggregate_context',
+      category: 'width_literal_mismatch',
+      message: 'tb/tb_dsp_chain.vhd:9: compares out_o with aggregate.',
+      excerpt: "if out_o = (others => '0') then",
+      relativePath: 'tb/tb_dsp_chain.vhd',
+      lineHint: 9,
+      forbiddenConstruct: "out_o = (others => '0')",
+      legalReplacementPattern: "replace with out_o = (out_o'range => '0')",
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('illegal_others_aggregate_context'));
+  assert.match(next, /if out_o = \(out_o'range => '0'\) then/i);
+});
+
+test('deterministic fixer repairs package body signature drift and typed resize returns', async () => {
+  const file = await createRepairableFile(
+    'src/dsp_pkg_body.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      'use work.dsp_pkg.all;',
+      '',
+      'package body dsp_pkg is',
+      '  function calc_mag(input_val : signed(SAMPLE_WIDTH-1 downto 0)) return unsigned is',
+      '  begin',
+      '    return resize(input_val, SAMPLE_WIDTH);',
+      '  end function;',
+      'end package body;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'package_body_signature_mismatch',
+      category: 'package_type_definition',
+      message: 'src/dsp_pkg_body.vhd: package body function "calc_mag" does not match its package declaration signature.',
+      excerpt: 'function calc_mag(input_val : signed(SAMPLE_WIDTH-1 downto 0)) return unsigned is',
+      relativePath: 'src/dsp_pkg_body.vhd',
+      lineHint: 7,
+      forbiddenConstruct: 'function calc_mag(input_val : signed(SAMPLE_WIDTH-1 downto 0)) return unsigned',
+      legalReplacementPattern: 'replace body header with "function calc_mag(input_val : sample_t) return unsigned is"',
+    }, {
+      code: 'typed_resize_return_mismatch',
+      category: 'numeric_std_type_discipline',
+      message: 'src/dsp_pkg_body.vhd: function "calc_mag" returns unsigned but returns raw resize(...).',
+      excerpt: 'return resize(input_val, SAMPLE_WIDTH);',
+      relativePath: 'src/dsp_pkg_body.vhd',
+      lineHint: 9,
+      forbiddenConstruct: 'return resize(input_val, SAMPLE_WIDTH);',
+      legalReplacementPattern: 'replace with return unsigned(resize(input_val, SAMPLE_WIDTH));',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('package_body_signature_mismatch'));
+  assert.ok(result.appliedCodes.includes('typed_resize_return_mismatch'));
+  assert.match(next, /function calc_mag\(input_val : sample_t\) return unsigned is/i);
+  assert.match(next, /return unsigned\(resize\(input_val, SAMPLE_WIDTH\)\);/i);
+});
+
+test('deterministic fixer flattens comma-separated packed vector ports when dimensions are WIDTH-1 downto 0', async () => {
+  const file = await createRepairableFile(
+    'src/axi_stream_switch.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity axi_stream_switch is',
+      '  generic (G_NUM_PORTS : positive := 4; DATA_WIDTH : positive := 8);',
+      '  port (',
+      '    data_i : in std_logic_vector(G_NUM_PORTS-1 downto 0, DATA_WIDTH-1 downto 0)',
+      '  );',
+      'end entity;',
+      'architecture rtl of axi_stream_switch is begin end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'illegal_multidimensional_logic_vector',
+      category: 'array_subtype_misuse',
+      message: 'src/axi_stream_switch.vhd:7: declares illegal comma-separated packed vector form.',
+      excerpt: 'std_logic_vector(G_NUM_PORTS-1 downto 0, DATA_WIDTH-1 downto 0)',
+      relativePath: 'src/axi_stream_switch.vhd',
+      lineHint: 7,
+      forbiddenConstruct: 'std_logic_vector(G_NUM_PORTS-1 downto 0, DATA_WIDTH-1 downto 0)',
+      legalReplacementPattern: 'flatten the port',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('illegal_multidimensional_logic_vector'));
+  assert.match(next, /std_logic_vector\(\(G_NUM_PORTS \* DATA_WIDTH\) - 1 downto 0\)/i);
+});
+
 test('deterministic fixer converts clock-edge helper formals into signal inputs', async () => {
   const file = await createRepairableFile(
     'tb/tb_edge_helper.vhd',
@@ -2268,7 +2863,7 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
   ];
 
   const prompt = buildGeneratedCodeRepairPrompt({
-    originalPrompt: 'wrapped:system prompt\n\ncontract:repair me',
+    originalPrompt: 'wrapped:system prompt\n\ncontract:repair this 8-bit ALU project',
     macroId: 'fpga_vhdl_architect',
     macroLabel: 'FPGA Architect',
     availableFiles: files,
@@ -2288,6 +2883,7 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
           excerpt: 'if idx >= 0 and idx := 255 then',
           relativePath: 'src/alu.vhd',
           lineHint: 9,
+          ruleIds: ['ghdl-no-raw-slv-arithmetic'],
           forbiddenConstruct: 'condition "idx >= 0 and idx := 255" contains "idx := 255"',
           legalReplacementPattern: 'replace "idx := 255" with "idx <= 255"',
         },
@@ -2297,6 +2893,7 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
           message: 'tb/alu_tb.vhd: declares helper signal after begin.',
           excerpt: 'tb/alu_tb.vhd: declares helper signal after begin.',
           relativePath: 'tb/alu_tb.vhd',
+          ruleIds: ['ghdl-clocked-variable-discipline'],
           forbiddenConstruct: 'declaration after begin',
           legalReplacementPattern: 'hoist declarations into the declarative region before begin',
         },
@@ -2318,9 +2915,123 @@ test('generated code repair prompt includes file-scoped repair guidance and shar
   assert.match(prompt, /File-scoped repair plan:/);
   assert.match(prompt, /### src\/alu\.vhd[\s\S]*Return one full replacement for this file that resolves every listed class below in the same pass\./);
   assert.match(prompt, /### tb\/alu_tb\.vhd[\s\S]*hoist declarations into the declarative region before begin/i);
+  assert.match(prompt, /## Known-good repair idioms to copy/);
+  assert.match(prompt, /Self-checking TB helper procedure formals/);
+  assert.match(prompt, /## Canonical rule contracts for this repair/);
+  assert.match(prompt, /ghdl-clocked-variable-discipline/);
+  assert.match(prompt, /ghdl-no-raw-slv-arithmetic/);
+  assert.match(prompt, /Repair strategy: repair declaration placement and mutable state ownership as a bundled file-local scope fix/);
+  assert.match(prompt, /## Structure-First Generation Contract/);
+  assert.match(prompt, /## App-Owned Skeleton-First Contract/);
+  assert.match(prompt, /## File-By-File Generation Order/);
+  assert.match(prompt, /## Behavioral Reference Model Contract/);
+  assert.match(prompt, /Reference design class: alu/);
+  assert.match(prompt, /Compute expected result and flags in the testbench/);
+  assert.match(prompt, /## Semantic Preflight Checklist/);
+  assert.match(prompt, /## Strict File-Local Replacement Contract/);
+  assert.match(prompt, /## Repair Scope Control/);
+  assert.match(prompt, /Repair the smallest coherent file-local cluster/);
   assert.match(prompt, /## Strict GHDL \/ VHDL Rules/);
   assert.match(prompt, /Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code\./);
   assert.match(prompt, /Prefer minimal file-local repairs: preserve passing files, preserve names\/interfaces unless a listed failure requires change/);
   assert.match(prompt, /Do not insert meta-comments or repair annotations such as "REPAIRED", "FIXED", "CHANGED", "UPDATED"/);
   assert.match(prompt, /When fixing declarations after "begin", move the exact declaration or subprogram block intact into a legal declarative region\./);
+});
+
+test('generated code repair prompt truncates oversized target files while preserving issue packets', async () => {
+  const hugeBody = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity huge_tb is end entity;',
+    'architecture sim of huge_tb is',
+    'begin',
+    ...Array.from({ length: 1_200 }, (_, index) => `  -- filler ${index} ${'x'.repeat(40)}`),
+    'end architecture;',
+  ].join('\n');
+  const file = await createRepairableFile('tb/huge_tb.vhd', hugeBody);
+
+  const prompt = buildGeneratedCodeRepairPrompt({
+    originalPrompt: 'wrapped:system prompt',
+    macroId: 'fpga_vhdl_architect',
+    macroLabel: 'FPGA Architect',
+    availableFiles: [file],
+    validation: {
+      ok: false,
+      stage: 'prevalidate',
+      summary: 'Generated code failed validation.',
+      logs: ['tb/huge_tb.vhd: declaration after begin'],
+      validatedTopEntities: [],
+      failureCode: 'declaration_after_begin',
+      failureCategory: 'declaration_scope',
+      failureDetails: [
+        {
+          code: 'declaration_after_begin',
+          category: 'declaration_scope',
+          message: 'tb/huge_tb.vhd: declares helper procedure after begin.',
+          excerpt: 'procedure check_eq is',
+          relativePath: 'tb/huge_tb.vhd',
+          lineHint: 6,
+          ruleIds: ['ghdl-clocked-variable-discipline'],
+          forbiddenConstruct: 'procedure declaration after begin',
+          legalReplacementPattern: 'move the full procedure into the declarative region before begin',
+        },
+      ],
+    },
+  });
+
+  assert.match(prompt, /AUTOMATA_CONTEXT_TRUNCATED/);
+  assert.match(prompt, /### Issue 1: declaration_after_begin/);
+  assert.match(prompt, /Required local replacement: move the full procedure into the declarative region before begin/);
+  assert.match(prompt, /ghdl-clocked-variable-discipline/);
+});
+
+test('deterministic fixer normalizes two-formal wait_clk helper when every call passes one clock', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_bridge_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_bridge_top is',
+      'end entity;',
+      '',
+      'architecture sim of tb_bridge_top is',
+      '  signal clk_sig : std_logic := \'0\';',
+      '',
+      '  procedure wait_clk(signal clk_i : in std_logic; signal clk_sig_io : out std_logic) is',
+      '  begin',
+      '    wait until rising_edge(clk_i);',
+      '  end procedure wait_clk;',
+      '',
+      'begin',
+      '  stimulus : process',
+      '  begin',
+      '    wait_clk(clk_sig);',
+      '    wait_clk(clk_sig);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'subprogram_call_arity_mismatch',
+      category: 'interface_generic_port_syntax',
+      message: 'tb/tb_bridge_top.vhd:18: calls "wait_clk" with 1 actual argument(s), but its visible declaration expects 2 argument(s).',
+      excerpt: 'wait_clk(clk_sig);',
+      relativePath: 'tb/tb_bridge_top.vhd',
+      lineHint: 18,
+      forbiddenConstruct: 'call "wait_clk(clk_sig);" has 1 actual argument(s)',
+      legalReplacementPattern: 'make the "wait_clk" declaration and every call site agree on one exact formal/actual count; for wait_clk helpers prefer "procedure wait_clk(signal clk_i : in std_logic)" and calls "wait_clk(clk)"',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('subprogram_call_arity_mismatch'));
+  assert.match(result.repairedFiles[0].content, /procedure wait_clk\(signal clk_i : in std_logic\) is/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /clk_sig_io/i);
+  assert.match(result.repairedFiles[0].content, /wait_clk\(clk_sig\);/i);
 });

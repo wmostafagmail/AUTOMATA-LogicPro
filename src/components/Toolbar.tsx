@@ -1,12 +1,12 @@
 import React from 'react';
-import { 
-  ZoomIn, 
-  ZoomOut, 
-  RotateCcw, 
-  Download, 
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Download,
   FolderOpen,
-  Trash2, 
-  Sliders, 
+  Trash2,
+  Sliders,
   Sparkles,
   Play,
   RefreshCw,

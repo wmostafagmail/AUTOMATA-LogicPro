@@ -24,6 +24,12 @@ import {
   readFpgaArchitectSweepMeta,
   writeFpgaArchitectSweepMeta,
 } from './fpgaArchitectSweepRuntime';
+import {
+  buildModelQualityGuidanceSection,
+  readModelQualityScoreboard,
+  recordModelQualityAttempt,
+  writeModelQualityScoreboard,
+} from './modelQualityScoreboard';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -90,6 +96,7 @@ export type FpgaArchitectStressLoopDesignSummary = {
   completedAttempts: number;
   failures: number;
   providerRuntimeFailures: number;
+  contextBudgetFailures: number;
   codeQualityFailures: number;
   successes: number;
   results: RunLoopAttemptResult[];
@@ -109,10 +116,12 @@ export type FpgaArchitectStressLoopResult = {
   completedAttempts: number;
   failures: number;
   providerRuntimeFailures: number;
+  contextBudgetFailures: number;
   codeQualityFailures: number;
   successes: number;
   logFilePath: string;
   masterLogPath: string;
+  modelQualityScoreboardPath: string;
   runtimeFingerprint: string;
   staleSweepStateDiscarded: boolean;
   results: RunLoopAttemptResult[];
@@ -252,6 +261,24 @@ function getContinuationFence(kind: SweepContinuationFile['kind']) {
   }
 }
 
+const SWEEP_FEEDBACK_ITEM_CHAR_LIMIT = 800;
+const SWEEP_FEEDBACK_SECTION_CHAR_LIMIT = 3_000;
+const SWEEP_PROMPT_CHAR_BUDGET = 180_000;
+
+function compactOneLine(value: string | null | undefined, maxLength = SWEEP_FEEDBACK_ITEM_CHAR_LIMIT) {
+  const compact = (value || '').replace(/\s+/g, ' ').trim();
+  if (compact.length <= maxLength) return compact;
+  return `${compact.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
+function makeContextBudgetError(promptLength: number, budget: number) {
+  const error = new Error(
+    `FPGA Architect sweep prompt exceeded context budget before provider call: ${promptLength} characters > ${budget} characters.`,
+  ) as Error & { contextBudgetExceeded?: boolean };
+  error.contextBudgetExceeded = true;
+  return error;
+}
+
 function normalizeContinuationCandidatePath(outputRoot: string, candidatePath: string) {
   const trimmed = candidatePath.trim().replace(/^["'`]+|["'`]+$/g, '').replace(/\\/g, '/');
   if (!trimmed) {
@@ -310,6 +337,109 @@ function buildFocusedContinuationPathSet(
   return focused;
 }
 
+function extractContinuationLineHints(
+  outputRoot: string,
+  failureDetails: GeneratedVhdlFailureDetail[],
+  fallbackMessage = '',
+) {
+  const hints = new Map<string, number[]>();
+  const addHint = (relativePath: string | null, lineNumber: number | null | undefined) => {
+    if (!relativePath || typeof lineNumber !== 'number' || !Number.isFinite(lineNumber) || lineNumber < 1) {
+      return;
+    }
+    const normalizedPath = normalizeContinuationCandidatePath(outputRoot, relativePath);
+    if (!normalizedPath) return;
+    const existing = hints.get(normalizedPath) || [];
+    existing.push(Math.floor(lineNumber));
+    hints.set(normalizedPath, existing);
+  };
+
+  for (const detail of failureDetails) {
+    addHint(detail.relativePath || null, detail.lineHint || null);
+  }
+
+  const absolutePathPattern = /([A-Za-z0-9_./\\ -]+\.(?:vhd|vhdl|md|txt|sh|tcl|do|xdc)):(\d+)(?::\d+)?/g;
+  for (const match of fallbackMessage.matchAll(absolutePathPattern)) {
+    addHint(match[1], Number.parseInt(match[2], 10));
+  }
+
+  return hints;
+}
+
+function isCpuBehavioralFailureDetail(detail: GeneratedVhdlFailureDetail) {
+  return detail.code === 'cpu_halt_behavior_mismatch';
+}
+
+function hasCpuBehavioralFailure(failureDetails: GeneratedVhdlFailureDetail[]) {
+  return failureDetails.some(isCpuBehavioralFailureDetail);
+}
+
+function isCpuBehavioralRelatedPath(relativePath: string) {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  if (!/\.(?:vhd|vhdl)$/.test(normalized)) return false;
+  if (/\/tb\//.test(normalized) && /cpu|core|processor|risc|tb_/.test(normalized)) return true;
+  return /(^|\/)(cpu|cpu_top|cpu_pkg|decoder|control|control_fsm|program_counter|pc|alu|register_file|regfile|instruction|instr|rom|memory)[a-z0-9_-]*\.(?:vhd|vhdl)$/.test(normalized);
+}
+
+function scoreCpuBehavioralRelatedPath(relativePath: string) {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  if (/\/tb\//.test(normalized)) return 0;
+  if (/cpu_pkg|_pkg/.test(normalized)) return 1;
+  if (/decoder|control|control_fsm/.test(normalized)) return 2;
+  if (/cpu_top|core/.test(normalized)) return 3;
+  if (/program_counter|pc|alu|register_file|regfile/.test(normalized)) return 4;
+  return 5;
+}
+
+function collectCpuBehavioralStimulusLineHints(content: string) {
+  const hints: number[] = [];
+  const lines = content.split(/\r\n|\r|\n/);
+  lines.forEach((line, index) => {
+    if (
+      /\b(?:instr|instruction|opcode|program|rom)[a-zA-Z0-9_]*\s*<=/i.test(line)
+      || /\b(?:rst|reset)[a-zA-Z0-9_]*\s*<=/i.test(line)
+      || /\bwait\s+(?:for|until)\b/i.test(line)
+      || /\bcheck_[a-zA-Z0-9_]*\s*\(/i.test(line)
+      || /\bFAIL\s+halt/i.test(line)
+    ) {
+      hints.push(index + 1);
+    }
+  });
+  return hints;
+}
+
+function summarizeCpuBehavioralInstructionSequence(content: string) {
+  const sequence = content
+    .split(/\r\n|\r|\n/)
+    .map((line) => line.trim())
+    .filter((line) => /\b(?:instr|instruction|opcode)[a-zA-Z0-9_]*\s*<=/.test(line))
+    .slice(0, 12);
+  return sequence.length > 0 ? sequence : [];
+}
+
+function sliceContinuationLineWindows(content: string, lineNumbers: number[], radius = 45) {
+  if (lineNumbers.length === 0) {
+    return content;
+  }
+  const lines = content.split(/\r\n|\r|\n/);
+  const windows: Array<{ start: number; end: number }> = [];
+  for (const lineNumber of Array.from(new Set(lineNumbers)).sort((left, right) => left - right)) {
+    const start = Math.max(1, lineNumber - radius);
+    const end = Math.min(lines.length, lineNumber + radius);
+    const previous = windows[windows.length - 1];
+    if (previous && start <= previous.end + 1) {
+      previous.end = Math.max(previous.end, end);
+    } else {
+      windows.push({ start, end });
+    }
+  }
+
+  return windows.map((window) => [
+    `-- excerpt lines ${window.start}-${window.end}`,
+    ...lines.slice(window.start - 1, window.end),
+  ].join('\n')).join('\n\n-- ... omitted unrelated lines ...\n\n');
+}
+
 function continuationPathMatchesFocusedPath(relativePath: string, focusedPaths: Set<string>) {
   const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
   for (const focusedPath of focusedPaths) {
@@ -324,9 +454,13 @@ async function collectSweepContinuationFiles(
   outputRoot: string,
   failureDetails: GeneratedVhdlFailureDetail[] = [],
   fallbackMessage = '',
+  options: { poisonedRepair?: boolean } = {},
 ) {
   const discoveredPaths: string[] = [];
   const focusedPaths = buildFocusedContinuationPathSet(outputRoot, failureDetails, fallbackMessage);
+  const lineHints = extractContinuationLineHints(outputRoot, failureDetails, fallbackMessage);
+  const poisonedRepair = options.poisonedRepair === true;
+  const includeCpuBehavioralContext = hasCpuBehavioralFailure(failureDetails);
 
   const walk = async (currentPath: string) => {
     let entries;
@@ -355,13 +489,19 @@ async function collectSweepContinuationFiles(
   const prioritizedPaths = focusedPaths.size > 0
     ? discoveredPaths.filter((relativePath) => continuationPathMatchesFocusedPath(relativePath, focusedPaths))
     : discoveredPaths;
-  const candidatePaths = focusedPaths.size > 0
-    ? prioritizedPaths
-    : discoveredPaths;
+  const cpuBehavioralPaths = includeCpuBehavioralContext
+    ? discoveredPaths
+      .filter((relativePath) => !prioritizedPaths.includes(relativePath) && isCpuBehavioralRelatedPath(relativePath))
+      .sort((left, right) => scoreCpuBehavioralRelatedPath(left) - scoreCpuBehavioralRelatedPath(right))
+    : [];
+  const candidatePaths = Array.from(new Set([
+    ...(focusedPaths.size > 0 ? prioritizedPaths : discoveredPaths),
+    ...cpuBehavioralPaths,
+  ]));
   const isFocusedFallback = focusedPaths.size > 0;
-  const fileLimit = isFocusedFallback ? 4 : 10;
-  const perFileCharLimit = isFocusedFallback ? 6_000 : 10_000;
-  const totalCharLimit = isFocusedFallback ? 16_000 : 40_000;
+  const fileLimit = poisonedRepair ? 3 : includeCpuBehavioralContext ? 8 : (isFocusedFallback ? 4 : 10);
+  const perFileCharLimit = poisonedRepair ? 1_600 : includeCpuBehavioralContext ? 3_200 : (isFocusedFallback ? 3_000 : 6_000);
+  const totalCharLimit = poisonedRepair ? 4_000 : includeCpuBehavioralContext ? 14_000 : (isFocusedFallback ? 9_000 : 18_000);
 
   const files: SweepContinuationFile[] = [];
   let totalBytes = 0;
@@ -369,14 +509,36 @@ async function collectSweepContinuationFiles(
     const absolutePath = path.join(outputRoot, relativePath);
     try {
       const content = await fs.readFile(absolutePath, 'utf8');
-      const trimmed = content.slice(0, perFileCharLimit);
-      if (totalBytes + trimmed.length > totalCharLimit) {
+      const normalizedRelativePath = relativePath.replace(/\\/g, '/').toLowerCase();
+      const matchingHints = Array.from(lineHints.entries())
+        .filter(([hintPath]) => normalizedRelativePath === hintPath || normalizedRelativePath.endsWith(`/${hintPath}`))
+        .flatMap(([, hints]) => hints);
+      const cpuStimulusHints = includeCpuBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
+        ? collectCpuBehavioralStimulusLineHints(content)
+        : [];
+      const allMatchingHints = Array.from(new Set([...matchingHints, ...cpuStimulusHints]));
+      const focusedContent = allMatchingHints.length > 0
+        ? sliceContinuationLineWindows(content, allMatchingHints, poisonedRepair ? 18 : includeCpuBehavioralContext ? 28 : 45)
+        : content;
+      const instructionSequence = includeCpuBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
+        ? summarizeCpuBehavioralInstructionSequence(content)
+        : [];
+      const behaviorHeader = instructionSequence.length > 0
+        ? [
+          '-- AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus observed in this testbench.',
+          ...instructionSequence.map((line) => `--   ${line}`),
+          '',
+        ].join('\n')
+        : '';
+      const trimmed = focusedContent.slice(0, perFileCharLimit);
+      const renderedContent = `${behaviorHeader}${trimmed}`;
+      if (totalBytes + renderedContent.length > totalCharLimit) {
         break;
       }
-      totalBytes += trimmed.length;
+      totalBytes += renderedContent.length;
       files.push({
         relativePath: relativePath.replace(/\\/g, '/'),
-        content: trimmed,
+        content: renderedContent,
         kind: inferContinuationFileKind(relativePath),
       });
     } catch {
@@ -417,9 +579,15 @@ function normalizeValidatorFeedbackItems(details: GeneratedVhdlFailureDetail[]) 
     ruleId: detail.ruleId || null,
     ruleIds: detail.ruleIds || [],
     count: 1,
-    summary: detail.message,
-    forbiddenConstruct: detail.forbiddenConstruct || null,
-    legalReplacementPattern: detail.legalReplacementPattern || null,
+    summary: compactOneLine([
+      detail.relativePath && detail.lineHint ? `${detail.relativePath}:${detail.lineHint}` : detail.relativePath || '',
+      detail.assertionLabel ? `assertion=${detail.assertionLabel}` : '',
+      detail.simulationTime ? `time=${detail.simulationTime}` : '',
+      detail.expectedBehavior ? `expected=${detail.expectedBehavior}` : '',
+      detail.message,
+    ].filter(Boolean).join(' - ')),
+    forbiddenConstruct: detail.forbiddenConstruct ? compactOneLine(detail.forbiddenConstruct, 300) : null,
+    legalReplacementPattern: detail.legalReplacementPattern ? compactOneLine(detail.legalReplacementPattern, 300) : null,
     source: 'validator' as const,
   }));
 }
@@ -432,7 +600,7 @@ function normalizeDiagnosticFeedbackItem(message: string) {
     ruleId: null,
     ruleIds: [],
     count: 1,
-    summary: diagnostic.excerpt,
+    summary: compactOneLine(diagnostic.excerpt),
     forbiddenConstruct: null,
     legalReplacementPattern: null,
     source: 'diagnostic' as const,
@@ -444,6 +612,7 @@ const NON_CODE_FEEDBACK_CATEGORIES = new Set([
   'other',
   'manifest_structure',
   'source_selection',
+  'context_budget',
 ]);
 
 function isCodeRelevantFeedbackCategory(category: string) {
@@ -478,6 +647,68 @@ function collectFeedbackItemsFromFailure(error: unknown, fallbackMessage: string
     return inferredFeedbackItems;
   }
   return [normalizeDiagnosticFeedbackItem(fallbackMessage)].filter(isFeedbackEligible);
+}
+
+function collectRepairPoisonKeys(
+  failureDetails: GeneratedVhdlFailureDetail[],
+  fallbackMessage: string,
+) {
+  const keys = new Set<string>();
+  for (const detail of failureDetails) {
+    if (!detail.relativePath && !detail.code && !detail.category) continue;
+    keys.add([
+      (detail.relativePath || 'unknown_file').replace(/\\/g, '/').toLowerCase(),
+      detail.code || detail.category || 'unknown_failure',
+    ].join('::'));
+  }
+
+  if (keys.size > 0) {
+    return Array.from(keys);
+  }
+
+  const diagnostic = classifyFpgaArchitectLoopFailure(fallbackMessage);
+  const absolutePathPattern = /([A-Za-z0-9_./\\ -]+\.(?:vhd|vhdl)):(\d+)(?::\d+)?/g;
+  for (const match of fallbackMessage.matchAll(absolutePathPattern)) {
+    const normalizedPath = match[1].replace(/\\/g, '/').toLowerCase();
+    const basename = normalizedPath.split('/').slice(-3).join('/');
+    keys.add(`${basename}::${diagnostic.category}`);
+  }
+  return Array.from(keys);
+}
+
+function countModelQualityGuidancePackets(modelQualityGuidance: string) {
+  if (!modelQualityGuidance.trim()) {
+    return 0;
+  }
+  return modelQualityGuidance.split('\n').filter((line) => /^\d+\.\s+/.test(line.trim())).length;
+}
+
+function buildBehavioralContextLogLine(
+  failureDetails: GeneratedVhdlFailureDetail[],
+  continuationFiles: SweepContinuationFile[],
+) {
+  if (!hasCpuBehavioralFailure(failureDetails)) {
+    return 'Behavioral context: none';
+  }
+  const failingTbIncluded = continuationFiles.some((file) => /\/tb\/|^tb\//i.test(file.relativePath));
+  const instructionSequenceFound = continuationFiles.some((file) => /AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus/i.test(file.content));
+  const cpuRtlFiles = continuationFiles
+    .filter((file) => !/\/tb\/|^tb\//i.test(file.relativePath) && isCpuBehavioralRelatedPath(file.relativePath))
+    .map((file) => file.relativePath);
+  return [
+    'Behavioral context:',
+    `failing TB window included=${failingTbIncluded ? 'yes' : 'no'}`,
+    `instruction sequence found=${instructionSequenceFound ? 'yes' : 'no'}`,
+    `CPU RTL files included=${cpuRtlFiles.length > 0 ? cpuRtlFiles.join(', ') : 'none'}`,
+  ].join(' ');
+}
+
+function inferModelQualityGuidanceScope(modelQualityGuidance: string) {
+  if (!modelQualityGuidance.trim()) return 'none';
+  if (/Scope:\s+universal VHDL rules from global model history/i.test(modelQualityGuidance)) {
+    return 'global-universal';
+  }
+  return 'design-specific';
 }
 
 function mergeFeedbackItems(
@@ -535,23 +766,27 @@ function buildFailureFeedbackSection(items: FpgaArchitectSweepFeedbackItem[]) {
     'Avoid reintroducing the previously observed failure classes below. Treat every forbidden construct as blocked and follow the legal replacement pattern exactly.',
   ];
 
-  items.forEach((item, index) => {
+  for (const [index, item] of items.entries()) {
     lines.push(
      `${index + 1}. Failure family: ${item.failureCategory}${item.failureCode ? ` / ${item.failureCode}` : ''}`,
       ...(item.ruleIds.length > 0 ? [`   Canonical rules: ${item.ruleIds.join(', ')}`] : []),
       `   Seen: ${item.count} prior attempt(s)`,
       `   Source: ${item.source}`,
-      `   Summary: ${item.summary}`,
+      `   Summary: ${compactOneLine(item.summary, 500)}`,
     );
     if (item.forbiddenConstruct) {
-      lines.push(`   Forbidden construct: ${item.forbiddenConstruct}`);
+      lines.push(`   Forbidden construct: ${compactOneLine(item.forbiddenConstruct, 300)}`);
     }
     if (item.legalReplacementPattern) {
-      lines.push(`   Legal replacement pattern: ${item.legalReplacementPattern}`);
+      lines.push(`   Legal replacement pattern: ${compactOneLine(item.legalReplacementPattern, 300)}`);
     }
-  });
+    if (lines.join('\n').length >= SWEEP_FEEDBACK_SECTION_CHAR_LIMIT) {
+      lines.push('Additional prior failures omitted to keep repair context compact.');
+      break;
+    }
+  }
 
-  return lines.join('\n');
+  return lines.join('\n').slice(0, SWEEP_FEEDBACK_SECTION_CHAR_LIMIT);
 }
 
 export function buildSweepDesignPrompt(params: {
@@ -561,10 +796,12 @@ export function buildSweepDesignPrompt(params: {
   designIndex: number;
   failureFeedbackItems?: FpgaArchitectSweepFeedbackItem[] | null;
   continuationFiles?: SweepContinuationFile[] | null;
+  modelQualityGuidance?: string | null;
 }) {
   const failureFeedbackSection = buildFailureFeedbackSection(params.failureFeedbackItems || []);
   const continuationFiles = params.continuationFiles || [];
   const isRepairContinuation = continuationFiles.length > 0;
+  const modelQualityGuidance = params.modelQualityGuidance?.trim() || '';
   return [
     params.basePrompt.trim(),
     '---',
@@ -594,6 +831,7 @@ export function buildSweepDesignPrompt(params: {
     renderMarkdownBulletSection('Acceptance Criteria', params.preset.acceptanceCriteria),
     '',
     renderMarkdownBulletSection('Forbidden Shortcuts', params.preset.forbiddenShortcuts),
+    ...(modelQualityGuidance ? ['', modelQualityGuidance] : []),
     ...(isRepairContinuation ? [
       '',
       '## Repair Continuation Mode',
@@ -743,6 +981,7 @@ export async function runFpgaArchitectStressLoop(params: {
   const totalAttempts = designPresets.length * attemptsPerDesign;
   const logDirectory = path.join(projectPath, '.automata-logicpro');
   const masterLogPath = path.join(logDirectory, 'fpga-architect-sweep.log');
+  const modelQualityScoreboardPath = path.join(logDirectory, 'model-quality-scoreboard.json');
   const metaPath = path.join(logDirectory, 'fpga-architect-sweep.meta.json');
   const sweepOutputRoot = path.join(projectPath, 'fpga-architect-sweep');
   const runtimeInfo = await buildFpgaArchitectSweepRuntimeInfo();
@@ -752,6 +991,7 @@ export async function runFpgaArchitectStressLoop(params: {
     && previousMeta.runtimeFingerprint !== runtimeInfo.fingerprint,
   );
   await fs.mkdir(logDirectory, { recursive: true });
+  const modelQualityScoreboard = await readModelQualityScoreboard(modelQualityScoreboardPath);
   if (staleSweepStateDiscarded) {
     await fs.rm(sweepOutputRoot, { recursive: true, force: true });
   }
@@ -775,6 +1015,7 @@ export async function runFpgaArchitectStressLoop(params: {
   const designSummaries: FpgaArchitectStressLoopDesignSummary[] = [];
   let globalFailures = 0;
   let globalProviderRuntimeFailures = 0;
+  let globalContextBudgetFailures = 0;
   const results: RunLoopAttemptResult[] = [];
   let currentGlobalAttempt = 0;
 
@@ -856,8 +1097,10 @@ export async function runFpgaArchitectStressLoop(params: {
 
     const designResults: RunLoopAttemptResult[] = [];
     const designFeedbackMap = new Map<string, FpgaArchitectSweepFeedbackItem>();
+    const repairPoisonCounts = new Map<string, number>();
     let continuationFiles: SweepContinuationFile[] = [];
     let designProviderRuntimeFailures = 0;
+    let designContextBudgetFailures = 0;
 
     let designAttempt = 1;
     while (designAttempt <= attemptsPerDesign) {
@@ -897,35 +1140,81 @@ export async function runFpgaArchitectStressLoop(params: {
         await resetDesignOutputRoot(designOutputRoot);
       }
       const activeFeedbackItems = getSortedFeedbackItems(designFeedbackMap);
+      const modelQualityGuidance = designAttempt > 1
+        ? buildModelQualityGuidanceSection({
+          scoreboard: modelQualityScoreboard,
+          provider: selectedProvider,
+          model: selectedModel,
+          macroId: 'fpga_vhdl_architect',
+          designKey: preset.key,
+          allowGlobalUniversalFallback: false,
+        })
+        : '';
+      const modelQualityGuidancePackets = countModelQualityGuidancePackets(modelQualityGuidance);
+      const modelQualityGuidanceScope = inferModelQualityGuidanceScope(modelQualityGuidance);
       const feedbackSnapshot = activeFeedbackItems.length > 0
         ? buildFailureFeedbackSection(activeFeedbackItems)
         : '## Prior Failure Feedback\nNone yet for this design.';
       await appendLog(
         designLogPath,
         [
-          `Continuation mode: ${isRepairContinuation ? 'yes' : 'no'}`,
-          `Feedback injected: ${activeFeedbackItems.length > 0 ? 'yes' : 'no'}`,
+          `Context mode: ${isRepairContinuation ? 'repair continuation' : 'clean generation'}`,
+          `Design-specific feedback packets: ${activeFeedbackItems.length}`,
+          `Model-quality feedback packets: ${modelQualityGuidancePackets}`,
+          `Model-quality feedback scope: ${modelQualityGuidanceScope}`,
+          `Continuation file count: ${continuationFiles.length}`,
           feedbackSnapshot,
         ].join('\n'),
       );
       await appendLog(
         masterLogPath,
         [
-          `Continuation mode: ${isRepairContinuation ? 'yes' : 'no'}`,
-          `Feedback injected: ${activeFeedbackItems.length > 0 ? 'yes' : 'no'}`,
+          `Context mode: ${isRepairContinuation ? 'repair continuation' : 'clean generation'}`,
+          `Design-specific feedback packets: ${activeFeedbackItems.length}`,
+          `Model-quality feedback packets: ${modelQualityGuidancePackets}`,
+          `Model-quality feedback scope: ${modelQualityGuidanceScope}`,
+          `Continuation file count: ${continuationFiles.length}`,
           feedbackSnapshot,
         ].join('\n'),
       );
 
       try {
-        const designUserQuery = buildSweepDesignPrompt({
+        let promptContinuationFiles = continuationFiles;
+        let designUserQuery = buildSweepDesignPrompt({
           basePrompt: userQuery,
           preset,
           outputRoot: designOutputRoot,
           designIndex,
           failureFeedbackItems: activeFeedbackItems,
-          continuationFiles,
+          continuationFiles: promptContinuationFiles,
+          modelQualityGuidance,
         });
+        if (designUserQuery.length > SWEEP_PROMPT_CHAR_BUDGET && promptContinuationFiles.length > 0) {
+          promptContinuationFiles = promptContinuationFiles.map((file) => ({
+            ...file,
+            content: file.content.slice(0, 1_200),
+          }));
+          designUserQuery = buildSweepDesignPrompt({
+            basePrompt: userQuery,
+            preset,
+            outputRoot: designOutputRoot,
+            designIndex,
+            failureFeedbackItems: activeFeedbackItems.slice(0, 3),
+            continuationFiles: promptContinuationFiles,
+            modelQualityGuidance: null,
+          });
+        }
+        if (designUserQuery.length > SWEEP_PROMPT_CHAR_BUDGET) {
+          throw makeContextBudgetError(designUserQuery.length, SWEEP_PROMPT_CHAR_BUDGET);
+        }
+        await appendLog(
+          designLogPath,
+          `Prompt size: ${designUserQuery.length} chars; feedback packets: ${activeFeedbackItems.length}; continuation files: ${promptContinuationFiles.length}`,
+        );
+        await appendLog(
+          masterLogPath,
+          `Prompt size: ${designUserQuery.length} chars; feedback packets: ${activeFeedbackItems.length}; continuation files: ${promptContinuationFiles.length}`,
+        );
 
         const preparedRequest = await prepareAiAnalyzeRequest({
           provider: selectedProvider,
@@ -1014,6 +1303,14 @@ export async function runFpgaArchitectStressLoop(params: {
         currentGlobalAttempt = activeGlobalAttempt;
         results.push(resultEntry);
         designResults.push(resultEntry);
+        recordModelQualityAttempt(modelQualityScoreboard, {
+          provider: selectedProvider,
+          model: effectiveModel,
+          macroId: 'fpga_vhdl_architect',
+          designKey: preset.key,
+          ok: true,
+        });
+        await writeModelQualityScoreboard(modelQualityScoreboardPath, modelQualityScoreboard);
         onProgress?.({
           currentLoop: activeGlobalAttempt,
           totalLoops: totalAttempts,
@@ -1082,6 +1379,21 @@ export async function runFpgaArchitectStressLoop(params: {
               `Retry delay ms: ${Math.max(0, providerRetryDelayMs)}`,
             ].join('\n'),
           );
+          recordModelQualityAttempt(modelQualityScoreboard, {
+            provider: selectedProvider,
+            model: selectedModel,
+            macroId: 'fpga_vhdl_architect',
+            designKey: preset.key,
+            ok: false,
+            providerRuntimeFailure: true,
+            failure: {
+              category: diagnostic.category,
+              label: diagnostic.label,
+              ruleIds: diagnostic.ruleIds,
+              message,
+            },
+          });
+          await writeModelQualityScoreboard(modelQualityScoreboardPath, modelQualityScoreboard);
           await waitForProviderRetry();
           onProgress?.({
             currentLoop: activeGlobalAttempt,
@@ -1101,14 +1413,30 @@ export async function runFpgaArchitectStressLoop(params: {
           });
           continue;
         }
+        const isContextBudgetFailure = diagnostic.category === 'context_budget';
+        if (isContextBudgetFailure) {
+          globalContextBudgetFailures += 1;
+          designContextBudgetFailures += 1;
+        }
         globalFailures += 1;
         const feedbackItems = collectFeedbackItemsFromFailure(error, message);
         const feedbackMergeResult = mergeFeedbackItems(designFeedbackMap, feedbackItems);
+        const poisonKeys = collectRepairPoisonKeys(failureDetails, message);
+        let poisonedRepairContinuation = false;
+        for (const poisonKey of poisonKeys) {
+          const nextCount = (repairPoisonCounts.get(poisonKey) || 0) + 1;
+          repairPoisonCounts.set(poisonKey, nextCount);
+          if (nextCount >= 2) {
+            poisonedRepairContinuation = true;
+          }
+        }
         const nextContinuationFiles = await collectSweepContinuationFiles(
           designOutputRoot,
           failureDetails,
           message,
+          { poisonedRepair: poisonedRepairContinuation },
         );
+        const behavioralContextLogLine = buildBehavioralContextLogLine(failureDetails, nextContinuationFiles);
         if (nextContinuationFiles.length > 0) {
           continuationFiles = nextContinuationFiles;
         }
@@ -1124,6 +1452,23 @@ export async function runFpgaArchitectStressLoop(params: {
         currentGlobalAttempt = activeGlobalAttempt;
         results.push(resultEntry);
         designResults.push(resultEntry);
+        recordModelQualityAttempt(modelQualityScoreboard, {
+          provider: selectedProvider,
+          model: selectedModel,
+          macroId: 'fpga_vhdl_architect',
+          designKey: preset.key,
+          ok: false,
+          failure: {
+            category: diagnostic.category,
+            label: diagnostic.label,
+            failureCode: feedbackItems[0]?.failureCode || null,
+            ruleIds: diagnostic.ruleIds,
+            message,
+            forbiddenConstruct: feedbackItems[0]?.forbiddenConstruct || null,
+            legalReplacementPattern: feedbackItems[0]?.legalReplacementPattern || null,
+          },
+        });
+        await writeModelQualityScoreboard(modelQualityScoreboardPath, modelQualityScoreboard);
         onProgress?.({
           currentLoop: activeGlobalAttempt,
           totalLoops: totalAttempts,
@@ -1148,6 +1493,9 @@ export async function runFpgaArchitectStressLoop(params: {
             `Failure category: ${diagnostic.label}`,
             `Repeated known failures: ${feedbackMergeResult.repeatedKnownFailures}`,
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
+            `Poisoned repair continuation: ${poisonedRepairContinuation ? 'yes' : 'no'}`,
+            `Next continuation files: ${nextContinuationFiles.length}`,
+            behavioralContextLogLine,
           ].join('\n'),
         );
         await appendLog(
@@ -1159,6 +1507,9 @@ export async function runFpgaArchitectStressLoop(params: {
             `Failure category: ${diagnostic.label}`,
             `Repeated known failures: ${feedbackMergeResult.repeatedKnownFailures}`,
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
+            `Poisoned repair continuation: ${poisonedRepairContinuation ? 'yes' : 'no'}`,
+            `Next continuation files: ${nextContinuationFiles.length}`,
+            behavioralContextLogLine,
           ].join('\n'),
         );
         designAttempt += 1;
@@ -1167,7 +1518,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
     const designFailureBuckets = summarizeFpgaArchitectLoopFailures(designResults);
     const designFailures = designResults.filter((entry) => !entry.ok).length;
-    const designCodeQualityFailures = designFailures;
+    const designCodeQualityFailures = Math.max(0, designFailures - designContextBudgetFailures);
     const designSuccesses = designResults.length - designFailures;
     if (designFailureBuckets.length > 0) {
       await appendLog(
@@ -1192,6 +1543,7 @@ export async function runFpgaArchitectStressLoop(params: {
         `Completed Attempts: ${designResults.length}`,
         `Failures: ${designFailures}`,
         `Provider/runtime failures: ${designProviderRuntimeFailures}`,
+        `App context-budget failures: ${designContextBudgetFailures}`,
         `Code-quality failures: ${designCodeQualityFailures}`,
         `Successes: ${designSuccesses}`,
       ].join('\n'),
@@ -1201,6 +1553,7 @@ export async function runFpgaArchitectStressLoop(params: {
       [
         `Summary for ${preset.label}: ${designFailures} failure(s), ${designSuccesses} success(es), ${designResults.length}/${attemptsPerDesign} completed.`,
         `Provider/runtime failures: ${designProviderRuntimeFailures}`,
+        `App context-budget failures: ${designContextBudgetFailures}`,
         `Code-quality failures: ${designCodeQualityFailures}`,
         `Detailed Log: ${designLogPath}`,
         '',
@@ -1216,6 +1569,7 @@ export async function runFpgaArchitectStressLoop(params: {
       completedAttempts: designResults.length,
       failures: designFailures,
       providerRuntimeFailures: designProviderRuntimeFailures,
+      contextBudgetFailures: designContextBudgetFailures,
       codeQualityFailures: designCodeQualityFailures,
       successes: designSuccesses,
       results: designResults,
@@ -1226,7 +1580,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
   const failureBuckets = summarizeFpgaArchitectLoopFailures(results);
   const successes = results.filter((entry) => entry.ok).length;
-  const globalCodeQualityFailures = globalFailures;
+  const globalCodeQualityFailures = Math.max(0, globalFailures - globalContextBudgetFailures);
   if (failureBuckets.length > 0) {
     await appendLog(
       masterLogPath,
@@ -1251,8 +1605,10 @@ export async function runFpgaArchitectStressLoop(params: {
       `Completed Attempts: ${results.length}`,
       `Failures: ${globalFailures}`,
       `Provider/runtime failures: ${globalProviderRuntimeFailures}`,
+      `App context-budget failures: ${globalContextBudgetFailures}`,
       `Code-quality failures: ${globalCodeQualityFailures}`,
       `Successes: ${successes}`,
+      `Model Quality Scoreboard: ${modelQualityScoreboardPath}`,
       'Stopped Early: no',
       `Runtime Fingerprint: ${runtimeInfo.fingerprint}`,
     ].join('\n'),
@@ -1263,10 +1619,12 @@ export async function runFpgaArchitectStressLoop(params: {
     completedAttempts: results.length,
     failures: globalFailures,
     providerRuntimeFailures: globalProviderRuntimeFailures,
+    contextBudgetFailures: globalContextBudgetFailures,
     codeQualityFailures: globalCodeQualityFailures,
     successes,
     logFilePath: masterLogPath,
     masterLogPath,
+    modelQualityScoreboardPath,
     runtimeFingerprint: runtimeInfo.fingerprint,
     staleSweepStateDiscarded,
     results,

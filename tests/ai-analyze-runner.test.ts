@@ -444,6 +444,45 @@ test('buildFailureCodeSpecificRepairShaping gives package and source-order speci
   assert.match(text, /Do not create duplicate package\/entity files/i);
 });
 
+test('buildFailureCodeSpecificRepairShaping adds package visibility and exact port-map formal guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'project validator failures',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'package_symbol_not_visible',
+        category: 'package_type_definition',
+        message: 'src/uart_tx.vhd:8: type "byte_t" is not visible at this use site.',
+        excerpt: 'tx_data : in byte_t',
+        relativePath: 'src/uart_tx.vhd',
+        lineHint: 8,
+        forbiddenConstruct: 'custom type "byte_t" used without importing/exporting its package',
+        legalReplacementPattern: 'add use work.bridge_pkg.all before the entity and compile bridge_pkg first',
+      },
+      {
+        code: 'unknown_port_map_formal',
+        category: 'interface_generic_port_syntax',
+        message: 'src/bridge_top.vhd:24: maps unknown formal port "miso_i". Legal formal ports are: clk, miso_out.',
+        excerpt: 'miso_i => miso',
+        relativePath: 'src/bridge_top.vhd',
+        lineHint: 24,
+        forbiddenConstruct: 'miso_i => miso',
+        legalReplacementPattern: 'use only exact formal names declared by spi_master: clk, miso_out',
+      },
+    ],
+  });
+
+  assert.match(text, /package_symbol_not_visible/);
+  assert.match(text, /Do not duplicate or fork package\/type definitions/i);
+  assert.match(text, /import it with `use work\.<package>\.all;`/i);
+  assert.match(text, /unknown_port_map_formal/);
+  assert.match(text, /Named associations must use exact formal port names/i);
+  assert.match(text, /legal formal port list/i);
+});
+
 test('buildFailureCodeSpecificRepairShaping preserves exact simulation assertion evidence', () => {
   const text = buildFailureCodeSpecificRepairShaping({
     ok: false,
@@ -470,6 +509,39 @@ test('buildFailureCodeSpecificRepairShaping preserves exact simulation assertion
   assert.match(text, /line: 44/i);
   assert.match(text, /do not delete, weaken, skip, rename, or silence/i);
   assert.match(text, /reported simulation time/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds CPU halt behavioral repair guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'simulate',
+    summary: 'Generated VHDL failed GHDL simulation',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'cpu_halt_behavior_mismatch',
+        category: 'simulation_success',
+        message: 'tb/tb_cpu_top.vhd:23: assertion failed at 206ns: FAIL halt_cycle_1',
+        excerpt: 'FAIL halt_cycle_1',
+        relativePath: 'tb/tb_cpu_top.vhd',
+        lineHint: 23,
+        forbiddenConstruct: 'self-checking assertion/report failure at 206ns: FAIL halt_cycle_1',
+        legalReplacementPattern: 'repair the CPU decoder/control/TB timing contract; do not delete, weaken, skip, rename, or silence the assertion',
+        assertionLabel: 'halt_cycle_1',
+        simulationTime: '206ns',
+        expectedBehavior: 'CPU halt/control behavior must match the self-checking halt-cycle expectation at the reported simulation time.',
+        relatedSourcePaths: ['src/decoder.vhd', 'src/control_fsm.vhd', 'src/cpu_top.vhd'],
+      },
+    ],
+  });
+
+  assert.match(text, /cpu_halt_behavior_mismatch/);
+  assert.match(text, /assertion label: halt_cycle_1/i);
+  assert.match(text, /simulation time: 206ns/i);
+  assert.match(text, /CPU behavioral contract mismatch/i);
+  assert.match(text, /Do not remove, weaken, skip, rename, or silence/i);
+  assert.match(text, /instruction stimulus sequence and CPU decoder\/control\/top excerpts/i);
 });
 
 test('buildFailureCodeSpecificRepairShaping adds string-contract repair guidance for testbench helpers', () => {

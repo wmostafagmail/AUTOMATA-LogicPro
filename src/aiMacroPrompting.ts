@@ -2,7 +2,14 @@ import type { AiMacroId, TbGenerationMode } from './aiMacros.ts';
 import { getAiMacroSpec } from './aiMacros.ts';
 import { detectCustomQueryMode } from './customQueryIntent.ts';
 import { LOCAL_LLM_JSON_GENERATION_CONTRACT, LOCAL_LLM_JSON_GENERATION_SKILL_NAME } from './server/jsonGenerationSkill.ts';
-import { buildCodeGeneratingCommandContract } from './server/vhdlSkillRules.ts';
+import {
+  buildSharedCodeMacroRuleBundle,
+  isCodeGeneratingMacro,
+} from './server/vhdlSkillRules.ts';
+import {
+  buildArchitectureBlueprintPromptSection,
+  buildConstrainedRegionPromptSection,
+} from './server/fpgaArchitectureBlueprint.ts';
 
 interface BuildMacroPromptContractParams {
   macroId: AiMacroId;
@@ -17,6 +24,9 @@ export function buildMacroPromptContract({
 }: BuildMacroPromptContractParams) {
   const spec = getAiMacroSpec(macroId);
   const customQueryMode = macroId === 'custom_query' ? detectCustomQueryMode(userQuery) : null;
+  const codeRuleBundle = isCodeGeneratingMacro(macroId)
+    ? buildSharedCodeMacroRuleBundle(macroId, { promptText: userQuery })
+    : null;
   const requiredSections = spec.expectedOutputSections.length > 0
     ? spec.expectedOutputSections.map((section) => `- ${section.label}`).join('\n')
     : '- Clear technical sections as appropriate';
@@ -28,7 +38,6 @@ export function buildMacroPromptContract({
   ];
 
   if (macroId === 'fpga_vhdl_architect') {
-    const architectCommandContract = buildCodeGeneratingCommandContract('fpga_vhdl_architect');
     return `### Active Feature
 Feature Mode: ${spec.id}
 Feature Label: ${spec.label}
@@ -52,8 +61,24 @@ The generated DUT and testbench must be GHDL-simulatable as written.
 Any generated self-checking testbench must end cleanly with a success stop such as VHDL-2008 std.env.stop(0); never use severity failure to signal a passing run.
 When checking synchronous behavior in a generated testbench, sample outputs only after the active clock edge update has taken effect.
 Keep reset polarity/style and post-reset expectations consistent between the DUT and the testbench.
-Exact GHDL command/output contract:
-${architectCommandContract}
+
+${codeRuleBundle?.commandContractSection || ''}
+
+${codeRuleBundle?.legalIdiomSection || ''}
+
+${codeRuleBundle?.generationQualitySection || ''}
+
+${codeRuleBundle?.canonicalRuleContractSection || ''}
+
+${codeRuleBundle?.strictRuleSection || ''}
+
+${buildArchitectureBlueprintPromptSection({
+  macroId: 'fpga_vhdl_architect',
+  promptText: userQuery,
+})}
+
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
+
 If you absolutely cannot produce the Markdown manifest format, fall back to strict JSON only and then obey this contract:
 ${LOCAL_LLM_JSON_GENERATION_CONTRACT}
 Apply the ${LOCAL_LLM_JSON_GENERATION_SKILL_NAME} skill only for that strict JSON fallback.
@@ -100,14 +125,19 @@ ${userQuery}`;
       ? 'For project-entity mode, prioritize entities present in the provided project context and end with verification notes. Include a filename heading before each VHDL code block, and ensure at least one generated filename ends with "_tb.vhd". Match the DUT reset style exactly, sample synchronous outputs after the relevant clock edge update, and end successful testbenches with a clean pass stop rather than severity failure.'
       : '',
     macroId === 'generate_vhdl_tb'
-      ? `The app will automatically compile, elaborate, and simulate the generated DUT/testbench with GHDL. Only return output that should pass the full GHDL flow as written.\nExact GHDL command/output contract:\n${buildCodeGeneratingCommandContract('generate_vhdl_tb')}`
+      ? `The app will automatically compile, elaborate, and simulate the generated DUT/testbench with GHDL. Only return output that should pass the full GHDL flow as written.`
       : '',
     macroId === 'generate_vhdl_assertions'
-      ? `If you emit runnable assertion collateral or TB-integrated VHDL, include the exact GHDL validation plan.\nExact GHDL command/output contract:\n${buildCodeGeneratingCommandContract('generate_vhdl_assertions')}`
+      ? `If you emit runnable assertion collateral or TB-integrated VHDL, include the exact GHDL validation plan.`
       : '',
     macroId === 'draft_rtl_skeleton'
-      ? `If you emit a runnable RTL/TB validation pair, include the exact GHDL validation plan.\nExact GHDL command/output contract:\n${buildCodeGeneratingCommandContract('draft_rtl_skeleton')}`
+      ? `If you emit a runnable RTL/TB validation pair, include the exact GHDL validation plan.`
       : '',
+    codeRuleBundle?.commandContractSection || '',
+    codeRuleBundle?.legalIdiomSection || '',
+    codeRuleBundle?.generationQualitySection || '',
+    codeRuleBundle?.canonicalRuleContractSection || '',
+    codeRuleBundle?.strictRuleSection || '',
     macroId === 'verify_clock_reset_sequence'
       ? 'Explicitly inspect clock stability, reset assertion/deassertion timing, and whether reset release appears safely aligned to the observed clock behavior.'
       : '',

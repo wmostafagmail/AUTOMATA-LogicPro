@@ -378,6 +378,9 @@ Act as a senior FPGA/VHDL debug engineer. Use deterministic scans and project co
     COMMON_OPERATING_CONTRACT,
     MACRO_SPECIFIC_PROMPTS[macroId],
     codeRuleBundle?.commandContractSection,
+    codeRuleBundle?.legalIdiomSection,
+    codeRuleBundle?.generationQualitySection,
+    codeRuleBundle?.canonicalRuleContractSection,
     codeRuleBundle?.strictRuleSection,
     buildContextAppendix(params),
   ]);

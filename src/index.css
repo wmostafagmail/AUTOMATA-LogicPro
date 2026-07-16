@@ -1,5 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap');
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+
+@source "../index.html";
+@source "./**/*.{ts,tsx}";
+@source not "../FPGA Projects/**";
+@source not "../AI Generated TB/**";
+@source not "../AI Generated RTL/**";
+@source not "../AI Generated Assertions/**";
+@source not "../.automata-logicpro/**";
+@source not "../dist/**";
+@source not "../node_modules/**";
 
 @theme {
   --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -62,4 +71,3 @@
 .logic-pulse {
   animation: signalPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-

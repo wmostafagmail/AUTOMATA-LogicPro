@@ -1,5 +1,14 @@
 import React from 'react';
-import { Bot, ChevronDown, ChevronUp, CircleDot, ShieldCheck, AlertTriangle, GitBranch, Maximize2 } from 'lucide-react';
+import {
+  Bot,
+  ChevronDown,
+  ChevronUp,
+  CircleDot,
+  ShieldCheck,
+  AlertTriangle,
+  GitBranch,
+  Maximize2,
+} from 'lucide-react';
 import { getAiMacroSpec } from '../aiMacros';
 import { AIWorkspaceReport, buildStructuredReport, getHazardFindingDisplayId, getProtocolFrameDisplayId, getSectionAccent } from '../aiReport';
 import type { WaveformIssueMarker } from '../types';

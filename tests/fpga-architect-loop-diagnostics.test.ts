@@ -121,3 +121,22 @@ test('classifyFpgaArchitectLoopFailureWithValidation prefers machine-readable va
   assert.equal(diagnostic.label, 'Procedure / Testbench Scope');
   assert.ok(diagnostic.ruleIds.includes('ghdl-clocked-variable-discipline'));
 });
+
+test('classifyFpgaArchitectLoopFailure maps missing custom package symbols into package/type visibility', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Generated VHDL failed GHDL analyze validation: src/uart_tx.vhd:8:18:error: no declaration for "byte_t" tx_data : in byte_t;',
+  );
+
+  assert.equal(diagnostic.category, 'package_type_definition');
+  assert.equal(diagnostic.label, 'Package / Type Definition');
+  assert.ok(diagnostic.ruleIds.includes('ghdl-record-package-rules'));
+});
+
+test('classifyFpgaArchitectLoopFailure maps raw named port-map formal errors into interface misuse', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'Generated VHDL failed GHDL analyze validation: src/bridge_top.vhd:24:7:error: no declaration for "miso_i" port map (clk => clk, miso_i => miso);',
+  );
+
+  assert.equal(diagnostic.category, 'interface_declaration_misuse');
+  assert.ok(diagnostic.ruleIds.includes('ghdl-instantiation-rules'));
+});

@@ -33,7 +33,7 @@ import {
   Play,
   Loader2,
   Maximize2,
-  Minimize2
+  Minimize2,
 } from 'lucide-react';
 
 const DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX = 214;

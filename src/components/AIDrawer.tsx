@@ -14,14 +14,14 @@ import { architectPromptRequestsReuse, filterArchitectReferenceFiles } from '../
 import { getProviderDeployment } from '../exportPolicy';
 import { useAIDrawerAnalysis, type Message } from './useAIDrawerAnalysis';
 import { JobTelemetryPanel, ProviderSummaryPanel, RemoteConsentPanel, RemoteExportPreviewPanel } from './AIDrawerStatusPanels';
-import { 
-  Send, 
-  X, 
-  Cpu, 
-  Sparkles, 
-  FileCode, 
-  Bug, 
-  Layers, 
+import {
+  Send,
+  X,
+  Cpu,
+  Sparkles,
+  FileCode,
+  Bug,
+  Layers,
   Loader2,
   Copy,
   Check,
@@ -29,7 +29,7 @@ import {
   Bot,
   ChevronRight,
   Gauge,
-  OctagonX
+  OctagonX,
 } from 'lucide-react';
 
 interface AIDrawerProps {
@@ -54,6 +54,7 @@ interface ModelOption {
 
 const AI_PROVIDER_STORAGE_KEY = 'automata-logicpro-ai-provider';
 const AI_MODEL_STORAGE_KEY = 'automata-logicpro-ai-models';
+const FPGA_ARCHITECT_LOOP_JOB_STORAGE_KEY = 'automata-logicpro-fpga-architect-loop-job';
 const FPGA_TARGET_OPTIONS = [
   { value: '', label: 'Generic / infer from requirements' },
   { value: 'Xilinx Artix-7', label: 'Xilinx Artix-7' },
@@ -89,6 +90,17 @@ const loadStoredModelSelections = (): Record<string, string> => {
   } catch {
     return {};
   }
+};
+
+const storeArchitectLoopJobId = (jobId: string | null) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  if (jobId) {
+    window.localStorage.setItem(FPGA_ARCHITECT_LOOP_JOB_STORAGE_KEY, jobId);
+    return;
+  }
+  window.localStorage.removeItem(FPGA_ARCHITECT_LOOP_JOB_STORAGE_KEY);
 };
 
 const normalizeProviderOptions = (providers: unknown[]): ProviderOption[] => (
@@ -206,18 +218,35 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const architectLoopStopRequestedRef = useRef(false);
 
   useEffect(() => {
-    if (!architectLoopRunning || !architectLoopJobId) {
+    if (!architectLoopJobId) {
       return;
     }
 
     let cancelled = false;
+    let missedStatusPolls = 0;
     const pollStatus = async () => {
       try {
         const response = await apiFetch(`/api/ai-jobs/${architectLoopJobId}/status`);
         const data = await response.json().catch(() => null);
-        if (!response.ok || cancelled) {
+        if (cancelled) {
           return;
         }
+        if (!response.ok) {
+          if (response.status === 404 || response.status === 403) {
+            missedStatusPolls += 1;
+            if (missedStatusPolls >= 2) {
+              setArchitectLoopRunning(false);
+              setArchitectLoopJobId(null);
+              setArchitectLoopProviderPaused(false);
+              storeArchitectLoopJobId(null);
+            }
+          }
+          return;
+        }
+
+        missedStatusPolls = 0;
+        setArchitectLoopRunning(true);
+        storeArchitectLoopJobId(architectLoopJobId);
 
         const nextCurrent = Number(data?.progress?.currentLoop);
         if (Number.isFinite(nextCurrent)) {
@@ -264,7 +293,73 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [architectLoopJobId, architectLoopRunning]);
+  }, [architectLoopJobId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || architectLoopJobId) {
+      return;
+    }
+
+    const storedJobId = window.localStorage.getItem(FPGA_ARCHITECT_LOOP_JOB_STORAGE_KEY);
+    if (!storedJobId) {
+      return;
+    }
+
+    let cancelled = false;
+    const restoreStoredLoopJob = async () => {
+      try {
+        const response = await apiFetch(`/api/ai-jobs/${storedJobId}/status`);
+        const data = await response.json().catch(() => null);
+        if (cancelled) {
+          return;
+        }
+        if (!response.ok) {
+          storeArchitectLoopJobId(null);
+          return;
+        }
+
+        setArchitectLoopJobId(storedJobId);
+        setArchitectLoopRunning(true);
+        const nextCurrent = Number(data?.progress?.currentLoop);
+        if (Number.isFinite(nextCurrent)) {
+          setArchitectLoopCurrent(nextCurrent);
+        }
+        const nextCompletedAttempts = Number(data?.progress?.completedAttempts);
+        if (Number.isFinite(nextCompletedAttempts)) {
+          setArchitectLoopCompletedAttempts(nextCompletedAttempts);
+        }
+        const nextFailures = Number(data?.progress?.failures);
+        if (Number.isFinite(nextFailures)) {
+          setArchitectLoopFailures(nextFailures);
+        }
+        const nextSuccesses = Number(data?.progress?.successes);
+        if (Number.isFinite(nextSuccesses)) {
+          setArchitectLoopSuccesses(nextSuccesses);
+        }
+        setArchitectLoopCurrentDesignLabel(typeof data?.progress?.currentDesignLabel === 'string'
+          ? data.progress.currentDesignLabel
+          : '');
+        const nextDesignAttempt = Number(data?.progress?.currentDesignAttempt);
+        if (Number.isFinite(nextDesignAttempt)) {
+          setArchitectLoopCurrentDesignAttempt(nextDesignAttempt);
+        }
+        setArchitectLoopProviderPaused(Boolean(data?.progress?.providerPaused));
+        setArchitectLoopProviderMessage(typeof data?.progress?.providerMessage === 'string'
+          ? data.progress.providerMessage
+          : '');
+        setArchitectLoopProviderRetryAt(typeof data?.progress?.providerRetryAt === 'string'
+          ? data.progress.providerRetryAt
+          : '');
+      } catch {
+        // Leave the stored job id alone on transient local request failures.
+      }
+    };
+
+    void restoreStoredLoopJob();
+    return () => {
+      cancelled = true;
+    };
+  }, [architectLoopJobId]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -737,6 +832,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       : `architect-loop-${Date.now()}`;
     flushSync(() => {
       architectLoopStopRequestedRef.current = false;
+      storeArchitectLoopJobId(loopJobId);
       setArchitectLoopRunning(true);
       setArchitectLoopJobId(loopJobId);
       setArchitectLoopCurrent(0);
@@ -753,6 +849,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     await new Promise<void>((resolve) => {
       window.requestAnimationFrame(() => resolve());
     });
+    let keepLoopActiveAfterSettled = false;
     try {
       const response = await apiFetch('/api/ai/fpga-architect-loop', {
         method: 'POST',
@@ -793,6 +890,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         setArchitectLoopResult(null);
         return;
       }
+      try {
+        const statusResponse = await apiFetch(`/api/ai-jobs/${loopJobId}/status`);
+        if (statusResponse.ok) {
+          keepLoopActiveAfterSettled = true;
+          setArchitectLoopRunning(true);
+          setArchitectLoopJobId(loopJobId);
+          storeArchitectLoopJobId(loopJobId);
+          return;
+        }
+      } catch {
+        // If the tracked job cannot be reached, fall through and show the request failure.
+      }
       setArchitectLoopResult({
         failures: architectLoopAttempts,
         attempts: architectLoopAttempts,
@@ -801,14 +910,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       });
     } finally {
       architectLoopStopRequestedRef.current = false;
+      if (keepLoopActiveAfterSettled) {
+        return;
+      }
       setArchitectLoopRunning(false);
       setArchitectLoopJobId(null);
+      storeArchitectLoopJobId(null);
       setArchitectLoopProviderPaused(false);
     }
   };
 
   const handleStopArchitectLoop = async () => {
-    if (!architectLoopRunning) {
+    if (!architectLoopRunning && !architectLoopJobId) {
       return;
     }
 
@@ -826,10 +939,13 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     } finally {
       setArchitectLoopRunning(false);
       setArchitectLoopJobId(null);
+      storeArchitectLoopJobId(null);
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
     }
   };
+
+  const architectLoopActive = architectLoopRunning || Boolean(architectLoopJobId);
 
   return (
     <div className={`${isOpen ? 'flex' : 'hidden'} w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex-col h-full z-20 select-none flex-none font-sans`}>
@@ -952,22 +1068,24 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => void (architectLoopRunning ? handleStopArchitectLoop() : handleRunArchitectLoop())}
+                    onClick={() => void (architectLoopActive ? handleStopArchitectLoop() : handleRunArchitectLoop())}
                     disabled={
-                      !selectedProvider
-                      || !selectedModel
-                      || !projectPath
-                      || loading
-                      || testGenerating
-                      || selectedProviderDeployment !== 'local'
+                      !architectLoopActive && (
+                        !selectedProvider
+                        || !selectedModel
+                        || !projectPath
+                        || loading
+                        || testGenerating
+                        || selectedProviderDeployment !== 'local'
+                      )
                     }
                     className={`test-button test-button-danger flex min-h-12 w-36 items-center justify-center rounded-xl border bg-brand-surface-low px-5 py-3 text-[12px] font-bold uppercase tracking-[0.14em] transition-all hover:bg-brand-surface-high disabled:opacity-40 cursor-pointer ${
-                      architectLoopRunning
+                      architectLoopActive
                         ? 'border-red-400/45 text-red-300 hover:border-red-300/55'
                         : 'border-brand-outline-variant/30 text-brand-amber hover:border-brand-amber/40'
                     }`}
                     title={
-                      architectLoopRunning
+                      architectLoopActive
                         ? 'Stop the active FPGA Architect multi-design sweep.'
                         : selectedProviderDeployment !== 'local'
                         ? 'The FPGA Architect multi-design sweep currently supports local providers only.'
@@ -976,7 +1094,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                           : `Run the fixed FPGA Architect sweep: ${FPGA_ARCHITECT_SWEEP_DESIGNS.length} designs, ${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN} attempts each, ${architectLoopAttempts} total attempts.`
                     }
                   >
-                    {architectLoopRunning ? <OctagonX size={18} aria-hidden="true" /> : <Gauge size={18} aria-hidden="true" />}
+                    {architectLoopActive ? <OctagonX size={18} aria-hidden="true" /> : <Gauge size={18} aria-hidden="true" />}
                   </button>
                 </div>
 
@@ -987,7 +1105,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                       title={`Current FPGA Architect loop trial: ${architectLoopCurrent} of ${architectLoopAttempts}. Completed trials: ${architectLoopCompletedAttempts}.`}
                     >
                       <span className="status-value whitespace-nowrap text-[12px] font-mono font-bold uppercase tracking-[0.12em] tabular-nums text-brand-amber">
-                        {architectLoopRunning ? `${architectLoopCurrent} / ${architectLoopAttempts}` : architectLoopCurrent}
+                        {architectLoopActive ? `${architectLoopCurrent} / ${architectLoopAttempts}` : architectLoopCurrent}
                       </span>
                     </div>
 

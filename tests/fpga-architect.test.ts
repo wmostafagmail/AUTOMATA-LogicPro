@@ -103,7 +103,7 @@ test('parseFpgaArchitectResponse repairs missing commas inside content_lines arr
 
 test('FPGA Architect retry prompts include recurring failure guards for repeated sweep blockers', () => {
   const prompt = buildFpgaArchitectRetryPrompt({
-    originalPrompt: 'base architect prompt',
+    originalPrompt: 'base architect prompt: design a flight controller with IMU PID motor mixer and failsafe',
     errorSummary: 'tb/example.vhd: declares procedure after begin',
   });
 
@@ -116,16 +116,22 @@ test('FPGA Architect retry prompts include recurring failure guards for repeated
   assert.match(prompt, /Failure code: reserved_identifier/);
   assert.match(prompt, /Failure code: runtime_bound_check_risk/);
   assert.match(prompt, /Failure code: missing_waveform_generation_contract/);
+  assert.match(prompt, /Structure-First Generation Contract/);
+  assert.match(prompt, /Golden VHDL Templates/);
+  assert.match(prompt, /Repair Scope Control/);
+  assert.match(prompt, /App-Owned Architecture Blueprint Contract/);
+  assert.match(prompt, /Design class: flight_controller/);
+  assert.match(prompt, /Constrained Implementation Regions/);
 });
 
 test('FPGA Architect compact and test-run prompts include recurring failure guards for repeated sweep blockers', () => {
   const compactPrompt = buildFpgaArchitectCompactRetryPrompt({
-    originalPrompt: 'base architect prompt',
+    originalPrompt: 'base architect prompt: design an AXI stream packet router',
     errorSummary: 'summary',
     compactMode: 'minimal',
   });
   const testRunPrompt = buildFpgaArchitectTestRunPrompt({
-    originalPrompt: 'base architect prompt',
+    originalPrompt: 'base architect prompt: design an 8-bit ALU',
     compactMode: 'minimal',
   });
 
@@ -137,6 +143,11 @@ test('FPGA Architect compact and test-run prompts include recurring failure guar
   assert.match(testRunPrompt, /Failure code: declaration_after_begin/);
   assert.match(testRunPrompt, /Failure code: reserved_identifier/);
   assert.match(testRunPrompt, /Failure code: runtime_bound_check_risk/);
+  assert.match(testRunPrompt, /Structure-First Generation Contract/);
+  assert.match(testRunPrompt, /File-By-File Generation Order/);
+  assert.match(testRunPrompt, /Semantic Preflight Checklist/);
+  assert.match(compactPrompt, /Design class: axi_stream_router/);
+  assert.match(testRunPrompt, /Design class: alu/);
 });
 
 test('parseFpgaArchitectResponse accepts JSON aliases and infers top entity from generated files', () => {

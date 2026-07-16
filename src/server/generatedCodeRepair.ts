@@ -4,6 +4,13 @@ import type { AiMacroId } from '../aiMacros';
 import type { GeneratedVhdlFailureDetail, GeneratedVhdlValidationResult } from './generatedVhdlValidation';
 import { buildCodeGeneratingMacroRuleSection } from './ghdlStrictVhdlRules';
 import { buildRecurringVhdlFailureGuardSection } from './recurringVhdlFailureGuards';
+import { buildCanonicalRuleActionabilitySection, getCanonicalRuleIdsForFailureCode } from './vhdlSkillRules';
+import { buildGenerationQualityPromptSection } from './vhdlGenerationQuality';
+import { buildLegalIdiomPromptSection } from './vhdlLegalIdioms';
+import {
+  buildArchitectureBlueprintPromptSection,
+  buildConstrainedRegionPromptSection,
+} from './fpgaArchitectureBlueprint';
 
 export type RepairableGeneratedFile = {
   relativePath: string;
@@ -164,6 +171,20 @@ function renderExactIssuePackets(details: GeneratedVhdlFailureDetail[], relevant
     if (detail.legalReplacementPattern) {
       issueLines.push(`Required local replacement: ${detail.legalReplacementPattern}`);
     }
+    if (detail.assertionLabel || detail.simulationTime || detail.expectedBehavior) {
+      issueLines.push([
+        'Behavioral repair evidence:',
+        ...(detail.assertionLabel ? [`- Assertion label: ${detail.assertionLabel}`] : []),
+        ...(detail.simulationTime ? [`- Simulation time: ${detail.simulationTime}`] : []),
+        ...(detail.expectedBehavior ? [`- Expected behavior: ${detail.expectedBehavior}`] : []),
+        ...(detail.instructionSequence && detail.instructionSequence.length > 0
+          ? [`- Instruction sequence: ${detail.instructionSequence.join(' | ')}`]
+          : []),
+        ...(detail.relatedSourcePaths && detail.relatedSourcePaths.length > 0
+          ? [`- Related source hints: ${detail.relatedSourcePaths.map(normalizePromptPath).join(', ')}`]
+          : []),
+      ].join('\n'));
+    }
     issueLines.push('Repair instruction: fix this exact local issue and any directly coupled same-file instances only; do not rewrite unrelated legal code.');
 
     return issueLines.join('\n');
@@ -183,12 +204,21 @@ function renderLogTail(validation: GeneratedVhdlValidationResult) {
 }
 
 function renderTargetFiles(files: RepairableGeneratedFile[]) {
+  const maxFileChars = 14_000;
   return files.map((file) => {
     const fenceLang = file.relativePath.toLowerCase().endsWith('.md') ? 'md' : 'vhdl';
+    const normalizedContent = file.content.trimEnd();
+    const renderedContent = normalizedContent.length > maxFileChars
+      ? [
+        normalizedContent.slice(0, maxFileChars),
+        '',
+        `-- AUTOMATA_CONTEXT_TRUNCATED: ${normalizedContent.length - maxFileChars} characters omitted. Repair only issues supported by exact issue packets and visible local context.`,
+      ].join('\n')
+      : normalizedContent;
     return [
       `### ${normalizePromptPath(file.relativePath)}`,
       `\`\`\`${fenceLang}`,
-      file.content.trimEnd(),
+      renderedContent,
       '```',
     ].join('\n');
   }).join('\n\n');
@@ -252,6 +282,17 @@ function renderFileScopedRepairPlan(details: GeneratedVhdlFailureDetail[], relev
   }).join('\n\n');
 }
 
+function collectFailureRuleIds(validation: GeneratedVhdlValidationResult) {
+  return Array.from(new Set([
+    ...(validation.ruleIds || []),
+    ...getCanonicalRuleIdsForFailureCode(validation.failureCode),
+    ...(validation.failureDetails || []).flatMap((detail) => [
+      ...(detail.ruleIds || (detail.ruleId ? [detail.ruleId] : [])),
+      ...getCanonicalRuleIdsForFailureCode(detail.code),
+    ]),
+  ].filter((value): value is string => typeof value === 'string' && value.trim().length > 0)));
+}
+
 export function buildGeneratedCodeRepairPrompt(params: {
   originalPrompt: string;
   macroId: AiMacroId;
@@ -303,6 +344,29 @@ ${buildRecurringVhdlFailureGuardSection({
   heading: 'Always-on recurring failure guards',
   numbered: true,
 })}
+
+${buildLegalIdiomPromptSection(macroId, {
+  heading: 'Known-good repair idioms to copy',
+})}
+
+${buildCanonicalRuleActionabilitySection({
+  macroId,
+  ruleIds: collectFailureRuleIds(validation),
+  heading: 'Canonical rule contracts for this repair',
+})}
+
+${buildGenerationQualityPromptSection(macroId, {
+  includeGoldenTemplates: false,
+  includeRepairScope: true,
+  promptText: originalPrompt,
+})}
+
+${buildArchitectureBlueprintPromptSection({
+  macroId,
+  promptText: originalPrompt,
+})}
+
+${buildConstrainedRegionPromptSection(macroId)}
 
 ${buildCodeGeneratingMacroRuleSection(macroId)}
 

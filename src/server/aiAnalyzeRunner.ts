@@ -1,4 +1,5 @@
 import type { GoogleGenAI } from '@google/genai';
+import fs from 'fs/promises';
 import path from 'path';
 import type { AiMacroId, AiMacroValidationResult, TbGenerationMode } from '../aiMacros';
 import type { LogicProSession, createSessionManager } from './sessionManager';
@@ -150,6 +151,21 @@ function buildFailureEvidenceSummary(validation: GeneratedVhdlValidationResult) 
       if (detail.legalReplacementPattern) {
         lines.push(`  required replacement: ${detail.legalReplacementPattern}`);
       }
+      if (detail.assertionLabel) {
+        lines.push(`  assertion label: ${detail.assertionLabel}`);
+      }
+      if (detail.simulationTime) {
+        lines.push(`  simulation time: ${detail.simulationTime}`);
+      }
+      if (detail.expectedBehavior) {
+        lines.push(`  expected behavior: ${detail.expectedBehavior}`);
+      }
+      if (detail.instructionSequence && detail.instructionSequence.length > 0) {
+        lines.push(`  instruction sequence: ${detail.instructionSequence.join(' | ')}`);
+      }
+      if (detail.relatedSourcePaths && detail.relatedSourcePaths.length > 0) {
+        lines.push(`  related source hints: ${detail.relatedSourcePaths.join(', ')}`);
+      }
       return lines;
     }),
   ].join('\n');
@@ -226,6 +242,23 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Any helper formal referenced by `rising_edge(...)` or `falling_edge(...)` must be declared as a signal input formal, for example `signal clk_i : in std_logic`.',
         '  Preserve the helper body and call sites. Only normalize the formal clause so the edge test is legal to GHDL before the file reaches compile/analyze.',
       ].join('\n'));
+    } else if (detail.code === 'subprogram_call_arity_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing helper declaration and call sites locally. Do not regenerate the testbench.',
+        '  The helper declaration arity and every call-site actual count must match exactly.',
+        '  For clock wait helpers, prefer the canonical one-clock contract: `procedure wait_clk(signal clk_i : in std_logic) is ...` and calls like `wait_clk(clk);`.',
+        detail.forbiddenConstruct ? `  Failing call/declaration evidence: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required pattern: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'subprogram_actual_type_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing helper type contract locally. Do not weaken checks and do not regenerate unrelated files.',
+        '  Scalar std_logic actuals must go to scalar std_logic formals; std_logic_vector actuals must go to vector formals.',
+        '  For equality helpers, use `check_eq_sl` for std_logic and `check_eq_slv` for std_logic_vector instead of forcing one helper signature to handle both.',
+        detail.forbiddenConstruct ? `  Failing actual/formal evidence: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'tb_unguarded_logic_index_conversion') {
       sections.push([
         `- ${detail.code}`,
@@ -304,6 +337,52 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Match the actual expression to the formal type exactly at the association boundary: use unsigned(...) or signed(...) only when the formal port requires that type, and remove raw std_logic_vector wrapping that breaks typed formals.',
         '  Preserve the entity interface and keep the fix at the specific instantiation unless the same typed mismatch is structurally repeated elsewhere in the same file.',
       ].join('\n'));
+    } else if (detail.code === 'out_port_actual_conversion') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the failing port map locally. An out/buffer association must be a writable object, never a type-conversion expression.',
+        '  Remove conversions such as `pc_out => unsigned(pc_addr_sig)` from output associations. Connect the port to a correctly typed internal signal, then convert/assign outside the port map if needed.',
+        '  Preserve the instantiated entity interface and repair only the signal/type boundary around the failing association.',
+      ].join('\n'));
+    } else if (detail.code === 'custom_type_port_association_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the custom record/enum/package type wiring locally. Do not wrap std_logic_vector signals with random conversions for package-defined formal ports.',
+        '  Find the formal port type declaration and declare/reuse an actual signal with that exact type. Decode or encode between vectors and records/enums outside the port map using explicit field assignments.',
+        '  Preserve package type definitions as the source of truth unless the validator explicitly says the package declaration itself is illegal.',
+      ].join('\n'));
+    } else if (detail.code === 'package_symbol_not_visible') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair package/type visibility locally. Do not duplicate or fork package/type definitions.',
+        '  If the missing symbol is already exported by a generated package, import it with `use work.<package>.all;` in the failing file and ensure the package appears before the dependent file in analysis_order.',
+        '  If no generated package exports the symbol, add the type/subtype to the appropriate shared package and update analysis_order so dependents compile after it.',
+        '  Preserve existing public package names and dependent interfaces unless the validator evidence says the package itself is illegal.',
+      ].join('\n'));
+    } else if (detail.code === 'unknown_port_map_formal') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the failing port map locally. Named associations must use exact formal port names from the instantiated entity/component declaration.',
+        '  Inspect the target entity/component legal formal port list and replace only the bad formal name; do not invent ports or rename the target entity interface unless every dependent instantiation is updated coherently.',
+        '  Preserve actual signal intent and connect it to the correct existing formal port, or leave the port intentionally unconnected only when the target mode and design intent allow it.',
+      ].join('\n'));
+    } else if (detail.code === 'interface_constant_not_visible') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the entity/component interface locally. Any width constant used in a port subtype must be declared before the port list or imported from a visible package.',
+        '  If this is an entity-level width such as OUT_WIDTH, add it to the entity generic list with a safe default before the port clause, then keep all dependent widths coherent.',
+        '  Do not leave uppercase width symbols floating in port declarations without a generic/package declaration.',
+        detail.forbiddenConstruct ? `  Failing interface evidence: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'record_field_not_declared') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair cross-file schema drift by making implementation files match the package record definition.',
+        '  Do not invent new record fields to satisfy illegal accesses. Use only the fields declared in the package record, or derive the desired value from those declared fields.',
+        detail.legalReplacementPattern
+          ? `  Required replacement: ${detail.legalReplacementPattern}`
+          : '  Include the exact package record declaration and repair every illegal field access in dependent files consistently.',
+      ].join('\n'));
     } else if (detail.code === 'output_port_readback') {
       sections.push([
         `- ${detail.code}`,
@@ -324,11 +403,14 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
       || detail.code === 'typed_port_association_mismatch'
       || detail.code === 'shift_left_on_raw_std_logic_vector'
       || detail.code === 'shift_right_on_raw_std_logic_vector'
+      || detail.code === 'enum_opcode_numeric_conversion_misuse'
     ) {
       sections.push([
         `- ${detail.code}`,
         '  Repair numeric_std typing locally: convert operands into unsigned/signed before resize, bitwise operations, shifts, or to_integer.',
-        detail.code === 'illegal_prefix_operator_form'
+        detail.code === 'enum_opcode_numeric_conversion_misuse'
+          ? '  CPU instruction encodings must be std_logic_vector constants or integer constants. Do not call to_integer(...) on enum/custom opcode literals such as OP_ADD or OP_HALT.'
+          : detail.code === 'illegal_prefix_operator_form'
           ? '  Replace function-style/prefix operator forms with legal infix VHDL operators on operands of matching type and width.'
           : '  Replace pseudo-boolean arithmetic hybrids with explicit comparisons or typed intermediate values.',
       ].join('\n'));
@@ -345,6 +427,17 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  In RTL: initialize every output, state register, flag, FIFO/status signal, and memory-visible control value on reset, and assign deterministic combinational defaults before case/if branches.',
         '  In the testbench: assert reset long enough, release it on a clock edge, wait at least one full clock after reset release before checking idle/status outputs, and avoid to_integer on vectors until they are known or explicitly guarded.',
         '  Preserve passing files/checks and repair only the files needed to remove U/X/metavalue behavior.',
+      ].join('\n'));
+    } else if (detail.code === 'cpu_halt_behavior_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Treat this as a CPU behavioral contract mismatch, not a syntax repair.',
+        '  Fix the RTL/TB behavioral contract that caused the halt-cycle assertion to fail. Do not remove, weaken, skip, rename, or silence the assertion.',
+        detail.assertionLabel ? `  Failing assertion label: ${detail.assertionLabel}.` : '  Use the failing halt/check assertion label from the evidence above.',
+        detail.simulationTime ? `  Reported simulation time: ${detail.simulationTime}.` : '  Use the reported simulation time from the evidence above.',
+        detail.expectedBehavior ? `  Expected behavior: ${detail.expectedBehavior}` : '  Expected behavior: CPU halt/control state must match the self-checking TB expectation at the failing cycle.',
+        '  Inspect the provided instruction stimulus sequence and CPU decoder/control/top excerpts before choosing whether RTL control/decoder behavior or TB timing expectation is wrong.',
+        '  Preserve already-passing checks and repair the smallest existing file set needed for CPU decoder/control/TB timing consistency.',
       ].join('\n'));
     } else if (
       detail.code === 'simulation_assertion_expected_actual_mismatch'
@@ -904,6 +997,13 @@ export async function runAiAnalyzeJob(params: {
       normalizeArchitectProjectGhdlPlan(architectProject);
     };
 
+    const persistRepairableFiles = async (files: RepairableGeneratedFile[]) => {
+      await Promise.all(files.map(async (file) => {
+        await fs.mkdir(path.dirname(file.absolutePath), { recursive: true });
+        await fs.writeFile(file.absolutePath, file.content, 'utf8');
+      }));
+    };
+
     const runDeterministicRepairPasses = async (input: {
       files: RepairableGeneratedFile[];
       validation: GeneratedVhdlValidationResult;
@@ -929,6 +1029,7 @@ export async function runAiAnalyzeJob(params: {
         deterministicChangedAny = true;
         deterministicFiles = deterministicRepair.repairedFiles;
         syncArchitectProjectFilesFromRepairableFiles(deterministicFiles);
+        await persistRepairableFiles(deterministicFiles);
         deterministicValidation = requirePassingSimulationForMacro({
           macroId,
           validation: await validateGeneratedVhdlWithGhdl({

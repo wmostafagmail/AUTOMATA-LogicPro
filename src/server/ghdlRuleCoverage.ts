@@ -43,6 +43,10 @@ export type CanonicalGhdlRule = {
   enforcementLayers: GhdlRuleEnforcementLayer[];
   status: GhdlRuleStatus;
   testId: string | null;
+  forbiddenExamples?: string[];
+  legalExamples?: string[];
+  validatorFailureCodes?: string[];
+  repairStrategy?: string;
 };
 
 const CODE_GENERATING_MACRO_IDS: AiMacroId[] = [
@@ -60,6 +64,68 @@ const GHDL_RULE_ENFORCEMENT_LAYERS: GhdlRuleEnforcementLayer[] = [
   'diagnostics',
   'runtime_acceptance',
 ];
+
+type CanonicalRuleActionability = Required<Pick<
+  CanonicalGhdlRule,
+  'forbiddenExamples' | 'legalExamples' | 'validatorFailureCodes' | 'repairStrategy'
+>>;
+
+const ACTIONABLE_RULE_OVERRIDES: Record<string, Partial<CanonicalRuleActionability>> = {
+  'ghdl-clean-command-contract': {
+    forbiddenExamples: ['"Run with GHDL" without analyze/elaborate/run commands', 'missing waveform flag in a runnable testbench command'],
+    legalExamples: ['ghdl -a --std=08 --workdir=work src/pkg.vhd', 'ghdl -r --std=08 --workdir=work tb_top --vcd=waves/tb_top.vcd --stop-time=1us'],
+    validatorFailureCodes: ['missing_ghdl_command_contract', 'missing_waveform_generation_contract'],
+    repairStrategy: 'synthesize or repair the command plan from analysis_order, top_testbench, expected_result, and generated file paths; do not ask the model to guess command syntax when structured metadata exists',
+  },
+  'ghdl-clocked-variable-discipline': {
+    forbiddenExamples: ['plain architecture-body variables', 'helper procedures declared after begin', 'procedures mutating outer-scope variables/signals implicitly', 'using := inside boolean conditions'],
+    legalExamples: ['process-local variables declared before the process begin', 'helper procedures declared before begin with explicit inout formal parameters for mutable state'],
+    validatorFailureCodes: ['architecture_body_variable', 'declaration_after_begin', 'procedure_outer_scope_write', 'conditional_assignment_operator_misuse', 'subprogram_call_arity_mismatch', 'subprogram_actual_type_mismatch'],
+    repairStrategy: 'repair declaration placement and mutable state ownership as a bundled file-local scope fix, then revalidate before invoking the model',
+  },
+  'ghdl-no-raw-slv-arithmetic': {
+    forbiddenExamples: ['resize(a, WIDTH) when a is std_logic_vector', 'a_int and b_int = 0', 'res_u := a_slv and b_slv'],
+    legalExamples: ["a_u := unsigned(a); result_u := resize(a_u, result_u'length);", "zero_flag <= '1' when result_u = 0 else '0';"],
+    validatorFailureCodes: ['resize_on_raw_std_logic_vector', 'illegal_numeric_logical_hybrid', 'typed_bitwise_mismatch', 'typed_unary_mismatch'],
+    repairStrategy: 'normalize operands into unsigned/signed locals at the boundary, keep every branch in one typed domain, and convert back only at ports or packed buses',
+  },
+  'ghdl-explicit-boundary-conversions': {
+    forbiddenExamples: ['to_integer(addr_slv)', 'passing std_logic_vector actuals into unsigned formals', 'assigning std_logic_vector function results to unsigned objects'],
+    legalExamples: ['to_integer(unsigned(addr_slv))', 'formal_u => unsigned(actual_slv)', 'result_u := unsigned(helper_result_slv);'],
+    validatorFailureCodes: ['to_integer_on_raw_logic_type', 'typed_helper_actual_mismatch', 'typed_function_result_mismatch', 'typed_port_association_mismatch', 'enum_opcode_numeric_conversion_misuse'],
+    repairStrategy: 'repair only the failing boundary by adding the explicit conversion that matches the formal or destination type',
+  },
+  'ghdl-record-package-rules': {
+    forbiddenExamples: ['function bodies inside package declarations', 'type foo_t is integer range 0 to 7', 'package references without a generated package file'],
+    legalExamples: ['package pkg is function f return natural; end package; package body pkg is function f return natural is begin return 0; end; end package body;', 'subtype index_t is integer range 0 to 7;'],
+    validatorFailureCodes: ['subprogram_body_inside_package_declaration', 'illegal_scalar_type_alias', 'missing_work_package_file', 'package_symbol_not_visible'],
+    repairStrategy: 'split package declarations from bodies, preserve public signatures, and ensure every work package reference has a real generated source file before dependents',
+  },
+  'ghdl-array-memory-rules': {
+    forbiddenExamples: ['std_logic_vector(7 downto 0)(3 downto 0)', 'signal mem : array(0 to 3) of std_logic_vector(7 downto 0)', 're-constraining an already constrained subtype'],
+    legalExamples: ['type byte_array_t is array (natural range <>) of std_logic_vector(7 downto 0); signal mem : byte_array_t(0 to 3);'],
+    validatorFailureCodes: ['illegal_multidimensional_logic_vector', 'anonymous_array_object_declaration', 'reconstrained_subtype_alias'],
+    repairStrategy: 'introduce a named array type or flatten storage; update directly dependent declarations only',
+  },
+  'ghdl-source-ordering': {
+    forbiddenExamples: ['testbench analyzed before package/entity dependencies', 'analysis_order lists a package name but no package source file exists'],
+    legalExamples: ['packages, package bodies, RTL leaves, top RTL, TB packages, TB top'],
+    validatorFailureCodes: ['invalid_source_order_contract', 'source_order_dependency_inversion', 'unresolved_work_unit', 'missing_work_package_file', 'package_symbol_not_visible'],
+    repairStrategy: 'repair structured analysis_order and missing generated dependency files before GHDL analyze; do not reorder around absent source files',
+  },
+  'ghdl-self-checking-testbenches': {
+    forbiddenExamples: ['severity failure for PASS', 'unconstrained mutable string variables', 'edge helper formal not declared as signal', 'raw logic-vector indexing without guarding unknown bits'],
+    legalExamples: ['report "TEST PASSED" severity note; std.env.stop(0);', 'procedure wait_clk(signal clk_i : in std_logic) is begin wait until rising_edge(clk_i); end procedure;'],
+    validatorFailureCodes: ['tb_unconstrained_string_variable', 'invalid_subprogram_formal_syntax', 'clock_edge_helper_requires_signal_formal', 'subprogram_call_arity_mismatch', 'subprogram_actual_type_mismatch', 'tb_unguarded_logic_index_conversion', 'simulation_assertion_expected_actual_mismatch'],
+    repairStrategy: 'repair self-checking helpers and assertions locally without weakening checks; preserve exact failing PASS/FAIL evidence',
+  },
+  'ghdl-identifier-safety': {
+    forbiddenExamples: ['label', 'body', 'and', 'or', 'xor', 'not', 'sll', 'srl'],
+    legalExamples: ['label_text', 'pkg_body_impl', 'op_and', 'op_shift_left'],
+    validatorFailureCodes: ['reserved_identifier'],
+    repairStrategy: 'rename only illegal identifiers consistently across the generated file set',
+  },
+};
 
 export const GHDL_EXTERNAL_RULE_REGISTRY: CanonicalGhdlRule[] = [
   {
@@ -956,6 +1022,9 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   tb_unconstrained_string_variable: ['ghdl-clocked-variable-discipline', 'ghdl-self-checking-testbenches'],
   tb_string_formal_actual_constraint_mismatch: ['ghdl-self-checking-testbenches'],
   clock_edge_helper_requires_signal_formal: ['ghdl-self-checking-testbenches', 'ghdl-clocked-variable-discipline'],
+  invalid_subprogram_formal_syntax: ['ghdl-self-checking-testbenches', 'ghdl-entity-format'],
+  subprogram_call_arity_mismatch: ['ghdl-self-checking-testbenches', 'ghdl-clocked-variable-discipline'],
+  subprogram_actual_type_mismatch: ['ghdl-self-checking-testbenches', 'ghdl-explicit-boundary-conversions'],
   tb_unguarded_logic_index_conversion: ['ghdl-unknown-z-rules', 'ghdl-arithmetic-width-rules'],
   invalid_range_membership_syntax: ['ghdl-arithmetic-width-rules', 'ghdl-clocked-variable-discipline'],
   interface_arrow_syntax: ['ghdl-entity-format'],
@@ -970,6 +1039,7 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   resize_on_raw_std_logic_vector: ['ghdl-no-raw-slv-arithmetic', 'ghdl-explicit-resizing'],
   resize_with_range_attribute: ['ghdl-explicit-resizing'],
   to_integer_on_raw_logic_type: ['ghdl-explicit-boundary-conversions'],
+  enum_opcode_numeric_conversion_misuse: ['ghdl-explicit-boundary-conversions', 'ghdl-no-raw-slv-arithmetic'],
   shift_left_on_raw_std_logic_vector: ['ghdl-no-raw-slv-arithmetic'],
   shift_right_on_raw_std_logic_vector: ['ghdl-no-raw-slv-arithmetic'],
   typed_bitwise_mismatch: ['ghdl-no-raw-slv-arithmetic'],
@@ -977,6 +1047,8 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   typed_helper_actual_mismatch: ['ghdl-explicit-boundary-conversions'],
   typed_function_result_mismatch: ['ghdl-explicit-boundary-conversions'],
   typed_port_association_mismatch: ['ghdl-explicit-boundary-conversions', 'ghdl-instantiation-rules'],
+  package_symbol_not_visible: ['ghdl-record-package-rules', 'ghdl-source-ordering'],
+  unknown_port_map_formal: ['ghdl-instantiation-rules', 'ghdl-entity-format'],
   procedure_outer_scope_write: ['ghdl-clocked-variable-discipline'],
   conditional_assignment_operator_misuse: ['ghdl-clocked-variable-discipline', 'ghdl-arithmetic-width-rules'],
   variable_assigned_with_signal_operator: ['ghdl-clocked-variable-discipline'],
@@ -986,6 +1058,7 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   reconstrained_subtype_alias: ['ghdl-array-memory-rules'],
   subprogram_body_inside_package_declaration: ['ghdl-record-package-rules'],
   undeclared_interface_dimension_reference: ['ghdl-top-port-constraints'],
+  interface_constant_not_visible: ['ghdl-top-port-constraints', 'ghdl-entity-format'],
   output_port_readback: ['ghdl-no-raw-slv-arithmetic'],
   runtime_bound_check_risk: ['ghdl-arithmetic-width-rules'],
   top_level_generic_default_missing: ['ghdl-top-generic-defaults'],
@@ -1005,6 +1078,7 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   ghdl_analyze_failure: ['ghdl-command-rules'],
   ghdl_elaborate_failure: ['ghdl-command-rules'],
   ghdl_simulate_failure: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
+  cpu_halt_behavior_mismatch: ['ghdl-command-rules', 'ghdl-self-checking-testbenches', 'ghdl-cpu-core-rules'],
   simulation_assertion_expected_actual_mismatch: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
   simulation_valid_latency_mismatch: ['ghdl-command-rules', 'ghdl-self-checking-testbenches'],
   simulation_unknown_metavalue: ['ghdl-reset-discipline', 'ghdl-self-checking-testbenches', 'ghdl-numeric-std-rules'],
@@ -1013,6 +1087,49 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
 export function getCanonicalRuleIdsForFailureCode(failureCode: string | null | undefined) {
   if (!failureCode) return [];
   return GHDL_FAILURE_CODE_TO_RULE_IDS[failureCode] || [];
+}
+
+export function getCanonicalRuleActionability(rule: CanonicalGhdlRule): CanonicalRuleActionability {
+  const override = ACTIONABLE_RULE_OVERRIDES[rule.ruleId] || {};
+  return {
+    forbiddenExamples: override.forbiddenExamples || rule.forbiddenExamples || [`Avoid constructs that violate: ${rule.summary}`],
+    legalExamples: override.legalExamples || rule.legalExamples || [`Follow rule: ${rule.summary}`],
+    validatorFailureCodes: override.validatorFailureCodes || rule.validatorFailureCodes || [],
+    repairStrategy: override.repairStrategy || rule.repairStrategy || 'classify the failure with a stable rule ID, preserve unrelated legal code, and repair only the smallest coherent local construct',
+  };
+}
+
+export function buildCanonicalRuleActionabilitySection(params: {
+  macroId: AiMacroId;
+  ruleIds?: string[];
+  maxRules?: number;
+  heading?: string;
+}) {
+  const selectedRules = GHDL_EXTERNAL_RULE_REGISTRY
+    .filter((rule) => ruleAppliesToMacro(rule, params.macroId))
+    .filter((rule) => !params.ruleIds || params.ruleIds.includes(rule.ruleId))
+    .slice(0, params.maxRules ?? 8);
+
+  if (selectedRules.length === 0) {
+    return '';
+  }
+
+  return [
+    `## ${params.heading ?? 'Canonical Rule Repair Contracts'}`,
+    'These rule contracts are machine-owned. Prefer the listed legal examples and repair strategy over free-form interpretation.',
+    ...selectedRules.map((rule, index) => {
+      const actionability = getCanonicalRuleActionability(rule);
+      return [
+        `${index + 1}. ${rule.ruleId}: ${rule.title}`,
+        `   Family: ${rule.family}`,
+        `   Summary: ${rule.summary}`,
+        `   Failure codes: ${actionability.validatorFailureCodes.length > 0 ? actionability.validatorFailureCodes.join(', ') : 'none assigned'}`,
+        ...actionability.forbiddenExamples.slice(0, 3).map((example) => `   Forbidden: ${example}`),
+        ...actionability.legalExamples.slice(0, 2).map((example) => `   Legal: ${example}`),
+        `   Repair strategy: ${actionability.repairStrategy}`,
+      ].join('\n');
+    }),
+  ].join('\n');
 }
 
 export function ruleAppliesToMacro(rule: CanonicalGhdlRule, macroId: AiMacroId) {

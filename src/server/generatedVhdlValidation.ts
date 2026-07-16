@@ -57,6 +57,11 @@ export type GeneratedVhdlFailureDetail = {
   lineHint?: number | null;
   forbiddenConstruct?: string;
   legalReplacementPattern?: string;
+  assertionLabel?: string;
+  simulationTime?: string;
+  instructionSequence?: string[];
+  expectedBehavior?: string;
+  relatedSourcePaths?: string[];
 };
 
 export type GeneratedVhdlArtifactForValidation = {
@@ -157,6 +162,164 @@ function stripVhdlComments(content: string) {
 
 function lineNumberForIndex(content: string, index: number) {
   return content.slice(0, Math.max(0, index)).split(/\r\n|\r|\n/).length;
+}
+
+function isIndexInsideDoubleQuotedString(content: string, index: number) {
+  const lineStart = content.lastIndexOf('\n', Math.max(0, index - 1)) + 1;
+  let inString = false;
+  for (let offset = lineStart; offset < index; offset += 1) {
+    if (content[offset] !== '"') continue;
+    if (content[offset + 1] === '"') {
+      offset += 1;
+      continue;
+    }
+    inString = !inString;
+  }
+  return inString;
+}
+
+function lineTextForIndex(content: string, index: number) {
+  const lineStart = content.lastIndexOf('\n', Math.max(0, index - 1)) + 1;
+  const nextLine = content.indexOf('\n', index);
+  const lineEnd = nextLine >= 0 ? nextLine : content.length;
+  return content.slice(lineStart, lineEnd).trim();
+}
+
+function collectMalformedCharacterLiterals(content: string) {
+  const issues: Array<{
+    lineHint: number;
+    badText: string;
+    replacement: string;
+    lineText: string;
+  }> = [];
+  const cleanContent = stripVhdlComments(content);
+  const expression = /'([01])(?=\s*[);,])/g;
+
+  for (const match of cleanContent.matchAll(expression)) {
+    if (match.index == null || isIndexInsideDoubleQuotedString(cleanContent, match.index)) continue;
+    const badText = match[0];
+    const replacement = `'${match[1]}'`;
+    issues.push({
+      lineHint: lineNumberForIndex(cleanContent, match.index),
+      badText,
+      replacement,
+      lineText: lineTextForIndex(cleanContent, match.index),
+    });
+  }
+
+  return issues;
+}
+
+function findClosingParen(content: string, openParenIndex: number) {
+  let depth = 0;
+  for (let index = openParenIndex; index < content.length; index += 1) {
+    const char = content[index];
+    if (char === '"' && !isIndexInsideDoubleQuotedString(content, index)) {
+      index += 1;
+      while (index < content.length) {
+        if (content[index] === '"' && content[index + 1] === '"') {
+          index += 2;
+          continue;
+        }
+        if (content[index] === '"') break;
+        index += 1;
+      }
+      continue;
+    }
+    if (char === '(') {
+      depth += 1;
+    } else if (char === ')') {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+  return -1;
+}
+
+function collectIncompleteSubprogramInterfaces(content: string) {
+  const issues: Array<{
+    kind: 'function' | 'procedure';
+    name: string;
+    lineHint: number;
+    illegalToken: string;
+    excerpt: string;
+  }> = [];
+  const cleanContent = stripVhdlComments(content);
+  const startExpression = /\b(function|procedure)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(/gi;
+  const executableBeforeClosedInterface =
+    /^\s*(report|if|wait|assert|begin|process|for|while)\b|^\s*[a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?\s*(?:<=|:=)/im;
+
+  for (const match of cleanContent.matchAll(startExpression)) {
+    if (match.index == null) continue;
+    const kind = match[1].toLowerCase() as 'function' | 'procedure';
+    const name = match[2];
+    const openParenIndex = match.index + match[0].lastIndexOf('(');
+    const closeParenIndex = findClosingParen(cleanContent, openParenIndex);
+    const searchEnd = closeParenIndex >= 0
+      ? closeParenIndex
+      : (() => {
+          const endMatch = /\bend\s+(?:function|procedure)\b/i.exec(cleanContent.slice(openParenIndex));
+          return endMatch?.index == null ? Math.min(cleanContent.length, openParenIndex + 2000) : openParenIndex + endMatch.index;
+        })();
+    const interfaceText = cleanContent.slice(openParenIndex + 1, searchEnd);
+    const illegalMatch = executableBeforeClosedInterface.exec(interfaceText);
+    if (!illegalMatch || illegalMatch.index == null) continue;
+
+    const illegalIndex = openParenIndex + 1 + illegalMatch.index;
+    issues.push({
+      kind,
+      name,
+      lineHint: lineNumberForIndex(cleanContent, illegalIndex),
+      illegalToken: illegalMatch[1] || illegalMatch[0].trim().split(/\s+/)[0] || 'statement',
+      excerpt: lineTextForIndex(cleanContent, illegalIndex),
+    });
+  }
+
+  return issues;
+}
+
+function collectIllegalOthersAggregateComparisons(content: string) {
+  const issues: Array<{
+    lineHint: number;
+    expression: string;
+    objectName: string;
+    bit: string;
+  }> = [];
+  const cleanContent = stripVhdlComments(content);
+  const expression = /\b([a-zA-Z][a-zA-Z0-9_]*)\s*(=|\/=)\s*\(\s*others\s*=>\s*'([01])'\s*\)/gi;
+
+  for (const match of cleanContent.matchAll(expression)) {
+    if (match.index == null || isIndexInsideDoubleQuotedString(cleanContent, match.index)) continue;
+    issues.push({
+      lineHint: lineNumberForIndex(cleanContent, match.index),
+      expression: match[0],
+      objectName: match[1],
+      bit: match[3],
+    });
+  }
+
+  return issues;
+}
+
+function collectCommaSeparatedPackedVectorSubtypes(content: string) {
+  const issues: Array<{
+    lineHint: number;
+    expression: string;
+    typeName: string;
+  }> = [];
+  const cleanContent = stripVhdlComments(content);
+  const expression = /\b(std_logic_vector|unsigned|signed)\s*\(([^()\n;]*\bdownto\b[^()\n;]*,[^()\n;]*\bdownto\b[^()\n;]*)\)/gi;
+
+  for (const match of cleanContent.matchAll(expression)) {
+    if (match.index == null || isIndexInsideDoubleQuotedString(cleanContent, match.index)) continue;
+    issues.push({
+      lineHint: lineNumberForIndex(cleanContent, match.index),
+      expression: match[0],
+      typeName: match[1],
+    });
+  }
+
+  return issues;
 }
 
 function collectDeclaredObjectNames(content: string, declarationKind: 'signal' | 'variable') {
@@ -562,6 +725,9 @@ function collectExecutableRegionFindings(content: string) {
       if (token.lower === ';' && pendingSubprogram.parenthesisDepth === 0) {
         pendingSubprogram = null;
       }
+      if (pendingSubprogram) {
+        continue;
+      }
     }
 
     if (token.lower === 'begin' && topScope && !topScope.beginSeen) {
@@ -683,6 +849,11 @@ function createFailureDetail(params: {
   lineHint?: number | null;
   forbiddenConstruct?: string;
   legalReplacementPattern?: string;
+  assertionLabel?: string;
+  simulationTime?: string;
+  instructionSequence?: string[];
+  expectedBehavior?: string;
+  relatedSourcePaths?: string[];
 }): GeneratedVhdlFailureDetail {
   const canonicalRuleIds = params.ruleIds && params.ruleIds.length > 0
     ? params.ruleIds
@@ -696,7 +867,40 @@ function createFailureDetail(params: {
     excerpt: trimFailureExcerpt(params.message),
     relativePath: params.relativePath ?? inferredPathMatch?.[1],
     lineHint: params.lineHint ?? (inferredLineMatch?.[1] ? Number.parseInt(inferredLineMatch[1], 10) : null),
+    assertionLabel: params.assertionLabel,
+    simulationTime: params.simulationTime,
+    instructionSequence: params.instructionSequence,
+    expectedBehavior: params.expectedBehavior,
+    relatedSourcePaths: params.relatedSourcePaths,
   };
+}
+
+function extractAssertionLabel(assertionText: string) {
+  const failLabel = assertionText.match(/\bFAIL[:\s]+([a-zA-Z][a-zA-Z0-9_]*)/i)?.[1];
+  if (failLabel) return failLabel;
+  const firstToken = assertionText.match(/\b([a-zA-Z][a-zA-Z0-9_]*(?:_[a-zA-Z0-9]+)+)\b/)?.[1];
+  return firstToken || null;
+}
+
+function inferExpectedBehaviorFromAssertionLabel(label: string | null, assertionText: string) {
+  const source = `${label || ''} ${assertionText}`.toLowerCase();
+  if (/halt/.test(source)) {
+    return 'CPU halt/control behavior must match the self-checking halt-cycle expectation at the reported simulation time.';
+  }
+  if (/\bpc\b|program_counter|fetch/.test(source)) {
+    return 'Program-counter/fetch sequencing must match the self-checking expectation at the reported simulation time.';
+  }
+  if (/\breg|register|writeback/.test(source)) {
+    return 'Register/writeback behavior must match the self-checking expectation at the reported simulation time.';
+  }
+  if (/valid|ready|done|enable/.test(source)) {
+    return 'Handshake/status timing must match the self-checking expectation at the reported simulation time.';
+  }
+  return null;
+}
+
+function isCpuHaltAssertion(label: string | null, assertionText: string) {
+  return /\bhalt(?:_cycle)?(?:_\d+)?\b/i.test(`${label || ''} ${assertionText}`);
 }
 
 function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
@@ -708,18 +912,24 @@ function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
     const lineHint = Number.parseInt(match[2], 10);
     const timeText = match[4].trim();
     const assertionText = match[5].trim();
+    const assertionLabel = extractAssertionLabel(assertionText);
     if (/expected\s+'?[01]'?\s+got\s+'?[UXZW-]'?/i.test(assertionText) || /got\s+'?[UXZW-]'?/i.test(assertionText)) {
       continue;
     }
     const expectedActual = assertionText.match(/\bexpected\s+(.+?)\s+but\s+got\s+(.+)$/i);
-    const code = expectedActual
+    const code = isCpuHaltAssertion(assertionLabel, assertionText)
+      ? 'cpu_halt_behavior_mismatch'
+      : expectedActual
       ? 'simulation_assertion_expected_actual_mismatch'
       : /valid|ready|enable|done|empty|full/i.test(assertionText)
         ? 'simulation_valid_latency_mismatch'
         : 'ghdl_simulate_failure';
     const legalReplacementPattern = expectedActual
       ? `repair the existing RTL/TB logic so the value at ${timeText} matches expected ${expectedActual[1].trim()} instead of actual ${expectedActual[2].trim()}; do not delete, weaken, or rename the assertion`
+      : code === 'cpu_halt_behavior_mismatch'
+        ? `repair the CPU decoder/control/TB timing contract so the halt-cycle expectation is true at ${timeText}; do not delete, weaken, skip, rename, or silence the assertion`
       : `repair the existing RTL/TB timing or handshake behavior that triggers this assertion at ${timeText}; do not delete, weaken, or rename the assertion`;
+    const expectedBehavior = inferExpectedBehaviorFromAssertionLabel(assertionLabel, assertionText);
 
     details.push(createFailureDetail({
       code,
@@ -729,6 +939,12 @@ function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
       lineHint,
       forbiddenConstruct: `self-checking assertion/report failure at ${timeText}: ${assertionText}`,
       legalReplacementPattern,
+      assertionLabel: assertionLabel || undefined,
+      simulationTime: timeText,
+      expectedBehavior: expectedBehavior || undefined,
+      relatedSourcePaths: code === 'cpu_halt_behavior_mismatch'
+        ? ['src/cpu_pkg.vhd', 'src/decoder.vhd', 'src/control_fsm.vhd', 'src/cpu_top.vhd', 'src/program_counter.vhd', 'src/alu.vhd']
+        : undefined,
     }));
   }
 
@@ -831,6 +1047,30 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     });
   }
 
+  const missingActualMatch = message.match(/no actual for (?:constant|signal|variable)?\s*interface\s+"([^"]+)"/i);
+  if (missingActualMatch) {
+    push({
+      code: 'subprogram_call_arity_mismatch',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: `subprogram call omits required formal interface "${missingActualMatch[1]}"`,
+      legalReplacementPattern:
+        'make the helper declaration and every call site agree on one exact formal/actual count; remove unused extra formals or add the missing actual where the helper truly needs it',
+    });
+  }
+
+  const subprogramActualMismatchMatch = message.match(/can't associate "([^"]+)" with (?:constant|signal|variable)?\s*interface "([^"]+)"/i);
+  if (subprogramActualMismatchMatch) {
+    push({
+      code: 'subprogram_actual_type_mismatch',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: `actual "${subprogramActualMismatchMatch[1]}" does not match helper formal "${subprogramActualMismatchMatch[2]}"`,
+      legalReplacementPattern:
+        'align helper formal types with the actuals at every call site; split scalar std_logic helpers from std_logic_vector helpers instead of forcing one unsafe signature',
+    });
+  }
+
   if (/no declaration for "std_logic(?:_vector)?"|no declaration for "std_ulogic"/i.test(message)) {
     push({
       code: 'missing_std_logic_1164_clause',
@@ -851,6 +1091,28 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     });
   }
 
+  const unknownPortMapFormal = message.match(/no declaration for "([a-zA-Z][a-zA-Z0-9_]*)"/i);
+  const unknownPortMapSymbol = unknownPortMapFormal?.[1]?.toLowerCase() || null;
+  if (unknownPortMapFormal && /\bport\s+map\b[\s\S]*=>/i.test(message)) {
+    push({
+      code: 'unknown_port_map_formal',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: `named port-map formal "${unknownPortMapFormal[1]}" is not declared by the instantiated entity/component`,
+      legalReplacementPattern: 'inspect the instantiated entity/component declaration and rewrite the port map to use only exact formal port names',
+    });
+  } else if (unknownPortMapFormal && unknownPortMapSymbol && !BUILTIN_VHDL_TYPE_NAMES.has(unknownPortMapSymbol)) {
+    const symbol = unknownPortMapFormal[1];
+    push({
+      code: 'package_symbol_not_visible',
+      category: 'package_type_definition',
+      message,
+      forbiddenConstruct: `custom type or package symbol "${symbol}" used where it is not visible`,
+      legalReplacementPattern:
+        `declare/export "${symbol}" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source`,
+    });
+  }
+
   if (/no overloaded function found matching "resize"|calls resize on raw std_logic_vector/i.test(message)) {
     push({
       code: 'resize_on_raw_std_logic_vector',
@@ -858,6 +1120,30 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: 'calling resize on a raw std_logic_vector operand',
       legalReplacementPattern: 'convert the operand into unsigned(...) or signed(...) first, then call resize on the typed value',
+    });
+  }
+
+  if (/no overloaded function found matching "to_integer"/i.test(message) && /\bto_integer\s*\(\s*OP_[A-Z0-9_]+\s*\)/i.test(message)) {
+    const opcode = message.match(/\bto_integer\s*\(\s*(OP_[A-Z0-9_]+)\s*\)/i)?.[1] || 'OP_*';
+    push({
+      code: 'enum_opcode_numeric_conversion_misuse',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: `numeric conversion to_integer(${opcode}) on opcode/custom symbol`,
+      legalReplacementPattern:
+        `define ${opcode} as an integer constant or std_logic_vector encoding constant and use that encoding directly; do not pass enum literals through to_integer(...)`,
+    });
+  }
+
+  const undeclaredInterfaceConstant = message.match(/no declaration for "([A-Z][A-Z0-9_]*)"/);
+  if (undeclaredInterfaceConstant && /\b(?:std_logic_vector|unsigned|signed)\s*\([^)]*\b[A-Z][A-Z0-9_]*\b[^)]*\)/i.test(message)) {
+    push({
+      code: 'interface_constant_not_visible',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: `interface width references undeclared "${undeclaredInterfaceConstant[1]}"`,
+      legalReplacementPattern:
+        `declare "${undeclaredInterfaceConstant[1]}" as an earlier entity generic with a safe default, import it from a selected package, or replace it with a literal width`,
     });
   }
 
@@ -888,6 +1174,71 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: 'function call result whose return type does not match the typed destination domain',
       legalReplacementPattern: 'make the helper return unsigned/signed directly, or convert the function result explicitly at the assignment site',
+    });
+  }
+
+  if (/body of function ".*" does not conform with specification/i.test(message)) {
+    push({
+      code: 'package_body_signature_mismatch',
+      category: 'package_type_definition',
+      message,
+      forbiddenConstruct: 'package body function header that does not exactly match the package declaration',
+      legalReplacementPattern: 'copy the exact function signature from the package declaration into the package body, changing only the trailing ";" into "is"',
+    });
+  }
+
+  if (/'others' choice not allowed for an aggregate in this context/i.test(message)) {
+    push({
+      code: 'illegal_others_aggregate_context',
+      category: 'width_literal_mismatch',
+      message,
+      forbiddenConstruct: 'comparison against unqualified aggregate "(others => ...)"',
+      legalReplacementPattern: 'qualify the aggregate with the compared object range, for example "signal_name = (signal_name\'range => \'0\')"',
+    });
+  }
+
+  if (/subtype has more indexes than array subtype "STD_LOGIC_VECTOR"/i.test(message)) {
+    push({
+      code: 'illegal_multidimensional_logic_vector',
+      category: 'array_subtype_misuse',
+      message,
+      forbiddenConstruct: 'comma-separated multidimensional std_logic_vector/unsigned/signed subtype',
+      legalReplacementPattern: 'flatten the object into one dimension or use a named array type declared in a package',
+    });
+  }
+
+  if (/can't use an in conversion for an out\/buffer interface|conversion expression.*out\/buffer interface/i.test(message)) {
+    push({
+      code: 'out_port_actual_conversion',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: 'type conversion expression used as the actual for an out/buffer port association',
+      legalReplacementPattern: 'connect the out/buffer port to a writable signal of the exact formal type, then convert or assign that signal separately outside the port map',
+    });
+  }
+
+  const missingRecordFieldMatch = message.match(/no element "([^"]+)" in record type "([^"]+)"/i);
+  if (missingRecordFieldMatch) {
+    push({
+      code: 'record_field_not_declared',
+      category: 'package_type_definition',
+      message,
+      forbiddenConstruct: `record field access ".${missingRecordFieldMatch[1]}" on ${missingRecordFieldMatch[2]} even though that field is not declared`,
+      legalReplacementPattern: `repair implementation code to use only fields declared by ${missingRecordFieldMatch[2]}; do not invent new record fields in dependent files`,
+    });
+  }
+
+  const ghdlPortTypeMatch = message.match(/\(type of port "([^"]+)" is ([a-zA-Z][a-zA-Z0-9_]*)\)/i);
+  if (
+    ghdlPortTypeMatch
+    && !/^(?:std_logic|std_logic_vector|unsigned|signed|integer|string)$/i.test(ghdlPortTypeMatch[2])
+  ) {
+    push({
+      code: 'custom_type_port_association_mismatch',
+      category: 'package_type_definition',
+      message,
+      forbiddenConstruct: `actual type does not match custom formal port "${ghdlPortTypeMatch[1]}" of type ${ghdlPortTypeMatch[2]}`,
+      legalReplacementPattern: `wire "${ghdlPortTypeMatch[1]}" with a signal declared as ${ghdlPortTypeMatch[2]}, and perform any decoding/conversion before or after the port map`,
     });
   }
 
@@ -1066,7 +1417,52 @@ type NormalizedDeclaredType =
   | 'signed'
   | 'integer'
   | 'string'
-  | 'other';
+  | 'other'
+  | `custom:${string}`;
+
+type InterfacePortSignature = {
+  type: NormalizedDeclaredType;
+  rawType: string;
+  mode: 'in' | 'out' | 'inout' | 'buffer' | 'linkage';
+};
+
+type RecordTypeSignature = {
+  typeName: string;
+  fields: Map<string, string>;
+  declaration: string;
+};
+
+const BUILTIN_VHDL_TYPE_NAMES = new Set([
+  'bit',
+  'bit_vector',
+  'boolean',
+  'character',
+  'integer',
+  'natural',
+  'positive',
+  'real',
+  'severity_level',
+  'signed',
+  'std_logic',
+  'std_logic_vector',
+  'std_ulogic',
+  'std_ulogic_vector',
+  'string',
+  'time',
+  'unsigned',
+]);
+
+function customTypeName(value: string) {
+  return `custom:${value.trim().toLowerCase()}` as const;
+}
+
+function isCustomDeclaredType(value: NormalizedDeclaredType | null | undefined): value is `custom:${string}` {
+  return typeof value === 'string' && value.startsWith('custom:');
+}
+
+function formatDeclaredTypeForMessage(value: NormalizedDeclaredType | null | undefined) {
+  return isCustomDeclaredType(value) ? value.slice('custom:'.length) : value || 'unknown';
+}
 
 function splitIdentifierList(value: string) {
   return value
@@ -1112,6 +1508,80 @@ function splitTopLevelSegments(value: string, delimiter: ',' | ';') {
   return parts;
 }
 
+function findBalancedCloseParen(value: string, openParenIndex: number) {
+  let depth = 0;
+  for (let index = openParenIndex; index < value.length; index += 1) {
+    const char = value[index];
+    if (char === '(') {
+      depth += 1;
+    } else if (char === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        return index;
+      }
+    }
+  }
+  return -1;
+}
+
+function collectBalancedKeywordBlocks(content: string, keyword: string) {
+  const blocks: Array<{ body: string; index: number; closeIndex: number }> = [];
+  const expression = new RegExp(`\\b${keyword}\\s*\\(`, 'gi');
+  for (const match of content.matchAll(expression)) {
+    const openParenIndex = (match.index ?? 0) + match[0].lastIndexOf('(');
+    const closeIndex = findBalancedCloseParen(content, openParenIndex);
+    if (closeIndex < 0) continue;
+    blocks.push({
+      body: content.slice(openParenIndex + 1, closeIndex),
+      index: match.index ?? 0,
+      closeIndex,
+    });
+  }
+  return blocks;
+}
+
+function collectEntityOrComponentInterfaceRegions(content: string) {
+  const regions: Array<{ name: string; body: string }> = [];
+  const expression = /\b(entity|component)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/gi;
+  for (const match of content.matchAll(expression)) {
+    const kind = match[1]?.toLowerCase();
+    const name = match[2];
+    const startIndex = match.index ?? 0;
+    if (!kind || !name) continue;
+
+    const endExpression = new RegExp(`\\bend\\s+(?:${kind}\\s+)?${name}\\s*;|\\bend\\s+${kind}\\s*;`, 'i');
+    const remaining = content.slice(startIndex);
+    const endMatch = remaining.match(endExpression);
+    const endIndex = endMatch?.index == null ? content.length : startIndex + endMatch.index + endMatch[0].length;
+    regions.push({
+      name,
+      body: content.slice(startIndex, endIndex),
+    });
+  }
+  return regions;
+}
+
+function collectPortMapInstances(content: string) {
+  const instances: Array<{ name: string; associations: string; index: number; associationsIndex: number }> = [];
+  const expression =
+    /(?:^|\n)\s*[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:entity\s+work\.)?(?!(?:in|out|inout|buffer|linkage|signal|variable|constant|unsigned|signed|std_logic|std_logic_vector)\b)([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bport\s+map\s*\(/gi;
+
+  for (const match of content.matchAll(expression)) {
+    const name = match[1];
+    const openParenIndex = (match.index ?? 0) + match[0].lastIndexOf('(');
+    const closeIndex = findBalancedCloseParen(content, openParenIndex);
+    if (!name || closeIndex < 0) continue;
+    instances.push({
+      name,
+      associations: content.slice(openParenIndex + 1, closeIndex),
+      index: match.index ?? 0,
+      associationsIndex: openParenIndex + 1,
+    });
+  }
+
+  return instances;
+}
+
 function collectMalformedSubprogramFormalClauses(content: string) {
   const issues: Array<{
     kind: 'function' | 'procedure';
@@ -1131,6 +1601,9 @@ function collectMalformedSubprogramFormalClauses(content: string) {
 
       if (
         /^(?:in|out|inout|buffer|linkage)\s+[a-zA-Z][a-zA-Z0-9_]*\s*:/i.test(normalizedClause)
+        || /^(?:shared\s+)?(?:signal|variable|constant)\s+[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:in|out|inout|buffer|linkage)\s+(?:in|out|inout|buffer|linkage)\b/i.test(normalizedClause)
+        || /^shared\s+(?:signal|variable|constant)\b/i.test(normalizedClause)
+        || /:\s*(?:in|out|inout|buffer|linkage)\s+(?:in|out|inout|buffer|linkage)\b/i.test(normalizedClause)
         || /:\s*(?:signal|variable|constant)\b/i.test(normalizedClause)
         || /^(?:signal|variable|constant)\s+[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:signal|variable|constant)\b/i.test(normalizedClause)
       ) {
@@ -1323,6 +1796,188 @@ function collectPotentialSubprogramCalls(content: string) {
   return calls;
 }
 
+function inferActualExpressionTypeForSubprogram(
+  actualExpression: string,
+  declaredTypes: Map<string, NormalizedDeclaredType>,
+): NormalizedDeclaredType | null {
+  const trimmed = actualExpression.trim().replace(/^[a-zA-Z][a-zA-Z0-9_]*\s*=>\s*/i, '').trim();
+  if (/^'[01UXZWLH-]'$/i.test(trimmed)) return 'std_logic';
+  if (/^"(?:[^"]|"")*"$/.test(trimmed) || /^x"[0-9a-f_]*"$/i.test(trimmed)) return 'std_logic_vector';
+  if (/^[+-]?\d+$/.test(trimmed)) return 'integer';
+  return inferActualExpressionType(trimmed, declaredTypes);
+}
+
+function collectSubprogramContractFindings(params: {
+  relativePath: string;
+  content: string;
+  declaredTypes: Map<string, NormalizedDeclaredType>;
+  subprogramSignatures: Map<string, SubprogramSignature[]>;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  const seen = new Set<string>();
+
+  for (const call of collectPotentialSubprogramCalls(params.content)) {
+    const lowerName = call.name.toLowerCase();
+    const prefix = params.content.slice(Math.max(0, call.index - 48), call.index);
+    if (/\b(?:function|procedure|entity|component|type|subtype|signal|variable|constant|generic|port)\s+$/i.test(prefix)) {
+      continue;
+    }
+
+    const signatures = params.subprogramSignatures.get(lowerName);
+    if (!signatures?.length) continue;
+
+    const actuals = splitTopLevelArguments(call.actualText);
+    const matchingArity = signatures.filter((signature) => signature.parameters.length === actuals.length);
+    const lineHint = lineNumberForIndex(params.content, call.index);
+    const excerpt = lineTextForIndex(params.content, call.index);
+
+    if (matchingArity.length === 0) {
+      const expectedCounts = Array.from(new Set(signatures.map((signature) => signature.parameters.length))).sort((a, b) => a - b);
+      const key = `${lowerName}:arity:${lineHint}:${actuals.length}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      findings.push(createFailureDetail({
+        code: 'subprogram_call_arity_mismatch',
+        category: 'interface_generic_port_syntax',
+        relativePath: params.relativePath,
+        lineHint,
+        message:
+          `${params.relativePath}:${lineHint}: calls "${call.name}" with ${actuals.length} actual argument(s), ` +
+          `but its visible declaration expects ${expectedCounts.join(' or ')} argument(s).`,
+        forbiddenConstruct: `call "${excerpt}" has ${actuals.length} actual argument(s)`,
+        legalReplacementPattern:
+          `make the "${call.name}" declaration and every call site agree on one exact formal/actual count; for wait_clk helpers prefer "procedure wait_clk(signal clk_i : in std_logic)" and calls "wait_clk(clk)"`,
+      }));
+      continue;
+    }
+
+    for (const signature of matchingArity) {
+      for (let index = 0; index < actuals.length; index += 1) {
+        const formalType = signature.parameters[index];
+        const actualType = inferActualExpressionTypeForSubprogram(actuals[index], params.declaredTypes);
+        if (!actualType || formalType === actualType) continue;
+        const scalarVectorMismatch =
+          (formalType === 'std_logic_vector' && actualType === 'std_logic')
+          || (formalType === 'std_logic' && actualType === 'std_logic_vector');
+        if (!scalarVectorMismatch) continue;
+
+        const key = `${lowerName}:type:${lineHint}:${index}:${formalType}:${actualType}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        findings.push(createFailureDetail({
+          code: 'subprogram_actual_type_mismatch',
+          category: 'interface_generic_port_syntax',
+          relativePath: params.relativePath,
+          lineHint,
+          message:
+            `${params.relativePath}:${lineHint}: calls "${call.name}" with ${formatDeclaredTypeForMessage(actualType)} actual "${actuals[index].trim()}" ` +
+            `for formal argument #${index + 1}, but the visible helper declaration expects ${formatDeclaredTypeForMessage(formalType)}.`,
+          forbiddenConstruct: `${formatDeclaredTypeForMessage(actualType)} actual "${actuals[index].trim()}" passed to ${formatDeclaredTypeForMessage(formalType)} formal of "${call.name}"`,
+          legalReplacementPattern:
+            /^check_eq_sl$/i.test(call.name)
+              ? 'use scalar helper check_eq_sl(label, got : std_logic, expected : std_logic, failed), and use check_eq_slv only for std_logic_vector comparisons'
+              : `make "${call.name}" formals and call actuals use the same scalar/vector type, or split helpers by type instead of overloading one unsafe signature`,
+        }));
+        break;
+      }
+    }
+  }
+
+  return findings;
+}
+
+function collectEnumOpcodeNumericConversionFindings(params: {
+  relativePath: string;
+  content: string;
+  declaredTypes: Map<string, NormalizedDeclaredType>;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  const cleanContent = stripVhdlComments(params.content);
+  const enumLiterals = new Set<string>();
+
+  for (const typeMatch of cleanContent.matchAll(/\btype\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\s*\(([\s\S]*?)\)\s*;/gi)) {
+    splitIdentifierList(typeMatch[1]).forEach((literal) => enumLiterals.add(literal.toLowerCase()));
+  }
+
+  for (const conversion of cleanContent.matchAll(/\bto_integer\s*\(\s*([a-zA-Z][a-zA-Z0-9_]*)\s*\)/gi)) {
+    const identifier = conversion[1];
+    const normalized = identifier.toLowerCase();
+    const declaredType = params.declaredTypes.get(normalized);
+    const looksOpcode = /^op_[a-z0-9_]+$/i.test(identifier);
+    const isUnsafe =
+      enumLiterals.has(normalized)
+      || (looksOpcode && declaredType !== 'integer' && declaredType !== 'unsigned' && declaredType !== 'signed');
+    if (!isUnsafe) continue;
+
+    const lineHint = lineNumberForIndex(cleanContent, conversion.index ?? 0);
+    const lineText = lineTextForIndex(cleanContent, conversion.index ?? 0);
+    findings.push(createFailureDetail({
+      code: 'enum_opcode_numeric_conversion_misuse',
+      category: 'numeric_std_type_discipline',
+      relativePath: params.relativePath,
+      lineHint,
+      message:
+        `${params.relativePath}:${lineHint}: uses numeric_std conversion "${conversion[0]}" on opcode/custom symbol "${identifier}". ` +
+        `Opcode encodings must be integer constants or std_logic_vector constants before numeric conversion.`,
+      forbiddenConstruct: `numeric conversion "${conversion[0]}" in "${lineText}"`,
+      legalReplacementPattern:
+        `define ${identifier} as an integer constant or std_logic_vector encoding constant and use that constant directly; do not pass enum literals through to_integer(...)`,
+    }));
+  }
+
+  return findings;
+}
+
+function collectInterfaceConstantVisibilityFindings(params: {
+  relativePath: string;
+  content: string;
+  packageExports: Map<string, Set<string>>;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  const cleanContent = stripVhdlComments(params.content);
+  const locallyVisible = new Set<string>();
+  for (const constantMatch of cleanContent.matchAll(/\bconstant\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/gi)) {
+    locallyVisible.add(constantMatch[1].toLowerCase());
+  }
+  for (const genericBlock of collectBalancedKeywordBlocks(cleanContent, 'generic')) {
+    for (const segment of splitTopLevelSegments(genericBlock.body, ';')) {
+      const genericMatch = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:/i);
+      if (!genericMatch) continue;
+      splitIdentifierList(genericMatch[1]).forEach((name) => locallyVisible.add(name.toLowerCase()));
+    }
+  }
+  for (const packageName of collectImportedWorkAllPackages(cleanContent)) {
+    for (const exported of params.packageExports.get(packageName) || []) {
+      locallyVisible.add(exported.toLowerCase());
+    }
+  }
+
+  for (const portBlock of collectBalancedKeywordBlocks(cleanContent, 'port')) {
+    for (const widthRef of portBlock.body.matchAll(/\b(std_logic_vector|unsigned|signed)\s*\(([^)]*)\)/gi)) {
+      const rangeText = widthRef[2] || '';
+      for (const identifierMatch of rangeText.matchAll(/\b([A-Z][A-Z0-9_]*)\b/g)) {
+        const identifier = identifierMatch[1];
+        if (/^(?:TO|DOWNTO|RANGE|OTHERS)$/i.test(identifier)) continue;
+        if (locallyVisible.has(identifier.toLowerCase())) continue;
+        const absoluteIndex = portBlock.index + (widthRef.index ?? 0) + (identifierMatch.index ?? 0);
+        findings.push(createFailureDetail({
+          code: 'interface_constant_not_visible',
+          category: 'interface_generic_port_syntax',
+          relativePath: params.relativePath,
+          lineHint: lineNumberForIndex(cleanContent, absoluteIndex),
+          message:
+            `${params.relativePath}:${lineNumberForIndex(cleanContent, absoluteIndex)}: entity/component port width references "${identifier}" before that generic/constant is declared or imported.`,
+          forbiddenConstruct: `interface width expression "${widthRef[0]}" references undeclared "${identifier}"`,
+          legalReplacementPattern:
+            `declare "${identifier}" as an earlier entity generic with a safe default, import it from a selected package analyzed before this file, or replace it with a literal width`,
+        }));
+      }
+    }
+  }
+
+  return findings;
+}
+
 function normalizeDeclaredType(typeText: string): NormalizedDeclaredType {
   const normalized = typeText.replace(/\s+/g, ' ').trim().toLowerCase();
   if (normalized.includes('std_logic_vector')) return 'std_logic_vector';
@@ -1331,6 +1986,8 @@ function normalizeDeclaredType(typeText: string): NormalizedDeclaredType {
   if (/\bstd_(u)?logic\b/.test(normalized)) return 'std_logic';
   if (normalized.includes('integer') || normalized.includes('natural') || normalized.includes('positive')) return 'integer';
   if (normalized === 'string' || /\bstring\s*\(/.test(normalized)) return 'string';
+  const simpleCustomType = normalized.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/);
+  if (simpleCustomType) return customTypeName(simpleCustomType[1]);
   return 'other';
 }
 
@@ -1338,11 +1995,15 @@ function normalizeDeclaredTypeWithAliases(
   typeText: string,
   aliases: Map<string, NormalizedDeclaredType>,
 ): NormalizedDeclaredType {
+  const normalized = typeText.replace(/\s+/g, ' ').trim().toLowerCase();
+  const simpleAliasMatch = normalized.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/);
+  if (simpleAliasMatch && aliases.has(simpleAliasMatch[1])) {
+    return aliases.get(simpleAliasMatch[1]) || 'other';
+  }
+
   const direct = normalizeDeclaredType(typeText);
   if (direct !== 'other') return direct;
 
-  const normalized = typeText.replace(/\s+/g, ' ').trim().toLowerCase();
-  const simpleAliasMatch = normalized.match(/^([a-zA-Z][a-zA-Z0-9_]*)$/);
   if (!simpleAliasMatch) return 'other';
   return aliases.get(simpleAliasMatch[1]) || 'other';
 }
@@ -1352,10 +2013,16 @@ function collectDeclaredTypeAliases(
   inheritedAliases?: Map<string, NormalizedDeclaredType>,
 ) {
   const declaredTypeAliases = new Map<string, NormalizedDeclaredType>(inheritedAliases || []);
-  for (const match of content.matchAll(/\b(type|subtype)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+([^;]+?)\s*;/gi)) {
+  for (const match of content.matchAll(/\btype\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+record\b/gi)) {
+    declaredTypeAliases.set(match[1].toLowerCase(), customTypeName(match[1]));
+  }
+  for (const match of content.matchAll(/\btype\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s*\(([\s\S]*?)\)\s*;/gi)) {
+    declaredTypeAliases.set(match[1].toLowerCase(), customTypeName(match[1]));
+  }
+  for (const match of content.matchAll(/\b(type|subtype)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+(?!record\b)(?!\()([^;]+?)\s*;/gi)) {
     const aliasName = match[2].toLowerCase();
     const aliasType = normalizeDeclaredTypeWithAliases(match[3], declaredTypeAliases);
-    declaredTypeAliases.set(aliasName, aliasType);
+    declaredTypeAliases.set(aliasName, aliasType === 'other' ? customTypeName(match[2]) : aliasType);
   }
   return declaredTypeAliases;
 }
@@ -1382,7 +2049,7 @@ function collectDeclaredIdentifierTypes(
 
   const recordParameterList = (parameterList: string) => {
     for (const segment of parameterList.split(';')) {
-      const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
+      const match = segment.match(/^\s*(?:(?:signal|variable|constant)\s+)?([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
       if (!match) continue;
       recordType(splitIdentifierList(match[1]), match[2]);
     }
@@ -1394,8 +2061,8 @@ function collectDeclaredIdentifierTypes(
   for (const match of content.matchAll(/\bprocedure\s+[a-zA-Z][a-zA-Z0-9_]*\s*\(([\s\S]*?)\)\s*is\b/gi)) {
     recordParameterList(match[1]);
   }
-  for (const match of content.matchAll(/\b(?:port|generic)\s*\(([\s\S]*?)\)\s*;/gi)) {
-    recordParameterList(match[1]);
+  for (const block of [...collectBalancedKeywordBlocks(content, 'port'), ...collectBalancedKeywordBlocks(content, 'generic')]) {
+    recordParameterList(block.body);
   }
 
   return declaredTypes;
@@ -1408,10 +2075,42 @@ type SubprogramSignature = {
   returnType?: NormalizedDeclaredType;
 };
 
+type PackageFunctionHeader = {
+  packageName: string;
+  functionName: string;
+  header: string;
+};
+
 type InterfaceSignature = {
   name: string;
-  ports: Map<string, NormalizedDeclaredType>;
+  ports: Map<string, InterfacePortSignature>;
 };
+
+function collectRecordTypeDeclarations(content: string) {
+  const records = new Map<string, RecordTypeSignature>();
+
+  for (const match of content.matchAll(/\btype\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+record\b([\s\S]*?)\bend\s+record\s*;/gi)) {
+    const typeName = match[1];
+    const body = match[2] || '';
+    const fields = new Map<string, string>();
+
+    for (const segment of body.split(';')) {
+      const fieldMatch = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(.+?)\s*$/i);
+      if (!fieldMatch) continue;
+      splitIdentifierList(fieldMatch[1]).forEach((fieldName) => {
+        fields.set(fieldName.toLowerCase(), fieldMatch[2].replace(/\s+/g, ' ').trim());
+      });
+    }
+
+    records.set(typeName.toLowerCase(), {
+      typeName,
+      fields,
+      declaration: `type ${typeName} is record${body}end record;`,
+    });
+  }
+
+  return records;
+}
 
 function collectSubprogramSignatures(
   content: string,
@@ -1430,7 +2129,7 @@ function collectSubprogramSignatures(
   const parseParameterTypes = (parameterList: string) => {
     const parameterTypes: NormalizedDeclaredType[] = [];
     for (const segment of parameterList.split(';')) {
-      const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
+      const match = segment.match(/^\s*(?:(?:signal|variable|constant)\s+)?([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
       if (!match) continue;
       const identifiers = splitIdentifierList(match[1]);
       const normalizedType = normalizeDeclaredTypeWithAliases(match[2], declaredTypeAliases);
@@ -1459,6 +2158,45 @@ function collectSubprogramSignatures(
   return signatures;
 }
 
+function normalizeVhdlHeader(value: string) {
+  return value.replace(/\s+/g, ' ').replace(/\s*;\s*$/, '').trim().toLowerCase();
+}
+
+function collectPackageDeclarationFunctionHeaders(content: string) {
+  const headers: PackageFunctionHeader[] = [];
+  const cleanContent = stripVhdlComments(content);
+  const packageExpression = /\bpackage\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is([\s\S]*?)\bend\s+(?:package(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?|[a-zA-Z][a-zA-Z0-9_]*)\s*;/gi;
+
+  for (const packageMatch of cleanContent.matchAll(packageExpression)) {
+    const packageName = packageMatch[1];
+    const body = packageMatch[2];
+    for (const functionMatch of body.matchAll(/\bfunction\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*return\s+([^;\n]+?)\s*;/gi)) {
+      headers.push({
+        packageName,
+        functionName: functionMatch[1],
+        header: `function ${functionMatch[1]}(${functionMatch[2].trim()}) return ${functionMatch[3].trim()}`,
+      });
+    }
+  }
+
+  return headers;
+}
+
+async function collectProjectPackageFunctionHeaders(projectRoot: string, sourcePaths: string[]) {
+  const headers = new Map<string, PackageFunctionHeader>();
+  for (const relativePath of sourcePaths) {
+    try {
+      const content = await fs.readFile(path.join(projectRoot, relativePath), 'utf8');
+      for (const header of collectPackageDeclarationFunctionHeaders(content)) {
+        headers.set(`${header.packageName.toLowerCase()}.${header.functionName.toLowerCase()}`, header);
+      }
+    } catch {
+      continue;
+    }
+  }
+  return headers;
+}
+
 function mergeSubprogramSignatures(
   target: Map<string, SubprogramSignature[]>,
   source: Map<string, SubprogramSignature[]>,
@@ -1478,12 +2216,18 @@ function collectInterfaceSignatures(
   const declaredTypeAliases = collectDeclaredTypeAliases(content, inheritedAliases);
 
   const addInterfaceSignature = (name: string, interfaceBody: string) => {
-    const ports = new Map<string, NormalizedDeclaredType>();
+    const ports = new Map<string, InterfacePortSignature>();
     for (const segment of interfaceBody.split(';')) {
-      const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
+      const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
       if (!match) continue;
-      const normalizedType = normalizeDeclaredTypeWithAliases(match[2], declaredTypeAliases);
-      splitIdentifierList(match[1]).forEach((identifier) => ports.set(identifier.toLowerCase(), normalizedType));
+      const mode = (match[2]?.toLowerCase() || 'in') as InterfacePortSignature['mode'];
+      const rawType = match[3].replace(/\s+/g, ' ').trim();
+      const normalizedType = normalizeDeclaredTypeWithAliases(rawType, declaredTypeAliases);
+      splitIdentifierList(match[1]).forEach((identifier) => ports.set(identifier.toLowerCase(), {
+        type: normalizedType,
+        rawType,
+        mode,
+      }));
     }
     signatures.set(name.toLowerCase(), {
       name,
@@ -1491,8 +2235,10 @@ function collectInterfaceSignatures(
     });
   };
 
-  for (const match of content.matchAll(/\b(entity|component)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is[\s\S]*?\bport\s*\(([\s\S]*?)\)\s*;/gi)) {
-    addInterfaceSignature(match[2], match[3]);
+  for (const region of collectEntityOrComponentInterfaceRegions(content)) {
+    const portBlock = collectBalancedKeywordBlocks(region.body, 'port')[0];
+    if (!portBlock) continue;
+    addInterfaceSignature(region.name, portBlock.body);
   }
 
   return signatures;
@@ -1519,6 +2265,178 @@ async function collectProjectInterfaceSignatures(projectRoot: string, sourcePath
   }
 
   return signatures;
+}
+
+async function collectProjectRecordTypeDeclarations(projectRoot: string, sourcePaths: string[]) {
+  const records = new Map<string, RecordTypeSignature>();
+
+  for (const relativePath of sourcePaths) {
+    const absolutePath = path.join(projectRoot, relativePath);
+    let content = '';
+    try {
+      content = stripVhdlComments(await fs.readFile(absolutePath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    for (const [key, record] of collectRecordTypeDeclarations(content)) {
+      if (!records.has(key)) {
+        records.set(key, record);
+      }
+    }
+  }
+
+  return records;
+}
+
+function collectPackageExportedTypeAliases(content: string) {
+  const exportsByPackage = new Map<string, Set<string>>();
+  const packageExpression = /\bpackage\s+(?!body\b)([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+(?:package(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?|[a-zA-Z][a-zA-Z0-9_]*)\s*;/gi;
+
+  for (const packageMatch of content.matchAll(packageExpression)) {
+    const packageName = packageMatch[1].toLowerCase();
+    const body = packageMatch[2] || '';
+    const exported = exportsByPackage.get(packageName) || new Set<string>();
+    for (const typeMatch of body.matchAll(/\b(?:type|subtype)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/gi)) {
+      exported.add(typeMatch[1].toLowerCase());
+    }
+    exportsByPackage.set(packageName, exported);
+  }
+
+  return exportsByPackage;
+}
+
+async function collectProjectPackageTypeExports(projectRoot: string, sourcePaths: string[]) {
+  const exportsByPackage = new Map<string, Set<string>>();
+  const packagesBySymbol = new Map<string, Set<string>>();
+
+  for (const relativePath of sourcePaths) {
+    const absolutePath = path.join(projectRoot, relativePath);
+    let content = '';
+    try {
+      content = stripVhdlComments(await fs.readFile(absolutePath, 'utf8'));
+    } catch {
+      continue;
+    }
+
+    for (const [packageName, symbols] of collectPackageExportedTypeAliases(content)) {
+      const exported = exportsByPackage.get(packageName) || new Set<string>();
+      for (const symbol of symbols) {
+        exported.add(symbol);
+        const packageNames = packagesBySymbol.get(symbol) || new Set<string>();
+        packageNames.add(packageName);
+        packagesBySymbol.set(symbol, packageNames);
+      }
+      exportsByPackage.set(packageName, exported);
+    }
+  }
+
+  return { exportsByPackage, packagesBySymbol };
+}
+
+function collectImportedWorkAllPackages(content: string) {
+  return new Set(
+    Array.from(content.matchAll(/\buse\s+work\.([a-zA-Z][a-zA-Z0-9_]*)\.all\s*;/gi))
+      .map((match) => match[1].toLowerCase())
+  );
+}
+
+function normalizeTypeNameForVisibility(typeText: string) {
+  const normalized = typeText
+    .replace(/:=.*$/s, '')
+    .replace(/\brange\b[\s\S]*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const match = normalized.match(/^(?:(?:inout|in|out|buffer|linkage)\s+)?([a-zA-Z][a-zA-Z0-9_]*)\b/i);
+  return match?.[1]?.toLowerCase() || null;
+}
+
+function collectDeclaredTypeUseSites(content: string) {
+  const uses: Array<{ typeName: string; lineHint: number; lineText: string }> = [];
+  const addTypeUse = (typeText: string, index: number) => {
+    const typeName = normalizeTypeNameForVisibility(typeText);
+    if (!typeName || BUILTIN_VHDL_TYPE_NAMES.has(typeName)) return;
+    uses.push({
+      typeName,
+      lineHint: lineNumberForIndex(content, index),
+      lineText: lineTextForIndex(content, index),
+    });
+  };
+
+  const inspectInterfaceBlock = (body: string, blockStart: number) => {
+    for (const segment of splitTopLevelSegments(body, ';')) {
+      const segmentIndex = body.indexOf(segment);
+      const match = segment.match(/^\s*[a-zA-Z][a-zA-Z0-9_,\s]*\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+?)\s*$/i);
+      if (!match) continue;
+      addTypeUse(match[1], blockStart + Math.max(0, segmentIndex));
+    }
+  };
+
+  for (const match of content.matchAll(/\b(signal|variable|constant)\s+[^:;]+?\s*:\s*([^;:=]+(?:\([^;]*?\))?)/gi)) {
+    addTypeUse(match[2], match.index ?? 0);
+  }
+
+  for (const block of [...collectBalancedKeywordBlocks(content, 'port'), ...collectBalancedKeywordBlocks(content, 'generic')]) {
+    inspectInterfaceBlock(block.body, block.index);
+  }
+
+  for (const match of content.matchAll(/\bfunction\s+[a-zA-Z][a-zA-Z0-9_]*\s*\(([\s\S]*?)\)\s*return\s+([^;\n]+?)(?:\s+is\b|\s*;)/gi)) {
+    const parameterList = match[1] || '';
+    inspectInterfaceBlock(parameterList, (match.index ?? 0) + match[0].indexOf(parameterList));
+    addTypeUse(match[2], match.index ?? 0);
+  }
+
+  for (const match of content.matchAll(/\bprocedure\s+[a-zA-Z][a-zA-Z0-9_]*\s*\(([\s\S]*?)\)\s*is\b/gi)) {
+    const parameterList = match[1] || '';
+    inspectInterfaceBlock(parameterList, (match.index ?? 0) + match[0].indexOf(parameterList));
+  }
+
+  return uses;
+}
+
+function collectPackageSymbolVisibilityFindings(params: {
+  relativePath: string;
+  content: string;
+  packageExports: Map<string, Set<string>>;
+  packagesBySymbol: Map<string, Set<string>>;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  const localAliases = collectDeclaredTypeAliases(params.content);
+  const importedPackages = collectImportedWorkAllPackages(params.content);
+  const visibleTypeNames = new Set<string>([...BUILTIN_VHDL_TYPE_NAMES, ...localAliases.keys()]);
+
+  for (const packageName of importedPackages) {
+    const exported = params.packageExports.get(packageName);
+    if (!exported) continue;
+    for (const symbol of exported) {
+      visibleTypeNames.add(symbol);
+    }
+  }
+
+  for (const useSite of collectDeclaredTypeUseSites(params.content)) {
+    if (visibleTypeNames.has(useSite.typeName)) continue;
+
+    const exportingPackages = Array.from(params.packagesBySymbol.get(useSite.typeName) || []);
+    const replacement = exportingPackages.length > 0
+      ? `add use work.${exportingPackages[0]}.all; in this file and ensure ${exportingPackages[0]} is analyzed before ${params.relativePath}, or change the declaration to use a type that is already visible`
+      : `generate a package/type declaration that exports ${useSite.typeName}, import it with use work.<package>.all, and analyze that package before ${params.relativePath}`;
+
+    findings.push(createFailureDetail({
+      code: 'package_symbol_not_visible',
+      category: 'package_type_definition',
+      relativePath: params.relativePath,
+      lineHint: useSite.lineHint,
+      message:
+        `${params.relativePath}:${useSite.lineHint}: uses custom type "${useSite.typeName}" but that type is not locally declared or exported by any imported work package. ` +
+        (exportingPackages.length > 0
+          ? `It is exported by package(s): ${exportingPackages.join(', ')}.`
+          : 'No selected package exports this type.'),
+      forbiddenConstruct: `custom type "${useSite.typeName}" used without visible package/type declaration in "${useSite.lineText}"`,
+      legalReplacementPattern: replacement,
+    }));
+  }
+
+  return findings;
 }
 
 async function collectProjectDeclaredTypeAliases(projectRoot: string, sourcePaths: string[]) {
@@ -1631,8 +2549,11 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
     .map((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
   const projectTypeAliases = await collectProjectDeclaredTypeAliases(projectRoot, sourcePaths);
+  const projectPackageTypeExports = await collectProjectPackageTypeExports(projectRoot, sourcePaths);
   const projectInterfaceSignatures = await collectProjectInterfaceSignatures(projectRoot, sourcePaths);
   const projectSubprogramSignatures = await collectProjectSubprogramSignatures(projectRoot, sourcePaths);
+  const projectPackageFunctionHeaders = await collectProjectPackageFunctionHeaders(projectRoot, sourcePaths);
+  const projectRecordTypes = await collectProjectRecordTypeDeclarations(projectRoot, sourcePaths);
 
   for (const relativePath of sourcePaths) {
     const absolutePath = path.join(projectRoot, relativePath);
@@ -1644,10 +2565,105 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
     }
 
     findings.push(...collectReservedIdentifierFindings(relativePath, content));
+    findings.push(...collectPackageSymbolVisibilityFindings({
+      relativePath,
+      content,
+      packageExports: projectPackageTypeExports.exportsByPackage,
+      packagesBySymbol: projectPackageTypeExports.packagesBySymbol,
+    }));
+    findings.push(...collectInterfaceConstantVisibilityFindings({
+      relativePath,
+      content,
+      packageExports: projectPackageTypeExports.exportsByPackage,
+    }));
 
     const declaredTypes = collectDeclaredIdentifierTypes(content, projectTypeAliases);
     const subprogramSignatures = projectSubprogramSignatures;
     const interfaceSignatures = projectInterfaceSignatures;
+    findings.push(...collectSubprogramContractFindings({
+      relativePath,
+      content,
+      declaredTypes,
+      subprogramSignatures,
+    }));
+    findings.push(...collectEnumOpcodeNumericConversionFindings({
+      relativePath,
+      content,
+      declaredTypes,
+    }));
+
+    for (const recordAccess of content.matchAll(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*\.\s*([a-zA-Z][a-zA-Z0-9_]*)\b/g)) {
+      const objectName = recordAccess[1];
+      const fieldName = recordAccess[2];
+      const objectType = declaredTypes.get(objectName.toLowerCase());
+      if (!isCustomDeclaredType(objectType)) continue;
+
+      const recordTypeName = objectType.slice('custom:'.length);
+      const recordType = projectRecordTypes.get(recordTypeName);
+      if (!recordType || recordType.fields.has(fieldName.toLowerCase())) continue;
+
+      const lineHint = lineNumberForIndex(content, recordAccess.index ?? 0);
+      const lineText = content.split(/\r\n|\r|\n/)[lineHint - 1]?.trim() || recordAccess[0];
+      const legalFields = Array.from(recordType.fields.keys()).join(', ') || 'none';
+      findings.push(createFailureDetail({
+        code: 'record_field_not_declared',
+        category: 'package_type_definition',
+        relativePath,
+        lineHint,
+        message:
+          `${relativePath}:${lineHint}: accesses "${objectName}.${fieldName}", but record type "${recordType.typeName}" has no field named "${fieldName}". ` +
+          `Legal fields are: ${legalFields}.`,
+        forbiddenConstruct: `record access "${objectName}.${fieldName}" in "${lineText}"`,
+        legalReplacementPattern:
+          `repair the implementation to use one of the declared ${recordType.typeName} fields (${legalFields}) or derive the needed value from those fields; do not invent new record fields`,
+      }));
+    }
+
+    for (const malformedLiteral of collectMalformedCharacterLiterals(content)) {
+      findings.push(createFailureDetail({
+        code: 'malformed_character_literal',
+        category: 'width_literal_mismatch',
+        relativePath,
+        lineHint: malformedLiteral.lineHint,
+        message:
+          `${relativePath}:${malformedLiteral.lineHint}: contains malformed one-bit character literal in "${malformedLiteral.lineText}". ` +
+          `The literal ${malformedLiteral.badText} is missing its closing quote; use ${malformedLiteral.replacement}.`,
+        forbiddenConstruct: `malformed one-bit character literal "${malformedLiteral.badText}"`,
+        legalReplacementPattern: `replace "${malformedLiteral.badText}" with "${malformedLiteral.replacement}" in the same expression`,
+      }));
+    }
+
+    for (const incompleteSubprogram of collectIncompleteSubprogramInterfaces(content)) {
+      findings.push(createFailureDetail({
+        code: 'incomplete_subprogram_interface',
+        category: 'interface_generic_port_syntax',
+        relativePath,
+        lineHint: incompleteSubprogram.lineHint,
+        message:
+          `${relativePath}:${incompleteSubprogram.lineHint}: ${incompleteSubprogram.kind} "${incompleteSubprogram.name}" has executable token "${incompleteSubprogram.illegalToken}" before the formal parameter list is closed. ` +
+          `The broken line is "${incompleteSubprogram.excerpt}". Complete the helper interface before the body begins.`,
+        forbiddenConstruct: `${incompleteSubprogram.kind} "${incompleteSubprogram.name}" executable token "${incompleteSubprogram.illegalToken}" before ") is"`,
+        legalReplacementPattern:
+          incompleteSubprogram.kind === 'procedure' && /^check_eq$/i.test(incompleteSubprogram.name)
+            ? `replace "${incompleteSubprogram.name}" with a complete canonical self-checking helper: procedure check_eq(constant label_text : in string; constant got : in <type>; constant expected : in <type>; variable failed_io : inout boolean) is ... end procedure`
+            : `close the formal parameter list with ") is" before any report/if/wait/assert/assignment/process statements`,
+      }));
+    }
+
+    for (const illegalOthers of collectIllegalOthersAggregateComparisons(content)) {
+      findings.push(createFailureDetail({
+        code: 'illegal_others_aggregate_context',
+        category: 'width_literal_mismatch',
+        relativePath,
+        lineHint: illegalOthers.lineHint,
+        message:
+          `${relativePath}:${illegalOthers.lineHint}: compares "${illegalOthers.objectName}" with aggregate "${illegalOthers.expression}". ` +
+          `GHDL cannot infer the aggregate bounds from plain "(others => '${illegalOthers.bit}')" in this expression context.`,
+        forbiddenConstruct: illegalOthers.expression,
+        legalReplacementPattern:
+          `replace "(others => '${illegalOthers.bit}')" with a range-qualified aggregate such as "(${illegalOthers.objectName}'range => '${illegalOthers.bit}')"`,
+      }));
+    }
 
     for (const architectureVariable of collectArchitectureBodyVariables(content)) {
       const intent = classifyArchitectureBodyVariableIntent({
@@ -2121,27 +3137,79 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }
     }
 
-    for (const match of content.matchAll(
-      /(?:^|\n)\s*[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:entity\s+work\.)?(?!(?:in|out|inout|buffer|linkage|signal|variable|constant|unsigned|signed|std_logic|std_logic_vector)\b)([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bport\s+map\s*\(([\s\S]*?)\)\s*;/gi,
-    )) {
-      const instantiatedName = match[1];
+    for (const instance of collectPortMapInstances(content)) {
+      const instantiatedName = instance.name;
       const interfaceSignature = interfaceSignatures.get(instantiatedName.toLowerCase());
       if (!interfaceSignature) continue;
 
-      const associations = splitTopLevelArguments(match[2]);
+      const associations = splitTopLevelArguments(instance.associations);
       for (const association of associations) {
         const associationMatch = association.match(/^\s*([a-zA-Z][a-zA-Z0-9_]*)\s*=>\s*(.+)\s*$/i);
         if (!associationMatch) continue;
 
         const formalPortName = associationMatch[1];
         const actualExpression = associationMatch[2].trim();
-        const formalType = interfaceSignature.ports.get(formalPortName.toLowerCase());
-        if (formalType !== 'unsigned' && formalType !== 'signed') continue;
+        const formalPort = interfaceSignature.ports.get(formalPortName.toLowerCase());
+        const associationOffset = instance.associations.indexOf(association);
+        const associationIndex = instance.associationsIndex + Math.max(0, associationOffset);
+        if (!formalPort) {
+          const legalFormals = Array.from(interfaceSignature.ports.keys()).join(', ') || 'none';
+          findings.push(createFailureDetail({
+            code: 'unknown_port_map_formal',
+            category: 'interface_generic_port_syntax',
+            relativePath,
+            lineHint: lineNumberForIndex(content, associationIndex),
+            message:
+              `${relativePath}:${lineNumberForIndex(content, associationIndex)}: maps unknown formal port "${formalPortName}" on instance of "${interfaceSignature.name}". ` +
+              `Legal formal ports are: ${legalFormals}.`,
+            forbiddenConstruct: `port-map association "${formalPortName} => ${actualExpression}" on ${interfaceSignature.name}; "${formalPortName}" is not a declared formal port`,
+            legalReplacementPattern:
+              `rewrite this port map to use only exact formal names declared by ${interfaceSignature.name}: ${legalFormals}`,
+          }));
+          continue;
+        }
 
+        const formalType = formalPort.type;
         const actualType = inferActualExpressionType(actualExpression, declaredTypes);
+        const isOutputAssociation = formalPort.mode === 'out' || formalPort.mode === 'buffer';
+        const conversionMatch = actualExpression.match(/^\s*([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]+)\)\s*$/);
+        if (isOutputAssociation && conversionMatch) {
+          findings.push(createFailureDetail({
+            code: 'out_port_actual_conversion',
+            category: 'interface_generic_port_syntax',
+            message:
+              `${relativePath}: maps output port "${formalPortName}" of "${interfaceSignature.name}" through conversion expression "${actualExpression}". ` +
+              `VHDL output/buffer port associations must be writable objects, not type-conversion expressions.`,
+            forbiddenConstruct: `output port association "${formalPortName} => ${actualExpression}"`,
+            legalReplacementPattern:
+              `connect "${formalPortName}" to a correctly typed internal signal, then assign or convert that signal separately outside the port map`,
+          }));
+          continue;
+        }
+
         if (!actualType || actualType === formalType) continue;
 
-        const actualTypeDescriptor = actualType === 'std_logic_vector' ? 'raw std_logic_vector actual' : `${actualType} actual`;
+        if (isCustomDeclaredType(formalType)) {
+          const formalTypeName = formatDeclaredTypeForMessage(formalType);
+          const actualTypeName = formatDeclaredTypeForMessage(actualType);
+          findings.push(createFailureDetail({
+            code: 'custom_type_port_association_mismatch',
+            category: 'package_type_definition',
+            message:
+              `${relativePath}: connects ${actualTypeName} expression "${actualExpression}" to custom typed formal port "${formalPortName}" (${formalTypeName}) of "${interfaceSignature.name}". ` +
+              `Record/enum/package-defined ports must be wired with objects of the exact declared type.`,
+            forbiddenConstruct: `${actualTypeName} actual "${actualExpression}" passed to custom ${formalTypeName} formal port "${formalPortName}"`,
+            legalReplacementPattern:
+              `declare or reuse an internal signal of type ${formalTypeName} and connect that signal directly; repair schema conversions outside the port map`,
+          }));
+          continue;
+        }
+
+        if (formalType !== 'unsigned' && formalType !== 'signed') continue;
+
+        const actualTypeDescriptor = actualType === 'std_logic_vector'
+          ? 'raw std_logic_vector actual'
+          : `${formatDeclaredTypeForMessage(actualType)} actual`;
         findings.push(createFailureDetail({
           code: 'typed_port_association_mismatch',
           category: 'numeric_std_type_discipline',
@@ -2218,6 +3286,65 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }));
     }
 
+    for (const commaVector of collectCommaSeparatedPackedVectorSubtypes(content)) {
+      findings.push(createFailureDetail({
+        code: 'illegal_multidimensional_logic_vector',
+        category: 'array_subtype_misuse',
+        relativePath,
+        lineHint: commaVector.lineHint,
+        message:
+          `${relativePath}:${commaVector.lineHint}: declares an illegal comma-separated packed vector form ("${commaVector.expression}"). ` +
+          `std_logic_vector/unsigned/signed are one-dimensional; flatten the port or declare a named array type.`,
+        forbiddenConstruct: commaVector.expression,
+        legalReplacementPattern:
+          `for NxM ports, flatten to one dimension such as ${commaVector.typeName}((N * M) - 1 downto 0), or declare a named array type in a package`,
+      }));
+    }
+
+    const packageBodyExpression = /\bpackage\s+body\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+package\s+body\b[^;]*;/gi;
+    for (const packageBodyMatch of content.matchAll(packageBodyExpression)) {
+      const packageBodyName = packageBodyMatch[1];
+      const packageBodyContent = packageBodyMatch[2] || '';
+      const packageBodyContentStart = (packageBodyMatch.index ?? 0) + packageBodyMatch[0].indexOf(packageBodyContent);
+      for (const bodyFunctionMatch of packageBodyContent.matchAll(/\bfunction\s+([a-zA-Z][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*return\s+([^;\n]+?)\s+is\b/gi)) {
+        const functionName = bodyFunctionMatch[1];
+        const bodyHeader = `function ${functionName}(${bodyFunctionMatch[2].trim()}) return ${bodyFunctionMatch[3].trim()}`;
+        const specHeader = projectPackageFunctionHeaders.get(`${packageBodyName.toLowerCase()}.${functionName.toLowerCase()}`);
+        if (!specHeader || normalizeVhdlHeader(specHeader.header) === normalizeVhdlHeader(bodyHeader)) {
+          continue;
+        }
+        findings.push(createFailureDetail({
+          code: 'package_body_signature_mismatch',
+          category: 'package_type_definition',
+          relativePath,
+          lineHint: lineNumberForIndex(content, packageBodyContentStart + (bodyFunctionMatch.index ?? 0)),
+          message:
+            `${relativePath}: package body function "${functionName}" does not match its package declaration signature. ` +
+            `The body header must exactly conform to the package declaration.`,
+          forbiddenConstruct: bodyHeader,
+          legalReplacementPattern: `replace body header with "${specHeader.header} is"`,
+        }));
+      }
+    }
+
+    for (const functionMatch of content.matchAll(/\bfunction\s+([a-zA-Z][a-zA-Z0-9_]*)[\s\S]*?\breturn\s+(unsigned|signed)\b([\s\S]*?)\bend\s+function(?:\s+\1)?\s*;/gi)) {
+      const functionName = functionMatch[1];
+      const returnType = functionMatch[2].toLowerCase();
+      const functionBody = functionMatch[3];
+      const resizeReturn = functionBody.match(/\breturn\s+resize\s*\(([^;]+)\)\s*;/i);
+      if (!resizeReturn) continue;
+      findings.push(createFailureDetail({
+        code: 'typed_resize_return_mismatch',
+        category: 'numeric_std_type_discipline',
+        relativePath,
+        lineHint: lineNumberForIndex(content, (functionMatch.index ?? 0) + functionMatch[0].indexOf(resizeReturn[0])),
+        message:
+          `${relativePath}: function "${functionName}" returns ${returnType} but returns raw resize(...) without explicitly converting the result to ${returnType}.`,
+        forbiddenConstruct: resizeReturn[0],
+        legalReplacementPattern: `replace "${resizeReturn[0]}" with "return ${returnType}(resize(${resizeReturn[1].trim()}));"`,
+      }));
+    }
+
     const anonymousArrayObjectDeclaration = content.match(
       /\b(signal|variable|constant)\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:\s*array\s*\(([^)\n]+)\)\s+of\s+([^;:=\n]+)/i,
     );
@@ -2246,7 +3373,11 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       }));
     }
 
-    const packageDeclarationWithBody = content.match(/\bpackage\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is[\s\S]*?\b(function|procedure)\s+[a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?\s+is[\s\S]*?\bbegin\b/i);
+    const packageDeclarationWithBody = Array.from(
+      content.matchAll(/\bpackage\s+(?!body\b)([a-zA-Z][a-zA-Z0-9_]*)\s+is\b([\s\S]*?)\bend\s+package(?:\s+body)?\b[^;]*;/gi),
+    ).find((match) => (
+      /\b(function|procedure)\s+[a-zA-Z][a-zA-Z0-9_]*(?:\s*\([^)]*\))?(?:\s+return\s+[^;\n]+)?\s+is[\s\S]*?\bbegin\b/i.test(match[2] || '')
+    ));
     if (packageDeclarationWithBody) {
       findings.push(createFailureDetail({
         code: 'subprogram_body_inside_package_declaration',
@@ -2478,6 +3609,13 @@ function isTopLevelPortTypeUnconstrained(typeText: string) {
   if (/\bunsigned\b/.test(normalized) && !/\(/.test(normalized)) return true;
   if (/\bsigned\b/.test(normalized) && !/\(/.test(normalized)) return true;
   return false;
+}
+
+function hasSelfCheckingPassPath(content: string) {
+  return /\bTEST\s+PASSED\b/i.test(content)
+    || /\bPASS(?:ED)?\b/i.test(content)
+    || /\bstd\.env\.stop\s*\(\s*0\s*\)/i.test(content)
+    || /\bstop\s*\(\s*0\s*\)/i.test(content);
 }
 
 function extractEntityBlock(content: string, entityName: string) {
@@ -2739,6 +3877,18 @@ export async function validateGeneratedProjectContracts(params: {
     }
 
     if (source.isTestbench) {
+      if (/\bentity\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b/i.test(content) && !hasSelfCheckingPassPath(content)) {
+        findings.push(createFailureDetail({
+          code: 'self_checking_testbench_missing_pass_path',
+          category: 'simulation_success',
+          relativePath: source.path,
+          message:
+            `${source.path}: generated testbench does not expose a deterministic PASS path. ` +
+            'Runnable generated testbenches must report TEST PASSED or stop successfully when all checks pass.',
+          forbiddenConstruct: 'self-checking testbench without a deterministic PASS/success termination path',
+          legalReplacementPattern: 'add a final if/else pass/fail block that reports "TEST PASSED" severity note and calls std.env.stop(0) on success, and reports severity failure on failure',
+        }));
+      }
       continue;
     }
 
