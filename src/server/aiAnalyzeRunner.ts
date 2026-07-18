@@ -21,6 +21,14 @@ import type {
   GeneratedVhdlRepairAuditEntry,
   GeneratedVhdlValidationResult,
 } from './generatedVhdlValidation';
+import {
+  assertFpgaArchitectProjectMatchesContract,
+  attachFpgaArchitectureContractArtifact,
+  buildApprovedFpgaArchitectureContractSection,
+  proposeApprovedFpgaArchitectureContract,
+  validateFpgaArchitectProjectAgainstContract,
+  type FpgaArchitectureContract,
+} from './fpgaArchitectureContract';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -86,6 +94,7 @@ type ExtractedArtifact = {
 
 type AnnotatedAiAnalyzeError = Error & {
   generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+  fpgaArchitectureContract?: FpgaArchitectureContract | null;
 };
 
 function summarizeRepairFailureLocation(validation: GeneratedVhdlValidationResult) {
@@ -278,11 +287,15 @@ function buildAnnotatedAiAnalyzeError(
   message: string,
   metadata?: {
     generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+    fpgaArchitectureContract?: FpgaArchitectureContract | null;
   },
 ): AnnotatedAiAnalyzeError {
   const error = new Error(message) as AnnotatedAiAnalyzeError;
   if (metadata?.generatedVhdlValidation) {
     error.generatedVhdlValidation = metadata.generatedVhdlValidation;
+  }
+  if (metadata?.fpgaArchitectureContract) {
+    error.fpgaArchitectureContract = metadata.fpgaArchitectureContract;
   }
   return error;
 }
@@ -893,6 +906,8 @@ export async function runAiAnalyzeJob(params: {
   userQuery: string;
   preparedPrompt?: PreparedVhdlSkillPrompt | null;
   fpgaArchitectExecutionMode?: 'normal' | 'test_compact';
+  enforceFpgaArchitectureContractGate?: boolean;
+  approvedFpgaArchitectureContract?: FpgaArchitectureContract | null;
   applyMandatoryVhdlSkill: (taskPrompt: string) => Promise<{
     prompt: string;
     selection: DeterministicSkillSelection | null;
@@ -1005,6 +1020,8 @@ export async function runAiAnalyzeJob(params: {
     userQuery,
     preparedPrompt,
     fpgaArchitectExecutionMode = 'normal',
+    enforceFpgaArchitectureContractGate = false,
+    approvedFpgaArchitectureContract = null,
     applyMandatoryVhdlSkill,
     runModelAnalysis,
     validateMacroOutput,
@@ -1032,7 +1049,7 @@ export async function runAiAnalyzeJob(params: {
     tbGenerationMode,
   }));
   const isFpgaArchitectMacro = macroId === 'fpga_vhdl_architect';
-  const initialPrompt = isFpgaArchitectMacro
+  const baseGenerationPrompt = isFpgaArchitectMacro
     && fpgaArchitectExecutionMode === 'test_compact'
     && buildFpgaArchitectTestRunPrompt
     ? buildFpgaArchitectTestRunPrompt({
@@ -1041,6 +1058,25 @@ export async function runAiAnalyzeJob(params: {
     })
     : resolvedPreparedPrompt.prompt;
   const deterministicSkillSelection = resolvedPreparedPrompt.selection;
+  let retryUsed = false;
+  let architectureContract = approvedFpgaArchitectureContract;
+  const contractAttemptTelemetries: AiRunTelemetry[] = [];
+  if (isFpgaArchitectMacro && enforceFpgaArchitectureContractGate && !architectureContract) {
+    const contractResult = await proposeApprovedFpgaArchitectureContract({
+      ai,
+      provider: selectedProvider,
+      model: selectedModel,
+      userRequest: userQuery,
+      signal,
+      runModelAnalysis,
+    });
+    architectureContract = contractResult.contract;
+    contractAttemptTelemetries.push(...contractResult.attempts.map((attempt) => attempt.telemetry));
+    retryUsed = retryUsed || contractResult.repaired;
+  }
+  const initialPrompt = architectureContract
+    ? `${baseGenerationPrompt}\n\n${buildApprovedFpgaArchitectureContractSection(architectureContract)}`
+    : baseGenerationPrompt;
   let aiResult = await runModelAnalysis({
     ai,
     provider: selectedProvider,
@@ -1048,7 +1084,7 @@ export async function runAiAnalyzeJob(params: {
     prompt: initialPrompt,
     signal,
   });
-  const attemptTelemetries: AiRunTelemetry[] = [aiResult.telemetry];
+  const attemptTelemetries: AiRunTelemetry[] = [...contractAttemptTelemetries, aiResult.telemetry];
   let responseText = aiResult.text;
   let responseTelemetry = aiResult.telemetry;
 
@@ -1058,8 +1094,6 @@ export async function runAiAnalyzeJob(params: {
     hazardFindings,
     protocolFrames,
   });
-  let retryUsed = false;
-
   if (isFpgaArchitectMacro) {
     validation = {
       macroId,
@@ -1214,12 +1248,27 @@ export async function runAiAnalyzeJob(params: {
     }
   };
 
+  const parseAndGateFpgaArchitectProject = (text: string) => {
+    if (!parseFpgaArchitectResponse) {
+      throw new Error('FPGA Architect parser dependency is unavailable.');
+    }
+    const project = parseFpgaArchitectResponse(text);
+    if (architectureContract) {
+      assertFpgaArchitectProjectMatchesContract({
+        project,
+        contract: architectureContract,
+      });
+      attachFpgaArchitectureContractArtifact(project, architectureContract);
+    }
+    return project;
+  };
+
   const repairFpgaArchitectManifestIfNeeded = async (currentResponseText: string) => {
     if (!parseFpgaArchitectResponse || !buildFpgaArchitectJsonRepairPrompt || !buildFpgaArchitectCompactRetryPrompt) {
       throw new Error('FPGA Architect JSON repair dependencies are unavailable.');
     }
     try {
-      return parseFpgaArchitectResponse(currentResponseText);
+      return parseAndGateFpgaArchitectProject(currentResponseText);
     } catch (error: any) {
       retryUsed = true;
       const repairPrompt = buildFpgaArchitectJsonRepairPrompt({
@@ -1238,7 +1287,7 @@ export async function runAiAnalyzeJob(params: {
       responseText = aiResult.text;
       responseTelemetry = aiResult.telemetry;
       try {
-        return parseFpgaArchitectResponse(responseText);
+        return parseAndGateFpgaArchitectProject(responseText);
       } catch (repairError: any) {
         const compactModes: Array<'compact' | 'ultra_compact' | 'minimal'> = ['compact', 'ultra_compact', 'minimal'];
         let lastCompactError: unknown = repairError;
@@ -1260,7 +1309,7 @@ export async function runAiAnalyzeJob(params: {
           responseText = aiResult.text;
           responseTelemetry = aiResult.telemetry;
           try {
-            return parseFpgaArchitectResponse(responseText);
+            return parseAndGateFpgaArchitectProject(responseText);
           } catch (compactError: any) {
             lastCompactError = compactError;
           }
@@ -1323,6 +1372,52 @@ export async function runAiAnalyzeJob(params: {
       }));
     };
 
+    const validateSynchronizedRepairableFiles = async (files: RepairableGeneratedFile[]) => {
+      syncArchitectProjectFilesFromRepairableFiles(files);
+      if (architectureContract && architectProject) {
+        const contractValidation = validateFpgaArchitectProjectAgainstContract({
+          project: architectProject,
+          contract: architectureContract,
+        });
+        if (!contractValidation.ok) {
+          const details = contractValidation.issues.map((issue) => ({
+            code: issue.code,
+            category: 'interface_generic_port_syntax' as const,
+            message: `${issue.path}: ${issue.message}`,
+            excerpt: issue.message.slice(0, 500),
+            relativePath: issue.path.startsWith('$.') ? undefined : issue.path,
+            forbiddenConstruct: 'Generated files or public interfaces that drift from the approved FPGA architecture contract.',
+            legalReplacementPattern: 'Repair the existing generated file set so file names, declarations, ports, top entity, testbench, and analysis order exactly match the approved contract.',
+          }));
+          return {
+            ok: false,
+            stage: 'prevalidate' as const,
+            summary: `Generated project drifted from the approved FPGA architecture contract: ${details.map((detail) => detail.message).join(' ')}`,
+            logs: details.map((detail) => `ARCHITECTURE_CONTRACT | ${detail.message}`),
+            validatedTopEntities: [],
+            failureCode: details[0]?.code || 'architecture_contract_drift',
+            failureCategory: 'interface_generic_port_syntax' as const,
+            failureDetails: details,
+          } satisfies GeneratedVhdlValidationResult;
+        }
+      }
+      return requirePassingSimulationForMacro({
+        macroId,
+        validation: await validateGeneratedVhdlWithGhdl({
+          macroId,
+          projectPath: normalizedProjectPath,
+          tbGenerationMode,
+          artifactDirectory,
+          savedArtifacts: files.map((file) => ({
+            fileName: path.basename(file.relativePath),
+            path: file.absolutePath,
+            kind: file.kind,
+          })),
+          architectProject,
+        }),
+      });
+    };
+
     const notifyInnerRepairProgress = async (validation: GeneratedVhdlValidationResult, status: string) => {
       await onInnerRepairProgress?.({
         repairAttempt: repairAttemptNumber,
@@ -1375,23 +1470,8 @@ export async function runAiAnalyzeJob(params: {
 
         deterministicChangedAny = true;
         deterministicFiles = deterministicRepair.repairedFiles;
-        syncArchitectProjectFilesFromRepairableFiles(deterministicFiles);
         await persistRepairableFiles(deterministicFiles);
-        deterministicValidation = requirePassingSimulationForMacro({
-          macroId,
-          validation: await validateGeneratedVhdlWithGhdl({
-            macroId,
-            projectPath: normalizedProjectPath,
-            tbGenerationMode,
-            artifactDirectory,
-            savedArtifacts: deterministicFiles.map((file) => ({
-              fileName: path.basename(file.relativePath),
-              path: file.absolutePath,
-              kind: file.kind,
-            })),
-            architectProject,
-          }),
-        });
+        deterministicValidation = await validateSynchronizedRepairableFiles(deterministicFiles);
         appendRepairAudit({
           repairAttempt: repairAttemptNumber,
           failureCode: getRepairFailureCode(beforeValidation),
@@ -1494,23 +1574,7 @@ export async function runAiAnalyzeJob(params: {
       availableFiles: params.files,
       repairs: parsedRepairs,
     });
-    syncArchitectProjectFilesFromRepairableFiles(updatedFiles);
-
-    let repairedValidation = requirePassingSimulationForMacro({
-      macroId,
-      validation: await validateGeneratedVhdlWithGhdl({
-        macroId,
-        projectPath: normalizedProjectPath,
-        tbGenerationMode,
-        artifactDirectory,
-        savedArtifacts: updatedFiles.map((file) => ({
-          fileName: path.basename(file.relativePath),
-          path: file.absolutePath,
-          kind: file.kind,
-        })),
-        architectProject,
-      }),
-    });
+    let repairedValidation = await validateSynchronizedRepairableFiles(updatedFiles);
     const previousFailureCode = getRepairFailureCode(beforeLlmValidation);
     const newFailureCode = getRepairFailureCode(repairedValidation);
     const introducedNewStaticFailure =
@@ -1559,6 +1623,10 @@ export async function runAiAnalyzeJob(params: {
   };
 
   const saveAndValidateArchitectProject = async (project: FpgaArchitectProject) => {
+    if (architectureContract) {
+      assertFpgaArchitectProjectMatchesContract({ project, contract: architectureContract });
+      attachFpgaArchitectureContractArtifact(project, architectureContract);
+    }
     const saveResult = await saveFpgaArchitectProject!({
       projectPath: normalizedProjectPath,
       project,
@@ -1692,7 +1760,10 @@ export async function runAiAnalyzeJob(params: {
     try {
       architectProject = await repairFpgaArchitectManifestIfNeeded(responseText);
     } catch (error: any) {
-      throw new Error(`FPGA Architect hard-failed because the generated project manifest was still invalid before VHDL validation. The app did not modify or auto-fix any generated VHDL files. ${error?.message || String(error)}`);
+      throw buildAnnotatedAiAnalyzeError(
+        `FPGA Architect hard-failed because the generated project manifest was still invalid before VHDL validation. The app did not modify or auto-fix any generated VHDL files. ${error?.message || String(error)}`,
+        { fpgaArchitectureContract: architectureContract },
+      );
     }
 
     let saveResult = await saveAndValidateArchitectProject(architectProject);
@@ -1703,7 +1774,10 @@ export async function runAiAnalyzeJob(params: {
       if (isFpgaArchitectProjectStructureContractFailure(ghdlValidation)) {
         throw buildAnnotatedAiAnalyzeError(
           `FPGA Architect hard-failed because the generated project did not pass the project-structure contract after ${FPGA_ARCHITECT_MAX_PROJECT_STRUCTURE_REPAIR_ATTEMPTS} structure repair attempt(s). The app did not spend generic VHDL repair attempts on missing generated work units. ${ghdlValidation!.summary}`,
-          { generatedVhdlValidation: ghdlValidation },
+          {
+            generatedVhdlValidation: ghdlValidation,
+            fpgaArchitectureContract: architectureContract,
+          },
         );
       }
     }
@@ -1750,7 +1824,10 @@ export async function runAiAnalyzeJob(params: {
         const retryValidationLabel = describeValidationGate(ghdlValidation.stage);
         throw buildAnnotatedAiAnalyzeError(
           `FPGA Architect hard-failed because the generated project did not pass ${retryValidationLabel} after ${FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS} repair attempt(s). The app does not auto-fix VHDL file issues. ${ghdlValidation.summary}`,
-          { generatedVhdlValidation: ghdlValidation },
+          {
+            generatedVhdlValidation: ghdlValidation,
+            fpgaArchitectureContract: architectureContract,
+          },
         );
       }
     }
@@ -1870,7 +1947,7 @@ export async function runAiAnalyzeJob(params: {
       latestAttemptInputTokens,
       jobInputTokens,
       attemptCount: attemptTelemetries.length,
-      retryCount: Math.max(0, attemptTelemetries.length - 1),
+      retryCount: Math.max(0, attemptTelemetries.length - 1 - (contractAttemptTelemetries.length > 0 ? 1 : 0)),
       sessionInputTokens: sessionAiTokenTotals.inputTokens,
       outputTokens: responseTelemetry.outputTokens,
       jobOutputTokens,
@@ -1894,6 +1971,7 @@ export async function runAiAnalyzeJob(params: {
         savedPath: file.savedPath || path.join(outputDirectory || normalizedProjectPath, file.path),
       })),
     } : null,
+    architectureContract,
     validation,
     deterministicSkillSelection,
   };

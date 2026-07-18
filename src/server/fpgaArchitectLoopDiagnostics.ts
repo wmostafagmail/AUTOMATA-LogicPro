@@ -6,6 +6,7 @@ import {
 import { getCanonicalRuleIdsForFailureCode } from './vhdlSkillRules';
 
 export type FpgaArchitectLoopFailureCategory =
+  | 'architecture_contract'
   | 'manifest_structure'
   | 'provider_runtime'
   | 'reserved_identifier'
@@ -68,6 +69,7 @@ export type FpgaArchitectLoopFailureBucket = {
 };
 
 const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
+  architecture_contract: 'Architecture Contract',
   manifest_structure: 'Manifest / JSON Structure',
   provider_runtime: 'Provider / Runtime',
   reserved_identifier: 'Reserved Identifier',
@@ -317,6 +319,10 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
     /input length .*exceeds.*context|context.*budget|prompt.*too large|context_budget_exceeded/i.test(message)
   )) {
     category = 'context_budget';
+  } else if (category === 'other' && (
+    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|drifted from the approved architecture contract/i.test(message)
+  )) {
+    category = 'architecture_contract';
   } else if (category === 'other' && (
     /manifest was still invalid|json fallback was not valid|markdown manifest was invalid|project json was still invalid|project manifest was still invalid/i.test(message)
   )) {

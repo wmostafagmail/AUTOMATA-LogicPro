@@ -7,6 +7,12 @@ import {
 } from '../src/server/fpgaArchitectLoopDiagnostics';
 
 test('classifyFpgaArchitectLoopFailure recognizes new contract-oriented failure families', () => {
+  const architectureDiagnostic = classifyFpgaArchitectLoopFailure(
+    'FPGA architecture proposal was rejected before VHDL generation. [architecture_contract_capability_unowned] No component owns the required capability.',
+  );
+  assert.equal(architectureDiagnostic.category, 'architecture_contract');
+  assert.equal(architectureDiagnostic.label, 'Architecture Contract');
+
   const commandDiagnostic = classifyFpgaArchitectLoopFailure(
     'The generated GHDL command contract is incomplete. FPGA Architect projects must include exact analyze, elaborate, and run commands.',
   );

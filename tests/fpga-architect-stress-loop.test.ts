@@ -196,6 +196,41 @@ test('runFpgaArchitectStressLoop writes master and per-design logs and returns g
   await assert.rejects(fs.stat(path.join(staleOutputRoot, 'stale.txt')));
 });
 
+test('runFpgaArchitectStressLoop reuses one approved architecture contract across attempts of the same design', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-contract-reuse-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  const approvedContract = { schemaVersion: '1.0', designName: 'alpha' } as any;
+  let runCount = 0;
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      runCount += 1;
+      assert.equal(params.enforceFpgaArchitectureContractGate, true);
+      if (runCount === 1) {
+        assert.equal(params.approvedFpgaArchitectureContract, null);
+      } else {
+        assert.equal(params.approvedFpgaArchitectureContract, approvedContract);
+      }
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation.' },
+        outputDirectory: params.normalizedProjectPath,
+        architectureContract: approvedContract,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(runCount, 2);
+  assert.equal(result.successes, 2);
+  const log = await fs.readFile(result.designSummaries[0].logFilePath, 'utf8');
+  assert.match(log, /Architecture contract: proposal required before VHDL generation/);
+  assert.match(log, /Architecture contract: reused approved contract/);
+});
+
 test('runFpgaArchitectStressLoop executes the full sweep even when the same failure repeats from the start', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-no-stop-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);

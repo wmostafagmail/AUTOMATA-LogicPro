@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import { runAiAnalyzeJob } from '../src/server/aiAnalyzeRunner';
 import { buildFailureCodeSpecificRepairShaping, buildRepairLoopCallerContract } from '../src/server/aiAnalyzeRunner';
 import { createSessionManager } from '../src/server/sessionManager';
+import type { FpgaArchitectureContract } from '../src/server/fpgaArchitectureContract';
 
 function createBaseParams(overrides: Record<string, any> = {}) {
   const sessionManager = createSessionManager({ cookieName: 'logicpro-runner-test' });
@@ -118,6 +119,87 @@ function createBaseParams(overrides: Record<string, any> = {}) {
   };
 
   return Object.assign(params, overrides);
+}
+
+function makeRunnerArchitectureContract(): FpgaArchitectureContract {
+  const capabilityIds = [
+    'alu_pkg_for_opcodes_flags',
+    'alu_core_combinational_or_registered_datapath',
+    'optional_top_wrapper',
+    'self_checking_operation_testbench',
+  ];
+  return {
+    schemaVersion: '1.0',
+    designName: 'alu_project',
+    designClass: 'alu',
+    topEntity: 'alu_top',
+    topTestbench: 'tb_alu_top',
+    systemIntent: 'Implement an 8-bit ALU with deterministic operation and flag behavior.',
+    assumptions: ['The ALU is combinational.'],
+    requiredCapabilityIds: capabilityIds,
+    components: [
+      {
+        id: 'alu_pkg', kind: 'package', name: 'alu_pkg', file: 'src/alu_pkg.vhd',
+        responsibility: 'Define operation encodings.', implements: [capabilityIds[0]], dependsOn: [],
+        children: [],
+        clockDomain: null, generics: [], ports: [], exports: ['op_t'],
+      },
+      {
+        id: 'alu_top', kind: 'top', name: 'alu_top', file: 'src/alu_top.vhd',
+        responsibility: 'Compute ALU results.', implements: [capabilityIds[1], capabilityIds[2]], dependsOn: ['alu_pkg'],
+        children: [],
+        clockDomain: null, generics: [],
+        ports: [
+          { name: 'a_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Operand.' },
+          { name: 'result_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Result.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'tb_alu_top', kind: 'testbench', name: 'tb_alu_top', file: 'tb/tb_alu_top.vhd',
+        responsibility: 'Self-check ALU behavior.', implements: [capabilityIds[3]], dependsOn: ['alu_top'],
+        children: ['alu_top'],
+        clockDomain: null, generics: [], ports: [], exports: [],
+      },
+    ],
+    clockDomains: [],
+    behaviors: [{
+      id: 'operation_behavior', requirement: 'Result matches the selected operation.',
+      inputs: ['a_i'], outputs: ['result_o'], timing: 'Combinational.',
+    }],
+    verification: [{
+      id: 'verify_alu', requirement: 'Verify every contracted ALU responsibility.',
+      stimulus: 'Apply deterministic operands.', expected: 'Observe expected result.',
+      observables: ['result_o'], covers: capabilityIds,
+    }],
+    sourceOrder: ['src/alu_pkg.vhd', 'src/alu_top.vhd', 'tb/tb_alu_top.vhd'],
+  };
+}
+
+function makeRunnerArchitectProject() {
+  return {
+    projectName: 'ALU Project', sanitizedProjectName: 'alu_project', topEntity: 'alu_top',
+    vhdlStandard: '08', targetFpga: null, summary: 'ALU', assumptions: [], warnings: [], folderTree: '',
+    files: [
+      {
+        path: 'src/alu_pkg.vhd', fileType: 'vhdl_package', purpose: 'Package',
+        content: 'package alu_pkg is subtype op_t is std_logic_vector(1 downto 0); end package;',
+      },
+      {
+        path: 'src/alu_top.vhd', fileType: 'vhdl_rtl', purpose: 'Top',
+        content: 'entity alu_top is port (a_i : in std_logic_vector(7 downto 0); result_o : out std_logic_vector(7 downto 0)); end entity; architecture rtl of alu_top is begin end architecture;',
+      },
+      {
+        path: 'tb/tb_alu_top.vhd', fileType: 'vhdl_testbench', purpose: 'TB',
+        content: 'entity tb_alu_top is end entity; architecture sim of tb_alu_top is begin dut: entity work.alu_top; end architecture;',
+      },
+    ],
+    ghdl: {
+      analysisOrder: ['src/alu_pkg.vhd', 'src/alu_top.vhd', 'tb/tb_alu_top.vhd'],
+      topTestbench: 'tb_alu_top', runCommands: [], expectedResult: 'pass',
+    },
+    qualityChecklist: [],
+  };
 }
 
 test('runAiAnalyzeJob retries once when non-artifact validation fails and accumulates tokens across attempts', async () => {
@@ -266,6 +348,63 @@ test('runAiAnalyzeJob uses FPGA Architect compact test-run prompt on the initial
   assert.equal(params.__runCalls.length, 1);
   assert.match(params.__runCalls[0]?.prompt || '', /^wrapped:system prompt\n\ncontract:check waveform\nTEST-RUN-COMPACT:minimal$/);
   assert.equal(result.retryUsed, false);
+});
+
+test('runAiAnalyzeJob approves an architecture contract before VHDL generation and persists it with the project', async () => {
+  const contract = makeRunnerArchitectureContract();
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/tmp/logicpro-contract-gate-project',
+    userQuery: 'Design an 8-bit ALU.',
+    enforceFpgaArchitectureContractGate: true,
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      const isContractProposal = /before any VHDL is generated/.test(prompt);
+      return {
+        text: isContractProposal ? JSON.stringify(contract) : '# PROJECT\nmanifest',
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 25,
+          totalTokens: 75,
+          tokensPerSecond: 20,
+          durationMs: 100,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: () => makeRunnerArchitectProject(),
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nrepair manifest`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\ncompact manifest`,
+    buildFpgaArchitectProjectStructureRepairPrompt: () => 'structure repair',
+    saveFpgaArchitectProject: async ({ project }: { project: ReturnType<typeof makeRunnerArchitectProject> }) => ({
+      outputDirectory: '/tmp/logicpro-contract-gate-project/alu_project',
+      savedFiles: project.files.map((file) => ({
+        ...file,
+        name: file.path.split('/').pop() || file.path,
+        path: `/tmp/logicpro-contract-gate-project/alu_project/${file.path}`,
+        kind: file.path.startsWith('tb/') ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: true,
+      stage: 'simulate' as const,
+      summary: 'Generated VHDL passed GHDL simulation.',
+      logs: ['pass'],
+      validatedTopEntities: ['tb_alu_top'],
+    }),
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 2);
+  assert.match(params.__runCalls[0].prompt, /Return exactly one JSON object/);
+  assert.match(params.__runCalls[1].prompt, /Approved FPGA Architecture Contract/);
+  assert.match(params.__runCalls[1].prompt, /immutable source of truth/);
+  assert.equal(result.architectureContract?.topEntity, 'alu_top');
+  assert.equal(result.architectProject?.files.some((file: any) => file.path === 'architecture/architecture-contract.json'), true);
+  assert.equal(result.telemetry.retryCount, 0);
 });
 
 test('buildFailureCodeSpecificRepairShaping adds typed port-map guidance and stronger architecture-variable testbench guidance', () => {

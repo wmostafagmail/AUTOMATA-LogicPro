@@ -31,6 +31,7 @@ import {
   recordModelQualityAttempt,
   writeModelQualityScoreboard,
 } from './modelQualityScoreboard';
+import type { FpgaArchitectureContract } from './fpgaArchitectureContract';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -54,6 +55,7 @@ type PreparedAiAnalyzeRequestLike = {
 
 type FpgaArchitectAttemptErrorLike = Error & {
   generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+  fpgaArchitectureContract?: FpgaArchitectureContract | null;
 };
 
 function formatInnerRepairAuditForLog(repairAudit: GeneratedVhdlRepairAuditEntry[] | null | undefined) {
@@ -1226,6 +1228,7 @@ export async function runFpgaArchitectStressLoop(params: {
     const designFeedbackMap = new Map<string, FpgaArchitectSweepFeedbackItem>();
     const repairPoisonCounts = new Map<string, number>();
     let continuationFiles: SweepContinuationFile[] = [];
+    let approvedArchitectureContract: FpgaArchitectureContract | null = null;
     let designProviderRuntimeFailures = 0;
     let designContextBudgetFailures = 0;
 
@@ -1295,6 +1298,7 @@ export async function runFpgaArchitectStressLoop(params: {
           `Model-quality feedback packets: ${modelQualityGuidancePackets}`,
           `Model-quality feedback scope: ${modelQualityGuidanceScope}`,
           `Continuation file count: ${continuationFiles.length}`,
+          `Architecture contract: ${approvedArchitectureContract ? 'reused approved contract' : 'proposal required before VHDL generation'}`,
           feedbackSnapshot,
         ].join('\n'),
       );
@@ -1306,6 +1310,7 @@ export async function runFpgaArchitectStressLoop(params: {
           `Model-quality feedback packets: ${modelQualityGuidancePackets}`,
           `Model-quality feedback scope: ${modelQualityGuidanceScope}`,
           `Continuation file count: ${continuationFiles.length}`,
+          `Architecture contract: ${approvedArchitectureContract ? 'reused approved contract' : 'proposal required before VHDL generation'}`,
           feedbackSnapshot,
         ].join('\n'),
       );
@@ -1394,6 +1399,8 @@ export async function runFpgaArchitectStressLoop(params: {
           hazardFindings: preparedRequest.hazardScan.findings,
           protocolFrames: preparedRequest.protocolScan.frames,
           fpgaArchitectExecutionMode: 'test_compact',
+          enforceFpgaArchitectureContractGate: true,
+          approvedFpgaArchitectureContract: approvedArchitectureContract,
           session,
           sessionManager,
           signal,
@@ -1457,6 +1464,10 @@ export async function runFpgaArchitectStressLoop(params: {
           },
         });
 
+        if (analysisResult?.architectureContract) {
+          approvedArchitectureContract = analysisResult.architectureContract;
+        }
+
         const successMessage = [
           'PASS',
           analysisResult?.validation?.summary ? `Validation: ${analysisResult.validation.summary}` : '',
@@ -1510,6 +1521,9 @@ export async function runFpgaArchitectStressLoop(params: {
       } catch (error: any) {
         const message = error?.message || String(error);
         const annotatedError = error as FpgaArchitectAttemptErrorLike | undefined;
+        if (annotatedError?.fpgaArchitectureContract) {
+          approvedArchitectureContract = annotatedError.fpgaArchitectureContract;
+        }
         const failureDetails = annotatedError?.generatedVhdlValidation?.failureDetails || [];
         const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
           message,
