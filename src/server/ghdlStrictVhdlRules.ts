@@ -56,6 +56,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
   ],
   identifierReservedWord: [
     'Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code.',
+    'VHDL identifiers are case-insensitive. Never create two visible identifiers that differ only by case or styling, such as package constant `H_ACTIVE` and port `h_active`; rename constants to distinct descriptive names such as `H_ACTIVE_PIXELS` or `V_ACTIVE_LINES`.',
     'This reserved-identifier ban includes entity names, architecture names, package names, enum literals, constants, signals, variables, generics, ports, procedure names, function names, and formal arguments.',
     'In particular, never use VHDL operator keywords such as `and`, `or`, `xor`, `xnor`, `nand`, `nor`, `not`, `sll`, `srl`, `sla`, `sra`, `rol`, or `ror` as user-defined identifiers.',
   ],
@@ -67,6 +68,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Package declarations and package bodies are not exempt from those IEEE clauses. If a package defines `std_logic`, `std_ulogic`, `std_logic_vector`, `unsigned`, or `signed` objects, the package file itself must begin with the required local `library ieee;` and `use ...` clauses.',
     'Never assume `library` or `use` clauses from another file carry over.',
     'For numeric_std unsigned/signed comparisons, do not write equality tests such as `(others => \'0\')` in scalar comparison contexts. Prefer explicit forms like `to_unsigned(0, signal\'length)` or `to_signed(0, signal\'length)`.',
+    'For numeric_std equality, both operands must have the same type. Do not compare an `unsigned`/`signed` object against `std_logic_vector(...)`; compare against `to_unsigned(...)`, `to_signed(...)`, or a same-typed object.',
     'Do not use VHDL logical operator tokens as pseudo-English arithmetic/comparison glue. Expressions such as `a_int and b_int = 0`, `a_int or b_int = 0`, or `a_int xor b_int = 0` are illegal unless both operands are boolean.',
     'Use VHDL operator keywords exactly as defined by the language: `and`, `or`, `xor`, `xnor`, `not`, `sll`, and `srl`. Never emit C/Verilog-style symbols such as `~`, `|`, `^`, backticks, or similar operator punctuation in VHDL expressions.',
     'In VHDL, `&` is concatenation, not bitwise AND. Bitwise `and/or/xor/xnor/not` operations must be performed with the keyword operators on compatible std_logic_vector/unsigned/signed operands of matching widths, with explicit conversions where needed.',
@@ -74,6 +76,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'If a helper package/function accepts raw `std_logic_vector` arguments, normalize them into typed local operands before arithmetic, bitwise logic, shifts, or `resize` calls.',
     'If an internal result is kept as `unsigned` or `signed`, every branch assigning it must return that same type; do not mix in raw `std_logic_vector` expressions without explicit conversion at the boundary.',
     'At entity instantiation and port-map boundaries, the actual expression must already match the formal typed domain. Do not pass raw `std_logic_vector` actuals into `unsigned`/`signed` formals, and do not wrap already typed actuals in mismatching conversions.',
+    'Named numeric subtypes such as `addr_t` and `data_t` are not interchangeable at port-map boundaries just because both are based on `unsigned`. Connect an object of the exact formal subtype or use an explicit local adapter with proven width/range.',
     'Do not call `to_integer` on raw `std_logic` or `std_logic_vector`; convert first with `unsigned(...)` or `signed(...)`.',
     'Do not perform direct bitwise/logical operators on integers. Convert to typed vector/numeric operands or rewrite as boolean comparisons/arithmetic as appropriate.',
     'Do not read back `out` ports for internal decisions or flag generation. Compute from internal typed signals/variables first, then drive the port.',
@@ -83,6 +86,9 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
   packageTypeDefinition: [
     'When constraining an existing scalar type such as `integer`, `natural`, or `positive`, use `subtype`, not `type`. For example write `subtype op_index_t is integer range 0 to 7;`, never `type op_index_t is integer range 0 to 7;`.',
     'For scalar numeric types such as `integer`, `natural`, and `positive`, use numeric literals/expressions on assignment. Do not assign bit-string or hex-string literals such as `"00"` or `x"3"` to scalar numeric declarations; use `0`, `3`, or an explicit typed conversion instead.',
+    'Fixed-range array aggregates such as ROM/RAM initialization must cover every index explicitly or include a safe `others => ...` default matching the element type. Never initialize only the first few addresses of a larger fixed array without `others`.',
+    'Aggregate choices must use `=>`, for example `others => x"00"` or `3 => x"03"`. Never repair aggregate choices by changing `=>` to `:`.',
+    'Every custom type/subtype/record/array type used across files must have one visible source of truth: declare it in a generated package, import that package with `use work.<pkg>.all;` in every dependent file, and analyze the package before dependents.',
     'No multidimensional `std_logic_vector(...) (...)` declarations. For vectors of vectors, declare a named array type and then use that type, or flatten the storage into a one-dimensional vector.',
     'Do not declare signals, variables, or constants with inline anonymous `array(...) of ...` object syntax. Declare a named array type or subtype first, then declare the object using that named type.',
     'Do not re-constrain an already constrained subtype or alias. If you need a different width/range, declare a new type/subtype legally from the base type.',
@@ -90,9 +96,11 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Do not generate malformed packed-bus subtype expressions with nested `downto` arithmetic inside one subtype declaration. Precompute widths cleanly or use simple legal range expressions.',
   ],
   interfaceGenericPortSyntax: [
+    'Every required `in` formal in a named port map must be connected explicitly. Do not omit mandatory input ports such as register-file write data or memory address/data ports.',
     'In entity/component generic and port lists, every interface item except the last must end with a semicolon. Do not rely on comments or blank lines as separators.',
     'Keep interface declarations syntactically plain. Do not let inline commentary break the required semicolon/comma structure in generic or port lists.',
     'Inside entity/component generic and port declarations, use `:` between the interface name and its subtype/mode. Never use `=>` there; `=>` is only for associations, named maps, and aggregates.',
+    'When a generic/constant default value is an aggregate, nested choices inside that default still use `=>`; only the outer interface item uses `:`.',
     'Do not reference undeclared generics, constants, widths, or helper identifiers inside interface/type declarations. Declare them first in a legal outer declarative region or replace them with explicit legal dimensions.',
   ],
   simulationSuccess: [
@@ -103,6 +111,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'For synchronous checks, sample outputs only after the active clock edge update has taken effect.',
     'For sequential DUTs such as counters, registers, and FSM outputs, wait for the correct post-edge observation point, allow reset to settle, and do not assert next-state values one clock too early.',
     'In testbenches, never index memories or scoreboards with direct raw logic-vector conversions such as `mem(to_integer(unsigned(addr_slv)))` on DUT-visible address/debug buses. Route those conversions through a local guarded helper that first verifies every bit is `0` or `1` and returns a safe default if unknown/metavalue bits are present.',
+    'Never index arrays/vectors with unchecked `to_integer(...)` expressions. Convert the index to a local integer, prove it is within the target object range, and provide a safe fallback for out-of-range or unknown/metavalue inputs before indexing.',
     'VHDL does not support conditional range-membership syntax such as `if idx in 0 to 15 then`. For bounds checks, always write explicit comparisons: `if idx >= 0 and idx <= 15 then`.',
     'Any report/assert message must use valid VHDL string concatenation with `&`.',
     'If any RTL or testbench file references a work package/helper package/shared declaration such as `work.counter_pkg`, that package file must be generated explicitly and must appear before dependents in GHDL analysis order.',
@@ -110,6 +119,8 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Do not reference unresolved work units. Every entity, package, component, and helper used from work must either be generated in the project or removed from the design/testbench.',
     'For hierarchical designs, every `entity work.<child>` instantiation must have a matching generated VHDL source file that declares `entity <child> is`, and that file must appear in analysis_order before any file that instantiates it.',
     'If you mention helper blocks such as FIFOs, controllers, arbiters, protocol engines, packages, scoreboards, or monitors, either generate their complete VHDL files or inline/remove those references. Never leave placeholder hierarchy names unresolved.',
+    'Every self-checking testbench must instantiate the DUT it is checking with a named `entity work.<dut>` port map. Signals compared by check/assert helpers must be driven by DUT outputs or by an explicit local reference model before they are checked.',
+    'A testbench must stimulate only DUT inputs. Never assign stimulus values to a signal that is mapped to a DUT `out`, `buffer`, or observed `inout` port; use a separate expected/reference signal for golden values.',
     'Use VHDL literal syntax only. Never emit Verilog/SystemVerilog-sized literals such as `3\'b000`, `8\'hFF`, `4\'d7`, or `6\'o77` inside VHDL. Use VHDL forms like `"000"`, `x"FF"`, `to_unsigned(7, 4)`, or explicit typed conversions instead.',
     'Avoid runtime-unsafe placeholder indexing and array math. Any generated indexing, slicing, resize, shift count, and loop bounds must stay within declared widths/ranges for the intended stimuli.',
     'The generated DUT and testbench must be suitable for a full GHDL analyze -> elaborate -> simulate flow as written.',
@@ -160,6 +171,9 @@ export const STRICT_CODE_GENERATION_RULE_LIST = [
   'End design units with legal VHDL terminators only, for example `end package;`, `end package pkg_name;`, `end entity;`, or `end architecture rtl;`. Never append file extensions such as `.vhd` or `.vhdl` inside end statements.',
   'Use `<=` only for signals and `:=` only for variables/constants. Never assign to a variable with `<=` or to a signal with `:=`.',
   'Never use `:=` inside boolean conditions (`if`, `elsif`, `assert`, or conditional `when ... else` expressions). Conditions must use comparison operators such as `=`, `/=`, `<`, `<=`, `>`, or `>=`; keep `:=` only as a standalone variable assignment statement. Do not confuse this with legal `case` branches like `when OP_AND => result_v := ...;`.',
+  'Every `case` statement over an enum/FSM state must cover every enum literal explicitly or include a safe `when others` branch that preserves reset/idle/error behavior.',
+  'Do not call `unsigned(...)` or `signed(...)` on integer/natural/custom scalar values. Use integer/natural values directly, call `to_integer(...)` directly on unsigned/signed values, and use `to_unsigned(value, width)` or `to_signed(value, width)` when creating vectors from integers.',
+  'For typed port maps, match actuals to formal types exactly. Integer-to-unsigned/signed inputs require `to_unsigned`/`to_signed` or a correctly typed signal; never use raw `unsigned(integer_value)` or conversions on out/inout actuals.',
 ];
 
 const CODE_GENERATING_MACRO_IDS: AiMacroId[] = [

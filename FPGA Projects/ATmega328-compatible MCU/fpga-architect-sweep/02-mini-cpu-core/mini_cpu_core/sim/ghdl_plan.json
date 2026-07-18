@@ -1,0 +1,18 @@
+{
+  "project": "mini_cpu_core",
+  "top_entity": "cpu_top",
+  "top_testbench": "tb_cpu_top",
+  "vhdl_standard": "--std=08",
+  "analysis_order": [
+    "src/cpu_pkg.vhd",
+    "src/rom.vhd",
+    "src/ram.vhd",
+    "src/alu.vhd",
+    "src/regfile.vhd",
+    "src/control_fsm.vhd",
+    "src/cpu_top.vhd",
+    "tb/tb_cpu_top.vhd"
+  ],
+  "expected_result": "TEST PASSED",
+  "waveform": "waves/tb_cpu_top.vcd"
+}

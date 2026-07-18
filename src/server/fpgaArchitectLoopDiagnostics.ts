@@ -35,6 +35,7 @@ export type FpgaArchitectLoopFailureCategory =
   | 'unresolved_work_unit'
   | 'protocol_functional_mismatch'
   | 'simulation_assertion'
+  | 'testbench_structure'
   | 'source_selection'
   | 'context_budget'
   | 'other';
@@ -96,6 +97,7 @@ const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
   unresolved_work_unit: 'Unresolved Work Unit',
   protocol_functional_mismatch: 'Protocol / Functional Mismatch',
   simulation_assertion: 'Simulation Assertion',
+  testbench_structure: 'Testbench DUT Wiring',
   source_selection: 'Validation Source Selection',
   context_budget: 'Context Budget',
   other: 'Other',
@@ -128,6 +130,7 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
   mixed_clock_edge: 'mixed_clock_edge_domain',
   unresolved_work_unit: 'unresolved_work_unit',
   protocol_functional_mismatch: 'ghdl_simulate_failure',
+  testbench_structure: 'testbench_missing_dut_instantiation',
   source_selection: 'source_selection',
   context_budget: 'context_budget_exceeded',
   simulation_assertion: 'ghdl_simulate_failure',
@@ -136,6 +139,7 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
 function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopFailureCategory | null {
   switch (code) {
     case 'reserved_identifier':
+    case 'case_insensitive_identifier_collision':
       return 'reserved_identifier';
     case 'missing_std_logic_1164_clause':
     case 'missing_numeric_std_clause':
@@ -158,6 +162,7 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'custom_type_port_association_mismatch':
     case 'package_symbol_not_visible':
       return 'package_type_definition';
+    case 'incomplete_array_aggregate_choices':
     case 'illegal_multidimensional_logic_vector':
     case 'reconstrained_array_subtype':
     case 'anonymous_array_object_declaration':
@@ -169,6 +174,7 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'interface_constant_not_visible':
     case 'out_port_actual_conversion':
     case 'unknown_port_map_formal':
+    case 'unconnected_required_input_port':
       return 'interface_declaration_misuse';
     case 'verilog_style_literal':
     case 'scalar_bit_string_assignment':
@@ -204,26 +210,41 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'resize_on_raw_std_logic_vector':
     case 'resize_with_range_attribute':
     case 'to_integer_on_raw_logic_type':
+    case 'unsigned_conversion_on_non_vector':
     case 'typed_function_result_mismatch':
     case 'typed_port_association_mismatch':
+    case 'typed_port_width_mismatch':
+    case 'custom_numeric_subtype_port_mismatch':
     case 'typed_helper_actual_mismatch':
     case 'typed_bitwise_mismatch':
     case 'typed_resize_return_mismatch':
+    case 'typed_equality_operand_mismatch':
     case 'enum_opcode_numeric_conversion_misuse':
       return 'numeric_std_typing';
     case 'illegal_numeric_logical_hybrid':
     case 'illegal_prefix_operator_form':
       return 'illegal_operator_usage';
+    case 'enum_case_choice_missing':
+      return 'interface_declaration_misuse';
     case 'unresolved_work_unit':
     case 'missing_work_package_file':
       return 'unresolved_work_unit';
     case 'source_selection':
       return 'source_selection';
     case 'ghdl_simulate_failure':
+    case 'alu_flag_behavior_mismatch':
+    case 'alu_result_behavior_mismatch':
     case 'cpu_halt_behavior_mismatch':
+    case 'cpu_reset_pc_behavior_mismatch':
+    case 'cpu_fetch_sequence_mismatch':
+    case 'cpu_control_signal_behavior_mismatch':
     case 'simulation_assertion_expected_actual_mismatch':
     case 'simulation_valid_latency_mismatch':
       return 'simulation_assertion';
+    case 'testbench_missing_dut_instantiation':
+    case 'checked_signal_not_dut_driven':
+    case 'testbench_drives_dut_output_signal':
+      return 'testbench_structure';
     default:
       return null;
   }
@@ -360,6 +381,8 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
     category = 'illegal_operator_usage';
   } else if (category === 'other' && /unresolved work units|unit ".*" not found in library "work"/i.test(message)) {
     category = 'unresolved_work_unit';
+  } else if (category === 'other' && /testbench.*(?:does not instantiate|missing dut|dut instantiation|checked signal.*not driven|drives dut output|mapped to output port)/i.test(message)) {
+    category = 'testbench_structure';
   } else if (category === 'other' && /fail:\s+.*mismatch detected|mismatch detected|nominal transfer mismatch|second transfer mismatch|protocol.*mismatch/i.test(message)) {
     category = 'protocol_functional_mismatch';
   } else if (category === 'other' && /assertion failure|simulation failed|generated vhdl failed ghdl simulation/i.test(message)) {

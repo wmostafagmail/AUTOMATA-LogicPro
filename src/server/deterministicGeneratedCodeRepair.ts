@@ -72,6 +72,22 @@ function pathsReferToSameFile(left: string, right: string) {
     || normalizedRight.endsWith(`/${normalizedLeft}`);
 }
 
+function findBalancedCloseParen(value: string, openParenIndex: number) {
+  let depth = 0;
+  for (let index = openParenIndex; index < value.length; index += 1) {
+    const char = value[index];
+    if (char === '(') {
+      depth += 1;
+    } else if (char === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        return index;
+      }
+    }
+  }
+  return -1;
+}
+
 function isLikelyTestbenchRelativePath(relativePath: string) {
   const normalized = normalizeRelativePath(relativePath);
   return normalized.includes('/tb/')
@@ -837,8 +853,21 @@ function repairWaitClkArityMismatch(content: string) {
     return { content, changed: false };
   }
 
-  const calls = collectNamedCallSpans(content, 'wait_clk');
+  const declarationStart = declarationMatch.index;
+  const declarationEnd = declarationStart + declarationMatch[0].length;
+  const calls = collectNamedCallSpans(content, 'wait_clk')
+    .filter((call) => call.end <= declarationStart || call.start >= declarationEnd);
   if (calls.length === 0 || calls.some((call) => splitCallActuals(call.actualText).length !== 1)) {
+    return { content, changed: false };
+  }
+
+  const firstFormal = splitTopLevelSegments(
+    declarationMatch[0]
+      .replace(/^[\s\S]*?\bprocedure\s+wait_clk\s*\(/i, '')
+      .replace(/\)\s*is[\s\S]*$/i, ''),
+    ';',
+  )[0] || '';
+  if (!/\bsignal\s+[a-zA-Z][a-zA-Z0-9_]*\s*:\s*in\s+std_logic\b/i.test(firstFormal)) {
     return { content, changed: false };
   }
 
@@ -1089,6 +1118,121 @@ function rewriteToIntegerOnRawLogicType(content: string, identifier: string, kin
   return { content: nextContent, changed };
 }
 
+function inferSimpleObjectType(content: string, identifier: string) {
+  const escapedIdentifier = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const declarationPattern = new RegExp(`\\b(?:signal|variable|constant)\\s+[^:;]*\\b${escapedIdentifier}\\b[^:;]*:\\s*([^;:=]+)`, 'i');
+  const formalPattern = new RegExp(`\\b${escapedIdentifier}\\s*:\\s*(?:in|out|inout|buffer|linkage)?\\s*([^;)]+)`, 'i');
+  const typeText = declarationPattern.exec(content)?.[1] || formalPattern.exec(content)?.[1] || '';
+  const normalized = typeText.replace(/\s+/g, ' ').trim().toLowerCase();
+  if (/\bunsigned\b/.test(normalized)) return 'unsigned';
+  if (/\bsigned\b/.test(normalized)) return 'signed';
+  if (/\bstd_logic_vector\b/.test(normalized)) return 'std_logic_vector';
+  if (/\bstd_(?:u)?logic\b/.test(normalized)) return 'std_logic';
+  if (/\b(?:integer|natural|positive)\b/.test(normalized)) return 'integer';
+  return null;
+}
+
+function rewriteUnsignedConversionOnNonVector(content: string, identifier: string, conversionType: 'unsigned' | 'signed') {
+  const objectType = inferSimpleObjectType(content, identifier);
+  if (!objectType) return { content, changed: false };
+
+  const escapedIdentifier = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const expression = new RegExp(`\\bto_integer\\s*\\(\\s*${conversionType}\\s*\\(\\s*${escapedIdentifier}\\s*\\)\\s*\\)`, 'g');
+  let changed = false;
+  const nextContent = content.replace(expression, (match, offset, whole) => {
+    if (typeof offset === 'number' && (isIndexInsideLineComment(whole, offset) || isIndexInsideDoubleQuotedString(whole, offset))) {
+      return match;
+    }
+    if (objectType === 'integer') {
+      changed = true;
+      return identifier;
+    }
+    if (objectType === conversionType) {
+      changed = true;
+      return `to_integer(${identifier})`;
+    }
+    return match;
+  });
+
+  return { content: nextContent, changed };
+}
+
+function inferArrayElementDefault(content: string, arrayTypeName: string) {
+  const escapedTypeName = arrayTypeName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const arrayTypeMatch = new RegExp(`\\btype\\s+${escapedTypeName}\\s+is\\s+array\\s*\\([^)]*\\)\\s+of\\s+([^;]+)\\s*;`, 'i').exec(content);
+  if (!arrayTypeMatch) return null;
+  const elementType = arrayTypeMatch[1].replace(/\s+/g, ' ').trim().toLowerCase();
+  if (/\bstd_(?:u)?logic\b/.test(elementType) && !/vector|\bunsigned\b|\bsigned\b/.test(elementType)) {
+    return "'0'";
+  }
+  if (
+    /\bstd_logic_vector\b|\bstd_ulogic_vector\b|\bunsigned\b|\bsigned\b/.test(elementType)
+    || /^[a-zA-Z][a-zA-Z0-9_]*$/.test(elementType)
+  ) {
+    return "(others => '0')";
+  }
+  return null;
+}
+
+function repairIncompleteArrayAggregateChoices(content: string, detail: GeneratedVhdlFailureDetail) {
+  const typeMatch = detail.message.match(/object\s+"[^"]+"\s+of type\s+"([A-Za-z][A-Za-z0-9_]*)"/i)
+    || detail.forbiddenConstruct?.match(/\bfor\s+([A-Za-z][A-Za-z0-9_]*)\s+omits/i)
+    || detail.forbiddenConstruct?.match(/\b([A-Za-z][A-Za-z0-9_]*)\s+omits choices/i);
+  const arrayTypeName = typeMatch?.[1];
+  if (!arrayTypeName) return { content, changed: false };
+  const defaultValue = inferArrayElementDefault(content, arrayTypeName);
+  if (!defaultValue) return { content, changed: false };
+
+  const escapedTypeName = arrayTypeName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const declarationPattern = new RegExp(`\\b(?:signal|constant|variable)\\s+([A-Za-z][A-Za-z0-9_]*)\\s*:\\s*${escapedTypeName}\\s*:=\\s*\\(`, 'gi');
+  let nextContent = content;
+  let changed = false;
+  const matches = Array.from(content.matchAll(declarationPattern)).reverse();
+  for (const match of matches) {
+    const openIndex = (match.index ?? 0) + match[0].lastIndexOf('(');
+    const closeIndex = findBalancedCloseParen(nextContent, openIndex);
+    if (closeIndex < 0) continue;
+    const body = nextContent.slice(openIndex + 1, closeIndex);
+    if (/\bothers\s*=>/i.test(body) || !/\b[0-9]+\s*=>/.test(body)) continue;
+    const trimmedBody = body.trimEnd();
+    const separator = /,\s*$/.test(trimmedBody) ? '' : ',';
+    const insertion = `${separator}\n    others => ${defaultValue}`;
+    const insertionIndex = openIndex + 1 + trimmedBody.length;
+    nextContent = `${nextContent.slice(0, insertionIndex)}${insertion}${nextContent.slice(insertionIndex)}`;
+    changed = true;
+  }
+  return { content: nextContent, changed };
+}
+
+function rewriteTypedEqualityOperandMismatch(content: string) {
+  let changed = false;
+  const comparisonPattern = /\b([A-Za-z][A-Za-z0-9_]*)\s*(=|\/=)\s*std_logic_vector\s*\(\s*to_unsigned\s*\(([^,()]+),\s*([^)]+)\)\s*\)/gi;
+  let nextContent = content.replace(comparisonPattern, (match, lhs, operator, value, width, offset, whole) => {
+    if (typeof offset === 'number' && (isIndexInsideLineComment(whole, offset) || isIndexInsideDoubleQuotedString(whole, offset))) {
+      return match;
+    }
+    const objectType = inferSimpleObjectType(content, lhs);
+    if (objectType !== 'unsigned') return match;
+    changed = true;
+    const normalizedWidth = /\blength\b/i.test(width) ? width.trim() : `${lhs}'length`;
+    return `${lhs} ${operator} to_unsigned(${value.trim()}, ${normalizedWidth})`;
+  });
+
+  const directVectorPattern = /\b([A-Za-z][A-Za-z0-9_]*)\s*(=|\/=)\s*std_logic_vector\s*\(\s*([A-Za-z][A-Za-z0-9_]*)\s*\)/gi;
+  nextContent = nextContent.replace(directVectorPattern, (match, lhs, operator, rhs, offset, whole) => {
+    if (typeof offset === 'number' && (isIndexInsideLineComment(whole, offset) || isIndexInsideDoubleQuotedString(whole, offset))) {
+      return match;
+    }
+    const lhsType = inferSimpleObjectType(nextContent, lhs);
+    const rhsType = inferSimpleObjectType(nextContent, rhs);
+    if (lhsType !== 'unsigned' || rhsType !== 'unsigned') return match;
+    changed = true;
+    return `${lhs} ${operator} ${rhs}`;
+  });
+
+  return { content: nextContent, changed };
+}
+
 function ensureTbSafeLogicIndexHelper(content: string, helperName: 'tb_safe_slv_to_index' | 'tb_safe_signed_to_index') {
   if (new RegExp(`\\bfunction\\s+${helperName}\\b`, 'i').test(content)) {
     return { content, changed: false };
@@ -1293,6 +1437,11 @@ function rewriteTypedPortAssociationMismatch(params: {
   portName?: string;
 }) {
   const escapedActual = params.actualExpression.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const simpleActual = params.actualExpression.match(/^[a-zA-Z][a-zA-Z0-9_]*$/)?.[0] || null;
+  const actualType = simpleActual ? inferSimpleObjectType(params.content, simpleActual) : null;
+  if (actualType === 'integer') {
+    return { content: params.content, changed: false };
+  }
   const wrappedActual = `${params.formalType}(${params.actualExpression})`;
   let changed = false;
   let nextContent = params.content;
@@ -1769,6 +1918,11 @@ function getDeterministicRepairPriority(code: string) {
     case 'package_body_signature_mismatch':
     case 'typed_resize_return_mismatch':
       return 9;
+    case 'incomplete_array_aggregate_choices':
+    case 'typed_equality_operand_mismatch':
+      return 9;
+    case 'unsigned_conversion_on_non_vector':
+      return 9;
     case 'subprogram_body_inside_package_declaration':
       return 10;
     case 'architecture_body_variable':
@@ -1980,6 +2134,22 @@ function rewriteInterfaceArrowSyntax(content: string) {
     }
     return String(block).replace(String(interfaceBody), rewrittenInterfaceBody);
   });
+  return { content: nextContent, changed };
+}
+
+function rewriteAggregateChoiceColonSyntax(content: string) {
+  let changed = false;
+  const nextContent = content.replace(
+    /(^|\n)([ \t]*others\s*):(?=\s*[^;\n,)]*(?:[,)]|\n|$))/gi,
+    (match, prefix, choice, offset, whole) => {
+      const choiceOffset = offset + String(prefix).length;
+      if (isIndexInsideLineComment(whole, choiceOffset) || isIndexInsideDoubleQuotedString(whole, choiceOffset)) {
+        return match;
+      }
+      changed = true;
+      return `${prefix}${String(choice).replace(/\s+$/u, '')} =>`;
+    },
+  );
   return { content: nextContent, changed };
 }
 
@@ -2890,6 +3060,14 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
     const result = repairTypedResizeReturnMismatch(nextContent);
     nextContent = result.content;
     changed = result.changed;
+  } else if (detail.code === 'incomplete_array_aggregate_choices') {
+    const result = repairIncompleteArrayAggregateChoices(nextContent, detail);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'typed_equality_operand_mismatch') {
+    const result = rewriteTypedEqualityOperandMismatch(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
   } else if (detail.code === 'missing_std_logic_1164_clause') {
     const result = ensureUseClause(nextContent, 'ieee.std_logic_1164.all');
     nextContent = result.content;
@@ -2949,6 +3127,14 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
     const match = detail.forbiddenConstruct?.match(/to_integer\(([A-Za-z][A-Za-z0-9_]*)\) on raw (std_logic_vector|std_logic)/i);
     if (match) {
       const result = rewriteToIntegerOnRawLogicType(nextContent, match[1], match[2].toLowerCase() as 'std_logic' | 'std_logic_vector');
+      nextContent = result.content;
+      changed = result.changed;
+    }
+  } else if (detail.code === 'unsigned_conversion_on_non_vector') {
+    const match = detail.forbiddenConstruct?.match(/to_integer\((unsigned|signed)\(([A-Za-z][A-Za-z0-9_]*)\)\)/i)
+      || detail.message.match(/uses\s+"to_integer\((unsigned|signed)\(([A-Za-z][A-Za-z0-9_]*)\)\)"/i);
+    if (match) {
+      const result = rewriteUnsignedConversionOnNonVector(nextContent, match[2], match[1].toLowerCase() as 'unsigned' | 'signed');
       nextContent = result.content;
       changed = result.changed;
     }
@@ -3195,6 +3381,10 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
     const result = rewriteInterfaceArrowSyntax(nextContent);
     nextContent = result.content;
     changed = result.changed;
+  } else if (detail.code === 'aggregate_choice_operator_misrepair') {
+    const result = rewriteAggregateChoiceColonSyntax(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
   } else if (detail.code === 'natural_language_leakage') {
     const result = rewriteNaturalLanguageLeakage(nextContent);
     nextContent = result.content;
@@ -3327,6 +3517,13 @@ export async function applyDeterministicGeneratedCodeRepairs(params: {
       if (malformedCheckHelperResult.changed) {
         fileChanged = true;
         appliedCodes.add('malformed_check_helper_block');
+      }
+
+      const waitClkResult = repairWaitClkArityMismatch(nextContent);
+      nextContent = waitClkResult.content;
+      if (waitClkResult.changed) {
+        fileChanged = true;
+        appliedCodes.add('subprogram_call_arity_mismatch');
       }
     }
 

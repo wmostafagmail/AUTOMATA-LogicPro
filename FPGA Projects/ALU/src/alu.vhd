@@ -5,52 +5,86 @@ use work.alu_pkg.all;
 
 entity alu is
   port (
-    clk           : in  std_logic;
-    rst           : in  std_logic;
-    op_code       : in  std_logic_vector(2 downto 0);
-    a             : in  std_logic_vector(7 downto 0);
-    b             : in  std_logic_vector(7 downto 0);
-    result        : out std_logic_vector(7 downto 0);
-    zero_flag     : out std_logic;
-    overflow_flag : out std_logic
+    clk        : in  std_logic;
+    rst        : in  std_logic;
+    op         : in  alu_op_t;
+    a          : in  std_logic_vector(7 downto 0);
+    b          : in  std_logic_vector(7 downto 0);
+    result     : out std_logic_vector(7 downto 0);
+    flags      : out alu_flags_t
   );
 end entity alu;
 
 architecture rtl of alu is
+  signal result_reg : unsigned(7 downto 0);
+  signal flags_reg  : alu_flags_t;
 begin
-  process(clk, rst)
-    variable a_v : unsigned(7 downto 0);
-    variable b_v : unsigned(7 downto 0);
-    variable res_v : unsigned(8 downto 0);
+  result <= std_logic_vector(result_reg);
+  flags  <= flags_reg;
+
+  process(clk)
+    variable next_result : unsigned(7 downto 0);
+    variable next_flags  : alu_flags_t;
+    variable a_u         : unsigned(7 downto 0);
+    variable b_u         : unsigned(7 downto 0);
   begin
-    if rst = '1' then
-      res_v := (others => '0');
-    elsif rising_edge(clk) then
-      a_v := unsigned(a);
-      b_v := unsigned(b);
-      case op_code is
-        when OP_ADD =>
-          res_v := a_v + b_v;
-        when OP_SUB =>
-          res_v := a_v - b_v;
-        when OP_AND =>
-          res_v := resize(a_v and b_v, 8);
-        when OP_OR  =>
-          res_v := resize(a_v or b_v, 8);
-        when OP_XOR =>
-          res_v := resize(a_v xor b_v, 8);
-        when OP_NOT =>
-          res_v := resize(not a_v, 8);
-        when OP_INC =>
-          res_v := a_v + 1;
-        when OP_SLL =>
-          res_v := resize(a_v sll 1, 8);
-        when others =>
-          res_v := (others => '0');
-      end case;
+    a_u := unsigned(a);
+    b_u := unsigned(b);
+
+    next_result := (others => '0');
+    next_flags.zero      := '0';
+    next_flags.carry_out := '0';
+    next_flags.overflow  := '0';
+
+    case op is
+      when OP_ADD =>
+        next_result := resize(a_u + b_u, next_result'length);
+        next_flags.carry_out := '1' when (a_u + b_u) > to_unsigned(255, 9) else '0';
+        next_flags.overflow  := '1' when (a_u(7) = b_u(7)) and (a_u(7) /= next_result(7)) else '0';
+      when OP_SUB =>
+        next_result := resize(a_u - b_u, next_result'length);
+        next_flags.carry_out := '0' when a_u >= b_u else '1';
+        next_flags.overflow  := '1' when (a_u(7) /= b_u(7)) and (a_u(7) = next_result(7)) else '0';
+      when OP_AND =>
+        next_result := a_u and b_u;
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+      when OP_OR =>
+        next_result := a_u or b_u;
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+      when OP_XOR =>
+        next_result := a_u xor b_u;
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+      when OP_NOT =>
+        next_result := not a_u;
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+      when OP_SLL =>
+        next_result := shift_left(a_u, to_integer(b_u(3 downto 0)));
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+      when OP_SRL =>
+        next_result := shift_right(a_u, to_integer(b_u(3 downto 0)));
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+      when others =>
+        next_result := (others => '0');
+        next_flags.carry_out := '0';
+        next_flags.overflow  := '0';
+    end case;
+
+    if rising_edge(clk) then
+      if rst = '1' then
+        result_reg <= (others => '0');
+        flags_reg.zero      <= '0';
+        flags_reg.carry_out <= '0';
+        flags_reg.overflow  <= '0';
+      else
+        result_reg <= next_result;
+        flags_reg  <= next_flags;
+      end if;
     end if;
-    result <= std_logic_vector(res_v(7 downto 0));
-    zero_flag <= '1' when res_v(7 downto 0) = (others => '0') else '0';
-    overflow_flag <= res_v(8);
   end process;
 end architecture rtl;

@@ -1,0 +1,21 @@
+{
+  "vhdl_standard": "--std=08",
+  "top_testbench": "tb_video_top",
+  "analysis_order": [
+    "src/video_pkg.vhd",
+    "src/timing_gen.vhd",
+    "src/pixel_gen.vhd",
+    "src/video_top.vhd",
+    "tb/tb_video_top.vhd"
+  ],
+  "run_commands": [
+    "ghdl -a --std=08 --workdir=work src/video_pkg.vhd",
+    "ghdl -a --std=08 --workdir=work src/timing_gen.vhd",
+    "ghdl -a --std=08 --workdir=work src/pixel_gen.vhd",
+    "ghdl -a --std=08 --workdir=work src/video_top.vhd",
+    "ghdl -a --std=08 --workdir=work tb/tb_video_top.vhd",
+    "ghdl -e --std=08 --workdir=work tb_video_top",
+    "ghdl -r --std=08 --workdir=work tb_video_top --vcd=waves/tb_video_top.vcd --stop-time=2us"
+  ],
+  "expected_result": "TEST PASSED"
+}

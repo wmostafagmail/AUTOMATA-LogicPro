@@ -1,30 +1,18 @@
-.PHONY: all analyze elaborate simulate clean
+GHDL = ghdl
+WORKDIR = work
+SRC_DIR = src
+TB_DIR = tb
+WAVE_DIR = waves
 
-VHDL_STD   ?= --std=08
-GHDL       := ghdl
-ANALYZE    := $(GHDL) -a $(VHDL_STD)
-ELABORATE  := $(GHDL) -e $(VHDL_STD)
-RUN        := $(GHDL) -r $(VHDL_STD)
-
-SRC_PKG    := src/alu_pkg.vhd
-SRC_DUT    := src/alu.vhd
-TB         := tb/alu_tb.vhd
-
-TOP_TB     := alu_tb
-STOP_TIME  ?= 120us
-
-all: analyze elaborate simulate
-
-analyze:
-	$(ANALYZE) $(SRC_PKG)
-	$(ANALYZE) $(SRC_DUT)
-	$(ANALYZE) $(TB)
-
-elaborate: analyze
-	$(ELABORATE) $(TOP_TB)
-
-simulate: elaborate
-	$(RUN) $(TOP_TB) --stop-time=$(STOP_TIME)
+all: clean simulate
 
 clean:
-	rm -f *.o *.cfghdl work-* alu_tb
+	rm -rf $(WORKDIR) $(WAVE_DIR)
+
+simulate:
+	mkdir -p $(WORKDIR) $(WAVE_DIR)
+	$(GHDL) -a --std=08 --workdir=$(WORKDIR) $(SRC_DIR)/alu_pkg.vhd
+	$(GHDL) -a --std=08 --workdir=$(WORKDIR) $(SRC_DIR)/alu.vhd
+	$(GHDL) -a --std=08 --workdir=$(WORKDIR) $(TB_DIR)/alu_tb.vhd
+	$(GHDL) -e --std=08 --workdir=$(WORKDIR) tb_alu
+	$(GHDL) -r --std=08 --workdir=$(WORKDIR) tb_alu --vcd=$(WAVE_DIR)/alu_tb.vcd --stop-time=1us

@@ -50,6 +50,11 @@ export function createAiJobSecurityContext(params: {
       totalDesigns?: number;
       currentDesignAttempt?: number;
       attemptsPerDesign?: number;
+      innerRepairAttempt?: number;
+      innerRepairTotal?: number;
+      innerRepairFailureCode?: string;
+      innerRepairFileLine?: string;
+      innerRepairStatus?: string;
     }) => {
       const activeJob = activeAiJobs.get(jobId);
       if (activeJob && activeJob.sessionId === session.id) {
@@ -92,6 +97,11 @@ export function createAiJobSecurityContext(params: {
         totalDesigns: job.progress.totalDesigns,
         currentDesignAttempt: job.progress.currentDesignAttempt,
         attemptsPerDesign: job.progress.attemptsPerDesign,
+        innerRepairAttempt: job.progress.innerRepairAttempt,
+        innerRepairTotal: job.progress.innerRepairTotal,
+        innerRepairFailureCode: job.progress.innerRepairFailureCode,
+        innerRepairFileLine: job.progress.innerRepairFileLine,
+        innerRepairStatus: job.progress.innerRepairStatus,
       },
     });
   };

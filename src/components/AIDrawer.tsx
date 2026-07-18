@@ -194,6 +194,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [architectLoopProviderPaused, setArchitectLoopProviderPaused] = useState(false);
   const [architectLoopProviderMessage, setArchitectLoopProviderMessage] = useState('');
   const [architectLoopProviderRetryAt, setArchitectLoopProviderRetryAt] = useState('');
+  const [architectLoopInnerRepairAttempt, setArchitectLoopInnerRepairAttempt] = useState(0);
+  const [architectLoopInnerRepairTotal, setArchitectLoopInnerRepairTotal] = useState(0);
+  const [architectLoopInnerRepairFailureCode, setArchitectLoopInnerRepairFailureCode] = useState('');
+  const [architectLoopInnerRepairFileLine, setArchitectLoopInnerRepairFileLine] = useState('');
+  const [architectLoopInnerRepairStatus, setArchitectLoopInnerRepairStatus] = useState('');
   const [architectLoopResult, setArchitectLoopResult] = useState<{
     failures: number;
     attempts: number;
@@ -238,6 +243,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
               setArchitectLoopRunning(false);
               setArchitectLoopJobId(null);
               setArchitectLoopProviderPaused(false);
+              resetArchitectLoopInnerRepairProgress();
               storeArchitectLoopJobId(null);
             }
           }
@@ -278,6 +284,19 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           : '');
         setArchitectLoopProviderRetryAt(typeof data?.progress?.providerRetryAt === 'string'
           ? data.progress.providerRetryAt
+          : '');
+        const nextInnerRepairAttempt = Number(data?.progress?.innerRepairAttempt);
+        setArchitectLoopInnerRepairAttempt(Number.isFinite(nextInnerRepairAttempt) ? nextInnerRepairAttempt : 0);
+        const nextInnerRepairTotal = Number(data?.progress?.innerRepairTotal);
+        setArchitectLoopInnerRepairTotal(Number.isFinite(nextInnerRepairTotal) ? nextInnerRepairTotal : 0);
+        setArchitectLoopInnerRepairFailureCode(typeof data?.progress?.innerRepairFailureCode === 'string'
+          ? data.progress.innerRepairFailureCode
+          : '');
+        setArchitectLoopInnerRepairFileLine(typeof data?.progress?.innerRepairFileLine === 'string'
+          ? data.progress.innerRepairFileLine
+          : '');
+        setArchitectLoopInnerRepairStatus(typeof data?.progress?.innerRepairStatus === 'string'
+          ? data.progress.innerRepairStatus
           : '');
       } catch {
         // Keep the loop running quietly even if a single status poll misses.
@@ -349,6 +368,19 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           : '');
         setArchitectLoopProviderRetryAt(typeof data?.progress?.providerRetryAt === 'string'
           ? data.progress.providerRetryAt
+          : '');
+        const nextInnerRepairAttempt = Number(data?.progress?.innerRepairAttempt);
+        setArchitectLoopInnerRepairAttempt(Number.isFinite(nextInnerRepairAttempt) ? nextInnerRepairAttempt : 0);
+        const nextInnerRepairTotal = Number(data?.progress?.innerRepairTotal);
+        setArchitectLoopInnerRepairTotal(Number.isFinite(nextInnerRepairTotal) ? nextInnerRepairTotal : 0);
+        setArchitectLoopInnerRepairFailureCode(typeof data?.progress?.innerRepairFailureCode === 'string'
+          ? data.progress.innerRepairFailureCode
+          : '');
+        setArchitectLoopInnerRepairFileLine(typeof data?.progress?.innerRepairFileLine === 'string'
+          ? data.progress.innerRepairFileLine
+          : '');
+        setArchitectLoopInnerRepairStatus(typeof data?.progress?.innerRepairStatus === 'string'
+          ? data.progress.innerRepairStatus
           : '');
       } catch {
         // Leave the stored job id alone on transient local request failures.
@@ -812,6 +844,14 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     });
   };
 
+  const resetArchitectLoopInnerRepairProgress = () => {
+    setArchitectLoopInnerRepairAttempt(0);
+    setArchitectLoopInnerRepairTotal(0);
+    setArchitectLoopInnerRepairFailureCode('');
+    setArchitectLoopInnerRepairFileLine('');
+    setArchitectLoopInnerRepairStatus('');
+  };
+
   const handleRunArchitectLoop = async () => {
     const promptToSend = buildArchitectPrompt().trim();
     if (
@@ -844,6 +884,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       setArchitectLoopProviderRetryAt('');
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
+      resetArchitectLoopInnerRepairProgress();
       setArchitectLoopResult(null);
     });
     await new Promise<void>((resolve) => {
@@ -885,6 +926,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       setArchitectLoopProviderRetryAt('');
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
+      resetArchitectLoopInnerRepairProgress();
     } catch (error: any) {
       if (architectLoopStopRequestedRef.current) {
         setArchitectLoopResult(null);
@@ -917,6 +959,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       setArchitectLoopJobId(null);
       storeArchitectLoopJobId(null);
       setArchitectLoopProviderPaused(false);
+      resetArchitectLoopInnerRepairProgress();
     }
   };
 
@@ -942,10 +985,15 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       storeArchitectLoopJobId(null);
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
+      resetArchitectLoopInnerRepairProgress();
     }
   };
 
   const architectLoopActive = architectLoopRunning || Boolean(architectLoopJobId);
+  const architectLoopInnerRepairActive =
+    architectLoopActive
+    && architectLoopInnerRepairAttempt > 0
+    && architectLoopInnerRepairTotal > 0;
 
   return (
     <div className={`${isOpen ? 'flex' : 'hidden'} w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex-col h-full z-20 select-none flex-none font-sans`}>
@@ -1128,6 +1176,32 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {architectLoopInnerRepairActive && (
+                  <div
+                    className="rounded-xl border border-brand-cyan/35 bg-brand-cyan/10 px-4 py-2 text-[12px] font-mono font-bold leading-relaxed text-brand-cyan"
+                    title={[
+                      `Repair attempt ${architectLoopInnerRepairAttempt}/${architectLoopInnerRepairTotal}`,
+                      architectLoopInnerRepairStatus ? `status: ${architectLoopInnerRepairStatus}` : '',
+                      architectLoopInnerRepairFailureCode ? `failure: ${architectLoopInnerRepairFailureCode}` : '',
+                      architectLoopInnerRepairFileLine ? `location: ${architectLoopInnerRepairFileLine}` : '',
+                    ].filter(Boolean).join(' | ')}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="whitespace-nowrap text-brand-cyan">
+                        Repair attempt {architectLoopInnerRepairAttempt}/{architectLoopInnerRepairTotal}
+                      </span>
+                      <span className="min-w-0 truncate text-brand-cyan/80">
+                        {architectLoopInnerRepairFailureCode || 'validating'}
+                      </span>
+                    </div>
+                    {(architectLoopInnerRepairFileLine || architectLoopInnerRepairStatus) && (
+                      <div className="truncate text-brand-cyan/70">
+                        {[architectLoopInnerRepairStatus, architectLoopInnerRepairFileLine].filter(Boolean).join(' - ')}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {architectLoopProviderPaused && (
                   <div

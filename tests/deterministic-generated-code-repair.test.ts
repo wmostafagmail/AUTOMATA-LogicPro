@@ -810,6 +810,46 @@ test('deterministic fixer rewrites malformed interface declaration arrows into l
   assert.match(result.repairedFiles[0].content, /\brst_n\s*:\s*in std_logic/i);
 });
 
+test('deterministic fixer repairs aggregate others choice colon without touching interfaces', async () => {
+  const file = await createRepairableFile(
+    'src/cpu_core.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity cpu_core is',
+      '  type prog_mem_t is array (0 to 15) of std_logic_vector(7 downto 0);',
+      '  generic (',
+      '    PROG_ROM_INIT : prog_mem_t := (',
+      '      0 => x"00",',
+      '      others : x"00"',
+      '    )',
+      '  );',
+      'end entity;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'aggregate_choice_operator_misrepair',
+      category: 'array_subtype_misuse',
+      message: 'src/cpu_core.vhd:9: uses ":" for aggregate choice "others : x"00""',
+      excerpt: 'others : x"00"',
+      relativePath: 'src/cpu_core.vhd',
+      lineHint: 9,
+      forbiddenConstruct: 'others : x"00"',
+      legalReplacementPattern: 'others => x"00"',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.deepEqual(result.appliedCodes, ['aggregate_choice_operator_misrepair']);
+  assert.match(result.repairedFiles[0].content, /others => x"00"/i);
+  assert.match(result.repairedFiles[0].content, /PROG_ROM_INIT\s*:\s*prog_mem_t/i);
+});
+
 test('deterministic fixer comments out natural-language leakage after a valid declaration expression', async () => {
   const file = await createRepairableFile(
     'src/notes_pkg.vhd',
@@ -2785,6 +2825,85 @@ test('deterministic fixer rewrites unsafe raw testbench indexing to a guarded he
   assert.doesNotMatch(next, /rom\(to_integer\(unsigned\(addr_slv\)\)\)/i);
 });
 
+test('deterministic fixer removes illegal unsigned conversion around integer values', async () => {
+  const file = await createRepairableFile(
+    'src/regfile.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity regfile is end entity;',
+      'architecture rtl of regfile is',
+      '  signal addr_w_i : natural range 0 to 7;',
+      'begin',
+      '  process(all)',
+      '    variable safe_idx : integer;',
+      '  begin',
+      '    safe_idx := to_integer(unsigned(addr_w_i));',
+      '  end process;',
+      'end architecture;',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'unsigned_conversion_on_non_vector',
+      category: 'numeric_std_type_discipline',
+      message: 'src/regfile.vhd:11: uses "to_integer(unsigned(addr_w_i))" but addr_w_i is declared as integer.',
+      excerpt: 'safe_idx := to_integer(unsigned(addr_w_i));',
+      relativePath: 'src/regfile.vhd',
+      forbiddenConstruct: 'to_integer(unsigned(addr_w_i)) in "safe_idx := to_integer(unsigned(addr_w_i));"',
+      legalReplacementPattern: 'replace "to_integer(unsigned(addr_w_i))" with "addr_w_i"',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('unsigned_conversion_on_non_vector'));
+  assert.match(result.repairedFiles[0].content, /safe_idx := addr_w_i;/);
+  assert.doesNotMatch(result.repairedFiles[0].content, /to_integer\(unsigned\(addr_w_i\)\)/i);
+});
+
+test('deterministic fixer does not rewrite integer port actuals to illegal unsigned(integer)', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_axi_stream_router.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity axi_stream_router is',
+      '  port (route_sel_i : in unsigned(1 downto 0));',
+      'end entity;',
+      '',
+      'entity tb_axi_stream_router is end entity;',
+      'architecture sim of tb_axi_stream_router is',
+      '  signal route_sel_i : natural range 0 to 3;',
+      'begin',
+      '  dut : entity work.axi_stream_router',
+      '    port map (route_sel_i => route_sel_i);',
+      'end architecture;',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'typed_port_association_mismatch',
+      category: 'numeric_std_type_discipline',
+      message: 'tb/tb_axi_stream_router.vhd: drives unsigned formal port "route_sel_i" of "axi_stream_router" with integer actual "route_sel_i" in a port map.',
+      excerpt: 'route_sel_i => route_sel_i',
+      relativePath: 'tb/tb_axi_stream_router.vhd',
+      forbiddenConstruct: 'integer actual "route_sel_i" passed to unsigned formal port "route_sel_i" of axi_stream_router',
+      legalReplacementPattern: 'declare route_sel_i as unsigned or use to_unsigned(route_sel_i, width) when width is known',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, false);
+  assert.doesNotMatch(result.repairedFiles[0].content, /route_sel_i\s*=>\s*unsigned\(route_sel_i\)/i);
+});
+
 test('deterministic fixer rewrites invalid VHDL range-membership checks to explicit comparisons', async () => {
   const file = await createRepairableFile(
     'tb/tb_range.vhd',
@@ -3034,4 +3153,143 @@ test('deterministic fixer normalizes two-formal wait_clk helper when every call 
   assert.match(result.repairedFiles[0].content, /procedure wait_clk\(signal clk_i : in std_logic\) is/i);
   assert.doesNotMatch(result.repairedFiles[0].content, /clk_sig_io/i);
   assert.match(result.repairedFiles[0].content, /wait_clk\(clk_sig\);/i);
+});
+
+test('deterministic testbench cleanup normalizes wait_clk even when another detail triggered repair', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_cpu_core.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity tb_cpu_core is',
+      'end entity;',
+      '',
+      'architecture sim of tb_cpu_core is',
+      '  signal clk_s : std_logic := \'0\';',
+      '',
+      '  procedure wait_clk(signal clk_i : in std_logic; signal clk_s_io : out std_logic) is',
+      '  begin',
+      '    wait until rising_edge(clk_i);',
+      '  end procedure wait_clk;',
+      '',
+      'begin',
+      '  stimulus : process',
+      '  begin',
+      '    wait_clk(clk_s);',
+      '    wait_clk(clk_s);',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'missing_std_logic_1164_clause',
+      category: 'package_type_definition',
+      message: 'tb/tb_cpu_core.vhd: missing std_logic_1164 import.',
+      excerpt: 'use ieee.std_logic_1164.all;',
+      relativePath: 'tb/tb_cpu_core.vhd',
+      lineHint: 2,
+      forbiddenConstruct: 'missing std_logic_1164 import',
+      legalReplacementPattern: 'add use ieee.std_logic_1164.all;',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('subprogram_call_arity_mismatch'));
+  assert.match(result.repairedFiles[0].content, /procedure wait_clk\(signal clk_i : in std_logic\) is/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /clk_s_io/i);
+  assert.match(result.repairedFiles[0].content, /wait_clk\(clk_s\);/i);
+});
+
+test('deterministic fixer completes fixed-range vector array aggregates with safe others defaults', async () => {
+  const file = await createRepairableFile(
+    'src/rom.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity rom is end entity;',
+      'architecture rtl of rom is',
+      '  constant MEM_DEPTH : integer := 16;',
+      '  subtype data_t is unsigned(7 downto 0);',
+      '  type mem_array_t is array(0 to MEM_DEPTH - 1) of data_t;',
+      '  signal mem : mem_array_t := (',
+      '    0 => x"00",',
+      '    1 => x"01",',
+      '    2 => x"02",',
+      '    3 => x"03"',
+      '  );',
+      'begin',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'incomplete_array_aggregate_choices',
+      category: 'array_subtype_misuse',
+      message: 'src/rom.vhd:10: initializes array object "mem" of type "mem_array_t" with 4/16 explicit choice(s) and no others choice.',
+      excerpt: 'signal mem : mem_array_t := (...)',
+      relativePath: 'src/rom.vhd',
+      lineHint: 10,
+      forbiddenConstruct: 'mem aggregate for mem_array_t omits choices in type mem_array_t is array(0 to MEM_DEPTH - 1) of data_t;',
+      legalReplacementPattern: 'add others => (others => \'0\')',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('incomplete_array_aggregate_choices'));
+  assert.match(result.repairedFiles[0].content, /3 => x"03",\s+others => \(others => '0'\)\s+\);/i);
+});
+
+test('deterministic fixer rewrites same-width unsigned equality against std_logic_vector wrapper', async () => {
+  const file = await createRepairableFile(
+    'tb/tb_cpu_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity tb_cpu_top is end entity;',
+      'architecture sim of tb_cpu_top is',
+      '  signal pc_q : unsigned(3 downto 0);',
+      'begin',
+      '  process',
+      '  begin',
+      '    if pc_q = std_logic_vector(to_unsigned(0, pc_q\'length)) then',
+      '      report "ok";',
+      '    end if;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'typed_equality_operand_mismatch',
+      category: 'numeric_std_type_discipline',
+      message: 'tb/tb_cpu_top.vhd:11: compares unsigned object "pc_q" against std_logic_vector(...) expression.',
+      excerpt: 'pc_q = std_logic_vector(to_unsigned(0, pc_q\'length))',
+      relativePath: 'tb/tb_cpu_top.vhd',
+      lineHint: 11,
+      forbiddenConstruct: 'pc_q = std_logic_vector(to_unsigned(0, pc_q\'length))',
+      legalReplacementPattern: 'compare pc_q directly to to_unsigned(0, pc_q\'length)',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('typed_equality_operand_mismatch'));
+  assert.match(result.repairedFiles[0].content, /if pc_q = to_unsigned\(0, pc_q'length\) then/i);
+  assert.doesNotMatch(result.repairedFiles[0].content, /std_logic_vector\s*\(\s*to_unsigned/i);
 });

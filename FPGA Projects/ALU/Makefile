@@ -1,13 +1,20 @@
-.PHONY: all clean sim
+WORKDIR = work
+GHDL = ghdl
+WAVES_DIR = waves
 
-all: sim
+.PHONY: analyze elaborate simulate clean
 
-sim:
-	ghdl -a --std=08 src/alu_pkg.vhd
-	ghdl -a --std=08 src/alu.vhd
-	ghdl -a --std=08 tb/alu_tb.vhd
-	ghdl -e --std=08 alu_tb
-	ghdl -r --std=08 alu_tb --vcd=alu_tb.vcd
+analyze:
+	$(GHDL) -a --std=08 --workdir=$(WORKDIR) src/alu_pkg.vhd
+	$(GHDL) -a --std=08 --workdir=$(WORKDIR) src/alu.vhd
+	$(GHDL) -a --std=08 --workdir=$(WORKDIR) tb/alu_tb.vhd
+
+elaborate: analyze
+	$(GHDL) -e --std=08 --workdir=$(WORKDIR) tb_alu
+
+simulate: elaborate
+	mkdir -p $(WAVES_DIR)
+	$(GHDL) -r --std=08 --workdir=$(WORKDIR) tb_alu --vcd=$(WAVES_DIR)/alu_tb.vcd --stop-time=1us
 
 clean:
-	rm -f *.vcd *.ghw *.cfi *.o
+	rm -rf $(WORKDIR) $(WAVES_DIR)

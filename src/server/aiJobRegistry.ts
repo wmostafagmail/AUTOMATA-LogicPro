@@ -16,6 +16,11 @@ export interface RegisteredAiJob {
     totalDesigns: number;
     currentDesignAttempt: number;
     attemptsPerDesign: number;
+    innerRepairAttempt: number;
+    innerRepairTotal: number;
+    innerRepairFailureCode: string;
+    innerRepairFileLine: string;
+    innerRepairStatus: string;
   };
 }
 
@@ -42,6 +47,11 @@ export function createAiJobRegistry() {
           totalDesigns: 0,
           currentDesignAttempt: 0,
           attemptsPerDesign: 0,
+          innerRepairAttempt: 0,
+          innerRepairTotal: 0,
+          innerRepairFailureCode: '',
+          innerRepairFileLine: '',
+          innerRepairStatus: '',
         },
       });
     },

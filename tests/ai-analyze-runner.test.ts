@@ -483,6 +483,52 @@ test('buildFailureCodeSpecificRepairShaping adds package visibility and exact po
   assert.match(text, /legal formal port list/i);
 });
 
+test('buildFailureCodeSpecificRepairShaping adds testbench DUT wiring guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'testbench structural validation failed',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'testbench_missing_dut_instantiation',
+        category: 'testbench_structure',
+        message: 'tb/alu_tb.vhd: testbench targets alu but does not instantiate it',
+        excerpt: 'check_eq("ADD", res_sig, x"08")',
+        relativePath: 'tb/alu_tb.vhd',
+        lineHint: 1,
+        legalReplacementPattern: 'instantiate entity work.alu with a named port map',
+      },
+      {
+        code: 'checked_signal_not_dut_driven',
+        category: 'testbench_structure',
+        message: 'tb/alu_tb.vhd: checks res_sig but it is not driven',
+        excerpt: 'check_eq("ADD", res_sig, x"08")',
+        relativePath: 'tb/alu_tb.vhd',
+        lineHint: 19,
+        forbiddenConstruct: 'check call observes undriven signal res_sig',
+      },
+      {
+        code: 'testbench_drives_dut_output_signal',
+        category: 'testbench_structure',
+        message: 'tb/tb_flagger.vhd: drives valid_s mapped to valid_o',
+        excerpt: "valid_s <= '1';",
+        relativePath: 'tb/tb_flagger.vhd',
+        lineHint: 16,
+        forbiddenConstruct: "testbench assignment valid_s <= '1';",
+      },
+    ],
+  });
+
+  assert.match(text, /testbench_missing_dut_instantiation/);
+  assert.match(text, /entity work\.<dut_name>/i);
+  assert.match(text, /checked_signal_not_dut_driven/);
+  assert.match(text, /not left floating/i);
+  assert.match(text, /testbench_drives_dut_output_signal/);
+  assert.match(text, /distinct reference\/expected signal/i);
+});
+
 test('buildFailureCodeSpecificRepairShaping preserves exact simulation assertion evidence', () => {
   const text = buildFailureCodeSpecificRepairShaping({
     ok: false,
@@ -542,6 +588,87 @@ test('buildFailureCodeSpecificRepairShaping adds CPU halt behavioral repair guid
   assert.match(text, /CPU behavioral contract mismatch/i);
   assert.match(text, /Do not remove, weaken, skip, rename, or silence/i);
   assert.match(text, /instruction stimulus sequence and CPU decoder\/control\/top excerpts/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds CPU reset and control behavioral repair guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'simulate',
+    summary: 'Generated VHDL failed GHDL simulation',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'cpu_reset_pc_behavior_mismatch',
+        category: 'simulation_success',
+        message: 'tb/tb_mini_cpu.vhd:23: assertion failed at 27ns: FAIL PC after reset',
+        excerpt: 'FAIL PC after reset',
+        relativePath: 'tb/tb_mini_cpu.vhd',
+        lineHint: 23,
+        forbiddenConstruct: 'self-checking assertion/report failure at 27ns: FAIL PC after reset',
+        legalReplacementPattern: 'repair the CPU reset/fetch/TB timing contract; do not delete, weaken, skip, rename, or silence the assertion',
+        assertionLabel: 'PC after reset',
+        simulationTime: '27ns',
+        expectedBehavior: 'Program-counter/fetch sequencing must match the self-checking expectation at the reported simulation time.',
+        relatedSourcePaths: ['src/mini_cpu_pkg.vhd', 'src/cpu_top.vhd'],
+      },
+      {
+        code: 'cpu_control_signal_behavior_mismatch',
+        category: 'simulation_success',
+        message: 'tb/tb_mini_cpu.vhd:24: assertion failed at 37ns: FAIL DM_WE on ADD',
+        excerpt: 'FAIL DM_WE on ADD',
+        relativePath: 'tb/tb_mini_cpu.vhd',
+        lineHint: 24,
+        forbiddenConstruct: 'self-checking assertion/report failure at 37ns: FAIL DM_WE on ADD',
+        legalReplacementPattern: 'repair the CPU decode/control write-enable timing contract; do not delete, weaken, skip, rename, or silence the assertion',
+        assertionLabel: 'DM_WE on ADD',
+        simulationTime: '37ns',
+        expectedBehavior: 'CPU decode/control write-enable behavior must match the self-checking expectation at the reported simulation time.',
+        relatedSourcePaths: ['src/mini_cpu_pkg.vhd', 'src/cpu_top.vhd'],
+      },
+    ],
+  });
+
+  assert.match(text, /cpu_reset_pc_behavior_mismatch/);
+  assert.match(text, /cpu_control_signal_behavior_mismatch/);
+  assert.match(text, /PC-after-reset failures/i);
+  assert.match(text, /hold PC at the reset value/i);
+  assert.match(text, /control\/write-enable failures/i);
+  assert.match(text, /opcode decode and write-enable timing/i);
+  assert.match(text, /Do not remove, weaken, skip, rename, or silence/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds ALU flag behavioral repair guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'simulate',
+    summary: 'Generated VHDL failed GHDL simulation',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'alu_flag_behavior_mismatch',
+        category: 'simulation_success',
+        message: 'tb/tb_alu.vhd:38: assertion failed at 37ns: FAIL ADD_CARRY',
+        excerpt: 'FAIL ADD_CARRY',
+        relativePath: 'tb/tb_alu.vhd',
+        lineHint: 38,
+        forbiddenConstruct: 'self-checking assertion/report failure at 37ns: FAIL ADD_CARRY',
+        legalReplacementPattern: 'repair ALU carry using widened DATA_WIDTH+1 arithmetic; do not delete, weaken, skip, rename, or silence the assertion',
+        assertionLabel: 'ADD_CARRY',
+        simulationTime: '37ns',
+        expectedBehavior: 'ALU flag behavior must match the self-checking expectation. ADD carry must be computed from a widened carry-out bit, not from comparing the truncated result against an operand.',
+        relatedSourcePaths: ['src/alu_pkg.vhd', 'src/alu.vhd', 'tb/tb_alu.vhd'],
+      },
+    ],
+  });
+
+  assert.match(text, /alu_flag_behavior_mismatch/);
+  assert.match(text, /assertion label: ADD_CARRY/i);
+  assert.match(text, /simulation time: 37ns/i);
+  assert.match(text, /ALU behavioral contract mismatch/i);
+  assert.match(text, /DATA_WIDTH\+1 widened unsigned addition/i);
+  assert.match(text, /Do not remove, weaken, skip, rename, or silence/i);
 });
 
 test('buildFailureCodeSpecificRepairShaping adds string-contract repair guidance for testbench helpers', () => {
@@ -1351,6 +1478,391 @@ test('runAiAnalyzeJob repairs FPGA Architect generated VHDL through the shared r
   assert.equal(result.retryUsed, true);
   assert.match(result.analysis, /architect report/);
   assert.match(result.analysis, /## GHDL Validation/);
+});
+
+test('runAiAnalyzeJob repairs missing FPGA Architect work units through the project-structure gate before inner repair', async () => {
+  const makeProject = (includeChild: boolean) => JSON.stringify({
+    projectName: 'proj',
+    sanitizedProjectName: 'proj',
+    topEntity: 'top',
+    vhdlStandard: 'VHDL-2008',
+    targetFpga: null,
+    summary: 'summary',
+    assumptions: [],
+    warnings: [],
+    folderTree: '',
+    files: [
+      ...(includeChild ? [{
+        path: 'src/child.vhd',
+        fileType: 'vhdl_rtl',
+        purpose: 'rtl child',
+        content: 'entity child is end entity; architecture rtl of child is begin end architecture;',
+      }] : []),
+      {
+        path: 'src/top.vhd',
+        fileType: 'vhdl_rtl',
+        purpose: 'rtl top',
+        content: 'entity top is end entity; architecture rtl of top is begin u_child: entity work.child; end architecture;',
+      },
+      {
+        path: 'tb/tb_top.vhd',
+        fileType: 'vhdl_testbench',
+        purpose: 'tb',
+        content: 'entity tb_top is end entity; architecture sim of tb_top is begin end architecture;',
+      },
+      { path: 'constraints/top.xdc', fileType: 'constraints', purpose: 'xdc', content: '#' },
+      { path: 'Makefile', fileType: 'makefile', purpose: 'build', content: 'all:' },
+      { path: 'README.md', fileType: 'markdown', purpose: 'docs', content: 'readme' },
+      { path: 'sim/run_ghdl.sh', fileType: 'script', purpose: 'simulation', content: 'ghdl -a' },
+      { path: 'requirements/spec.md', fileType: 'markdown', purpose: 'requirements', content: 'req' },
+    ],
+    ghdl: {
+      analysisOrder: includeChild ? ['src/child.vhd', 'src/top.vhd', 'tb/tb_top.vhd'] : ['src/top.vhd', 'tb/tb_top.vhd'],
+      topTestbench: 'tb_top',
+      runCommands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+      expectedResult: 'pass',
+    },
+    qualityChecklist: [],
+  });
+  let validationCalls = 0;
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/private/tmp/logicpro-structure-gate-success',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: makeProject(params.__runCalls.length > 1),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitizedProjectName}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitizedProjectName}/${file.path}`,
+        kind: file.fileType === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectProjectStructureRepairPrompt: ({
+      originalPrompt,
+      errorSummary,
+      currentManifestSummary,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      currentManifestSummary: string;
+    }) => `${originalPrompt}\nPROJECT-STRUCTURE-REPAIR\n${errorSummary}\n${currentManifestSummary}`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async () => {
+      validationCalls += 1;
+      if (validationCalls === 1) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'src/top.vhd: unresolved work units -> child',
+          logs: ['src/top.vhd: unresolved work units -> child'],
+          validatedTopEntities: [],
+          failureCode: 'unresolved_work_unit',
+          failureCategory: 'unresolved_work_unit' as const,
+          failureDetails: [{
+            code: 'unresolved_work_unit',
+            category: 'unresolved_work_unit' as const,
+            message: 'Generated VHDL references entity work.child, but no generated file declares entity child is.',
+            excerpt: 'u_child: entity work.child',
+            relativePath: 'src/top.vhd',
+            lineHint: 1,
+            forbiddenConstruct: 'entity work.child without generated entity child file',
+            legalReplacementPattern: 'Generate src/child.vhd declaring entity child is, or remove/inline the instance consistently.',
+          }],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_top.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_top'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 2);
+  assert.match(params.__runCalls[1].prompt, /PROJECT-STRUCTURE-REPAIR/);
+  assert.match(params.__runCalls[1].prompt, /entity work\.child/);
+  assert.doesNotMatch(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
+  assert.equal(result.retryUsed, true);
+  assert.match(result.analysis, /architect report/);
+  assert.match(result.analysis, /## GHDL Validation/);
+});
+
+test('runAiAnalyzeJob hard-fails unresolved FPGA Architect work units after structure retries without burning inner repairs', async () => {
+  const projectText = JSON.stringify({
+    projectName: 'proj',
+    sanitizedProjectName: 'proj',
+    topEntity: 'top',
+    vhdlStandard: 'VHDL-2008',
+    targetFpga: null,
+    summary: 'summary',
+    assumptions: [],
+    warnings: [],
+    folderTree: '',
+    files: [
+      {
+        path: 'src/top.vhd',
+        fileType: 'vhdl_rtl',
+        purpose: 'rtl top',
+        content: 'entity top is end entity; architecture rtl of top is begin u_child: entity work.child; end architecture;',
+      },
+      {
+        path: 'tb/tb_top.vhd',
+        fileType: 'vhdl_testbench',
+        purpose: 'tb',
+        content: 'entity tb_top is end entity; architecture sim of tb_top is begin end architecture;',
+      },
+      { path: 'constraints/top.xdc', fileType: 'constraints', purpose: 'xdc', content: '#' },
+      { path: 'Makefile', fileType: 'makefile', purpose: 'build', content: 'all:' },
+      { path: 'README.md', fileType: 'markdown', purpose: 'docs', content: 'readme' },
+      { path: 'sim/run_ghdl.sh', fileType: 'script', purpose: 'simulation', content: 'ghdl -a' },
+      { path: 'requirements/spec.md', fileType: 'markdown', purpose: 'requirements', content: 'req' },
+    ],
+    ghdl: {
+      analysisOrder: ['src/top.vhd', 'tb/tb_top.vhd'],
+      topTestbench: 'tb_top',
+      runCommands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+      expectedResult: 'pass',
+    },
+    qualityChecklist: [],
+  });
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/private/tmp/logicpro-structure-gate-fail',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: projectText,
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitizedProjectName}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitizedProjectName}/${file.path}`,
+        kind: file.fileType === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectProjectStructureRepairPrompt: ({
+      originalPrompt,
+      errorSummary,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      currentManifestSummary: string;
+    }) => `${originalPrompt}\nPROJECT-STRUCTURE-REPAIR\n${errorSummary}`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async () => ({
+      ok: false,
+      stage: 'prevalidate' as const,
+      summary: 'src/top.vhd: unresolved work units -> child',
+      logs: ['src/top.vhd: unresolved work units -> child'],
+      validatedTopEntities: [],
+      failureCode: 'unresolved_work_unit',
+      failureCategory: 'unresolved_work_unit' as const,
+      failureDetails: [{
+        code: 'unresolved_work_unit',
+        category: 'unresolved_work_unit' as const,
+        message: 'Generated VHDL references entity work.child, but no generated file declares entity child is.',
+        excerpt: 'u_child: entity work.child',
+        relativePath: 'src/top.vhd',
+        lineHint: 1,
+        forbiddenConstruct: 'entity work.child without generated entity child file',
+        legalReplacementPattern: 'Generate src/child.vhd declaring entity child is, or remove/inline the instance consistently.',
+      }],
+    }),
+  });
+
+  await assert.rejects(
+    () => runAiAnalyzeJob(params),
+    /project-structure contract after 2 structure repair attempt/,
+  );
+  assert.equal(params.__runCalls.length, 3);
+  assert.match(params.__runCalls[1].prompt, /PROJECT-STRUCTURE-REPAIR/);
+  assert.match(params.__runCalls[2].prompt, /PROJECT-STRUCTURE-REPAIR/);
+  assert.doesNotMatch(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
+  assert.doesNotMatch(params.__runCalls[2].prompt, /Shared Generated-Code Repair Pipeline/);
+});
+
+test('runAiAnalyzeJob routes FPGA Architect package-symbol visibility failures through the project-structure gate', async () => {
+  const makeProject = (includePackageType: boolean) => JSON.stringify({
+    projectName: 'mini_cpu',
+    sanitizedProjectName: 'mini_cpu',
+    topEntity: 'cpu_top',
+    vhdlStandard: 'VHDL-2008',
+    targetFpga: null,
+    summary: 'summary',
+    assumptions: [],
+    warnings: [],
+    folderTree: '',
+    files: [
+      {
+        path: 'src/cpu_pkg.vhd',
+        fileType: 'vhdl_package',
+        purpose: 'shared package',
+        content: [
+          'library ieee;',
+          'use ieee.std_logic_1164.all;',
+          'package cpu_pkg is',
+          includePackageType ? '  type data_mem_t is array (0 to 15) of std_logic_vector(7 downto 0);' : '  subtype data_t is std_logic_vector(7 downto 0);',
+          'end package;',
+        ].join('\n'),
+      },
+      {
+        path: 'src/ram.vhd',
+        fileType: 'vhdl_rtl',
+        purpose: 'ram',
+        content: [
+          'library ieee;',
+          'use ieee.std_logic_1164.all;',
+          'use work.cpu_pkg.all;',
+          'entity ram is end entity;',
+          'architecture rtl of ram is',
+          '  signal mem : data_mem_t;',
+          'begin',
+          'end architecture;',
+        ].join('\n'),
+      },
+      {
+        path: 'tb/tb_cpu_top.vhd',
+        fileType: 'vhdl_testbench',
+        purpose: 'tb',
+        content: 'entity tb_cpu_top is end entity; architecture sim of tb_cpu_top is begin end architecture;',
+      },
+      { path: 'constraints/top.xdc', fileType: 'constraints', purpose: 'xdc', content: '#' },
+      { path: 'Makefile', fileType: 'makefile', purpose: 'build', content: 'all:' },
+      { path: 'README.md', fileType: 'markdown', purpose: 'docs', content: 'readme' },
+      { path: 'sim/run_ghdl.sh', fileType: 'script', purpose: 'simulation', content: 'ghdl -a' },
+      { path: 'requirements/spec.md', fileType: 'markdown', purpose: 'requirements', content: 'req' },
+    ],
+    ghdl: {
+      analysisOrder: ['src/cpu_pkg.vhd', 'src/ram.vhd', 'tb/tb_cpu_top.vhd'],
+      topTestbench: 'tb_cpu_top',
+      runCommands: ['ghdl -a', 'ghdl -e', 'ghdl -r'],
+      expectedResult: 'pass',
+    },
+    qualityChecklist: [],
+  });
+  let validationCalls = 0;
+  const params = createBaseParams({
+    macroId: 'fpga_vhdl_architect' as const,
+    artifactDirectory: '.',
+    macroSpec: { label: 'FPGA Architect' },
+    normalizedProjectPath: '/private/tmp/logicpro-package-symbol-gate',
+    runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
+      params.__runCalls.push({ prompt, provider, model });
+      return {
+        text: makeProject(params.__runCalls.length > 1),
+        telemetry: {
+          inputTokens: 50,
+          outputTokens: 20,
+          totalTokens: 70,
+          tokensPerSecond: 10,
+          durationMs: 200,
+        },
+      };
+    },
+    parseFpgaArchitectResponse: (text: string) => JSON.parse(text),
+    saveFpgaArchitectProject: async ({ projectPath, project }: { projectPath: string; project: any }) => ({
+      outputDirectory: `${projectPath}/${project.sanitizedProjectName}`,
+      savedFiles: project.files.map((file: any) => ({
+        ...file,
+        name: file.path.split('/').pop(),
+        path: `${projectPath}/${project.sanitizedProjectName}/${file.path}`,
+        kind: file.fileType === 'vhdl_testbench' ? 'testbench' : 'module',
+      })),
+    }),
+    buildFpgaArchitectMarkdownReport: () => 'architect report',
+    buildFpgaArchitectRetryPrompt: ({ originalPrompt, errorSummary }: { originalPrompt: string; errorSummary: string }) => `${originalPrompt}\n${errorSummary}`,
+    buildFpgaArchitectJsonRepairPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nJSON-ONLY-REPAIR`,
+    buildFpgaArchitectProjectStructureRepairPrompt: ({
+      originalPrompt,
+      errorSummary,
+      currentManifestSummary,
+    }: {
+      originalPrompt: string;
+      errorSummary: string;
+      currentManifestSummary: string;
+    }) => `${originalPrompt}\nPROJECT-STRUCTURE-REPAIR\n${errorSummary}\n${currentManifestSummary}`,
+    buildFpgaArchitectCompactRetryPrompt: ({ originalPrompt }: { originalPrompt: string }) => `${originalPrompt}\nCOMPACT-REGEN`,
+    validateGeneratedVhdlWithGhdl: async () => {
+      validationCalls += 1;
+      if (validationCalls === 1) {
+        return {
+          ok: false,
+          stage: 'prevalidate' as const,
+          summary: 'src/ram.vhd: uses custom type "data_mem_t" but that type is not visible.',
+          logs: ['src/ram.vhd: data_mem_t missing'],
+          validatedTopEntities: [],
+          failureCode: 'package_symbol_not_visible',
+          failureCategory: 'package_type_definition' as const,
+          failureDetails: [{
+            code: 'package_symbol_not_visible',
+            category: 'package_type_definition' as const,
+            message: 'src/ram.vhd:6: uses custom type "data_mem_t" but that type is not locally declared or exported by any imported work package.',
+            excerpt: 'signal mem : data_mem_t;',
+            relativePath: 'src/ram.vhd',
+            lineHint: 6,
+            forbiddenConstruct: 'custom type "data_mem_t" used without visible package/type declaration',
+            legalReplacementPattern: 'declare data_mem_t in cpu_pkg, import cpu_pkg, and analyze cpu_pkg before ram.vhd',
+          }],
+        };
+      }
+      return {
+        ok: true,
+        stage: 'simulate' as const,
+        summary: 'Generated VHDL passed GHDL simulation for tb_cpu_top.',
+        logs: ['simulation pass'],
+        validatedTopEntities: ['tb_cpu_top'],
+      };
+    },
+  });
+
+  const result = await runAiAnalyzeJob(params);
+
+  assert.equal(params.__runCalls.length, 2);
+  assert.match(params.__runCalls[1].prompt, /PROJECT-STRUCTURE-REPAIR/);
+  assert.match(params.__runCalls[1].prompt, /data_mem_t/);
+  assert.match(params.__runCalls[1].prompt, /cpu_pkg/);
+  assert.doesNotMatch(params.__runCalls[1].prompt, /Shared Generated-Code Repair Pipeline/);
+  assert.equal(result.retryUsed, true);
+  assert.match(result.analysis, /architect report/);
 });
 
 test('runAiAnalyzeJob applies deterministic generated-code repairs before invoking the LLM repair prompt', async () => {
@@ -2298,6 +2810,14 @@ test('runAiAnalyzeJob hard-fails FPGA Architect when generated project fails GHD
         assert.equal(error?.generatedVhdlValidation?.stage, 'simulate');
         assert.equal(error?.generatedVhdlValidation?.summary, 'tb_counter failed reset expectation');
         assert.ok(Array.isArray(error?.generatedVhdlValidation?.logs));
+        assert.equal(error?.generatedVhdlValidation?.repairAudit?.length, 10);
+        assert.equal(error?.generatedVhdlValidation?.repairAudit?.[0]?.repairAttempt, 1);
+        assert.equal(error?.generatedVhdlValidation?.repairAudit?.[9]?.repairAttempt, 10);
+        assert.equal(error?.generatedVhdlValidation?.repairAudit?.[0]?.repairType, 'llm_no_change');
+        assert.deepEqual(error?.generatedVhdlValidation?.repairAudit?.[0]?.changedFiles, []);
+        assert.match(error?.generatedVhdlValidation?.logs.join('\n') || '', /INNER_REPAIR_AUDIT \| repairAttempt=1/i);
+        assert.match(error?.generatedVhdlValidation?.logs.join('\n') || '', /failureCode=unknown/i);
+        assert.match(error?.generatedVhdlValidation?.logs.join('\n') || '', /postRepairValidation=FAIL simulate/i);
         throw error;
       }
     },

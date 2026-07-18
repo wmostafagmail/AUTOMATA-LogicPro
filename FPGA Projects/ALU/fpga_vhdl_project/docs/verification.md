@@ -1,33 +1,13 @@
-# Verification Notes
+# Verification Strategy
 
-## Testbench Strategy
-Self-checking VHDL testbench (`alu_tb`) with deterministic stimulus and explicit expected values. No external reference model required; expected outputs derived analytically from known inputs.
+## Self-Checking Testbench
+The testbench `tb_alu` instantiates the DUT and drives stimulus through a single clocked process. It uses a local `check_eq` helper to compare DUT outputs against expected values computed in the testbench.
 
-## Test Coverage
-| Test Case            | Inputs (a, b, opcode)        | Expected Result | Flags           | Purpose                     |
-|----------------------|------------------------------|-----------------|-----------------|-----------------------------|
-| RESET_STATE          | (0, 0, NOP) after reset      | 0x00            | zero=1, carry=0 | Reset value verification    |
-| ADD 1+2              | (1, 2, ADD)                  | 0x03            | zero=0, carry=0 | Basic addition              |
-| ADD_OVERFLOW         | (255, 1, ADD)                | 0x00            | zero=1, carry=1 | Unsigned overflow detection |
-| SUB 5-3              | (5, 3, SUB)                  | 0x02            | zero=0, carry=0 | Basic subtraction           |
-| SUB_UNDERFLOW        | (0, 1, SUB)                  | 0xFF            | zero=0, carry=0 | Borrow-out detection        |
-| AND F0&A0            | (0xF0, 0xA0, AND)            | 0xA0            | zero=0, carry=0 | Bitwise AND                 |
-| OR F0\|0F            | (0xF0, 0x0F, OR)             | 0xFF            | zero=0, carry=0 | Bitwise OR                  |
-| XOR F0^0F            | (0xF0, 0x0F, XOR)            | 0xFF            | zero=0, carry=0 | Bitwise XOR                 |
-| NOT F0               | (0xF0, 0x00, NOT)            | 0x0F            | zero=0, carry=0 | Bitwise NOT                 |
-| SLL 01<<1            | (1, 1, SLL)                  | 0x02            | zero=0, carry=0 | Shift left                  |
-| SRL 02>>1            | (2, 1, SRL)                  | 0x01            | zero=0, carry=0 | Shift right                 |
-| NOP                  | (0xFF, 0xFF, NOP)            | 0x00            | zero=1, carry=0 | No-operation forced zero    |
+## Test Sequence
+1. **Reset Verification**: Assert `rst_i` for 2 clock cycles, then deassert. Verify outputs are zeroed.
+2. **Smoke Tests**: Apply `1 + 2 = 3`, `5 - 3 = 2`, `0xFF AND 0x0F`, `0x00 OR 0x01`, `0xFF XOR 0x01`, `NOT 0x00`, `0x01 << 2`, `0x08 >> 2`.
+3. **Observation Point**: All comparisons occur after `rising_edge(clk)` and a 1 ns delay to allow registered outputs to settle.
+4. **Termination**: If any `check_eq` fails, the `failed` flag is set. At the end of stimulus, `std.env.stop(0)` is called on PASS, or `severity failure` is raised on FAIL.
 
-## Observation Discipline
-- All synchronous checks sample `result` and `flags` **after** the active clock edge has taken effect (`wait until rising_edge(clk)`).
-- Reset release followed by one full clock cycle before first functional test.
-
-## Pass/Fail Criteria
-- Testbench uses local variables `pass_count` / `fail_count`.
-- On completion: if `fail_count = 0`, exits with `std.env.stop(0)` (success code).
-- Never uses `severity failure` to signal a passing run.
-
-## GHDL Run Command
-```bash
-ghdl -r --std=08 alu_tb --stop-time=120us
+## GHDL Execution
+Run `sim/run_ghdl.sh` to analyze, elaborate, and simulate. The script generates `waves/alu_tb.vcd` for waveform inspection.

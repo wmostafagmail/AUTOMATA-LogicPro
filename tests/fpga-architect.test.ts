@@ -8,6 +8,7 @@ import {
   buildFpgaArchitectRetryPrompt,
   buildFpgaArchitectCompactRetryPrompt,
   buildFpgaArchitectJsonRepairPrompt,
+  buildFpgaArchitectProjectStructureRepairPrompt,
   buildFpgaArchitectTestRunPrompt,
   parseFpgaArchitectResponse,
   saveFpgaArchitectProject,
@@ -122,6 +123,30 @@ test('FPGA Architect retry prompts include recurring failure guards for repeated
   assert.match(prompt, /App-Owned Architecture Blueprint Contract/);
   assert.match(prompt, /Design class: flight_controller/);
   assert.match(prompt, /Constrained Implementation Regions/);
+});
+
+test('FPGA Architect project-structure repair prompt requires complete work-unit file-set repair', () => {
+  const prompt = buildFpgaArchitectProjectStructureRepairPrompt({
+    originalPrompt: 'base architect prompt: design a UART bridge',
+    currentManifestSummary: JSON.stringify({
+      files: [{
+        path: 'src/top.vhd',
+        declarations: ['entity top'],
+        workReferences: ['entity work.child', 'use work.bridge_pkg'],
+      }],
+      ghdl: { analysisOrder: ['src/top.vhd'] },
+    }),
+    errorSummary: 'src/top.vhd: unresolved work units -> child; missing package bridge_pkg',
+  });
+
+  assert.match(prompt, /Automatic Retry: Project Structure Contract Repair/);
+  assert.match(prompt, /entity work\.<unit>/);
+  assert.match(prompt, /complete generated VHDL file declaring "entity <unit> is"/);
+  assert.match(prompt, /use work\.<pkg>\.all/);
+  assert.match(prompt, /complete generated VHDL file declaring "package <pkg> is"/);
+  assert.match(prompt, /Do not invent empty placeholder packages or stub child entities/);
+  assert.match(prompt, /ghdl\.analysis_order/);
+  assert.match(prompt, /src\/top\.vhd: unresolved work units -> child/);
 });
 
 test('FPGA Architect compact and test-run prompts include recurring failure guards for repeated sweep blockers', () => {

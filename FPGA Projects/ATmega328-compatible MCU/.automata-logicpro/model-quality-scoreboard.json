@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-16T08:31:44.811Z",
+  "updatedAt": "2026-07-18T16:32:34.663Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 183,
-      "successes": 72,
-      "codeQualityFailures": 111,
-      "providerRuntimeFailures": 5,
-      "lastUpdatedAt": "2026-07-16T08:31:44.811Z",
+      "attempts": 270,
+      "successes": 142,
+      "codeQualityFailures": 128,
+      "providerRuntimeFailures": 10,
+      "lastUpdatedAt": "2026-07-18T16:32:34.663Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 54,
-          "successes": 24,
-          "codeQualityFailures": 30,
+          "attempts": 78,
+          "successes": 43,
+          "codeQualityFailures": 35,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -53,9 +53,9 @@
               "category": "other",
               "label": "Other",
               "ruleIds": [],
-              "count": 14,
-              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
-              "lastSeenAt": "2026-07-16T08:31:44.792Z",
+              "count": 15,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/src/spi_master.vhd:59:11:error: no choice for SPI_WAIT\n          when SPI_DONE =>\n          ^\nghdl:error: compilation error",
+              "lastSeenAt": "2026-07-16T16:16:30.830Z",
               "failureCode": "ghdl_analyze_failure",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null
@@ -108,19 +108,46 @@
                 "ghdl-self-checking-testbenches",
                 "ghdl-clocked-variable-discipline"
               ],
-              "count": 2,
-              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_bridge_top.vhd:67: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:71: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:76: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:77: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:78: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).",
-              "forbiddenConstruct": "call \"wait_clk(clk_sig);\" has 1 actual argument(s)",
+              "count": 4,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_cpu_core.vhd:77: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_cpu_core.vhd:78: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).",
+              "forbiddenConstruct": "call \"wait_clk(clk);\" has 1 actual argument(s)",
               "legalReplacementPattern": "make the \"wait_clk\" declaration and every call site agree on one exact formal/actual count; for wait_clk helpers prefer \"procedure wait_clk(signal clk_i : in std_logic)\" and calls \"wait_clk(clk)\"",
-              "lastSeenAt": "2026-07-16T06:22:09.771Z"
+              "lastSeenAt": "2026-07-18T11:27:52.202Z"
+            },
+            "runtime_bound_risk::ghdl-arithmetic-width-rules": {
+              "category": "runtime_bound_risk",
+              "label": "Runtime Bound Risk",
+              "failureCode": "runtime_bound_check_risk",
+              "ruleIds": [
+                "ghdl-arithmetic-width-rules"
+              ],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/uart_tx.vhd: performs indexing with an unchecked to_integer(...) expression (\"data_reg(to_integer(bit_cnt))\"). Generated indexing and array math must guard bounds explicitly so simulation does not fail with avoidable range errors.",
+              "forbiddenConstruct": "data_reg(to_integer(bit_cnt))",
+              "legalReplacementPattern": "bound-check the index first, or clamp/validate the converted integer before indexing",
+              "lastSeenAt": "2026-07-16T15:36:04.184Z"
+            },
+            "unresolved_work_unit::ghdl-clean-command-contract,ghdl-source-ordering": {
+              "category": "unresolved_work_unit",
+              "label": "Unresolved Work Unit",
+              "failureCode": "unresolved_work_unit",
+              "ruleIds": [
+                "ghdl-source-ordering",
+                "ghdl-clean-command-contract"
+              ],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/uart_spi_bridge.vhd: references work unit(s) that are not generated or selected for validation: bridge_fsm, rx_fifo, spi_master, tx_fifo, uart_rx, uart_tx. Every entity/package referenced through work must have a matching generated source file in the current project file set. First unresolved reference appears at line 60: bridge_fsm_inst : entity work.bridge_fsm.",
+              "forbiddenConstruct": "unresolved work unit reference \"bridge_fsm_inst : entity work.bridge_fsm\" for missing unit(s): bridge_fsm, rx_fifo, spi_master, tx_fifo, uart_rx, uart_tx",
+              "legalReplacementPattern": "generate entity/architecture source file(s) declaring entity bridge_fsm is, entity rx_fifo is, entity spi_master is, entity tx_fifo is, entity uart_rx is, entity uart_tx is and add them before dependents in analysis_order; or remove/inline the reference so no missing work unit is used",
+              "lastSeenAt": "2026-07-18T14:51:48.749Z"
             }
           }
         },
         "mini_cpu_core": {
-          "attempts": 36,
-          "successes": 11,
-          "codeQualityFailures": 25,
-          "providerRuntimeFailures": 1,
+          "attempts": 57,
+          "successes": 24,
+          "codeQualityFailures": 33,
+          "providerRuntimeFailures": 3,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
               "category": "reserved_identifier",
@@ -149,21 +176,21 @@
                 "ghdl-command-rules",
                 "ghdl-self-checking-testbenches"
               ],
-              "count": 2,
-              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_cpu_top: /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:23:7:@206ns:(report error): FAIL halt_cycle_1\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:23:7:@216ns:(report error): FAIL halt_cycle_2\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:50:7:@216ns:(report failure): TEST FAILED\n./tb_cpu_top:error: report failed\n  instance: .tb_cpu_top(sim).stimulus\n./tb_cpu_top:error: simulation failed",
-              "lastSeenAt": "2026-07-15T23:23:19.922Z",
+              "count": 3,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_cpu_top: ../../src/ieee2008/numeric_std-body.vhdl:1793:7:@45ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@55ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:22:7:@55ns:(report error): FAIL RESET PC\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@65ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@75ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:22:7:@75ns:(report error): FAIL FETCH NEXT\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@85ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@95ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:22:7:@95ns:(report error): FAIL HALT FETCH\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:77:7:@95ns:(report failure): TEST FAILED\n./tb_cpu_top:error: report failed\n  instance: .tb_cpu_top(sim).stimulus\n./tb_cpu_top:error: simulation failed",
+              "lastSeenAt": "2026-07-16T17:00:33.837Z",
               "failureCode": "ghdl_simulate_failure",
-              "forbiddenConstruct": "self-checking assertion/report failure at 206ns: FAIL halt_cycle_1",
-              "legalReplacementPattern": "repair the existing RTL/TB timing or handshake behavior that triggers this assertion at 206ns; do not delete, weaken, or rename the assertion"
+              "forbiddenConstruct": "self-checking assertion/report failure at 55ns: FAIL RESET PC",
+              "legalReplacementPattern": "repair the existing RTL/TB timing or handshake behavior that triggers this assertion at 55ns; do not delete, weaken, or rename the assertion"
             },
             "other::": {
               "category": "other",
               "label": "Other",
               "ruleIds": [],
-              "count": 14,
-              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
-              "lastSeenAt": "2026-07-16T08:31:44.796Z",
-              "failureCode": null,
+              "count": 16,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_core.vhd:14:22:error: '=>' is expected instead of ':'\n              others : x\"00\"\n                     ^\nghdl:error: compilation error",
+              "lastSeenAt": "2026-07-18T15:39:44.253Z",
+              "failureCode": "ghdl_analyze_failure",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null
             },
@@ -218,18 +245,59 @@
                 "ghdl-no-raw-slv-arithmetic",
                 "ghdl-explicit-resizing"
               ],
-              "count": 1,
-              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:18:34:error: no overloaded function found matching \"to_integer\"\n      0 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                                 ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:18:23:error: no overloaded function found matching \"to_unsigned\"\n      0 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                      ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:19:34:error: no overloaded function found matching \"to_integer\"\n      1 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                                 ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:19:23:error: no overloaded function found matching \"to_unsigned\"\n      1 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                      ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:20:37:error: no overloaded function found matching \"to_integer\"\n    others => to_unsigned(to_integer(OP_HALT), INSTR_WIDTH)\n                                    ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:20:26:error: no overloaded function found matching \"to_unsigned\"\n    others => to_unsigned(to_integer(OP_HALT), INSTR_WIDTH)\n                         ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:31:57:error: no overloaded function found matching \"to_integer\"\n        instr <= std_logic_vector(to_unsigned(to_integer(OP_ADD), INSTR_WIDTH));\n                                                        ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:31:46:error: no overloaded function found matching \"to_unsigned\"\n        instr <= std_logic_vector(to_unsigned(to_integer(OP_ADD), INSTR_WIDTH));\n                                             ^\nghdl:error: compilation error",
+              "count": 2,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/regfile.vhd:31:40:error: conversion allowed only between closely related types\n        safe_idx := to_integer(unsigned(addr_w_i));\n                                       ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/regfile.vhd:43:37:error: conversion allowed only between closely related types\n    safe_idx0 := to_integer(unsigned(addr_r0_i));\n                                    ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/regfile.vhd:44:37:error: conversion allowed only between closely related types\n    safe_idx1 := to_integer(unsigned(addr_r1_i));\n                                    ^\nghdl:error: compilation error",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-16T02:20:04.175Z"
+              "lastSeenAt": "2026-07-16T16:35:14.170Z"
+            },
+            "simulation_assertion::": {
+              "category": "simulation_assertion",
+              "label": "Simulation Assertion",
+              "failureCode": "cpu_reset_pc_behavior_mismatch",
+              "ruleIds": [],
+              "count": 2,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_mini_cpu: /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_mini_cpu.vhd:25:7:@45ns:(report error): FAIL PC after reset\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_mini_cpu.vhd:78:7:@105ns:(report failure): TEST FAILED\n./tb_mini_cpu:error: report failed\n  instance: .tb_mini_cpu(sim).stimulus\n./tb_mini_cpu:error: simulation failed",
+              "forbiddenConstruct": "self-checking assertion/report failure at 45ns: FAIL PC after reset",
+              "legalReplacementPattern": "repair the CPU reset/fetch/halt decoder/control/TB timing contract so the assertion is true at 45ns; do not delete, weaken, skip, rename, or silence the assertion",
+              "lastSeenAt": "2026-07-16T23:05:24.289Z"
+            },
+            "simulation_assertion::ghdl-command-rules,ghdl-cpu-core-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches": {
+              "category": "simulation_assertion",
+              "label": "Simulation Assertion",
+              "failureCode": "cpu_reset_pc_behavior_mismatch",
+              "ruleIds": [
+                "ghdl-command-rules",
+                "ghdl-self-checking-testbenches",
+                "ghdl-cpu-core-rules",
+                "ghdl-reset-discipline"
+              ],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_cpu_top: ../../src/ieee2008/numeric_std-body.vhdl:3053:7:@0ms:(assertion warning): NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:48:7:@135ns:(report error): FAIL PC reset\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:60:7:@155ns:(report error): FAIL PC fetch\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:68:7:@215ns:(report failure): TEST FAILED\n./tb_cpu_top:error: report failed\n  instance: .tb_cpu_top(sim).stimulus\n./tb_cpu_top:error: simulation failed",
+              "forbiddenConstruct": "self-checking assertion/report failure at 135ns: FAIL PC reset",
+              "legalReplacementPattern": "repair the CPU reset/fetch/halt/control decoder/TB timing contract so the assertion is true at 135ns; do not delete, weaken, skip, rename, or silence the assertion",
+              "lastSeenAt": "2026-07-18T13:04:38.147Z"
+            },
+            "package_type_definition::ghdl-record-package-rules,ghdl-source-ordering": {
+              "category": "package_type_definition",
+              "label": "Package / Type Definition",
+              "failureCode": "package_symbol_not_visible",
+              "ruleIds": [
+                "ghdl-record-package-rules",
+                "ghdl-source-ordering"
+              ],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/ram.vhd:17: uses custom type \"data_mem_t\" but that type is not locally declared or exported by any imported work package. No selected package exports this type.\nsrc/regfile.vhd:18: uses custom type \"data_mem_t\" but that type is not locally declared or exported by any imported work package. No selected package exports this type.\nsrc/rom.vhd:15: uses custom type \"prog_mem_t\" but that type is not locally declared or exported by any imported work package. No selected package exports this type.",
+              "forbiddenConstruct": "custom type \"data_mem_t\" used without visible package/type declaration in \"signal mem : data_mem_t := (others => (others => '0'));\"",
+              "legalReplacementPattern": "generate a package/type declaration that exports data_mem_t, import it with use work.<package>.all, and analyze that package before src/ram.vhd",
+              "lastSeenAt": "2026-07-18T16:17:07.710Z"
             }
           }
         },
         "video_pattern_generator": {
-          "attempts": 36,
-          "successes": 16,
-          "codeQualityFailures": 20,
+          "attempts": 54,
+          "successes": 33,
+          "codeQualityFailures": 21,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -256,11 +324,11 @@
               "category": "other",
               "label": "Other",
               "ruleIds": [],
-              "count": 13,
-              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
-              "lastSeenAt": "2026-07-16T08:31:44.800Z",
+              "count": 14,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/horizontal_timing.vhd: appears to read back output port \"h_active\" inside implementation logic. Do not derive internal behavior from an out port; compute through internal typed signals/variables first, then drive the out port.\nsrc/vertical_timing.vhd: appears to read back output port \"v_active\" inside implementation logic. Do not derive internal behavior from an out port; compute through internal typed signals/variables first, then drive the out port.",
+              "lastSeenAt": "2026-07-16T10:07:15.697Z",
               "failureCode": "output_port_readback",
-              "forbiddenConstruct": "internal logic reading output port \"h_sync\"",
+              "forbiddenConstruct": "internal logic reading output port \"h_active\"",
               "legalReplacementPattern": "use an internal signal/variable for the computed value and assign the out port from that internal object"
             },
             "numeric_std_typing::ghdl-explicit-resizing,ghdl-no-raw-slv-arithmetic": {
@@ -285,10 +353,10 @@
           }
         },
         "dsp_chain": {
-          "attempts": 32,
-          "successes": 12,
-          "codeQualityFailures": 20,
-          "providerRuntimeFailures": 2,
+          "attempts": 45,
+          "successes": 23,
+          "codeQualityFailures": 22,
+          "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
               "category": "reserved_identifier",
@@ -325,12 +393,12 @@
               "category": "other",
               "label": "Other",
               "ruleIds": [],
-              "count": 12,
-              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
-              "lastSeenAt": "2026-07-16T08:31:44.806Z",
-              "failureCode": null,
-              "forbiddenConstruct": null,
-              "legalReplacementPattern": null
+              "count": 14,
+              "lastMessage": "Request was cancelled by the user.",
+              "lastSeenAt": "2026-07-18T16:32:34.663Z",
+              "failureCode": "tb_string_formal_actual_constraint_mismatch",
+              "forbiddenConstruct": "constrained string helper contract or fixed-width string message path whose actual/formal lengths diverge across calls",
+              "legalReplacementPattern": "use an unconstrained read-only string formal for helper message text, or remove the helper string formal and report literals directly at the call site"
             },
             "numeric_std_typing::ghdl-explicit-boundary-conversions": {
               "category": "numeric_std_typing",
@@ -359,10 +427,10 @@
           }
         },
         "axi_stream_router": {
-          "attempts": 25,
-          "successes": 9,
-          "codeQualityFailures": 16,
-          "providerRuntimeFailures": 0,
+          "attempts": 36,
+          "successes": 19,
+          "codeQualityFailures": 17,
+          "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
               "category": "reserved_identifier",
@@ -384,6 +452,20 @@
               "failureCode": "ghdl_analyze_failure",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null
+            },
+            "numeric_std_typing::ghdl-explicit-boundary-conversions,ghdl-instantiation-rules": {
+              "category": "numeric_std_typing",
+              "label": "numeric_std Typing",
+              "failureCode": "typed_port_association_mismatch",
+              "ruleIds": [
+                "ghdl-explicit-boundary-conversions",
+                "ghdl-instantiation-rules"
+              ],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_axi_stream_router.vhd: drives unsigned formal port \"route_sel_i\" of \"axi_stream_router\" with integer actual \"route_sel_i\" in a port map. Convert the actual at the entity boundary into the exact formal type expected by the instantiated design unit.",
+              "forbiddenConstruct": "integer actual \"route_sel_i\" passed to unsigned formal port \"route_sel_i\" of axi_stream_router",
+              "legalReplacementPattern": "wrap \"route_sel_i\" with unsigned(...) at the port-map boundary or change the formal/actual types so they match exactly",
+              "lastSeenAt": "2026-07-16T18:38:38.774Z"
             }
           }
         }
@@ -406,12 +488,12 @@
             "ghdl-command-rules",
             "ghdl-self-checking-testbenches"
           ],
-          "count": 4,
-          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_cpu_top: /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:23:7:@206ns:(report error): FAIL halt_cycle_1\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:23:7:@216ns:(report error): FAIL halt_cycle_2\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:50:7:@216ns:(report failure): TEST FAILED\n./tb_cpu_top:error: report failed\n  instance: .tb_cpu_top(sim).stimulus\n./tb_cpu_top:error: simulation failed",
-          "lastSeenAt": "2026-07-15T23:23:19.922Z",
+          "count": 5,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_cpu_top: ../../src/ieee2008/numeric_std-body.vhdl:1793:7:@45ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@55ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:22:7:@55ns:(report error): FAIL RESET PC\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@65ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@75ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:22:7:@75ns:(report error): FAIL FETCH NEXT\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@85ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1793:7:@95ns:(assertion warning): NUMERIC_STD.\"=\": metavalue detected, returning FALSE\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:22:7:@95ns:(report error): FAIL HALT FETCH\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:77:7:@95ns:(report failure): TEST FAILED\n./tb_cpu_top:error: report failed\n  instance: .tb_cpu_top(sim).stimulus\n./tb_cpu_top:error: simulation failed",
+          "lastSeenAt": "2026-07-16T17:00:33.837Z",
           "failureCode": "ghdl_simulate_failure",
-          "forbiddenConstruct": "self-checking assertion/report failure at 206ns: FAIL halt_cycle_1",
-          "legalReplacementPattern": "repair the existing RTL/TB timing or handshake behavior that triggers this assertion at 206ns; do not delete, weaken, or rename the assertion"
+          "forbiddenConstruct": "self-checking assertion/report failure at 55ns: FAIL RESET PC",
+          "legalReplacementPattern": "repair the existing RTL/TB timing or handshake behavior that triggers this assertion at 55ns; do not delete, weaken, or rename the assertion"
         },
         "architecture_variable::ghdl-clocked-variable-discipline": {
           "category": "architecture_variable",
@@ -427,12 +509,12 @@
           "category": "other",
           "label": "Other",
           "ruleIds": [],
-          "count": 66,
-          "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
-          "lastSeenAt": "2026-07-16T08:31:44.811Z",
+          "count": 72,
+          "lastMessage": "Request was cancelled by the user.",
+          "lastSeenAt": "2026-07-18T16:32:34.663Z",
           "failureCode": "ghdl_analyze_failure",
-          "forbiddenConstruct": "internal logic reading output port \"h_sync\"",
-          "legalReplacementPattern": "use an internal signal/variable for the computed value and assign the out port from that internal object"
+          "forbiddenConstruct": "constrained string helper contract or fixed-width string message path whose actual/formal lengths diverge across calls",
+          "legalReplacementPattern": "use an unconstrained read-only string formal for helper message text, or remove the helper string formal and report literals directly at the call site"
         },
         "array_subtype_misuse::ghdl-array-memory-rules": {
           "category": "array_subtype_misuse",
@@ -479,9 +561,9 @@
             "ghdl-no-raw-slv-arithmetic",
             "ghdl-explicit-resizing"
           ],
-          "count": 2,
-          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:18:34:error: no overloaded function found matching \"to_integer\"\n      0 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                                 ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:18:23:error: no overloaded function found matching \"to_unsigned\"\n      0 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                      ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:19:34:error: no overloaded function found matching \"to_integer\"\n      1 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                                 ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:19:23:error: no overloaded function found matching \"to_unsigned\"\n      1 => to_unsigned(to_integer(OP_ADD), INSTR_WIDTH),\n                      ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:20:37:error: no overloaded function found matching \"to_integer\"\n    others => to_unsigned(to_integer(OP_HALT), INSTR_WIDTH)\n                                    ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:20:26:error: no overloaded function found matching \"to_unsigned\"\n    others => to_unsigned(to_integer(OP_HALT), INSTR_WIDTH)\n                         ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:31:57:error: no overloaded function found matching \"to_integer\"\n        instr <= std_logic_vector(to_unsigned(to_integer(OP_ADD), INSTR_WIDTH));\n                                                        ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instr_mem.vhd:31:46:error: no overloaded function found matching \"to_unsigned\"\n        instr <= std_logic_vector(to_unsigned(to_integer(OP_ADD), INSTR_WIDTH));\n                                             ^\nghdl:error: compilation error",
-          "lastSeenAt": "2026-07-16T02:20:04.175Z",
+          "count": 3,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/regfile.vhd:31:40:error: conversion allowed only between closely related types\n        safe_idx := to_integer(unsigned(addr_w_i));\n                                       ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/regfile.vhd:43:37:error: conversion allowed only between closely related types\n    safe_idx0 := to_integer(unsigned(addr_r0_i));\n                                    ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/regfile.vhd:44:37:error: conversion allowed only between closely related types\n    safe_idx1 := to_integer(unsigned(addr_r1_i));\n                                    ^\nghdl:error: compilation error",
+          "lastSeenAt": "2026-07-16T16:35:14.170Z",
           "failureCode": "ghdl_analyze_failure",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null
@@ -501,9 +583,12 @@
             "ghdl-explicit-boundary-conversions",
             "ghdl-instantiation-rules"
           ],
-          "count": 1,
-          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:28:17:error: can't use an in conversion for an out/buffer interface\n      pc_out => unsigned(pc_addr_sig)\n                ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:34:16:error: can't associate \"pc_addr_sig\" with port \"addr\"\n      addr  => unsigned(pc_addr_sig),\n               ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:34:16:error: (type of \"pc_addr_sig\" is a subtype of STD_ULOGIC_VECTOR)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/instruction_memory.vhd:8:5:error: (type of port \"addr\" is a subtype of STD_ULOGIC_VECTOR)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:40:19:error: can't associate \"instr_sig\" with port \"instr_in\"\n      instr_in => instr_sig,\n                  ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:40:19:error: (type of \"instr_sig\" is a subtype of STD_ULOGIC_VECTOR)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/decoder.vhd:8:5:error: (type of port \"instr_in\" is instr_t)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:48:19:error: can't associate \"instr_sig\" with port \"instr_in\"\n      instr_in => instr_sig,\n                  ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:48:19:error: (type of \"instr_sig\" is a subtype of STD_ULOGIC_VECTOR)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/control_fsm.vhd:10:5:error: (type of port \"instr_in\" is instr_t)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:56:17:error: can't associate \"op_sig\" with port \"op\"\n      op     => op_sig,\n                ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/cpu_top.vhd:56:17:error: (type of \"op_sig\" is a subtype of STD_ULOGIC_VECTOR)\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/src/alu.vhd:8:5:error: (type of port \"op\" is op_code_t)\nghdl:error: compilation error",
-          "lastSeenAt": "2026-07-15T12:07:40.466Z"
+          "count": 2,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_axi_stream_router.vhd: drives unsigned formal port \"route_sel_i\" of \"axi_stream_router\" with integer actual \"route_sel_i\" in a port map. Convert the actual at the entity boundary into the exact formal type expected by the instantiated design unit.",
+          "lastSeenAt": "2026-07-16T18:38:38.774Z",
+          "failureCode": "typed_port_association_mismatch",
+          "forbiddenConstruct": "integer actual \"route_sel_i\" passed to unsigned formal port \"route_sel_i\" of axi_stream_router",
+          "legalReplacementPattern": "wrap \"route_sel_i\" with unsigned(...) at the port-map boundary or change the formal/actual types so they match exactly"
         },
         "package_type_definition::ghdl-record-package-rules,ghdl-source-ordering": {
           "category": "package_type_definition",
@@ -513,25 +598,25 @@
             "ghdl-record-package-rules",
             "ghdl-source-ordering"
           ],
-          "count": 2,
-          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/04-dsp-chain/dsp_chain/src/fft_lite.vhd:9:41:error: no declaration for \"out_width\"\n    in_s         : in  std_logic_vector(OUT_WIDTH-1 downto 0);\n                                        ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/04-dsp-chain/dsp_chain/src/fft_lite.vhd:11:41:error: no declaration for \"out_width\"\n    out_s        : out std_logic_vector(OUT_WIDTH-1 downto 0);\n                                        ^\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/04-dsp-chain/dsp_chain/src/fft_lite.vhd:16:21:error: entity \"fft_lite\" was not analysed\narchitecture rtl of fft_lite is\n                    ^\nghdl:error: compilation error",
-          "forbiddenConstruct": "custom type or package symbol \"out_width\" used where it is not visible",
-          "legalReplacementPattern": "declare/export \"out_width\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
-          "lastSeenAt": "2026-07-16T03:17:00.386Z"
+          "count": 3,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/ram.vhd:17: uses custom type \"data_mem_t\" but that type is not locally declared or exported by any imported work package. No selected package exports this type.\nsrc/regfile.vhd:18: uses custom type \"data_mem_t\" but that type is not locally declared or exported by any imported work package. No selected package exports this type.\nsrc/rom.vhd:15: uses custom type \"prog_mem_t\" but that type is not locally declared or exported by any imported work package. No selected package exports this type.",
+          "forbiddenConstruct": "custom type \"data_mem_t\" used without visible package/type declaration in \"signal mem : data_mem_t := (others => (others => '0'));\"",
+          "legalReplacementPattern": "generate a package/type declaration that exports data_mem_t, import it with use work.<package>.all, and analyze that package before src/ram.vhd",
+          "lastSeenAt": "2026-07-18T16:17:07.710Z"
         },
         "unresolved_work_unit::ghdl-clean-command-contract,ghdl-source-ordering": {
           "category": "unresolved_work_unit",
           "label": "Unresolved Work Unit",
-          "failureCode": "missing_work_package_file",
+          "failureCode": "unresolved_work_unit",
           "ruleIds": [
             "ghdl-source-ordering",
             "ghdl-clean-command-contract"
           ],
-          "count": 1,
-          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/alu.vhd: references work unit(s) that are not generated or selected for validation: alu_pkg. Every entity/package referenced through work must have a matching generated source file in the current project file set. First unresolved reference appears at line 4: use work.alu_pkg.all;.",
-          "forbiddenConstruct": "unresolved work unit reference \"use work.alu_pkg.all;\" for missing unit(s): alu_pkg",
-          "legalReplacementPattern": "generate package source file(s) declaring package alu_pkg is and add them before dependents in analysis_order; or remove/inline the reference so no missing work unit is used",
-          "lastSeenAt": "2026-07-16T01:53:56.180Z"
+          "count": 2,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/uart_spi_bridge.vhd: references work unit(s) that are not generated or selected for validation: bridge_fsm, rx_fifo, spi_master, tx_fifo, uart_rx, uart_tx. Every entity/package referenced through work must have a matching generated source file in the current project file set. First unresolved reference appears at line 60: bridge_fsm_inst : entity work.bridge_fsm.",
+          "forbiddenConstruct": "unresolved work unit reference \"bridge_fsm_inst : entity work.bridge_fsm\" for missing unit(s): bridge_fsm, rx_fifo, spi_master, tx_fifo, uart_rx, uart_tx",
+          "legalReplacementPattern": "generate entity/architecture source file(s) declaring entity bridge_fsm is, entity rx_fifo is, entity spi_master is, entity tx_fifo is, entity uart_rx is, entity uart_tx is and add them before dependents in analysis_order; or remove/inline the reference so no missing work unit is used",
+          "lastSeenAt": "2026-07-18T14:51:48.749Z"
         },
         "procedure_scope::ghdl-clocked-variable-discipline,ghdl-self-checking-testbenches": {
           "category": "procedure_scope",
@@ -541,11 +626,51 @@
             "ghdl-self-checking-testbenches",
             "ghdl-clocked-variable-discipline"
           ],
-          "count": 2,
-          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_bridge_top.vhd:67: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:71: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:76: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:77: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_bridge_top.vhd:78: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).",
-          "forbiddenConstruct": "call \"wait_clk(clk_sig);\" has 1 actual argument(s)",
+          "count": 4,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_cpu_core.vhd:77: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).\ntb/tb_cpu_core.vhd:78: calls \"wait_clk\" with 1 actual argument(s), but its visible declaration expects 2 argument(s).",
+          "forbiddenConstruct": "call \"wait_clk(clk);\" has 1 actual argument(s)",
           "legalReplacementPattern": "make the \"wait_clk\" declaration and every call site agree on one exact formal/actual count; for wait_clk helpers prefer \"procedure wait_clk(signal clk_i : in std_logic)\" and calls \"wait_clk(clk)\"",
-          "lastSeenAt": "2026-07-16T06:22:09.771Z"
+          "lastSeenAt": "2026-07-18T11:27:52.202Z"
+        },
+        "runtime_bound_risk::ghdl-arithmetic-width-rules": {
+          "category": "runtime_bound_risk",
+          "label": "Runtime Bound Risk",
+          "failureCode": "runtime_bound_check_risk",
+          "ruleIds": [
+            "ghdl-arithmetic-width-rules"
+          ],
+          "count": 1,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/uart_tx.vhd: performs indexing with an unchecked to_integer(...) expression (\"data_reg(to_integer(bit_cnt))\"). Generated indexing and array math must guard bounds explicitly so simulation does not fail with avoidable range errors.",
+          "forbiddenConstruct": "data_reg(to_integer(bit_cnt))",
+          "legalReplacementPattern": "bound-check the index first, or clamp/validate the converted integer before indexing",
+          "lastSeenAt": "2026-07-16T15:36:04.184Z"
+        },
+        "simulation_assertion::": {
+          "category": "simulation_assertion",
+          "label": "Simulation Assertion",
+          "failureCode": "cpu_reset_pc_behavior_mismatch",
+          "ruleIds": [],
+          "count": 2,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_mini_cpu: /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_mini_cpu.vhd:25:7:@45ns:(report error): FAIL PC after reset\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_mini_cpu.vhd:78:7:@105ns:(report failure): TEST FAILED\n./tb_mini_cpu:error: report failed\n  instance: .tb_mini_cpu(sim).stimulus\n./tb_mini_cpu:error: simulation failed",
+          "forbiddenConstruct": "self-checking assertion/report failure at 45ns: FAIL PC after reset",
+          "legalReplacementPattern": "repair the CPU reset/fetch/halt decoder/control/TB timing contract so the assertion is true at 45ns; do not delete, weaken, skip, rename, or silence the assertion",
+          "lastSeenAt": "2026-07-16T23:05:24.289Z"
+        },
+        "simulation_assertion::ghdl-command-rules,ghdl-cpu-core-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches": {
+          "category": "simulation_assertion",
+          "label": "Simulation Assertion",
+          "failureCode": "cpu_reset_pc_behavior_mismatch",
+          "ruleIds": [
+            "ghdl-command-rules",
+            "ghdl-self-checking-testbenches",
+            "ghdl-cpu-core-rules",
+            "ghdl-reset-discipline"
+          ],
+          "count": 1,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_cpu_top: ../../src/ieee2008/numeric_std-body.vhdl:3053:7:@0ms:(assertion warning): NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:48:7:@135ns:(report error): FAIL PC reset\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:60:7:@155ns:(report error): FAIL PC fetch\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/02-mini-cpu-core/mini_cpu_core/tb/tb_cpu_top.vhd:68:7:@215ns:(report failure): TEST FAILED\n./tb_cpu_top:error: report failed\n  instance: .tb_cpu_top(sim).stimulus\n./tb_cpu_top:error: simulation failed",
+          "forbiddenConstruct": "self-checking assertion/report failure at 135ns: FAIL PC reset",
+          "legalReplacementPattern": "repair the CPU reset/fetch/halt/control decoder/TB timing contract so the assertion is true at 135ns; do not delete, weaken, skip, rename, or silence the assertion",
+          "lastSeenAt": "2026-07-18T13:04:38.147Z"
         }
       }
     }

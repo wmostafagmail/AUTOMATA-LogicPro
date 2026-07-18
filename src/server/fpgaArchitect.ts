@@ -961,6 +961,74 @@ ${FPGA_ARCHITECT_MANIFEST_SCAFFOLD}
 `;
 }
 
+export function buildFpgaArchitectProjectStructureRepairPrompt(params: {
+  originalPrompt: string;
+  currentManifestSummary: string;
+  errorSummary: string;
+}) {
+  const { originalPrompt, currentManifestSummary, errorSummary } = params;
+  const maxSummaryChars = 12000;
+  const trimmedManifestSummary = currentManifestSummary.trim();
+  const manifestSummarySnippet = trimmedManifestSummary.length > maxSummaryChars
+    ? `${trimmedManifestSummary.slice(0, maxSummaryChars)}\n...<manifest summary truncated>`
+    : trimmedManifestSummary;
+  const structuralRules = [
+    'Return only a complete Markdown project manifest in the exact required structure.',
+    'The very first characters of your response must be exactly: "# PROJECT".',
+    'Do not return patches, diffs, partial files, bullet notes, explanations, or prose outside the manifest.',
+    'For every VHDL reference of the form "entity work.<unit>", the manifest must either include a complete generated VHDL file declaring "entity <unit> is" with a matching architecture, or remove/inline that instance consistently.',
+    'For every VHDL reference of the form "use work.<pkg>.all", the manifest must either include a complete generated VHDL file declaring "package <pkg> is" before dependents, or remove the import and use already-visible declarations consistently.',
+    'Every custom type/subtype/record/array type used by multiple files, such as data_mem_t, prog_mem_t, instr_t, addr_t, or data_t, must be declared in exactly one generated package or local declarative region and imported consistently by all dependent files.',
+    'When repairing package/type visibility, update the package source, every dependent RTL/TB file, and ghdl.analysis_order together. Do not patch only RAM/ROM/regfile files while leaving the package contract inconsistent.',
+    'If you change a package record/type schema, repair all field accesses and port/type declarations to match that package as the source of truth; do not invent duplicate incompatible package definitions.',
+    'Do not invent empty placeholder packages or stub child entities. Missing child files must be complete enough to compile and simulate.',
+    'The ghdl.analysis_order list must include every generated VHDL source file exactly once, with packages before package bodies, packages before users, child entities before dependents when direct entity references need them, RTL before testbench, and the testbench last.',
+    'Preserve the requested design intent and existing file organization as much as possible; repair the file set and manifest structure, not unrelated behavior.',
+    'top_entity must exactly match a generated DUT entity and ghdl.top_testbench must exactly match a generated testbench entity.',
+  ];
+
+  return `${originalPrompt}
+
+### Automatic Retry: Project Structure Contract Repair
+The generated FPGA project manifest was parseable, but the file set is incomplete or internally inconsistent before normal VHDL repair can begin.
+
+Failure summary:
+- ${errorSummary}
+
+${buildFpgaArchitectFailureEvidenceContract(errorSummary)}
+
+Current manifest/file-set snapshot:
+\`\`\`json
+${manifestSummarySnippet}
+\`\`\`
+
+Hard requirements:
+${buildNumberedRuleList(structuralRules)}
+
+Strict GHDL / VHDL rules:
+${buildNumberedRuleList(FPGA_ARCHITECT_STRICT_RULE_LIST, structuralRules.length + 1)}
+
+${buildRecurringVhdlFailureGuardSection({
+  heading: 'Recurring failure guards you must explicitly self-audit before returning',
+  numbered: true,
+})}
+
+${buildGenerationQualityPromptSection('fpga_vhdl_architect', {
+  includeRepairScope: true,
+})}
+
+${buildArchitectureBlueprintPromptSection({
+  macroId: 'fpga_vhdl_architect',
+  promptText: originalPrompt,
+})}
+
+${buildConstrainedRegionPromptSection('fpga_vhdl_architect')}
+
+Use this exact scaffold:
+${FPGA_ARCHITECT_MANIFEST_SCAFFOLD}
+`;
+}
+
 export function buildFpgaArchitectCompactRetryPrompt(params: {
   originalPrompt: string;
   errorSummary: string;

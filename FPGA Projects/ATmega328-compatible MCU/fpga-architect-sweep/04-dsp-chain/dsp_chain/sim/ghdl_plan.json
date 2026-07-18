@@ -1,0 +1,11 @@
+{
+  "top_testbench": "tb_dsp_chain",
+  "expected_result": "TEST PASSED",
+  "analysis_order": [
+    "src/dsp_chain_pkg.vhd",
+    "src/fir_filter.vhd",
+    "src/fft_lite.vhd",
+    "src/dsp_chain_top.vhd",
+    "tb/tb_dsp_chain.vhd"
+  ]
+}

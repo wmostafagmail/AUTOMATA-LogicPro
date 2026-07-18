@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-18T05:32:51.529Z",
+  "models": {
+    "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 15,
+      "successes": 0,
+      "codeQualityFailures": 15,
+      "providerRuntimeFailures": 0,
+      "lastUpdatedAt": "2026-07-18T05:32:51.529Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-18T05:32:49.516Z"
+            }
+          }
+        },
+        "mini_cpu_core": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-18T05:32:51.509Z"
+            }
+          }
+        },
+        "video_pattern_generator": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-18T05:32:51.517Z"
+            }
+          }
+        },
+        "dsp_chain": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-18T05:32:51.524Z"
+            }
+          }
+        },
+        "axi_stream_router": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-18T05:32:51.529Z"
+            }
+          }
+        }
+      },
+      "failureBuckets": {
+        "other::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "ruleIds": [],
+          "count": 15,
+          "lastMessage": "Project path needs to be selected again so AUTOMATA LogicPro can access it in this session. Please choose the project folder and try again.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-18T05:32:51.529Z"
+        }
+      }
+    }
+  }
+}

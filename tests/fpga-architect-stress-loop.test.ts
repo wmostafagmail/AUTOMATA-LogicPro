@@ -84,6 +84,7 @@ function buildLoopDependencies(projectRoot: string, overrideRunAiAnalyzeJob: (pa
     parseFpgaArchitectResponse: () => ({}) as any,
     buildFpgaArchitectRetryPrompt: () => 'retry',
     buildFpgaArchitectJsonRepairPrompt: () => 'json retry',
+    buildFpgaArchitectProjectStructureRepairPrompt: () => 'project structure retry',
     buildFpgaArchitectCompactRetryPrompt: () => 'compact retry',
     buildFpgaArchitectTestRunPrompt,
     saveFpgaArchitectProject: async () => ({ outputDirectory: projectRoot, savedFiles: [] }),
@@ -244,6 +245,21 @@ test('runFpgaArchitectStressLoop logs validator-backed categories instead of Oth
         failureCode: 'declaration_after_begin',
         failureCategory: 'declaration_scope',
         ruleIds: ['ghdl-clocked-variable-discipline'],
+        repairAudit: [
+          {
+            repairAttempt: 1,
+            failureCode: 'declaration_after_begin',
+            fileLine: 'tb/tb_uart_spi_bridge.vhd:12',
+            repairType: 'deterministic',
+            changedFiles: ['tb/tb_uart_spi_bridge.vhd'],
+            postRepairValidation: {
+              ok: false,
+              stage: 'prevalidate',
+              failureCode: 'procedure_outer_scope_write',
+              summary: 'procedure still mutates outer scope',
+            },
+          },
+        ],
         failureDetails: [
           {
             code: 'declaration_after_begin',
@@ -266,6 +282,13 @@ test('runFpgaArchitectStressLoop logs validator-backed categories instead of Oth
   assert.equal(result.failureBuckets[0]?.label, 'Procedure / Testbench Scope');
   const masterLogContent = await fs.readFile(result.masterLogPath, 'utf8');
   assert.match(masterLogContent, /Failure category: Procedure \/ Testbench Scope/);
+  assert.match(masterLogContent, /=== Inner Repair Audit ===/);
+  assert.match(masterLogContent, /repairAttempt: 1/);
+  assert.match(masterLogContent, /failureCode: declaration_after_begin/);
+  assert.match(masterLogContent, /file:line: tb\/tb_uart_spi_bridge\.vhd:12/);
+  assert.match(masterLogContent, /repairType: deterministic/);
+  assert.match(masterLogContent, /changedFiles: tb\/tb_uart_spi_bridge\.vhd/);
+  assert.match(masterLogContent, /postRepairValidation: FAIL prevalidate\/procedure_outer_scope_write/);
   assert.doesNotMatch(masterLogContent, /Failure category: Other/);
 });
 
@@ -288,7 +311,19 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
     totalDesigns: number;
     currentDesignAttempt: number;
     attemptsPerDesign: number;
+    innerRepairAttempt?: number;
+    innerRepairTotal?: number;
+    innerRepairFailureCode?: string;
+    innerRepairFileLine?: string;
+    innerRepairStatus?: string;
   }> = [];
+  const resetRepairProgress = {
+    innerRepairAttempt: 0,
+    innerRepairTotal: 0,
+    innerRepairFailureCode: '',
+    innerRepairFileLine: '',
+    innerRepairStatus: '',
+  };
 
   await runFpgaArchitectStressLoop({
     ...buildLoopDependencies(projectRoot, async (params: any) => ({
@@ -319,6 +354,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
     totalDesigns: 2,
     currentDesignAttempt: 0,
     attemptsPerDesign: 2,
+    ...resetRepairProgress,
   });
   assert.deepEqual(progressEvents.slice(1), [
     {
@@ -336,6 +372,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 1,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 1,
@@ -352,6 +389,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 1,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 2,
@@ -368,6 +406,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 2,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 2,
@@ -384,6 +423,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 2,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 3,
@@ -400,6 +440,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 1,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 3,
@@ -416,6 +457,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 1,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 4,
@@ -432,6 +474,7 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 2,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
     {
       currentLoop: 4,
@@ -448,8 +491,52 @@ test('runFpgaArchitectStressLoop emits expanded progress metadata with global an
       totalDesigns: 2,
       currentDesignAttempt: 2,
       attemptsPerDesign: 2,
+      ...resetRepairProgress,
     },
   ]);
+});
+
+test('runFpgaArchitectStressLoop streams inner repair progress to job progress and logs immediately', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-inner-progress-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const progressEvents: Array<Record<string, unknown>> = [];
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      await params.onInnerRepairProgress?.({
+        repairAttempt: 2,
+        repairTotal: 10,
+        failureCode: 'runtime_bound_check_risk',
+        fileLine: 'src/cpu_core.vhd:42',
+        status: 'model_repair',
+      });
+      return {
+        validation: { summary: `Generated VHDL passed GHDL simulation for ${params.normalizedProjectPath}.` },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 1,
+    onProgress: (progress) => {
+      progressEvents.push(progress);
+    },
+  });
+
+  assert.equal(result.successes, 1);
+  assert.ok(progressEvents.some((event) => (
+    event.innerRepairAttempt === 2
+    && event.innerRepairTotal === 10
+    && event.innerRepairFailureCode === 'runtime_bound_check_risk'
+    && event.innerRepairFileLine === 'src/cpu_core.vhd:42'
+    && event.innerRepairStatus === 'model_repair'
+  )));
+
+  const masterLogContent = await fs.readFile(result.masterLogPath, 'utf8');
+  assert.match(masterLogContent, /INNER_REPAIR_PROGRESS \| attempt=2\/10 \| status=model_repair \| failureCode=runtime_bound_check_risk \| fileLine=src\/cpu_core\.vhd:42/);
+  const designLogContent = await fs.readFile(result.designSummaries[0]?.logFilePath || '', 'utf8');
+  assert.match(designLogContent, /INNER_REPAIR_PROGRESS \| attempt=2\/10/);
 });
 
 test('runFpgaArchitectStressLoop disables broad project-context rebuilding for sweep attempts', async () => {
@@ -1142,6 +1229,128 @@ test('runFpgaArchitectStressLoop enriches CPU halt simulation failures with TB s
 
   const masterLog = await fs.readFile(path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.log'), 'utf8');
   assert.match(masterLog, /Behavioral context: failing TB window included=yes instruction sequence found=yes CPU RTL files included=/);
+});
+
+test('runFpgaArchitectStressLoop enriches CPU reset and control simulation failures with TB stimulus and CPU RTL context', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-cpu-reset-control-context-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('mini-cpu', 'Mini CPU Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+
+      const tbPath = path.join(params.normalizedProjectPath, 'tb', 'tb_mini_cpu.vhd');
+      const pkgPath = path.join(params.normalizedProjectPath, 'src', 'mini_cpu_pkg.vhd');
+      const topPath = path.join(params.normalizedProjectPath, 'src', 'cpu_top.vhd');
+      const docsPath = path.join(params.normalizedProjectPath, 'docs', 'notes.md');
+      await fs.mkdir(path.dirname(tbPath), { recursive: true });
+      await fs.mkdir(path.dirname(pkgPath), { recursive: true });
+      await fs.mkdir(path.dirname(docsPath), { recursive: true });
+      await fs.writeFile(
+        tbPath,
+        [
+          'entity tb_mini_cpu is end entity;',
+          'architecture sim of tb_mini_cpu is',
+          '  signal clk : std_logic := \'0\';',
+          '  signal rst : std_logic := \'1\';',
+          '  signal pm_data : std_logic_vector(7 downto 0);',
+          'begin',
+          '  stimulus : process',
+          '  begin',
+          '    rst <= \'1\';',
+          '    wait for 20 ns;',
+          '    rst <= \'0\';',
+          '    wait until rising_edge(clk);',
+          '    check_eq("PC after reset", pc_val, to_unsigned(0, 4), failed);',
+          '    pm_data <= OP_ADD;',
+          '    wait until rising_edge(clk);',
+          '    check_eq("DM_WE on ADD", to_unsigned(1, 1), dm_we_u, failed);',
+          '    wait;',
+          '  end process;',
+          'end architecture;',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+      await fs.writeFile(pkgPath, 'package mini_cpu_pkg is\n  constant OP_ADD : std_logic_vector(7 downto 0) := "00000000";\nend package;\n', 'utf8');
+      await fs.writeFile(topPath, 'entity cpu_top is end entity;\narchitecture rtl of cpu_top is begin end architecture;\n', 'utf8');
+      await fs.writeFile(docsPath, '# unrelated notes\n'.repeat(100), 'utf8');
+
+      if (runCount === 1) {
+        const error = new Error([
+          `${tbPath}:13:5:@27ns:(report error): FAIL PC after reset`,
+          `${tbPath}:16:5:@37ns:(report error): FAIL DM_WE on ADD`,
+        ].join('\n'));
+        (error as any).generatedVhdlValidation = {
+          ok: false,
+          stage: 'simulate',
+          summary: 'Generated VHDL failed GHDL simulation for tb_mini_cpu.',
+          logs: [],
+          validatedTopEntities: ['tb_mini_cpu'],
+          failureCode: 'cpu_reset_pc_behavior_mismatch',
+          failureCategory: 'simulation_success',
+          failureDetails: [
+            {
+              code: 'cpu_reset_pc_behavior_mismatch',
+              category: 'simulation_success',
+              message: 'tb/tb_mini_cpu.vhd:13: assertion failed at 27ns: FAIL PC after reset',
+              excerpt: 'FAIL PC after reset',
+              relativePath: 'tb/tb_mini_cpu.vhd',
+              lineHint: 13,
+              forbiddenConstruct: 'self-checking assertion/report failure at 27ns: FAIL PC after reset',
+              legalReplacementPattern: 'repair the CPU reset/fetch/TB timing contract; do not delete, weaken, skip, rename, or silence the assertion',
+              assertionLabel: 'PC after reset',
+              simulationTime: '27ns',
+              expectedBehavior: 'Program-counter/fetch sequencing must match the self-checking expectation at the reported simulation time.',
+              relatedSourcePaths: ['src/mini_cpu_pkg.vhd', 'src/cpu_top.vhd'],
+            },
+            {
+              code: 'cpu_control_signal_behavior_mismatch',
+              category: 'simulation_success',
+              message: 'tb/tb_mini_cpu.vhd:16: assertion failed at 37ns: FAIL DM_WE on ADD',
+              excerpt: 'FAIL DM_WE on ADD',
+              relativePath: 'tb/tb_mini_cpu.vhd',
+              lineHint: 16,
+              forbiddenConstruct: 'self-checking assertion/report failure at 37ns: FAIL DM_WE on ADD',
+              legalReplacementPattern: 'repair the CPU decode/control write-enable timing contract; do not delete, weaken, skip, rename, or silence the assertion',
+              assertionLabel: 'DM_WE on ADD',
+              simulationTime: '37ns',
+              expectedBehavior: 'CPU decode/control write-enable behavior must match the self-checking expectation at the reported simulation time.',
+              relatedSourcePaths: ['src/mini_cpu_pkg.vhd', 'src/cpu_top.vhd'],
+            },
+          ],
+        };
+        throw error;
+      }
+
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation for tb_mini_cpu.' },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.match(seenPrompts[1] || '', /cpu_reset_pc_behavior_mismatch/);
+  assert.match(seenPrompts[1] || '', /cpu_control_signal_behavior_mismatch/);
+  assert.match(seenPrompts[1] || '', /### tb\/tb_mini_cpu\.vhd/);
+  assert.match(seenPrompts[1] || '', /AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus/);
+  assert.match(seenPrompts[1] || '', /pm_data <= OP_ADD/);
+  assert.match(seenPrompts[1] || '', /check_eq\("PC after reset"/);
+  assert.match(seenPrompts[1] || '', /### src\/mini_cpu_pkg\.vhd/);
+  assert.match(seenPrompts[1] || '', /### src\/cpu_top\.vhd/);
+  assert.doesNotMatch(seenPrompts[1] || '', /### docs\/notes\.md/);
+
+  const masterLog = await fs.readFile(path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.log'), 'utf8');
+  assert.match(masterLog, /Behavioral context: failing TB window included=yes instruction sequence found=yes CPU RTL files included=.*mini_cpu_pkg\.vhd.*cpu_top\.vhd/);
 });
 
 test('runFpgaArchitectStressLoop narrows repair continuation to file paths extracted from raw failure text', async () => {

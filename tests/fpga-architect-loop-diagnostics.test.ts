@@ -81,6 +81,20 @@ test('classifyFpgaArchitectLoopFailure maps illegal prefix operator failures int
   assert.equal(diagnostic.label, 'Illegal Operator Usage');
 });
 
+test('classifyFpgaArchitectLoopFailure maps current enum and conversion escapes into stable categories', () => {
+  const enumDiagnostic = classifyFpgaArchitectLoopFailure(
+    'src/spi_master.vhd:59:11:error: no choice for SPI_WAIT',
+  );
+  const conversionDiagnostic = classifyFpgaArchitectLoopFailure(
+    'src/regfile.vhd:39:28:error: conversion allowed only between closely related types safe_idx := to_integer(unsigned(addr_w_i));',
+  );
+
+  assert.equal(enumDiagnostic.category, 'interface_declaration_misuse');
+  assert.notEqual(enumDiagnostic.category, 'other');
+  assert.equal(conversionDiagnostic.category, 'numeric_std_typing');
+  assert.notEqual(conversionDiagnostic.category, 'other');
+});
+
 test('classifyFpgaArchitectLoopFailure maps GHDL bound-check failures into runtime bound risk', () => {
   const diagnostic = classifyFpgaArchitectLoopFailure(
     'Generated VHDL failed GHDL simulation for tb_dsp_chain: src/dsp_chain.vhd:87:9:error: bound check failure at fft_stage_proc',
@@ -139,4 +153,60 @@ test('classifyFpgaArchitectLoopFailure maps raw named port-map formal errors int
 
   assert.equal(diagnostic.category, 'interface_declaration_misuse');
   assert.ok(diagnostic.ruleIds.includes('ghdl-instantiation-rules'));
+});
+
+test('classifyFpgaArchitectLoopFailure maps testbench DUT wiring failures into a stable category', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
+    message: 'AI job failed: testbench checks signal "res_sig", but that signal is not driven by a DUT output port or any local driver.',
+    generatedVhdlValidation: {
+      ok: false,
+      stage: 'prevalidate',
+      summary: 'testbench structural validation failed',
+      logs: [],
+      validatedTopEntities: [],
+      failureCode: 'testbench_missing_dut_instantiation',
+      failureCategory: 'testbench_structure',
+      ruleIds: [],
+      failureDetails: [
+        {
+          code: 'checked_signal_not_dut_driven',
+          category: 'testbench_structure',
+          message: 'tb/alu_tb.vhd: checks signal res_sig but it is not driven by the DUT.',
+          excerpt: 'check_eq("ADD", res_sig, x"08")',
+        },
+      ],
+    },
+  });
+
+  assert.equal(diagnostic.category, 'testbench_structure');
+  assert.equal(diagnostic.label, 'Testbench DUT Wiring');
+  assert.ok(diagnostic.ruleIds.includes('ghdl-self-checking-testbenches'));
+});
+
+test('classifyFpgaArchitectLoopFailure maps ALU behavioral failures into simulation assertion', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
+    message: 'Generated VHDL failed GHDL simulation for tb_alu: tb/tb_alu.vhd:38:5:@37ns:(report error): FAIL ADD_CARRY',
+    generatedVhdlValidation: {
+      ok: false,
+      stage: 'simulate',
+      summary: 'Generated VHDL failed GHDL simulation',
+      logs: [],
+      validatedTopEntities: [],
+      failureCode: 'alu_flag_behavior_mismatch',
+      failureCategory: 'simulation_success',
+      ruleIds: [],
+      failureDetails: [
+        {
+          code: 'alu_flag_behavior_mismatch',
+          category: 'simulation_success',
+          message: 'tb/tb_alu.vhd:38: assertion failed at 37ns: FAIL ADD_CARRY',
+          excerpt: 'FAIL ADD_CARRY',
+        },
+      ],
+    },
+  });
+
+  assert.equal(diagnostic.category, 'simulation_assertion');
+  assert.equal(diagnostic.label, 'Simulation Assertion');
+  assert.ok(diagnostic.ruleIds.includes('ghdl-numeric-std-rules'));
 });

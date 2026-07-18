@@ -1,0 +1,16 @@
+{
+  "analysis_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/alu_tb.vhd"
+  ],
+  "top_testbench": "tb_alu",
+  "expected_result": "TEST PASSED",
+  "ghdl_commands": [
+    "ghdl -a --std=08 --workdir=work src/alu_pkg.vhd",
+    "ghdl -a --std=08 --workdir=work src/alu.vhd",
+    "ghdl -a --std=08 --workdir=work tb/alu_tb.vhd",
+    "ghdl -e --std=08 --workdir=work tb_alu",
+    "ghdl -r --std=08 --workdir=work tb_alu --vcd=waves/alu_tb.vcd --stop-time=1us"
+  ]
+}

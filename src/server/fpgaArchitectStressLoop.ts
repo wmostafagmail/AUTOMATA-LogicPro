@@ -11,6 +11,7 @@ import {
 import {
   inferFailureDetailsFromGhdlMessage,
   type GeneratedVhdlFailureDetail,
+  type GeneratedVhdlRepairAuditEntry,
   type GeneratedVhdlValidationResult,
 } from './generatedVhdlValidation';
 import {
@@ -54,6 +55,58 @@ type PreparedAiAnalyzeRequestLike = {
 type FpgaArchitectAttemptErrorLike = Error & {
   generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
 };
+
+function formatInnerRepairAuditForLog(repairAudit: GeneratedVhdlRepairAuditEntry[] | null | undefined) {
+  if (!repairAudit || repairAudit.length === 0) {
+    return 'Inner repair audit: none recorded';
+  }
+  const compactedAudit: GeneratedVhdlRepairAuditEntry[] = [];
+  for (const entry of repairAudit) {
+    const previous = compactedAudit[compactedAudit.length - 1];
+    const previousKey = previous
+      ? [
+        previous.repairAttempt,
+        previous.failureCode || 'unknown',
+        previous.fileLine || 'unknown',
+        previous.repairType,
+        previous.changedFiles.join(','),
+        previous.postRepairValidation.ok ? 'PASS' : 'FAIL',
+        previous.postRepairValidation.stage,
+        previous.postRepairValidation.failureCode || 'unknown',
+        previous.postRepairValidation.summary,
+      ].join('\u0001')
+      : null;
+    const entryKey = [
+      entry.repairAttempt,
+      entry.failureCode || 'unknown',
+      entry.fileLine || 'unknown',
+      entry.repairType,
+      entry.changedFiles.join(','),
+      entry.postRepairValidation.ok ? 'PASS' : 'FAIL',
+      entry.postRepairValidation.stage,
+      entry.postRepairValidation.failureCode || 'unknown',
+      entry.postRepairValidation.summary,
+    ].join('\u0001');
+    if (previousKey === entryKey) {
+      continue;
+    }
+    compactedAudit.push(entry);
+  }
+  const compactedCount = repairAudit.length - compactedAudit.length;
+  return [
+    '=== Inner Repair Audit ===',
+    ...(compactedCount > 0 ? [`Compacted repeated repair audit entries: ${compactedCount}`] : []),
+    ...compactedAudit.map((entry) => [
+      `- repairAttempt: ${entry.repairAttempt}`,
+      `  failureCode: ${entry.failureCode || 'unknown'}`,
+      `  file:line: ${entry.fileLine || 'unknown'}`,
+      `  repairType: ${entry.repairType}`,
+      `  changedFiles: ${entry.changedFiles.length > 0 ? entry.changedFiles.join(', ') : 'none'}`,
+      `  postRepairValidation: ${entry.postRepairValidation.ok ? 'PASS' : 'FAIL'} ${entry.postRepairValidation.stage}` +
+        `${entry.postRepairValidation.failureCode ? `/${entry.postRepairValidation.failureCode}` : ''} - ${entry.postRepairValidation.summary}`,
+    ].join('\n')),
+  ].join('\n');
+}
 
 export type FpgaArchitectSweepFeedbackItem = {
   failureCode: string | null;
@@ -367,7 +420,20 @@ function extractContinuationLineHints(
 }
 
 function isCpuBehavioralFailureDetail(detail: GeneratedVhdlFailureDetail) {
-  return detail.code === 'cpu_halt_behavior_mismatch';
+  return (
+    detail.code === 'cpu_halt_behavior_mismatch'
+    || detail.code === 'cpu_reset_pc_behavior_mismatch'
+    || detail.code === 'cpu_fetch_sequence_mismatch'
+    || detail.code === 'cpu_control_signal_behavior_mismatch'
+    || (
+      detail.code === 'simulation_unknown_metavalue'
+      && /\bcpu|processor|risc|pc|fetch|decode|opcode|halt|dm_we\b/i.test([
+        detail.relativePath || '',
+        detail.assertionLabel || '',
+        detail.message || '',
+      ].join(' '))
+    )
+  );
 }
 
 function hasCpuBehavioralFailure(failureDetails: GeneratedVhdlFailureDetail[]) {
@@ -376,9 +442,14 @@ function hasCpuBehavioralFailure(failureDetails: GeneratedVhdlFailureDetail[]) {
 
 function isCpuBehavioralRelatedPath(relativePath: string) {
   const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  const baseName = normalized.split('/').pop() || normalized;
   if (!/\.(?:vhd|vhdl)$/.test(normalized)) return false;
   if (/\/tb\//.test(normalized) && /cpu|core|processor|risc|tb_/.test(normalized)) return true;
-  return /(^|\/)(cpu|cpu_top|cpu_pkg|decoder|control|control_fsm|program_counter|pc|alu|register_file|regfile|instruction|instr|rom|memory)[a-z0-9_-]*\.(?:vhd|vhdl)$/.test(normalized);
+  return (
+    /\b(cpu|core|processor|risc|decoder|control|control_fsm|program_counter|pc|alu|register_file|regfile|instruction|instr|rom|memory)\b/.test(baseName)
+    || /cpu|core|processor|risc|decoder|control|control_fsm|program_counter|pc|alu|register_file|regfile|instruction|instr|rom|memory/.test(baseName)
+    || /_pkg\.(?:vhd|vhdl)$/.test(baseName)
+  );
 }
 
 function scoreCpuBehavioralRelatedPath(relativePath: string) {
@@ -396,11 +467,11 @@ function collectCpuBehavioralStimulusLineHints(content: string) {
   const lines = content.split(/\r\n|\r|\n/);
   lines.forEach((line, index) => {
     if (
-      /\b(?:instr|instruction|opcode|program|rom)[a-zA-Z0-9_]*\s*<=/i.test(line)
+      /\b(?:instr|instruction|opcode|program|rom|pm_data|imem_data)[a-zA-Z0-9_]*\s*<=/i.test(line)
       || /\b(?:rst|reset)[a-zA-Z0-9_]*\s*<=/i.test(line)
       || /\bwait\s+(?:for|until)\b/i.test(line)
       || /\bcheck_[a-zA-Z0-9_]*\s*\(/i.test(line)
-      || /\bFAIL\s+halt/i.test(line)
+      || /\bFAIL\b/i.test(line)
     ) {
       hints.push(index + 1);
     }
@@ -412,7 +483,29 @@ function summarizeCpuBehavioralInstructionSequence(content: string) {
   const sequence = content
     .split(/\r\n|\r|\n/)
     .map((line) => line.trim())
-    .filter((line) => /\b(?:instr|instruction|opcode)[a-zA-Z0-9_]*\s*<=/.test(line))
+    .filter((line) => /\b(?:instr|instruction|opcode|pm_data|imem_data)[a-zA-Z0-9_]*\s*<=/.test(line))
+    .slice(0, 12);
+  return sequence.length > 0 ? sequence : [];
+}
+
+function summarizeCpuBehavioralProgramSequence(content: string) {
+  const sequence = content
+    .split(/\r\n|\r|\n/)
+    .map((line) => line.trim())
+    .filter((line) => (
+      /\b[0-9]+\s*=>\s*/.test(line)
+      || /\bothers\s*=>\s*/i.test(line)
+      || /\b(?:OP_|opcode|instr|program|rom|mem)\b/i.test(line)
+    ))
+    .slice(0, 18);
+  return sequence.length > 0 ? sequence : [];
+}
+
+function summarizeCpuBehavioralPcExpectations(content: string) {
+  const sequence = content
+    .split(/\r\n|\r|\n/)
+    .map((line) => line.trim())
+    .filter((line) => /\bpc(?:_q|_out|_val|_addr)?\b/i.test(line) && (/\bFAIL\b/i.test(line) || /=|\/=|report|assert/i.test(line)))
     .slice(0, 12);
   return sequence.length > 0 ? sequence : [];
 }
@@ -523,13 +616,35 @@ async function collectSweepContinuationFiles(
       const instructionSequence = includeCpuBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
         ? summarizeCpuBehavioralInstructionSequence(content)
         : [];
-      const behaviorHeader = instructionSequence.length > 0
-        ? [
-          '-- AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus observed in this testbench.',
-          ...instructionSequence.map((line) => `--   ${line}`),
-          '',
-        ].join('\n')
-        : '';
+      const programSequence = includeCpuBehavioralContext && /\b(?:rom|program|pmem|imem|memory)\b/i.test(normalizedRelativePath)
+        ? summarizeCpuBehavioralProgramSequence(content)
+        : [];
+      const pcExpectations = includeCpuBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
+        ? summarizeCpuBehavioralPcExpectations(content)
+        : [];
+      const behaviorHeader = [
+        ...(instructionSequence.length > 0
+          ? [
+            '-- AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus observed in this testbench.',
+            ...instructionSequence.map((line) => `--   ${line}`),
+            '',
+          ]
+          : []),
+        ...(programSequence.length > 0
+          ? [
+            '-- AUTOMATA_BEHAVIOR_CONTEXT: CPU program stimulus observed in ROM/program memory.',
+            ...programSequence.map((line) => `--   ${line}`),
+            '',
+          ]
+          : []),
+        ...(pcExpectations.length > 0
+          ? [
+            '-- AUTOMATA_BEHAVIOR_CONTEXT: CPU PC expectations observed in this testbench.',
+            ...pcExpectations.map((line) => `--   ${line}`),
+            '',
+          ]
+          : []),
+      ].join('\n');
       const trimmed = focusedContent.slice(0, perFileCharLimit);
       const renderedContent = `${behaviorHeader}${trimmed}`;
       if (totalBytes + renderedContent.length > totalCharLimit) {
@@ -691,7 +806,7 @@ function buildBehavioralContextLogLine(
     return 'Behavioral context: none';
   }
   const failingTbIncluded = continuationFiles.some((file) => /\/tb\/|^tb\//i.test(file.relativePath));
-  const instructionSequenceFound = continuationFiles.some((file) => /AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus/i.test(file.content));
+  const instructionSequenceFound = continuationFiles.some((file) => /AUTOMATA_BEHAVIOR_CONTEXT: CPU (?:instruction|program) stimulus/i.test(file.content));
   const cpuRtlFiles = continuationFiles
     .filter((file) => !/\/tb\/|^tb\//i.test(file.relativePath) && isCpuBehavioralRelatedPath(file.relativePath))
     .map((file) => file.relativePath);
@@ -900,6 +1015,7 @@ export async function runFpgaArchitectStressLoop(params: {
   parseFpgaArchitectResponse: (...args: any[]) => any;
   buildFpgaArchitectRetryPrompt: (...args: any[]) => string;
   buildFpgaArchitectJsonRepairPrompt: (...args: any[]) => string;
+  buildFpgaArchitectProjectStructureRepairPrompt: (...args: any[]) => string;
   buildFpgaArchitectCompactRetryPrompt: (...args: any[]) => string;
   buildFpgaArchitectTestRunPrompt: typeof buildFpgaArchitectTestRunPrompt;
   saveFpgaArchitectProject: (...args: any[]) => Promise<any>;
@@ -923,6 +1039,11 @@ export async function runFpgaArchitectStressLoop(params: {
     totalDesigns: number;
     currentDesignAttempt: number;
     attemptsPerDesign: number;
+    innerRepairAttempt?: number;
+    innerRepairTotal?: number;
+    innerRepairFailureCode?: string;
+    innerRepairFileLine?: string;
+    innerRepairStatus?: string;
   }) => void;
 }) {
   const {
@@ -963,6 +1084,7 @@ export async function runFpgaArchitectStressLoop(params: {
     parseFpgaArchitectResponse,
     buildFpgaArchitectRetryPrompt,
     buildFpgaArchitectJsonRepairPrompt,
+    buildFpgaArchitectProjectStructureRepairPrompt,
     buildFpgaArchitectCompactRetryPrompt,
     buildFpgaArchitectTestRunPrompt,
     saveFpgaArchitectProject,
@@ -1064,6 +1186,11 @@ export async function runFpgaArchitectStressLoop(params: {
     totalDesigns: designPresets.length,
     currentDesignAttempt: 0,
     attemptsPerDesign,
+    innerRepairAttempt: 0,
+    innerRepairTotal: 0,
+    innerRepairFailureCode: '',
+    innerRepairFileLine: '',
+    innerRepairStatus: '',
   });
 
   for (let designIndex = 0; designIndex < designPresets.length; designIndex += 1) {
@@ -1124,6 +1251,11 @@ export async function runFpgaArchitectStressLoop(params: {
         totalDesigns: designPresets.length,
         currentDesignAttempt: designAttempt,
         attemptsPerDesign,
+        innerRepairAttempt: 0,
+        innerRepairTotal: 0,
+        innerRepairFailureCode: '',
+        innerRepairFileLine: '',
+        innerRepairStatus: '',
       });
 
       const attemptHeader = buildAttemptLogHeader({
@@ -1279,11 +1411,50 @@ export async function runFpgaArchitectStressLoop(params: {
           parseFpgaArchitectResponse,
           buildFpgaArchitectRetryPrompt,
           buildFpgaArchitectJsonRepairPrompt,
+          buildFpgaArchitectProjectStructureRepairPrompt,
           buildFpgaArchitectCompactRetryPrompt,
           buildFpgaArchitectTestRunPrompt,
           saveFpgaArchitectProject,
           buildFpgaArchitectMarkdownReport,
           validateGeneratedVhdlWithGhdl,
+          onInnerRepairProgress: async (repairProgress: {
+            repairAttempt: number;
+            repairTotal: number;
+            failureCode: string;
+            fileLine: string;
+            status: string;
+          }) => {
+            onProgress?.({
+              currentLoop: activeGlobalAttempt,
+              totalLoops: totalAttempts,
+              completedAttempts: results.length,
+              failures: globalFailures,
+              successes: results.length - globalFailures,
+              providerPaused: false,
+              providerMessage: '',
+              providerRetryAt: '',
+              currentDesignKey: preset.key,
+              currentDesignLabel: preset.label,
+              currentDesignIndex: designIndex + 1,
+              totalDesigns: designPresets.length,
+              currentDesignAttempt: designAttempt,
+              attemptsPerDesign,
+              innerRepairAttempt: repairProgress.repairAttempt,
+              innerRepairTotal: repairProgress.repairTotal,
+              innerRepairFailureCode: repairProgress.failureCode,
+              innerRepairFileLine: repairProgress.fileLine,
+              innerRepairStatus: repairProgress.status,
+            });
+            const progressLine = [
+              'INNER_REPAIR_PROGRESS',
+              `attempt=${repairProgress.repairAttempt}/${repairProgress.repairTotal}`,
+              `status=${repairProgress.status}`,
+              `failureCode=${repairProgress.failureCode || 'unknown'}`,
+              `fileLine=${repairProgress.fileLine || 'unknown'}`,
+            ].join(' | ');
+            await appendLog(designLogPath, progressLine);
+            await appendLog(masterLogPath, `${preset.label}\n${progressLine}`);
+          },
         });
 
         const successMessage = [
@@ -1326,6 +1497,11 @@ export async function runFpgaArchitectStressLoop(params: {
           totalDesigns: designPresets.length,
           currentDesignAttempt: designAttempt,
           attemptsPerDesign,
+          innerRepairAttempt: 0,
+          innerRepairTotal: 0,
+          innerRepairFailureCode: '',
+          innerRepairFileLine: '',
+          innerRepairStatus: '',
         });
         await appendLog(designLogPath, successMessage);
         await appendLog(masterLogPath, `PASS\n${preset.label}\n${successMessage}`);
@@ -1359,6 +1535,11 @@ export async function runFpgaArchitectStressLoop(params: {
             totalDesigns: designPresets.length,
             currentDesignAttempt: designAttempt,
             attemptsPerDesign,
+            innerRepairAttempt: 0,
+            innerRepairTotal: 0,
+            innerRepairFailureCode: '',
+            innerRepairFileLine: '',
+            innerRepairStatus: '',
           });
           await appendLog(
             designLogPath,
@@ -1410,6 +1591,11 @@ export async function runFpgaArchitectStressLoop(params: {
             totalDesigns: designPresets.length,
             currentDesignAttempt: designAttempt,
             attemptsPerDesign,
+            innerRepairAttempt: 0,
+            innerRepairTotal: 0,
+            innerRepairFailureCode: '',
+            innerRepairFileLine: '',
+            innerRepairStatus: '',
           });
           continue;
         }
@@ -1484,6 +1670,11 @@ export async function runFpgaArchitectStressLoop(params: {
           totalDesigns: designPresets.length,
           currentDesignAttempt: designAttempt,
           attemptsPerDesign,
+          innerRepairAttempt: 0,
+          innerRepairTotal: 0,
+          innerRepairFailureCode: '',
+          innerRepairFileLine: '',
+          innerRepairStatus: '',
         });
         await appendLog(
           designLogPath,
@@ -1496,6 +1687,7 @@ export async function runFpgaArchitectStressLoop(params: {
             `Poisoned repair continuation: ${poisonedRepairContinuation ? 'yes' : 'no'}`,
             `Next continuation files: ${nextContinuationFiles.length}`,
             behavioralContextLogLine,
+            formatInnerRepairAuditForLog(annotatedError?.generatedVhdlValidation?.repairAudit),
           ].join('\n'),
         );
         await appendLog(
@@ -1510,6 +1702,7 @@ export async function runFpgaArchitectStressLoop(params: {
             `Poisoned repair continuation: ${poisonedRepairContinuation ? 'yes' : 'no'}`,
             `Next continuation files: ${nextContinuationFiles.length}`,
             behavioralContextLogLine,
+            formatInnerRepairAuditForLog(annotatedError?.generatedVhdlValidation?.repairAudit),
           ].join('\n'),
         );
         designAttempt += 1;

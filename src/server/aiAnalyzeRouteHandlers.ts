@@ -33,6 +33,11 @@ type BeginTrackedJobResult = {
     totalDesigns?: number;
     currentDesignAttempt?: number;
     attemptsPerDesign?: number;
+    innerRepairAttempt?: number;
+    innerRepairTotal?: number;
+    innerRepairFailureCode?: string;
+    innerRepairFileLine?: string;
+    innerRepairStatus?: string;
   }) => void;
 };
 
@@ -116,6 +121,7 @@ export function createAiAnalyzeRouteContext(params: {
   parseFpgaArchitectResponse: (...args: any[]) => FpgaArchitectProject;
   buildFpgaArchitectRetryPrompt: (...args: any[]) => string;
   buildFpgaArchitectJsonRepairPrompt: (...args: any[]) => string;
+  buildFpgaArchitectProjectStructureRepairPrompt: (...args: any[]) => string;
   buildFpgaArchitectCompactRetryPrompt: (...args: any[]) => string;
   buildFpgaArchitectTestRunPrompt: (...args: any[]) => string;
   saveFpgaArchitectProject: (...args: any[]) => Promise<any>;
@@ -159,6 +165,7 @@ export function createAiAnalyzeRouteContext(params: {
     parseFpgaArchitectResponse,
     buildFpgaArchitectRetryPrompt,
     buildFpgaArchitectJsonRepairPrompt,
+    buildFpgaArchitectProjectStructureRepairPrompt,
     buildFpgaArchitectCompactRetryPrompt,
     buildFpgaArchitectTestRunPrompt,
     saveFpgaArchitectProject,
@@ -384,6 +391,7 @@ export function createAiAnalyzeRouteContext(params: {
         parseFpgaArchitectResponse,
         buildFpgaArchitectRetryPrompt,
         buildFpgaArchitectJsonRepairPrompt,
+        buildFpgaArchitectProjectStructureRepairPrompt,
         buildFpgaArchitectCompactRetryPrompt,
         buildFpgaArchitectTestRunPrompt,
         saveFpgaArchitectProject,
@@ -501,12 +509,33 @@ export function createAiAnalyzeRouteContext(params: {
         parseFpgaArchitectResponse,
         buildFpgaArchitectRetryPrompt,
         buildFpgaArchitectJsonRepairPrompt,
+        buildFpgaArchitectProjectStructureRepairPrompt,
         buildFpgaArchitectCompactRetryPrompt,
         buildFpgaArchitectTestRunPrompt,
         saveFpgaArchitectProject,
         buildFpgaArchitectMarkdownReport,
         validateGeneratedVhdlWithGhdl,
-        onProgress: ({ currentLoop, totalLoops, completedAttempts, failures, successes, providerPaused, providerMessage, providerRetryAt, currentDesignKey, currentDesignLabel, currentDesignIndex, totalDesigns, currentDesignAttempt, attemptsPerDesign }) => {
+        onProgress: ({
+          currentLoop,
+          totalLoops,
+          completedAttempts,
+          failures,
+          successes,
+          providerPaused,
+          providerMessage,
+          providerRetryAt,
+          currentDesignKey,
+          currentDesignLabel,
+          currentDesignIndex,
+          totalDesigns,
+          currentDesignAttempt,
+          attemptsPerDesign,
+          innerRepairAttempt,
+          innerRepairTotal,
+          innerRepairFailureCode,
+          innerRepairFileLine,
+          innerRepairStatus,
+        }) => {
           updateTrackedJobProgress({
             currentLoop,
             totalLoops,
@@ -522,6 +551,11 @@ export function createAiAnalyzeRouteContext(params: {
             totalDesigns,
             currentDesignAttempt,
             attemptsPerDesign,
+            innerRepairAttempt,
+            innerRepairTotal,
+            innerRepairFailureCode,
+            innerRepairFileLine,
+            innerRepairStatus,
           });
         },
       });

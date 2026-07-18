@@ -1,0 +1,15 @@
+{
+  "top_testbench": "tb_uart_spi_bridge",
+  "expected_result": "TEST PASSED",
+  "analysis_order": [
+    "src/uart_spi_bridge_pkg.vhd",
+    "src/uart_rx.vhd",
+    "src/uart_tx.vhd",
+    "src/spi_master.vhd",
+    "src/tx_fifo.vhd",
+    "src/rx_fifo.vhd",
+    "src/bridge_fsm.vhd",
+    "src/uart_spi_bridge.vhd",
+    "tb/tb_uart_spi_bridge.vhd"
+  ]
+}

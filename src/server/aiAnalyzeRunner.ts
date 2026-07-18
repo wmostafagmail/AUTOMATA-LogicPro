@@ -18,6 +18,7 @@ import {
 import { applyDeterministicGeneratedCodeRepairs } from './deterministicGeneratedCodeRepair';
 import type {
   GeneratedVhdlArtifactForValidation,
+  GeneratedVhdlRepairAuditEntry,
   GeneratedVhdlValidationResult,
 } from './generatedVhdlValidation';
 
@@ -45,6 +46,7 @@ type SavedGeneratedVhdlArtifact = {
 };
 
 const FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS = 10;
+const FPGA_ARCHITECT_MAX_PROJECT_STRUCTURE_REPAIR_ATTEMPTS = 2;
 const GENERATED_CODE_MAX_DETERMINISTIC_REPAIR_PASSES = 5;
 
 type SavedFpgaArchitectArtifact = {
@@ -85,6 +87,181 @@ type ExtractedArtifact = {
 type AnnotatedAiAnalyzeError = Error & {
   generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
 };
+
+function summarizeRepairFailureLocation(validation: GeneratedVhdlValidationResult) {
+  const firstDetail = validation.failureDetails?.[0];
+  if (firstDetail?.relativePath && firstDetail.lineHint) {
+    return `${firstDetail.relativePath}:${firstDetail.lineHint}`;
+  }
+  if (firstDetail?.relativePath) {
+    return firstDetail.relativePath;
+  }
+  const summaryMatch = validation.summary.match(/([^:\n]+\.(?:vhd|vhdl)):(\d+)/i);
+  if (summaryMatch) {
+    return `${summaryMatch[1]}:${summaryMatch[2]}`;
+  }
+  return null;
+}
+
+function getRepairFailureCode(validation: GeneratedVhdlValidationResult) {
+  return validation.failureCode || validation.failureDetails?.[0]?.code || null;
+}
+
+function collectGeneratedVhdlFailureCodes(validation: GeneratedVhdlValidationResult) {
+  return new Set([
+    validation.failureCode,
+    ...(validation.failureDetails || []).map((detail) => detail.code),
+  ].filter(Boolean) as string[]);
+}
+
+function isFpgaArchitectProjectStructureContractFailure(validation: GeneratedVhdlValidationResult | null | undefined) {
+  if (!validation || validation.ok) return false;
+  const failureCodes = collectGeneratedVhdlFailureCodes(validation);
+  return (
+    failureCodes.has('unresolved_work_unit')
+    || failureCodes.has('missing_work_package_file')
+    || failureCodes.has('package_symbol_not_visible')
+  );
+}
+
+function summarizePostRepairValidation(validation: GeneratedVhdlValidationResult) {
+  return {
+    ok: validation.ok,
+    stage: validation.stage,
+    failureCode: getRepairFailureCode(validation),
+    summary: validation.summary,
+  };
+}
+
+function compactGeneratedVhdlValidationSummary(validation: GeneratedVhdlValidationResult) {
+  const details = (validation.failureDetails || [])
+    .slice(0, 8)
+    .map((detail) => ({
+      code: detail.code,
+      category: detail.category,
+      file: detail.relativePath || null,
+      line: detail.lineHint || null,
+      excerpt: detail.excerpt ? detail.excerpt.slice(0, 240) : '',
+      forbiddenConstruct: detail.forbiddenConstruct || null,
+      legalReplacementPattern: detail.legalReplacementPattern || null,
+      message: detail.message.slice(0, 360),
+    }));
+
+  return JSON.stringify({
+    ok: validation.ok,
+    stage: validation.stage,
+    failureCode: validation.failureCode || null,
+    failureCategory: validation.failureCategory || null,
+    summary: validation.summary,
+    details,
+  }, null, 2);
+}
+
+function buildFpgaArchitectProjectStructureSnapshot(project: FpgaArchitectProject) {
+  const files = (project.files || []).map((file) => ({
+    path: file.path,
+    fileType: file.fileType,
+    purpose: file.purpose,
+    declarations: [
+      ...Array.from(file.content.matchAll(/\bpackage\s+(?!body\b)([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/gi)).map((match) => `package ${match[1]}`),
+      ...Array.from(file.content.matchAll(/\bentity\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\b/gi)).map((match) => `entity ${match[1]}`),
+    ],
+    workReferences: [
+      ...Array.from(file.content.matchAll(/\bentity\s+work\.([a-zA-Z][a-zA-Z0-9_]*)\b/gi)).map((match) => `entity work.${match[1]}`),
+      ...Array.from(file.content.matchAll(/\buse\s+work\.([a-zA-Z][a-zA-Z0-9_]*)(?:\.[a-zA-Z][a-zA-Z0-9_]*)?\s*;/gi)).map((match) => `use work.${match[1]}`),
+    ],
+  }));
+
+  const snapshot = JSON.stringify({
+    projectName: project.projectName,
+    topEntity: project.topEntity,
+    vhdlStandard: project.vhdlStandard,
+    ghdl: {
+      analysisOrder: project.ghdl?.analysisOrder || [],
+      topTestbench: project.ghdl?.topTestbench || '',
+      runCommands: project.ghdl?.runCommands || [],
+    },
+    files,
+  }, null, 2);
+
+  const maxSnapshotChars = 12000;
+  return snapshot.length > maxSnapshotChars
+    ? `${snapshot.slice(0, maxSnapshotChars)}\n...<project structure snapshot truncated>`
+    : snapshot;
+}
+
+function formatRepairAuditEntry(entry: GeneratedVhdlRepairAuditEntry) {
+  return [
+    `repairAttempt=${entry.repairAttempt}`,
+    `failureCode=${entry.failureCode || 'unknown'}`,
+    `fileLine=${entry.fileLine || 'unknown'}`,
+    `repairType=${entry.repairType}`,
+    `changedFiles=${entry.changedFiles.length > 0 ? entry.changedFiles.join(', ') : 'none'}`,
+    `postRepairValidation=${entry.postRepairValidation.ok ? 'PASS' : 'FAIL'} ${entry.postRepairValidation.stage}` +
+      `${entry.postRepairValidation.failureCode ? `/${entry.postRepairValidation.failureCode}` : ''}: ${entry.postRepairValidation.summary}`,
+  ].join(' | ');
+}
+
+function getRepairAuditLogKey(entry: GeneratedVhdlRepairAuditEntry) {
+  return [
+    entry.repairAttempt,
+    entry.failureCode || 'unknown',
+    entry.fileLine || 'unknown',
+    entry.repairType,
+    entry.changedFiles.join(','),
+    entry.postRepairValidation.ok ? 'PASS' : 'FAIL',
+    entry.postRepairValidation.stage,
+    entry.postRepairValidation.failureCode || 'unknown',
+    entry.postRepairValidation.summary,
+  ].join('\u0001');
+}
+
+function compactRepairAuditForLog(audit: GeneratedVhdlRepairAuditEntry[]) {
+  const compacted: GeneratedVhdlRepairAuditEntry[] = [];
+  for (const entry of audit) {
+    const previous = compacted[compacted.length - 1];
+    if (previous && getRepairAuditLogKey(previous) === getRepairAuditLogKey(entry)) {
+      continue;
+    }
+    compacted.push(entry);
+  }
+  return compacted;
+}
+
+function withRepairAudit(
+  validation: GeneratedVhdlValidationResult,
+  audit: GeneratedVhdlRepairAuditEntry[],
+) {
+  if (audit.length === 0) {
+    return validation;
+  }
+  const compactedAudit = compactRepairAuditForLog(audit);
+  const compactedCount = audit.length - compactedAudit.length;
+  const auditLines = [
+    ...(compactedCount > 0 ? [`INNER_REPAIR_AUDIT | compactedRepeatedEntries=${compactedCount}`] : []),
+    ...compactedAudit.map((entry) => `INNER_REPAIR_AUDIT | ${formatRepairAuditEntry(entry)}`),
+  ];
+  return {
+    ...validation,
+    logs: [
+      ...validation.logs.filter((line) => !line.startsWith('INNER_REPAIR_AUDIT |')),
+      ...auditLines,
+    ],
+    repairAudit: audit,
+  };
+}
+
+function collectChangedRepairPaths(
+  beforeFiles: RepairableGeneratedFile[],
+  afterFiles: RepairableGeneratedFile[],
+) {
+  return afterFiles
+    .filter((file) => {
+      const before = beforeFiles.find((candidate) => candidate.absolutePath === file.absolutePath);
+      return before ? before.content !== file.content : true;
+    })
+    .map((file) => file.relativePath);
+}
 
 function macroRequiresPassingSimulation(macroId: AiMacroId) {
   return macroId === 'generate_vhdl_tb' || macroId === 'fpga_vhdl_architect';
@@ -274,6 +451,43 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Rewrite it as explicit comparisons, for example `if idx >= 0 and idx <= 15 then`.',
         '  Preserve the guarded-indexing intent and all surrounding testbench/DUT behavior.',
       ].join('\n'));
+    } else if (detail.code === 'incomplete_array_aggregate_choices') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing package/ROM/RAM initializer locally. Do not regenerate unrelated CPU files.',
+        '  Fixed-range array aggregates must cover every index or include a safe `others => ...` default of the element type.',
+        '  If the element type is a vector/numeric subtype such as data_t, unsigned, signed, or std_logic_vector, prefer a safe zero default such as `others => (others => \'0\')`.',
+        '  Preserve explicit initialized program/data entries and add only the missing default choices.',
+        detail.forbiddenConstruct ? `  Failing aggregate evidence: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'unconnected_required_input_port') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact instantiation locally. A required input formal was omitted from the named port map.',
+        '  Add a named association for the missing input using an existing correctly typed signal, constant, or a local adapter signal.',
+        '  Do not leave mandatory input formals open, and do not invent placeholder packages or rewrite unrelated components.',
+        detail.forbiddenConstruct ? `  Missing-port evidence: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required connection pattern: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'typed_port_width_mismatch' || detail.code === 'custom_numeric_subtype_port_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact typed boundary locally. Do not use broad casts across architectural boundaries.',
+        '  Named numeric subtypes such as addr_t and data_t are not interchangeable just because both normalize to unsigned.',
+        '  Use an exact formal subtype actual, or introduce a local adapter with explicit resize/slice/conversion whose width is proven from the package/entity declaration.',
+        '  Never repair this class by blindly wrapping the actual with unsigned(...) or std_logic_vector(...), especially on output/inout associations.',
+        detail.forbiddenConstruct ? `  Failing association: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required pattern: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'typed_equality_operand_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the comparison operands locally so both sides have the same numeric_std type.',
+        '  If the left side is unsigned, compare it to unsigned/to_unsigned(...), not std_logic_vector(...).',
+        '  If the left side is signed, compare it to signed/to_signed(...), not std_logic_vector(...).',
+        '  Preserve the check/assertion semantics; do not delete or weaken the comparison.',
+        detail.forbiddenConstruct ? `  Failing comparison: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'tb_string_formal_actual_constraint_mismatch') {
       sections.push([
         `- ${detail.code}`,
@@ -282,6 +496,31 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Replace constrained helper string formals with unconstrained read-only `string`, or remove the helper string formal entirely and report the literal directly at the call site.',
         '  Preserve helper behavior and the self-checking flow; only normalize the string contract so actual/formal lengths can vary safely across calls.',
       ].join('\n'));
+    } else if (detail.code === 'testbench_missing_dut_instantiation') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing testbench locally by adding the missing DUT instantiation. Do not regenerate unrelated RTL or weaken checks.',
+        '  Instantiate the intended DUT with `entity work.<dut_name>` and a named `port map` that uses only exact formal port names from the DUT entity.',
+        '  Connect DUT input ports to stimulus signals/constants and connect DUT output ports to observed signals used by check/assert helpers.',
+        detail.legalReplacementPattern ? `  Required pattern: ${detail.legalReplacementPattern}` : '',
+        '  After the repair, every checked DUT result/status signal must be driven by the DUT output path, not left floating.',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'checked_signal_not_dut_driven') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing testbench wiring locally. A self-checking signal must be driven by the DUT, a deliberate local reference model, or a clearly initialized driver before it is checked.',
+        '  Prefer connecting the signal to the correct DUT output in the DUT instantiation. Do not satisfy the check by assigning expected values directly to the observed DUT-output signal.',
+        detail.forbiddenConstruct ? `  Failing check evidence: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required pattern: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'testbench_drives_dut_output_signal') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the existing testbench locally. Testbench stimulus must never assign to a signal that is mapped to a DUT out/buffer/inout output path.',
+        '  Remove the testbench assignment to the observed output signal and let the DUT drive it through the port map.',
+        '  If a separate expected value is needed, create a distinct reference/expected signal or variable; do not reuse the DUT output actual as stimulus.',
+        detail.forbiddenConstruct ? `  Failing output-drive evidence: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'subprogram_body_inside_package_declaration') {
       sections.push([
         `- ${detail.code}`,
@@ -334,8 +573,26 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
       sections.push([
         `- ${detail.code}`,
         '  Repair the failing port map locally instead of regenerating the design.',
-        '  Match the actual expression to the formal type exactly at the association boundary: use unsigned(...) or signed(...) only when the formal port requires that type, and remove raw std_logic_vector wrapping that breaks typed formals.',
+        '  Match the actual expression to the formal type exactly at the association boundary.',
+        '  If the actual is an integer/natural and the formal is unsigned/signed, use to_unsigned(value, FORMAL_WIDTH) or to_signed(value, FORMAL_WIDTH), or declare the TB actual with the exact formal type/range.',
+        '  Never repair integer-to-unsigned/signed mismatches with raw unsigned(integer_value) or signed(integer_value); that is illegal VHDL.',
+        '  Never place conversion expressions on out/inout port actuals.',
         '  Preserve the entity interface and keep the fix at the specific instantiation unless the same typed mismatch is structurally repeated elsewhere in the same file.',
+      ].join('\n'));
+    } else if (detail.code === 'enum_case_choice_missing') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the FSM/case statement locally. VHDL case statements over enum values must cover every enum literal or include a safe when others branch.',
+        detail.forbiddenConstruct ? `  Failing evidence: ${detail.forbiddenConstruct}` : '  Use the validator/GHDL evidence to identify the missing enum choice.',
+        '  Add explicit behavior for the missing state(s), or add a safe default branch that preserves reset/idle/error behavior. Do not remove the enum literal from the type just to silence GHDL.',
+      ].join('\n'));
+    } else if (detail.code === 'unsigned_conversion_on_non_vector') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair numeric_std conversion locally. Do not call unsigned(...) or signed(...) on integer/natural/custom scalar values.',
+        '  If the value is already integer/natural, use it directly instead of to_integer(unsigned(value)).',
+        '  If the value is already unsigned/signed, call to_integer(value) directly.',
+        '  If a vector encoding is required, create a correctly typed vector first using to_unsigned(value, width) or to_signed(value, width).',
       ].join('\n'));
     } else if (detail.code === 'out_port_actual_conversion') {
       sections.push([
@@ -428,17 +685,51 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  In the testbench: assert reset long enough, release it on a clock edge, wait at least one full clock after reset release before checking idle/status outputs, and avoid to_integer on vectors until they are known or explicitly guarded.',
         '  Preserve passing files/checks and repair only the files needed to remove U/X/metavalue behavior.',
       ].join('\n'));
-    } else if (detail.code === 'cpu_halt_behavior_mismatch') {
+    } else if (
+      detail.code === 'alu_flag_behavior_mismatch'
+      || detail.code === 'alu_result_behavior_mismatch'
+    ) {
+      sections.push([
+        `- ${detail.code}`,
+        '  Treat this as an ALU behavioral contract mismatch, not a syntax repair.',
+        '  Fix the existing ALU RTL/TB behavior that caused the self-checking assertion to fail. Do not remove, weaken, skip, rename, or silence the assertion.',
+        detail.assertionLabel ? `  Failing assertion label: ${detail.assertionLabel}.` : '  Use the failing ALU check assertion label from the evidence above.',
+        detail.simulationTime ? `  Reported simulation time: ${detail.simulationTime}.` : '  Use the reported simulation time from the evidence above.',
+        detail.expectedBehavior ? `  Expected behavior: ${detail.expectedBehavior}` : '  Expected behavior: ALU result and flags must match the self-checking TB golden model at the failing cycle.',
+        detail.code === 'alu_flag_behavior_mismatch'
+          ? '  For ADD_CARRY failures, compute carry from DATA_WIDTH+1 widened unsigned addition and use the MSB carry-out bit. Do not compute carry using `result > operand`, because that fails ordinary non-wrapping additions like 1+2.'
+          : '',
+        detail.code === 'alu_flag_behavior_mismatch'
+          ? '  Keep zero/carry/overflow flags derived from the same operation and result timing as the data output; do not hard-code expected TB values.'
+          : '',
+        detail.code === 'alu_result_behavior_mismatch'
+          ? '  Keep each ALU operation result aligned with the operation encoding/package constants and the TB expected values; repair the RTL operation logic or TB timing contract locally.'
+          : '',
+        '  Preserve the ALU package/entity interface unless the validator evidence proves the interface itself is illegal.',
+        '  Preserve already-passing ALU checks and repair the smallest existing file set needed for result/flag consistency.',
+      ].filter(Boolean).join('\n'));
+    } else if (
+      detail.code === 'cpu_halt_behavior_mismatch'
+      || detail.code === 'cpu_reset_pc_behavior_mismatch'
+      || detail.code === 'cpu_fetch_sequence_mismatch'
+      || detail.code === 'cpu_control_signal_behavior_mismatch'
+    ) {
       sections.push([
         `- ${detail.code}`,
         '  Treat this as a CPU behavioral contract mismatch, not a syntax repair.',
-        '  Fix the RTL/TB behavioral contract that caused the halt-cycle assertion to fail. Do not remove, weaken, skip, rename, or silence the assertion.',
-        detail.assertionLabel ? `  Failing assertion label: ${detail.assertionLabel}.` : '  Use the failing halt/check assertion label from the evidence above.',
+        '  Fix the RTL/TB behavioral contract that caused the reset/fetch/halt/control assertion to fail. Do not remove, weaken, skip, rename, or silence the assertion.',
+        detail.assertionLabel ? `  Failing assertion label: ${detail.assertionLabel}.` : '  Use the failing CPU check assertion label from the evidence above.',
         detail.simulationTime ? `  Reported simulation time: ${detail.simulationTime}.` : '  Use the reported simulation time from the evidence above.',
-        detail.expectedBehavior ? `  Expected behavior: ${detail.expectedBehavior}` : '  Expected behavior: CPU halt/control state must match the self-checking TB expectation at the failing cycle.',
+        detail.expectedBehavior ? `  Expected behavior: ${detail.expectedBehavior}` : '  Expected behavior: CPU reset, fetch, PC, decoder, write-enable, and halt/control state must match the self-checking TB expectation at the failing cycle.',
+        detail.code === 'cpu_reset_pc_behavior_mismatch'
+          ? '  For PC-after-reset failures, align one legal contract: either hold PC at the reset value until the TB first checks it, or adjust TB sampling only if the RTL intentionally increments immediately after reset.'
+          : '',
+        detail.code === 'cpu_control_signal_behavior_mismatch'
+          ? '  For control/write-enable failures, align opcode decode and write-enable timing with the TB sampled cycle; do not merely invert or delay the assertion.'
+          : '',
         '  Inspect the provided instruction stimulus sequence and CPU decoder/control/top excerpts before choosing whether RTL control/decoder behavior or TB timing expectation is wrong.',
         '  Preserve already-passing checks and repair the smallest existing file set needed for CPU decoder/control/TB timing consistency.',
-      ].join('\n'));
+      ].filter(Boolean).join('\n'));
     } else if (
       detail.code === 'simulation_assertion_expected_actual_mismatch'
       || detail.code === 'simulation_valid_latency_mismatch'
@@ -653,6 +944,11 @@ export async function runAiAnalyzeJob(params: {
     invalidResponse: string;
     errorSummary: string;
   }) => string;
+  buildFpgaArchitectProjectStructureRepairPrompt?: (params: {
+    originalPrompt: string;
+    currentManifestSummary: string;
+    errorSummary: string;
+  }) => string;
   buildFpgaArchitectCompactRetryPrompt?: (params: {
     originalPrompt: string;
     errorSummary: string;
@@ -681,6 +977,13 @@ export async function runAiAnalyzeJob(params: {
     savedArtifacts: GeneratedVhdlArtifactForValidation[];
     architectProject?: FpgaArchitectProject | null;
   }) => Promise<GeneratedVhdlValidationResult>;
+  onInnerRepairProgress?: (progress: {
+    repairAttempt: number;
+    repairTotal: number;
+    failureCode: string;
+    fileLine: string;
+    status: string;
+  }) => void | Promise<void>;
 }) {
   const {
     ai,
@@ -712,11 +1015,13 @@ export async function runAiAnalyzeJob(params: {
     formatValidationFailureDetails,
     parseFpgaArchitectResponse,
     buildFpgaArchitectJsonRepairPrompt,
+    buildFpgaArchitectProjectStructureRepairPrompt,
     buildFpgaArchitectCompactRetryPrompt,
     buildFpgaArchitectTestRunPrompt,
     saveFpgaArchitectProject,
     buildFpgaArchitectMarkdownReport,
     validateGeneratedVhdlWithGhdl,
+    onInnerRepairProgress,
   } = params;
 
   const resolvedPreparedPrompt = preparedPrompt || await applyMandatoryVhdlSkill(buildMacroExecutionPrompt({
@@ -977,6 +1282,20 @@ export async function runAiAnalyzeJob(params: {
     }
 
     retryUsed = true;
+    const repairAttemptNumber = params.repairAttempt || 1;
+    const repairAttemptLimit = params.repairAttemptLimit || 1;
+    let repairAudit = [...(params.validationResult.repairAudit || [])];
+    const appendRepairAudit = (entry: GeneratedVhdlRepairAuditEntry) => {
+      repairAudit = [
+        ...repairAudit,
+        entry,
+      ];
+    };
+    const deterministicNoChangeKeys = new Set<string>();
+    const getDeterministicNoChangeKey = (validation: GeneratedVhdlValidationResult) => [
+      getRepairFailureCode(validation) || 'unknown_failure',
+      summarizeRepairFailureLocation(validation) || 'unknown_location',
+    ].join('\u0001');
     const syncArchitectProjectFilesFromRepairableFiles = (files: RepairableGeneratedFile[]) => {
       if (!architectProject) return;
 
@@ -1004,6 +1323,18 @@ export async function runAiAnalyzeJob(params: {
       }));
     };
 
+    const notifyInnerRepairProgress = async (validation: GeneratedVhdlValidationResult, status: string) => {
+      await onInnerRepairProgress?.({
+        repairAttempt: repairAttemptNumber,
+        repairTotal: repairAttemptLimit,
+        failureCode: getRepairFailureCode(validation) || 'unknown',
+        fileLine: summarizeRepairFailureLocation(validation) || 'unknown',
+        status,
+      });
+    };
+
+    await notifyInnerRepairProgress(params.validationResult, 'starting');
+
     const runDeterministicRepairPasses = async (input: {
       files: RepairableGeneratedFile[];
       validation: GeneratedVhdlValidationResult;
@@ -1017,12 +1348,28 @@ export async function runAiAnalyzeJob(params: {
         deterministicPass <= GENERATED_CODE_MAX_DETERMINISTIC_REPAIR_PASSES;
         deterministicPass += 1
       ) {
+        const beforeFiles = deterministicFiles;
+        const beforeValidation = deterministicValidation;
+        const noChangeKey = getDeterministicNoChangeKey(beforeValidation);
+        if (deterministicNoChangeKeys.has(noChangeKey)) {
+          appendRepairAudit({
+            repairAttempt: repairAttemptNumber,
+            failureCode: getRepairFailureCode(beforeValidation),
+            fileLine: summarizeRepairFailureLocation(beforeValidation),
+            repairType: 'deterministic_skipped',
+            changedFiles: [],
+            postRepairValidation: summarizePostRepairValidation(beforeValidation),
+          });
+          deterministicValidation = withRepairAudit(deterministicValidation, repairAudit);
+          break;
+        }
         const declarationScopeClusterActive = hasBundledDeclarationScopeCluster(deterministicValidation);
         const deterministicRepair = await applyDeterministicGeneratedCodeRepairs({
           validation: deterministicValidation,
           availableFiles: deterministicFiles,
         });
         if (!deterministicRepair.changed) {
+          deterministicNoChangeKeys.add(noChangeKey);
           break;
         }
 
@@ -1045,6 +1392,15 @@ export async function runAiAnalyzeJob(params: {
             architectProject,
           }),
         });
+        appendRepairAudit({
+          repairAttempt: repairAttemptNumber,
+          failureCode: getRepairFailureCode(beforeValidation),
+          fileLine: summarizeRepairFailureLocation(beforeValidation),
+          repairType: 'deterministic',
+          changedFiles: collectChangedRepairPaths(beforeFiles, deterministicFiles),
+          postRepairValidation: summarizePostRepairValidation(deterministicValidation),
+        });
+        deterministicValidation = withRepairAudit(deterministicValidation, repairAudit);
         if (deterministicValidation.ok) {
           break;
         }
@@ -1099,6 +1455,7 @@ export async function runAiAnalyzeJob(params: {
       repairAttempt: params.repairAttempt,
       repairAttemptLimit: params.repairAttemptLimit,
     })}\n`;
+    await notifyInnerRepairProgress(params.validationResult, 'model_repair');
     aiResult = await runModelAnalysis({
       ai,
       provider: selectedProvider,
@@ -1116,20 +1473,30 @@ export async function runAiAnalyzeJob(params: {
     });
 
     if (parsedRepairs.length === 0) {
+      appendRepairAudit({
+        repairAttempt: repairAttemptNumber,
+        failureCode: getRepairFailureCode(params.validationResult),
+        fileLine: summarizeRepairFailureLocation(params.validationResult),
+        repairType: 'llm_no_change',
+        changedFiles: [],
+        postRepairValidation: summarizePostRepairValidation(params.validationResult),
+      });
       return {
         repairedFiles: params.files,
-        validationResult: params.validationResult,
+        validationResult: withRepairAudit(params.validationResult, repairAudit),
         parsedRepairs,
       };
     }
 
+    const beforeLlmFiles = params.files;
+    const beforeLlmValidation = params.validationResult;
     const updatedFiles = await applyGeneratedCodeRepairs({
       availableFiles: params.files,
       repairs: parsedRepairs,
     });
     syncArchitectProjectFilesFromRepairableFiles(updatedFiles);
 
-    const repairedValidation = requirePassingSimulationForMacro({
+    let repairedValidation = requirePassingSimulationForMacro({
       macroId,
       validation: await validateGeneratedVhdlWithGhdl({
         macroId,
@@ -1144,21 +1511,49 @@ export async function runAiAnalyzeJob(params: {
         architectProject,
       }),
     });
+    const previousFailureCode = getRepairFailureCode(beforeLlmValidation);
+    const newFailureCode = getRepairFailureCode(repairedValidation);
+    const introducedNewStaticFailure =
+      !repairedValidation.ok
+      && beforeLlmValidation.stage === 'simulate'
+      && (repairedValidation.stage === 'prevalidate' || repairedValidation.stage === 'analyze' || repairedValidation.stage === 'elaborate')
+      && previousFailureCode !== newFailureCode;
+    repairedValidation = {
+      ...repairedValidation,
+      logs: [
+        ...repairedValidation.logs,
+        [
+          'REPAIR_REGRESSION_GUARD',
+          `introducedNewStaticFailure=${introducedNewStaticFailure ? 'yes' : 'no'}`,
+          `previousFailureCode=${previousFailureCode || 'unknown'}`,
+          `newFailureCode=${newFailureCode || 'unknown'}`,
+          `changedFiles=${collectChangedRepairPaths(beforeLlmFiles, updatedFiles).join(', ') || 'none'}`,
+        ].join(' | '),
+      ],
+    };
+    appendRepairAudit({
+      repairAttempt: repairAttemptNumber,
+      failureCode: getRepairFailureCode(beforeLlmValidation),
+      fileLine: summarizeRepairFailureLocation(beforeLlmValidation),
+      repairType: collectChangedRepairPaths(beforeLlmFiles, updatedFiles).length > 0 ? 'llm' : 'llm_no_change',
+      changedFiles: collectChangedRepairPaths(beforeLlmFiles, updatedFiles),
+      postRepairValidation: summarizePostRepairValidation(repairedValidation),
+    });
 
     const deterministicAfterLlm = repairedValidation.ok
       ? {
         files: updatedFiles,
-        validation: repairedValidation,
+        validation: withRepairAudit(repairedValidation, repairAudit),
         changed: false,
       }
       : await runDeterministicRepairPasses({
         files: updatedFiles,
-        validation: repairedValidation,
+        validation: withRepairAudit(repairedValidation, repairAudit),
       });
 
     return {
       repairedFiles: deterministicAfterLlm.files,
-      validationResult: deterministicAfterLlm.validation,
+      validationResult: withRepairAudit(deterministicAfterLlm.validation, repairAudit),
       parsedRepairs,
     };
   };
@@ -1211,6 +1606,81 @@ export async function runAiAnalyzeJob(params: {
     return { saveResult, validationResult };
   };
 
+  const attemptFpgaArchitectProjectStructureRepair = async (validationResult: GeneratedVhdlValidationResult) => {
+    if (
+      !architectProject
+      || !parseFpgaArchitectResponse
+      || !buildFpgaArchitectProjectStructureRepairPrompt
+      || !saveFpgaArchitectProject
+      || !validateGeneratedVhdlWithGhdl
+    ) {
+      return false;
+    }
+
+    let latestValidation = validationResult;
+    for (
+      let structureRepairAttempt = 1;
+      structureRepairAttempt <= FPGA_ARCHITECT_MAX_PROJECT_STRUCTURE_REPAIR_ATTEMPTS;
+      structureRepairAttempt += 1
+    ) {
+      retryUsed = true;
+      const structureRepairPrompt = buildFpgaArchitectProjectStructureRepairPrompt({
+        originalPrompt: initialPrompt,
+        currentManifestSummary: buildFpgaArchitectProjectStructureSnapshot(architectProject),
+        errorSummary: compactGeneratedVhdlValidationSummary(latestValidation),
+      });
+      aiResult = await runModelAnalysis({
+        ai,
+        provider: selectedProvider,
+        model: selectedModel,
+        prompt: structureRepairPrompt,
+        signal,
+      });
+      attemptTelemetries.push(aiResult.telemetry);
+      responseText = aiResult.text;
+      responseTelemetry = aiResult.telemetry;
+
+      try {
+        architectProject = await repairFpgaArchitectManifestIfNeeded(responseText);
+      } catch (error: any) {
+        latestValidation = {
+          ok: false,
+          stage: 'prevalidate',
+          summary: `Project structure repair returned an invalid manifest: ${error?.message || String(error)}`,
+          logs: [],
+          validatedTopEntities: [],
+          failureCode: 'unresolved_work_unit',
+          failureCategory: 'unresolved_work_unit',
+          failureDetails: [{
+            code: 'unresolved_work_unit',
+            category: 'unresolved_work_unit',
+            message: `Project structure repair returned an invalid manifest: ${error?.message || String(error)}`,
+            excerpt: String(error?.message || error || '').slice(0, 500),
+            forbiddenConstruct: 'Incomplete or invalid FPGA Architect project manifest after missing work-unit repair.',
+            legalReplacementPattern: 'Return one complete manifest with all referenced work entities/packages generated and listed in ghdl.analysis_order.',
+          }],
+        };
+        ghdlValidation = latestValidation;
+        continue;
+      }
+
+      const repairedSaveResult = await saveAndValidateArchitectProject(architectProject);
+      latestValidation = repairedSaveResult.validationResult || {
+        ok: true,
+        stage: 'simulate',
+        summary: 'Project structure repair completed without GHDL validation.',
+        logs: [],
+        validatedTopEntities: [],
+      };
+      ghdlValidation = latestValidation;
+      if (!isFpgaArchitectProjectStructureContractFailure(latestValidation)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   if (isFpgaArchitectMacro) {
     if (!parseFpgaArchitectResponse || !saveFpgaArchitectProject || !buildFpgaArchitectMarkdownReport || !buildFpgaArchitectJsonRepairPrompt || !buildFpgaArchitectCompactRetryPrompt) {
       throw new Error('FPGA Architect save/report dependencies are unavailable.');
@@ -1227,6 +1697,16 @@ export async function runAiAnalyzeJob(params: {
 
     let saveResult = await saveAndValidateArchitectProject(architectProject);
     ghdlValidation = saveResult.validationResult;
+
+    if (isFpgaArchitectProjectStructureContractFailure(ghdlValidation)) {
+      await attemptFpgaArchitectProjectStructureRepair(ghdlValidation!);
+      if (isFpgaArchitectProjectStructureContractFailure(ghdlValidation)) {
+        throw buildAnnotatedAiAnalyzeError(
+          `FPGA Architect hard-failed because the generated project did not pass the project-structure contract after ${FPGA_ARCHITECT_MAX_PROJECT_STRUCTURE_REPAIR_ATTEMPTS} structure repair attempt(s). The app did not spend generic VHDL repair attempts on missing generated work units. ${ghdlValidation!.summary}`,
+          { generatedVhdlValidation: ghdlValidation },
+        );
+      }
+    }
 
     if (ghdlValidation && !ghdlValidation.ok) {
       for (

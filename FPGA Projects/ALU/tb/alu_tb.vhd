@@ -2,135 +2,100 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.alu_pkg.all;
+use std.env.all;
 
-entity alu_tb is
-end entity alu_tb;
+entity tb_alu is
+end entity tb_alu;
 
-architecture sim of alu_tb is
-  constant CLK_PERIOD : time := 10 ns;
+architecture sim of tb_alu is
   signal clk : std_logic := '0';
-  signal rst : std_logic;
-  signal op_code : std_logic_vector(2 downto 0);
-  signal a : std_logic_vector(7 downto 0);
-  signal b : std_logic_vector(7 downto 0);
-  signal result : std_logic_vector(7 downto 0);
-  signal zero_flag : std_logic;
-  signal overflow_flag : std_logic;
-begin
-  clk <= not clk after CLK_PERIOD / 2;
-  dut : entity work.alu(rtl)
-    port map (clk => clk, rst => rst, op_code => op_code, a => a, b => b, result => result, zero_flag => zero_flag, overflow_flag => overflow_flag);
+  signal rst : std_logic := '1';
+  signal op     : alu_op_t := OP_ADD;
+  signal a      : std_logic_vector(7 downto 0) := (others => '0');
+  signal b      : std_logic_vector(7 downto 0) := (others => '0');
+  signal result_slv : std_logic_vector(7 downto 0);
+  signal got_u        : unsigned(7 downto 0);
+  signal flags        : alu_flags_t;
 
-  process
-    variable test_failed : std_logic := '0';
-    variable pass_count : integer := 0;
-    variable fail_count : integer := 0;
-    variable expected_val : std_logic_vector(7 downto 0);
+  procedure check_result(
+    constant label_text : in string;
+    constant got_result : in unsigned;
+    constant exp_result : in unsigned;
+    constant got_flags  : in alu_flags_t;
+    variable failed_io  : inout boolean
+  ) is
   begin
-    rst <= '1';
-    op_code <= (others => '0');
-    a <= (others => '0');
-    b <= (others => '0');
-    wait for 100 ns;
+    if got_result /= exp_result or got_flags /= (zero => '0', carry_out => '0', overflow => '0') then
+      failed_io := true;
+      report "FAIL " & label_text severity error;
+    end if;
+  end procedure;
+
+begin
+  got_u <= unsigned(result_slv);
+
+  clk <= not clk after 5 ns;
+
+  dut : entity work.alu(rtl)
+    port map (
+      clk        => clk,
+      rst        => rst,
+      op         => op,
+      a          => a,
+      b          => b,
+      result     => result_slv,
+      flags      => flags
+    );
+
+  stimulus : process
+    variable failed : boolean := false;
+  begin
+    wait for 20 ns;
     rst <= '0';
-    wait for 20 ns;
+    wait until rising_edge(clk);
+    wait for 1 ns;
 
-    op_code <= OP_ADD; a <= "00000001"; b <= "00000010";
-    wait for 20 ns;
-    expected_val := "00000011";
-    if result = expected_val then
-      pass_count := pass_count + 1;
+    op <= OP_ADD;
+    a  <= std_logic_vector(to_unsigned(1, 8));
+    b  <= std_logic_vector(to_unsigned(2, 8));
+    wait until rising_edge(clk); wait for 1 ns;
+    check_result("ADD 1+2", got_u, to_unsigned(3, 8), flags, failed);
+
+    op <= OP_SUB;
+    a  <= std_logic_vector(to_unsigned(5, 8));
+    b  <= std_logic_vector(to_unsigned(2, 8));
+    wait until rising_edge(clk); wait for 1 ns;
+    check_result("SUB 5-2", got_u, to_unsigned(3, 8), flags, failed);
+
+    op <= OP_AND;
+    a  <= x"FF";
+    b  <= x"0F";
+    wait until rising_edge(clk); wait for 1 ns;
+    check_result("AND FF&0F", got_u, to_unsigned(15, 8), flags, failed);
+
+    op <= OP_OR;
+    a  <= x"01";
+    b  <= x"02";
+    wait until rising_edge(clk); wait for 1 ns;
+    check_result("OR 01|02", got_u, to_unsigned(3, 8), flags, failed);
+
+    op <= OP_XOR;
+    a  <= x"AA";
+    b  <= x"55";
+    wait until rising_edge(clk); wait for 1 ns;
+    check_result("XOR AA^55", got_u, to_unsigned(255, 8), flags, failed);
+
+    op <= OP_NOT;
+    a  <= x"00";
+    b  <= x"00";
+    wait until rising_edge(clk); wait for 1 ns;
+    check_result("NOT 00", got_u, to_unsigned(255, 8), flags, failed);
+
+    if failed then
+      report "TEST FAILED" severity failure;
     else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: ADD" severity error;
-    end if;
-
-    op_code <= OP_SUB; a <= "00001010"; b <= "00000011";
-    wait for 20 ns;
-    expected_val := "00000111";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: SUB" severity error;
-    end if;
-
-    op_code <= OP_AND; a <= "11110000"; b <= "10101010";
-    wait for 20 ns;
-    expected_val := "10100000";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: AND" severity error;
-    end if;
-
-    op_code <= OP_OR; a <= "11110000"; b <= "00001111";
-    wait for 20 ns;
-    expected_val := "11111111";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: OR" severity error;
-    end if;
-
-    op_code <= OP_XOR; a <= "11110000"; b <= "00001111";
-    wait for 20 ns;
-    expected_val := "11111111";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: XOR" severity error;
-    end if;
-
-    op_code <= OP_NOT; a <= "11110000";
-    wait for 20 ns;
-    expected_val := "00001111";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: NOT" severity error;
-    end if;
-
-    op_code <= OP_INC; a <= "00000010";
-    wait for 20 ns;
-    expected_val := "00000011";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: INC" severity error;
-    end if;
-
-    op_code <= OP_SLL; a <= "00000010";
-    wait for 20 ns;
-    expected_val := "00000100";
-    if result = expected_val then
-      pass_count := pass_count + 1;
-    else
-      fail_count := fail_count + 1;
-      test_failed := '1';
-      report "FAIL: SLL" severity error;
-    end if;
-
-    wait for 50 ns;
-    if test_failed = '0' then
-      report "All tests passed." severity note;
+      report "TEST PASSED" severity note;
       std.env.stop(0);
-    else
-      report "Some tests failed." severity error;
-      std.env.stop(1);
     end if;
-    wait;
   end process;
 end architecture sim;

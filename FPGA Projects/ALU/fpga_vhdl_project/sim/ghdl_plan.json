@@ -1,0 +1,13 @@
+{
+  "analysis_order": [
+    "src/alu_pkg.vhd",
+    "src/alu.vhd",
+    "tb/alu_tb.vhd"
+  ],
+  "top_testbench": "tb_alu",
+  "expected_result": "TEST PASSED",
+  "vhdl_standard": "--std=08",
+  "workdir": "work",
+  "waveform": "waves/alu_tb.vcd",
+  "stop_time": "1us"
+}
