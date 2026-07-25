@@ -21,6 +21,18 @@ export interface RegisteredAiJob {
     innerRepairFailureCode: string;
     innerRepairFileLine: string;
     innerRepairStatus: string;
+    architectureStage: string;
+    architectureStageIndex: number;
+    architectureStageTotal: number;
+    architectureStageComponent: string;
+    architectureStageStatus: string;
+    telemetryAttemptCount: number;
+    latestAttemptInputTokens: number | null;
+    latestAttemptOutputTokens: number | null;
+    jobInputTokens: number | null;
+    jobOutputTokens: number | null;
+    tokensPerSecond: number | null;
+    endToEndTokensPerSecond: number | null;
   };
 }
 
@@ -52,6 +64,18 @@ export function createAiJobRegistry() {
           innerRepairFailureCode: '',
           innerRepairFileLine: '',
           innerRepairStatus: '',
+          architectureStage: '',
+          architectureStageIndex: 0,
+          architectureStageTotal: 0,
+          architectureStageComponent: '',
+          architectureStageStatus: '',
+          telemetryAttemptCount: 0,
+          latestAttemptInputTokens: null,
+          latestAttemptOutputTokens: null,
+          jobInputTokens: null,
+          jobOutputTokens: null,
+          tokensPerSecond: null,
+          endToEndTokensPerSecond: null,
         },
       });
     },

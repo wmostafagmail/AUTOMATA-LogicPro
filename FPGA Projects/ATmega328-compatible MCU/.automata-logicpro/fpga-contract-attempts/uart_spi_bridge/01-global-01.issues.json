@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "uart_spi_bridge",
+  "designLabel": "UART-to-SPI Protocol Bridge with FIFOs",
+  "attempt": 1,
+  "designAttempt": 1,
+  "issueCount": 0,
+  "topIssueCodes": [],
+  "message": "staged_port_interface_drift\nStaged VHDL for \"status_error_block\" changed the approved port interface.\ncomponentId=status_error_block\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
+  "issues": []
+}

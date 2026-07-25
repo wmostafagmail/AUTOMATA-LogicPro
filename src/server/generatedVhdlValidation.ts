@@ -14,6 +14,13 @@ import {
   VHDL_RESERVED_IDENTIFIERS,
 } from './vhdlSkillRules';
 import { collectProcedureScopeSnapshots } from './vhdlScopeAnalysis';
+import { getFpgaPipelineConfig } from './fpgaPipelineConfig';
+import { buildFpgaVhdlQualityReport } from './fpgaVhdlQualityReport';
+import {
+  collectMalformedVhdlKeywordOccurrences,
+  inferMalformedVhdlKeywordOccurrenceFromText,
+  MALFORMED_VHDL_KEYWORD_CODE,
+} from './vhdlKeywordTypos';
 
 const execFileAsync = promisify(execFile);
 
@@ -45,6 +52,8 @@ export type GeneratedVhdlFailureCategory =
   | 'generated_clock_in_rtl'
   | 'mixed_clock_edge_domain'
   | 'testbench_structure'
+  | 'top_integration_contract'
+  | 'validation_environment'
   | 'other';
 
 export type GeneratedVhdlFailureDetail = {
@@ -75,7 +84,9 @@ export type GeneratedVhdlRepairAuditEntry = {
   repairAttempt: number;
   failureCode: string | null;
   fileLine: string | null;
-  repairType: 'deterministic' | 'deterministic_skipped' | 'llm' | 'llm_then_deterministic' | 'llm_no_change';
+  ghdlLogExcerpt?: string | null;
+  sourceWindow?: string | null;
+  repairType: 'deterministic' | 'deterministic_skipped' | 'deterministic_rollback' | 'llm' | 'llm_then_deterministic' | 'llm_no_change' | 'llm_rollback';
   changedFiles: string[];
   postRepairValidation: {
     ok: boolean;
@@ -207,6 +218,28 @@ function lineTextForIndex(content: string, index: number) {
   return content.slice(lineStart, lineEnd).trim();
 }
 
+function isRuntimeIndexGuarded(params: {
+  content: string;
+  matchIndex: number;
+  indexedObject: string;
+  indexExpression: string;
+}) {
+  const lineStart = params.content.lastIndexOf('\n', Math.max(0, params.matchIndex - 1)) + 1;
+  const prefix = params.content.slice(0, lineStart);
+  const previousLines = prefix.split(/\r\n|\r|\n/).slice(-4).join('\n');
+  const escapedObject = params.indexedObject.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedIndex = params.indexExpression.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const lowThenHighGuard = new RegExp(
+    `\\bif\\s+${escapedIndex}\\s*>=\\s*${escapedObject}'low\\s+and\\s+${escapedIndex}\\s*<=\\s*${escapedObject}'high\\s+then\\b`,
+    'i',
+  );
+  const highThenLowGuard = new RegExp(
+    `\\bif\\s+${escapedIndex}\\s*<=\\s*${escapedObject}'high\\s+and\\s+${escapedIndex}\\s*>=\\s*${escapedObject}'low\\s+then\\b`,
+    'i',
+  );
+  return lowThenHighGuard.test(previousLines) || highThenLowGuard.test(previousLines);
+}
+
 function collectMalformedCharacterLiterals(content: string) {
   const issues: Array<{
     lineHint: number;
@@ -323,6 +356,49 @@ function collectIllegalOthersAggregateComparisons(content: string) {
   return issues;
 }
 
+function collectArithmeticOnNonNumericSignalFindings(params: {
+  relativePath: string;
+  content: string;
+  declaredTypes: Map<string, NormalizedDeclaredType>;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  const cleanContent = stripVhdlComments(params.content);
+  const seen = new Set<string>();
+  const expression = /\b([a-zA-Z][a-zA-Z0-9_]*)\s*(<=|:=)\s*\1\s*([+-])\s*(\d+)\s*;/gi;
+
+  for (const match of cleanContent.matchAll(expression)) {
+    if (match.index == null || isIndexInsideDoubleQuotedString(cleanContent, match.index)) continue;
+    const objectName = match[1];
+    const operator = match[3];
+    const amount = match[4];
+    const declaredType = params.declaredTypes.get(objectName.toLowerCase()) || null;
+    if (declaredType === 'integer' || declaredType === 'unsigned' || declaredType === 'signed') continue;
+
+    const lineHint = lineNumberForIndex(cleanContent, match.index);
+    const key = `${objectName.toLowerCase()}:${lineHint}:${operator}:${amount}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    findings.push(createFailureDetail({
+      code: 'arithmetic_on_non_numeric_signal',
+      category: 'numeric_std_type_discipline',
+      relativePath: params.relativePath,
+      lineHint,
+      message:
+        `${params.relativePath}:${lineHint}: applies "${operator}" arithmetic to "${objectName}", ` +
+        `but "${objectName}" is ${formatDeclaredTypeForMessage(declaredType)} rather than integer/unsigned/signed.`,
+      excerpt: lineTextForIndex(cleanContent, match.index),
+      forbiddenConstruct: `${objectName} ${match[2]} ${objectName} ${operator} ${amount}`,
+      legalReplacementPattern:
+        declaredType === 'std_logic_vector'
+          ? `rewrite as "${objectName} ${match[2]} std_logic_vector(unsigned(${objectName}) ${operator} ${amount});" with ieee.numeric_std visible`
+          : `declare "${objectName}" as integer/unsigned/signed before arithmetic, or replace the arithmetic with explicit legal state/boolean logic`,
+    }));
+  }
+
+  return findings;
+}
+
 function collectCommaSeparatedPackedVectorSubtypes(content: string) {
   const issues: Array<{
     lineHint: number;
@@ -429,7 +505,8 @@ async function describeVhdlSource(projectPath: string, relativePath: string): Pr
     packages,
     packageBodies,
     dependencies,
-    isTestbench: /(^|[_-])(tb|testbench)([_-]|$)/i.test(path.basename(relativePath, path.extname(relativePath))),
+    isTestbench: /(^|\/)(tb|testbench)\//i.test(relativePath)
+      || /^tb(?:[_-]|$)/i.test(path.basename(relativePath, path.extname(relativePath))),
   };
 }
 
@@ -545,6 +622,40 @@ async function analyzeSelectedSources(params: {
       });
       throw new Error(unresolved.join('\n'));
     }
+  }
+}
+
+function isValidationEnvironmentMessage(message: string) {
+  return /GHDL Bug occurred|TYPES\.INTERNAL_ERROR|files_map\.adb|internal compiler error|Operation timed out|ETIMEDOUT|No space left on device|dataless|cannotSetXattr/i.test(message);
+}
+
+async function createValidationSourceMirror(params: {
+  validationRoot: string;
+  sources: VhdlSourceDescriptor[];
+  logs: string[];
+}) {
+  const mirrorRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'automata-logicpro-ghdl-src-'));
+  try {
+    for (const source of params.sources) {
+      const sourcePath = path.join(params.validationRoot, source.path);
+      const mirrorPath = path.join(mirrorRoot, source.path);
+      let content: string;
+      try {
+        content = await fs.readFile(sourcePath, 'utf8');
+      } catch (error: any) {
+        const message = error?.message || String(error);
+        throw new Error(
+          `${source.path}: validation filesystem read failed before GHDL analysis: ${message}`,
+        );
+      }
+      await fs.mkdir(path.dirname(mirrorPath), { recursive: true });
+      await fs.writeFile(mirrorPath, content, 'utf8');
+    }
+    params.logs.push(`VALIDATION_SOURCE_MIRROR | copied ${params.sources.length} VHDL source file(s) into ${mirrorRoot}`);
+    return mirrorRoot;
+  } catch (error) {
+    await fs.rm(mirrorRoot, { recursive: true, force: true });
+    throw error;
   }
 }
 
@@ -867,6 +978,7 @@ function createFailureDetail(params: {
   ruleId?: string | null;
   ruleIds?: string[];
   message: string;
+  excerpt?: string;
   relativePath?: string;
   lineHint?: number | null;
   forbiddenConstruct?: string;
@@ -886,7 +998,7 @@ function createFailureDetail(params: {
     ...params,
     ruleId: params.ruleId ?? canonicalRuleIds[0] ?? null,
     ruleIds: canonicalRuleIds,
-    excerpt: trimFailureExcerpt(params.message),
+    excerpt: trimFailureExcerpt(params.excerpt || params.message),
     relativePath: params.relativePath ?? inferredPathMatch?.[1],
     lineHint: params.lineHint ?? (inferredLineMatch?.[1] ? Number.parseInt(inferredLineMatch[1], 10) : null),
     assertionLabel: params.assertionLabel,
@@ -898,8 +1010,18 @@ function createFailureDetail(params: {
 }
 
 function extractAssertionLabel(assertionText: string) {
-  const failLabel = assertionText.match(/\bFAIL[:\s]+([a-zA-Z][a-zA-Z0-9_]*)/i)?.[1];
-  if (failLabel) return failLabel;
+  const normalizedFailureText = assertionText
+    .replace(/^\s*(?:FAIL[:\s]+)+/i, '')
+    .trim();
+  const firstTokens = normalizedFailureText.match(/^([a-zA-Z][a-zA-Z0-9_]*)(?:\s+([a-zA-Z][a-zA-Z0-9_]*))?/) || [];
+  if (firstTokens[1]) {
+    const firstToken = firstTokens[1];
+    const secondToken = firstTokens[2] || '';
+    if (/^(?:error_o|done_o|status_o)$/i.test(firstToken) && /^(?:asserted|deasserted|mismatch)$/i.test(secondToken)) {
+      return `${firstToken} ${secondToken}`;
+    }
+    return firstToken;
+  }
   const firstToken = assertionText.match(/\b([a-zA-Z][a-zA-Z0-9_]*(?:_[a-zA-Z0-9]+)+)\b/)?.[1];
   return firstToken || null;
 }
@@ -928,6 +1050,9 @@ function inferExpectedBehaviorFromAssertionLabel(label: string | null, assertion
   }
   if (/valid|ready|done|enable/.test(source)) {
     return 'Handshake/status timing must match the self-checking expectation at the reported simulation time.';
+  }
+  if (/\berror_o\b|\bdone_o\b|\bstatus_o\b|protocol|bridge|fifo|uart|spi/.test(source)) {
+    return 'Protocol bridge status/error/done behavior must match the self-checking expectation at the reported simulation time.';
   }
   return null;
 }
@@ -964,6 +1089,24 @@ function classifyAluBehaviorAssertion(label: string | null, assertionText: strin
   return null;
 }
 
+function classifyProtocolBehaviorAssertion(label: string | null, assertionText: string) {
+  const source = `${label || ''} ${assertionText}`.toLowerCase();
+  if (/\berror_o\b|\bdone_o\b|\bstatus_o\b|uart|spi|fifo|protocol|bridge/.test(source)) {
+    return 'protocol_status_behavior_mismatch';
+  }
+  return null;
+}
+
+function classifyCpuTopStatusBehaviorAssertion(label: string | null, assertionText: string, sourcePath: string) {
+  const source = `${sourcePath} ${label || ''} ${assertionText}`.toLowerCase();
+  if (/\b(?:uart|spi|fifo|protocol|bridge)\b/.test(source)) return null;
+  if (!/(?:cpu|processor|risc|pc_|_pc|fetch|decode|opcode|core)/.test(source)) return null;
+  if (/\b(?:done_o|error_o|status_o)\b/.test(source)) {
+    return 'cpu_top_status_behavior_mismatch';
+  }
+  return null;
+}
+
 function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
   const details: GeneratedVhdlFailureDetail[] = [];
   const assertionLinePattern = /([^\n:]+\.vhdl?):(\d+):(\d+):@([^:\n]+):\((?:assertion failure|report error|report failure)\):\s*([^\n]+)/gi;
@@ -980,8 +1123,10 @@ function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
     const expectedActual = assertionText.match(/\bexpected\s+(.+?)\s+but\s+got\s+(.+)$/i);
     const aluBehaviorCode = classifyAluBehaviorAssertion(assertionLabel, assertionText);
     const cpuBehaviorCode = classifyCpuBehaviorAssertion(assertionLabel, assertionText);
-    const code = aluBehaviorCode || cpuBehaviorCode
-      ? (aluBehaviorCode || cpuBehaviorCode)!
+    const cpuTopStatusBehaviorCode = classifyCpuTopStatusBehaviorAssertion(assertionLabel, assertionText, sourcePath);
+    const protocolBehaviorCode = cpuTopStatusBehaviorCode ? null : classifyProtocolBehaviorAssertion(assertionLabel, assertionText);
+    const code = aluBehaviorCode || cpuBehaviorCode || cpuTopStatusBehaviorCode || protocolBehaviorCode
+      ? (aluBehaviorCode || cpuBehaviorCode || cpuTopStatusBehaviorCode || protocolBehaviorCode)!
       : expectedActual
       ? 'simulation_assertion_expected_actual_mismatch'
       : /valid|ready|enable|done|empty|full/i.test(assertionText)
@@ -991,8 +1136,10 @@ function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
       ? `repair the existing RTL/TB logic so the value at ${timeText} matches expected ${expectedActual[1].trim()} instead of actual ${expectedActual[2].trim()}; do not delete, weaken, or rename the assertion`
       : aluBehaviorCode
         ? `repair the ALU result/flag logic so the assertion is true at ${timeText}; for ADD carry, compute the widened carry-out bit from DATA_WIDTH+1 arithmetic instead of comparing the truncated result to an operand; do not delete, weaken, skip, rename, or silence the assertion`
-      : cpuBehaviorCode
+      : cpuBehaviorCode || cpuTopStatusBehaviorCode
         ? `repair the CPU reset/fetch/halt/control decoder/TB timing contract so the assertion is true at ${timeText}; do not delete, weaken, skip, rename, or silence the assertion`
+      : protocolBehaviorCode
+        ? `repair the UART/SPI/protocol bridge RTL or TB timing contract so the status/error/done assertion is true at ${timeText}; do not delete, weaken, skip, rename, or silence the assertion`
       : `repair the existing RTL/TB timing or handshake behavior that triggers this assertion at ${timeText}; do not delete, weaken, or rename the assertion`;
     const expectedBehavior = inferExpectedBehaviorFromAssertionLabel(assertionLabel, assertionText);
 
@@ -1009,8 +1156,10 @@ function buildSimulationAssertionDetailsFromGhdlMessage(message: string) {
       expectedBehavior: expectedBehavior || undefined,
       relatedSourcePaths: aluBehaviorCode
         ? ['src/alu_pkg.vhd', 'src/alu.vhd', 'tb/tb_alu.vhd']
-        : cpuBehaviorCode
+        : cpuBehaviorCode || cpuTopStatusBehaviorCode
         ? ['src/cpu_pkg.vhd', 'src/mini_cpu_pkg.vhd', 'src/decoder.vhd', 'src/control_fsm.vhd', 'src/cpu_top.vhd', 'src/mini_cpu_top.vhd', 'src/program_counter.vhd', 'src/alu.vhd']
+        : protocolBehaviorCode
+        ? ['src/uart_spi_protocol_bridge_pkg.vhd', 'src/uart_spi_protocol_bridge_top.vhd', 'src/bridge_control_fsm.vhd', 'src/uart_rx.vhd', 'src/uart_tx.vhd', 'src/spi_master.vhd', 'src/rx_fifo.vhd', 'src/tx_fifo.vhd']
         : undefined,
     }));
   }
@@ -1028,7 +1177,53 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     details.push(createFailureDetail(params));
   };
 
+  if (isValidationEnvironmentMessage(message)) {
+    const sourceMatch = message.match(/([^:\n]+\.vhd[l]?):([0-9]+)?/i);
+    const isGhdlInternal = /GHDL Bug occurred|TYPES\.INTERNAL_ERROR|files_map\.adb|internal compiler error/i.test(message);
+    push({
+      code: isGhdlInternal ? 'ghdl_tool_internal_error' : 'validation_filesystem_timeout',
+      category: 'validation_environment',
+      message,
+      excerpt: sourceMatch?.[0] || message,
+      relativePath: sourceMatch?.[1],
+      lineHint: sourceMatch?.[2] ? Number.parseInt(sourceMatch[2], 10) : null,
+      forbiddenConstruct: isGhdlInternal
+        ? 'GHDL internal compiler/tool failure while validating generated VHDL'
+        : 'validation filesystem read/write failure before or during GHDL validation',
+      legalReplacementPattern:
+        'retry validation from a hydrated clean local source mirror; do not ask the LLM to rewrite generated VHDL for this environment/tooling failure',
+    });
+    return details;
+  }
+
   details.push(...buildSimulationAssertionDetailsFromGhdlMessage(message));
+
+  const shouldInspectMalformedKeywordText =
+    /\.vhd[l]?:[0-9]+:[0-9]+:.*error/i.test(message)
+    || /Staged GHDL checkpoint/i.test(message)
+    || /^\s*(?:library|use|entity|architecture|package|signal|variable|constant|type|subtype|port|generic|begin|end|process)\b/im.test(message);
+  const malformedKeyword = shouldInspectMalformedKeywordText
+    ? inferMalformedVhdlKeywordOccurrenceFromText(message)
+    : null;
+  if (malformedKeyword) {
+    const sourceMatch = message.match(/([^:\n]+\.vhd[l]?):([0-9]+):[0-9]+:/i);
+    const sourcePath = sourceMatch?.[1]
+      ? sourceMatch[1].replace(/^.*\/(?=(?:src|tb|sim|testbench)\/)/i, '')
+      : undefined;
+    const sourceLine = sourceMatch?.[2] ? Number.parseInt(sourceMatch[2], 10) : malformedKeyword.lineNumber;
+    push({
+      code: MALFORMED_VHDL_KEYWORD_CODE,
+      category: 'interface_generic_port_syntax',
+      message: sourcePath
+        ? `${sourcePath}:${sourceLine}: malformed VHDL keyword "${malformedKeyword.typo}" should be "${malformedKeyword.keyword}".`
+        : `Malformed VHDL keyword "${malformedKeyword.typo}" should be "${malformedKeyword.keyword}".`,
+      excerpt: malformedKeyword.lineText.trim(),
+      relativePath: sourcePath,
+      lineHint: sourceLine,
+      forbiddenConstruct: `malformed VHDL keyword token "${malformedKeyword.typo}"`,
+      legalReplacementPattern: `replace "${malformedKeyword.typo}" with exact VHDL keyword "${malformedKeyword.keyword}"`,
+    });
+  }
 
   if (/unit\s+".*"\s+not\s+found\s+in\s+library\s+"work"|unresolved work units/i.test(message)) {
     push({
@@ -1037,6 +1232,19 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: 'reference to a work unit that was not compiled into the active work library',
       legalReplacementPattern: 'compile the dependency first and keep analysis_order so every package/entity is analyzed before the dependent file',
+    });
+  }
+
+  const undrivenOutputMatch = message.match(/(?:declares output port|output port|no assignment for)\s+"?([a-zA-Z][a-zA-Z0-9_]*)"?/i);
+  if (/undriven top output|declares output port .*never drives|no assignment for .*output|output port .*has no driver/i.test(message)) {
+    const outputName = undrivenOutputMatch?.[1] || 'output';
+    push({
+      code: 'undriven_top_output_port',
+      category: 'top_integration_contract',
+      message,
+      forbiddenConstruct: `top/integration output port "${outputName}" has no architecture driver`,
+      legalReplacementPattern:
+        `drive "${outputName}" with a concurrent assignment, a registered process, or a child output port mapped through a correctly typed signal`,
     });
   }
 
@@ -1099,6 +1307,25 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     });
   }
 
+  if (
+    /pixel_address_generator\.vhd/i.test(message)
+    && (
+      /no function declarations for operator\s+"(?:\+|\*|-)"|can't match|cannot match|type of expression|conversion allowed only|no overloaded function found matching|ghdl_synthesis_failure|synthesis-quality gate/i.test(message)
+    )
+  ) {
+    const sourceMatch = message.match(/([^:\n]+pixel_address_generator\.vhd):([0-9]+)(?::[0-9]+)?/i);
+    push({
+      code: 'pixel_address_numeric_contract',
+      category: 'numeric_std_type_discipline',
+      message,
+      relativePath: sourceMatch?.[1],
+      lineHint: sourceMatch?.[2] ? Number.parseInt(sourceMatch[2], 10) : null,
+      forbiddenConstruct: 'pixel address expression mixes counters, arithmetic, or vector conversion without a bounded numeric_std contract',
+      legalReplacementPattern:
+        'compute the pixel address through constrained natural/integer temporaries, guard active video, and drive pixel_addr_o exactly once with std_logic_vector(to_unsigned(addr_int, pixel_addr_o\'length))',
+    });
+  }
+
   if (/no actual for (?:constant|signal|variable)?\s*interface\s+"([^"]+)"/i.test(message)) {
     const missingPort = message.match(/no actual for (?:constant|signal|variable)?\s*interface\s+"([^"]+)"/i)?.[1] || 'unknown';
     push({
@@ -1119,6 +1346,35 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       forbiddenConstruct: 'comparison between numeric_std typed object and std_logic_vector(...) expression',
       legalReplacementPattern:
         'compare operands with the same numeric_std type, for example unsigned_signal = to_unsigned(value, unsigned_signal\'length)',
+    });
+  }
+
+  if (/no function declarations for operator\s+"[+-]"/i.test(message)) {
+    const lineMatch = message.match(/^\s*([a-zA-Z][a-zA-Z0-9_]*)\s*(<=|:=)\s*\1\s*([+-])\s*(\d+)\s*;/m);
+    const objectName = lineMatch?.[1] || 'signal';
+    const operator = lineMatch?.[3] || '+';
+    const amount = lineMatch?.[4] || '1';
+    push({
+      code: 'arithmetic_on_non_numeric_signal',
+      category: 'numeric_std_type_discipline',
+      message,
+      excerpt: lineMatch?.[0]?.trim() || message,
+      forbiddenConstruct: `${objectName} ${lineMatch?.[2] || '<='} ${objectName} ${operator} ${amount}`,
+      legalReplacementPattern:
+        `perform arithmetic only on integer/unsigned/signed objects; for std_logic_vector counters use ` +
+        `"${objectName} <= std_logic_vector(unsigned(${objectName}) ${operator} ${amount});" with ieee.numeric_std visible`,
+    });
+  }
+
+  if (/string length does not match that of anonymous integer subtype|value constraints don't match target ones/i.test(message) && /\b(?:x"[0-9a-f_]+"|"[01_]+")/i.test(message)) {
+    const literal = message.match(/\b(x"[0-9a-f_]+"|"[01_]+")/i)?.[1] || 'bit/hex literal';
+    push({
+      code: 'vector_literal_width_mismatch',
+      category: 'width_literal_mismatch',
+      message,
+      forbiddenConstruct: `fixed-width literal ${literal} assigned to a vector object with a different declared width`,
+      legalReplacementPattern:
+        'use a width-derived expression such as (others => \'0\') for zero or std_logic_vector(to_unsigned(value, target_signal\'length)) for nonzero std_logic_vector targets',
     });
   }
 
@@ -1203,6 +1459,32 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
     });
   }
 
+  const missingReductionHelper = message.match(/no declaration for "((?:or|and|xor)_reduce)"/i);
+  if (missingReductionHelper) {
+    const helperName = missingReductionHelper[1];
+    push({
+      code: 'missing_reduction_helper',
+      category: 'package_type_definition',
+      message,
+      forbiddenConstruct: `call to helper function "${helperName}" without a local function declaration or imported package export`,
+      legalReplacementPattern:
+        `declare a local ${helperName}(value : std_logic_vector) return std_logic helper before the architecture begin, or replace the call with an explicit reduction loop`,
+    });
+  }
+
+  const multipleSignalDriverMatch = message.match(/multiple assignments for "([a-zA-Z][a-zA-Z0-9_]*)"(?:\s+offsets?\s+([0-9]+(?::[0-9]+)?))?/i);
+  if (multipleSignalDriverMatch) {
+    const signalName = multipleSignalDriverMatch[1];
+    push({
+      code: 'multiple_signal_driver_or_slice_assignment',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: `signal "${signalName}" is assigned by multiple independent drivers${multipleSignalDriverMatch[2] ? ` for offsets ${multipleSignalDriverMatch[2]}` : ''}`,
+      legalReplacementPattern:
+        `make "${signalName}" single-writer: compute it in one combinational process with defaults, or register it in one clocked process and drive any combinational value through a separate *_next signal`,
+    });
+  }
+
   const unknownPortMapFormal = message.match(/no declaration for "([a-zA-Z][a-zA-Z0-9_]*)"/i);
   const unknownPortMapSymbol = unknownPortMapFormal?.[1]?.toLowerCase() || null;
   if (unknownPortMapFormal && /\bport\s+map\b[\s\S]*=>/i.test(message)) {
@@ -1213,7 +1495,12 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       forbiddenConstruct: `named port-map formal "${unknownPortMapFormal[1]}" is not declared by the instantiated entity/component`,
       legalReplacementPattern: 'inspect the instantiated entity/component declaration and rewrite the port map to use only exact formal port names',
     });
-  } else if (unknownPortMapFormal && unknownPortMapSymbol && !BUILTIN_VHDL_TYPE_NAMES.has(unknownPortMapSymbol)) {
+  } else if (
+    unknownPortMapFormal
+    && unknownPortMapSymbol
+    && !/^(?:or|and|xor)_reduce$/.test(unknownPortMapSymbol)
+    && !BUILTIN_VHDL_TYPE_NAMES.has(unknownPortMapSymbol)
+  ) {
     const symbol = unknownPortMapFormal[1];
     push({
       code: 'package_symbol_not_visible',
@@ -1300,6 +1587,41 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: 'assignment or operator result whose operand types do not match the destination typed domain',
       legalReplacementPattern: 'convert operands and temporaries into the exact destination type before assignment or operator use',
+    });
+  }
+
+  if (/type conversion cannot be indexed or sliced/i.test(message)) {
+    const conversionExpression = message.match(/\b(?:unsigned|signed|std_logic_vector)\s*\([^;\n]+\)\s*\([^;\n]+\)/i)?.[0] || 'type_conversion(expr)(index_or_slice)';
+    push({
+      code: 'type_conversion_indexed_or_sliced',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: `directly indexing or slicing a type conversion expression such as "${conversionExpression}"`,
+      legalReplacementPattern:
+        'assign the conversion to a named local unsigned/signed/std_logic_vector object first, then index or slice that named object, for example "data_u := unsigned(data_i);" followed by "data_u(7)"',
+    });
+  }
+
+  if (/can't match ".*" with type array type "STD_ULOGIC_VECTOR"/i.test(message)) {
+    const actual = message.match(/can't match "([^"]+)"/i)?.[1] || 'expression';
+    push({
+      code: 'typed_assignment_mismatch',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: `assignment of "${actual}" whose type does not match the std_logic_vector destination`,
+      legalReplacementPattern:
+        'keep intermediate objects in one typed domain, and convert exactly once at the assignment boundary, for example "std_logic_vector(unsigned_value)" when driving a std_logic_vector object',
+    });
+  }
+
+  if (/only one type of logical operators may be used to combine relation/i.test(message)) {
+    push({
+      code: 'mixed_logical_operator_precedence',
+      category: 'numeric_std_type_discipline',
+      message,
+      forbiddenConstruct: 'ungrouped boolean expression that mixes and/or chains across relation terms',
+      legalReplacementPattern:
+        'fully parenthesize each boolean group before combining them, for example "((not a) and (not b) and r) or (a and b and (not r))"',
     });
   }
 
@@ -1496,20 +1818,23 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
 }
 
 function classifyKnownFailureCategory(message: string): GeneratedVhdlFailureCategory {
+  if (isValidationEnvironmentMessage(message)) return 'validation_environment';
   if (/reserved VHDL identifier/i.test(message)) return 'identifier_reserved_word';
   if (/without a local "use ieee/i.test(message) || /no declaration for "std_logic/i.test(message)) return 'missing_ieee_clause';
   if (/unconstrained array type "string"/i.test(message)) return 'declaration_scope';
   if (/plain architecture-body variable|inside an executable region|outer-scope object|not allowed in the architecture declarative region/i.test(message)) return 'declaration_scope';
-  if (/string length does not match that of anonymous interface|anonymous interface.*string|formal.*string/i.test(message)) return 'width_literal_mismatch';
+  if (/string length does not match that of anonymous integer subtype|value constraints don't match target ones|string length does not match that of anonymous interface|anonymous interface.*string|formal.*string/i.test(message)) return 'width_literal_mismatch';
   if (/actual constraints don't match formal ones/i.test(message)) return 'numeric_std_type_discipline';
-  if (/calls resize|calls to_integer|shift_left|shift_right|logical-operator expression on numeric operands|raw std_logic_vector|typed operands|output-port|can't associate ".*" with port ".*"|cannot associate ".*" with port ".*"/i.test(message)) return 'numeric_std_type_discipline';
+  if (/calls resize|calls to_integer|shift_left|shift_right|logical-operator expression on numeric operands|only one type of logical operators may be used to combine relation|raw std_logic_vector|typed operands|output-port|type conversion cannot be indexed or sliced|STD_ULOGIC_VECTOR|can't associate ".*" with port ".*"|cannot associate ".*" with port ".*"/i.test(message)) return 'numeric_std_type_discipline';
   if (/package body|constrained scalar alias|bit-string literal|end statements|subprogram bodies inside package|missing IEEE import for package/i.test(message)) return 'package_type_definition';
   if (/association syntax|generic and port|undeclared generics|interface declaration/i.test(message)) return 'interface_generic_port_syntax';
+  if (/multiple assignments for ".*"/i.test(message)) return 'interface_generic_port_syntax';
   if (/multidimensional|re-constrain|vector of vectors|flatten|type mark expected in a subtype indication.*array\s*\(|anonymous object declaration.*array\(\)/i.test(message)) return 'array_subtype_misuse';
   if (/use `<=` only for signals|use `:=` only for variables|assignment operator/i.test(message)) return 'signal_variable_assignment_misuse';
   if (/width|literal mismatch|sized literals|bit-string/i.test(message)) return 'width_literal_mismatch';
   if (/runtime-unsafe|overflow bounds|out of range|bounds/i.test(message)) return 'runtime_bound_risk';
   if (/unresolved work units|unit ".*" not found in library "work"/i.test(message)) return 'unresolved_work_unit';
+  if (/undriven top output|declares output port .*never drives|no assignment for .*output|output port .*has no driver/i.test(message)) return 'top_integration_contract';
   if (/validation source set was empty|No generated VHDL artifacts|No VHDL sources were found/i.test(message)) return 'source_selection';
   if (/top-level generic .*default/i.test(message)) return 'top_level_generic_default_missing';
   if (/top-level .*unconstrained/i.test(message)) return 'top_level_port_unconstrained';
@@ -2238,6 +2563,137 @@ function collectTestbenchDutContractFindings(params: {
       forbiddenConstruct: `check call "${checkedSignal.excerpt}" observes undriven signal "${checkedSignal.name}"`,
       legalReplacementPattern:
         `connect "${checkedSignal.name}" to the correct DUT output in a named port map, or drive it from a deliberate local model before checking it`,
+    }));
+  }
+
+  return findings;
+}
+
+function extractArchitectureBodyForEntity(content: string, entityName: string) {
+  const expression = new RegExp(`\\barchitecture\\s+[a-zA-Z][a-zA-Z0-9_]*\\s+of\\s+${entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+is\\b`, 'i');
+  const match = content.match(expression);
+  if (!match || match.index == null) return null;
+  const startIndex = match.index;
+  const remaining = content.slice(startIndex);
+  const endMatch = remaining.match(/\bend\s+architecture(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/i);
+  const endIndex = endMatch?.index == null ? content.length : startIndex + endMatch.index + endMatch[0].length;
+  return {
+    body: content.slice(startIndex, endIndex),
+    index: startIndex,
+  };
+}
+
+function architectureDrivesSignal(architectureBody: string, signalName: string) {
+  const escaped = signalName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`\\b${escaped}\\s*<=`, 'i').test(stripVhdlComments(architectureBody));
+}
+
+function collectUndrivenEntityOutputFindings(params: {
+  relativePath: string;
+  content: string;
+  interfaceSignatures: Map<string, InterfaceSignature>;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  if (isLikelyTestbenchSource(params.relativePath, params.content)) return findings;
+
+  for (const [, signature] of collectInterfaceSignatures(params.content)) {
+    const architecture = extractArchitectureBodyForEntity(params.content, signature.name);
+    if (!architecture) continue;
+    const assignedNames = new Set(
+      collectSignalAssignments(architecture.body).map((assignment) => assignment.name.toLowerCase()),
+    );
+    const childDrivenNames = new Set<string>();
+    for (const instance of collectPortMapInstances(architecture.body)) {
+      const childSignature = params.interfaceSignatures.get(instance.name.toLowerCase());
+      if (!childSignature) continue;
+      for (const association of parsePortMapAssociations(architecture.body, instance)) {
+        const childPort = childSignature.ports.get(association.formal.toLowerCase());
+        if (!childPort || !['out', 'buffer', 'inout'].includes(childPort.mode)) continue;
+        const actualIdentifier = isSimpleIdentifier(association.actual);
+        if (actualIdentifier) childDrivenNames.add(actualIdentifier.toLowerCase());
+      }
+    }
+
+    for (const [portName, port] of signature.ports.entries()) {
+      if (!['out', 'buffer', 'inout'].includes(port.mode)) continue;
+      if (assignedNames.has(portName) || childDrivenNames.has(portName) || architectureDrivesSignal(architecture.body, portName)) continue;
+      const portLineMatch = params.content.match(new RegExp(`\\b${portName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*(?:out|buffer|inout)\\b`, 'i'));
+      const lineHint = portLineMatch?.index == null ? null : lineNumberForIndex(params.content, portLineMatch.index);
+      findings.push(createFailureDetail({
+        code: 'undriven_top_output_port',
+        category: 'top_integration_contract',
+        relativePath: params.relativePath,
+        lineHint,
+        message:
+          `${params.relativePath}${lineHint ? `:${lineHint}` : ''}: entity "${signature.name}" declares output port "${portName}" but the architecture never drives it. ` +
+          `Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.`,
+        forbiddenConstruct: `output port "${portName}" of entity "${signature.name}" has no driver`,
+        legalReplacementPattern:
+          `drive "${portName}" with a concurrent assignment, a registered process, or a child output port mapped through a correctly typed signal`,
+      }));
+    }
+  }
+
+  return findings;
+}
+
+function collectProcessAssignmentBlocks(content: string) {
+  const blocks: Array<{ body: string; start: number; end: number; isClocked: boolean; lineHint: number }> = [];
+  const pattern = /\bprocess(?:\s*\([^)]*\))?[\s\S]*?\bend\s+process\s*;/gi;
+  for (const match of content.matchAll(pattern)) {
+    if (match.index == null) continue;
+    const body = match[0];
+    blocks.push({
+      body,
+      start: match.index,
+      end: match.index + body.length,
+      isClocked: /\b(?:rising_edge|falling_edge)\s*\(/i.test(body),
+      lineHint: lineNumberForIndex(content, match.index),
+    });
+  }
+  return blocks;
+}
+
+function collectMultipleSignalDriverFindings(params: {
+  relativePath: string;
+  content: string;
+}) {
+  const findings: GeneratedVhdlFailureDetail[] = [];
+  if (isLikelyTestbenchSource(params.relativePath, params.content)) return findings;
+
+  const declaredSignals = new Map<string, { name: string; lineHint: number; excerpt: string }>();
+  for (const match of params.content.matchAll(/^\s*signal\s+([a-zA-Z][a-zA-Z0-9_]*)\s*:/gim)) {
+    if (match.index == null) continue;
+    const name = match[1];
+    declaredSignals.set(name.toLowerCase(), {
+      name,
+      lineHint: lineNumberForIndex(params.content, match.index),
+      excerpt: params.content.slice(match.index, params.content.indexOf('\n', match.index) === -1 ? params.content.length : params.content.indexOf('\n', match.index)).trim(),
+    });
+  }
+  if (declaredSignals.size === 0) return findings;
+
+  const processBlocks = collectProcessAssignmentBlocks(params.content);
+  for (const signal of declaredSignals.values()) {
+    const escaped = signal.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const assignmentPattern = new RegExp(`\\b${escaped}\\s*(?:\\([^\\n;]*\\))?\\s*<=`, 'i');
+    const assigningBlocks = processBlocks.filter((block) => assignmentPattern.test(block.body));
+    if (assigningBlocks.length <= 1) continue;
+
+    const clockedCount = assigningBlocks.filter((block) => block.isClocked).length;
+    const combinationalCount = assigningBlocks.length - clockedCount;
+    findings.push(createFailureDetail({
+      code: 'multiple_signal_driver_or_slice_assignment',
+      category: 'interface_generic_port_syntax',
+      relativePath: params.relativePath,
+      lineHint: signal.lineHint,
+      message:
+        `${params.relativePath}:${signal.lineHint}: signal "${signal.name}" is assigned in ${assigningBlocks.length} separate process drivers ` +
+        `(${clockedCount} clocked, ${combinationalCount} combinational). GHDL synthesis rejects overlapping/multiple drivers.`,
+      excerpt: signal.excerpt,
+      forbiddenConstruct: `signal "${signal.name}" assigned in multiple independent processes`,
+      legalReplacementPattern:
+        `make "${signal.name}" single-writer: keep all assignments in one process, or split into "${signal.name}_next" combinational logic and one registered assignment`,
     }));
   }
 
@@ -3250,7 +3706,7 @@ function collectCaseInsensitivePackageCollisionFindings(params: {
     const imported = collisions[0];
     findings.push(createFailureDetail({
       code: 'case_insensitive_identifier_collision',
-      category: 'identifier_legality',
+      category: 'identifier_reserved_word',
       relativePath: params.relativePath,
       lineHint: lineNumberForIndex(params.content, index),
       message:
@@ -3418,6 +3874,20 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       continue;
     }
 
+    for (const occurrence of collectMalformedVhdlKeywordOccurrences(content)) {
+      findings.push(createFailureDetail({
+        code: MALFORMED_VHDL_KEYWORD_CODE,
+        category: 'interface_generic_port_syntax',
+        message:
+          `${relativePath}:${occurrence.lineNumber}: malformed VHDL keyword "${occurrence.typo}" should be "${occurrence.keyword}".`,
+        excerpt: occurrence.lineText.trim(),
+        relativePath,
+        lineHint: occurrence.lineNumber,
+        forbiddenConstruct: `malformed VHDL keyword token "${occurrence.typo}"`,
+        legalReplacementPattern: `replace "${occurrence.typo}" with exact VHDL keyword "${occurrence.keyword}"`,
+      }));
+    }
+
     findings.push(...collectReservedIdentifierFindings(relativePath, content));
     findings.push(...collectPackageSymbolVisibilityFindings({
       relativePath,
@@ -3454,12 +3924,23 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
       declaredTypes,
       interfaceSignatures,
     }));
+    findings.push(...collectUndrivenEntityOutputFindings({
+      relativePath,
+      content,
+      interfaceSignatures,
+    }));
+    findings.push(...collectMultipleSignalDriverFindings({ relativePath, content }));
     findings.push(...collectEnumOpcodeNumericConversionFindings({
       relativePath,
       content,
       declaredTypes,
     }));
     findings.push(...collectUnsignedConversionOnNonVectorFindings({
+      relativePath,
+      content,
+      declaredTypes,
+    }));
+    findings.push(...collectArithmeticOnNonNumericSignalFindings({
       relativePath,
       content,
       declaredTypes,
@@ -4394,7 +4875,15 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
     }
 
     const runtimeBoundRisk = content.match(/\b([a-zA-Z][a-zA-Z0-9_]*)\s*\(\s*(to_integer\s*\((?:[^()]|\([^()]*\))*\))\s*\)/i);
-    if (runtimeBoundRisk?.index != null) {
+    if (
+      runtimeBoundRisk?.index != null
+      && !isRuntimeIndexGuarded({
+        content,
+        matchIndex: runtimeBoundRisk.index,
+        indexedObject: runtimeBoundRisk[1],
+        indexExpression: runtimeBoundRisk[2],
+      })
+    ) {
       const lineHint = lineNumberForIndex(content, runtimeBoundRisk.index);
       const lineText = lineTextForIndex(content, runtimeBoundRisk.index);
       findings.push(createFailureDetail({
@@ -4410,6 +4899,32 @@ export async function detectKnownVhdlAntiPatternDetails(projectRoot: string, sou
         legalReplacementPattern:
           `convert "${runtimeBoundRisk[2]}" into a local integer, check it against ${runtimeBoundRisk[1]}'low and ${runtimeBoundRisk[1]}'high before indexing, and use a safe fallback branch for out-of-range or unknown values`,
       }));
+    }
+
+    const pixelAddressOutput = content.match(/\bpixel_addr_o\b/i);
+    const isPixelAddressGenerator = /pixel_address_generator/i.test(relativePath) || /\bentity\s+pixel_address_generator\s+is\b/i.test(content);
+    if (isPixelAddressGenerator && pixelAddressOutput) {
+      const unsafePixelAddressAssignment = Array.from(content.matchAll(/^\s*pixel_addr_o\s*<=\s*([^;\n]+);\s*$/gmi))
+        .find((match) => (
+          /(?:\+|\*|\bresize\b|\bto_integer\b|\bunsigned\b|\bstd_logic_vector\b|\bto_unsigned\b)/i.test(match[1] || '')
+          && !/std_logic_vector\s*\(\s*to_unsigned\s*\(\s*[a-zA-Z][a-zA-Z0-9_]*\s*,\s*pixel_addr_o'length\s*\)\s*\)/i.test(match[1] || '')
+        ));
+      if (unsafePixelAddressAssignment?.index != null) {
+        const lineHint = lineNumberForIndex(content, unsafePixelAddressAssignment.index);
+        findings.push(createFailureDetail({
+          code: 'pixel_address_numeric_contract',
+          category: 'numeric_std_type_discipline',
+          relativePath,
+          lineHint,
+          message:
+            `${relativePath}:${lineHint}: pixel address generator drives pixel_addr_o with unnormalized arithmetic/conversion logic. ` +
+            `Pixel address outputs must be produced by bounded integer address math and one explicit to_unsigned(..., pixel_addr_o'length) conversion.`,
+          excerpt: lineTextForIndex(content, unsafePixelAddressAssignment.index),
+          forbiddenConstruct: unsafePixelAddressAssignment[0].trim(),
+          legalReplacementPattern:
+            'compute addr_int from constrained natural x/y counters under an active-video guard, then assign pixel_addr_o <= std_logic_vector(to_unsigned(addr_int, pixel_addr_o\'length));',
+        }));
+      }
     }
   }
 
@@ -5033,12 +5548,32 @@ export async function validateGeneratedVhdlWithGhdl(params: {
     });
   }
 
+  let validationSourceRoot = validationRoot;
+  let validationSourceMirror: string | null = null;
+  try {
+    validationSourceMirror = await createValidationSourceMirror({
+      validationRoot,
+      sources: selectedSources,
+      logs,
+    });
+    validationSourceRoot = validationSourceMirror;
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error);
+    logs.push(errorMessage);
+    return buildValidationFailureResult({
+      stage: 'prevalidate',
+      summary: errorMessage,
+      logs,
+      failureDetails: inferFailureDetailsFromGhdlMessage(errorMessage),
+    });
+  }
+
   const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), 'automata-logicpro-generated-ghdl-'));
 
   try {
     try {
       await analyzeSelectedSources({
-        projectPath: validationRoot,
+        projectPath: validationSourceRoot,
         outputDir,
         sources: selectedSources,
         logs,
@@ -5063,6 +5598,35 @@ export async function validateGeneratedVhdlWithGhdl(params: {
         logs,
         validatedTopEntities: [],
       };
+    }
+
+    const pipelineConfig = getFpgaPipelineConfig();
+    if (isArchitect && pipelineConfig.enabled && pipelineConfig.synthesisQualityGate && params.architectProject?.topEntity) {
+      const synthesisTop = params.architectProject.topEntity.trim().toLowerCase();
+      logs.push(`ghdl --synth --std=08 --workdir=${outputDir} ${synthesisTop}`);
+      try {
+        const { stderr } = await runCommand('ghdl', ['--synth', '--std=08', `--workdir=${outputDir}`, synthesisTop], { cwd: outputDir });
+        if (stderr) logs.push(stderr);
+        const quality = buildFpgaVhdlQualityReport(params.architectProject);
+        logs.push(`VHDL_QUALITY | score=${quality.score}/100 | files=${quality.vhdlFileCount} | entities=${quality.entityCount} | instances=${quality.directInstanceCount} | processes=${quality.processCount} | assertions=${quality.assertionCount} | placeholders=${quality.placeholderCount}`);
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error);
+        logs.push(errorMessage);
+        const inferredSynthesisDetails = inferFailureDetailsFromGhdlMessage(errorMessage)
+          .filter((detail) => detail.code !== 'ghdl_analyze_failure');
+        return buildValidationFailureResult({
+          stage: 'analyze',
+          summary: `Generated DUT failed the GHDL synthesis-quality gate for ${synthesisTop}: ${errorMessage}`,
+          logs,
+          failureDetails: inferredSynthesisDetails.length > 0 ? inferredSynthesisDetails : [createFailureDetail({
+            code: 'ghdl_synthesis_failure',
+            category: 'rtl_contains_tb_only_construct',
+            message: `Generated DUT failed the GHDL synthesis-quality gate for ${synthesisTop}: ${errorMessage}`,
+            forbiddenConstruct: 'RTL that analyzes but cannot be synthesized by GHDL.',
+            legalReplacementPattern: 'Keep the contracted entity interface and replace unsupported/non-synthesizable RTL with equivalent synthesizable VHDL-2008.',
+          })],
+        });
+      }
     }
 
     const validatedTopEntities: string[] = [];
@@ -5128,5 +5692,8 @@ export async function validateGeneratedVhdlWithGhdl(params: {
     };
   } finally {
     await fs.rm(outputDir, { recursive: true, force: true });
+    if (validationSourceMirror) {
+      await fs.rm(validationSourceMirror, { recursive: true, force: true });
+    }
   }
 }

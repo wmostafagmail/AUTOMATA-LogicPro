@@ -90,7 +90,8 @@ test('generation quality section encodes structure-first and file-by-file VHDL g
   assert.match(section, /Interface stage/);
   assert.match(section, /Design-Class Golden Architecture Template/);
   assert.match(section, /Design class: uart_spi_protocol_bridge/);
-  assert.match(section, /uart_rx, uart_tx, spi_master/);
+  assert.match(section, /uart_rx: Receive UART frames/);
+  assert.match(section, /spi_master: Own SPI clock/);
   assert.match(section, /Behavioral Reference Model Contract/);
   assert.match(section, /Reference design class: uart_spi_protocol_bridge/);
   assert.match(section, /Model UART input as byte-level command transactions/);
@@ -109,19 +110,23 @@ test('FPGA Architect blueprint contract gives deterministic block-level guidance
   });
 
   assert.match(flightControllerSection, /App-Owned Architecture Blueprint Contract/);
+  assert.match(flightControllerSection, /Source mode: curated-first hybrid architecture synthesis/);
+  assert.match(flightControllerSection, /Primary design pattern: pattern_flight_controller/);
   assert.match(flightControllerSection, /Design class: flight_controller/);
-  assert.match(flightControllerSection, /sensor interface block/i);
-  assert.match(flightControllerSection, /PID\/control-loop block/i);
-  assert.match(flightControllerSection, /motor mixer block/i);
-  assert.match(flightControllerSection, /failsafe\/watchdog block/i);
+  assert.match(flightControllerSection, /sensor_frontend/i);
+  assert.match(flightControllerSection, /control_loop/i);
+  assert.match(flightControllerSection, /motor_mixer/i);
+  assert.match(flightControllerSection, /failsafe_watchdog/i);
   assert.match(flightControllerSection, /tb\/tb_flight_controller_top\.vhd/);
+  assert.match(flightControllerSection, /Official methodology rules used/);
+  assert.match(flightControllerSection, /method_amd_hierarchy_ooc/);
 
   const aluSection = buildArchitectureBlueprintPromptSection({
     macroId: 'fpga_vhdl_architect',
     promptText: 'Design an 8-bit ALU with flags.',
   });
   assert.match(aluSection, /Design class: alu/);
-  assert.match(aluSection, /every opcode has deterministic result and flags/i);
+  assert.match(aluSection, /complete opcode coverage/i);
 
   assert.equal(buildArchitectureBlueprintPromptSection({
     macroId: 'generate_vhdl_tb',
@@ -226,7 +231,7 @@ test('FPGA Architect macro prompt contract includes request-derived architecture
   assert.match(prompt, /App-Owned Architecture Blueprint Contract/);
   assert.match(prompt, /Design class: flight_controller/);
   assert.match(prompt, /Design-Class Golden Architecture Template/);
-  assert.match(prompt, /attitude\/rate estimator/i);
+  assert.match(prompt, /attitude_estimator|rate\/attitude/i);
   assert.match(prompt, /Constrained Implementation Regions/);
   assert.match(prompt, /The model may fill in RTL behavior, FSM transitions, datapath operations/);
 });

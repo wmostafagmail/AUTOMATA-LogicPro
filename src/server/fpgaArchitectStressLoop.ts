@@ -31,7 +31,19 @@ import {
   recordModelQualityAttempt,
   writeModelQualityScoreboard,
 } from './modelQualityScoreboard';
-import type { FpgaArchitectureContract } from './fpgaArchitectureContract';
+import {
+  FpgaArchitectureContractError,
+  buildFpgaArchitectureContractDraft,
+  hashFpgaArchitectureContract,
+  type FpgaArchitectureContract,
+  type FpgaArchitectureContractIssue,
+} from './fpgaArchitectureContract';
+import { getFpgaPipelineConfig, type FpgaSweepMode } from './fpgaPipelineConfig';
+import {
+  readFpgaGoldenContract,
+  writeFpgaGoldenContract,
+} from './fpgaGoldenContracts';
+import { hashGeneratedFpgaVhdl, summarizeFpgaReproducibility } from './fpgaReproducibilityMetrics';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -56,6 +68,8 @@ type PreparedAiAnalyzeRequestLike = {
 type FpgaArchitectAttemptErrorLike = Error & {
   generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
   fpgaArchitectureContract?: FpgaArchitectureContract | null;
+  issues?: FpgaArchitectureContractIssue[];
+  architectureContractIssues?: FpgaArchitectureContractIssue[];
 };
 
 function formatInnerRepairAuditForLog(repairAudit: GeneratedVhdlRepairAuditEntry[] | null | undefined) {
@@ -130,6 +144,8 @@ export type RunLoopAttemptResult = {
   ok: boolean;
   message: string;
   generatedVhdlValidation?: GeneratedVhdlValidationResult | null;
+  architectureContractHash?: string | null;
+  generatedVhdlHash?: string | null;
 };
 
 export type FpgaArchitectProviderPauseEvent = {
@@ -152,6 +168,7 @@ export type FpgaArchitectStressLoopDesignSummary = {
   failures: number;
   providerRuntimeFailures: number;
   contextBudgetFailures: number;
+  architectureContractFailures: number;
   codeQualityFailures: number;
   successes: number;
   results: RunLoopAttemptResult[];
@@ -164,14 +181,21 @@ export type FpgaArchitectStressLoopDesignSummary = {
     example: string;
   }>;
   feedbackSummaries: FpgaArchitectSweepFeedbackItem[];
+  contractIssueBuckets: Array<{ code: string; count: number; paths: string[]; examples: string[] }>;
+  contractAttemptLogPaths: string[];
+  contractFallbackUsed: boolean;
+  uniqueOutputHashes: number;
+  reproducibilityRate: number;
 };
 
 export type FpgaArchitectStressLoopResult = {
+  sweepMode: FpgaSweepMode;
   attempts: number;
   completedAttempts: number;
   failures: number;
   providerRuntimeFailures: number;
   contextBudgetFailures: number;
+  architectureContractFailures: number;
   codeQualityFailures: number;
   successes: number;
   logFilePath: string;
@@ -181,6 +205,9 @@ export type FpgaArchitectStressLoopResult = {
   staleSweepStateDiscarded: boolean;
   results: RunLoopAttemptResult[];
   stoppedEarly: boolean;
+  contractIssueBuckets: Array<{ code: string; count: number; paths: string[]; examples: string[] }>;
+  contractAttemptLogPaths: string[];
+  contractFallbackUsed: boolean;
   failureBuckets: Array<{
     category: string;
     label: string;
@@ -273,6 +300,111 @@ async function appendLog(logFilePath: string, text: string) {
   await fs.appendFile(logFilePath, `${text.trimEnd()}\n`, 'utf8');
 }
 
+function getContractIssuesFromError(error: unknown): FpgaArchitectureContractIssue[] {
+  if (error instanceof FpgaArchitectureContractError) {
+    return error.issues || [];
+  }
+  const annotated = error as FpgaArchitectAttemptErrorLike | undefined;
+  if (Array.isArray(annotated?.architectureContractIssues)) {
+    return annotated.architectureContractIssues;
+  }
+  if (Array.isArray(annotated?.issues) && annotated.issues.every((issue: any) => issue?.code && issue?.path && issue?.message)) {
+    return annotated.issues;
+  }
+  return [];
+}
+
+function isArchitectureContractFailure(error: unknown, category: string) {
+  return category === 'architecture_contract' || getContractIssuesFromError(error).length > 0;
+}
+
+function summarizeContractIssueBuckets(issues: FpgaArchitectureContractIssue[]) {
+  const buckets = new Map<string, { code: string; count: number; paths: Set<string>; examples: Set<string> }>();
+  for (const issue of issues) {
+    const code = issue.code || 'architecture_contract_unknown';
+    const existing = buckets.get(code) || { code, count: 0, paths: new Set<string>(), examples: new Set<string>() };
+    existing.count += 1;
+    if (issue.path) existing.paths.add(issue.path);
+    if (issue.message) existing.examples.add(issue.message);
+    buckets.set(code, existing);
+  }
+  return Array.from(buckets.values())
+    .sort((left, right) => right.count - left.count || left.code.localeCompare(right.code))
+    .map((bucket) => ({
+      code: bucket.code,
+      count: bucket.count,
+      paths: Array.from(bucket.paths).slice(0, 10),
+      examples: Array.from(bucket.examples).slice(0, 3),
+    }));
+}
+
+function formatContractIssueLog(issues: FpgaArchitectureContractIssue[], artifactPath: string | null) {
+  if (issues.length === 0) {
+    return 'Architecture contract issues: none captured';
+  }
+  return [
+    `Architecture contract issues: ${issues.length}`,
+    ...(artifactPath ? [`Architecture contract issue artifact: ${artifactPath}`] : []),
+    'Top architecture contract issues:',
+    ...issues.slice(0, 20).map((issue, index) => `${index + 1}. [${issue.code}] ${issue.path}: ${issue.message}`),
+    ...(issues.length > 20 ? [`... ${issues.length - 20} additional issue(s) written to the artifact.`] : []),
+  ].join('\n');
+}
+
+const CONTRACT_FALLBACK_SAFE_CODES = new Set([
+  'architecture_contract_json_invalid',
+  'architecture_contract_json_missing',
+  'architecture_contract_schema_version',
+  'architecture_contract_design_name',
+  'architecture_contract_top_entity',
+  'architecture_contract_top_testbench',
+  'architecture_contract_source_missing',
+  'architecture_contract_source_unknown',
+  'architecture_contract_source_order_duplicate',
+  'architecture_contract_source_dependency_order',
+  'architecture_contract_testbench_order',
+  'architecture_contract_generic_default',
+  'architecture_contract_placeholder',
+]);
+
+function isContractFallbackEligible(issues: FpgaArchitectureContractIssue[]) {
+  return issues.length > 0 && issues.every((issue) => CONTRACT_FALLBACK_SAFE_CODES.has(issue.code));
+}
+
+async function writeContractIssueArtifact(params: {
+  logDirectory: string;
+  preset: FpgaArchitectSweepPreset;
+  attempt: number;
+  designAttempt: number;
+  issues: FpgaArchitectureContractIssue[];
+  message: string;
+}) {
+  const contractAttemptDirectory = path.join(
+    params.logDirectory,
+    'fpga-contract-attempts',
+    params.preset.key.replace(/[^a-z0-9_-]+/gi, '_').toLowerCase(),
+  );
+  await fs.mkdir(contractAttemptDirectory, { recursive: true });
+  const artifactPath = path.join(contractAttemptDirectory, `${String(params.designAttempt).padStart(2, '0')}-global-${String(params.attempt).padStart(2, '0')}.issues.json`);
+  await fs.writeFile(
+    artifactPath,
+    `${JSON.stringify({
+      schemaVersion: 1,
+      stage: 'architecture_contract',
+      designKey: params.preset.key,
+      designLabel: params.preset.label,
+      attempt: params.attempt,
+      designAttempt: params.designAttempt,
+      issueCount: params.issues.length,
+      topIssueCodes: summarizeContractIssueBuckets(params.issues).slice(0, 20).map((bucket) => bucket.code),
+      message: params.message,
+      issues: params.issues,
+    }, null, 2)}\n`,
+    'utf8',
+  );
+  return artifactPath;
+}
+
 async function resetDesignOutputRoot(outputRoot: string) {
   await fs.rm(outputRoot, { recursive: true, force: true });
   await fs.mkdir(outputRoot, { recursive: true });
@@ -332,6 +464,10 @@ function makeContextBudgetError(promptLength: number, budget: number) {
   ) as Error & { contextBudgetExceeded?: boolean };
   error.contextBudgetExceeded = true;
   return error;
+}
+
+function isModelOutputBudgetExhausted(message: string) {
+  return /returned no generated text[\s\S]*done_reason=length|done_reason=length[\s\S]*message_content_length=0|model_output_budget_exhausted/i.test(message);
 }
 
 function normalizeContinuationCandidatePath(outputRoot: string, candidatePath: string) {
@@ -427,6 +563,7 @@ function isCpuBehavioralFailureDetail(detail: GeneratedVhdlFailureDetail) {
     || detail.code === 'cpu_reset_pc_behavior_mismatch'
     || detail.code === 'cpu_fetch_sequence_mismatch'
     || detail.code === 'cpu_control_signal_behavior_mismatch'
+    || detail.code === 'cpu_top_status_behavior_mismatch'
     || (
       detail.code === 'simulation_unknown_metavalue'
       && /\bcpu|processor|risc|pc|fetch|decode|opcode|halt|dm_we\b/i.test([
@@ -440,6 +577,24 @@ function isCpuBehavioralFailureDetail(detail: GeneratedVhdlFailureDetail) {
 
 function hasCpuBehavioralFailure(failureDetails: GeneratedVhdlFailureDetail[]) {
   return failureDetails.some(isCpuBehavioralFailureDetail);
+}
+
+function isProtocolBehavioralFailureDetail(detail: GeneratedVhdlFailureDetail) {
+  return (
+    detail.code === 'protocol_status_behavior_mismatch'
+    || (
+      detail.code === 'simulation_unknown_metavalue'
+      && /\buart|spi|fifo|bridge|protocol|done_o|error_o|status_o\b/i.test([
+        detail.relativePath || '',
+        detail.assertionLabel || '',
+        detail.message || '',
+      ].join(' '))
+    )
+  );
+}
+
+function hasProtocolBehavioralFailure(failureDetails: GeneratedVhdlFailureDetail[]) {
+  return failureDetails.some(isProtocolBehavioralFailureDetail);
 }
 
 function isCpuBehavioralRelatedPath(relativePath: string) {
@@ -464,6 +619,29 @@ function scoreCpuBehavioralRelatedPath(relativePath: string) {
   return 5;
 }
 
+function isProtocolBehavioralRelatedPath(relativePath: string) {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  const baseName = normalized.split('/').pop() || normalized;
+  if (!/\.(?:vhd|vhdl)$/.test(normalized)) return false;
+  if (/\/tb\//.test(normalized) && /uart|spi|fifo|bridge|protocol|tb_/.test(normalized)) return true;
+  return (
+    /\b(uart|spi|fifo|bridge|protocol|control|control_fsm|status|status_error|rx|tx|top)\b/.test(baseName)
+    || /uart|spi|fifo|bridge|protocol|control|control_fsm|status|status_error|rx_fifo|tx_fifo|uart_rx|uart_tx|spi_master/.test(baseName)
+    || /_pkg\.(?:vhd|vhdl)$/.test(baseName)
+  );
+}
+
+function scoreProtocolBehavioralRelatedPath(relativePath: string) {
+  const normalized = relativePath.replace(/\\/g, '/').toLowerCase();
+  if (/\/tb\//.test(normalized)) return 0;
+  if (/_pkg/.test(normalized)) return 1;
+  if (/bridge.*top|protocol.*top|top/.test(normalized)) return 2;
+  if (/bridge_control|control_fsm|status_error|status/.test(normalized)) return 3;
+  if (/rx_fifo|tx_fifo|fifo/.test(normalized)) return 4;
+  if (/spi_master|uart_rx|uart_tx|uart|spi/.test(normalized)) return 5;
+  return 6;
+}
+
 function collectCpuBehavioralStimulusLineHints(content: string) {
   const hints: number[] = [];
   const lines = content.split(/\r\n|\r|\n/);
@@ -481,12 +659,43 @@ function collectCpuBehavioralStimulusLineHints(content: string) {
   return hints;
 }
 
+function collectProtocolBehavioralStimulusLineHints(content: string) {
+  const hints: number[] = [];
+  const lines = content.split(/\r\n|\r|\n/);
+  lines.forEach((line, index) => {
+    if (
+      /\b(?:rst|reset|start_i|data_i|uart|spi|done_o|error_o|status_o)[a-zA-Z0-9_]*\s*<=/i.test(line)
+      || /\bwait_for_done\s*\(/i.test(line)
+      || /\bwait\s+(?:for|until)\b/i.test(line)
+      || /\bcheck_[a-zA-Z0-9_]*\s*\(/i.test(line)
+      || /\bFAIL\b/i.test(line)
+    ) {
+      hints.push(index + 1);
+    }
+  });
+  return hints;
+}
+
 function summarizeCpuBehavioralInstructionSequence(content: string) {
   const sequence = content
     .split(/\r\n|\r|\n/)
     .map((line) => line.trim())
     .filter((line) => /\b(?:instr|instruction|opcode|pm_data|imem_data)[a-zA-Z0-9_]*\s*<=/.test(line))
     .slice(0, 12);
+  return sequence.length > 0 ? sequence : [];
+}
+
+function summarizeProtocolBehavioralStimulusSequence(content: string) {
+  const sequence = content
+    .split(/\r\n|\r|\n/)
+    .map((line) => line.trim())
+    .filter((line) => (
+      /\b(?:rst|reset|start_i|data_i|done_o|error_o|status_o)[a-zA-Z0-9_]*\s*<=/i.test(line)
+      || /\bwait_for_done\s*\(/i.test(line)
+      || /\bwait\s+(?:for|until)\b/i.test(line)
+      || /\bFAIL\b/i.test(line)
+    ))
+    .slice(0, 18);
   return sequence.length > 0 ? sequence : [];
 }
 
@@ -556,6 +765,8 @@ async function collectSweepContinuationFiles(
   const lineHints = extractContinuationLineHints(outputRoot, failureDetails, fallbackMessage);
   const poisonedRepair = options.poisonedRepair === true;
   const includeCpuBehavioralContext = hasCpuBehavioralFailure(failureDetails);
+  const includeProtocolBehavioralContext = hasProtocolBehavioralFailure(failureDetails);
+  const includeBehavioralContext = includeCpuBehavioralContext || includeProtocolBehavioralContext;
 
   const walk = async (currentPath: string) => {
     let entries;
@@ -589,14 +800,20 @@ async function collectSweepContinuationFiles(
       .filter((relativePath) => !prioritizedPaths.includes(relativePath) && isCpuBehavioralRelatedPath(relativePath))
       .sort((left, right) => scoreCpuBehavioralRelatedPath(left) - scoreCpuBehavioralRelatedPath(right))
     : [];
+  const protocolBehavioralPaths = includeProtocolBehavioralContext
+    ? discoveredPaths
+      .filter((relativePath) => !prioritizedPaths.includes(relativePath) && isProtocolBehavioralRelatedPath(relativePath))
+      .sort((left, right) => scoreProtocolBehavioralRelatedPath(left) - scoreProtocolBehavioralRelatedPath(right))
+    : [];
   const candidatePaths = Array.from(new Set([
     ...(focusedPaths.size > 0 ? prioritizedPaths : discoveredPaths),
     ...cpuBehavioralPaths,
+    ...protocolBehavioralPaths,
   ]));
   const isFocusedFallback = focusedPaths.size > 0;
-  const fileLimit = poisonedRepair ? 3 : includeCpuBehavioralContext ? 8 : (isFocusedFallback ? 4 : 10);
-  const perFileCharLimit = poisonedRepair ? 1_600 : includeCpuBehavioralContext ? 3_200 : (isFocusedFallback ? 3_000 : 6_000);
-  const totalCharLimit = poisonedRepair ? 4_000 : includeCpuBehavioralContext ? 14_000 : (isFocusedFallback ? 9_000 : 18_000);
+  const fileLimit = poisonedRepair ? 3 : includeBehavioralContext ? 8 : (isFocusedFallback ? 4 : 10);
+  const perFileCharLimit = poisonedRepair ? 1_600 : includeBehavioralContext ? 3_200 : (isFocusedFallback ? 3_000 : 6_000);
+  const totalCharLimit = poisonedRepair ? 4_000 : includeBehavioralContext ? 14_000 : (isFocusedFallback ? 9_000 : 18_000);
 
   const files: SweepContinuationFile[] = [];
   let totalBytes = 0;
@@ -611,12 +828,18 @@ async function collectSweepContinuationFiles(
       const cpuStimulusHints = includeCpuBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
         ? collectCpuBehavioralStimulusLineHints(content)
         : [];
-      const allMatchingHints = Array.from(new Set([...matchingHints, ...cpuStimulusHints]));
+      const protocolStimulusHints = includeProtocolBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
+        ? collectProtocolBehavioralStimulusLineHints(content)
+        : [];
+      const allMatchingHints = Array.from(new Set([...matchingHints, ...cpuStimulusHints, ...protocolStimulusHints]));
       const focusedContent = allMatchingHints.length > 0
-        ? sliceContinuationLineWindows(content, allMatchingHints, poisonedRepair ? 18 : includeCpuBehavioralContext ? 28 : 45)
+        ? sliceContinuationLineWindows(content, allMatchingHints, poisonedRepair ? 18 : includeBehavioralContext ? 28 : 45)
         : content;
       const instructionSequence = includeCpuBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
         ? summarizeCpuBehavioralInstructionSequence(content)
+        : [];
+      const protocolSequence = includeProtocolBehavioralContext && /(^|\/)tb\//.test(normalizedRelativePath)
+        ? summarizeProtocolBehavioralStimulusSequence(content)
         : [];
       const programSequence = includeCpuBehavioralContext && /\b(?:rom|program|pmem|imem|memory)\b/i.test(normalizedRelativePath)
         ? summarizeCpuBehavioralProgramSequence(content)
@@ -629,6 +852,13 @@ async function collectSweepContinuationFiles(
           ? [
             '-- AUTOMATA_BEHAVIOR_CONTEXT: CPU instruction stimulus observed in this testbench.',
             ...instructionSequence.map((line) => `--   ${line}`),
+            '',
+          ]
+          : []),
+        ...(protocolSequence.length > 0
+          ? [
+            '-- AUTOMATA_BEHAVIOR_CONTEXT: Protocol bridge stimulus and checks observed in this testbench.',
+            ...protocolSequence.map((line) => `--   ${line}`),
             '',
           ]
           : []),
@@ -709,19 +939,94 @@ function normalizeValidatorFeedbackItems(details: GeneratedVhdlFailureDetail[]) 
   }));
 }
 
+function feedbackCategoryForFailureCode(code: string | null) {
+  if (!code) return 'other';
+  if (/staged_|architecture_contract/.test(code)) return 'architecture_contract';
+  if (/cpu_.*behavior|protocol_status_behavior|alu_.*behavior|ghdl_simulate_failure|simulation_/.test(code)) return 'simulation_success';
+  if (/runtime_bound|range_membership/.test(code)) return 'runtime_bound_risk';
+  if (/undriven_top_output|unknown_port|unconnected_required_input|interface_|port_/.test(code)) return 'interface_generic_port_syntax';
+  if (/package|record|custom_type/.test(code)) return 'package_type_definition';
+  if (/resize|typed_|unsigned|numeric|operator|to_integer|opcode/.test(code)) return 'numeric_std_type_discipline';
+  if (/testbench|dut/.test(code)) return 'testbench_structure';
+  return 'other';
+}
+
+function normalizeRepairAuditFeedbackItems(audit: GeneratedVhdlRepairAuditEntry[] | undefined | null) {
+  return (audit || [])
+    .filter((entry) => Boolean(entry.failureCode))
+    .map((entry) => ({
+      failureCode: entry.failureCode,
+      failureCategory: feedbackCategoryForFailureCode(entry.failureCode),
+      ruleId: null,
+      ruleIds: [],
+      count: 1,
+      summary: compactOneLine([
+        entry.fileLine || '',
+        entry.repairType ? `repair=${entry.repairType}` : '',
+        entry.postRepairValidation?.failureCode ? `post=${entry.postRepairValidation.failureCode}` : '',
+        entry.postRepairValidation?.summary || '',
+      ].filter(Boolean).join(' - '), 500),
+      forbiddenConstruct: entry.fileLine ? compactOneLine(`previous inner repair failure at ${entry.fileLine}`, 300) : null,
+      legalReplacementPattern: 'Avoid reintroducing this exact failure class; preserve passing repaired files and repair only the local failing contract.',
+      source: 'validator' as const,
+    }))
+    .filter(isFeedbackEligible);
+}
+
 function normalizeDiagnosticFeedbackItem(message: string) {
   const diagnostic = classifyFpgaArchitectLoopFailure(message);
+  const failureCode = isModelOutputBudgetExhausted(message)
+    ? 'model_output_budget_exhausted'
+    : /staged_port_interface_drift|changed the approved (?:generic|port) interface/i.test(message)
+      ? 'staged_port_interface_drift'
+    : /staged_component_entity_missing|did not declare entity/i.test(message)
+      ? 'staged_component_entity_missing'
+      : /string length does not match that of anonymous integer subtype|value constraints don't match target ones/i.test(message)
+        ? 'vector_literal_width_mismatch'
+      : /only one type of logical operators may be used to combine relation/i.test(message)
+        ? 'mixed_logical_operator_precedence'
+        : null;
   return {
-    failureCode: null,
+    failureCode,
     failureCategory: diagnostic.category,
     ruleId: null,
     ruleIds: [],
     count: 1,
     summary: compactOneLine(diagnostic.excerpt),
-    forbiddenConstruct: null,
-    legalReplacementPattern: null,
+    forbiddenConstruct: failureCode === 'staged_component_entity_missing'
+      ? 'staged component VHDL omitted or renamed the exact app-approved entity declaration'
+      : failureCode === 'staged_port_interface_drift'
+      ? 'staged component VHDL changed the app-approved entity generic/port interface'
+      : failureCode === 'vector_literal_width_mismatch'
+        ? 'fixed-width bit/hex literal assigned to a vector object with a different declared width'
+      : failureCode === 'mixed_logical_operator_precedence'
+        ? 'ungrouped boolean expression mixes and/or relation chains'
+        : null,
+    legalReplacementPattern: failureCode === 'staged_component_entity_missing'
+      ? 'regenerate only the failing component with the exact app-owned entity name and interface from the skeleton; do not return package-only code, wrapper entities, JSON, Markdown, or prose'
+      : failureCode === 'staged_port_interface_drift'
+      ? 'regenerate only the failing component implementation while preserving the exact app-owned entity declaration, generic names/order/defaults, and port names/order/modes/types'
+      : failureCode === 'vector_literal_width_mismatch'
+        ? "use width-derived literals such as (others => '0'), std_logic_vector(to_unsigned(value, target'length)), to_unsigned(value, target'length), or to_signed(value, target'length)"
+      : failureCode === 'mixed_logical_operator_precedence'
+        ? 'fully parenthesize every and-chain before combining with or, for example ((not a) and (not b) and r) or (a and b and (not r))'
+        : null,
     source: 'diagnostic' as const,
   };
+}
+
+function normalizeContractFeedbackItems(issues: FpgaArchitectureContractIssue[]) {
+  return summarizeContractIssueBuckets(issues).slice(0, 6).map((bucket) => ({
+    failureCode: bucket.code,
+    failureCategory: 'architecture_contract',
+    ruleId: null,
+    ruleIds: [],
+    count: bucket.count,
+    summary: compactOneLine(`${bucket.code}: ${bucket.examples[0] || 'Architecture contract validation failed.'} Paths: ${bucket.paths.join(', ')}`, 500),
+    forbiddenConstruct: 'Invalid or incomplete Architecture Contract V2 JSON path/value.',
+    legalReplacementPattern: 'Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.',
+    source: 'diagnostic' as const,
+  }));
 }
 
 const NON_CODE_FEEDBACK_CATEGORIES = new Set([
@@ -745,6 +1050,10 @@ function isFeedbackEligible(item: FpgaArchitectSweepFeedbackItem) {
 
 function collectFeedbackItemsFromFailure(error: unknown, fallbackMessage: string) {
   const annotatedError = error as FpgaArchitectAttemptErrorLike | undefined;
+  const contractIssues = getContractIssuesFromError(error);
+  if (contractIssues.length > 0) {
+    return normalizeContractFeedbackItems(contractIssues);
+  }
   const details = annotatedError?.generatedVhdlValidation?.failureDetails || [];
   if (details.length > 0) {
     return normalizeValidatorFeedbackItems(details).filter(isFeedbackEligible);
@@ -804,10 +1113,24 @@ function buildBehavioralContextLogLine(
   failureDetails: GeneratedVhdlFailureDetail[],
   continuationFiles: SweepContinuationFile[],
 ) {
-  if (!hasCpuBehavioralFailure(failureDetails)) {
+  const hasCpuContext = hasCpuBehavioralFailure(failureDetails);
+  const hasProtocolContext = hasProtocolBehavioralFailure(failureDetails);
+  if (!hasCpuContext && !hasProtocolContext) {
     return 'Behavioral context: none';
   }
   const failingTbIncluded = continuationFiles.some((file) => /\/tb\/|^tb\//i.test(file.relativePath));
+  if (hasProtocolContext && !hasCpuContext) {
+    const protocolStimulusFound = continuationFiles.some((file) => /AUTOMATA_BEHAVIOR_CONTEXT: Protocol bridge stimulus/i.test(file.content));
+    const protocolRtlFiles = continuationFiles
+      .filter((file) => !/\/tb\/|^tb\//i.test(file.relativePath) && isProtocolBehavioralRelatedPath(file.relativePath))
+      .map((file) => file.relativePath);
+    return [
+      'Behavioral context:',
+      `protocol TB window included=${failingTbIncluded ? 'yes' : 'no'}`,
+      `stimulus found=${protocolStimulusFound ? 'yes' : 'no'}`,
+      `protocol RTL files included=${protocolRtlFiles.length > 0 ? protocolRtlFiles.join(', ') : 'none'}`,
+    ].join(' ');
+  }
   const instructionSequenceFound = continuationFiles.some((file) => /AUTOMATA_BEHAVIOR_CONTEXT: CPU (?:instruction|program) stimulus/i.test(file.content));
   const cpuRtlFiles = continuationFiles
     .filter((file) => !/\/tb\/|^tb\//i.test(file.relativePath) && isCpuBehavioralRelatedPath(file.relativePath))
@@ -925,6 +1248,7 @@ export function buildSweepDesignPrompt(params: {
     '# FPGA Architect Design Spec',
     '## Sweep Context',
     `- Sweep design ${params.designIndex + 1}/${FPGA_ARCHITECT_SWEEP_DESIGNS.length}: ${params.preset.label}`,
+    `- Mandatory design class: ${params.preset.designClass}`,
     `- Project name: ${params.preset.projectName}`,
     `- Output root: ${params.outputRoot}`,
     isRepairContinuation
@@ -1007,6 +1331,7 @@ export async function runFpgaArchitectStressLoop(params: {
     model: string;
     prompt: string;
     signal?: AbortSignal;
+    generationProfile?: any;
   }) => Promise<any>;
   validateMacroOutput: (...args: any[]) => any;
   buildArtifactRetryPrompt: (...args: any[]) => string;
@@ -1026,6 +1351,7 @@ export async function runFpgaArchitectStressLoop(params: {
   designPresets?: FpgaArchitectSweepPreset[];
   attemptsPerDesign?: number;
   providerRetryDelayMs?: number;
+  sweepMode?: FpgaSweepMode;
   onProgress?: (progress: {
     currentLoop: number;
     totalLoops: number;
@@ -1046,6 +1372,11 @@ export async function runFpgaArchitectStressLoop(params: {
     innerRepairFailureCode?: string;
     innerRepairFileLine?: string;
     innerRepairStatus?: string;
+    architectureStage?: string;
+    architectureStageIndex?: number;
+    architectureStageTotal?: number;
+    architectureStageComponent?: string;
+    architectureStageStatus?: string;
   }) => void;
 }) {
   const {
@@ -1095,8 +1426,10 @@ export async function runFpgaArchitectStressLoop(params: {
     designPresets = FPGA_ARCHITECT_SWEEP_DESIGNS,
     attemptsPerDesign = FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN,
     providerRetryDelayMs = 60_000,
+    sweepMode: requestedSweepMode,
     onProgress,
   } = params;
+  const sweepMode = requestedSweepMode || getFpgaPipelineConfig().defaultSweepMode;
 
   if (getProviderDeployment(selectedProvider) !== 'local') {
     throw new Error('The FPGA Architect multi-design sweep currently supports local providers only.');
@@ -1106,6 +1439,7 @@ export async function runFpgaArchitectStressLoop(params: {
   const logDirectory = path.join(projectPath, '.automata-logicpro');
   const masterLogPath = path.join(logDirectory, 'fpga-architect-sweep.log');
   const modelQualityScoreboardPath = path.join(logDirectory, 'model-quality-scoreboard.json');
+  const goldenContractDirectory = path.join(logDirectory, 'fpga-architect-golden-contracts');
   const metaPath = path.join(logDirectory, 'fpga-architect-sweep.meta.json');
   const sweepOutputRoot = path.join(projectPath, 'fpga-architect-sweep');
   const runtimeInfo = await buildFpgaArchitectSweepRuntimeInfo();
@@ -1134,12 +1468,17 @@ export async function runFpgaArchitectStressLoop(params: {
     }),
     'utf8',
   );
+  await appendLog(masterLogPath, `Sweep Mode: ${sweepMode}`);
   await writeFpgaArchitectSweepMeta(metaPath, runtimeInfo);
 
   const designSummaries: FpgaArchitectStressLoopDesignSummary[] = [];
   let globalFailures = 0;
   let globalProviderRuntimeFailures = 0;
   let globalContextBudgetFailures = 0;
+  let globalArchitectureContractFailures = 0;
+  const globalContractIssues: FpgaArchitectureContractIssue[] = [];
+  const globalContractAttemptLogPaths: string[] = [];
+  let globalContractFallbackUsed = false;
   const results: RunLoopAttemptResult[] = [];
   let currentGlobalAttempt = 0;
 
@@ -1228,9 +1567,25 @@ export async function runFpgaArchitectStressLoop(params: {
     const designFeedbackMap = new Map<string, FpgaArchitectSweepFeedbackItem>();
     const repairPoisonCounts = new Map<string, number>();
     let continuationFiles: SweepContinuationFile[] = [];
-    let approvedArchitectureContract: FpgaArchitectureContract | null = null;
+    const goldenContract = sweepMode === 'clean_reproducibility'
+      ? await readFpgaGoldenContract(goldenContractDirectory, preset)
+      : null;
+    let approvedArchitectureContract: FpgaArchitectureContract | null = goldenContract?.contract || null;
     let designProviderRuntimeFailures = 0;
     let designContextBudgetFailures = 0;
+    let designArchitectureContractFailures = 0;
+    const designContractIssues: FpgaArchitectureContractIssue[] = [];
+    const designContractAttemptLogPaths: string[] = [];
+    let designContractFallbackUsed = false;
+    const modelOutputBudgetRetryCounts = new Map<string, number>();
+    await appendLog(
+      designLogPath,
+      [
+        `Sweep Mode: ${sweepMode}`,
+        `Golden Contract: ${goldenContract ? 'loaded' : 'not available'}`,
+        `Architecture Contract Hash: ${goldenContract?.contractHash || 'pending'}`,
+      ].join('\n'),
+    );
 
     let designAttempt = 1;
     while (designAttempt <= attemptsPerDesign) {
@@ -1239,6 +1594,9 @@ export async function runFpgaArchitectStressLoop(params: {
       }
 
       const activeGlobalAttempt = currentGlobalAttempt + 1;
+      const attemptKey = `${preset.key}:${designAttempt}`;
+      const modelOutputBudgetRetryCount = modelOutputBudgetRetryCounts.get(attemptKey) || 0;
+      const reducedPromptProfile = modelOutputBudgetRetryCount > 0;
       onProgress?.({
         currentLoop: activeGlobalAttempt,
         totalLoops: totalAttempts,
@@ -1270,12 +1628,14 @@ export async function runFpgaArchitectStressLoop(params: {
       });
       await appendLog(designLogPath, attemptHeader);
       await appendLog(masterLogPath, attemptHeader);
-      const isRepairContinuation = continuationFiles.length > 0;
+      const isRepairContinuation = sweepMode === 'repair_convergence' && continuationFiles.length > 0 && !reducedPromptProfile;
       if (!isRepairContinuation) {
         await resetDesignOutputRoot(designOutputRoot);
       }
-      const activeFeedbackItems = getSortedFeedbackItems(designFeedbackMap);
-      const modelQualityGuidance = designAttempt > 1
+      const activeFeedbackItems = sweepMode === 'repair_convergence' && !reducedPromptProfile
+        ? getSortedFeedbackItems(designFeedbackMap)
+        : [];
+      const modelQualityGuidance = sweepMode === 'repair_convergence' && designAttempt > 1 && !reducedPromptProfile
         ? buildModelQualityGuidanceSection({
           scoreboard: modelQualityScoreboard,
           provider: selectedProvider,
@@ -1294,10 +1654,12 @@ export async function runFpgaArchitectStressLoop(params: {
         designLogPath,
         [
           `Context mode: ${isRepairContinuation ? 'repair continuation' : 'clean generation'}`,
+          `Sweep mode: ${sweepMode}`,
           `Design-specific feedback packets: ${activeFeedbackItems.length}`,
           `Model-quality feedback packets: ${modelQualityGuidancePackets}`,
           `Model-quality feedback scope: ${modelQualityGuidanceScope}`,
           `Continuation file count: ${continuationFiles.length}`,
+          `Reduced prompt profile: ${reducedPromptProfile ? 'yes - retrying after model output budget exhaustion' : 'no'}`,
           `Architecture contract: ${approvedArchitectureContract ? 'reused approved contract' : 'proposal required before VHDL generation'}`,
           feedbackSnapshot,
         ].join('\n'),
@@ -1306,10 +1668,12 @@ export async function runFpgaArchitectStressLoop(params: {
         masterLogPath,
         [
           `Context mode: ${isRepairContinuation ? 'repair continuation' : 'clean generation'}`,
+          `Sweep mode: ${sweepMode}`,
           `Design-specific feedback packets: ${activeFeedbackItems.length}`,
           `Model-quality feedback packets: ${modelQualityGuidancePackets}`,
           `Model-quality feedback scope: ${modelQualityGuidanceScope}`,
           `Continuation file count: ${continuationFiles.length}`,
+          `Reduced prompt profile: ${reducedPromptProfile ? 'yes - retrying after model output budget exhaustion' : 'no'}`,
           `Architecture contract: ${approvedArchitectureContract ? 'reused approved contract' : 'proposal required before VHDL generation'}`,
           feedbackSnapshot,
         ].join('\n'),
@@ -1424,6 +1788,44 @@ export async function runFpgaArchitectStressLoop(params: {
           saveFpgaArchitectProject,
           buildFpgaArchitectMarkdownReport,
           validateGeneratedVhdlWithGhdl,
+          onArchitectureStageProgress: async (stageProgress: {
+            stage: string;
+            stageIndex: number;
+            totalStages: number;
+            componentId: string;
+            status: string;
+          }) => {
+            onProgress?.({
+              currentLoop: activeGlobalAttempt,
+              totalLoops: totalAttempts,
+              completedAttempts: results.length,
+              failures: globalFailures,
+              successes: results.length - globalFailures,
+              providerPaused: false,
+              providerMessage: '',
+              providerRetryAt: '',
+              currentDesignKey: preset.key,
+              currentDesignLabel: preset.label,
+              currentDesignIndex: designIndex + 1,
+              totalDesigns: designPresets.length,
+              currentDesignAttempt: designAttempt,
+              attemptsPerDesign,
+              architectureStage: stageProgress.stage,
+              architectureStageIndex: stageProgress.stageIndex,
+              architectureStageTotal: stageProgress.totalStages,
+              architectureStageComponent: stageProgress.componentId,
+              architectureStageStatus: stageProgress.status,
+            });
+            const progressLine = [
+              'ARCHITECTURE_STAGE_PROGRESS',
+              `stage=${stageProgress.stageIndex}/${stageProgress.totalStages}`,
+              `name=${stageProgress.stage}`,
+              `component=${stageProgress.componentId || 'none'}`,
+              `status=${stageProgress.status}`,
+            ].join(' | ');
+            await appendLog(designLogPath, progressLine);
+            await appendLog(masterLogPath, `${preset.label}\n${progressLine}`);
+          },
           onInnerRepairProgress: async (repairProgress: {
             repairAttempt: number;
             repairTotal: number;
@@ -1466,12 +1868,23 @@ export async function runFpgaArchitectStressLoop(params: {
 
         if (analysisResult?.architectureContract) {
           approvedArchitectureContract = analysisResult.architectureContract;
+          if (sweepMode === 'clean_reproducibility' && approvedArchitectureContract.schemaVersion === '2.0') {
+            await writeFpgaGoldenContract(goldenContractDirectory, preset, approvedArchitectureContract);
+          }
         }
 
+        const architectureContractHash = approvedArchitectureContract
+          ? hashFpgaArchitectureContract(approvedArchitectureContract)
+          : null;
+        const generatedVhdlHash = analysisResult?.architectProject
+          ? hashGeneratedFpgaVhdl(analysisResult.architectProject)
+          : null;
         const successMessage = [
           'PASS',
           analysisResult?.validation?.summary ? `Validation: ${analysisResult.validation.summary}` : '',
           analysisResult?.outputDirectory ? `Output: ${analysisResult.outputDirectory}` : '',
+          architectureContractHash ? `Architecture Contract Hash: ${architectureContractHash}` : '',
+          generatedVhdlHash ? `Generated VHDL Hash: ${generatedVhdlHash}` : '',
         ].filter(Boolean).join('\n');
         const resultEntry: RunLoopAttemptResult = {
           attempt: activeGlobalAttempt,
@@ -1481,6 +1894,8 @@ export async function runFpgaArchitectStressLoop(params: {
           ok: true,
           message: successMessage,
           generatedVhdlValidation: null,
+          architectureContractHash,
+          generatedVhdlHash,
         };
         currentGlobalAttempt = activeGlobalAttempt;
         results.push(resultEntry);
@@ -1492,6 +1907,10 @@ export async function runFpgaArchitectStressLoop(params: {
           designKey: preset.key,
           ok: true,
         });
+        const successRepairFeedbackItems = normalizeRepairAuditFeedbackItems(analysisResult?.validation?.repairAudit);
+        const successFeedbackMergeResult = sweepMode === 'repair_convergence'
+          ? mergeFeedbackItems(designFeedbackMap, successRepairFeedbackItems)
+          : { repeatedKnownFailures: 0, newFailureClasses: 0 };
         await writeModelQualityScoreboard(modelQualityScoreboardPath, modelQualityScoreboard);
         onProgress?.({
           currentLoop: activeGlobalAttempt,
@@ -1515,6 +1934,16 @@ export async function runFpgaArchitectStressLoop(params: {
           innerRepairStatus: '',
         });
         await appendLog(designLogPath, successMessage);
+        if (successRepairFeedbackItems.length > 0) {
+          const successFeedbackMessage = [
+            'PASSED_WITH_INNER_REPAIR_FEEDBACK',
+            `Captured repair feedback packets: ${successRepairFeedbackItems.length}`,
+            `Repeated known failures: ${successFeedbackMergeResult.repeatedKnownFailures}`,
+            `New failure classes: ${successFeedbackMergeResult.newFailureClasses}`,
+          ].join('\n');
+          await appendLog(designLogPath, successFeedbackMessage);
+          await appendLog(masterLogPath, `${preset.label}\n${successFeedbackMessage}`);
+        }
         await appendLog(masterLogPath, `PASS\n${preset.label}\n${successMessage}`);
         continuationFiles = [];
         designAttempt += 1;
@@ -1523,12 +1952,64 @@ export async function runFpgaArchitectStressLoop(params: {
         const annotatedError = error as FpgaArchitectAttemptErrorLike | undefined;
         if (annotatedError?.fpgaArchitectureContract) {
           approvedArchitectureContract = annotatedError.fpgaArchitectureContract;
+          if (sweepMode === 'clean_reproducibility' && approvedArchitectureContract.schemaVersion === '2.0') {
+            await writeFpgaGoldenContract(goldenContractDirectory, preset, approvedArchitectureContract);
+          }
         }
         const failureDetails = annotatedError?.generatedVhdlValidation?.failureDetails || [];
-        const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
+      const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
           message,
           generatedVhdlValidation: annotatedError?.generatedVhdlValidation || null,
         });
+        const contractIssues = getContractIssuesFromError(error);
+        const isContractFailure = isArchitectureContractFailure(error, diagnostic.category);
+        let contractIssueArtifactPath: string | null = null;
+        if (isContractFailure) {
+          contractIssueArtifactPath = await writeContractIssueArtifact({
+            logDirectory,
+            preset,
+            attempt: activeGlobalAttempt,
+            designAttempt,
+            issues: contractIssues,
+            message,
+          });
+          globalArchitectureContractFailures += 1;
+          designArchitectureContractFailures += 1;
+          globalContractIssues.push(...contractIssues);
+          designContractIssues.push(...contractIssues);
+          globalContractAttemptLogPaths.push(contractIssueArtifactPath);
+          designContractAttemptLogPaths.push(contractIssueArtifactPath);
+        }
+        if (
+          isContractFailure
+          && designAttempt === attemptsPerDesign
+          && !approvedArchitectureContract
+          && !designContractFallbackUsed
+          && isContractFallbackEligible(contractIssues)
+        ) {
+          approvedArchitectureContract = buildFpgaArchitectureContractDraft({
+            userRequest: buildSweepDesignPrompt({
+              basePrompt: `Generate the ${preset.label} preset. Mandatory design class: ${preset.designClass}.`,
+              preset,
+              outputRoot: designOutputRoot,
+              designIndex,
+              failureFeedbackItems: [],
+              continuationFiles: [],
+              modelQualityGuidance: '',
+            }),
+          });
+          designContractFallbackUsed = true;
+          globalContractFallbackUsed = true;
+          const fallbackMessage = [
+            'ARCHITECTURE CONTRACT FALLBACK',
+            'All model contract-stage failures for this design are formatting/shape/source-order repair classes.',
+            'The app is providing a deterministic baseline Architecture Contract V2 so VHDL generation can proceed under a marked fallback mode.',
+            `Fallback contract hash: ${hashFpgaArchitectureContract(approvedArchitectureContract)}`,
+          ].join('\n');
+          await appendLog(designLogPath, fallbackMessage);
+          await appendLog(masterLogPath, `${preset.label}\n${fallbackMessage}`);
+          continue;
+        }
         if (diagnostic.category === 'provider_runtime') {
           globalProviderRuntimeFailures += 1;
           designProviderRuntimeFailures += 1;
@@ -1613,6 +2094,112 @@ export async function runFpgaArchitectStressLoop(params: {
           });
           continue;
         }
+        if (diagnostic.category === 'context_budget' && isModelOutputBudgetExhausted(message)) {
+          globalContextBudgetFailures += 1;
+          designContextBudgetFailures += 1;
+          continuationFiles = [];
+          modelOutputBudgetRetryCounts.set(attemptKey, modelOutputBudgetRetryCount + 1);
+          if (modelOutputBudgetRetryCount >= 1 && !approvedArchitectureContract) {
+            approvedArchitectureContract = buildFpgaArchitectureContractDraft({
+              userRequest: buildSweepDesignPrompt({
+                basePrompt: `Generate the ${preset.label} preset. Mandatory design class: ${preset.designClass}.`,
+                preset,
+                outputRoot: designOutputRoot,
+                designIndex,
+                failureFeedbackItems: [],
+                continuationFiles: [],
+                modelQualityGuidance: '',
+              }),
+            });
+            designContractFallbackUsed = true;
+            globalContractFallbackUsed = true;
+            const fallbackMessage = [
+              'MODEL OUTPUT CONTRACT FALLBACK',
+              'failureCode: model_output_budget_exhausted',
+              message,
+              'The local model exhausted output while proposing the Architecture Contract JSON twice.',
+              'The app is using its deterministic baseline Architecture Contract V2 and retrying the same attempt without counting pass/fail.',
+              `Fallback contract hash: ${hashFpgaArchitectureContract(approvedArchitectureContract)}`,
+            ].join('\n');
+            await appendLog(designLogPath, fallbackMessage);
+            await appendLog(masterLogPath, `${preset.label}\n${fallbackMessage}`);
+            onProgress?.({
+              currentLoop: activeGlobalAttempt,
+              totalLoops: totalAttempts,
+              completedAttempts: results.length,
+              failures: globalFailures,
+              successes: results.length - globalFailures,
+              providerPaused: false,
+              providerMessage: 'Model output budget exhausted twice. Using app-owned architecture contract fallback and retrying the same attempt.',
+              providerRetryAt: '',
+              currentDesignKey: preset.key,
+              currentDesignLabel: preset.label,
+              currentDesignIndex: designIndex + 1,
+              totalDesigns: designPresets.length,
+              currentDesignAttempt: designAttempt,
+              attemptsPerDesign,
+              innerRepairAttempt: 0,
+              innerRepairTotal: 0,
+              innerRepairFailureCode: 'model_output_budget_exhausted',
+              innerRepairFileLine: '',
+              innerRepairStatus: 'using app-owned contract fallback',
+            });
+            continue;
+          }
+          const shouldUseReducedPrompt = modelOutputBudgetRetryCount < 1;
+          const retryAt = shouldUseReducedPrompt
+            ? ''
+            : new Date(Date.now() + Math.max(0, providerRetryDelayMs)).toISOString();
+          const pauseMessage = shouldUseReducedPrompt
+            ? `Model output budget exhausted. Retrying attempt ${activeGlobalAttempt}/${totalAttempts} with a reduced prompt profile; this does not count as pass/fail.`
+            : `Model output budget exhausted. The sweep is paused and will retry attempt ${activeGlobalAttempt}/${totalAttempts} at ${retryAt} without counting this as pass/fail.`;
+          await appendLog(
+            designLogPath,
+            [
+              'MODEL OUTPUT BUDGET PAUSE',
+              'failureCode: model_output_budget_exhausted',
+              message,
+              pauseMessage,
+              `Retry delay ms: ${shouldUseReducedPrompt ? 0 : Math.max(0, providerRetryDelayMs)}`,
+            ].join('\n'),
+          );
+          await appendLog(
+            masterLogPath,
+            [
+              'MODEL OUTPUT BUDGET PAUSE',
+              preset.label,
+              'failureCode: model_output_budget_exhausted',
+              message,
+              pauseMessage,
+              `Retry delay ms: ${shouldUseReducedPrompt ? 0 : Math.max(0, providerRetryDelayMs)}`,
+            ].join('\n'),
+          );
+          onProgress?.({
+            currentLoop: activeGlobalAttempt,
+            totalLoops: totalAttempts,
+            completedAttempts: results.length,
+            failures: globalFailures,
+            successes: results.length - globalFailures,
+            providerPaused: false,
+            providerMessage: pauseMessage,
+            providerRetryAt: retryAt,
+            currentDesignKey: preset.key,
+            currentDesignLabel: preset.label,
+            currentDesignIndex: designIndex + 1,
+            totalDesigns: designPresets.length,
+            currentDesignAttempt: designAttempt,
+            attemptsPerDesign,
+            innerRepairAttempt: 0,
+            innerRepairTotal: 0,
+            innerRepairFailureCode: 'model_output_budget_exhausted',
+            innerRepairFileLine: '',
+            innerRepairStatus: shouldUseReducedPrompt ? 'retrying with reduced prompt' : 'paused before retry',
+          });
+          if (!shouldUseReducedPrompt) {
+            await waitForProviderRetry();
+          }
+          continue;
+        }
         const isContextBudgetFailure = diagnostic.category === 'context_budget';
         if (isContextBudgetFailure) {
           globalContextBudgetFailures += 1;
@@ -1620,7 +2207,9 @@ export async function runFpgaArchitectStressLoop(params: {
         }
         globalFailures += 1;
         const feedbackItems = collectFeedbackItemsFromFailure(error, message);
-        const feedbackMergeResult = mergeFeedbackItems(designFeedbackMap, feedbackItems);
+        const feedbackMergeResult = sweepMode === 'repair_convergence'
+          ? mergeFeedbackItems(designFeedbackMap, feedbackItems)
+          : { repeatedKnownFailures: 0, newFailureClasses: 0 };
         const poisonKeys = collectRepairPoisonKeys(failureDetails, message);
         let poisonedRepairContinuation = false;
         for (const poisonKey of poisonKeys) {
@@ -1630,12 +2219,14 @@ export async function runFpgaArchitectStressLoop(params: {
             poisonedRepairContinuation = true;
           }
         }
-        const nextContinuationFiles = await collectSweepContinuationFiles(
-          designOutputRoot,
-          failureDetails,
-          message,
-          { poisonedRepair: poisonedRepairContinuation },
-        );
+        const nextContinuationFiles = sweepMode === 'repair_convergence'
+          ? await collectSweepContinuationFiles(
+            designOutputRoot,
+            failureDetails,
+            message,
+            { poisonedRepair: poisonedRepairContinuation },
+          )
+          : [];
         const behavioralContextLogLine = buildBehavioralContextLogLine(failureDetails, nextContinuationFiles);
         if (nextContinuationFiles.length > 0) {
           continuationFiles = nextContinuationFiles;
@@ -1661,7 +2252,10 @@ export async function runFpgaArchitectStressLoop(params: {
           failure: {
             category: diagnostic.category,
             label: diagnostic.label,
-            failureCode: feedbackItems[0]?.failureCode || null,
+            failureCode: isContractFailure ? 'architecture_contract_validation_failed' : (feedbackItems[0]?.failureCode || null),
+            stage: isContractFailure ? 'architecture_contract' : (isContextBudgetFailure ? 'context_budget' : 'vhdl_generation'),
+            issueCodes: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.code))).slice(0, 20) : [],
+            issuePaths: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.path))).slice(0, 20) : [],
             ruleIds: diagnostic.ruleIds,
             message,
             forbiddenConstruct: feedbackItems[0]?.forbiddenConstruct || null,
@@ -1694,8 +2288,10 @@ export async function runFpgaArchitectStressLoop(params: {
           designLogPath,
           [
             'FAIL',
+            isContractFailure ? 'Architecture proposal failed validation before VHDL generation.' : '',
             message,
             `Failure category: ${diagnostic.label}`,
+            isContractFailure ? formatContractIssueLog(contractIssues, contractIssueArtifactPath) : '',
             `Repeated known failures: ${feedbackMergeResult.repeatedKnownFailures}`,
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
             `Poisoned repair continuation: ${poisonedRepairContinuation ? 'yes' : 'no'}`,
@@ -1709,8 +2305,10 @@ export async function runFpgaArchitectStressLoop(params: {
           [
             'FAIL',
             preset.label,
+            isContractFailure ? 'Architecture proposal failed validation before VHDL generation.' : '',
             message,
             `Failure category: ${diagnostic.label}`,
+            isContractFailure ? formatContractIssueLog(contractIssues, contractIssueArtifactPath) : '',
             `Repeated known failures: ${feedbackMergeResult.repeatedKnownFailures}`,
             `New failure classes: ${feedbackMergeResult.newFailureClasses}`,
             `Poisoned repair continuation: ${poisonedRepairContinuation ? 'yes' : 'no'}`,
@@ -1725,8 +2323,12 @@ export async function runFpgaArchitectStressLoop(params: {
 
     const designFailureBuckets = summarizeFpgaArchitectLoopFailures(designResults);
     const designFailures = designResults.filter((entry) => !entry.ok).length;
-    const designCodeQualityFailures = Math.max(0, designFailures - designContextBudgetFailures);
+    const designCodeQualityFailures = Math.max(0, designFailures - designContextBudgetFailures - designArchitectureContractFailures);
     const designSuccesses = designResults.length - designFailures;
+    const designContractIssueBuckets = summarizeContractIssueBuckets(designContractIssues);
+    const reproducibility = summarizeFpgaReproducibility(
+      designResults.flatMap((entry) => entry.ok && entry.generatedVhdlHash ? [entry.generatedVhdlHash] : []),
+    );
     if (designFailureBuckets.length > 0) {
       await appendLog(
         designLogPath,
@@ -1751,8 +2353,16 @@ export async function runFpgaArchitectStressLoop(params: {
         `Failures: ${designFailures}`,
         `Provider/runtime failures: ${designProviderRuntimeFailures}`,
         `App context-budget failures: ${designContextBudgetFailures}`,
+        `Architecture-contract failures: ${designArchitectureContractFailures}`,
         `Code-quality failures: ${designCodeQualityFailures}`,
+        `Architecture contract fallback used: ${designContractFallbackUsed ? 'yes' : 'no'}`,
+        ...(designContractIssueBuckets.length > 0 ? [
+          'Architecture contract issue buckets:',
+          ...designContractIssueBuckets.map((bucket) => `- ${bucket.code}: ${bucket.count} issue(s); paths=${bucket.paths.join(', ') || 'unknown'}`),
+        ] : []),
         `Successes: ${designSuccesses}`,
+        `Unique successful VHDL hashes: ${reproducibility.uniqueOutputHashes}`,
+        `Reproducibility rate: ${(reproducibility.reproducibilityRate * 100).toFixed(1)}%`,
       ].join('\n'),
     );
     await appendLog(
@@ -1761,7 +2371,9 @@ export async function runFpgaArchitectStressLoop(params: {
         `Summary for ${preset.label}: ${designFailures} failure(s), ${designSuccesses} success(es), ${designResults.length}/${attemptsPerDesign} completed.`,
         `Provider/runtime failures: ${designProviderRuntimeFailures}`,
         `App context-budget failures: ${designContextBudgetFailures}`,
+        `Architecture-contract failures: ${designArchitectureContractFailures}`,
         `Code-quality failures: ${designCodeQualityFailures}`,
+        `Architecture contract fallback used: ${designContractFallbackUsed ? 'yes' : 'no'}`,
         `Detailed Log: ${designLogPath}`,
         '',
       ].join('\n'),
@@ -1777,17 +2389,24 @@ export async function runFpgaArchitectStressLoop(params: {
       failures: designFailures,
       providerRuntimeFailures: designProviderRuntimeFailures,
       contextBudgetFailures: designContextBudgetFailures,
+      architectureContractFailures: designArchitectureContractFailures,
       codeQualityFailures: designCodeQualityFailures,
       successes: designSuccesses,
       results: designResults,
       failureBuckets: designFailureBuckets,
       feedbackSummaries: getSortedFeedbackItems(designFeedbackMap, Number.MAX_SAFE_INTEGER),
+      contractIssueBuckets: designContractIssueBuckets,
+      contractAttemptLogPaths: designContractAttemptLogPaths,
+      contractFallbackUsed: designContractFallbackUsed,
+      uniqueOutputHashes: reproducibility.uniqueOutputHashes,
+      reproducibilityRate: reproducibility.reproducibilityRate,
     });
   }
 
   const failureBuckets = summarizeFpgaArchitectLoopFailures(results);
   const successes = results.filter((entry) => entry.ok).length;
-  const globalCodeQualityFailures = Math.max(0, globalFailures - globalContextBudgetFailures);
+  const globalCodeQualityFailures = Math.max(0, globalFailures - globalContextBudgetFailures - globalArchitectureContractFailures);
+  const globalContractIssueBuckets = summarizeContractIssueBuckets(globalContractIssues);
   if (failureBuckets.length > 0) {
     await appendLog(
       masterLogPath,
@@ -1813,7 +2432,13 @@ export async function runFpgaArchitectStressLoop(params: {
       `Failures: ${globalFailures}`,
       `Provider/runtime failures: ${globalProviderRuntimeFailures}`,
       `App context-budget failures: ${globalContextBudgetFailures}`,
+      `Architecture-contract failures: ${globalArchitectureContractFailures}`,
       `Code-quality failures: ${globalCodeQualityFailures}`,
+      `Architecture contract fallback used: ${globalContractFallbackUsed ? 'yes' : 'no'}`,
+      ...(globalContractIssueBuckets.length > 0 ? [
+        'Architecture contract issue buckets:',
+        ...globalContractIssueBuckets.map((bucket) => `- ${bucket.code}: ${bucket.count} issue(s); paths=${bucket.paths.join(', ') || 'unknown'}`),
+      ] : []),
       `Successes: ${successes}`,
       `Model Quality Scoreboard: ${modelQualityScoreboardPath}`,
       'Stopped Early: no',
@@ -1822,11 +2447,13 @@ export async function runFpgaArchitectStressLoop(params: {
   );
 
   return {
+    sweepMode,
     attempts: totalAttempts,
     completedAttempts: results.length,
     failures: globalFailures,
     providerRuntimeFailures: globalProviderRuntimeFailures,
     contextBudgetFailures: globalContextBudgetFailures,
+    architectureContractFailures: globalArchitectureContractFailures,
     codeQualityFailures: globalCodeQualityFailures,
     successes,
     logFilePath: masterLogPath,
@@ -1836,6 +2463,9 @@ export async function runFpgaArchitectStressLoop(params: {
     staleSweepStateDiscarded,
     results,
     stoppedEarly: false,
+    contractIssueBuckets: globalContractIssueBuckets,
+    contractAttemptLogPaths: globalContractAttemptLogPaths,
+    contractFallbackUsed: globalContractFallbackUsed,
     failureBuckets,
     designSummaries,
   };

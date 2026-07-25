@@ -56,6 +56,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
   ],
   identifierReservedWord: [
     'Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code.',
+    'Spell every VHDL reserved keyword exactly as the language defines it. Never emit truncated, transposed, or approximate keyword tokens such as `downt`, `beign`, `singal`, `entit`, `architecure`, or `proces`; in ranges use only exact `to` or `downto`.',
     'VHDL identifiers are case-insensitive. Never create two visible identifiers that differ only by case or styling, such as package constant `H_ACTIVE` and port `h_active`; rename constants to distinct descriptive names such as `H_ACTIVE_PIXELS` or `V_ACTIVE_LINES`.',
     'This reserved-identifier ban includes entity names, architecture names, package names, enum literals, constants, signals, variables, generics, ports, procedure names, function names, and formal arguments.',
     'In particular, never use VHDL operator keywords such as `and`, `or`, `xor`, `xnor`, `nand`, `nor`, `not`, `sll`, `srl`, `sla`, `sra`, `rol`, or `ror` as user-defined identifiers.',
@@ -72,9 +73,12 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
     'Do not use VHDL logical operator tokens as pseudo-English arithmetic/comparison glue. Expressions such as `a_int and b_int = 0`, `a_int or b_int = 0`, or `a_int xor b_int = 0` are illegal unless both operands are boolean.',
     'Use VHDL operator keywords exactly as defined by the language: `and`, `or`, `xor`, `xnor`, `not`, `sll`, and `srl`. Never emit C/Verilog-style symbols such as `~`, `|`, `^`, backticks, or similar operator punctuation in VHDL expressions.',
     'In VHDL, `&` is concatenation, not bitwise AND. Bitwise `and/or/xor/xnor/not` operations must be performed with the keyword operators on compatible std_logic_vector/unsigned/signed operands of matching widths, with explicit conversions where needed.',
+    'When a boolean expression mixes `and` and `or`, fully parenthesize each boolean group. Never emit ungrouped relation chains such as `not a and not b and r or a and b and not r`; write `((not a) and (not b) and r) or (a and b and (not r))`.',
     'Numeric_std functions such as `resize`, `shift_left`, and `shift_right` operate on `unsigned` or `signed`, not raw `std_logic_vector`. Convert first, for example `resize(unsigned(a), WIDTH)`.',
     'If a helper package/function accepts raw `std_logic_vector` arguments, normalize them into typed local operands before arithmetic, bitwise logic, shifts, or `resize` calls.',
+    'Do not index or slice a type-conversion expression directly. GHDL rejects forms such as `unsigned(data_i)(7)` and `unsigned(data_i)(6 downto 0)`; first assign the conversion to a named typed object such as `data_u := unsigned(data_i);`, then use `data_u(7)` or `data_u(6 downto 0)`.',
     'If an internal result is kept as `unsigned` or `signed`, every branch assigning it must return that same type; do not mix in raw `std_logic_vector` expressions without explicit conversion at the boundary.',
+    'When assigning typed numeric temporaries to `std_logic_vector` objects, convert exactly once at the assignment boundary, for example `result_o <= std_logic_vector(result_u);`. Do not mix unsigned/signed and std_logic_vector assignments into the same temporary object.',
     'At entity instantiation and port-map boundaries, the actual expression must already match the formal typed domain. Do not pass raw `std_logic_vector` actuals into `unsigned`/`signed` formals, and do not wrap already typed actuals in mismatching conversions.',
     'Named numeric subtypes such as `addr_t` and `data_t` are not interchangeable at port-map boundaries just because both are based on `unsigned`. Connect an object of the exact formal subtype or use an explicit local adapter with proven width/range.',
     'Do not call `to_integer` on raw `std_logic` or `std_logic_vector`; convert first with `unsigned(...)` or `signed(...)`.',
@@ -86,6 +90,7 @@ export const GHDL_STRICT_VHDL_RULE_FAMILIES = {
   packageTypeDefinition: [
     'When constraining an existing scalar type such as `integer`, `natural`, or `positive`, use `subtype`, not `type`. For example write `subtype op_index_t is integer range 0 to 7;`, never `type op_index_t is integer range 0 to 7;`.',
     'For scalar numeric types such as `integer`, `natural`, and `positive`, use numeric literals/expressions on assignment. Do not assign bit-string or hex-string literals such as `"00"` or `x"3"` to scalar numeric declarations; use `0`, `3`, or an explicit typed conversion instead.',
+    'Do not assign fixed-width bit/hex literals to differently sized vector objects. A literal like `x"01"` is 8 bits wide; for narrower or generic-width targets use `(others => \'0\')`, `std_logic_vector(to_unsigned(value, target\'length))`, `to_unsigned(value, target\'length)`, or `to_signed(value, target\'length)` as appropriate.',
     'Fixed-range array aggregates such as ROM/RAM initialization must cover every index explicitly or include a safe `others => ...` default matching the element type. Never initialize only the first few addresses of a larger fixed array without `others`.',
     'Aggregate choices must use `=>`, for example `others => x"00"` or `3 => x"03"`. Never repair aggregate choices by changing `=>` to `:`.',
     'Every custom type/subtype/record/array type used across files must have one visible source of truth: declare it in a generated package, import that package with `use work.<pkg>.all;` in every dependent file, and analyze the package before dependents.',
@@ -140,6 +145,7 @@ export const SHARED_GHDL_CONFORMANCE_RULE_LIST = [
 export const FPGA_ARCHITECT_EXTRA_GHDL_RULE_LIST = [
   'For counters specifically, compare against a tracked expected_count that updates only when the DUT is supposed to update. After reset, verify the reset value first, then step through enabled/disabled cycles one full clock at a time.',
   'For ALUs, derive status flags from the computed result with type-correct logic. In particular, a zero flag must be based on the ALU result value, such as `result_int = 0` or `unsigned(result_vec) = 0`, not by combining raw operands with pseudo-English operator text.',
+  'For ALU overflow and flag logic, group every boolean term explicitly. Use patterns such as `((not a_sign) and (not b_sign) and result_sign) or (a_sign and b_sign and (not result_sign))`; never mix `and`/`or` without parentheses.',
   'Keep ALU operand, intermediate, and result types explicit and compatible. Do not apply bitwise logical operators directly to integers.',
   'For ALUs, define opcode encodings in one shared package and make both the DUT and testbench consume that same package. Do not duplicate opcode literals independently in RTL and testbench code.',
   'For ALUs with `std_logic_vector` input ports, immediately normalize them into canonical internal typed operands such as `a_u := unsigned(a);`, `b_u := unsigned(b);`, `a_s := signed(a);`, and `b_s := signed(b);` before arithmetic, bitwise, resize, or shift operations.',

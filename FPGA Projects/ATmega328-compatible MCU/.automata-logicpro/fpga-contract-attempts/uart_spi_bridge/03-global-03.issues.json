@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "uart_spi_bridge",
+  "designLabel": "UART-to-SPI Protocol Bridge with FIFOs",
+  "attempt": 3,
+  "designAttempt": 3,
+  "issueCount": 16,
+  "topIssueCodes": [
+    "architecture_contract_instance_missing",
+    "architecture_contract_source_requirement_claim_missing",
+    "architecture_contract_synthesis_claims_missing",
+    "architecture_contract_synthesis_incomplete"
+  ],
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 16 issue(s).",
+  "issues": [
+    {
+      "code": "architecture_contract_synthesis_incomplete",
+      "path": "$.architectureSynthesis",
+      "message": "architectureSynthesis must include synthesisId and primaryPatternId."
+    },
+    {
+      "code": "architecture_contract_synthesis_claims_missing",
+      "path": "$.architectureSynthesis.evidenceClaimIds",
+      "message": "Curated architecture synthesis must preserve at least one evidence claim id."
+    },
+    {
+      "code": "architecture_contract_source_requirement_claim_missing",
+      "path": "$.sourceGroundedRequirements[0].sourceClaimId",
+      "message": "Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not \"claim_method_amd_hierarchy_ooc\"."
+    },
+    {
+      "code": "architecture_contract_source_requirement_claim_missing",
+      "path": "$.sourceGroundedRequirements[1].sourceClaimId",
+      "message": "Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not \"claim_method_amd_ultrafast_clock_reset_cdc\"."
+    },
+    {
+      "code": "architecture_contract_source_requirement_claim_missing",
+      "path": "$.sourceGroundedRequirements[2].sourceClaimId",
+      "message": "Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not \"claim_method_intel_hdl_style\"."
+    },
+    {
+      "code": "architecture_contract_source_requirement_claim_missing",
+      "path": "$.sourceGroundedRequirements[3].sourceClaimId",
+      "message": "Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not \"claim_method_self_checking_ghdl_flow\"."
+    },
+    {
+      "code": "architecture_contract_source_requirement_claim_missing",
+      "path": "$.sourceGroundedRequirements[4].sourceClaimId",
+      "message": "Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not \"claim_ref_microchip_reference_design_catalog_1\"."
+    },
+    {
+      "code": "architecture_contract_source_requirement_claim_missing",
+      "path": "$.sourceGroundedRequirements[5].sourceClaimId",
+      "message": "Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not \"claim_ref_amd_ip_top_down_flow_1\"."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"uart_rx\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"uart_tx\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"spi_master\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"tx_fifo\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"rx_fifo\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"bridge_control_fsm\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"uart_spi_protocol_bridge_top\" -> \"status_error_block\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"tb_uart_spi_protocol_bridge_top\" -> \"uart_spi_protocol_bridge_top\" requires exactly one instance contract."
+    }
+  ]
+}

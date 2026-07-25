@@ -78,6 +78,27 @@ test('classifyFpgaArchitectLoopFailure maps summary-only subtype-indication GHDL
   assert.equal(diagnostic.label, 'Array / Subtype Misuse');
 });
 
+test('classifyFpgaArchitectLoopFailure maps GHDL internal crashes to validation environment', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure([
+    'Generated VHDL failed GHDL analysis.',
+    '******************** GHDL Bug occurred ***************************',
+    'raised TYPES.INTERNAL_ERROR : files_map.adb:813',
+  ].join('\n'));
+
+  assert.equal(diagnostic.category, 'validation_environment');
+  assert.equal(diagnostic.label, 'Validation Environment');
+  assert.ok(diagnostic.ruleIds.length === 0 || diagnostic.ruleIds.every((ruleId) => typeof ruleId === 'string'));
+});
+
+test('classifyFpgaArchitectLoopFailure maps filesystem validation timeouts to validation environment', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure(
+    'src/decoder.vhd: validation filesystem read failed before GHDL analysis: Operation timed out',
+  );
+
+  assert.equal(diagnostic.category, 'validation_environment');
+  assert.equal(diagnostic.label, 'Validation Environment');
+});
+
 test('classifyFpgaArchitectLoopFailure maps illegal prefix operator failures into illegal operator usage', () => {
   const diagnostic = classifyFpgaArchitectLoopFailure(
     'Core logic simulation analysis failed: src/alu_pkg.vhd:81:35:error: missing ";" at end of statement res.data := xnor a, b;',
@@ -99,6 +120,53 @@ test('classifyFpgaArchitectLoopFailure maps current enum and conversion escapes 
   assert.notEqual(enumDiagnostic.category, 'other');
   assert.equal(conversionDiagnostic.category, 'numeric_std_typing');
   assert.notEqual(conversionDiagnostic.category, 'other');
+});
+
+test('classifyFpgaArchitectLoopFailure maps malformed VHDL keyword typos out of Other', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailure([
+    'Staged GHDL checkpoint failed after leaf component spi_master while analyzing src/spi_master.vhd:',
+    'src/spi_master.vhd:11:41:error: \')\' is expected instead of \'<integer>\'',
+    '    data_i : in std_logic_vector(7 downt 0)',
+    '                                        ^',
+  ].join('\n'));
+
+  assert.equal(diagnostic.category, 'interface_declaration_misuse');
+  assert.notEqual(diagnostic.category, 'other');
+});
+
+test('classifyFpgaArchitectLoopFailure maps staged numeric_std and model-output escapes out of Other', () => {
+  const indexedConversionDiagnostic = classifyFpgaArchitectLoopFailure(
+    'src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced',
+  );
+  const assignmentMismatchDiagnostic = classifyFpgaArchitectLoopFailure(
+    'src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can\'t match "tmp_res" with type array type "STD_ULOGIC_VECTOR"',
+  );
+  const outputBudgetDiagnostic = classifyFpgaArchitectLoopFailure(
+    'Ollama returned no generated text for model "qwen" via /api/chat. Payload summary: done=true; done_reason=length; message_content_length=0',
+  );
+  const mixedLogicalDiagnostic = classifyFpgaArchitectLoopFailure(
+    'src/alu_pkg_for_opcodes_flags.vhd:41:52:error: only one type of logical operators may be used to combine relation',
+  );
+  const stagedDriftDiagnostic = classifyFpgaArchitectLoopFailure(
+    'staged_port_interface_drift\nStaged VHDL for "alu_pkg_for_opcodes_flags" changed the approved port interface.',
+  );
+  const stagedEntityMissingDiagnostic = classifyFpgaArchitectLoopFailure(
+    'staged_component_entity_missing\nStaged VHDL for component "rx_fifo" did not declare entity "rx_fifo".',
+  );
+  const vectorLiteralDiagnostic = classifyFpgaArchitectLoopFailure(
+    'Staged GHDL checkpoint failed after leaf component uart_rx while analyzing src/uart_rx.vhd:\n'
+      + 'src/uart_rx.vhd:33:25:error: string length does not match that of anonymous integer subtype defined at src/uart_rx.vhd:18:39\n'
+      + '            status_s <= x"01";\n'
+      + 'src/uart_rx.vhd:33:25:warning: value constraints don\'t match target ones [-Wruntime-error]',
+  );
+
+  assert.equal(indexedConversionDiagnostic.category, 'numeric_std_typing');
+  assert.equal(assignmentMismatchDiagnostic.category, 'numeric_std_typing');
+  assert.equal(outputBudgetDiagnostic.category, 'context_budget');
+  assert.equal(mixedLogicalDiagnostic.category, 'numeric_std_typing');
+  assert.equal(stagedDriftDiagnostic.category, 'architecture_contract');
+  assert.equal(stagedEntityMissingDiagnostic.category, 'architecture_contract');
+  assert.equal(vectorLiteralDiagnostic.category, 'width_literal_mismatch');
 });
 
 test('classifyFpgaArchitectLoopFailure maps GHDL bound-check failures into runtime bound risk', () => {
@@ -215,4 +283,30 @@ test('classifyFpgaArchitectLoopFailure maps ALU behavioral failures into simulat
   assert.equal(diagnostic.category, 'simulation_assertion');
   assert.equal(diagnostic.label, 'Simulation Assertion');
   assert.ok(diagnostic.ruleIds.includes('ghdl-numeric-std-rules'));
+});
+
+test('classifyFpgaArchitectLoopFailure maps undriven top outputs into top integration contract', () => {
+  const diagnostic = classifyFpgaArchitectLoopFailureWithValidation({
+    message: 'src/cpu_core_top.vhd:12: entity "cpu_core_top" declares output port "done_o" but the architecture never drives it.',
+    generatedVhdlValidation: {
+      ok: false,
+      stage: 'prevalidate',
+      summary: 'undriven top output',
+      logs: [],
+      validatedTopEntities: [],
+      failureCode: 'undriven_top_output_port',
+      failureCategory: 'top_integration_contract',
+      failureDetails: [
+        {
+          code: 'undriven_top_output_port',
+          category: 'top_integration_contract',
+          message: 'src/cpu_core_top.vhd:12: output port "done_o" has no driver',
+          excerpt: 'done_o : out std_logic',
+        },
+      ],
+    },
+  });
+
+  assert.equal(diagnostic.category, 'top_integration_contract');
+  assert.equal(diagnostic.label, 'Top Integration Contract');
 });

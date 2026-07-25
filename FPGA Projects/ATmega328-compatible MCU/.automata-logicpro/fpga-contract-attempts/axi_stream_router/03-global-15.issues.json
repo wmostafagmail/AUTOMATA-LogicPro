@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "axi_stream_router",
+  "designLabel": "AXI-Stream Packet Router / Network Switch",
+  "attempt": 15,
+  "designAttempt": 3,
+  "issueCount": 1,
+  "topIssueCodes": [
+    "architecture_contract_json_invalid"
+  ],
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or ']' after array element in JSON at position 6192 (line 219 column 6)",
+  "issues": [
+    {
+      "code": "architecture_contract_json_invalid",
+      "path": "$",
+      "message": "Expected ',' or ']' after array element in JSON at position 6192 (line 219 column 6)"
+    }
+  ]
+}

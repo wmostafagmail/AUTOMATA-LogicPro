@@ -19,6 +19,7 @@ export type FpgaArchitectLoopFailureCategory =
   | 'array_subtype_misuse'
   | 'signal_variable_assignment_misuse'
   | 'interface_declaration_misuse'
+  | 'top_integration_contract'
   | 'width_literal_mismatch'
   | 'runtime_bound_risk'
   | 'top_level_generic_default'
@@ -39,6 +40,7 @@ export type FpgaArchitectLoopFailureCategory =
   | 'testbench_structure'
   | 'source_selection'
   | 'context_budget'
+  | 'validation_environment'
   | 'other';
 
 export type FpgaArchitectLoopFailureDiagnostic = {
@@ -52,10 +54,7 @@ export type FpgaArchitectLoopFailureDiagnostic = {
 
 type FpgaArchitectFailureLike = {
   message: string;
-  generatedVhdlValidation?: Pick<
-    GeneratedVhdlValidationResult,
-    'failureCode' | 'failureCategory' | 'ruleIds' | 'failureDetails'
-  > | null;
+  generatedVhdlValidation?: Partial<GeneratedVhdlValidationResult> | null;
 };
 
 export type FpgaArchitectLoopFailureBucket = {
@@ -82,6 +81,7 @@ const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
   array_subtype_misuse: 'Array / Subtype Misuse',
   signal_variable_assignment_misuse: 'Signal vs Variable Assignment',
   interface_declaration_misuse: 'Interface / Generic Declaration',
+  top_integration_contract: 'Top Integration Contract',
   width_literal_mismatch: 'Width / Literal Mismatch',
   runtime_bound_risk: 'Runtime Bound Risk',
   top_level_generic_default: 'Top-Level Generic Defaults',
@@ -102,6 +102,7 @@ const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
   testbench_structure: 'Testbench DUT Wiring',
   source_selection: 'Validation Source Selection',
   context_budget: 'Context Budget',
+  validation_environment: 'Validation Environment',
   other: 'Other',
 };
 
@@ -117,6 +118,7 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
   array_subtype_misuse: 'illegal_multidimensional_logic_vector',
   signal_variable_assignment_misuse: 'variable_assigned_with_signal_operator',
   interface_declaration_misuse: 'undeclared_interface_dimension_reference',
+  top_integration_contract: 'undriven_top_output_port',
   width_literal_mismatch: 'verilog_style_literal',
   runtime_bound_risk: 'runtime_bound_check_risk',
   top_level_generic_default: 'top_level_generic_default_missing',
@@ -135,6 +137,7 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
   testbench_structure: 'testbench_missing_dut_instantiation',
   source_selection: 'source_selection',
   context_budget: 'context_budget_exceeded',
+  validation_environment: 'validation_environment',
   simulation_assertion: 'ghdl_simulate_failure',
 };
 
@@ -163,6 +166,7 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'record_field_not_declared':
     case 'custom_type_port_association_mismatch':
     case 'package_symbol_not_visible':
+    case 'missing_reduction_helper':
       return 'package_type_definition';
     case 'incomplete_array_aggregate_choices':
     case 'illegal_multidimensional_logic_vector':
@@ -174,13 +178,18 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
       return 'signal_variable_assignment_misuse';
     case 'undeclared_interface_dimension_reference':
     case 'interface_constant_not_visible':
+    case 'malformed_vhdl_keyword':
     case 'out_port_actual_conversion':
     case 'unknown_port_map_formal':
     case 'unconnected_required_input_port':
+    case 'multiple_signal_driver_or_slice_assignment':
       return 'interface_declaration_misuse';
+    case 'undriven_top_output_port':
+      return 'top_integration_contract';
     case 'verilog_style_literal':
     case 'scalar_bit_string_assignment':
     case 'malformed_character_literal':
+    case 'vector_literal_width_mismatch':
     case 'illegal_others_aggregate_context':
       return 'width_literal_mismatch';
     case 'runtime_bound_check_risk':
@@ -214,6 +223,8 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'to_integer_on_raw_logic_type':
     case 'unsigned_conversion_on_non_vector':
     case 'typed_function_result_mismatch':
+    case 'type_conversion_indexed_or_sliced':
+    case 'typed_assignment_mismatch':
     case 'typed_port_association_mismatch':
     case 'typed_port_width_mismatch':
     case 'custom_numeric_subtype_port_mismatch':
@@ -221,7 +232,10 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'typed_bitwise_mismatch':
     case 'typed_resize_return_mismatch':
     case 'typed_equality_operand_mismatch':
+    case 'arithmetic_on_non_numeric_signal':
     case 'enum_opcode_numeric_conversion_misuse':
+    case 'mixed_logical_operator_precedence':
+    case 'pixel_address_numeric_contract':
       return 'numeric_std_typing';
     case 'illegal_numeric_logical_hybrid':
     case 'illegal_prefix_operator_form':
@@ -240,13 +254,23 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'cpu_reset_pc_behavior_mismatch':
     case 'cpu_fetch_sequence_mismatch':
     case 'cpu_control_signal_behavior_mismatch':
+    case 'cpu_top_status_behavior_mismatch':
+    case 'protocol_status_behavior_mismatch':
     case 'simulation_assertion_expected_actual_mismatch':
     case 'simulation_valid_latency_mismatch':
       return 'simulation_assertion';
     case 'testbench_missing_dut_instantiation':
     case 'checked_signal_not_dut_driven':
     case 'testbench_drives_dut_output_signal':
+    case 'self_checking_testbench_missing_pass_path':
       return 'testbench_structure';
+    case 'staged_port_interface_drift':
+      return 'architecture_contract';
+    case 'model_output_budget_exhausted':
+      return 'context_budget';
+    case 'ghdl_tool_internal_error':
+    case 'validation_filesystem_timeout':
+      return 'validation_environment';
     default:
       return null;
   }
@@ -316,13 +340,28 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
   }
 
   if (category === 'other' && (
-    /input length .*exceeds.*context|context.*budget|prompt.*too large|context_budget_exceeded/i.test(message)
+    /input length .*exceeds.*context|context.*budget|prompt.*too large|context_budget_exceeded|returned no generated text[\s\S]*done_reason=length|done_reason=length[\s\S]*message_content_length=0/i.test(message)
   )) {
     category = 'context_budget';
+    if (/returned no generated text[\s\S]*done_reason=length|done_reason=length[\s\S]*message_content_length=0/i.test(message)) {
+      inferredFailureCode = 'model_output_budget_exhausted';
+    }
   } else if (category === 'other' && (
-    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|drifted from the approved architecture contract/i.test(message)
+    /GHDL Bug occurred|TYPES\.INTERNAL_ERROR|files_map\.adb|internal compiler error|Operation timed out|ETIMEDOUT|No space left on device|dataless|cannotSetXattr/i.test(message)
+  )) {
+    category = 'validation_environment';
+    inferredFailureCode = /GHDL Bug occurred|TYPES\.INTERNAL_ERROR|files_map\.adb|internal compiler error/i.test(message)
+      ? 'ghdl_tool_internal_error'
+      : 'validation_filesystem_timeout';
+  } else if (category === 'other' && (
+    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|drifted from the approved architecture contract|staged_port_interface_drift|staged_component_entity_missing|did not declare entity|changed the approved (?:generic|port) interface/i.test(message)
   )) {
     category = 'architecture_contract';
+    if (/staged_port_interface_drift|changed the approved (?:generic|port) interface/i.test(message)) {
+      inferredFailureCode = 'staged_port_interface_drift';
+    } else if (/staged_component_entity_missing|did not declare entity/i.test(message)) {
+      inferredFailureCode = 'staged_component_entity_missing';
+    }
   } else if (category === 'other' && (
     /manifest was still invalid|json fallback was not valid|markdown manifest was invalid|project json was still invalid|project manifest was still invalid/i.test(message)
   )) {
@@ -351,7 +390,10 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
     category = 'signal_variable_assignment_misuse';
   } else if (category === 'other' && /undeclared width\/generic|interface declaration|generic and port items must use ":"|association syntax/i.test(message)) {
     category = 'interface_declaration_misuse';
-  } else if (category === 'other' && /'others' choice not allowed|malformed one-bit character literal|bit-string literal|Verilog-style literal|sized literals|width\/count|scalar numeric declarations/i.test(message)) {
+  } else if (category === 'other' && /multiple assignments for ".*"|assigned in \d+ separate process drivers/i.test(message)) {
+    category = 'interface_declaration_misuse';
+    inferredFailureCode = 'multiple_signal_driver_or_slice_assignment';
+  } else if (category === 'other' && /string length does not match that of anonymous integer subtype|value constraints don't match target ones|'others' choice not allowed|malformed one-bit character literal|bit-string literal|Verilog-style literal|sized literals|width\/count|scalar numeric declarations/i.test(message)) {
     category = 'width_literal_mismatch';
   } else if (category === 'other' && /bounds explicitly|range errors|unchecked to_integer|runtime-unsafe|bound check failure|index .* out of bounds|range check failed/i.test(message)) {
     category = 'runtime_bound_risk';
@@ -379,6 +421,7 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
     category = 'mixed_clock_edge';
   } else if (category === 'other' && (
     /resize\(|matching "resize"|to_integer\(|shift_left\(|shift_right\(|can't match ".*" with type array type "unresolved_unsigned"|can't match ".*" with type array type "unresolved_signed"|can't match function call with type array type "unresolved_unsigned"|can't match function call with type array type "unresolved_signed"|can't associate ".*" with port ".*"|cannot associate ".*" with port ".*"|calls resize on raw std_logic_vector|raw std_logic_vector/i.test(message)
+    || /type conversion cannot be indexed or sliced|can't match ".*" with type array type "std_ulogic_vector"|only one type of logical operators may be used to combine relation/i.test(message)
   )) {
     category = 'numeric_std_typing';
   } else if (category === 'other' && (
@@ -445,10 +488,7 @@ export function summarizeFpgaArchitectLoopFailures(results: Array<{
   attempt: number;
   ok: boolean;
   message: string;
-  generatedVhdlValidation?: Pick<
-    GeneratedVhdlValidationResult,
-    'failureCode' | 'failureCategory' | 'ruleIds' | 'failureDetails'
-  > | null;
+  generatedVhdlValidation?: Partial<GeneratedVhdlValidationResult> | null;
 }>) {
   const buckets = new Map<string, FpgaArchitectLoopFailureBucket>();
 

@@ -1,6 +1,7 @@
 export type FpgaArchitectSweepPreset = {
   key: string;
   label: string;
+  designClass: string;
   whyItTests: string;
   projectName: string;
   outputFolderName: string;
@@ -20,6 +21,7 @@ export const FPGA_ARCHITECT_SWEEP_DESIGNS: FpgaArchitectSweepPreset[] = [
   {
     key: 'uart_spi_bridge',
     label: 'UART-to-SPI Protocol Bridge with FIFOs',
+    designClass: 'uart_spi_protocol_bridge',
     whyItTests: 'Tests protocol handling, clock-domain thinking, FSMs, buffering, and error handling.',
     projectName: 'uart_spi_protocol_bridge',
     outputFolderName: '01-uart-spi-protocol-bridge',
@@ -73,6 +75,7 @@ export const FPGA_ARCHITECT_SWEEP_DESIGNS: FpgaArchitectSweepPreset[] = [
   {
     key: 'mini_cpu_core',
     label: 'Mini RISC-V / Custom 8-bit CPU Core',
+    designClass: 'cpu_core',
     whyItTests: 'Tests architecture generation, instruction decoding, ALU, registers, program memory, and complex testbench generation.',
     projectName: 'mini_cpu_core',
     outputFolderName: '02-mini-cpu-core',
@@ -125,6 +128,7 @@ export const FPGA_ARCHITECT_SWEEP_DESIGNS: FpgaArchitectSweepPreset[] = [
   {
     key: 'video_pattern_generator',
     label: 'VGA/HDMI Pattern Generator with Framebuffer',
+    designClass: 'video_pattern_generator',
     whyItTests: 'Tests pixel timing, counters, memory addressing, video sync generation, and strict timing behavior.',
     projectName: 'video_pattern_generator',
     outputFolderName: '03-video-pattern-generator',
@@ -175,6 +179,7 @@ export const FPGA_ARCHITECT_SWEEP_DESIGNS: FpgaArchitectSweepPreset[] = [
   {
     key: 'dsp_chain',
     label: 'Digital Signal Processing Chain: FIR Filter + FFT-lite Analyzer',
+    designClass: 'dsp_chain',
     whyItTests: 'Tests arithmetic, signed/fixed-point math, pipelines, and latency-aware testbench generation.',
     projectName: 'dsp_chain',
     outputFolderName: '04-dsp-chain',
@@ -224,6 +229,7 @@ export const FPGA_ARCHITECT_SWEEP_DESIGNS: FpgaArchitectSweepPreset[] = [
   {
     key: 'axi_stream_router',
     label: 'AXI-Stream Packet Router / Network Switch',
+    designClass: 'axi_stream_router',
     whyItTests: 'Tests scalable architecture, streaming handshakes, backpressure, arbitration, and randomized-style testbench scenarios.',
     projectName: 'axi_stream_packet_router',
     outputFolderName: '05-axi-stream-packet-router',

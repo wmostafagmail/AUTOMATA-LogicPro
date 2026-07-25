@@ -55,6 +55,18 @@ export function createAiJobSecurityContext(params: {
       innerRepairFailureCode?: string;
       innerRepairFileLine?: string;
       innerRepairStatus?: string;
+      architectureStage?: string;
+      architectureStageIndex?: number;
+      architectureStageTotal?: number;
+      architectureStageComponent?: string;
+      architectureStageStatus?: string;
+      telemetryAttemptCount?: number;
+      latestAttemptInputTokens?: number | null;
+      latestAttemptOutputTokens?: number | null;
+      jobInputTokens?: number | null;
+      jobOutputTokens?: number | null;
+      tokensPerSecond?: number | null;
+      endToEndTokensPerSecond?: number | null;
     }) => {
       const activeJob = activeAiJobs.get(jobId);
       if (activeJob && activeJob.sessionId === session.id) {
@@ -102,6 +114,18 @@ export function createAiJobSecurityContext(params: {
         innerRepairFailureCode: job.progress.innerRepairFailureCode,
         innerRepairFileLine: job.progress.innerRepairFileLine,
         innerRepairStatus: job.progress.innerRepairStatus,
+        architectureStage: job.progress.architectureStage,
+        architectureStageIndex: job.progress.architectureStageIndex,
+        architectureStageTotal: job.progress.architectureStageTotal,
+        architectureStageComponent: job.progress.architectureStageComponent,
+        architectureStageStatus: job.progress.architectureStageStatus,
+        telemetryAttemptCount: job.progress.telemetryAttemptCount,
+        latestAttemptInputTokens: job.progress.latestAttemptInputTokens,
+        latestAttemptOutputTokens: job.progress.latestAttemptOutputTokens,
+        jobInputTokens: job.progress.jobInputTokens,
+        jobOutputTokens: job.progress.jobOutputTokens,
+        tokensPerSecond: job.progress.tokensPerSecond,
+        endToEndTokensPerSecond: job.progress.endToEndTokensPerSecond,
       },
     });
   };

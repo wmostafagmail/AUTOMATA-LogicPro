@@ -75,6 +75,42 @@ const RESET_STYLE_OPTIONS = [
   { value: 'Reset-less / power-on initialization', label: 'Reset-less / power-on initialization' },
 ];
 
+const ARCHITECTURE_STAGE_LABELS: Record<string, string> = {
+  packages: 'Prepare shared VHDL packages',
+  leaf_rtl: 'Generate RTL building blocks',
+  top_integration: 'Wire the top-level design',
+  testbench: 'Build the self-checking testbench',
+  collateral: 'Create GHDL plan and docs',
+  manifest: 'Assemble final project manifest',
+};
+
+const humanizeArchitectureToken = (value: string) => value
+  .replace(/[_-]+/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .replace(/\b\w/g, (match) => match.toUpperCase());
+
+const describeArchitectureStage = (stage: string) => (
+  ARCHITECTURE_STAGE_LABELS[stage] || humanizeArchitectureToken(stage) || 'Architecture stage'
+);
+
+const describeArchitectureStatus = (params: {
+  stageStatus: string;
+  innerRepairActive: boolean;
+  innerRepairAttempt: number;
+  innerRepairTotal: number;
+  providerPaused: boolean;
+}) => {
+  if (params.providerPaused) return 'Waiting for provider availability';
+  if (params.innerRepairActive) {
+    return `Repair attempt ${params.innerRepairAttempt}/${params.innerRepairTotal || 10}`;
+  }
+  if (params.stageStatus === 'validating') return 'Checking generated VHDL with GHDL';
+  if (params.stageStatus === 'completed') return 'Completed this step';
+  if (params.stageStatus === 'starting') return 'Generating design files';
+  return humanizeArchitectureToken(params.stageStatus) || 'Working';
+};
+
 const loadStoredModelSelections = (): Record<string, string> => {
   if (typeof window === 'undefined') {
     return {};
@@ -199,6 +235,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [architectLoopInnerRepairFailureCode, setArchitectLoopInnerRepairFailureCode] = useState('');
   const [architectLoopInnerRepairFileLine, setArchitectLoopInnerRepairFileLine] = useState('');
   const [architectLoopInnerRepairStatus, setArchitectLoopInnerRepairStatus] = useState('');
+  const [architectLoopStage, setArchitectLoopStage] = useState('');
+  const [architectLoopStageIndex, setArchitectLoopStageIndex] = useState(0);
+  const [architectLoopStageTotal, setArchitectLoopStageTotal] = useState(0);
+  const [architectLoopStageComponent, setArchitectLoopStageComponent] = useState('');
+  const [architectLoopStageStatus, setArchitectLoopStageStatus] = useState('');
+  const [architectLoopTelemetryAttemptCount, setArchitectLoopTelemetryAttemptCount] = useState(0);
+  const [architectLoopLatestInputTokens, setArchitectLoopLatestInputTokens] = useState<number | null>(null);
+  const [architectLoopLatestOutputTokens, setArchitectLoopLatestOutputTokens] = useState<number | null>(null);
+  const [architectLoopJobInputTokens, setArchitectLoopJobInputTokens] = useState<number | null>(null);
+  const [architectLoopJobOutputTokens, setArchitectLoopJobOutputTokens] = useState<number | null>(null);
+  const [architectLoopTokensPerSecond, setArchitectLoopTokensPerSecond] = useState<number | null>(null);
+  const [architectLoopEndToEndTokensPerSecond, setArchitectLoopEndToEndTokensPerSecond] = useState<number | null>(null);
   const [architectLoopResult, setArchitectLoopResult] = useState<{
     failures: number;
     attempts: number;
@@ -221,6 +269,29 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const drawerScrollRef = useRef<HTMLDivElement | null>(null);
   const lowerControlsRef = useRef<HTMLDivElement | null>(null);
   const architectLoopStopRequestedRef = useRef(false);
+  const architectLoopInnerRepairActive =
+    (architectLoopRunning || !!architectLoopJobId)
+    && architectLoopInnerRepairAttempt > 0
+    && architectLoopInnerRepairTotal > 0;
+  const architectureStageLabel = describeArchitectureStage(architectLoopStage);
+  const architectureStageComponentLabel = humanizeArchitectureToken(architectLoopStageComponent);
+  const architectureStageStatusLabel = describeArchitectureStatus({
+    stageStatus: architectLoopStageStatus,
+    innerRepairActive: architectLoopInnerRepairActive,
+    innerRepairAttempt: architectLoopInnerRepairAttempt,
+    innerRepairTotal: architectLoopInnerRepairTotal,
+    providerPaused: architectLoopProviderPaused,
+  });
+  const architectureStageTitle = [
+    architectLoopStageTotal > 0
+      ? `Architecture step ${architectLoopStageIndex}/${architectLoopStageTotal}`
+      : 'Architecture step',
+    architectureStageLabel,
+    architectLoopStageComponent ? `Component: ${architectureStageComponentLabel || architectLoopStageComponent}` : '',
+    `Status: ${architectureStageStatusLabel}`,
+    architectLoopStage ? `Raw stage: ${architectLoopStage}` : '',
+    architectLoopStageStatus ? `Raw status: ${architectLoopStageStatus}` : '',
+  ].filter(Boolean).join(' | ');
 
   useEffect(() => {
     if (!architectLoopJobId) {
@@ -298,6 +369,33 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         setArchitectLoopInnerRepairStatus(typeof data?.progress?.innerRepairStatus === 'string'
           ? data.progress.innerRepairStatus
           : '');
+        setArchitectLoopStage(typeof data?.progress?.architectureStage === 'string'
+          ? data.progress.architectureStage
+          : '');
+        const nextStageIndex = Number(data?.progress?.architectureStageIndex);
+        setArchitectLoopStageIndex(Number.isFinite(nextStageIndex) ? nextStageIndex : 0);
+        const nextStageTotal = Number(data?.progress?.architectureStageTotal);
+        setArchitectLoopStageTotal(Number.isFinite(nextStageTotal) ? nextStageTotal : 0);
+        setArchitectLoopStageComponent(typeof data?.progress?.architectureStageComponent === 'string'
+          ? data.progress.architectureStageComponent
+          : '');
+        setArchitectLoopStageStatus(typeof data?.progress?.architectureStageStatus === 'string'
+          ? data.progress.architectureStageStatus
+          : '');
+        const nextTelemetryAttemptCount = Number(data?.progress?.telemetryAttemptCount);
+        setArchitectLoopTelemetryAttemptCount(Number.isFinite(nextTelemetryAttemptCount) ? nextTelemetryAttemptCount : 0);
+        const nextLatestInputTokens = Number(data?.progress?.latestAttemptInputTokens);
+        setArchitectLoopLatestInputTokens(Number.isFinite(nextLatestInputTokens) ? nextLatestInputTokens : null);
+        const nextLatestOutputTokens = Number(data?.progress?.latestAttemptOutputTokens);
+        setArchitectLoopLatestOutputTokens(Number.isFinite(nextLatestOutputTokens) ? nextLatestOutputTokens : null);
+        const nextJobInputTokens = Number(data?.progress?.jobInputTokens);
+        setArchitectLoopJobInputTokens(Number.isFinite(nextJobInputTokens) ? nextJobInputTokens : null);
+        const nextJobOutputTokens = Number(data?.progress?.jobOutputTokens);
+        setArchitectLoopJobOutputTokens(Number.isFinite(nextJobOutputTokens) ? nextJobOutputTokens : null);
+        const nextTokensPerSecond = Number(data?.progress?.tokensPerSecond);
+        setArchitectLoopTokensPerSecond(Number.isFinite(nextTokensPerSecond) ? nextTokensPerSecond : null);
+        const nextEndToEndTokensPerSecond = Number(data?.progress?.endToEndTokensPerSecond);
+        setArchitectLoopEndToEndTokensPerSecond(Number.isFinite(nextEndToEndTokensPerSecond) ? nextEndToEndTokensPerSecond : null);
       } catch {
         // Keep the loop running quietly even if a single status poll misses.
       }
@@ -381,6 +479,19 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
           : '');
         setArchitectLoopInnerRepairStatus(typeof data?.progress?.innerRepairStatus === 'string'
           ? data.progress.innerRepairStatus
+          : '');
+        setArchitectLoopStage(typeof data?.progress?.architectureStage === 'string'
+          ? data.progress.architectureStage
+          : '');
+        const nextStageIndex = Number(data?.progress?.architectureStageIndex);
+        setArchitectLoopStageIndex(Number.isFinite(nextStageIndex) ? nextStageIndex : 0);
+        const nextStageTotal = Number(data?.progress?.architectureStageTotal);
+        setArchitectLoopStageTotal(Number.isFinite(nextStageTotal) ? nextStageTotal : 0);
+        setArchitectLoopStageComponent(typeof data?.progress?.architectureStageComponent === 'string'
+          ? data.progress.architectureStageComponent
+          : '');
+        setArchitectLoopStageStatus(typeof data?.progress?.architectureStageStatus === 'string'
+          ? data.progress.architectureStageStatus
           : '');
       } catch {
         // Leave the stored job id alone on transient local request failures.
@@ -850,6 +961,18 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     setArchitectLoopInnerRepairFailureCode('');
     setArchitectLoopInnerRepairFileLine('');
     setArchitectLoopInnerRepairStatus('');
+    setArchitectLoopStage('');
+    setArchitectLoopStageIndex(0);
+    setArchitectLoopStageTotal(0);
+    setArchitectLoopStageComponent('');
+    setArchitectLoopStageStatus('');
+    setArchitectLoopTelemetryAttemptCount(0);
+    setArchitectLoopLatestInputTokens(null);
+    setArchitectLoopLatestOutputTokens(null);
+    setArchitectLoopJobInputTokens(null);
+    setArchitectLoopJobOutputTokens(null);
+    setArchitectLoopTokensPerSecond(null);
+    setArchitectLoopEndToEndTokensPerSecond(null);
   };
 
   const handleRunArchitectLoop = async () => {
@@ -990,11 +1113,40 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   };
 
   const architectLoopActive = architectLoopRunning || Boolean(architectLoopJobId);
-  const architectLoopInnerRepairActive =
-    architectLoopActive
-    && architectLoopInnerRepairAttempt > 0
-    && architectLoopInnerRepairTotal > 0;
-
+  const architectLoopAttemptProgress = architectLoopActive
+    ? `${Math.max(architectLoopCurrent, architectLoopCompletedAttempts)}/${architectLoopAttempts}`
+    : null;
+  const architectLoopRetryProgress = architectLoopActive
+    ? architectLoopInnerRepairTotal > 0
+      ? `${architectLoopInnerRepairAttempt}/${architectLoopInnerRepairTotal}`
+      : '0/0'
+    : null;
+  const effectiveStatusPanelTelemetry = architectLoopActive
+    ? {
+        ...statusPanelTelemetry,
+        attemptCount: architectLoopAttemptProgress,
+        retryCount: architectLoopRetryProgress,
+        latestAttemptInputTokens: architectLoopLatestInputTokens,
+        inputTokens: architectLoopLatestInputTokens,
+        jobInputTokens: architectLoopJobInputTokens,
+        outputTokens: architectLoopLatestOutputTokens,
+        jobOutputTokens: architectLoopJobOutputTokens,
+        tokensPerSecond: architectLoopTokensPerSecond,
+        endToEndTokensPerSecond: architectLoopEndToEndTokensPerSecond,
+      }
+    : statusPanelTelemetry;
+  const effectiveStatusPanelText = architectLoopActive
+    ? architectLoopProviderPaused
+      ? 'AI provider paused. Waiting before retrying this attempt.'
+      : architectLoopInnerRepairActive
+        ? `Repair attempt ${architectLoopInnerRepairAttempt}/${architectLoopInnerRepairTotal || 10} is running.`
+        : 'FPGA sweep is running.'
+    : statusPanelText;
+  const effectiveStatusPanelTone = architectLoopActive
+    ? architectLoopProviderPaused
+      ? 'border-brand-amber/35 bg-brand-amber/10 text-brand-amber'
+      : 'border-brand-cyan/35 bg-brand-cyan/10 text-brand-cyan'
+    : statusPanelTone;
   return (
     <div className={`${isOpen ? 'flex' : 'hidden'} w-[360px] md:w-[420px] overflow-x-hidden bg-brand-surface-low border-l border-brand-outline-variant/55 flex-col h-full z-20 select-none flex-none font-sans`}>
       
@@ -1177,6 +1329,71 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   </div>
                 </div>
 
+                {architectLoopActive && architectLoopStage && (
+                  <div
+                    className="rounded-xl border border-brand-outline-variant/45 bg-brand-surface-high/65 px-4 py-3 text-[12px] font-mono font-bold leading-relaxed text-brand-on-surface"
+                    title={architectureStageTitle}
+                  >
+                    <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                      <div className="min-w-0">
+                        <div className="text-brand-cyan">
+                          {architectLoopStageTotal > 0
+                            ? `Step ${architectLoopStageIndex} of ${architectLoopStageTotal}`
+                            : 'Architecture step'}
+                        </div>
+                        <div className="mt-0.5 break-words text-brand-on-surface/90">
+                          {architectureStageLabel}
+                        </div>
+                      </div>
+                      <div className="min-w-0 text-left sm:text-right">
+                        <div className="text-brand-on-surface/55">Current block</div>
+                        <div className="mt-0.5 break-words text-brand-on-surface/85">
+                          {architectureStageComponentLabel || 'Whole design'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                      <div className="min-w-0 break-words text-brand-on-surface/70">
+                        Status: <span className="text-brand-on-surface/90">{architectureStageStatusLabel}</span>
+                      </div>
+                      {architectLoopInnerRepairActive && (
+                        <div className="whitespace-nowrap rounded-lg border border-brand-cyan/25 bg-brand-cyan/10 px-2.5 py-1 text-brand-cyan">
+                          Repair attempt {architectLoopInnerRepairAttempt}/{architectLoopInnerRepairTotal || 10}
+                        </div>
+                      )}
+                    </div>
+
+                    {architectLoopStageTotal > 0 && (
+                      <div
+                        className="mt-3 grid gap-1.5"
+                        style={{ gridTemplateColumns: `repeat(${architectLoopStageTotal}, minmax(0, 1fr))` }}
+                        aria-label={`Architecture generation progress: step ${architectLoopStageIndex} of ${architectLoopStageTotal}`}
+                      >
+                        {Array.from({ length: architectLoopStageTotal }, (_, index) => {
+                          const stepNumber = index + 1;
+                          const isComplete = stepNumber < architectLoopStageIndex
+                            || (stepNumber === architectLoopStageIndex && architectLoopStageStatus === 'completed');
+                          const isCurrent = stepNumber === architectLoopStageIndex && architectLoopStageStatus !== 'completed';
+                          return (
+                            <div
+                              key={stepNumber}
+                              className={`h-1.5 rounded-full ${
+                                isComplete
+                                  ? 'bg-brand-cyan'
+                                  : isCurrent
+                                    ? 'bg-brand-amber'
+                                    : 'bg-brand-outline-variant/45'
+                              }`}
+                              title={`Step ${stepNumber}${isCurrent ? ': current' : isComplete ? ': complete' : ': pending'}`}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {architectLoopInnerRepairActive && (
                   <div
                     className="rounded-xl border border-brand-cyan/35 bg-brand-cyan/10 px-4 py-2 text-[12px] font-mono font-bold leading-relaxed text-brand-cyan"
@@ -1266,11 +1483,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         )}
 
         <JobTelemetryPanel
-          loading={loading}
+          loading={loading || architectLoopActive}
           jobElapsedSeconds={jobElapsedSeconds}
-          statusPanelText={statusPanelText}
-          statusPanelTone={statusPanelTone}
-          statusPanelTelemetry={statusPanelTelemetry}
+          statusPanelText={effectiveStatusPanelText}
+          statusPanelTone={effectiveStatusPanelTone}
+          statusPanelTelemetry={effectiveStatusPanelTelemetry}
           sessionInputDisplayValue={sessionInputDisplayValue}
           sessionOutputDisplayValue={sessionOutputDisplayValue}
         />

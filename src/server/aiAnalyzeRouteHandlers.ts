@@ -5,7 +5,6 @@ import type { AiMacroId, TbGenerationMode } from '../aiMacros';
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { PreparedAiAnalyzeRequest } from './aiAnalyzePreparation';
 import type { FpgaArchitectProject } from './fpgaArchitect';
-import { runFpgaArchitectStressLoop } from './fpgaArchitectStressLoop';
 import { FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS } from '../fpgaArchitectSweepConfig';
 import {
   buildVhdlOrchestratorTaskPrompt,
@@ -38,6 +37,18 @@ type BeginTrackedJobResult = {
     innerRepairFailureCode?: string;
     innerRepairFileLine?: string;
     innerRepairStatus?: string;
+    architectureStage?: string;
+    architectureStageIndex?: number;
+    architectureStageTotal?: number;
+    architectureStageComponent?: string;
+    architectureStageStatus?: string;
+    telemetryAttemptCount?: number;
+    latestAttemptInputTokens?: number | null;
+    latestAttemptOutputTokens?: number | null;
+    jobInputTokens?: number | null;
+    jobOutputTokens?: number | null;
+    tokensPerSecond?: number | null;
+    endToEndTokensPerSecond?: number | null;
   }) => void;
 };
 
@@ -80,6 +91,7 @@ export function createAiAnalyzeRouteContext(params: {
     model: string;
     prompt: string;
     signal?: AbortSignal;
+    generationProfile?: any;
   }) => Promise<any>;
   getProviderDeployment: (provider: string) => 'local' | 'remote';
   requiresRemoteExportConsent: (provider: string) => boolean;
@@ -266,6 +278,9 @@ export function createAiAnalyzeRouteContext(params: {
   const analyzeHandler: express.RequestHandler = async (req, res) => {
     const { provider, signals, query, model, timeUnit, tickDuration, projectContext, projectPath, workspaceFileName } = req.body;
     const simulationMacroContext = req.body?.simulationMacroContext;
+    const architectureRetrievalMode = ['off', 'official_live_opt_in', 'official_live_cached'].includes(req.body?.architectureRetrievalMode)
+      ? req.body.architectureRetrievalMode
+      : 'off';
     const remoteExportPreviewHash = typeof req.body?.remoteExportPreviewHash === 'string'
       ? req.body.remoteExportPreviewHash.trim()
       : '';
@@ -277,7 +292,39 @@ export function createAiAnalyzeRouteContext(params: {
     }
 
     const session = getRequiredSession(req);
-    const { controller, abortTrackedJob } = beginTrackedJob(session, jobId);
+    const { controller, abortTrackedJob, updateTrackedJobProgress } = beginTrackedJob(session, jobId);
+    let telemetryAttemptCount = 0;
+    let liveJobInputTokens = 0;
+    let liveJobOutputTokens = 0;
+    const runTrackedSweepModelAnalysis = async (...args: Parameters<typeof runModelAnalysis>) => {
+      const result = await runModelAnalysis(...args);
+      const telemetry = result?.telemetry || {};
+      telemetryAttemptCount += 1;
+      if (typeof telemetry.inputTokens === 'number' && Number.isFinite(telemetry.inputTokens)) {
+        liveJobInputTokens += Math.max(0, telemetry.inputTokens);
+      }
+      if (typeof telemetry.outputTokens === 'number' && Number.isFinite(telemetry.outputTokens)) {
+        liveJobOutputTokens += Math.max(0, telemetry.outputTokens);
+      }
+      updateTrackedJobProgress({
+        telemetryAttemptCount,
+        latestAttemptInputTokens: typeof telemetry.inputTokens === 'number' && Number.isFinite(telemetry.inputTokens)
+          ? Math.max(0, telemetry.inputTokens)
+          : null,
+        latestAttemptOutputTokens: typeof telemetry.outputTokens === 'number' && Number.isFinite(telemetry.outputTokens)
+          ? Math.max(0, telemetry.outputTokens)
+          : null,
+        jobInputTokens: liveJobInputTokens > 0 ? liveJobInputTokens : null,
+        jobOutputTokens: liveJobOutputTokens > 0 ? liveJobOutputTokens : null,
+        tokensPerSecond: typeof telemetry.tokensPerSecond === 'number' && Number.isFinite(telemetry.tokensPerSecond)
+          ? Math.max(0, telemetry.tokensPerSecond)
+          : null,
+        endToEndTokensPerSecond: typeof telemetry.endToEndTokensPerSecond === 'number' && Number.isFinite(telemetry.endToEndTokensPerSecond)
+          ? Math.max(0, telemetry.endToEndTokensPerSecond)
+          : null,
+      });
+      return result;
+    };
 
     req.on('aborted', () => {
       abortTrackedJob('Request was cancelled by the client connection.');
@@ -381,8 +428,9 @@ export function createAiAnalyzeRouteContext(params: {
         userQuery: query,
         preparedPrompt: preparedRemotePrompt,
         enforceFpgaArchitectureContractGate: macroId === 'fpga_vhdl_architect',
+        architectureRetrievalMode,
         applyMandatoryVhdlSkill,
-        runModelAnalysis,
+        runModelAnalysis: runTrackedSweepModelAnalysis,
         validateMacroOutput,
         buildArtifactRetryPrompt,
         buildValidationRetryPrompt,
@@ -398,6 +446,21 @@ export function createAiAnalyzeRouteContext(params: {
         saveFpgaArchitectProject,
         buildFpgaArchitectMarkdownReport,
         validateGeneratedVhdlWithGhdl,
+        onArchitectureStageProgress: async (stageProgress: {
+          stage: string;
+          stageIndex: number;
+          totalStages: number;
+          componentId: string;
+          status: string;
+        }) => {
+          updateTrackedJobProgress({
+            architectureStage: stageProgress.stage,
+            architectureStageIndex: stageProgress.stageIndex,
+            architectureStageTotal: stageProgress.totalStages,
+            architectureStageComponent: stageProgress.componentId,
+            architectureStageStatus: stageProgress.status,
+          });
+        },
       });
 
       return res.json({
@@ -416,6 +479,7 @@ export function createAiAnalyzeRouteContext(params: {
         generatedFiles: analysisResult.generatedFiles,
         architectProject: analysisResult.architectProject || null,
         architectureContract: analysisResult.architectureContract || null,
+        pipeline: analysisResult.pipeline || null,
         validation: analysisResult.validation,
         deterministicSkillSelection: analysisResult.deterministicSkillSelection,
         jobId,
@@ -445,6 +509,11 @@ export function createAiAnalyzeRouteContext(params: {
     const query = typeof req.body?.query === 'string' ? req.body.query.trim() : '';
     const projectPath = typeof req.body?.projectPath === 'string' ? req.body.projectPath.trim() : '';
     const workspaceFileName = typeof req.body?.workspaceFileName === 'string' ? req.body.workspaceFileName.trim() : '';
+    const requestedSweepMode = req.body?.sweepMode === 'clean_reproducibility'
+      ? 'clean_reproducibility'
+      : req.body?.sweepMode === 'repair_convergence'
+        ? 'repair_convergence'
+        : undefined;
     const jobId = typeof req.body?.jobId === 'string' && req.body.jobId.trim() ? req.body.jobId.trim() : randomUUID();
 
     if (!provider) {
@@ -473,6 +542,7 @@ export function createAiAnalyzeRouteContext(params: {
     });
 
     try {
+      const { runFpgaArchitectStressLoop } = await import('./fpgaArchitectStressLoop');
       const loopResult = await runFpgaArchitectStressLoop({
         ai,
         selectedProvider: provider,
@@ -480,6 +550,7 @@ export function createAiAnalyzeRouteContext(params: {
         userQuery: query,
         projectPath,
         workspaceFileName: workspaceFileName || null,
+        sweepMode: requestedSweepMode,
         session,
         sessionManager,
         signal: controller.signal,
@@ -537,6 +608,11 @@ export function createAiAnalyzeRouteContext(params: {
           innerRepairFailureCode,
           innerRepairFileLine,
           innerRepairStatus,
+          architectureStage,
+          architectureStageIndex,
+          architectureStageTotal,
+          architectureStageComponent,
+          architectureStageStatus,
         }) => {
           updateTrackedJobProgress({
             currentLoop,
@@ -558,6 +634,11 @@ export function createAiAnalyzeRouteContext(params: {
             innerRepairFailureCode,
             innerRepairFileLine,
             innerRepairStatus,
+            architectureStage,
+            architectureStageIndex,
+            architectureStageTotal,
+            architectureStageComponent,
+            architectureStageStatus,
           });
         },
       });

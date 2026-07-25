@@ -36,6 +36,11 @@ import {
 } from './src/server/fpgaArchitect.ts';
 import { validateGeneratedVhdlWithGhdl } from './src/server/generatedVhdlValidation.ts';
 import {
+  buildOllamaGenerationOptions,
+  buildOpenAiCompatibleGenerationOptions,
+  type ModelGenerationProfile,
+} from './src/server/modelGenerationProfiles.ts';
+import {
   buildMacroSignalIndexFromFixtures,
   buildMacroSignalIndexFromParsedSources,
   buildVhdlSemanticModels,
@@ -585,7 +590,7 @@ function shouldDisableOllamaThinking(modelId: string) {
   return id.includes('thinking') || id.includes(':think') || id.includes('/think');
 }
 
-async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSignal) {
+async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSignal, generationProfile?: ModelGenerationProfile) {
   const data = await fetchJson(`${OLLAMA_BASE_URL}/api/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -594,6 +599,7 @@ async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSi
       model,
       prompt,
       stream: false,
+      ...buildOllamaGenerationOptions(generationProfile),
       ...(shouldDisableOllamaThinking(model) ? { think: false } : {}),
     }),
   });
@@ -622,7 +628,7 @@ async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSi
   };
 }
 
-async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal) {
+async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal, generationProfile?: ModelGenerationProfile) {
   const data = await fetchJson(`${OLLAMA_BASE_URL}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -633,6 +639,7 @@ async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal
         { role: 'user', content: prompt },
       ],
       stream: false,
+      ...buildOllamaGenerationOptions(generationProfile),
       ...(shouldDisableOllamaThinking(model) ? { think: false } : {}),
     }),
   });
@@ -1625,8 +1632,9 @@ async function runModelAnalysis(params: {
   model: string;
   prompt: string;
   signal?: AbortSignal;
+  generationProfile?: ModelGenerationProfile;
 }): Promise<AiRunResult> {
-  const { ai, provider, model, prompt, signal } = params;
+  const { ai, provider, model, prompt, signal, generationProfile } = params;
   const startedAt = Date.now();
   const finalizeResult = (
     text: string,
@@ -1670,6 +1678,11 @@ async function runModelAnalysis(params: {
       const response = await ai.models.generateContent({
         model,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: generationProfile ? {
+          temperature: generationProfile.temperature,
+          maxOutputTokens: generationProfile.maxOutputTokens,
+          ...(generationProfile.responseMode === 'json' ? { responseMimeType: 'application/json' } : {}),
+        } : undefined,
       });
       const text = response.text || 'No response generated from the model.';
       const usage = (response as any)?.usageMetadata;
@@ -1686,12 +1699,12 @@ async function runModelAnalysis(params: {
       try {
         const strategies = isLikelyOllamaChatModel(model)
           ? [
-              () => runOllamaChat(model, prompt, signal),
-              () => runOllamaGenerate(model, prompt, signal),
+              () => runOllamaChat(model, prompt, signal, generationProfile),
+              () => runOllamaGenerate(model, prompt, signal, generationProfile),
             ]
           : [
-              () => runOllamaGenerate(model, prompt, signal),
-              () => runOllamaChat(model, prompt, signal),
+              () => runOllamaGenerate(model, prompt, signal, generationProfile),
+              () => runOllamaChat(model, prompt, signal, generationProfile),
             ];
 
         let lastError: unknown = null;
@@ -1732,6 +1745,7 @@ async function runModelAnalysis(params: {
           body: JSON.stringify({
             model,
             messages: [{ role: 'user', content: prompt }],
+            ...buildOpenAiCompatibleGenerationOptions(generationProfile),
           }),
         });
         const responseText = extractOpenAICompatibleMessageContent(data);
@@ -1763,6 +1777,7 @@ async function runModelAnalysis(params: {
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
+          ...buildOpenAiCompatibleGenerationOptions(generationProfile),
         }),
       });
       return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from OpenAI.', {
@@ -1783,6 +1798,7 @@ async function runModelAnalysis(params: {
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
+          ...buildOpenAiCompatibleGenerationOptions(generationProfile),
         }),
       });
       return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from OpenRouter.', {
@@ -1803,6 +1819,7 @@ async function runModelAnalysis(params: {
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
+          ...buildOpenAiCompatibleGenerationOptions(generationProfile),
         }),
       });
       return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from Groq.', {
@@ -1823,6 +1840,7 @@ async function runModelAnalysis(params: {
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
+          ...buildOpenAiCompatibleGenerationOptions(generationProfile),
         }),
       });
       return finalizeResult(data.choices?.[0]?.message?.content || 'No response generated from Mistral.', {
@@ -1843,7 +1861,8 @@ async function runModelAnalysis(params: {
         },
         body: JSON.stringify({
           model,
-          max_tokens: 4096,
+          max_tokens: generationProfile?.maxOutputTokens || 4096,
+          ...(generationProfile ? { temperature: generationProfile.temperature } : {}),
           messages: [{ role: 'user', content: prompt }],
         }),
       });

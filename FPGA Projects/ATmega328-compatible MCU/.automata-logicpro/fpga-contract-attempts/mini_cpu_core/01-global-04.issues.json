@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "mini_cpu_core",
+  "designLabel": "Mini RISC-V / Custom 8-bit CPU Core",
+  "attempt": 4,
+  "designAttempt": 1,
+  "issueCount": 1,
+  "topIssueCodes": [
+    "architecture_contract_json_invalid"
+  ],
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or '}' after property value in JSON at position 23835 (line 869 column 23)",
+  "issues": [
+    {
+      "code": "architecture_contract_json_invalid",
+      "path": "$",
+      "message": "Expected ',' or '}' after property value in JSON at position 23835 (line 869 column 23)"
+    }
+  ]
+}

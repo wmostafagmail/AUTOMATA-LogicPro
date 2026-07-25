@@ -1,10 +1,21 @@
 import path from 'path';
+import { createHash } from 'crypto';
 import type { FpgaArchitectProject } from './fpgaArchitect';
 import {
   inferFpgaArchitectureBlueprintFromPrompt,
+  synthesizeFpgaArchitectureBlueprintFromPrompt,
   type FpgaArchitectureBlueprint,
 } from './fpgaArchitectureBlueprint';
+import {
+  formatFpgaArchitectureEvidenceFactsForPrompt,
+  isApprovedFpgaArchitectureEvidenceUrl,
+  type FpgaArchitectureEvidenceFact,
+  type FpgaArchitectureRetrievalMode,
+} from './fpgaArchitectureEvidence';
+import { collectFpgaArchitectureEvidence } from './fpgaArchitectureRetrieval';
 import { VHDL_RESERVED_IDENTIFIERS } from './ghdlStrictVhdlRules';
+import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
+import { parseVhdlSemanticModel } from './vhdlSemanticFrontend';
 
 export type FpgaArchitecturePortContract = {
   name: string;
@@ -30,6 +41,72 @@ export type FpgaArchitectureComponentContract = {
   }>;
   ports: FpgaArchitecturePortContract[];
   exports: string[];
+  packageSymbols?: FpgaArchitecturePackageSymbolContract[];
+};
+
+export type FpgaArchitecturePackageSymbolContract = {
+  name: string;
+  kind: 'constant' | 'subtype' | 'enum' | 'record' | 'array';
+  type: string;
+  value?: string;
+  literals?: string[];
+  fields?: Array<{ name: string; type: string }>;
+};
+
+export type FpgaArchitectureNumericFormatContract = {
+  id: string;
+  type: 'unsigned' | 'signed' | 'sfixed' | 'ufixed';
+  width: number;
+  integerBits: number;
+  fractionalBits: number;
+  overflow: 'wrap' | 'saturate';
+  rounding: 'truncate' | 'nearest';
+};
+
+export type FpgaArchitectureInstanceContract = {
+  id: string;
+  parentComponentId: string;
+  childComponentId: string;
+  label: string;
+  genericMap: Record<string, string>;
+  portMap: Record<string, string>;
+};
+
+export type FpgaArchitectureConnectionEndpoint = {
+  componentId: string;
+  port: string;
+};
+
+export type FpgaArchitectureConnectionContract = {
+  id: string;
+  type: string;
+  source: FpgaArchitectureConnectionEndpoint;
+  sinks: FpgaArchitectureConnectionEndpoint[];
+  clockDomain: string | null;
+  cdc: 'none' | 'synchronizer' | 'async_fifo' | 'handshake';
+  handshake?: { valid: string; ready: string; payload: string[] };
+};
+
+export type FpgaArchitectureStateMachineContract = {
+  id: string;
+  componentId: string;
+  stateType: string;
+  states: string[];
+  resetState: string;
+  transitions: Array<{
+    from: string;
+    event: string;
+    to: string;
+    outputs: string[];
+  }>;
+};
+
+export type FpgaArchitectureScenarioAction = {
+  kind: 'drive' | 'wait_cycles' | 'expect' | 'expect_stable' | 'finish';
+  signal?: string;
+  value?: string;
+  cycles?: number;
+  message?: string;
 };
 
 export type FpgaArchitectureClockDomainContract = {
@@ -47,6 +124,9 @@ export type FpgaArchitectureBehaviorContract = {
   inputs: string[];
   outputs: string[];
   timing: string;
+  resetBehavior?: string;
+  latencyCycles?: number;
+  preconditions?: string[];
 };
 
 export type FpgaArchitectureVerificationContract = {
@@ -56,10 +136,38 @@ export type FpgaArchitectureVerificationContract = {
   expected: string;
   observables: string[];
   covers: string[];
+  coversBehaviors?: string[];
+  actions?: FpgaArchitectureScenarioAction[];
+};
+
+export type FpgaArchitectureSynthesisMetadata = {
+  sourceMode: 'curated_first_hybrid';
+  synthesisId: string;
+  primaryPatternId: string;
+  secondaryPatternIds: string[];
+  methodologyRuleIds: string[];
+  referenceDesignIds: string[];
+  evidenceClaimIds: string[];
+  retrievalMode?: FpgaArchitectureRetrievalMode;
+  retrievedSourceIds?: string[];
+  sourceSnapshotIds?: string[];
+  sourceHashes?: string[];
+  evidenceFreshness?: string;
+  confidence: number;
+};
+
+export type FpgaArchitectureSourceGroundedRequirement = {
+  id: string;
+  sourceClaimId: string;
+  appliesTo: 'architecture' | 'hierarchy' | 'clock_reset' | 'interface' | 'numeric' | 'memory' | 'verification' | 'tool_flow' | 'reference_design';
+  requirement: string;
+  sourceUrl?: string;
+  sourceHash?: string;
+  sourceSnapshotId?: string;
 };
 
 export type FpgaArchitectureContract = {
-  schemaVersion: '1.0';
+  schemaVersion: '1.0' | '2.0';
   designName: string;
   designClass: string;
   topEntity: string;
@@ -72,6 +180,12 @@ export type FpgaArchitectureContract = {
   behaviors: FpgaArchitectureBehaviorContract[];
   verification: FpgaArchitectureVerificationContract[];
   sourceOrder: string[];
+  numericFormats?: FpgaArchitectureNumericFormatContract[];
+  instances?: FpgaArchitectureInstanceContract[];
+  connections?: FpgaArchitectureConnectionContract[];
+  stateMachines?: FpgaArchitectureStateMachineContract[];
+  architectureSynthesis?: FpgaArchitectureSynthesisMetadata;
+  sourceGroundedRequirements?: FpgaArchitectureSourceGroundedRequirement[];
 };
 
 export type FpgaArchitectureContractIssue = {
@@ -98,7 +212,7 @@ export class FpgaArchitectureContractError extends Error {
 const VHDL_IDENTIFIER = /^[a-zA-Z](?:[a-zA-Z0-9]|_(?=[a-zA-Z0-9]))*$/;
 const VHDL_RESERVED_IDENTIFIER_SET = new Set(VHDL_RESERVED_IDENTIFIERS.map((entry) => entry.toLowerCase()));
 const PLACEHOLDER_PATTERN = /(?:<[^>]+>|\b(?:tbd|todo|placeholder|fill\s+this|not\s+specified)\b)/i;
-const CONTRACT_MAX_REPAIR_ATTEMPTS = 1;
+const CONTRACT_MAX_REPAIR_ATTEMPTS = 2;
 
 function stableId(value: string, fallback: string) {
   const normalized = value
@@ -167,15 +281,359 @@ function findDuplicates(values: string[]) {
 
 function requiredCapabilitiesForBlueprint(blueprint: FpgaArchitectureBlueprint) {
   return blueprint.buildingBlocks.map((description, index) => ({
-    id: stableId(description, `required_block_${index + 1}`),
+    id: stableId(description.match(/^\s*([a-zA-Z][a-zA-Z0-9_]*)\s*:/)?.[1] || description, `required_block_${index + 1}`),
     description,
   }));
+}
+
+function classifyCapabilityOwnership(capability: { id: string; description: string }) {
+  const id = capability.id.toLowerCase();
+  const text = `${capability.id} ${capability.description}`.toLowerCase();
+  if (/(?:^|_)(?:self_checking|testbench|verification|verify|scenario)(?:_|$)|operation_testbench/.test(id)) return 'testbench' as const;
+  if (/(?:^|_)(?:pkg|package)(?:_|$)|_pkg(?:_|$)/.test(id)) return 'package' as const;
+  if (/(?:^|_)(?:top|wrapper|integration)(?:_|$)|_top(?:_|$)/.test(id)) return 'top' as const;
+  if (/\b(?:self_checking|testbench|verification|verify|scenario|operation_testbench)\b/.test(text)) return 'testbench' as const;
+  if (/\b(?:pkg|package|constants?|types?|records?|opcodes?)\b/.test(text)) return 'package' as const;
+  if (/\b(?:top|wrapper|integration|integrat(?:e|ion)|output integration)\b/.test(text)) return 'top' as const;
+  return 'rtl' as const;
+}
+
+function uniqueStableId(value: string, fallback: string, used: Set<string>) {
+  const base = stableId(value, fallback);
+  let candidate = base;
+  let suffix = 2;
+  while (used.has(candidate.toLowerCase()) || !isLegalVhdlIdentifier(candidate)) {
+    candidate = `${base}_${suffix}`;
+    suffix += 1;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function defaultGenericValueForType(type: string) {
+  const normalized = normalizeType(type);
+  if (/^(?:positive|natural|integer)$/.test(normalized)) return normalized === 'positive' ? '1' : '0';
+  if (/^boolean$/.test(normalized)) return 'false';
+  if (/^std_logic$/.test(normalized)) return "'0'";
+  return '';
+}
+
+function buildNormalizedSourceOrder(components: FpgaArchitectureComponentContract[]) {
+  const byId = new Map(components.map((component) => [component.id, component]));
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+  const ordered: string[] = [];
+
+  const visit = (component: FpgaArchitectureComponentContract) => {
+    const key = component.id.toLowerCase();
+    if (visited.has(key) || visiting.has(key)) return;
+    visiting.add(key);
+    for (const dependencyId of component.dependsOn) {
+      const dependency = byId.get(dependencyId);
+      if (dependency) visit(dependency);
+    }
+    visiting.delete(key);
+    visited.add(key);
+    if (component.file) ordered.push(normalizePath(component.file));
+  };
+
+  components
+    .filter((component) => component.kind === 'package')
+    .forEach(visit);
+  components
+    .filter((component) => component.kind === 'rtl')
+    .forEach(visit);
+  components
+    .filter((component) => component.kind === 'top')
+    .forEach(visit);
+  components
+    .filter((component) => component.kind === 'testbench')
+    .forEach(visit);
+
+  return Array.from(new Set(ordered));
+}
+
+export function buildFpgaArchitectureContractDraft(params: {
+  userRequest: string;
+  evidenceFacts?: FpgaArchitectureEvidenceFact[];
+  retrievalMode?: FpgaArchitectureRetrievalMode;
+}): FpgaArchitectureContract {
+  const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const blueprint = synthesis.blueprint;
+  const capabilities = requiredCapabilitiesForBlueprint(blueprint);
+  const usedIds = new Set<string>();
+  const designName = uniqueStableId(blueprint.designClass, 'fpga_design', usedIds);
+  const packageId = uniqueStableId(`${designName}_pkg`, 'design_pkg', usedIds);
+  const topId = uniqueStableId(`${designName}_top`, 'design_top', usedIds);
+  const testbenchId = uniqueStableId(`tb_${designName}_top`, 'tb_design_top', usedIds);
+  const clockDomainId = uniqueStableId(`${designName}_clk_domain`, 'sys_clk_domain', usedIds);
+  const packageCapabilities = capabilities.filter((capability) => classifyCapabilityOwnership(capability) === 'package');
+  const topCapabilities = capabilities.filter((capability) => classifyCapabilityOwnership(capability) === 'top');
+  const testbenchCapabilities = capabilities.filter((capability) => classifyCapabilityOwnership(capability) === 'testbench');
+  const rtlCapabilities = capabilities.filter((capability) => classifyCapabilityOwnership(capability) === 'rtl');
+  const rtlComponents = rtlCapabilities.map((capability, index) => {
+    const componentId = uniqueStableId(capability.id.replace(/^(self_checking_|optional_)/, ''), `rtl_block_${index + 1}`, usedIds);
+    return {
+      capability,
+      component: {
+        id: componentId,
+        kind: 'rtl' as const,
+        name: componentId,
+        file: `src/${componentId}.vhd`,
+        responsibility: `Implement the ${capability.description} capability with typed, synthesizable VHDL.`,
+        implements: [capability.id],
+        dependsOn: [packageId],
+        children: [],
+        clockDomain: clockDomainId,
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Synchronous design clock.' },
+          { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Active-high synchronous reset.' },
+          { name: 'enable_i', mode: 'in' as const, type: 'std_logic', purpose: 'Enables this contracted processing block.' },
+          { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Contracted input sample or command byte.' },
+        ],
+        exports: [],
+      },
+    };
+  });
+
+  const behaviorIds = capabilities.map((capability, index) => `behavior_${stableId(capability.id, `capability_${index + 1}`)}`);
+  const isUartSpiProtocolBridge = blueprint.designClass === 'uart_spi_protocol_bridge';
+  const contractedBehaviorTiming = isUartSpiProtocolBridge
+    ? 'After reset deassertion and a one-cycle start_i pulse with data_i = x"5A", the nominal bridge scenario must assert done_o within four rising clock edges, keep error_o = 0, and drive status_o = x"01".'
+    : 'After reset deassertion and start_i assertion, status_o/done_o settle to deterministic expected values within a bounded cycle window.';
+  const contractedResetBehavior = isUartSpiProtocolBridge
+    ? 'During reset, done_o = 0, error_o = 0, and status_o = x"00"; these outputs are registered or driven from explicit internal status state.'
+    : 'During reset, done_o, error_o, and status_o are driven to zero.';
+  const contractedVerificationExpected = isUartSpiProtocolBridge
+    ? 'Reset drives done_o = 0, error_o = 0, and status_o = x"00"; after start_i with x"5A", done_o asserts, error_o remains 0, and status_o equals x"01" within four clock cycles.'
+    : 'Reset drives outputs to zero; after start_i, done_o asserts, error_o remains zero, and status_o is deterministic.';
+  const contractedVerificationActions = isUartSpiProtocolBridge
+    ? [
+      { kind: 'drive', signal: 'rst', value: "'1'" },
+      { kind: 'drive', signal: 'start_i', value: "'0'" },
+      { kind: 'drive', signal: 'data_i', value: 'x"00"' },
+      { kind: 'wait_cycles', cycles: 2 },
+      { kind: 'expect', signal: 'done_o', value: "'0'", message: 'FAIL reset done_o asserted' },
+      { kind: 'expect', signal: 'error_o', value: "'0'", message: 'FAIL reset error_o asserted' },
+      { kind: 'expect', signal: 'status_o', value: 'x"00"', message: 'FAIL reset status_o not x00' },
+      { kind: 'drive', signal: 'rst', value: "'0'" },
+      { kind: 'drive', signal: 'data_i', value: 'x"5A"' },
+      { kind: 'drive', signal: 'start_i', value: "'1'" },
+      { kind: 'wait_cycles', cycles: 1 },
+      { kind: 'drive', signal: 'start_i', value: "'0'" },
+      { kind: 'wait_cycles', cycles: 4 },
+      { kind: 'expect', signal: 'error_o', value: "'0'", message: 'FAIL error_o asserted' },
+      { kind: 'expect', signal: 'done_o', value: "'1'", message: 'FAIL done_o did not assert' },
+      { kind: 'expect', signal: 'status_o', value: 'x"01"', message: 'FAIL status_o did not report nominal completion' },
+      { kind: 'finish', message: 'TEST PASSED' },
+    ]
+    : [
+      { kind: 'drive', signal: 'rst', value: "'1'" },
+      { kind: 'drive', signal: 'start_i', value: "'0'" },
+      { kind: 'wait_cycles', cycles: 2 },
+      { kind: 'drive', signal: 'rst', value: "'0'" },
+      { kind: 'drive', signal: 'data_i', value: 'x"5A"' },
+      { kind: 'drive', signal: 'start_i', value: "'1'" },
+      { kind: 'wait_cycles', cycles: 4 },
+      { kind: 'expect', signal: 'error_o', value: "'0'", message: 'FAIL error_o asserted' },
+      { kind: 'expect', signal: 'done_o', value: "'1'", message: 'FAIL done_o did not assert' },
+      { kind: 'finish', message: 'TEST PASSED' },
+    ];
+  const components: FpgaArchitectureComponentContract[] = [
+    {
+      id: packageId,
+      kind: 'package',
+      name: packageId,
+      file: `src/${packageId}.vhd`,
+      responsibility: `Define shared constants and subtypes for the ${blueprint.designClass} architecture.`,
+      implements: packageCapabilities.map((capability) => capability.id),
+      dependsOn: [],
+      children: [],
+      clockDomain: null,
+      generics: [],
+      ports: [],
+      exports: ['DATA_WIDTH', 'data_t'],
+      packageSymbols: [
+        { name: 'DATA_WIDTH', kind: 'constant', type: 'positive', value: '8' },
+        { name: 'data_t', kind: 'subtype', type: 'std_logic_vector(7 downto 0)' },
+      ],
+    },
+    ...rtlComponents.map((entry) => entry.component),
+    {
+      id: topId,
+      kind: 'top',
+      name: topId,
+      file: `src/${topId}.vhd`,
+      responsibility: `Integrate the ${blueprint.designClass} RTL blocks and expose the stable top-level interface.`,
+      implements: topCapabilities.map((capability) => capability.id),
+      dependsOn: [packageId, ...rtlComponents.map((entry) => entry.component.id)],
+      children: rtlComponents.map((entry) => entry.component.id),
+      clockDomain: clockDomainId,
+      generics: [],
+      ports: [
+        { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Top-level synchronous design clock.' },
+        { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Top-level active-high synchronous reset.' },
+        { name: 'start_i', mode: 'in', type: 'std_logic', purpose: 'Starts the deterministic verification scenario.' },
+        { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Top-level command or payload byte.' },
+        { name: 'done_o', mode: 'out', type: 'std_logic', purpose: 'Indicates the contracted operation completed.' },
+        { name: 'error_o', mode: 'out', type: 'std_logic', purpose: 'Indicates a detected protocol or datapath error.' },
+        { name: 'status_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Observable contracted status byte.' },
+      ],
+      exports: [],
+    },
+    {
+      id: testbenchId,
+      kind: 'testbench',
+      name: testbenchId,
+      file: `tb/${testbenchId}.vhd`,
+      responsibility: `Instantiate ${topId} and prove the required ${blueprint.designClass} contract with self-checking assertions.`,
+      implements: testbenchCapabilities.map((capability) => capability.id),
+      dependsOn: [packageId, topId],
+      children: [topId],
+      clockDomain: null,
+      generics: [],
+      ports: [],
+      exports: [],
+    },
+  ];
+
+  const sourceGroundedRequirements: FpgaArchitectureSourceGroundedRequirement[] = synthesis.evidenceClaims.map((claim, index) => ({
+    id: `source_req_${index + 1}_${stableId(claim.guidanceType, 'guidance')}`,
+    sourceClaimId: claim.claimId,
+    appliesTo: ([
+      'hierarchy',
+      'clock_reset',
+      'interface',
+      'numeric',
+      'memory',
+      'verification',
+      'tool_flow',
+      'reference_design',
+    ].includes(claim.guidanceType) ? claim.guidanceType : 'architecture') as FpgaArchitectureSourceGroundedRequirement['appliesTo'],
+    requirement: claim.contractImplication,
+    sourceUrl: claim.sourceUrl,
+  }));
+  const evidenceFacts = params.evidenceFacts || [];
+  sourceGroundedRequirements.push(...evidenceFacts.map((fact, index) => ({
+    id: `live_source_req_${index + 1}_${stableId(fact.appliesTo, 'guidance')}`,
+    sourceClaimId: fact.factId,
+    appliesTo: fact.appliesTo,
+    requirement: fact.contractImplication,
+    sourceUrl: fact.sourceUrl,
+    sourceHash: fact.sourceHash,
+    ...(fact.snapshotId ? { sourceSnapshotId: fact.snapshotId } : {}),
+  })));
+
+  return {
+    schemaVersion: '2.0',
+    designName,
+    designClass: blueprint.designClass,
+    topEntity: topId,
+    topTestbench: testbenchId,
+    systemIntent: `Generate a deterministic ${blueprint.systemRole} implementation with a self-checking GHDL testbench.`,
+    assumptions: [
+      'The generated project uses VHDL-2008 and one active-high synchronous clock/reset domain unless the model refines this contract consistently.',
+    ],
+    requiredCapabilityIds: capabilities.map((entry) => entry.id),
+    components,
+    clockDomains: [{
+      id: clockDomainId,
+      clockPort: 'clk',
+      resetPort: 'rst',
+      resetActive: 'high',
+      resetStyle: 'synchronous',
+      memberComponents: [topId, ...rtlComponents.map((entry) => entry.component.id)],
+    }],
+    behaviors: capabilities.map((capability, index) => ({
+      id: behaviorIds[index],
+      requirement: `The design implements and exposes observable evidence for ${capability.description}.`,
+      inputs: ['start_i', 'data_i'],
+      outputs: ['done_o', 'error_o', 'status_o'],
+      timing: contractedBehaviorTiming,
+      resetBehavior: contractedResetBehavior,
+      latencyCycles: 1,
+      preconditions: ['rst is deasserted before start_i is asserted.'],
+    })),
+    verification: [{
+      id: `verify_${designName}_contract`,
+      requirement: `Self-check reset, startup, and one deterministic scenario covering every required ${blueprint.designClass} capability.`,
+      stimulus: 'Drive reset, apply one deterministic command byte, wait for completion, and check stable DUT outputs.',
+      expected: contractedVerificationExpected,
+      observables: ['done_o', 'error_o', 'status_o'],
+      covers: capabilities.map((entry) => entry.id),
+      coversBehaviors: behaviorIds,
+      actions: contractedVerificationActions,
+    }],
+    numericFormats: [{
+      id: `${designName}_data_format`,
+      type: 'unsigned',
+      width: 8,
+      integerBits: 8,
+      fractionalBits: 0,
+      overflow: 'wrap',
+      rounding: 'truncate',
+    }],
+    instances: [
+      ...rtlComponents.map((entry, index) => ({
+        id: `u_${entry.component.id}`,
+        parentComponentId: topId,
+        childComponentId: entry.component.id,
+        label: `u_${entry.component.id}`,
+        genericMap: {},
+        portMap: {
+          clk: 'clk',
+          rst: 'rst',
+          enable_i: 'start_i',
+          data_i: 'data_i',
+        },
+      })),
+      {
+        id: 'dut',
+        parentComponentId: testbenchId,
+        childComponentId: topId,
+        label: 'dut',
+        genericMap: {},
+        portMap: {
+          clk: 'clk',
+          rst: 'rst',
+          start_i: 'start_i',
+          data_i: 'data_i',
+          done_o: 'done_o',
+          error_o: 'error_o',
+          status_o: 'status_o',
+        },
+      },
+    ],
+    connections: [],
+    stateMachines: [],
+    sourceOrder: buildNormalizedSourceOrder(components),
+    architectureSynthesis: {
+      sourceMode: synthesis.sourceMode,
+      synthesisId: synthesis.synthesisId,
+      primaryPatternId: synthesis.primaryPattern.patternId,
+      secondaryPatternIds: synthesis.secondaryPatterns.map((pattern) => pattern.patternId),
+      methodologyRuleIds: synthesis.methodologyRules.map((rule) => rule.ruleId),
+      referenceDesignIds: synthesis.referenceDesigns.map((reference) => reference.referenceId),
+      evidenceClaimIds: [
+        ...synthesis.evidenceClaims.map((claim) => claim.claimId),
+        ...evidenceFacts.map((fact) => fact.factId),
+      ],
+      retrievalMode: params.retrievalMode || 'off',
+      retrievedSourceIds: Array.from(new Set(evidenceFacts.map((fact) => fact.sourceId))),
+      sourceSnapshotIds: Array.from(new Set(evidenceFacts.map((fact) => fact.snapshotId).filter(Boolean) as string[])),
+      sourceHashes: Array.from(new Set(evidenceFacts.map((fact) => fact.sourceHash).filter(Boolean))),
+      evidenceFreshness: evidenceFacts.length > 0 ? 'live_or_cached_official_evidence' : 'curated_only',
+      confidence: synthesis.confidence,
+    },
+    sourceGroundedRequirements,
+  };
 }
 
 function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
   const capabilities = requiredCapabilitiesForBlueprint(blueprint);
   return {
-    schemaVersion: '1.0',
+    schemaVersion: '2.0',
     designName: '<snake_case project name>',
     designClass: blueprint.designClass,
     topEntity: '<top entity VHDL identifier>',
@@ -196,6 +654,14 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
       generics: [{ name: '<name>', type: '<exact VHDL type>', default: '<required default>' }],
       ports: [{ name: '<name>', mode: '<in | out | inout | buffer>', type: '<exact constrained VHDL subtype indication>', purpose: '<purpose>' }],
       exports: ['<package export name; empty for entities>'],
+      packageSymbols: [{
+        name: '<exact package symbol name>',
+        kind: '<constant | subtype | enum | record | array>',
+        type: '<exact VHDL declaration type>',
+        value: '<constant value when kind is constant>',
+        literals: ['<enum literal when kind is enum>'],
+        fields: [{ name: '<record field>', type: '<exact field type>' }],
+      }],
     }],
     clockDomains: [{
       id: '<clock domain id>',
@@ -211,6 +677,9 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
       inputs: ['<input/control name>'],
       outputs: ['<observable output/status name>'],
       timing: '<cycle/latency/handshake rule>',
+      resetBehavior: '<exact reset behavior>',
+      latencyCycles: 0,
+      preconditions: ['<behavior precondition>'],
     }],
     verification: [{
       id: '<verification id>',
@@ -219,6 +688,71 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
       expected: '<exact expected behavior>',
       observables: ['<top port or visible status>'],
       covers: ['<required capability id>'],
+      coversBehaviors: ['<behavior id>'],
+      actions: [
+        { kind: 'drive', signal: '<top input>', value: "'0'" },
+        { kind: 'wait_cycles', cycles: 1 },
+        { kind: 'expect', signal: '<top output>', value: "'0'", message: '<precise failure message>' },
+        { kind: 'finish', message: 'TEST PASSED' },
+      ],
+    }],
+    numericFormats: [{
+      id: '<numeric format id>',
+      type: '<unsigned | signed | sfixed | ufixed>',
+      width: 8,
+      integerBits: 8,
+      fractionalBits: 0,
+      overflow: '<wrap | saturate>',
+      rounding: '<truncate | nearest>',
+    }],
+    instances: [{
+      id: '<instance id>',
+      parentComponentId: '<parent component id>',
+      childComponentId: '<child component id>',
+      label: '<legal instance label>',
+      genericMap: { '<child generic>': '<parent expression or literal>' },
+      portMap: { '<child formal port>': '<parent signal or port>' },
+    }],
+    connections: [{
+      id: '<connection id>',
+      type: '<exact VHDL signal type>',
+      source: { componentId: '<source component id>', port: '<source port>' },
+      sinks: [{ componentId: '<sink component id>', port: '<sink port>' }],
+      clockDomain: '<clock domain id or null>',
+      cdc: '<none | synchronizer | async_fifo | handshake>',
+      handshake: { valid: '<valid signal>', ready: '<ready signal>', payload: ['<payload signal>'] },
+    }],
+    stateMachines: [{
+      id: '<state machine id>',
+      componentId: '<owning component id>',
+      stateType: '<package enum type>',
+      states: ['<state literal>'],
+      resetState: '<reset state literal>',
+      transitions: [{ from: '<state>', event: '<condition>', to: '<state>', outputs: ['<output action>'] }],
+    }],
+    architectureSynthesis: {
+      sourceMode: 'curated_first_hybrid',
+      synthesisId: '<app-owned synthesis id>',
+      primaryPatternId: '<selected curated design-pattern id>',
+      secondaryPatternIds: ['<composed pattern id>'],
+      methodologyRuleIds: ['<official methodology rule id>'],
+      referenceDesignIds: ['<official reference design id>'],
+      evidenceClaimIds: ['<source claim id>'],
+      retrievalMode: 'off',
+      retrievedSourceIds: [],
+      sourceSnapshotIds: [],
+      sourceHashes: [],
+      evidenceFreshness: 'curated_only',
+      confidence: 0.9,
+    },
+    sourceGroundedRequirements: [{
+      id: '<source-grounded requirement id>',
+      sourceClaimId: '<claim id from architectureSynthesis.evidenceClaimIds>',
+      appliesTo: '<architecture | hierarchy | clock_reset | interface | numeric | memory | verification | tool_flow | reference_design>',
+      requirement: '<contract implication from curated methodology/reference evidence>',
+      sourceUrl: '<approved official source URL>',
+      sourceHash: '<optional evidence content hash>',
+      sourceSnapshotId: '<optional cached evidence snapshot id>',
     }],
     sourceOrder: ['<package file>', '<leaf RTL file>', '<top RTL file>', '<testbench file>'],
   };
@@ -226,27 +760,72 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
 
 export function buildFpgaArchitectureContractProposalPrompt(params: {
   userRequest: string;
+  evidenceFacts?: FpgaArchitectureEvidenceFact[];
+  retrievalMode?: FpgaArchitectureRetrievalMode;
+  retrievalWarnings?: string[];
 }) {
-  const blueprint = inferFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const blueprint = synthesis.blueprint;
   const requiredCapabilities = requiredCapabilitiesForBlueprint(blueprint);
+  const evidenceFacts = params.evidenceFacts || [];
+  const appOwnedDraft = buildFpgaArchitectureContractDraft({
+    userRequest: params.userRequest,
+    evidenceFacts,
+    retrievalMode: params.retrievalMode,
+  });
+  const liveEvidencePrompt = formatFpgaArchitectureEvidenceFactsForPrompt(evidenceFacts);
   return [
     'You are preparing a machine-checkable FPGA architecture contract before any VHDL is generated.',
     'Return exactly one JSON object and no Markdown, prose, code fences, VHDL, comments, or trailing text.',
+    'Start from the app-owned draft contract below. Preserve app-owned IDs, schemaVersion, designClass, requiredCapabilityIds, architectureSynthesis, sourceGroundedRequirements, top/package/testbench intent, and source-order shape unless a listed design detail requires a consistent bounded refinement.',
+    '',
+    'Curated-first hybrid architecture synthesis:',
+    `- Source mode: ${synthesis.sourceMode}`,
+    `- Primary app-owned design pattern: ${synthesis.primaryPattern.patternId}`,
+    `- Secondary composed patterns: ${synthesis.secondaryPatterns.map((pattern) => pattern.patternId).join(', ') || 'none'}`,
+    `- Pattern confidence: ${Math.round(synthesis.confidence * 100)}%`,
+    '- The curated design pattern owns high-level building-block architecture. The model fills bounded details inside that architecture and must not invent a replacement architecture from scratch.',
     '',
     `Design class: ${blueprint.designClass}`,
     `System role: ${blueprint.systemRole}`,
+    '',
+    'Selected pattern building blocks:',
+    ...synthesis.primaryPattern.requiredBlocks.map((block) => `- ${block.id} (${block.kind}): ${block.responsibility}`),
+    '',
+    'Selected pattern top-output ownership:',
+    ...synthesis.primaryPattern.topOutputOwnership.map((entry) => `- ${entry}`),
+    '',
+    'Selected pattern timing contracts:',
+    ...synthesis.primaryPattern.timingContracts.map((entry) => `- ${entry}`),
+    '',
+    'Official methodology/reference evidence. Keep only these source-grounded requirements and do not invent unsupported claims:',
+    ...synthesis.evidenceClaims.map((claim) => `- ${claim.claimId}: ${claim.contractImplication} [${claim.sourceTitle}]`),
+    '',
+    `Optional official live/cached evidence mode: ${params.retrievalMode || 'off'}`,
+    liveEvidencePrompt
+      ? `Approved retrieved evidence facts:\n${liveEvidencePrompt}`
+      : 'Approved retrieved evidence facts: none. Use only the app-owned curated library and built-in official methodology/reference claims.',
+    ...(params.retrievalWarnings?.length ? [
+      'Retrieval warnings. These are non-fatal and must not be treated as design requirements:',
+      ...params.retrievalWarnings.map((warning) => `- ${warning}`),
+    ] : []),
     '',
     'Required capabilities. Preserve every ID exactly and assign every ID to at least one component:',
     ...requiredCapabilities.map((entry) => `- ${entry.id}: ${entry.description}`),
     '',
     'Architecture rules:',
-    '- Choose the detailed micro-architecture, file split, entity names, generics, ports, clock/reset ownership, and verification strategy.',
+    '- Fill or refine bounded design details: component responsibilities, leaf component ports/generics, instances, named maps, connections, behaviors, verification actions, state machines, and numeric formats.',
+    '- Do not replace the contract with prose and do not remove app-owned IDs or required sections.',
     '- Use legal basic VHDL identifiers and exact constrained VHDL subtype indications for public vector ports.',
     '- Include exactly one top component and one testbench component.',
     '- Every component dependency must name another component and sourceOrder must place dependencies first and the testbench last.',
     '- Every RTL/top/testbench hierarchy edge must appear in children; use direct entity instantiation in generated VHDL.',
     '- The approved top must reach every RTL leaf through children, and the testbench must instantiate only the approved top.',
     '- Every required capability must be implemented by a component and covered by at least one verification item.',
+    '- schemaVersion must be "2.0". Define exact package symbols, direct instances, named generic/port maps, typed connections, state-machine transitions, numeric formats, reset behavior, cycle latency, and executable verification actions.',
+    '- Every behavior must be covered by at least one verification item through coversBehaviors.',
+    '- Every hierarchy edge must have one exact instances entry whose named maps match the child interface.',
+    '- Every internal connection must have one driver, typed sinks, an explicit clock domain, and an explicit CDC policy.',
     '- Every clock-domain clockPort/resetPort must be a declared top-entity port and every member must be a synchronous RTL/top component.',
     '- Do not use TBD, TODO, placeholders, omitted blocks, vague types, or unspecified behavior.',
     '- Keep the contract compact enough to guide deterministic VHDL generation.',
@@ -260,7 +839,10 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
     'App-owned verification guidance:',
     ...blueprint.verificationPlan.map((entry) => `- ${entry}`),
     '',
-    'Required JSON shape:',
+    'App-owned draft contract to preserve and refine:',
+    JSON.stringify(appOwnedDraft, null, 2),
+    '',
+    'Reference JSON shape and field meanings:',
     JSON.stringify(contractScaffold(blueprint), null, 2),
     '',
     'Original user request:',
@@ -273,16 +855,49 @@ export function buildFpgaArchitectureContractRepairPrompt(params: {
   invalidResponse: string;
   issues: FpgaArchitectureContractIssue[];
 }) {
+  const topIssues = params.issues.slice(0, 50);
+  const issueCodes = new Set(params.issues.map((issue) => issue.code));
+  const graphRepairGuidance = [
+    'architecture_contract_instance_actual_unknown',
+    'architecture_contract_instance_output_actual_invalid',
+    'architecture_contract_connection_sink_direction',
+    'architecture_contract_connection_sink_type',
+  ].some((code) => issueCodes.has(code))
+    ? [
+      '',
+      'Graph repair contract for instance/connection issues:',
+      '- Do not invent free-floating actual names such as core_result unless they are declared as exact connection IDs in $.connections.',
+      '- For child output/buffer/inout ports, use a writable parent port, declared connection id, or legal testbench DUT signal.',
+      '- For each declared connection, source must be an out/buffer/inout port and every sink must be an in/inout port with the exact same type.',
+      '- If a generated name is just an internal wire, add one typed connection object for it instead of leaving it implicit.',
+      '- Preserve app-owned component IDs, required capabilities, topEntity, topTestbench, and sourceOrder ownership.',
+    ]
+    : [];
   return [
     buildFpgaArchitectureContractProposalPrompt({ userRequest: params.userRequest }),
     '',
     'The previous architecture contract was rejected by deterministic validation.',
-    'Correct every issue below and return one complete replacement JSON object only.',
-    ...params.issues.map((issue, index) => `${index + 1}. [${issue.code}] ${issue.path}: ${issue.message}`),
+    'Return one complete JSON object only. No Markdown, no comments, no prose, no code fences, no trailing text.',
+    'Quote all string values. Never emit bare VHDL tokens such as open, high, low, synchronous, asynchronous, std_logic, or std_logic_vector.',
+    'Correct every issue below while preserving all non-failing paths and app-owned IDs.',
+    '',
+    'Issue table: code | path | message',
+    ...topIssues.map((issue) => `${issue.code} | ${issue.path} | ${issue.message}`),
+    ...(params.issues.length > topIssues.length ? [`... ${params.issues.length - topIssues.length} additional issue(s) omitted from prompt for compactness; fix the same classes wherever they appear.`] : []),
+    ...graphRepairGuidance,
     '',
     'Previous rejected response:',
     params.invalidResponse.slice(0, 12_000),
   ].join('\n');
+}
+
+function recoverJsonishContractText(text: string) {
+  return text
+    .replace(/(:\s*)open(?=\s*[,}\]])/gi, '$1"open"')
+    .replace(/(:\s*)high(?=\s*[,}\]])/gi, '$1"high"')
+    .replace(/(:\s*)low(?=\s*[,}\]])/gi, '$1"low"')
+    .replace(/(:\s*)synchronous(?=\s*[,}\]])/gi, '$1"synchronous"')
+    .replace(/(:\s*)asynchronous(?=\s*[,}\]])/gi, '$1"asynchronous"');
 }
 
 function extractJsonObject(text: string) {
@@ -314,7 +929,7 @@ function asStringArray(value: unknown) {
 export function parseFpgaArchitectureContract(text: string): FpgaArchitectureContract {
   let parsed: any;
   try {
-    parsed = JSON.parse(extractJsonObject(text));
+    parsed = JSON.parse(recoverJsonishContractText(extractJsonObject(text)));
   } catch (error: any) {
     if (error instanceof FpgaArchitectureContractError) throw error;
     throw new FpgaArchitectureContractError(`Architecture contract JSON was invalid: ${error?.message || String(error)}`, [{
@@ -346,10 +961,22 @@ export function parseFpgaArchitectureContract(text: string): FpgaArchitectureCon
       purpose: asString(port?.purpose),
     })) : [],
     exports: asStringArray(component?.exports),
+    ...(Array.isArray(component?.packageSymbols) ? {
+      packageSymbols: component.packageSymbols.map((symbol: any) => ({
+        name: asString(symbol?.name),
+        kind: asString(symbol?.kind) as FpgaArchitecturePackageSymbolContract['kind'],
+        type: asString(symbol?.type),
+        ...(asString(symbol?.value) ? { value: asString(symbol?.value) } : {}),
+        ...(Array.isArray(symbol?.literals) ? { literals: asStringArray(symbol?.literals) } : {}),
+        ...(Array.isArray(symbol?.fields) ? {
+          fields: symbol.fields.map((field: any) => ({ name: asString(field?.name), type: asString(field?.type) })),
+        } : {}),
+      })),
+    } : {}),
   })) : [];
 
-  return {
-    schemaVersion: asString(parsed?.schemaVersion) as '1.0',
+  const contract: FpgaArchitectureContract = {
+    schemaVersion: asString(parsed?.schemaVersion) as FpgaArchitectureContract['schemaVersion'],
     designName: asString(parsed?.designName),
     designClass: asString(parsed?.designClass),
     topEntity: asString(parsed?.topEntity),
@@ -380,9 +1007,217 @@ export function parseFpgaArchitectureContract(text: string): FpgaArchitectureCon
       expected: asString(verification?.expected),
       observables: asStringArray(verification?.observables),
       covers: asStringArray(verification?.covers),
+      ...(Array.isArray(verification?.coversBehaviors) ? { coversBehaviors: asStringArray(verification?.coversBehaviors) } : {}),
+      ...(Array.isArray(verification?.actions) ? {
+        actions: verification.actions.map((action: any) => ({
+          kind: asString(action?.kind) as FpgaArchitectureScenarioAction['kind'],
+          ...(asString(action?.signal) ? { signal: asString(action?.signal) } : {}),
+          ...(asString(action?.value) ? { value: asString(action?.value) } : {}),
+          ...(Number.isFinite(action?.cycles) ? { cycles: Number(action.cycles) } : {}),
+          ...(asString(action?.message) ? { message: asString(action?.message) } : {}),
+        })),
+      } : {}),
     })) : [],
     sourceOrder: asStringArray(parsed?.sourceOrder).map(normalizePath),
   };
+  contract.behaviors = Array.isArray(parsed?.behaviors) ? parsed.behaviors.map((behavior: any) => ({
+    id: asString(behavior?.id),
+    requirement: asString(behavior?.requirement),
+    inputs: asStringArray(behavior?.inputs),
+    outputs: asStringArray(behavior?.outputs),
+    timing: asString(behavior?.timing),
+    ...(asString(behavior?.resetBehavior) ? { resetBehavior: asString(behavior?.resetBehavior) } : {}),
+    ...(Number.isFinite(behavior?.latencyCycles) ? { latencyCycles: Number(behavior.latencyCycles) } : {}),
+    ...(Array.isArray(behavior?.preconditions) ? { preconditions: asStringArray(behavior?.preconditions) } : {}),
+  })) : [];
+  if (Array.isArray(parsed?.numericFormats)) {
+    contract.numericFormats = parsed.numericFormats.map((format: any) => ({
+      id: asString(format?.id),
+      type: asString(format?.type) as FpgaArchitectureNumericFormatContract['type'],
+      width: Number(format?.width),
+      integerBits: Number(format?.integerBits),
+      fractionalBits: Number(format?.fractionalBits),
+      overflow: asString(format?.overflow) as FpgaArchitectureNumericFormatContract['overflow'],
+      rounding: asString(format?.rounding) as FpgaArchitectureNumericFormatContract['rounding'],
+    }));
+  }
+  if (Array.isArray(parsed?.instances)) {
+    contract.instances = parsed.instances.map((instance: any) => ({
+      id: asString(instance?.id),
+      parentComponentId: asString(instance?.parentComponentId),
+      childComponentId: asString(instance?.childComponentId),
+      label: asString(instance?.label),
+      genericMap: typeof instance?.genericMap === 'object' && instance.genericMap !== null ? instance.genericMap : {},
+      portMap: typeof instance?.portMap === 'object' && instance.portMap !== null ? instance.portMap : {},
+    }));
+  }
+  if (Array.isArray(parsed?.connections)) {
+    contract.connections = parsed.connections.map((connection: any) => ({
+      id: asString(connection?.id),
+      type: asString(connection?.type),
+      source: { componentId: asString(connection?.source?.componentId), port: asString(connection?.source?.port) },
+      sinks: Array.isArray(connection?.sinks) ? connection.sinks.map((sink: any) => ({ componentId: asString(sink?.componentId), port: asString(sink?.port) })) : [],
+      clockDomain: connection?.clockDomain === null ? null : asString(connection?.clockDomain) || null,
+      cdc: asString(connection?.cdc) as FpgaArchitectureConnectionContract['cdc'],
+      ...(connection?.handshake && typeof connection.handshake === 'object' ? {
+        handshake: {
+          valid: asString(connection.handshake.valid),
+          ready: asString(connection.handshake.ready),
+          payload: asStringArray(connection.handshake.payload),
+        },
+      } : {}),
+    }));
+  }
+  if (Array.isArray(parsed?.stateMachines)) {
+    contract.stateMachines = parsed.stateMachines.map((machine: any) => ({
+      id: asString(machine?.id),
+      componentId: asString(machine?.componentId),
+      stateType: asString(machine?.stateType),
+      states: asStringArray(machine?.states),
+      resetState: asString(machine?.resetState),
+      transitions: Array.isArray(machine?.transitions) ? machine.transitions.map((transition: any) => ({
+        from: asString(transition?.from),
+        event: asString(transition?.event),
+        to: asString(transition?.to),
+        outputs: asStringArray(transition?.outputs),
+      })) : [],
+    }));
+  }
+  if (parsed?.architectureSynthesis && typeof parsed.architectureSynthesis === 'object') {
+    contract.architectureSynthesis = {
+      sourceMode: asString(parsed.architectureSynthesis.sourceMode) as FpgaArchitectureSynthesisMetadata['sourceMode'],
+      synthesisId: asString(parsed.architectureSynthesis.synthesisId),
+      primaryPatternId: asString(parsed.architectureSynthesis.primaryPatternId),
+      secondaryPatternIds: asStringArray(parsed.architectureSynthesis.secondaryPatternIds),
+      methodologyRuleIds: asStringArray(parsed.architectureSynthesis.methodologyRuleIds),
+      referenceDesignIds: asStringArray(parsed.architectureSynthesis.referenceDesignIds),
+      evidenceClaimIds: asStringArray(parsed.architectureSynthesis.evidenceClaimIds),
+      ...(asString(parsed.architectureSynthesis.retrievalMode) ? { retrievalMode: asString(parsed.architectureSynthesis.retrievalMode) as FpgaArchitectureRetrievalMode } : {}),
+      ...(Array.isArray(parsed.architectureSynthesis.retrievedSourceIds) ? { retrievedSourceIds: asStringArray(parsed.architectureSynthesis.retrievedSourceIds) } : {}),
+      ...(Array.isArray(parsed.architectureSynthesis.sourceSnapshotIds) ? { sourceSnapshotIds: asStringArray(parsed.architectureSynthesis.sourceSnapshotIds) } : {}),
+      ...(Array.isArray(parsed.architectureSynthesis.sourceHashes) ? { sourceHashes: asStringArray(parsed.architectureSynthesis.sourceHashes) } : {}),
+      ...(asString(parsed.architectureSynthesis.evidenceFreshness) ? { evidenceFreshness: asString(parsed.architectureSynthesis.evidenceFreshness) } : {}),
+      confidence: Number(parsed.architectureSynthesis.confidence),
+    };
+  }
+  if (Array.isArray(parsed?.sourceGroundedRequirements)) {
+    contract.sourceGroundedRequirements = parsed.sourceGroundedRequirements.map((requirement: any) => ({
+      id: asString(requirement?.id),
+      sourceClaimId: asString(requirement?.sourceClaimId),
+      appliesTo: asString(requirement?.appliesTo) as FpgaArchitectureSourceGroundedRequirement['appliesTo'],
+      requirement: asString(requirement?.requirement),
+      ...(asString(requirement?.sourceUrl) ? { sourceUrl: asString(requirement.sourceUrl) } : {}),
+      ...(asString(requirement?.sourceHash) ? { sourceHash: asString(requirement.sourceHash) } : {}),
+      ...(asString(requirement?.sourceSnapshotId) ? { sourceSnapshotId: asString(requirement.sourceSnapshotId) } : {}),
+    }));
+  }
+  return normalizeFpgaArchitectureContract(contract);
+}
+
+export function normalizeFpgaArchitectureContract(contract: FpgaArchitectureContract): FpgaArchitectureContract {
+  const normalized: FpgaArchitectureContract = {
+    ...contract,
+    assumptions: contract.assumptions || [],
+    requiredCapabilityIds: contract.requiredCapabilityIds || [],
+    components: (contract.components || []).map((component) => ({
+      ...component,
+      file: normalizePath(component.file),
+      implements: component.implements || [],
+      dependsOn: component.dependsOn || [],
+      children: component.children || [],
+      generics: (component.generics || []).map((generic) => ({
+        ...generic,
+        default: generic.default || defaultGenericValueForType(generic.type),
+      })),
+      ports: component.ports || [],
+      exports: component.exports || [],
+      ...(component.kind === 'package' ? { packageSymbols: component.packageSymbols || [] } : {}),
+    })),
+    clockDomains: contract.clockDomains || [],
+    behaviors: contract.behaviors || [],
+    verification: contract.verification || [],
+    numericFormats: contract.numericFormats || [],
+    instances: contract.instances || [],
+    connections: contract.connections || [],
+    stateMachines: contract.stateMachines || [],
+    ...(contract.architectureSynthesis ? {
+      architectureSynthesis: {
+        ...contract.architectureSynthesis,
+        secondaryPatternIds: contract.architectureSynthesis.secondaryPatternIds || [],
+        methodologyRuleIds: contract.architectureSynthesis.methodologyRuleIds || [],
+        referenceDesignIds: contract.architectureSynthesis.referenceDesignIds || [],
+        evidenceClaimIds: contract.architectureSynthesis.evidenceClaimIds || [],
+        retrievalMode: contract.architectureSynthesis.retrievalMode || 'off',
+        retrievedSourceIds: contract.architectureSynthesis.retrievedSourceIds || [],
+        sourceSnapshotIds: contract.architectureSynthesis.sourceSnapshotIds || [],
+        sourceHashes: contract.architectureSynthesis.sourceHashes || [],
+        evidenceFreshness: contract.architectureSynthesis.evidenceFreshness || 'curated_only',
+      },
+    } : {}),
+    ...(contract.sourceGroundedRequirements ? { sourceGroundedRequirements: contract.sourceGroundedRequirements || [] } : {}),
+    sourceOrder: (contract.sourceOrder || []).map(normalizePath),
+  };
+
+  const expectedOrder = buildNormalizedSourceOrder(normalized.components);
+  const expectedSet = new Set(expectedOrder.map((entry) => entry.toLowerCase()));
+  const currentOrder = normalized.sourceOrder.filter((entry, index, array) => (
+    entry
+    && expectedSet.has(entry.toLowerCase())
+    && array.findIndex((candidate) => candidate.toLowerCase() === entry.toLowerCase()) === index
+  ));
+  if (currentOrder.length !== expectedOrder.length) {
+    normalized.sourceOrder = expectedOrder;
+  } else {
+    const packageFiles = new Set(normalized.components.filter((component) => component.kind === 'package').map((component) => normalizePath(component.file).toLowerCase()));
+    const testbenchFiles = new Set(normalized.components.filter((component) => component.kind === 'testbench').map((component) => normalizePath(component.file).toLowerCase()));
+    const hasPackageAfterDependent = normalized.components.some((component) => (
+      component.dependsOn.some((dependencyId) => {
+        const dependency = normalized.components.find((candidate) => candidate.id === dependencyId);
+        if (!dependency || !packageFiles.has(normalizePath(dependency.file).toLowerCase())) return false;
+        return currentOrder.findIndex((file) => file.toLowerCase() === normalizePath(dependency.file).toLowerCase())
+          > currentOrder.findIndex((file) => file.toLowerCase() === normalizePath(component.file).toLowerCase());
+      })
+    ));
+    if (hasPackageAfterDependent || !testbenchFiles.has(currentOrder[currentOrder.length - 1]?.toLowerCase())) {
+      normalized.sourceOrder = expectedOrder;
+    }
+  }
+
+  normalizeSafeImplicitOutputConnections(normalized);
+
+  return normalized;
+}
+
+function normalizeSafeImplicitOutputConnections(contract: FpgaArchitectureContract) {
+  if (contract.schemaVersion !== '2.0') return;
+  const componentById = new Map(contract.components.map((component) => [component.id, component]));
+  const connections = contract.connections || [];
+  contract.connections = connections;
+  const connectionIds = new Set(connections.map((connection) => connection.id.toLowerCase()));
+
+  for (const instance of contract.instances || []) {
+    const parent = componentById.get(instance.parentComponentId);
+    const child = componentById.get(instance.childComponentId);
+    if (!parent || !child) continue;
+    const parentPorts = new Set(parent.ports.map((port) => port.name.toLowerCase()));
+    for (const childPort of child.ports) {
+      if (!['out', 'inout', 'buffer'].includes(childPort.mode)) continue;
+      const actual = String(instance.portMap?.[childPort.name] || '').trim();
+      if (!VHDL_IDENTIFIER.test(actual)) continue;
+      const actualKey = actual.toLowerCase();
+      if (parentPorts.has(actualKey) || connectionIds.has(actualKey)) continue;
+      if (parent.kind === 'testbench' && actualKey === childPort.name.toLowerCase()) continue;
+      connections.push({
+        id: actual,
+        type: childPort.type,
+        source: { componentId: child.id, port: childPort.name },
+        sinks: [],
+        clockDomain: parent.clockDomain || child.clockDomain || null,
+        cdc: 'none',
+      });
+      connectionIds.add(actualKey);
+    }
+  }
 }
 
 export function validateFpgaArchitectureContract(params: {
@@ -394,8 +1229,8 @@ export function validateFpgaArchitectureContract(params: {
   const expectedCapabilities = requiredCapabilitiesForBlueprint(blueprint).map((entry) => entry.id);
   const issues: FpgaArchitectureContractIssue[] = [];
 
-  if (contract.schemaVersion !== '1.0') {
-    pushIssue(issues, 'architecture_contract_schema_version', '$.schemaVersion', 'schemaVersion must be exactly "1.0".');
+  if (!['1.0', '2.0'].includes(contract.schemaVersion)) {
+    pushIssue(issues, 'architecture_contract_schema_version', '$.schemaVersion', 'schemaVersion must be "1.0" or "2.0". New contracts must use "2.0".');
   }
   if (!contract.designName || !isLegalVhdlIdentifier(contract.designName)) {
     pushIssue(issues, 'architecture_contract_design_name', '$.designName', 'designName must be a non-empty basic identifier.');
@@ -412,8 +1247,69 @@ export function validateFpgaArchitectureContract(params: {
   if (!isLegalVhdlIdentifier(contract.topTestbench)) {
     pushIssue(issues, 'architecture_contract_top_testbench', '$.topTestbench', 'topTestbench must be a legal basic VHDL identifier.');
   }
+  if (contract.architectureSynthesis) {
+    const synthesis = contract.architectureSynthesis;
+    if (synthesis.sourceMode !== 'curated_first_hybrid') {
+      pushIssue(issues, 'architecture_contract_synthesis_source_mode', '$.architectureSynthesis.sourceMode', 'architectureSynthesis.sourceMode must remain "curated_first_hybrid".');
+    }
+    if (!synthesis.synthesisId || !synthesis.primaryPatternId) {
+      pushIssue(issues, 'architecture_contract_synthesis_incomplete', '$.architectureSynthesis', 'architectureSynthesis must include synthesisId and primaryPatternId.');
+    }
+    if (!Array.isArray(synthesis.evidenceClaimIds) || synthesis.evidenceClaimIds.length === 0) {
+      pushIssue(issues, 'architecture_contract_synthesis_claims_missing', '$.architectureSynthesis.evidenceClaimIds', 'Curated architecture synthesis must preserve at least one evidence claim id.');
+    }
+    if (synthesis.retrievalMode && !['off', 'official_live_opt_in', 'official_live_cached'].includes(synthesis.retrievalMode)) {
+      pushIssue(issues, 'architecture_evidence_retrieval_mode', '$.architectureSynthesis.retrievalMode', 'Architecture evidence retrieval mode must be off, official_live_opt_in, or official_live_cached.');
+    }
+    for (const [index, sourceHash] of (synthesis.sourceHashes || []).entries()) {
+      if (!/^[a-f0-9]{64}$/i.test(sourceHash)) {
+        pushIssue(issues, 'architecture_evidence_snapshot_invalid', `$.architectureSynthesis.sourceHashes[${index}]`, 'Architecture evidence source hash must be a SHA-256 hex digest.');
+      }
+    }
+  }
+  if (contract.sourceGroundedRequirements?.length) {
+    const evidenceClaimIds = new Set((contract.architectureSynthesis?.evidenceClaimIds || []).map((claimId) => claimId.toLowerCase()));
+    for (const [index, requirement] of contract.sourceGroundedRequirements.entries()) {
+      const requirementPath = `$.sourceGroundedRequirements[${index}]`;
+      if (!isLegalVhdlIdentifier(requirement.id)) {
+        pushIssue(issues, 'architecture_contract_source_requirement_id', `${requirementPath}.id`, 'Source-grounded requirement id must be a legal basic identifier.');
+      }
+      if (!requirement.requirement || PLACEHOLDER_PATTERN.test(requirement.requirement)) {
+        pushIssue(issues, 'architecture_contract_source_requirement_text', `${requirementPath}.requirement`, 'Source-grounded requirement must be precise and must not contain placeholders.');
+      }
+      if (![
+        'architecture',
+        'hierarchy',
+        'clock_reset',
+        'interface',
+        'numeric',
+        'memory',
+        'verification',
+        'tool_flow',
+        'reference_design',
+      ].includes(requirement.appliesTo)) {
+        pushIssue(issues, 'architecture_contract_source_requirement_scope', `${requirementPath}.appliesTo`, 'Source-grounded requirement appliesTo must use an approved scope.');
+      }
+      if (!requirement.sourceClaimId || !evidenceClaimIds.has(requirement.sourceClaimId.toLowerCase())) {
+        pushIssue(issues, 'architecture_contract_source_requirement_claim_missing', `${requirementPath}.sourceClaimId`, `Source-grounded requirement must reference one architectureSynthesis.evidenceClaimIds entry, not "${requirement.sourceClaimId}".`);
+      }
+      if (requirement.sourceUrl && !isApprovedFpgaArchitectureEvidenceUrl(requirement.sourceUrl)) {
+        pushIssue(issues, 'architecture_evidence_source_unapproved', `${requirementPath}.sourceUrl`, `Source-grounded requirement sourceUrl must be an approved official FPGA/vendor/tool source, not "${requirement.sourceUrl}".`);
+      }
+      if (requirement.sourceHash && !/^[a-f0-9]{64}$/i.test(requirement.sourceHash)) {
+        pushIssue(issues, 'architecture_evidence_snapshot_invalid', `${requirementPath}.sourceHash`, 'Source-grounded requirement sourceHash must be a SHA-256 hex digest.');
+      }
+      if (requirement.sourceSnapshotId && !/^snapshot_[a-z0-9_]+_[a-f0-9]{12}$/i.test(requirement.sourceSnapshotId)) {
+        pushIssue(issues, 'architecture_evidence_snapshot_invalid', `${requirementPath}.sourceSnapshotId`, 'Source-grounded requirement sourceSnapshotId must match a cached architecture evidence snapshot id.');
+      }
+    }
+  }
 
   const requiredSet = new Set(contract.requiredCapabilityIds);
+  const capabilityOwnership = new Map(requiredCapabilitiesForBlueprint(blueprint).map((capability) => [
+    capability.id,
+    classifyCapabilityOwnership(capability),
+  ]));
   for (const capability of expectedCapabilities) {
     if (!requiredSet.has(capability)) {
       pushIssue(issues, 'architecture_contract_capability_missing', '$.requiredCapabilityIds', `Required capability "${capability}" is missing.`);
@@ -452,6 +1348,10 @@ export function validateFpgaArchitectureContract(params: {
     if (!isLegalVhdlIdentifier(component.name)) pushIssue(issues, 'architecture_contract_component_name', `${componentPath}.name`, 'Package/entity name must be a legal non-reserved basic VHDL identifier.');
     if (!safeRelativeVhdlPath(component.file)) pushIssue(issues, 'architecture_contract_component_file', `${componentPath}.file`, 'Component file must be a safe relative .vhd/.vhdl path.');
     if (!component.responsibility || PLACEHOLDER_PATTERN.test(component.responsibility)) pushIssue(issues, 'architecture_contract_component_responsibility', `${componentPath}.responsibility`, 'Component responsibility must be complete and precise.');
+    const componentIdentityText = `${component.id} ${component.name} ${component.file}`.toLowerCase();
+    if (component.kind === 'rtl' && /\b(?:tb|testbench)\b|(?:^|_)tb_|_testbench(?:_|\.|$)|(?:^|\/)tb\//i.test(componentIdentityText)) {
+      pushIssue(issues, 'architecture_contract_rtl_testbench_identity', componentPath, 'RTL components must not be named or filed as testbenches. Self-checking testbench behavior belongs only to the single testbench component.');
+    }
     if (component.kind === 'package' && component.ports.length > 0) pushIssue(issues, 'architecture_contract_package_ports', `${componentPath}.ports`, 'Package components cannot declare entity ports.');
     if (component.kind === 'testbench' && component.ports.length > 0) pushIssue(issues, 'architecture_contract_testbench_ports', `${componentPath}.ports`, 'Top testbench entities must have no ports.');
     for (const dependency of component.dependsOn) {
@@ -467,6 +1367,20 @@ export function validateFpgaArchitectureContract(params: {
     if (component.kind === 'package' && component.children.length > 0) pushIssue(issues, 'architecture_contract_package_children', `${componentPath}.children`, 'Package components cannot instantiate child entities.');
     for (const capability of component.implements) {
       if (!requiredSet.has(capability)) pushIssue(issues, 'architecture_contract_component_capability_unknown', `${componentPath}.implements`, `Component implements unknown capability "${capability}".`);
+      const expectedOwner = capabilityOwnership.get(capability);
+      const dangerousOwnerDrift = Boolean(expectedOwner) && (
+        (expectedOwner === 'testbench' && component.kind !== 'testbench')
+        || (expectedOwner === 'package' && component.kind === 'rtl')
+        || (expectedOwner === 'top' && component.kind === 'rtl')
+      );
+      if (dangerousOwnerDrift) {
+        pushIssue(
+          issues,
+          'architecture_contract_capability_owner_kind',
+          `${componentPath}.implements`,
+          `Capability "${capability}" is a ${expectedOwner} capability and cannot be implemented by a ${component.kind} component.`,
+        );
+      }
     }
     for (const duplicate of findDuplicates(component.ports.map((port) => port.name))) {
       pushIssue(issues, 'architecture_contract_port_duplicate', `${componentPath}.ports`, `Port "${duplicate}" is duplicated.`);
@@ -581,11 +1495,228 @@ export function validateFpgaArchitectureContract(params: {
     }
   }
 
+  if (contract.schemaVersion === '2.0') {
+    const instances = contract.instances || [];
+    const connections = contract.connections || [];
+    const numericFormats = contract.numericFormats || [];
+    const stateMachines = contract.stateMachines || [];
+    const behaviorIds = new Set(contract.behaviors.map((behavior) => behavior.id));
+    const connectionById = new Map(connections.map((connection) => [connection.id.toLowerCase(), connection]));
+
+    for (const [index, component] of contract.components.entries()) {
+      if (component.kind === 'package') {
+        const symbols = component.packageSymbols || [];
+        const symbolNames = new Set(symbols.map((symbol) => symbol.name.toLowerCase()));
+        for (const exportName of component.exports) {
+          if (!symbolNames.has(exportName.toLowerCase())) {
+            pushIssue(issues, 'architecture_contract_package_symbol_missing', `$.components[${index}].packageSymbols`, `Package export "${exportName}" requires one exact packageSymbols declaration.`);
+          }
+        }
+        for (const [symbolIndex, symbol] of symbols.entries()) {
+          const symbolPath = `$.components[${index}].packageSymbols[${symbolIndex}]`;
+          if (!isLegalVhdlIdentifier(symbol.name) || !symbol.type) pushIssue(issues, 'architecture_contract_package_symbol_invalid', symbolPath, 'Package symbols require a legal name and exact VHDL type/declaration contract.');
+          if (symbol.kind === 'enum' && (!symbol.literals || symbol.literals.length === 0)) pushIssue(issues, 'architecture_contract_enum_literals_missing', symbolPath, 'Enum package symbols require exact literals.');
+          if (symbol.kind === 'record' && (!symbol.fields || symbol.fields.length === 0)) pushIssue(issues, 'architecture_contract_record_fields_missing', symbolPath, 'Record package symbols require exact field names and types.');
+        }
+      }
+      for (const childId of component.children) {
+        const matches = instances.filter((instance) => instance.parentComponentId === component.id && instance.childComponentId === childId);
+        if (matches.length !== 1) pushIssue(issues, 'architecture_contract_instance_missing', '$.instances', `Hierarchy edge "${component.id}" -> "${childId}" requires exactly one instance contract.`);
+      }
+    }
+
+    for (const [index, instance] of instances.entries()) {
+      const instancePath = `$.instances[${index}]`;
+      const parent = componentById.get(instance.parentComponentId);
+      const child = componentById.get(instance.childComponentId);
+      if (!parent || !child) {
+        pushIssue(issues, 'architecture_contract_instance_component_missing', instancePath, 'Instance parent and child must reference declared components.');
+        continue;
+      }
+      if (!parent.children.includes(child.id)) pushIssue(issues, 'architecture_contract_instance_hierarchy_drift', instancePath, `Instance child "${child.id}" is not declared in parent.children.`);
+      if (!isLegalVhdlIdentifier(instance.label)) pushIssue(issues, 'architecture_contract_instance_label', `${instancePath}.label`, 'Instance label must be a legal basic VHDL identifier.');
+      for (const generic of child.generics) {
+        if (!(generic.name in instance.genericMap)) pushIssue(issues, 'architecture_contract_instance_generic_missing', `${instancePath}.genericMap`, `Instance is missing named generic association "${generic.name}".`);
+      }
+      for (const port of child.ports) {
+        if (!(port.name in instance.portMap)) pushIssue(issues, 'architecture_contract_instance_port_missing', `${instancePath}.portMap`, `Instance is missing named port association "${port.name}".`);
+      }
+      for (const name of Object.keys(instance.genericMap)) {
+        if (!child.generics.some((generic) => generic.name.toLowerCase() === name.toLowerCase())) pushIssue(issues, 'architecture_contract_instance_generic_unknown', `${instancePath}.genericMap`, `Unknown child generic "${name}".`);
+      }
+      for (const name of Object.keys(instance.portMap)) {
+        if (!child.ports.some((port) => port.name.toLowerCase() === name.toLowerCase())) pushIssue(issues, 'architecture_contract_instance_port_unknown', `${instancePath}.portMap`, `Unknown child port "${name}".`);
+      }
+      const parentPorts = new Map(parent.ports.map((port) => [port.name.toLowerCase(), port]));
+      for (const childPort of child.ports) {
+        const actual = String(instance.portMap[childPort.name] || '').trim();
+        if (!actual) continue;
+        const simpleActual = VHDL_IDENTIFIER.test(actual) ? actual.toLowerCase() : null;
+        const parentPort = simpleActual ? parentPorts.get(simpleActual) : null;
+        const connection = simpleActual ? connectionById.get(simpleActual) : null;
+        const testbenchSignal = parent.kind === 'testbench' && simpleActual === childPort.name.toLowerCase();
+        const literalOrAggregate = /^(?:open|'[^']'|"[^"]*"|\([^;]+\)|(?:true|false|\d+))$/i.test(actual);
+        if (!parentPort && !connection && !testbenchSignal && !literalOrAggregate) {
+          pushIssue(issues, 'architecture_contract_instance_actual_unknown', `${instancePath}.portMap.${childPort.name}`, `Port actual "${actual}" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open.`);
+        }
+        if (['out', 'inout', 'buffer'].includes(childPort.mode) && (!simpleActual || (!parentPort && !connection && !testbenchSignal))) {
+          pushIssue(issues, 'architecture_contract_instance_output_actual_invalid', `${instancePath}.portMap.${childPort.name}`, `Output/inout port "${childPort.name}" requires one writable named signal actual, not "${actual}".`);
+        }
+        const actualType = parentPort?.type || connection?.type || (testbenchSignal ? childPort.type : null);
+        if (actualType && normalizeType(actualType) !== normalizeType(childPort.type)) {
+          pushIssue(issues, 'architecture_contract_instance_actual_type_mismatch', `${instancePath}.portMap.${childPort.name}`, `Actual "${actual}" has type "${actualType}" but child port "${childPort.name}" requires "${childPort.type}".`);
+        }
+      }
+    }
+
+    if (top) {
+      const topOutputPorts = top.ports.filter((port) => ['out', 'buffer', 'inout'].includes(port.mode));
+      const behaviorOutputs = new Set(contract.behaviors.flatMap((behavior) => behavior.outputs || []).map((name) => name.toLowerCase()));
+      const verificationObservables = new Set(contract.verification.flatMap((verification) => verification.observables || []).map((name) => name.toLowerCase()));
+      const childDrivenTopActuals = new Set<string>();
+      for (const instance of instances.filter((entry) => entry.parentComponentId === top.id)) {
+        const child = componentById.get(instance.childComponentId);
+        if (!child) continue;
+        for (const childPort of child.ports) {
+          if (!['out', 'buffer', 'inout'].includes(childPort.mode)) continue;
+          const actual = String(instance.portMap[childPort.name] || '').trim();
+          if (VHDL_IDENTIFIER.test(actual)) childDrivenTopActuals.add(actual.toLowerCase());
+        }
+      }
+      const legalChildSources = instances
+        .filter((entry) => entry.parentComponentId === top.id)
+        .flatMap((entry) => {
+          const child = componentById.get(entry.childComponentId);
+          return child
+            ? child.ports
+              .filter((port) => ['out', 'buffer', 'inout'].includes(port.mode))
+              .map((port) => `${child.id}.${port.name}`)
+            : [];
+        });
+      for (const outputPort of topOutputPorts) {
+        const outputName = outputPort.name.toLowerCase();
+        if (childDrivenTopActuals.has(outputName) || behaviorOutputs.has(outputName) || verificationObservables.has(outputName)) {
+          continue;
+        }
+        pushIssue(
+          issues,
+          'architecture_contract_output_driver_missing',
+          `$.components.${top.id}.ports.${outputPort.name}`,
+          `Top output "${outputPort.name}" must have an explicit owner: map it from a child output, or define app-owned behavior/verification for it. Legal child output sources: ${legalChildSources.join(', ') || 'none'}.`,
+        );
+      }
+    }
+
+    const getPort = (endpoint: FpgaArchitectureConnectionEndpoint) => componentById.get(endpoint.componentId)?.ports.find((port) => port.name.toLowerCase() === endpoint.port.toLowerCase());
+    for (const [index, connection] of connections.entries()) {
+      const connectionPath = `$.connections[${index}]`;
+      const sourcePort = getPort(connection.source);
+      if (!sourcePort) pushIssue(issues, 'architecture_contract_connection_source_missing', `${connectionPath}.source`, 'Connection source must reference a declared component port.');
+      if (sourcePort && normalizeType(sourcePort.type) !== normalizeType(connection.type)) pushIssue(issues, 'architecture_contract_connection_source_type', connectionPath, `Connection type must match source port type "${sourcePort.type}".`);
+      if (sourcePort && !['out', 'inout', 'buffer'].includes(sourcePort.mode)) pushIssue(issues, 'architecture_contract_connection_source_direction', `${connectionPath}.source`, `Connection source port "${connection.source.port}" must be out, inout, or buffer.`);
+      for (const sink of connection.sinks) {
+        const sinkPort = getPort(sink);
+        if (!sinkPort) pushIssue(issues, 'architecture_contract_connection_sink_missing', `${connectionPath}.sinks`, `Connection sink "${sink.componentId}.${sink.port}" does not exist.`);
+        if (sinkPort && normalizeType(sinkPort.type) !== normalizeType(connection.type)) pushIssue(issues, 'architecture_contract_connection_sink_type', connectionPath, `Connection type must match sink port type "${sinkPort.type}".`);
+        if (sinkPort && !['in', 'inout'].includes(sinkPort.mode)) pushIssue(issues, 'architecture_contract_connection_sink_direction', `${connectionPath}.sinks`, `Connection sink port "${sink.port}" must be in or inout.`);
+        const sinkDomain = componentById.get(sink.componentId)?.clockDomain || null;
+        const sourceDomain = componentById.get(connection.source.componentId)?.clockDomain || null;
+        if (sourceDomain !== sinkDomain && connection.cdc === 'none') pushIssue(issues, 'architecture_contract_connection_cdc_missing', connectionPath, `Cross-domain connection "${connection.id}" requires an explicit CDC strategy.`);
+      }
+      if (!['none', 'synchronizer', 'async_fifo', 'handshake'].includes(connection.cdc)) pushIssue(issues, 'architecture_contract_connection_cdc', `${connectionPath}.cdc`, 'Every connection requires an explicit CDC policy.');
+    }
+
+    for (const [index, format] of numericFormats.entries()) {
+      if (!isLegalVhdlIdentifier(format.id) || !['unsigned', 'signed', 'sfixed', 'ufixed'].includes(format.type) || !Number.isInteger(format.width) || format.width < 1 || format.integerBits < 0 || format.fractionalBits < 0 || format.integerBits + format.fractionalBits !== format.width) {
+        pushIssue(issues, 'architecture_contract_numeric_format_invalid', `$.numericFormats[${index}]`, 'Numeric format requires a legal id, supported type, positive width, and integerBits + fractionalBits equal to width.');
+      }
+    }
+
+    for (const [index, machine] of stateMachines.entries()) {
+      const machinePath = `$.stateMachines[${index}]`;
+      const states = new Set(machine.states);
+      if (!componentById.has(machine.componentId) || !machine.stateType || states.size === 0 || !states.has(machine.resetState)) pushIssue(issues, 'architecture_contract_state_machine_invalid', machinePath, 'State machine requires an owning component, state type, states, and a reset state in that state set.');
+      for (const transition of machine.transitions) {
+        if (!states.has(transition.from) || !states.has(transition.to) || !transition.event) pushIssue(issues, 'architecture_contract_state_transition_invalid', `${machinePath}.transitions`, 'Every transition requires declared from/to states and a precise event.');
+      }
+    }
+
+    for (const [index, behavior] of contract.behaviors.entries()) {
+      if (!behavior.resetBehavior || !Number.isInteger(behavior.latencyCycles) || Number(behavior.latencyCycles) < 0) pushIssue(issues, 'architecture_contract_behavior_timing_incomplete', `$.behaviors[${index}]`, 'Contract V2 behaviors require exact resetBehavior and non-negative integer latencyCycles.');
+    }
+    for (const [index, verification] of contract.verification.entries()) {
+      if (!verification.actions || verification.actions.length === 0) pushIssue(issues, 'architecture_contract_scenario_actions_missing', `$.verification[${index}].actions`, 'Contract V2 verification requires executable scenario actions.');
+      for (const behaviorId of verification.coversBehaviors || []) {
+        if (!behaviorIds.has(behaviorId)) pushIssue(issues, 'architecture_contract_behavior_coverage_unknown', `$.verification[${index}].coversBehaviors`, `Unknown behavior id "${behaviorId}".`);
+      }
+      for (const [actionIndex, action] of (verification.actions || []).entries()) {
+        const actionPath = `$.verification[${index}].actions[${actionIndex}]`;
+        const port = action.signal ? top?.ports.find((candidate) => candidate.name.toLowerCase() === action.signal?.toLowerCase()) : null;
+        if (action.signal && !port) pushIssue(issues, 'architecture_contract_scenario_signal_unknown', `${actionPath}.signal`, `Scenario action references unknown top-level signal "${action.signal}".`);
+        if (action.kind === 'drive' && port && !['in', 'inout'].includes(port.mode)) pushIssue(issues, 'architecture_contract_scenario_drive_direction', actionPath, `Scenario cannot drive DUT output "${port.name}".`);
+        if (['expect', 'expect_stable'].includes(action.kind) && port && !['out', 'inout', 'buffer'].includes(port.mode)) pushIssue(issues, 'architecture_contract_scenario_expect_direction', actionPath, `Scenario must check a DUT-driven output, not input "${port.name}".`);
+        if (action.kind === 'wait_cycles' && (!Number.isInteger(action.cycles) || Number(action.cycles) < 1)) pushIssue(issues, 'architecture_contract_scenario_wait_invalid', actionPath, 'wait_cycles requires a positive integer cycles value.');
+      }
+    }
+    for (const behavior of contract.behaviors) {
+      if (!contract.verification.some((verification) => verification.coversBehaviors?.includes(behavior.id))) pushIssue(issues, 'architecture_contract_behavior_unverified', '$.verification', `No verification scenario covers behavior "${behavior.id}".`);
+    }
+  }
+
   if (PLACEHOLDER_PATTERN.test(JSON.stringify(contract))) {
     pushIssue(issues, 'architecture_contract_placeholder', '$', 'Architecture contract contains a placeholder/TBD/TODO value.');
   }
 
   return { ok: issues.length === 0, issues };
+}
+
+function canonicalizeJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeJson);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, child]) => [key, canonicalizeJson(child)]));
+  }
+  return value;
+}
+
+export function canonicalizeFpgaArchitectureContract(contract: FpgaArchitectureContract) {
+  return JSON.stringify(canonicalizeJson(contract));
+}
+
+export function hashFpgaArchitectureContract(contract: FpgaArchitectureContract) {
+  return createHash('sha256').update(canonicalizeFpgaArchitectureContract(contract)).digest('hex');
+}
+
+export function migrateFpgaArchitectureContractToV2(contract: FpgaArchitectureContract): FpgaArchitectureContract {
+  if (contract.schemaVersion === '2.0') return contract;
+  return {
+    ...contract,
+    schemaVersion: '2.0',
+    components: contract.components.map((component) => ({
+      ...component,
+      ...(component.kind === 'package' ? {
+        packageSymbols: component.exports.map((name) => ({ name, kind: 'subtype' as const, type: name })),
+      } : {}),
+    })),
+    behaviors: contract.behaviors.map((behavior) => ({ ...behavior, resetBehavior: 'Preserve the V1 documented reset behavior.', latencyCycles: 0, preconditions: [] })),
+    verification: contract.verification.map((verification) => ({
+      ...verification,
+      coversBehaviors: contract.behaviors.map((behavior) => behavior.id),
+      actions: [{ kind: 'finish' as const, message: 'Migrated V1 scenario requires review before generation.' }],
+    })),
+    numericFormats: [],
+    instances: contract.components.flatMap((parent) => parent.children.map((childComponentId, index) => ({
+      id: `${parent.id}_${childComponentId}_${index + 1}`,
+      parentComponentId: parent.id,
+      childComponentId,
+      label: `u_${childComponentId}_${index + 1}`,
+      genericMap: {},
+      portMap: {},
+    }))),
+    connections: [],
+    stateMachines: [],
+  };
 }
 
 export function parseAndValidateFpgaArchitectureContract(params: {
@@ -608,6 +1739,8 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
   provider: string;
   model: string;
   userRequest: string;
+  projectPath?: string | null;
+  architectureRetrievalMode?: FpgaArchitectureRetrievalMode;
   signal?: AbortSignal;
   runModelAnalysis: (params: {
     ai: any;
@@ -615,9 +1748,23 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
     model: string;
     prompt: string;
     signal?: AbortSignal;
+    generationProfile?: ModelGenerationProfile;
   }) => Promise<{ text: string; telemetry: TTelemetry }>;
 }) {
-  let prompt = buildFpgaArchitectureContractProposalPrompt({ userRequest: params.userRequest });
+  const baseSynthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const evidence = await collectFpgaArchitectureEvidence({
+    promptText: params.userRequest,
+    synthesis: baseSynthesis,
+    retrievalMode: params.architectureRetrievalMode || 'off',
+    projectPath: params.projectPath,
+    signal: params.signal,
+  });
+  let prompt = buildFpgaArchitectureContractProposalPrompt({
+    userRequest: params.userRequest,
+    evidenceFacts: evidence.facts,
+    retrievalMode: evidence.retrievalMode,
+    retrievalWarnings: evidence.warnings,
+  });
   const attempts: Array<{ text: string; telemetry: TTelemetry }> = [];
   let latestResponse = '';
   let latestError: FpgaArchitectureContractError | null = null;
@@ -629,6 +1776,10 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
       model: params.model,
       prompt,
       signal: params.signal,
+      generationProfile: buildModelGenerationProfile({
+        id: 'contract_json',
+        scope: `${params.userRequest}\u0000contract-attempt-${attempt + 1}`,
+      }),
     });
     attempts.push(result);
     latestResponse = result.text;
@@ -640,6 +1791,7 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
         }),
         attempts,
         repaired: attempt > 0,
+        evidence,
       };
     } catch (error: any) {
       latestError = error instanceof FpgaArchitectureContractError
@@ -658,6 +1810,23 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
     }
   }
 
+  const issueCodes = latestError?.issues.map((issue) => issue.code) || [];
+  const onlyMalformedJson = issueCodes.length > 0
+    && issueCodes.every((code) => code === 'architecture_contract_json_invalid' || code === 'architecture_contract_json_missing');
+  if (onlyMalformedJson) {
+    return {
+      contract: buildFpgaArchitectureContractDraft({
+        userRequest: params.userRequest,
+        evidenceFacts: evidence.facts,
+        retrievalMode: evidence.retrievalMode,
+      }),
+      attempts,
+      repaired: true,
+      appOwnedFallback: true,
+      evidence,
+    };
+  }
+
   throw new FpgaArchitectureContractError(
     `FPGA architecture proposal was rejected before VHDL generation. ${latestError?.message || 'Unknown contract error.'}`,
     latestError?.issues || [],
@@ -665,6 +1834,7 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
 }
 
 export function buildApprovedFpgaArchitectureContractSection(contract: FpgaArchitectureContract) {
+  const contractHash = hashFpgaArchitectureContract(contract);
   return [
     '## Approved FPGA Architecture Contract',
     'This contract has passed deterministic app validation and is now immutable source of truth for VHDL generation.',
@@ -672,6 +1842,7 @@ export function buildApprovedFpgaArchitectureContractSection(contract: FpgaArchi
     '- Do not add, remove, rename, merge, or split contracted VHDL components.',
     '- Preserve clock/reset ownership, dependency order, behavioral requirements, and verification coverage.',
     '- The app will reject any manifest that drifts from this contract before GHDL runs.',
+    `- Canonical contract SHA-256: ${contractHash}`,
     '```json',
     JSON.stringify(contract, null, 2),
     '```',
@@ -768,16 +1939,27 @@ export function validateFpgaArchitectProjectAgainstContract(params: {
       continue;
     }
     if (component.kind === 'package') {
-      const packagePattern = new RegExp(`\\bpackage\\s+(?!body\\b)${component.name}\\s+is\\b`, 'i');
-      if (!packagePattern.test(file.content)) pushIssue(issues, 'architecture_contract_package_declaration_drift', component.file, `File must declare approved package "${component.name}".`);
+      const semantic = parseVhdlSemanticModel(file.content);
+      const packageModel = semantic.packages.find((entry) => !entry.isBody && entry.name.toLowerCase() === component.name.toLowerCase());
+      if (!packageModel) pushIssue(issues, 'architecture_contract_package_declaration_drift', component.file, `File must declare approved package "${component.name}".`);
+      for (const expectedExport of component.exports) {
+        if (packageModel && !packageModel.exportedIdentifiers.some((name) => name.toLowerCase() === expectedExport.toLowerCase())) {
+          pushIssue(issues, 'architecture_contract_package_export_drift', component.file, `Package "${component.name}" is missing approved export "${expectedExport}".`);
+        }
+      }
       continue;
     }
-    const entityPattern = new RegExp(`\\bentity\\s+${component.name}\\s+is\\b`, 'i');
-    if (!entityPattern.test(file.content)) {
+    const semantic = parseVhdlSemanticModel(file.content);
+    const entityModel = semantic.entities.find((entry) => entry.name.toLowerCase() === component.name.toLowerCase());
+    if (!entityModel) {
       pushIssue(issues, 'architecture_contract_entity_declaration_drift', component.file, `File must declare approved entity "${component.name}".`);
       continue;
     }
-    const actualGenerics = extractEntityGenerics(file.content, component.name);
+    const actualGenerics = entityModel.generics.flatMap((item) => item.names.map((name) => ({
+      name,
+      type: item.type,
+      default: item.defaultValue || '',
+    })));
     if (actualGenerics === null) {
       pushIssue(issues, 'architecture_contract_generic_parse_failure', component.file, `Could not parse the generic interface for entity "${component.name}".`);
       continue;
@@ -801,7 +1983,11 @@ export function validateFpgaArchitectProjectAgainstContract(params: {
         pushIssue(issues, 'architecture_contract_generic_added', component.file, `Entity "${component.name}" added unapproved generic "${actualGeneric.name}".`);
       }
     }
-    const actualPorts = extractEntityPorts(file.content, component.name);
+    const actualPorts = entityModel.ports.flatMap((item) => item.names.map((name) => ({
+      name,
+      mode: item.mode || '',
+      type: item.type,
+    })));
     if (actualPorts === null) {
       pushIssue(issues, 'architecture_contract_port_parse_failure', component.file, `Could not parse the port interface for entity "${component.name}".`);
       continue;
@@ -822,8 +2008,10 @@ export function validateFpgaArchitectProjectAgainstContract(params: {
         pushIssue(issues, 'architecture_contract_port_added', component.file, `Entity "${component.name}" added unapproved public port "${actualPort.name}".`);
       }
     }
-    const actualChildNames = Array.from(file.content.matchAll(/\bentity\s+work\.([a-zA-Z][a-zA-Z0-9_]*)\b/gi))
-      .map((match) => match[1].toLowerCase());
+    const actualInstances = semantic.architectures
+      .filter((architecture) => architecture.entityName.toLowerCase() === component.name.toLowerCase())
+      .flatMap((architecture) => architecture.instances);
+    const actualChildNames = actualInstances.map((instance) => instance.entityName.toLowerCase());
     const expectedChildNames = component.children
       .map((childId) => contract.components.find((candidate) => candidate.id === childId)?.name.toLowerCase())
       .filter((name): name is string => Boolean(name));
@@ -832,6 +2020,23 @@ export function validateFpgaArchitectProjectAgainstContract(params: {
     }
     for (const childName of actualChildNames) {
       if (!expectedChildNames.includes(childName)) pushIssue(issues, 'architecture_contract_child_instantiation_added', component.file, `Entity "${component.name}" instantiates unapproved child entity "${childName}".`);
+    }
+    if (contract.schemaVersion === '2.0') {
+      for (const expectedInstance of (contract.instances || []).filter((instance) => instance.parentComponentId === component.id)) {
+        const child = contract.components.find((candidate) => candidate.id === expectedInstance.childComponentId);
+        const actual = actualInstances.find((instance) => instance.label.toLowerCase() === expectedInstance.label.toLowerCase());
+        if (!actual) {
+          pushIssue(issues, 'architecture_contract_instance_label_drift', component.file, `Missing approved instance label "${expectedInstance.label}".`);
+          continue;
+        }
+        if (child && actual.entityName.toLowerCase() !== child.name.toLowerCase()) pushIssue(issues, 'architecture_contract_instance_entity_drift', component.file, `Instance "${expectedInstance.label}" must instantiate "${child.name}".`);
+        for (const [formal, expectedActual] of Object.entries(expectedInstance.genericMap)) {
+          if (normalizeType(actual.genericMap[formal.toLowerCase()] || '') !== normalizeType(expectedActual)) pushIssue(issues, 'architecture_contract_instance_generic_map_drift', component.file, `Instance "${expectedInstance.label}" generic "${formal}" must map to "${expectedActual}".`);
+        }
+        for (const [formal, expectedActual] of Object.entries(expectedInstance.portMap)) {
+          if (normalizeType(actual.portMap[formal.toLowerCase()] || '') !== normalizeType(expectedActual)) pushIssue(issues, 'architecture_contract_instance_port_map_drift', component.file, `Instance "${expectedInstance.label}" port "${formal}" must map to "${expectedActual}".`);
+        }
+      }
     }
   }
 
@@ -867,19 +2072,34 @@ export function attachFpgaArchitectureContractArtifact(
   contract: FpgaArchitectureContract,
 ) {
   const contractPath = 'architecture/architecture-contract.json';
+  const hashPath = 'architecture/architecture-contract.sha256';
   const content = `${JSON.stringify(contract, null, 2)}\n`;
   const existing = project.files.find((file) => normalizePath(file.path) === contractPath);
   if (existing) {
     existing.fileType = 'json';
     existing.purpose = 'App-approved machine-checkable FPGA architecture contract';
     existing.content = content;
-    return project;
+  } else {
+    project.files.push({
+      path: contractPath,
+      fileType: 'json',
+      purpose: 'App-approved machine-checkable FPGA architecture contract',
+      content,
+    });
   }
-  project.files.push({
-    path: contractPath,
-    fileType: 'json',
-    purpose: 'App-approved machine-checkable FPGA architecture contract',
-    content,
-  });
+  const hashContent = `${hashFpgaArchitectureContract(contract)}  architecture-contract.json\n`;
+  const existingHash = project.files.find((file) => normalizePath(file.path) === hashPath);
+  if (existingHash) {
+    existingHash.fileType = 'text';
+    existingHash.purpose = 'Canonical SHA-256 of the approved FPGA architecture contract';
+    existingHash.content = hashContent;
+  } else {
+    project.files.push({
+      path: hashPath,
+      fileType: 'text',
+      purpose: 'Canonical SHA-256 of the approved FPGA architecture contract',
+      content: hashContent,
+    });
+  }
   return project;
 }

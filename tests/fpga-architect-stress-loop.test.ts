@@ -13,11 +13,13 @@ import {
 } from '../src/server/fpgaArchitectStressLoop';
 import { classifyFpgaArchitectLoopFailure, summarizeFpgaArchitectLoopFailures } from '../src/server/fpgaArchitectLoopDiagnostics';
 import type { FpgaArchitectSweepPreset } from '../src/fpgaArchitectSweepConfig';
+import { FpgaArchitectureContractError } from '../src/server/fpgaArchitectureContract';
 
 function createTestPreset(key: string, label: string): FpgaArchitectSweepPreset {
   return {
     key,
     label,
+    designClass: key,
     whyItTests: `${label} coverage`,
     projectName: key,
     outputFolderName: key,
@@ -231,6 +233,51 @@ test('runFpgaArchitectStressLoop reuses one approved architecture contract acros
   assert.match(log, /Architecture contract: reused approved contract/);
 });
 
+test('clean reproducibility mode reuses only the golden contract and resets files, feedback, and repair context', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-clean-repro-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const preset = createTestPreset('alpha', 'Alpha Design');
+  const approvedContract = { schemaVersion: '2.0', designName: 'alpha' } as any;
+  let runCount = 0;
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      runCount += 1;
+      assert.doesNotMatch(params.userQuery, /Repair Continuation Mode/);
+      assert.doesNotMatch(params.userQuery, /Prior Failure Feedback/);
+      if (runCount === 1) {
+        assert.equal(params.approvedFpgaArchitectureContract, null);
+        const poisonedPath = path.join(params.normalizedProjectPath, 'src', 'poisoned.vhd');
+        await fs.mkdir(path.dirname(poisonedPath), { recursive: true });
+        await fs.writeFile(poisonedPath, 'broken', 'utf8');
+        const error: any = new Error('first clean attempt failed');
+        error.fpgaArchitectureContract = approvedContract;
+        throw error;
+      }
+      assert.equal(params.approvedFpgaArchitectureContract, approvedContract);
+      await assert.rejects(fs.stat(path.join(params.normalizedProjectPath, 'src', 'poisoned.vhd')));
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation.' },
+        outputDirectory: params.normalizedProjectPath,
+        architectureContract: approvedContract,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: [preset],
+    attemptsPerDesign: 2,
+    sweepMode: 'clean_reproducibility',
+  });
+
+  assert.equal(result.sweepMode, 'clean_reproducibility');
+  assert.equal(result.completedAttempts, 2);
+  assert.equal(result.failures, 1);
+  const log = await fs.readFile(result.designSummaries[0].logFilePath, 'utf8');
+  assert.doesNotMatch(log, /Context mode: repair continuation/);
+  assert.match(log, /Design-specific feedback packets: 0/);
+  assert.match(log, /Architecture Contract Hash:/);
+});
+
 test('runFpgaArchitectStressLoop executes the full sweep even when the same failure repeats from the start', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-no-stop-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -325,6 +372,63 @@ test('runFpgaArchitectStressLoop logs validator-backed categories instead of Oth
   assert.match(masterLogContent, /changedFiles: tb\/tb_uart_spi_bridge\.vhd/);
   assert.match(masterLogContent, /postRepairValidation: FAIL prevalidate\/procedure_outer_scope_write/);
   assert.doesNotMatch(masterLogContent, /Failure category: Other/);
+});
+
+test('runFpgaArchitectStressLoop logs architecture contract issues separately from VHDL code-quality failures', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-contract-issues-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+
+  const issues = [
+    {
+      code: 'architecture_contract_child_missing',
+      path: '$.components[2].children',
+      message: 'Child component "spi_engine" does not exist.',
+    },
+    {
+      code: 'architecture_contract_source_missing',
+      path: '$.sourceOrder',
+      message: 'Component file "src/spi_engine.vhd" is missing from sourceOrder.',
+    },
+  ];
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      throw new FpgaArchitectureContractError(
+        'Architecture contract failed deterministic validation with 2 issue(s).',
+        issues,
+      );
+    }),
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 1,
+  });
+
+  assert.equal(result.failures, 1);
+  assert.equal(result.architectureContractFailures, 1);
+  assert.equal(result.codeQualityFailures, 0);
+  assert.equal(result.designSummaries[0]?.architectureContractFailures, 1);
+  assert.equal(result.designSummaries[0]?.codeQualityFailures, 0);
+  assert.equal(result.contractIssueBuckets[0]?.code, 'architecture_contract_child_missing');
+  assert.equal(result.contractAttemptLogPaths.length, 1);
+
+  const issueArtifact = JSON.parse(await fs.readFile(result.contractAttemptLogPaths[0], 'utf8'));
+  assert.equal(issueArtifact.stage, 'architecture_contract');
+  assert.equal(issueArtifact.issueCount, 2);
+  assert.deepEqual(issueArtifact.topIssueCodes, ['architecture_contract_child_missing', 'architecture_contract_source_missing']);
+
+  const masterLogContent = await fs.readFile(result.masterLogPath, 'utf8');
+  assert.match(masterLogContent, /Architecture proposal failed validation before VHDL generation/);
+  assert.match(masterLogContent, /Architecture contract issues: 2/);
+  assert.match(masterLogContent, /\[architecture_contract_child_missing\] \$\.components\[2\]\.children/);
+  assert.match(masterLogContent, /Architecture-contract failures: 1/);
+  assert.match(masterLogContent, /Code-quality failures: 0/);
+
+  const scoreboard = JSON.parse(await fs.readFile(result.modelQualityScoreboardPath, 'utf8'));
+  const modelEntry = Object.values(scoreboard.models)[0] as any;
+  const bucket = Object.values(modelEntry.failureBuckets)[0] as any;
+  assert.equal(bucket.failureCode, 'architecture_contract_validation_failed');
+  assert.equal(bucket.stage, 'architecture_contract');
+  assert.deepEqual(bucket.issueCodes, ['architecture_contract_child_missing', 'architecture_contract_source_missing']);
 });
 
 test('runFpgaArchitectStressLoop emits expanded progress metadata with global and per-design counters', async () => {
@@ -1266,6 +1370,125 @@ test('runFpgaArchitectStressLoop enriches CPU halt simulation failures with TB s
   assert.match(masterLog, /Behavioral context: failing TB window included=yes instruction sequence found=yes CPU RTL files included=/);
 });
 
+test('runFpgaArchitectStressLoop enriches protocol status simulation failures with TB stimulus and bridge RTL context', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-protocol-behavior-context-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('uart_spi_protocol_bridge', 'UART SPI Bridge Design')];
+  const seenPrompts: string[] = [];
+  let runCount = 0;
+
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async (params: any) => {
+      seenPrompts.push(params.userQuery);
+      runCount += 1;
+
+      const tbPath = path.join(params.normalizedProjectPath, 'tb', 'tb_uart_spi_protocol_bridge_top.vhd');
+      const topPath = path.join(params.normalizedProjectPath, 'src', 'uart_spi_protocol_bridge_top.vhd');
+      const controlPath = path.join(params.normalizedProjectPath, 'src', 'bridge_control_fsm.vhd');
+      const statusPath = path.join(params.normalizedProjectPath, 'src', 'status_error_block.vhd');
+      const fifoPath = path.join(params.normalizedProjectPath, 'src', 'rx_fifo.vhd');
+      const spiPath = path.join(params.normalizedProjectPath, 'src', 'spi_master.vhd');
+      const docsPath = path.join(params.normalizedProjectPath, 'docs', 'notes.md');
+      await fs.mkdir(path.dirname(tbPath), { recursive: true });
+      await fs.mkdir(path.dirname(topPath), { recursive: true });
+      await fs.mkdir(path.dirname(docsPath), { recursive: true });
+      await fs.writeFile(
+        tbPath,
+        [
+          'entity tb_uart_spi_protocol_bridge_top is end entity;',
+          'architecture sim of tb_uart_spi_protocol_bridge_top is',
+          '  signal clk : std_logic := \'0\';',
+          '  signal rst : std_logic := \'1\';',
+          '  signal start_i : std_logic := \'0\';',
+          '  signal data_i : std_logic_vector(7 downto 0);',
+          '  signal done_o : std_logic;',
+          '  signal error_o : std_logic;',
+          '  signal status_o : std_logic_vector(7 downto 0);',
+          'begin',
+          '  stimulus : process',
+          '  begin',
+          '    rst <= \'1\';',
+          '    start_i <= \'0\';',
+          '    data_i <= x"00";',
+          '    wait for 20 ns;',
+          '    rst <= \'0\';',
+          '    data_i <= x"5A";',
+          '    start_i <= \'1\';',
+          '    wait until rising_edge(clk);',
+          '    start_i <= \'0\';',
+          '    wait_for_done(clk, done_o, error_o, failed);',
+          '    if error_o /= \'0\' then report "FAIL error_o asserted" severity error; end if;',
+          '    if done_o /= \'1\' then report "FAIL done_o did not assert" severity error; end if;',
+          '    if status_o /= x"01" then report "FAIL status_o did not report nominal completion" severity error; end if;',
+          '    wait;',
+          '  end process;',
+          'end architecture;',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+      await fs.writeFile(topPath, 'entity uart_spi_protocol_bridge_top is end entity;\narchitecture rtl of uart_spi_protocol_bridge_top is begin end architecture;\n', 'utf8');
+      await fs.writeFile(controlPath, 'entity bridge_control_fsm is end entity;\narchitecture rtl of bridge_control_fsm is begin end architecture;\n', 'utf8');
+      await fs.writeFile(statusPath, 'entity status_error_block is end entity;\narchitecture rtl of status_error_block is begin end architecture;\n', 'utf8');
+      await fs.writeFile(fifoPath, 'entity rx_fifo is end entity;\narchitecture rtl of rx_fifo is begin end architecture;\n', 'utf8');
+      await fs.writeFile(spiPath, 'entity spi_master is end entity;\narchitecture rtl of spi_master is begin end architecture;\n', 'utf8');
+      await fs.writeFile(docsPath, '# unrelated notes\n'.repeat(100), 'utf8');
+
+      if (runCount === 1) {
+        const error = new Error(`${tbPath}:23:5:@76ns:(report error): FAIL error_o asserted`);
+        (error as any).generatedVhdlValidation = {
+          ok: false,
+          stage: 'simulate',
+          summary: 'Generated VHDL failed GHDL simulation for tb_uart_spi_protocol_bridge_top.',
+          logs: [],
+          validatedTopEntities: ['tb_uart_spi_protocol_bridge_top'],
+          failureCode: 'protocol_status_behavior_mismatch',
+          failureCategory: 'simulation_success',
+          failureDetails: [{
+            code: 'protocol_status_behavior_mismatch',
+            category: 'simulation_success',
+            message: 'tb/tb_uart_spi_protocol_bridge_top.vhd:23: assertion failed at 76ns: FAIL error_o asserted',
+            excerpt: 'FAIL error_o asserted',
+            relativePath: 'tb/tb_uart_spi_protocol_bridge_top.vhd',
+            lineHint: 23,
+            forbiddenConstruct: 'self-checking assertion/report failure at 76ns: FAIL error_o asserted',
+            legalReplacementPattern: 'repair the UART/SPI/protocol bridge RTL or TB timing contract so the status/error/done assertion is true at 76ns; do not delete, weaken, skip, rename, or silence the assertion',
+            assertionLabel: 'error_o asserted',
+            simulationTime: '76ns',
+            expectedBehavior: 'Protocol bridge status/error/done behavior must match the self-checking expectation at the reported simulation time.',
+            relatedSourcePaths: ['src/bridge_control_fsm.vhd', 'src/status_error_block.vhd', 'src/rx_fifo.vhd', 'src/spi_master.vhd'],
+          }],
+        };
+        throw error;
+      }
+
+      return {
+        validation: { summary: 'Generated VHDL passed GHDL simulation for tb_uart_spi_protocol_bridge_top.' },
+        outputDirectory: params.normalizedProjectPath,
+      };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 2,
+  });
+
+  assert.equal(seenPrompts.length, 2);
+  assert.match(seenPrompts[1] || '', /protocol_status_behavior_mismatch/);
+  assert.match(seenPrompts[1] || '', /### tb\/tb_uart_spi_protocol_bridge_top\.vhd/);
+  assert.match(seenPrompts[1] || '', /AUTOMATA_BEHAVIOR_CONTEXT: Protocol bridge stimulus/);
+  assert.match(seenPrompts[1] || '', /data_i <= x"5A"/);
+  assert.match(seenPrompts[1] || '', /wait_for_done\(clk, done_o, error_o, failed\)/);
+  assert.match(seenPrompts[1] || '', /### src\/bridge_control_fsm\.vhd/);
+  assert.match(seenPrompts[1] || '', /### src\/status_error_block\.vhd/);
+  assert.match(seenPrompts[1] || '', /### src\/rx_fifo\.vhd/);
+  assert.match(seenPrompts[1] || '', /### src\/spi_master\.vhd/);
+  assert.doesNotMatch(seenPrompts[1] || '', /### docs\/notes\.md/);
+
+  const masterLog = await fs.readFile(path.join(projectRoot, '.automata-logicpro', 'fpga-architect-sweep.log'), 'utf8');
+  assert.match(masterLog, /Behavioral context: protocol TB window included=yes stimulus found=yes protocol RTL files included=.*bridge_control_fsm\.vhd.*status_error_block\.vhd/);
+});
+
 test('runFpgaArchitectStressLoop enriches CPU reset and control simulation failures with TB stimulus and CPU RTL context', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-cpu-reset-control-context-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);
@@ -1555,6 +1778,81 @@ test('runFpgaArchitectStressLoop pauses and retries provider/runtime failures wi
     progressEvents
       .filter((event) => event.providerPaused === true)
       .every((event) => event.failures === 0 && event.completedAttempts === 0),
+    true,
+  );
+});
+
+test('runFpgaArchitectStressLoop retries empty length model output without counting a failed attempt', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-output-budget-counts-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  let runCount = 0;
+  const progressEvents: any[] = [];
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      runCount += 1;
+      if (runCount === 1) {
+        throw new Error('Ollama returned no generated text for model "qwen" via /api/chat. Payload summary: done=true; done_reason=length; message_content_length=0');
+      }
+      return { validation: { summary: 'passed' }, outputDirectory: projectRoot };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 1,
+    providerRetryDelayMs: 0,
+    onProgress: (progress) => {
+      progressEvents.push(progress);
+    },
+  });
+
+  assert.equal(runCount, 2);
+  assert.equal(result.completedAttempts, 1);
+  assert.equal(result.failures, 0);
+  assert.equal(result.successes, 1);
+  assert.equal(result.contextBudgetFailures, 1);
+  assert.equal(result.codeQualityFailures, 0);
+  assert.equal(result.designSummaries[0]?.contextBudgetFailures, 1);
+  assert.equal(progressEvents.some((event) => event.innerRepairFailureCode === 'model_output_budget_exhausted'), true);
+});
+
+test('runFpgaArchitectStressLoop uses app-owned contract fallback after repeated empty contract output', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-output-budget-fallback-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const presets = [createTestPreset('alpha', 'Alpha Design')];
+  let runCount = 0;
+  const progressEvents: any[] = [];
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      runCount += 1;
+      if (runCount <= 2) {
+        throw new Error('Ollama returned no generated text for model "qwen" via /api/chat. Payload summary: done=true; done_reason=length; message_content_length=0');
+      }
+      return { validation: { summary: 'passed' }, outputDirectory: projectRoot };
+    }),
+    session,
+    sessionManager,
+    designPresets: presets,
+    attemptsPerDesign: 1,
+    providerRetryDelayMs: 0,
+    onProgress: (progress) => {
+      progressEvents.push(progress);
+    },
+  });
+
+  assert.equal(runCount, 3);
+  assert.equal(result.completedAttempts, 1);
+  assert.equal(result.failures, 0);
+  assert.equal(result.successes, 1);
+  assert.equal(result.contextBudgetFailures, 2);
+  assert.equal(result.codeQualityFailures, 0);
+  assert.equal(result.contractFallbackUsed, true);
+  assert.equal(result.designSummaries[0]?.contractFallbackUsed, true);
+  assert.equal(result.failureBuckets.length, 0);
+  assert.equal(
+    progressEvents.some((event) => event.innerRepairStatus === 'using app-owned contract fallback'),
     true,
   );
 });

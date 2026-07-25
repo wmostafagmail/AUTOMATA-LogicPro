@@ -5,7 +5,7 @@ import type { ProviderOption } from '../types';
 import type { PendingRemoteExportPreview } from './useAIDrawerAnalysis';
 
 const renderTelemetryValue = (
-  value: number | null,
+  value: number | string | null,
   options?: {
     suffix?: string;
     loading?: boolean;
@@ -13,7 +13,7 @@ const renderTelemetryValue = (
 ) => {
   if (value === null) {
     if (options?.loading) {
-      return <span className="text-lime-300">Pending</span>;
+      return <span className="block text-[10px] leading-tight text-lime-300">Waiting for model telemetry</span>;
     }
     return 'Unavailable';
   }
@@ -167,20 +167,20 @@ export const JobTelemetryPanel: React.FC<{
   statusPanelTone: string;
   statusPanelTelemetry: {
     engineLabel: string;
-    jobInputTokens: number | null;
-    latestAttemptInputTokens: number | null;
-    inputTokens: number | null;
-    attemptCount?: number | null;
-    retryCount?: number | null;
-    sessionInputTokens: number | null;
-    jobOutputTokens: number | null;
-    outputTokens: number | null;
-    sessionOutputTokens: number | null;
-    tokensPerSecond: number | null;
-    endToEndTokensPerSecond: number | null;
+    jobInputTokens: number | string | null;
+    latestAttemptInputTokens: number | string | null;
+    inputTokens: number | string | null;
+    attemptCount?: number | string | null;
+    retryCount?: number | string | null;
+    sessionInputTokens: number | string | null;
+    jobOutputTokens: number | string | null;
+    outputTokens: number | string | null;
+    sessionOutputTokens: number | string | null;
+    tokensPerSecond: number | string | null;
+    endToEndTokensPerSecond: number | string | null;
   };
-  sessionInputDisplayValue: number | null;
-  sessionOutputDisplayValue: number | null;
+  sessionInputDisplayValue: number | string | null;
+  sessionOutputDisplayValue: number | string | null;
 }> = ({
   loading,
   jobElapsedSeconds,

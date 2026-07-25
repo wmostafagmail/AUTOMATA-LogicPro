@@ -4,7 +4,11 @@ import {
   assertFpgaArchitectProjectMatchesContract,
   attachFpgaArchitectureContractArtifact,
   buildApprovedFpgaArchitectureContractSection,
+  buildFpgaArchitectureContractDraft,
   buildFpgaArchitectureContractProposalPrompt,
+  canonicalizeFpgaArchitectureContract,
+  hashFpgaArchitectureContract,
+  normalizeFpgaArchitectureContract,
   parseAndValidateFpgaArchitectureContract,
   proposeApprovedFpgaArchitectureContract,
   validateFpgaArchitectureContract,
@@ -12,6 +16,11 @@ import {
   type FpgaArchitectureContract,
 } from '../src/server/fpgaArchitectureContract';
 import type { FpgaArchitectProject } from '../src/server/fpgaArchitect';
+import {
+  inferFpgaArchitectureBlueprintFromPrompt,
+  synthesizeFpgaArchitectureBlueprintFromPrompt,
+} from '../src/server/fpgaArchitectureBlueprint';
+import { buildFpgaArchitectureEvidenceSnapshot } from '../src/server/fpgaArchitectureEvidence';
 
 const ALU_CAPABILITIES = [
   'alu_pkg_for_opcodes_flags',
@@ -155,10 +164,161 @@ function makeMatchingProject(): FpgaArchitectProject {
 test('architecture contract proposal prompt makes model-owned choices machine-checkable', () => {
   const prompt = buildFpgaArchitectureContractProposalPrompt({ userRequest: 'Design an 8-bit ALU.' });
   assert.match(prompt, /before any VHDL is generated/);
+  assert.match(prompt, /App-owned draft contract to preserve and refine/);
   assert.match(prompt, /alu_pkg_for_opcodes_flags/);
   assert.match(prompt, /Every required capability must be implemented/);
   assert.match(prompt, /sourceOrder/);
   assert.match(prompt, /Return exactly one JSON object/);
+  assert.match(prompt, /schemaVersion must be "2.0"/);
+  assert.match(prompt, /named generic\/port maps/);
+  assert.match(prompt, /Curated-first hybrid architecture synthesis/);
+  assert.match(prompt, /Primary app-owned design pattern: pattern_alu_core/);
+  assert.match(prompt, /curated design pattern owns high-level building-block architecture/i);
+  assert.match(prompt, /sourceGroundedRequirements/);
+  assert.match(prompt, /claim_method_numeric_boundary_types/);
+});
+
+test('app-owned contract draft validates before model refinement', () => {
+  const contract = buildFpgaArchitectureContractDraft({ userRequest: 'Design an 8-bit ALU.' });
+  const validation = validateFpgaArchitectureContract({ contract, userRequest: 'Design an 8-bit ALU.' });
+  assert.equal(validation.ok, true, JSON.stringify(validation.issues, null, 2));
+  assert.equal(contract.schemaVersion, '2.0');
+  assert.equal(contract.components.filter((component) => component.kind === 'top').length, 1);
+  assert.equal(contract.components.filter((component) => component.kind === 'testbench').length, 1);
+  assert.equal(contract.sourceOrder.at(-1), contract.components.find((component) => component.kind === 'testbench')?.file);
+});
+
+test('contract parser safely quotes recoverable raw JSON-ish VHDL tokens', () => {
+  const contract = buildFpgaArchitectureContractDraft({ userRequest: 'Design an 8-bit ALU.' });
+  contract.verification[0] = {
+    ...contract.verification[0],
+    actions: [
+      { kind: 'drive', signal: 'start_i', value: 'open' },
+      { kind: 'finish', message: 'TEST PASSED' },
+    ],
+  };
+  const jsonish = JSON.stringify(contract, null, 2).replace('"open"', 'open');
+  const parsed = parseAndValidateFpgaArchitectureContract({ text: jsonish, userRequest: 'Design an 8-bit ALU.' });
+  assert.equal(parsed.verification[0]?.actions?.[0]?.value, 'open');
+});
+
+test('contract normalization repairs safe source-order and generic-default shape issues', () => {
+  const contract = makeValidContract();
+  contract.schemaVersion = '2.0';
+  contract.components[1].generics = [{ name: 'DATA_WIDTH', type: 'positive', default: '' }];
+  contract.components[0].packageSymbols = [{ name: 'alu_opcode_t', kind: 'subtype', type: 'std_logic_vector(2 downto 0)' }];
+  contract.behaviors[0] = { ...contract.behaviors[0], resetBehavior: 'Reset output is zero.', latencyCycles: 0, preconditions: [] };
+  contract.verification[0] = {
+    ...contract.verification[0],
+    coversBehaviors: ['add_behavior'],
+    actions: [{ kind: 'finish', message: 'TEST PASSED' }],
+  };
+  contract.numericFormats = [];
+  contract.instances = [];
+  contract.connections = [];
+  contract.stateMachines = [];
+  contract.sourceOrder = ['tb/tb_alu_top.vhd', 'src/alu_top.vhd'];
+
+  const normalized = normalizeFpgaArchitectureContract(contract);
+  assert.equal(normalized.components[1].generics[0].default, '1');
+  assert.deepEqual(normalized.sourceOrder, ['src/alu_pkg.vhd', 'src/alu_top.vhd', 'tb/tb_alu_top.vhd']);
+});
+
+test('contract normalization declares safe implicit child-output connections', () => {
+  const contract = makeValidContract();
+  contract.schemaVersion = '2.0';
+  contract.components[0].packageSymbols = [{ name: 'alu_opcode_t', kind: 'subtype', type: 'std_logic_vector(2 downto 0)' }];
+  contract.components.splice(1, 0, {
+    id: 'alu_core',
+    kind: 'rtl',
+    name: 'alu_core',
+    file: 'src/alu_core.vhd',
+    responsibility: 'Compute ALU result.',
+    implements: [],
+    dependsOn: ['alu_pkg'],
+    children: [],
+    clockDomain: null,
+    generics: [],
+    ports: [
+      { name: 'a_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'A.' },
+      { name: 'result_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Result.' },
+    ],
+    exports: [],
+  });
+  const top = contract.components.find((component) => component.id === 'alu_top');
+  assert.ok(top);
+  top.dependsOn = ['alu_pkg', 'alu_core'];
+  top.children = ['alu_core'];
+  contract.instances = [{
+    id: 'u_core',
+    parentComponentId: 'alu_top',
+    childComponentId: 'alu_core',
+    label: 'u_core',
+    genericMap: {},
+    portMap: { a_i: 'a_i', result_o: 'core_result' },
+  }, {
+    id: 'dut',
+    parentComponentId: 'tb_alu_top',
+    childComponentId: 'alu_top',
+    label: 'dut',
+    genericMap: {},
+    portMap: { a_i: 'a_i', b_i: 'b_i', op_i: 'op_i', result_o: 'result_o', carry_o: 'carry_o' },
+  }];
+  contract.connections = [];
+  contract.numericFormats = [];
+  contract.stateMachines = [];
+  contract.behaviors[0] = { ...contract.behaviors[0], resetBehavior: 'No reset.', latencyCycles: 0, preconditions: [] };
+  contract.verification[0] = {
+    ...contract.verification[0],
+    coversBehaviors: ['add_behavior'],
+    actions: [{ kind: 'finish', message: 'TEST PASSED' }],
+  };
+  contract.sourceOrder = ['src/alu_pkg.vhd', 'src/alu_core.vhd', 'src/alu_top.vhd', 'tb/tb_alu_top.vhd'];
+
+  const normalized = normalizeFpgaArchitectureContract(contract);
+  assert.deepEqual(normalized.connections?.map((connection) => connection.id), ['core_result']);
+  assert.equal(normalized.connections?.[0]?.type, 'std_logic_vector(7 downto 0)');
+  assert.deepEqual(normalized.connections?.[0]?.source, { componentId: 'alu_core', port: 'result_o' });
+  const validation = validateFpgaArchitectureContract({ contract: normalized, userRequest: 'Design an 8-bit ALU.' });
+  assert.equal(
+    validation.issues.some((issue) => issue.code === 'architecture_contract_instance_actual_unknown' || issue.code === 'architecture_contract_instance_output_actual_invalid'),
+    false,
+    JSON.stringify(validation.issues, null, 2),
+  );
+});
+
+test('contract V2 validates package symbols, exact instances, behavior timing, and executable scenarios', () => {
+  const contract = makeValidContract();
+  contract.schemaVersion = '2.0';
+  contract.components[0].packageSymbols = [{ name: 'alu_opcode_t', kind: 'subtype', type: 'std_logic_vector(2 downto 0)' }];
+  contract.behaviors[0] = { ...contract.behaviors[0], resetBehavior: 'Combinational outputs default to zero for an invalid opcode.', latencyCycles: 0, preconditions: [] };
+  contract.verification[0] = {
+    ...contract.verification[0],
+    coversBehaviors: ['add_behavior'],
+    actions: [
+      { kind: 'drive', signal: 'a_i', value: 'x"05"' },
+      { kind: 'drive', signal: 'b_i', value: 'x"03"' },
+      { kind: 'wait_cycles', cycles: 1 },
+      { kind: 'expect', signal: 'result_o', value: 'x"08"', message: 'ADD result mismatch' },
+      { kind: 'finish', message: 'TEST PASSED' },
+    ],
+  };
+  contract.numericFormats = [{ id: 'alu_data_format', type: 'unsigned', width: 8, integerBits: 8, fractionalBits: 0, overflow: 'wrap', rounding: 'truncate' }];
+  contract.instances = [{
+    id: 'tb_dut',
+    parentComponentId: 'tb_alu_top',
+    childComponentId: 'alu_top',
+    label: 'dut',
+    genericMap: {},
+    portMap: { a_i: 'a_i', b_i: 'b_i', op_i: 'op_i', result_o: 'result_o', carry_o: 'carry_o' },
+  }];
+  contract.connections = [];
+  contract.stateMachines = [];
+
+  const validation = validateFpgaArchitectureContract({ contract, userRequest: 'Design an 8-bit ALU.' });
+  assert.equal(validation.ok, true, JSON.stringify(validation.issues, null, 2));
+  assert.equal(hashFpgaArchitectureContract(contract).length, 64);
+  assert.equal(canonicalizeFpgaArchitectureContract(contract), canonicalizeFpgaArchitectureContract(JSON.parse(JSON.stringify(contract))));
 });
 
 test('valid architecture contract passes deterministic schema and graph validation', () => {
@@ -168,7 +328,197 @@ test('valid architecture contract passes deterministic schema and graph validati
   assert.deepEqual(parseAndValidateFpgaArchitectureContract({
     text: JSON.stringify(contract),
     userRequest: 'Design an 8-bit ALU.',
-  }), contract);
+  }), normalizeFpgaArchitectureContract(contract));
+});
+
+test('explicit mandatory design class wins over unrelated base-prompt keywords', () => {
+  const blueprint = inferFpgaArchitectureBlueprintFromPrompt([
+    'Build the old ALU project again.',
+    '---',
+    'Mandatory design class: video_pattern_generator',
+    'Design a VGA/HDMI Pattern Generator with Framebuffer.',
+  ].join('\n'));
+
+  assert.equal(blueprint.designClass, 'video_pattern_generator');
+});
+
+test('curated architecture synthesis selects app-owned design patterns and official evidence', () => {
+  const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(
+    'Design a flight controller for a quadcopter with IMU, PID loops, motor mixer, telemetry, and failsafe.',
+  );
+
+  assert.equal(synthesis.sourceMode, 'curated_first_hybrid');
+  assert.equal(synthesis.primaryPattern.patternId, 'pattern_flight_controller');
+  assert.equal(synthesis.blueprint.designClass, 'flight_controller');
+  assert.ok(synthesis.blueprint.buildingBlocks.some((block) => /sensor_frontend/i.test(block)));
+  assert.ok(synthesis.blueprint.buildingBlocks.some((block) => /motor_mixer/i.test(block)));
+  assert.ok(synthesis.methodologyRules.some((rule) => rule.ruleId === 'method_amd_hierarchy_ooc'));
+  assert.ok(synthesis.evidenceClaims.every((claim) => /^https:\/\/(?:docs\.amd\.com|docs\.altera\.com|ghdl\.github\.io|www\.microchip\.com|www\.intel\.com)/.test(claim.sourceUrl)));
+});
+
+test('curated architecture synthesis composes secondary patterns deterministically', () => {
+  const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(
+    'Design a flight controller with an SPI IMU sensor frontend and DSP filtering before PID control.',
+  );
+
+  assert.equal(synthesis.primaryPattern.patternId, 'pattern_flight_controller');
+  assert.ok(synthesis.secondaryPatterns.some((pattern) => pattern.patternId === 'pattern_dsp_chain'));
+  assert.ok(synthesis.blueprint.matchedPatternIds?.includes('pattern_dsp_chain'));
+});
+
+test('deterministic draft does not turn package or self-checking capabilities into RTL leaves', () => {
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+  const rtlComponentIds = contract.components
+    .filter((component) => component.kind === 'rtl')
+    .map((component) => component.id);
+  const packageComponent = contract.components.find((component) => component.kind === 'package');
+  const testbenchComponent = contract.components.find((component) => component.kind === 'testbench');
+
+  assert.equal(rtlComponentIds.includes('alu_pkg_for_opcodes_flags'), false);
+  assert.equal(rtlComponentIds.includes('operation_testbench'), false);
+  assert.ok(packageComponent?.implements.includes('alu_pkg_for_opcodes_flags'));
+  assert.ok(testbenchComponent?.implements.includes('self_checking_operation_testbench'));
+  assert.equal(validateFpgaArchitectureContract({ contract, userRequest: 'Mandatory design class: alu. Design an ALU.' }).ok, true);
+});
+
+test('deterministic draft preserves curated synthesis metadata and source-grounded requirements', () => {
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+
+  assert.equal(contract.architectureSynthesis?.sourceMode, 'curated_first_hybrid');
+  assert.equal(contract.architectureSynthesis?.primaryPatternId, 'pattern_alu_core');
+  assert.ok((contract.architectureSynthesis?.evidenceClaimIds.length || 0) > 0);
+  assert.ok((contract.sourceGroundedRequirements?.length || 0) > 0);
+  assert.equal(validateFpgaArchitectureContract({
+    contract,
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  }).ok, true);
+});
+
+test('contract validation rejects source-grounded requirements with invalid evidence claims', () => {
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+  assert.ok(contract.sourceGroundedRequirements?.[0]);
+  contract.sourceGroundedRequirements![0] = {
+    ...contract.sourceGroundedRequirements![0],
+    sourceClaimId: 'claim_unknown_unapproved_source',
+  };
+
+  const validation = validateFpgaArchitectureContract({
+    contract,
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+
+  assert.equal(validation.ok, false);
+  assert.ok(validation.issues.some((issue) => issue.code === 'architecture_contract_source_requirement_claim_missing'));
+});
+
+test('contract draft accepts approved cached/live architecture evidence facts', () => {
+  const snapshot = buildFpgaArchitectureEvidenceSnapshot({
+    sourceId: 'method_amd_hierarchy_ooc',
+    sourceUrl: 'https://docs.amd.com/r/2020.2-English/ug892-vivado-design-flows-overview/Hierarchical-Design',
+    sourceTitle: 'AMD Vivado Design Flows Overview UG892',
+    sourceText: 'Use hierarchical design methodology to partition modules and preserve independently validatable implementation blocks.',
+  });
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+    evidenceFacts: snapshot.facts,
+    retrievalMode: 'official_live_cached',
+  });
+
+  assert.equal(contract.architectureSynthesis?.retrievalMode, 'official_live_cached');
+  assert.ok(contract.architectureSynthesis?.evidenceClaimIds.some((claimId) => claimId.startsWith('live_claim_')));
+  assert.equal(validateFpgaArchitectureContract({
+    contract,
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  }).ok, true);
+});
+
+test('contract validation rejects unapproved live evidence URLs and malformed hashes', () => {
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+  contract.architectureSynthesis!.evidenceClaimIds.push('live_claim_bad_source');
+  contract.architectureSynthesis!.sourceHashes = ['not-a-sha'];
+  contract.sourceGroundedRequirements!.push({
+    id: 'live_source_req_bad',
+    sourceClaimId: 'live_claim_bad_source',
+    appliesTo: 'architecture',
+    requirement: 'Do not trust arbitrary web sources.',
+    sourceUrl: 'https://random-blog.example/fpga',
+    sourceHash: 'not-a-sha',
+  });
+
+  const validation = validateFpgaArchitectureContract({
+    contract,
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+  const codes = new Set(validation.issues.map((issue) => issue.code));
+  assert.equal(codes.has('architecture_evidence_source_unapproved'), true);
+  assert.equal(codes.has('architecture_evidence_snapshot_invalid'), true);
+});
+
+test('UART/SPI deterministic draft contains exact protocol status expectations', () => {
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: uart_spi_protocol_bridge. Build a UART-to-SPI bridge.',
+  });
+  const verification = contract.verification[0];
+  const behaviorText = contract.behaviors.map((behavior) => [
+    behavior.timing,
+    behavior.resetBehavior,
+  ].join(' ')).join('\n');
+  const actionText = verification?.actions.map((action) => JSON.stringify(action)).join('\n') || '';
+
+  assert.equal(contract.designClass, 'uart_spi_protocol_bridge');
+  assert.match(behaviorText, /done_o within four rising clock edges/i);
+  assert.match(behaviorText, /error_o = 0/i);
+  assert.match(behaviorText, /status_o = x"01"/i);
+  assert.match(behaviorText, /status_o = x"00"/i);
+  assert.match(verification?.expected || '', /status_o equals x"01"/i);
+  assert.match(actionText, /FAIL reset status_o not x00/);
+  assert.match(actionText, /FAIL status_o did not report nominal completion/);
+  assert.equal(validateFpgaArchitectureContract({
+    contract,
+    userRequest: 'Mandatory design class: uart_spi_protocol_bridge. Build a UART-to-SPI bridge.',
+  }).ok, true);
+});
+
+test('contract validation rejects testbench-shaped RTL ownership before VHDL generation', () => {
+  const contract = buildFpgaArchitectureContractDraft({
+    userRequest: 'Mandatory design class: alu. Design an ALU.',
+  });
+  const packageComponent = contract.components.find((component) => component.kind === 'package');
+  const testbenchComponent = contract.components.find((component) => component.kind === 'testbench');
+  assert.ok(packageComponent);
+  assert.ok(testbenchComponent);
+  contract.components.splice(1, 0, {
+    id: 'operation_testbench',
+    kind: 'rtl',
+    name: 'operation_testbench',
+    file: 'src/operation_testbench.vhd',
+    responsibility: 'Incorrectly owns a self-checking testbench capability.',
+    implements: ['self_checking_operation_testbench'],
+    dependsOn: [packageComponent.id],
+    children: [],
+    clockDomain: contract.clockDomains[0].id,
+    generics: [],
+    ports: [
+      { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+    ],
+    exports: [],
+  });
+  testbenchComponent.implements = [];
+  contract.sourceOrder = contract.components.map((component) => component.file);
+
+  const validation = validateFpgaArchitectureContract({ contract, userRequest: 'Mandatory design class: alu. Design an ALU.' });
+  const codes = new Set(validation.issues.map((issue) => issue.code));
+  assert.equal(codes.has('architecture_contract_rtl_testbench_identity'), true);
+  assert.equal(codes.has('architecture_contract_capability_owner_kind'), true);
 });
 
 test('architecture contract rejects missing ownership, verification, unsafe interfaces, and dependency drift', () => {
@@ -234,7 +584,7 @@ test('approved architecture contract is persisted as an app-owned project artifa
   assert.match(buildApprovedFpgaArchitectureContractSection(contract), /immutable source of truth/);
 });
 
-test('contract proposal gets one narrow repair attempt before VHDL generation', async () => {
+test('contract proposal uses narrow repair prompting before VHDL generation', async () => {
   const contract = makeValidContract();
   const prompts: string[] = [];
   const result = await proposeApprovedFpgaArchitectureContract({
@@ -254,4 +604,53 @@ test('contract proposal gets one narrow repair attempt before VHDL generation', 
   assert.match(prompts[1], /previous architecture contract was rejected/i);
   assert.equal(result.repaired, true);
   assert.equal(result.contract.topEntity, 'alu_top');
+});
+
+test('contract proposal gets two repair attempts before final contract-stage failure', async () => {
+  const prompts: string[] = [];
+  await assert.rejects(
+    proposeApprovedFpgaArchitectureContract({
+      ai: null,
+      provider: 'ollama',
+      model: 'test-model',
+      userRequest: 'Design an 8-bit ALU.',
+      runModelAnalysis: async ({ prompt }) => {
+        prompts.push(prompt);
+        return {
+          text: '{"schemaVersion":"1.0"}',
+          telemetry: { durationMs: 1 },
+        };
+      },
+    }),
+    /before VHDL generation/,
+  );
+  assert.equal(prompts.length, 3);
+  assert.match(prompts[1], /Issue table: code \| path \| message/);
+  assert.match(prompts[2], /Return one complete JSON object only/);
+});
+
+test('contract proposal falls back to app-owned draft after repeated malformed JSON only', async () => {
+  const prompts: string[] = [];
+  const result = await proposeApprovedFpgaArchitectureContract({
+    ai: null,
+    provider: 'ollama',
+    model: 'test-model',
+    userRequest: 'Mandatory design class: uart_spi_protocol_bridge. Build a UART-to-SPI bridge.',
+    runModelAnalysis: async ({ prompt }) => {
+      prompts.push(prompt);
+      return {
+        text: '{"schemaVersion":"2.0","components":[{"id":"broken"',
+        telemetry: { durationMs: 1 },
+      };
+    },
+  });
+
+  assert.equal(prompts.length, 3);
+  assert.equal(result.repaired, true);
+  assert.equal((result as any).appOwnedFallback, true);
+  assert.equal(result.contract.designClass, 'uart_spi_protocol_bridge');
+  assert.equal(validateFpgaArchitectureContract({
+    contract: result.contract,
+    userRequest: 'Mandatory design class: uart_spi_protocol_bridge. Build a UART-to-SPI bridge.',
+  }).ok, true);
 });

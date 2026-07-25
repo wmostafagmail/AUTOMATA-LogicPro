@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "dsp_chain",
+  "designLabel": "Digital Signal Processing Chain: FIR Filter + FFT-lite Analyzer",
+  "attempt": 12,
+  "designAttempt": 3,
+  "issueCount": 15,
+  "topIssueCodes": [
+    "architecture_contract_instance_actual_unknown",
+    "architecture_contract_instance_output_actual_invalid",
+    "architecture_contract_connection_sink_direction",
+    "architecture_contract_connection_sink_type"
+  ],
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 15 issue(s).",
+  "issues": [
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[0].portMap.result_o",
+      "message": "Port actual \"core_result\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_output_actual_invalid",
+      "path": "$.instances[0].portMap.result_o",
+      "message": "Output/inout port \"result_o\" requires one writable named signal actual, not \"core_result\"."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[0].portMap.flags_o",
+      "message": "Port actual \"core_flags\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_output_actual_invalid",
+      "path": "$.instances[0].portMap.flags_o",
+      "message": "Output/inout port \"flags_o\" requires one writable named signal actual, not \"core_flags\"."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[1].portMap.result_o",
+      "message": "Port actual \"wrapper_result\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_output_actual_invalid",
+      "path": "$.instances[1].portMap.result_o",
+      "message": "Output/inout port \"result_o\" requires one writable named signal actual, not \"wrapper_result\"."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[1].portMap.flags_o",
+      "message": "Port actual \"wrapper_flags\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_output_actual_invalid",
+      "path": "$.instances[1].portMap.flags_o",
+      "message": "Output/inout port \"flags_o\" requires one writable named signal actual, not \"wrapper_flags\"."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[2].portMap.result_o",
+      "message": "Port actual \"tb_result\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_output_actual_invalid",
+      "path": "$.instances[2].portMap.result_o",
+      "message": "Output/inout port \"result_o\" requires one writable named signal actual, not \"tb_result\"."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[2].portMap.flags_o",
+      "message": "Port actual \"tb_flags\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_output_actual_invalid",
+      "path": "$.instances[2].portMap.flags_o",
+      "message": "Output/inout port \"flags_o\" requires one writable named signal actual, not \"tb_flags\"."
+    },
+    {
+      "code": "architecture_contract_connection_sink_direction",
+      "path": "$.connections[0].sinks",
+      "message": "Connection sink port \"status_o\" must be in or inout."
+    },
+    {
+      "code": "architecture_contract_connection_sink_type",
+      "path": "$.connections[1]",
+      "message": "Connection type must match sink port type \"std_logic\"."
+    },
+    {
+      "code": "architecture_contract_connection_sink_direction",
+      "path": "$.connections[1].sinks",
+      "message": "Connection sink port \"done_o\" must be in or inout."
+    }
+  ]
+}

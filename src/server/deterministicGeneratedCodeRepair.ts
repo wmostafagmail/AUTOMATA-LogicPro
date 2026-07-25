@@ -3,6 +3,7 @@ import path from 'path';
 import type { RepairableGeneratedFile } from './generatedCodeRepair';
 import type { GeneratedVhdlFailureDetail, GeneratedVhdlValidationResult } from './generatedVhdlValidation';
 import { collectProcedureScopeSnapshots } from './vhdlScopeAnalysis';
+import { repairMalformedVhdlKeywordTypos } from './vhdlKeywordTypos';
 
 type DeterministicRepairResult = {
   repairedFiles: RepairableGeneratedFile[];
@@ -258,6 +259,51 @@ function ensureUseClause(content: string, clause: string) {
 
   return {
     content: `library ieee;\nuse ${clause};\n${content}`,
+    changed: true,
+  };
+}
+
+function reductionOperatorForHelper(helperName: string) {
+  const normalized = helperName.toLowerCase();
+  if (normalized === 'and_reduce') return 'and';
+  if (normalized === 'xor_reduce') return 'xor';
+  return 'or';
+}
+
+function reductionInitialValue(helperName: string) {
+  return helperName.toLowerCase() === 'and_reduce' ? "'1'" : "'0'";
+}
+
+function repairMissingReductionHelper(content: string, helperName: string) {
+  if (!/^(?:or|and|xor)_reduce$/i.test(helperName)) return { content, changed: false };
+  if (new RegExp(`\\bfunction\\s+${helperName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(content)) {
+    return { content, changed: false };
+  }
+  if (!new RegExp(`\\b${helperName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`, 'i').test(content)) {
+    return { content, changed: false };
+  }
+
+  const architectureMatch = /\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b[\s\S]*?\bbegin\b/i.exec(content);
+  if (!architectureMatch || architectureMatch.index == null) return { content, changed: false };
+
+  const beginIndex = architectureMatch.index + architectureMatch[0].length - 'begin'.length;
+  const helper = [
+    '',
+    `  function ${helperName}(value : std_logic_vector) return std_logic is`,
+    `    variable result_v : std_logic := ${reductionInitialValue(helperName)};`,
+    '  begin',
+    "    for index_v in value'range loop",
+    `      result_v := result_v ${reductionOperatorForHelper(helperName)} value(index_v);`,
+    '    end loop;',
+    '    return result_v;',
+    `  end function ${helperName};`,
+    '',
+  ].join('\n');
+
+  const withStdLogic = ensureUseClause(content, 'ieee.std_logic_1164.all').content;
+  const adjustedBeginIndex = beginIndex + (withStdLogic.length - content.length);
+  return {
+    content: `${withStdLogic.slice(0, adjustedBeginIndex)}${helper}${withStdLogic.slice(adjustedBeginIndex)}`,
     changed: true,
   };
 }
@@ -937,6 +983,80 @@ function repairIllegalOthersAggregateComparisons(content: string) {
   return { content: nextContent, changed };
 }
 
+function collectRepairTypeAliases(content: string) {
+  const aliases = new Map<string, string>();
+  for (const match of content.matchAll(/\b(?:type|subtype)\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+(?!record\b)(?!\()([^;]+?)\s*;/gi)) {
+    aliases.set(match[1].toLowerCase(), match[2].replace(/\s+/g, ' ').trim());
+  }
+  return aliases;
+}
+
+function collectRepairIdentifierTypeTexts(content: string) {
+  const aliases = collectRepairTypeAliases(content);
+  const declaredTypes = new Map<string, string>();
+  const resolveType = (typeText: string) => {
+    const normalized = typeText.replace(/\s+/g, ' ').trim();
+    const alias = aliases.get(normalized.toLowerCase());
+    return alias || normalized;
+  };
+  const recordType = (namesText: string, typeText: string) => {
+    for (const name of namesText.split(',').map((part) => part.trim()).filter(Boolean)) {
+      declaredTypes.set(name.toLowerCase(), resolveType(typeText));
+    }
+  };
+
+  for (const match of content.matchAll(/\b(signal|variable|constant)\s+([^:;]+?)\s*:\s*([^;:=]+(?:\([^;]*?\))?)/gi)) {
+    recordType(match[2], match[3]);
+  }
+
+  const recordInterfaceBlock = (body: string) => {
+    for (const segment of splitTopLevelSegments(body, ';')) {
+      const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:\s*(?:(?:in|out|inout|buffer|linkage)\s+)?(.+)\s*$/i);
+      if (!match) continue;
+      recordType(match[1], match[2]);
+    }
+  };
+
+  for (const block of content.matchAll(/\b(?:port|generic)\s*\(([\s\S]*?)\)\s*;/gi)) {
+    recordInterfaceBlock(block[1]);
+  }
+
+  return declaredTypes;
+}
+
+function repairArithmeticOnNonNumericSignal(content: string) {
+  const declaredTypes = collectRepairIdentifierTypeTexts(content);
+  let changed = false;
+  let needsNumericStd = false;
+  const nextContent = content.replace(
+    /\b([a-zA-Z][a-zA-Z0-9_]*)\s*(<=|:=)\s*\1\s*([+-])\s*(\d+)\s*;/gi,
+    (match, objectName, assignmentOperator, arithmeticOperator, amount, offset) => {
+      if (isIndexInsideLineComment(content, offset) || isIndexInsideDoubleQuotedString(content, offset)) {
+        return match;
+      }
+      const declaredType = declaredTypes.get(String(objectName).toLowerCase()) || '';
+      if (/\b(?:unsigned|signed|integer|natural|positive)\b/i.test(declaredType)) {
+        return match;
+      }
+      if (/\bstd_logic_vector\b/i.test(declaredType)) {
+        changed = true;
+        needsNumericStd = true;
+        return `${objectName} ${assignmentOperator} std_logic_vector(unsigned(${objectName}) ${arithmeticOperator} ${amount});`;
+      }
+      if (/\bstd_(?:u)?logic\b/i.test(declaredType) && arithmeticOperator === '+' && String(amount) === '1') {
+        changed = true;
+        return `${objectName} ${assignmentOperator} not ${objectName};`;
+      }
+      return match;
+    },
+  );
+
+  if (!changed) return { content, changed: false };
+  if (!needsNumericStd) return { content: nextContent, changed: true };
+  const withNumericStd = ensureUseClause(nextContent, 'ieee.numeric_std.all');
+  return { content: withNumericStd.content, changed: true };
+}
+
 function repairCommaSeparatedPackedVectorSubtypes(content: string) {
   let changed = false;
   const nextContent = content.replace(
@@ -1065,6 +1185,82 @@ function rewriteScalarBitStringAssignment(content: string, objectName: string, b
     content: nextContent,
     changed: nextContent !== content,
   };
+}
+
+function parseStaticVectorWidth(rangeText: string) {
+  const match = rangeText.match(/\b(\d+)\s+(downto|to)\s+(\d+)\b/i);
+  if (!match) return null;
+  const left = Number.parseInt(match[1], 10);
+  const right = Number.parseInt(match[3], 10);
+  if (!Number.isFinite(left) || !Number.isFinite(right)) return null;
+  return Math.abs(left - right) + 1;
+}
+
+function collectStaticVectorObjects(content: string) {
+  const objects = new Map<string, { typeName: 'std_logic_vector' | 'unsigned' | 'signed'; width: number; declaredName: string }>();
+  const declarationExpression = /\b(?:signal|variable|constant)\s+([a-zA-Z][a-zA-Z0-9_]*(?:\s*,\s*[a-zA-Z][a-zA-Z0-9_]*)*)\s*:\s*(std_logic_vector|unsigned|signed)\s*\(([^;)]+)\)/gi;
+  for (const match of content.matchAll(declarationExpression)) {
+    const width = parseStaticVectorWidth(match[3] || '');
+    if (!width || width <= 0 || width > 63) continue;
+    const typeName = (match[2] || '').toLowerCase() as 'std_logic_vector' | 'unsigned' | 'signed';
+    const names = (match[1] || '').split(',').map((name) => name.trim()).filter(Boolean);
+    for (const declaredName of names) {
+      objects.set(declaredName.toLowerCase(), { typeName, width, declaredName });
+    }
+  }
+  return objects;
+}
+
+function parseVhdlBitStringLiteral(literal: string) {
+  const trimmed = literal.replace(/_/g, '').trim();
+  const hex = trimmed.match(/^x"([0-9a-f]+)"$/i);
+  if (hex) {
+    const width = hex[1].length * 4;
+    const value = Number.parseInt(hex[1], 16);
+    return Number.isFinite(value) ? { width, value } : null;
+  }
+  const bits = trimmed.match(/^"([01]+)"$/);
+  if (bits) {
+    const width = bits[1].length;
+    const value = Number.parseInt(bits[1], 2);
+    return Number.isFinite(value) ? { width, value } : null;
+  }
+  return null;
+}
+
+function renderWidthSafeVectorLiteral(objectName: string, typeName: 'std_logic_vector' | 'unsigned' | 'signed', value: number) {
+  if (value === 0) {
+    return "(others => '0')";
+  }
+  if (typeName === 'std_logic_vector') {
+    return `std_logic_vector(to_unsigned(${value}, ${objectName}'length))`;
+  }
+  if (typeName === 'signed') {
+    return `to_signed(${value}, ${objectName}'length)`;
+  }
+  return `to_unsigned(${value}, ${objectName}'length)`;
+}
+
+export function repairVectorLiteralWidthMismatches(content: string) {
+  const vectorObjects = collectStaticVectorObjects(content);
+  if (vectorObjects.size === 0) {
+    return { content, changed: false };
+  }
+
+  const assignmentExpression = /\b([a-zA-Z][a-zA-Z0-9_]*)\s*(<=|:=)\s*(x"[0-9a-fA-F_]+"|"[01_]+")/g;
+  let changed = false;
+  const nextContent = content.replace(assignmentExpression, (match, objectName: string, operator: string, literal: string) => {
+    const object = vectorObjects.get(objectName.toLowerCase());
+    if (!object) return match;
+    const parsedLiteral = parseVhdlBitStringLiteral(literal);
+    if (!parsedLiteral || parsedLiteral.width === object.width) return match;
+    const maxValue = 2 ** object.width;
+    if (parsedLiteral.value < 0 || parsedLiteral.value >= maxValue) return match;
+    changed = true;
+    return `${object.declaredName} ${operator} ${renderWidthSafeVectorLiteral(object.declaredName, object.typeName, parsedLiteral.value)}`;
+  });
+
+  return { content: nextContent, changed };
 }
 
 function rewriteResizeWidthRangeToLength(content: string, targetRange: string) {
@@ -1229,6 +1425,210 @@ function rewriteTypedEqualityOperandMismatch(content: string) {
     changed = true;
     return `${lhs} ${operator} ${rhs}`;
   });
+
+  return { content: nextContent, changed };
+}
+
+function repairRuntimeBoundCheckRisk(content: string, detail: GeneratedVhdlFailureDetail) {
+  const candidateLine = detail.excerpt?.trim();
+  if (!candidateLine) return { content, changed: false };
+  const assignment = /^([A-Za-z][A-Za-z0-9_]*)\s*\(\s*(to_integer\s*\((?:[^()]|\([^()]*\))*\))\s*\)\s*<=\s*([^;]+);\s*$/i.exec(candidateLine);
+  if (!assignment) return { content, changed: false };
+
+  const [, indexedObject, indexExpression, rhsExpression] = assignment;
+  const escapedLine = candidateLine.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const linePattern = new RegExp(`^([ \\t]*)${escapedLine}\\s*$`, 'm');
+  const match = linePattern.exec(content);
+  if (!match || match.index == null) return { content, changed: false };
+
+  const indentation = match[1] || '';
+  const indexText = indexExpression.trim();
+  const repaired = [
+    `${indentation}if ${indexText} >= ${indexedObject}'low and ${indexText} <= ${indexedObject}'high then`,
+    `${indentation}  ${indexedObject}(${indexText}) <= ${rhsExpression.trim()};`,
+    `${indentation}end if;`,
+  ].join('\n');
+
+  return {
+    content: `${content.slice(0, match.index)}${repaired}${content.slice(match.index + match[0].length)}`,
+    changed: true,
+  };
+}
+
+function renderToIntegerExpression(content: string, objectName: string) {
+  const objectType = inferSimpleObjectType(content, objectName);
+  if (objectType === 'integer') {
+    return objectName;
+  }
+  if (objectType === 'unsigned' || objectType === 'signed') {
+    return `to_integer(${objectName})`;
+  }
+  return `to_integer(unsigned(${objectName}))`;
+}
+
+function findFirstDeclaredIdentifier(content: string, candidates: string[]) {
+  for (const candidate of candidates) {
+    const escaped = candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`\\b${escaped}\\b`, 'i').test(content)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function findPixelActiveSignal(content: string) {
+  return findFirstDeclaredIdentifier(content, [
+    'active_i',
+    'video_active_i',
+    'active_video_i',
+    'display_active_i',
+    'visible_i',
+    'de_i',
+  ]);
+}
+
+function findPixelCoordinateSignal(content: string, axis: 'x' | 'y') {
+  const candidates = axis === 'x'
+    ? ['x_i', 'pixel_x_i', 'h_count_i', 'h_cnt_i', 'col_i', 'column_i']
+    : ['y_i', 'pixel_y_i', 'v_count_i', 'v_cnt_i', 'row_i', 'line_i'];
+  return findFirstDeclaredIdentifier(content, candidates);
+}
+
+function findPixelLineStrideExpression(content: string) {
+  const candidates = [
+    'H_ACTIVE',
+    'H_VISIBLE',
+    'VISIBLE_WIDTH',
+    'ACTIVE_WIDTH',
+    'FRAME_WIDTH',
+    'SCREEN_WIDTH',
+    'VIDEO_WIDTH',
+    'WIDTH',
+  ];
+  for (const candidate of candidates) {
+    const escaped = candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`\\b${escaped}\\b`, 'i').test(content)) {
+      return candidate;
+    }
+  }
+  const genericSection = content.match(/\bgeneric\s*\(([\s\S]*?)\)\s*;/i)?.[1] || '';
+  const naturalWidth = genericSection.match(/\b([A-Za-z][A-Za-z0-9_]*(?:WIDTH|VISIBLE|ACTIVE)[A-Za-z0-9_]*)\s*:\s*(?:positive|natural|integer)\b/i)?.[1];
+  if (naturalWidth) return naturalWidth;
+  return null;
+}
+
+function ensureNumericStdClause(content: string) {
+  if (/use\s+ieee\.numeric_std\.all\s*;/i.test(content)) {
+    return content;
+  }
+  if (/use\s+ieee\.std_logic_1164\.all\s*;/i.test(content)) {
+    return content.replace(/use\s+ieee\.std_logic_1164\.all\s*;/i, (match) => `${match}\nuse ieee.numeric_std.all;`);
+  }
+  if (/library\s+ieee\s*;/i.test(content)) {
+    return content.replace(/library\s+ieee\s*;/i, (match) => `${match}\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;`);
+  }
+  return `library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\n\n${content}`;
+}
+
+function repairPixelAddressNumericContract(content: string) {
+  if (!/\bpixel_addr_o\b/i.test(content)) {
+    return { content, changed: false };
+  }
+  const xSignal = findPixelCoordinateSignal(content, 'x');
+  const ySignal = findPixelCoordinateSignal(content, 'y');
+  const strideExpression = findPixelLineStrideExpression(content);
+  if (!xSignal || !ySignal || !strideExpression) {
+    return { content, changed: false };
+  }
+
+  const activeSignal = findPixelActiveSignal(content);
+  const xExpression = renderToIntegerExpression(content, xSignal);
+  const yExpression = renderToIntegerExpression(content, ySignal);
+  const processBody = [
+    '  pixel_address_contract_p : process(all)',
+    '    variable x_idx_v : natural := 0;',
+    '    variable y_idx_v : natural := 0;',
+    '    variable addr_int_v : natural := 0;',
+    '  begin',
+    '    x_idx_v := 0;',
+    '    y_idx_v := 0;',
+    '    addr_int_v := 0;',
+    activeSignal ? `    if ${activeSignal} = '1' then` : '    if true then',
+    `      x_idx_v := ${xExpression};`,
+    `      y_idx_v := ${yExpression};`,
+    `      addr_int_v := (y_idx_v * ${strideExpression}) + x_idx_v;`,
+    '    end if;',
+    "    pixel_addr_o <= std_logic_vector(to_unsigned(addr_int_v, pixel_addr_o'length));",
+    '  end process;',
+  ].join('\n');
+
+  let nextContent = ensureNumericStdClause(content);
+  const beginMatch = /\barchitecture\s+([A-Za-z][A-Za-z0-9_]*)\s+of\s+([A-Za-z][A-Za-z0-9_]*)\s+is\b[\s\S]*?\bbegin\b/i.exec(nextContent);
+  if (!beginMatch || beginMatch.index == null) {
+    return { content, changed: false };
+  }
+
+  nextContent = nextContent
+    .replace(/^\s*pixel_addr_o\s*<=\s*[^;\n]+;\s*$/gmi, '')
+    .replace(/\n{3,}/g, '\n\n');
+  const refreshedBeginMatch = /\barchitecture\s+([A-Za-z][A-Za-z0-9_]*)\s+of\s+([A-Za-z][A-Za-z0-9_]*)\s+is\b[\s\S]*?\bbegin\b/i.exec(nextContent);
+  if (!refreshedBeginMatch || refreshedBeginMatch.index == null) {
+    return { content, changed: false };
+  }
+  const insertAt = refreshedBeginMatch.index + refreshedBeginMatch[0].length;
+  nextContent = `${nextContent.slice(0, insertAt)}\n${processBody}${nextContent.slice(insertAt)}`;
+
+  return {
+    content: nextContent,
+    changed: nextContent !== content,
+  };
+}
+
+function repairMultipleSignalDriverOrSliceAssignment(content: string, detail: GeneratedVhdlFailureDetail) {
+  const signalName = detail.forbiddenConstruct?.match(/signal "([a-zA-Z][a-zA-Z0-9_]*)"/i)?.[1]
+    || detail.message.match(/multiple assignments for "([a-zA-Z][a-zA-Z0-9_]*)"/i)?.[1]
+    || detail.message.match(/signal "([a-zA-Z][a-zA-Z0-9_]*)"/i)?.[1];
+  if (!signalName) return { content, changed: false };
+
+  const escaped = signalName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const assignmentPattern = new RegExp(`\\b${escaped}\\s*(?:\\([^\\n;]*\\))?\\s*<=`, 'i');
+  const processPattern = /\bprocess(?:\s*\([^)]*\))?[\s\S]*?\bend\s+process\s*;/gi;
+  const processMatches = Array.from(content.matchAll(processPattern))
+    .filter((match): match is RegExpMatchArray & { index: number } => match.index != null)
+    .map((match) => ({
+      start: match.index,
+      end: match.index + match[0].length,
+      text: match[0],
+      isClocked: /\b(?:rising_edge|falling_edge)\s*\(/i.test(match[0]),
+      assignsSignal: assignmentPattern.test(match[0]),
+    }))
+    .filter((block) => block.assignsSignal);
+
+  if (processMatches.length <= 1) return { content, changed: false };
+  const combinationalOwners = processMatches.filter((block) => !block.isClocked);
+  const clockedOwners = processMatches.filter((block) => block.isClocked);
+  if (combinationalOwners.length !== 1 || clockedOwners.length === 0) {
+    return { content, changed: false };
+  }
+
+  const combinationalOwner = combinationalOwners[0].text;
+  if (!/\b(?:case|if)\b/i.test(combinationalOwner) || !assignmentPattern.test(combinationalOwner)) {
+    return { content, changed: false };
+  }
+
+  const assignmentLinePattern = new RegExp(`^([ \\t]*)${escaped}\\s*(?:\\([^\\n;]*\\))?\\s*<=\\s*[^;]+;\\s*$`, 'gim');
+  let changed = false;
+  let nextContent = content;
+
+  for (const block of [...clockedOwners].sort((left, right) => right.start - left.start)) {
+    const repairedBlock = block.text.replace(assignmentLinePattern, (line, indentation) => {
+      changed = true;
+      return `${indentation}-- Removed deterministic repair: ${signalName} is driven by the combinational decode process.`;
+    });
+    if (repairedBlock !== block.text) {
+      nextContent = `${nextContent.slice(0, block.start)}${repairedBlock}${nextContent.slice(block.end)}`;
+    }
+  }
 
   return { content: nextContent, changed };
 }
@@ -1492,6 +1892,93 @@ function repairOutPortActualConversion(content: string, detail: GeneratedVhdlFai
   });
 
   return { content: nextContent, changed };
+}
+
+function isSafeStatusOutputName(name: string) {
+  return /^(?:done|valid|ready|error|status)(?:_o|_out)?$/i.test(name);
+}
+
+function defaultValueForVhdlType(typeText: string) {
+  const normalized = typeText.toLowerCase();
+  if (/\b(?:std_logic|std_ulogic)\b/.test(normalized) && !/vector/.test(normalized)) return "'0'";
+  if (/\b(?:std_logic_vector|std_ulogic_vector|unsigned|signed)\b/.test(normalized)) return "(others => '0')";
+  if (/\bboolean\b/.test(normalized)) return 'false';
+  if (/\b(?:integer|natural|positive)\b/.test(normalized)) return '0';
+  return "(others => '0')";
+}
+
+function nominalValueForStatusOutput(name: string, typeText: string) {
+  const normalized = typeText.toLowerCase();
+  if (/error/i.test(name)) return defaultValueForVhdlType(typeText);
+  if (/\b(?:std_logic|std_ulogic)\b/.test(normalized) && !/vector/.test(normalized)) return "'1'";
+  if (/\b(?:std_logic_vector|std_ulogic_vector|unsigned|signed)\b/.test(normalized)) return "(0 => '1', others => '0')";
+  if (/\bboolean\b/.test(normalized)) return 'true';
+  return defaultValueForVhdlType(typeText);
+}
+
+function findOutputPortType(content: string, portName: string) {
+  const match = content.match(new RegExp(`\\b${portName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*(?:out|buffer|inout)\\s+([^;\\n)]+)`, 'i'));
+  return match?.[1]?.replace(/\s+/g, ' ').trim() || null;
+}
+
+function collectEntityPortNames(content: string) {
+  const portNames = new Set<string>();
+  const portBlockMatch = content.match(/\bport\s*\(([\s\S]*?)\)\s*;/i);
+  if (!portBlockMatch) return portNames;
+  for (const segment of portBlockMatch[1].split(';')) {
+    const match = segment.match(/^\s*([a-zA-Z][a-zA-Z0-9_,\s]*)\s*:/);
+    if (!match) continue;
+    match[1].split(',').map((name) => name.trim()).filter(Boolean).forEach((name) => portNames.add(name.toLowerCase()));
+  }
+  return portNames;
+}
+
+function repairUndrivenTopStatusOutput(content: string, detail: GeneratedVhdlFailureDetail) {
+  const portName = detail.forbiddenConstruct?.match(/output port\s+"([^"]+)"/i)?.[1]
+    || detail.message.match(/output port\s+"([^"]+)"/i)?.[1]
+    || detail.message.match(/port\s+"([^"]+)"/i)?.[1]
+    || null;
+  if (!portName || !isSafeStatusOutputName(portName)) return { content, changed: false };
+  if (new RegExp(`\\b${portName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*<=`, 'i').test(content)) {
+    return { content, changed: false };
+  }
+  const portType = findOutputPortType(content, portName);
+  if (!portType) return { content, changed: false };
+  const architectureBeginMatch = content.match(/\barchitecture\s+[a-zA-Z][a-zA-Z0-9_]*\s+of\s+[a-zA-Z][a-zA-Z0-9_]*\s+is\b[\s\S]*?\bbegin\b/i);
+  if (!architectureBeginMatch || architectureBeginMatch.index == null) return { content, changed: false };
+  const insertIndex = architectureBeginMatch.index + architectureBeginMatch[0].length;
+  const portNames = collectEntityPortNames(content);
+  const clockName = ['clk', 'clk_i', 'clock'].find((name) => portNames.has(name));
+  const resetName = ['rst', 'rst_i', 'reset', 'reset_i'].find((name) => portNames.has(name));
+  const startName = ['start_i', 'start', 'enable_i', 'enable'].find((name) => portNames.has(name));
+  const resetValue = defaultValueForVhdlType(portType);
+  const activeValue = nominalValueForStatusOutput(portName, portType);
+  const driverLines = clockName && resetName && startName
+    ? [
+      '',
+      `  p_auto_${portName}_driver : process(${clockName}, ${resetName})`,
+      '  begin',
+      `    if ${resetName} = '1' then`,
+      `      ${portName} <= ${resetValue};`,
+      `    elsif rising_edge(${clockName}) then`,
+      `      if ${startName} = '1' then`,
+      `        ${portName} <= ${activeValue};`,
+      '      else',
+      `        ${portName} <= ${resetValue};`,
+      '      end if;',
+      '    end if;',
+      '  end process;',
+      '',
+    ]
+    : [
+      '',
+      `  ${portName} <= ${resetValue};`,
+      '',
+    ];
+  return {
+    content: `${content.slice(0, insertIndex)}${driverLines.join('\n')}${content.slice(insertIndex)}`,
+    changed: true,
+  };
 }
 
 function extractNamedStatement(params: {
@@ -1906,8 +2393,14 @@ function isSubprogramInsideProcessDeclarativeRegion(params: {
 
 function getDeterministicRepairPriority(code: string) {
   switch (code) {
+    case 'malformed_vhdl_keyword':
+      return 4;
     case 'malformed_character_literal':
       return 5;
+    case 'vector_literal_width_mismatch':
+      return 6;
+    case 'missing_reduction_helper':
+      return 7;
     case 'incomplete_subprogram_interface':
       return 8;
     case 'subprogram_call_arity_mismatch':
@@ -1920,8 +2413,12 @@ function getDeterministicRepairPriority(code: string) {
       return 9;
     case 'incomplete_array_aggregate_choices':
     case 'typed_equality_operand_mismatch':
+    case 'arithmetic_on_non_numeric_signal':
+      return 9;
+    case 'multiple_signal_driver_or_slice_assignment':
       return 9;
     case 'unsigned_conversion_on_non_vector':
+    case 'pixel_address_numeric_contract':
       return 9;
     case 'subprogram_body_inside_package_declaration':
       return 10;
@@ -3021,8 +3518,16 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
   let nextContent = content;
   let changed = false;
 
-  if (detail.code === 'malformed_character_literal') {
+  if (detail.code === 'malformed_vhdl_keyword') {
+    const result = repairMalformedVhdlKeywordTypos(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'malformed_character_literal') {
     const result = repairMalformedCharacterLiterals(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'vector_literal_width_mismatch') {
+    const result = repairVectorLiteralWidthMismatches(nextContent);
     nextContent = result.content;
     changed = result.changed;
   } else if (detail.code === 'incomplete_subprogram_interface') {
@@ -3068,6 +3573,22 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
     const result = rewriteTypedEqualityOperandMismatch(nextContent);
     nextContent = result.content;
     changed = result.changed;
+  } else if (detail.code === 'arithmetic_on_non_numeric_signal') {
+    const result = repairArithmeticOnNonNumericSignal(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'runtime_bound_check_risk') {
+    const result = repairRuntimeBoundCheckRisk(nextContent, detail);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'pixel_address_numeric_contract') {
+    const result = repairPixelAddressNumericContract(nextContent);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'multiple_signal_driver_or_slice_assignment') {
+    const result = repairMultipleSignalDriverOrSliceAssignment(nextContent, detail);
+    nextContent = result.content;
+    changed = result.changed;
   } else if (detail.code === 'missing_std_logic_1164_clause') {
     const result = ensureUseClause(nextContent, 'ieee.std_logic_1164.all');
     nextContent = result.content;
@@ -3076,6 +3597,14 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
     const result = ensureUseClause(nextContent, 'ieee.numeric_std.all');
     nextContent = result.content;
     changed = result.changed;
+  } else if (detail.code === 'missing_reduction_helper') {
+    const helperName = detail.forbiddenConstruct?.match(/helper function "((?:or|and|xor)_reduce)"/i)?.[1]
+      || detail.message.match(/no declaration for "((?:or|and|xor)_reduce)"/i)?.[1];
+    if (helperName) {
+      const result = repairMissingReductionHelper(nextContent, helperName);
+      nextContent = result.content;
+      changed = result.changed;
+    }
   } else if (detail.code === 'illegal_scalar_type_alias') {
     const aliasMatch = detail.forbiddenConstruct?.match(/^"type\s+([a-zA-Z][a-zA-Z0-9_]*)\s+is\s+(integer|natural|positive)\s+range/i);
     if (aliasMatch) {
@@ -3208,6 +3737,10 @@ function applyDetailToContent(content: string, detail: GeneratedVhdlFailureDetai
     }
   } else if (detail.code === 'out_port_actual_conversion') {
     const result = repairOutPortActualConversion(nextContent, detail);
+    nextContent = result.content;
+    changed = result.changed;
+  } else if (detail.code === 'undriven_top_output_port') {
+    const result = repairUndrivenTopStatusOutput(nextContent, detail);
     nextContent = result.content;
     changed = result.changed;
   } else if (detail.code === 'interface_constant_not_visible') {

@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-18T16:32:34.663Z",
+  "updatedAt": "2026-07-25T19:06:48.919Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 270,
-      "successes": 142,
-      "codeQualityFailures": 128,
-      "providerRuntimeFailures": 10,
-      "lastUpdatedAt": "2026-07-18T16:32:34.663Z",
+      "attempts": 424,
+      "successes": 217,
+      "codeQualityFailures": 207,
+      "providerRuntimeFailures": 11,
+      "lastUpdatedAt": "2026-07-25T19:06:48.919Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 78,
-          "successes": 43,
-          "codeQualityFailures": 35,
+          "attempts": 136,
+          "successes": 58,
+          "codeQualityFailures": 78,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -140,13 +140,208 @@
               "forbiddenConstruct": "unresolved work unit reference \"bridge_fsm_inst : entity work.bridge_fsm\" for missing unit(s): bridge_fsm, rx_fifo, spi_master, tx_fifo, uart_rx, uart_tx",
               "legalReplacementPattern": "generate entity/architecture source file(s) declaring entity bridge_fsm is, entity rx_fifo is, entity spi_master is, entity tx_fifo is, entity uart_rx is, entity uart_tx is and add them before dependents in analysis_order; or remove/inline the reference so no missing work unit is used",
               "lastSeenAt": "2026-07-18T14:51:48.749Z"
+            },
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 13,
+              "lastMessage": "Request was cancelled by the user.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-22T19:42:38.174Z"
+            },
+            "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
+              "category": "reserved_identifier",
+              "label": "Reserved Identifier",
+              "failureCode": "reserved_identifier",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-identifier-safety"
+              ],
+              "count": 2,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component bridge_control_fsm while analyzing src/bridge_control_fsm.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:30:error: identifier or character expected\n   type state_type is (IDLE, PROCESS);\n                             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: ')' expected at end of enumeration type\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: (found: 'process')\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: missing \";\" at end of type declaration\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: unexpected token 'process' in a primary\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'case' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:41:19:error: 'end' is expected instead of 'else'\n                  else\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:47:error: missing \";\" at end of architecture\n                     current_state <= PROCESS;\n                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:43:19:error: missing entity, architecture, package or configuration\n                  end if;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:44:16:error: missing entity, architecture, package or configuration\n               when PROCESS =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:46:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:47:19:error: missing entity, architecture, package or configuration\n                  status_int <= data_i;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:48:19:error: missing entity, architecture, package or configuration\n                  current_state <= IDLE;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:49:16:error: missing entity, architecture, package or configuration\n               when others =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:51:19:error: missing entity, architecture, package or configuration\n                  done_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:52:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:53:19:error: missing entity, architecture, package or configuration\n                  status_int <= (others => '0');\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:54:13:error: missing entity, architecture, package or configuration\n            end case;\n            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:55:10:error: missing entity, architecture, package or configuration\n         end if;\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:56:7:error: missing entity, architecture, package or configuration\n      end if;\n      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:57:4:error: missing entity, architecture, package or configuration\n   end process;\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:59:1:error: missing entity, architecture, package or configuration\nend architecture rtl;\n^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:30:error: identifier or character expected\n   type state_type is (IDLE, PROCESS);\n                             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: ')' expected at end of enumeration type\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: (found: 'process')\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: missing \";\" at end of type declaration\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: unexpected token 'process' in a primary\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'case' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:41:19:error: 'end' is expected instead of 'else'\n                  else\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:47:error: missing \";\" at end of architecture\n                     current_state <= PROCESS;\n                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:43:19:error: missing entity, architecture, package or configuration\n                  end if;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:44:16:error: missing entity, architecture, package or configuration\n               when PROCESS =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:46:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:47:19:error: missing entity, architecture, package or configuration\n                  status_int <= data_i;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:48:19:error: missing entity, architecture, package or configuration\n                  current_state <= IDLE;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:49:16:error: missing entity, architecture, package or configuration\n               when others =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:51:19:error: missing entity, architecture, package or configuration\n                  done_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:52:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:53:19:error: missing entity, architecture, package or configuration\n                  status_int <= (others => '0');\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:54:13:error: missing entity, architecture, package or configuration\n            end case;\n            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:55:10:error: missing entity, architecture, package or configuration\n         end if;\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:56:7:error: missing entity, architecture, package or configuration\n      end if;\n      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:57:4:error: missing entity, architecture, package or configuration\n   end process;\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:59:1:error: missing entity, architecture, package or configuration\nend architecture rtl;\n^\nghdl:error: compilation error",
+              "forbiddenConstruct": "reserved VHDL identifier \"process\" reused as an identifier, enum literal, or declaration token",
+              "legalReplacementPattern": "rename \"process\" to a descriptive non-keyword identifier such as process_op or process_value",
+              "lastSeenAt": "2026-07-19T12:52:31.896Z"
+            },
+            "context_budget::category_only::::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:05:20.878Z"
+            },
+            "context_budget::model_output_budget_exhausted::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": "model_output_budget_exhausted",
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 4,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": "provider returned done_reason=length with empty message content",
+              "legalReplacementPattern": "retry the same attempt with reduced feedback, reduced continuation files, and compact canonical issue packets only",
+              "lastSeenAt": "2026-07-19T14:35:31.317Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_json_invalid": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_json_invalid"
+              ],
+              "issuePaths": [
+                "$"
+              ],
+              "ruleIds": [],
+              "count": 4,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or ']' after array element in JSON at position 22825 (line 853 column 6)",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-19T14:05:47.403Z"
+            },
+            "context_budget::category_only::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 2,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T14:38:21.044Z"
+            },
+            "simulation_assertion::protocol_status_behavior_mismatch::::": {
+              "category": "simulation_assertion",
+              "label": "Simulation Assertion",
+              "failureCode": "protocol_status_behavior_mismatch",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_uart_spi_protocol_bridge_top: /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:41:7:@10ns:(report error): FAIL reset done_o not 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:45:7:@10ns:(report error): FAIL reset error_o not 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:49:7:@10ns:(report error): FAIL reset status_o not x00\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:73:7:@125ns:(report error): FAIL nominal error_o not 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:77:7:@125ns:(report error): FAIL nominal status_o not x01\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:81:7:@125ns:(report failure): TEST FAILED\n./tb_uart_spi_protocol_bridge_top:error: report failed\n  instance: .tb_uart_spi_protocol_bridge_top(sim).stimulus\n./tb_uart_spi_protocol_bridge_top:error: simulation failed",
+              "forbiddenConstruct": "self-checking assertion/report failure at 10ns: FAIL reset done_o not 0",
+              "legalReplacementPattern": "repair the UART/SPI/protocol bridge RTL or TB timing contract so the status/error/done assertion is true at 10ns; do not delete, weaken, skip, rename, or silence the assertion",
+              "lastSeenAt": "2026-07-21T09:12:16.612Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::ghdl-entity-format,ghdl-instantiation-rules::": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-instantiation-rules",
+                "ghdl-entity-format"
+              ],
+              "count": 6,
+              "lastMessage": "staged_port_interface_drift\nStaged VHDL for \"status_error_block\" changed the approved port interface.\ncomponentId=status_error_block\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
+              "forbiddenConstruct": "staged component VHDL changed the app-approved entity generic/port interface",
+              "legalReplacementPattern": "regenerate only the failing component implementation while preserving the exact app-owned entity declaration, generic names/order/defaults, and port names/order/modes/types",
+              "lastSeenAt": "2026-07-25T18:40:24.511Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 6,
+              "lastMessage": "staged_component_entity_missing\nStaged VHDL for component \"rx_fifo\" did not declare entity \"rx_fifo\".\ncomponentId=rx_fifo\nexpectedEntity=rx_fifo\ndeclaredEntities=bridge_control_fsm",
+              "forbiddenConstruct": "staged component VHDL omitted or renamed the exact app-approved entity declaration",
+              "legalReplacementPattern": "regenerate only the failing component with the exact app-owned entity name and interface from the skeleton; do not return package-only code, wrapper entities, JSON, Markdown, or prose",
+              "lastSeenAt": "2026-07-22T10:12:22.833Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_instance_component_missing,architecture_contract_instance_missing": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_instance_missing",
+                "architecture_contract_instance_component_missing"
+              ],
+              "issuePaths": [
+                "$.instances",
+                "$.instances[0]",
+                "$.instances[1]",
+                "$.instances[2]",
+                "$.instances[3]",
+                "$.instances[4]",
+                "$.instances[5]",
+                "$.instances[6]",
+                "$.instances[7]"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 16 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T18:51:31.053Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_instance_missing,architecture_contract_source_requirement_claim_missing,architecture_contract_synthesis_claims_missing,architecture_contract_synthesis_incomplete": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_synthesis_incomplete",
+                "architecture_contract_synthesis_claims_missing",
+                "architecture_contract_source_requirement_claim_missing",
+                "architecture_contract_instance_missing"
+              ],
+              "issuePaths": [
+                "$.architectureSynthesis",
+                "$.architectureSynthesis.evidenceClaimIds",
+                "$.sourceGroundedRequirements[0].sourceClaimId",
+                "$.sourceGroundedRequirements[1].sourceClaimId",
+                "$.sourceGroundedRequirements[2].sourceClaimId",
+                "$.sourceGroundedRequirements[3].sourceClaimId",
+                "$.sourceGroundedRequirements[4].sourceClaimId",
+                "$.sourceGroundedRequirements[5].sourceClaimId",
+                "$.instances"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 16 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T19:06:48.919Z"
             }
           }
         },
         "mini_cpu_core": {
-          "attempts": 57,
-          "successes": 24,
-          "codeQualityFailures": 33,
+          "attempts": 92,
+          "successes": 47,
+          "codeQualityFailures": 45,
           "providerRuntimeFailures": 3,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -291,14 +486,106 @@
               "forbiddenConstruct": "custom type \"data_mem_t\" used without visible package/type declaration in \"signal mem : data_mem_t := (others => (others => '0'));\"",
               "legalReplacementPattern": "generate a package/type declaration that exports data_mem_t, import it with use work.<package>.all, and analyze that package before src/ram.vhd",
               "lastSeenAt": "2026-07-18T16:17:07.710Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_json_invalid": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_json_invalid"
+              ],
+              "issuePaths": [
+                "$"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or '}' after property value in JSON at position 23835 (line 869 column 23)",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-19T12:56:54.165Z"
+            },
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 2,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T10:18:39.374Z"
+            },
+            "context_budget::category_only::::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 2,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:15:28.347Z"
+            },
+            "context_budget::model_output_budget_exhausted::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": "model_output_budget_exhausted",
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 2,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": "provider returned done_reason=length with empty message content",
+              "legalReplacementPattern": "retry the same attempt with reduced feedback, reduced continuation files, and compact canonical issue packets only",
+              "lastSeenAt": "2026-07-19T13:06:33.687Z"
+            },
+            "context_budget::category_only::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 2,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T13:10:41.009Z"
+            },
+            "interface_declaration_misuse::ghdl_synthesis_failure::::": {
+              "category": "interface_declaration_misuse",
+              "label": "Interface / Generic Declaration",
+              "failureCode": "ghdl_synthesis_failure",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated DUT failed the GHDL synthesis-quality gate for cpu_core_top: /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/automata-logicpro-ghdl-src-LsptYF/src/decoder.vhd:20:11:error: multiple assignments for \"ctrl_sig\" offsets 0:3\n   signal ctrl_sig : std_logic_vector(3 downto 0);\n          ^",
+              "forbiddenConstruct": "RTL that analyzes but cannot be synthesized by GHDL.",
+              "legalReplacementPattern": "Keep the contracted entity interface and replace unsupported/non-synthesizable RTL with equivalent synthesizable VHDL-2008.",
+              "lastSeenAt": "2026-07-21T23:29:20.458Z"
             }
           }
         },
         "video_pattern_generator": {
-          "attempts": 54,
-          "successes": 33,
-          "codeQualityFailures": 21,
-          "providerRuntimeFailures": 1,
+          "attempts": 83,
+          "successes": 50,
+          "codeQualityFailures": 33,
+          "providerRuntimeFailures": 2,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
               "category": "reserved_identifier",
@@ -349,13 +636,130 @@
               "count": 2,
               "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. tb/tb_video_top.vhd:32: procedure \"check_vec\" has executable token \"report\" before the formal parameter list is closed. The broken line is \"report \"FAIL \" & label_text severity error;\". Complete the helper interface before the body begins.\ntb/tb_video_top.vhd: declares plain architecture-body variable \"failed_io\". Ordinary variables are not allowed in the architecture declarative region for GHDL-compatible VHDL. This looks like testbench bookkeeping or shared status state. Prefer a signal for sampled DUT-visible state, or a shared variable only when shared testbench bookkeeping is truly required.",
               "lastSeenAt": "2026-07-15T10:20:16.570Z"
+            },
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 4,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component alu_pkg_for_opcodes_flags while analyzing src/alu_pkg_for_opcodes_flags.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:43:81:error: only one type of logical operators may be used to combine relation\n             v_overflow := (not data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                                ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:44:43:error: only one type of logical operators may be used to combine relation\n                            (data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:52:77:error: only one type of logical operators may be used to combine relation\n             v_overflow := (data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:53:47:error: only one type of logical operators may be used to combine relation\n                            (not data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                              ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:43:81:error: only one type of logical operators may be used to combine relation\n             v_overflow := (not data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                                ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:44:43:error: only one type of logical operators may be used to combine relation\n                            (data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:52:77:error: only one type of logical operators may be used to combine relation\n             v_overflow := (data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:53:47:error: only one type of logical operators may be used to combine relation\n                            (not data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                              ^\nghdl:error: compilation error",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:28:25.831Z"
+            },
+            "numeric_std_typing::type_conversion_indexed_or_sliced::::": {
+              "category": "numeric_std_typing",
+              "label": "numeric_std Typing",
+              "failureCode": "type_conversion_indexed_or_sliced",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component alu_pkg_for_opcodes_flags while analyzing src/alu_pkg_for_opcodes_flags.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:47:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:77:42:error: type conversion cannot be indexed or sliced\n             tmp_res := (unsigned(data_i)(6 downto 0) & unsigned(data_i)(7));\n                                         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can't match \"tmp_res\" with type array type \"STD_ULOGIC_VECTOR\"\n         res_reg <= tmp_res;\n                    ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:47:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:77:42:error: type conversion cannot be indexed or sliced\n             tmp_res := (unsigned(data_i)(6 downto 0) & unsigned(data_i)(7));\n                                         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can't match \"tmp_res\" with type array type \"STD_ULOGIC_VECTOR\"\n         res_reg <= tmp_res;\n                    ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "directly indexing or slicing a type conversion expression such as \"unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1')\"",
+              "legalReplacementPattern": "assign the conversion to a named local unsigned/signed/std_logic_vector object first, then index or slice that named object, for example \"data_u := unsigned(data_i);\" followed by \"data_u(7)\"",
+              "lastSeenAt": "2026-07-19T11:22:30.984Z"
+            },
+            "context_budget::category_only::::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:31:09.660Z"
+            },
+            "context_budget::model_output_budget_exhausted::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": "model_output_budget_exhausted",
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 1,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": "provider returned done_reason=length with empty message content",
+              "legalReplacementPattern": "retry the same attempt with reduced feedback, reduced continuation files, and compact canonical issue packets only",
+              "lastSeenAt": "2026-07-19T13:14:51.509Z"
+            },
+            "other::self_checking_testbench_missing_pass_path::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "self_checking_testbench_missing_pass_path",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/operation_testbench.vhd: generated testbench does not expose a deterministic PASS path. Runnable generated testbenches must report TEST PASSED or stop successfully when all checks pass.",
+              "forbiddenConstruct": "self-checking testbench without a deterministic PASS/success termination path",
+              "legalReplacementPattern": "add a final if/else pass/fail block that reports \"TEST PASSED\" severity note and calls std.env.stop(0) on success, and reports severity failure on failure",
+              "lastSeenAt": "2026-07-19T13:39:17.515Z"
+            },
+            "package_type_definition::package_symbol_not_visible::ghdl-record-package-rules,ghdl-source-ordering::": {
+              "category": "package_type_definition",
+              "label": "Package / Type Definition",
+              "failureCode": "package_symbol_not_visible",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-record-package-rules",
+                "ghdl-source-ordering"
+              ],
+              "count": 2,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component alu_pkg_for_opcodes_flags while analyzing src/alu_pkg_for_opcodes_flags.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-s4pCMA/src/alu_pkg_for_opcodes_flags.vhd:32:34:error: no declaration for \"parity\"\n         status_o(2) <= '1' when parity(data_i) = '1' else '0';\n                                 ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-s4pCMA/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-s4pCMA/src/alu_pkg_for_opcodes_flags.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-s4pCMA/src/alu_pkg_for_opcodes_flags.vhd:32:34:error: no declaration for \"parity\"\n         status_o(2) <= '1' when parity(data_i) = '1' else '0';\n                                 ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "custom type or package symbol \"parity\" used where it is not visible",
+              "legalReplacementPattern": "declare/export \"parity\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
+              "lastSeenAt": "2026-07-19T13:41:13.882Z"
+            },
+            "illegal_operator_usage::category_only::::": {
+              "category": "illegal_operator_usage",
+              "label": "Illegal Operator Usage",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component sync_generator while analyzing src/sync_generator.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/src/sync_generator.vhd:47:74:error: no function declarations for operator \"+\"\n            pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;\n                                                                         ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/src/sync_generator.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/src/sync_generator.vhd:47:74:error: no function declarations for operator \"+\"\n            pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;\n                                                                         ^\nghdl:error: compilation error",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-22T22:38:59.397Z"
+            },
+            "interface_declaration_misuse::malformed_vhdl_keyword::::": {
+              "category": "interface_declaration_misuse",
+              "label": "Interface / Generic Declaration",
+              "failureCode": "malformed_vhdl_keyword",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component pixel_address_generator while analyzing src/pixel_address_generator.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/src/pixel_address_generator.vhd:29:24:error: 'others' choice not allowed for an aggregate in this context\n            if h_cnt = (others => '1') then\n                       ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/src/pixel_address_generator.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/src/pixel_address_generator.vhd:29:24:error: 'others' choice not allowed for an aggregate in this context\n            if h_cnt = (others => '1') then\n                       ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "malformed VHDL keyword token \"an\"",
+              "legalReplacementPattern": "replace \"an\" with exact VHDL keyword \"and\"",
+              "lastSeenAt": "2026-07-22T22:43:18.639Z"
             }
           }
         },
         "dsp_chain": {
-          "attempts": 45,
-          "successes": 23,
-          "codeQualityFailures": 22,
+          "attempts": 63,
+          "successes": 32,
+          "codeQualityFailures": 31,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -423,13 +827,133 @@
               "forbiddenConstruct": "custom type or package symbol \"out_width\" used where it is not visible",
               "legalReplacementPattern": "declare/export \"out_width\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
               "lastSeenAt": "2026-07-16T03:17:00.386Z"
+            },
+            "context_budget::category_only::::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 2,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:38:07.828Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_connection_sink_direction,architecture_contract_connection_sink_type,architecture_contract_instance_actual_unknown,architecture_contract_instance_output_actual_invalid": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_instance_actual_unknown",
+                "architecture_contract_instance_output_actual_invalid",
+                "architecture_contract_connection_sink_direction",
+                "architecture_contract_connection_sink_type"
+              ],
+              "issuePaths": [
+                "$.instances[0].portMap.result_o",
+                "$.instances[0].portMap.flags_o",
+                "$.instances[1].portMap.result_o",
+                "$.instances[1].portMap.flags_o",
+                "$.instances[2].portMap.result_o",
+                "$.instances[2].portMap.flags_o",
+                "$.connections[0].sinks",
+                "$.connections[1]",
+                "$.connections[1].sinks"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 15 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-19T11:44:47.283Z"
+            },
+            "context_budget::model_output_budget_exhausted::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": "model_output_budget_exhausted",
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 1,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": "provider returned done_reason=length with empty message content",
+              "legalReplacementPattern": "retry the same attempt with reduced feedback, reduced continuation files, and compact canonical issue packets only",
+              "lastSeenAt": "2026-07-19T13:45:33.822Z"
+            },
+            "context_budget::category_only::ghdl-clean-command-contract::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-clean-command-contract"
+              ],
+              "count": 1,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T13:48:19.511Z"
+            },
+            "package_type_definition::package_symbol_not_visible::ghdl-record-package-rules,ghdl-source-ordering::": {
+              "category": "package_type_definition",
+              "label": "Package / Type Definition",
+              "failureCode": "package_symbol_not_visible",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-record-package-rules",
+                "ghdl-source-ordering"
+              ],
+              "count": 2,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component fft_lite_or_analyzer_stage while analyzing src/fft_lite_or_analyzer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "custom type or package symbol \"or_reduce\" used where it is not visible",
+              "legalReplacementPattern": "declare/export \"or_reduce\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
+              "lastSeenAt": "2026-07-21T17:16:02.227Z"
+            },
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Request was cancelled by the user.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T11:44:15.069Z"
+            },
+            "package_type_definition::missing_reduction_helper::::": {
+              "category": "package_type_definition",
+              "label": "Package / Type Definition",
+              "failureCode": "missing_reduction_helper",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component fft_lite_or_analyzer_stage while analyzing src/fft_lite_or_analyzer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/src/fft_lite_or_analyzer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "call to helper function \"or_reduce\" without a local function declaration or imported package export",
+              "legalReplacementPattern": "declare a local or_reduce(value : std_logic_vector) return std_logic helper before the architecture begin, or replace the call with an explicit reduction loop",
+              "lastSeenAt": "2026-07-22T00:28:09.994Z"
             }
           }
         },
         "axi_stream_router": {
-          "attempts": 36,
-          "successes": 19,
-          "codeQualityFailures": 17,
+          "attempts": 50,
+          "successes": 30,
+          "codeQualityFailures": 20,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -466,6 +990,50 @@
               "forbiddenConstruct": "integer actual \"route_sel_i\" passed to unsigned formal port \"route_sel_i\" of axi_stream_router",
               "legalReplacementPattern": "wrap \"route_sel_i\" with unsigned(...) at the port-map boundary or change the formal/actual types so they match exactly",
               "lastSeenAt": "2026-07-16T18:38:38.774Z"
+            },
+            "context_budget::category_only::::": {
+              "category": "context_budget",
+              "label": "Context Budget",
+              "failureCode": null,
+              "stage": "context_budget",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:50:57.979Z"
+            },
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Staged VHDL for \"alu_pkg_for_opcodes_flags\" changed the approved port interface.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T11:54:13.432Z"
+            },
+            "illegal_operator_usage::illegal_numeric_logical_hybrid::ghdl-no-raw-slv-arithmetic::": {
+              "category": "illegal_operator_usage",
+              "label": "Illegal Operator Usage",
+              "failureCode": "illegal_numeric_logical_hybrid",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-no-raw-slv-arithmetic"
+              ],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component operation_testbench while analyzing src/operation_testbench.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:43:79:error: no function declarations for operator \"and\"\n          when \"0010\" => status_sig <= std_logic_vector(unsigned(operand_reg) and 16#FF#);\n                                                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:44:79:error: no function declarations for operator \"or\"\n          when \"0011\" => status_sig <= std_logic_vector(unsigned(operand_reg) or 16#00#);\n                                                                              ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:43:79:error: no function declarations for operator \"and\"\n          when \"0010\" => status_sig <= std_logic_vector(unsigned(operand_reg) and 16#FF#);\n                                                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:44:79:error: no function declarations for operator \"or\"\n          when \"0011\" => status_sig <= std_logic_vector(unsigned(operand_reg) or 16#00#);\n                                                                              ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "bitwise/logical operator use on mismatched or non-typed operands",
+              "legalReplacementPattern": "ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator",
+              "lastSeenAt": "2026-07-19T12:02:41.451Z"
             }
           }
         }
@@ -671,8 +1239,673 @@
           "forbiddenConstruct": "self-checking assertion/report failure at 135ns: FAIL PC reset",
           "legalReplacementPattern": "repair the CPU reset/fetch/halt/control decoder/TB timing contract so the assertion is true at 135ns; do not delete, weaken, skip, rename, or silence the assertion",
           "lastSeenAt": "2026-07-18T13:04:38.147Z"
+        },
+        "other::category_only::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 21,
+          "lastMessage": "Request was cancelled by the user.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-22T19:42:38.174Z"
+        },
+        "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
+          "category": "reserved_identifier",
+          "label": "Reserved Identifier",
+          "failureCode": "reserved_identifier",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-identifier-safety"
+          ],
+          "count": 2,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component bridge_control_fsm while analyzing src/bridge_control_fsm.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:30:error: identifier or character expected\n   type state_type is (IDLE, PROCESS);\n                             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: ')' expected at end of enumeration type\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: (found: 'process')\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: missing \";\" at end of type declaration\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: unexpected token 'process' in a primary\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'case' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:41:19:error: 'end' is expected instead of 'else'\n                  else\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:47:error: missing \";\" at end of architecture\n                     current_state <= PROCESS;\n                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:43:19:error: missing entity, architecture, package or configuration\n                  end if;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:44:16:error: missing entity, architecture, package or configuration\n               when PROCESS =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:46:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:47:19:error: missing entity, architecture, package or configuration\n                  status_int <= data_i;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:48:19:error: missing entity, architecture, package or configuration\n                  current_state <= IDLE;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:49:16:error: missing entity, architecture, package or configuration\n               when others =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:51:19:error: missing entity, architecture, package or configuration\n                  done_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:52:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:53:19:error: missing entity, architecture, package or configuration\n                  status_int <= (others => '0');\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:54:13:error: missing entity, architecture, package or configuration\n            end case;\n            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:55:10:error: missing entity, architecture, package or configuration\n         end if;\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:56:7:error: missing entity, architecture, package or configuration\n      end if;\n      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:57:4:error: missing entity, architecture, package or configuration\n   end process;\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:59:1:error: missing entity, architecture, package or configuration\nend architecture rtl;\n^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:30:error: identifier or character expected\n   type state_type is (IDLE, PROCESS);\n                             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: ')' expected at end of enumeration type\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: (found: 'process')\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:17:29:error: missing \";\" at end of type declaration\n   type state_type is (IDLE, PROCESS);\n                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: unexpected token 'process' in a primary\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'case' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'if' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:38:error: missing \";\" at end of statement\n                     current_state <= PROCESS;\n                                     ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:39:error: 'end' is expected instead of 'process'\n                     current_state <= PROCESS;\n                                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:41:19:error: 'end' is expected instead of 'else'\n                  else\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:40:47:error: missing \";\" at end of architecture\n                     current_state <= PROCESS;\n                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:43:19:error: missing entity, architecture, package or configuration\n                  end if;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:44:16:error: missing entity, architecture, package or configuration\n               when PROCESS =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:46:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:47:19:error: missing entity, architecture, package or configuration\n                  status_int <= data_i;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:48:19:error: missing entity, architecture, package or configuration\n                  current_state <= IDLE;\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:49:16:error: missing entity, architecture, package or configuration\n               when others =>\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:51:19:error: missing entity, architecture, package or configuration\n                  done_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:52:19:error: missing entity, architecture, package or configuration\n                  error_int <= '0';\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:53:19:error: missing entity, architecture, package or configuration\n                  status_int <= (others => '0');\n                  ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:54:13:error: missing entity, architecture, package or configuration\n            end case;\n            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:55:10:error: missing entity, architecture, package or configuration\n         end if;\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:56:7:error: missing entity, architecture, package or configuration\n      end if;\n      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:57:4:error: missing entity, architecture, package or configuration\n   end process;\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-io2uVs/src/bridge_control_fsm.vhd:59:1:error: missing entity, architecture, package or configuration\nend architecture rtl;\n^\nghdl:error: compilation error",
+          "forbiddenConstruct": "reserved VHDL identifier \"process\" reused as an identifier, enum literal, or declaration token",
+          "legalReplacementPattern": "rename \"process\" to a descriptive non-keyword identifier such as process_op or process_value",
+          "lastSeenAt": "2026-07-19T12:52:31.896Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_json_invalid": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_json_invalid"
+          ],
+          "issuePaths": [
+            "$"
+          ],
+          "ruleIds": [],
+          "count": 7,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or ']' after array element in JSON at position 22825 (line 853 column 6)",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-19T14:05:47.403Z"
+        },
+        "context_budget::category_only::::": {
+          "category": "context_budget",
+          "label": "Context Budget",
+          "failureCode": null,
+          "stage": "context_budget",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 9,
+          "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-19T11:50:57.979Z"
+        },
+        "numeric_std_typing::type_conversion_indexed_or_sliced::::": {
+          "category": "numeric_std_typing",
+          "label": "numeric_std Typing",
+          "failureCode": "type_conversion_indexed_or_sliced",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component alu_pkg_for_opcodes_flags while analyzing src/alu_pkg_for_opcodes_flags.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:47:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:77:42:error: type conversion cannot be indexed or sliced\n             tmp_res := (unsigned(data_i)(6 downto 0) & unsigned(data_i)(7));\n                                         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can't match \"tmp_res\" with type array type \"STD_ULOGIC_VECTOR\"\n         res_reg <= tmp_res;\n                    ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:47:53:error: type conversion cannot be indexed or sliced\n             tmp_fl(2) := '1' when (unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1') else '0';\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:77:42:error: type conversion cannot be indexed or sliced\n             tmp_res := (unsigned(data_i)(6 downto 0) & unsigned(data_i)(7));\n                                         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-EzZxQS/src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can't match \"tmp_res\" with type array type \"STD_ULOGIC_VECTOR\"\n         res_reg <= tmp_res;\n                    ^\nghdl:error: compilation error",
+          "forbiddenConstruct": "directly indexing or slicing a type conversion expression such as \"unsigned(data_i)(7) = '1' and tmp_res(7) = '0') or (unsigned(data_i)(7) = '0' and tmp_res(7) = '1')\"",
+          "legalReplacementPattern": "assign the conversion to a named local unsigned/signed/std_logic_vector object first, then index or slice that named object, for example \"data_u := unsigned(data_i);\" followed by \"data_u(7)\"",
+          "lastSeenAt": "2026-07-19T11:22:30.984Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_connection_sink_direction,architecture_contract_connection_sink_type,architecture_contract_instance_actual_unknown,architecture_contract_instance_output_actual_invalid": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_instance_actual_unknown",
+            "architecture_contract_instance_output_actual_invalid",
+            "architecture_contract_connection_sink_direction",
+            "architecture_contract_connection_sink_type"
+          ],
+          "issuePaths": [
+            "$.instances[0].portMap.result_o",
+            "$.instances[0].portMap.flags_o",
+            "$.instances[1].portMap.result_o",
+            "$.instances[1].portMap.flags_o",
+            "$.instances[2].portMap.result_o",
+            "$.instances[2].portMap.flags_o",
+            "$.connections[0].sinks",
+            "$.connections[1]",
+            "$.connections[1].sinks"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 15 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-19T11:44:47.283Z"
+        },
+        "illegal_operator_usage::illegal_numeric_logical_hybrid::ghdl-no-raw-slv-arithmetic::": {
+          "category": "illegal_operator_usage",
+          "label": "Illegal Operator Usage",
+          "failureCode": "illegal_numeric_logical_hybrid",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-no-raw-slv-arithmetic"
+          ],
+          "count": 1,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component operation_testbench while analyzing src/operation_testbench.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:43:79:error: no function declarations for operator \"and\"\n          when \"0010\" => status_sig <= std_logic_vector(unsigned(operand_reg) and 16#FF#);\n                                                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:44:79:error: no function declarations for operator \"or\"\n          when \"0011\" => status_sig <= std_logic_vector(unsigned(operand_reg) or 16#00#);\n                                                                              ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:43:79:error: no function declarations for operator \"and\"\n          when \"0010\" => status_sig <= std_logic_vector(unsigned(operand_reg) and 16#FF#);\n                                                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:44:79:error: no function declarations for operator \"or\"\n          when \"0011\" => status_sig <= std_logic_vector(unsigned(operand_reg) or 16#00#);\n                                                                              ^\nghdl:error: compilation error",
+          "forbiddenConstruct": "bitwise/logical operator use on mismatched or non-typed operands",
+          "legalReplacementPattern": "ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator",
+          "lastSeenAt": "2026-07-19T12:02:41.451Z"
+        },
+        "context_budget::model_output_budget_exhausted::ghdl-clean-command-contract::": {
+          "category": "context_budget",
+          "label": "Context Budget",
+          "failureCode": "model_output_budget_exhausted",
+          "stage": "context_budget",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-clean-command-contract"
+          ],
+          "count": 8,
+          "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+          "forbiddenConstruct": "provider returned done_reason=length with empty message content",
+          "legalReplacementPattern": "retry the same attempt with reduced feedback, reduced continuation files, and compact canonical issue packets only",
+          "lastSeenAt": "2026-07-19T14:35:31.317Z"
+        },
+        "context_budget::category_only::ghdl-clean-command-contract::": {
+          "category": "context_budget",
+          "label": "Context Budget",
+          "failureCode": null,
+          "stage": "context_budget",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-clean-command-contract"
+          ],
+          "count": 5,
+          "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-19T14:38:21.044Z"
+        },
+        "other::self_checking_testbench_missing_pass_path::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": "self_checking_testbench_missing_pass_path",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass strict pre-GHDL validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. src/operation_testbench.vhd: generated testbench does not expose a deterministic PASS path. Runnable generated testbenches must report TEST PASSED or stop successfully when all checks pass.",
+          "forbiddenConstruct": "self-checking testbench without a deterministic PASS/success termination path",
+          "legalReplacementPattern": "add a final if/else pass/fail block that reports \"TEST PASSED\" severity note and calls std.env.stop(0) on success, and reports severity failure on failure",
+          "lastSeenAt": "2026-07-19T13:39:17.515Z"
+        },
+        "package_type_definition::package_symbol_not_visible::ghdl-record-package-rules,ghdl-source-ordering::": {
+          "category": "package_type_definition",
+          "label": "Package / Type Definition",
+          "failureCode": "package_symbol_not_visible",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-record-package-rules",
+            "ghdl-source-ordering"
+          ],
+          "count": 4,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component fft_lite_or_analyzer_stage while analyzing src/fft_lite_or_analyzer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error",
+          "forbiddenConstruct": "custom type or package symbol \"or_reduce\" used where it is not visible",
+          "legalReplacementPattern": "declare/export \"or_reduce\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
+          "lastSeenAt": "2026-07-21T17:16:02.227Z"
+        },
+        "simulation_assertion::protocol_status_behavior_mismatch::::": {
+          "category": "simulation_assertion",
+          "label": "Simulation Assertion",
+          "failureCode": "protocol_status_behavior_mismatch",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL simulate validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated VHDL failed GHDL simulation for tb_uart_spi_protocol_bridge_top: /Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:41:7:@10ns:(report error): FAIL reset done_o not 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:45:7:@10ns:(report error): FAIL reset error_o not 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:49:7:@10ns:(report error): FAIL reset status_o not x00\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:73:7:@125ns:(report error): FAIL nominal error_o not 0\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:77:7:@125ns:(report error): FAIL nominal status_o not x01\n/Users/waleedmostafa/Documents/Automata LogicPro/FPGA Projects/ATmega328-compatible MCU/fpga-architect-sweep/01-uart-spi-protocol-bridge/uart_spi_protocol_bridge/tb/tb_uart_spi_protocol_bridge_top.vhd:81:7:@125ns:(report failure): TEST FAILED\n./tb_uart_spi_protocol_bridge_top:error: report failed\n  instance: .tb_uart_spi_protocol_bridge_top(sim).stimulus\n./tb_uart_spi_protocol_bridge_top:error: simulation failed",
+          "forbiddenConstruct": "self-checking assertion/report failure at 10ns: FAIL reset done_o not 0",
+          "legalReplacementPattern": "repair the UART/SPI/protocol bridge RTL or TB timing contract so the status/error/done assertion is true at 10ns; do not delete, weaken, skip, rename, or silence the assertion",
+          "lastSeenAt": "2026-07-21T09:12:16.612Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::ghdl-entity-format,ghdl-instantiation-rules::": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-instantiation-rules",
+            "ghdl-entity-format"
+          ],
+          "count": 6,
+          "lastMessage": "staged_port_interface_drift\nStaged VHDL for \"status_error_block\" changed the approved port interface.\ncomponentId=status_error_block\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
+          "forbiddenConstruct": "staged component VHDL changed the app-approved entity generic/port interface",
+          "legalReplacementPattern": "regenerate only the failing component implementation while preserving the exact app-owned entity declaration, generic names/order/defaults, and port names/order/modes/types",
+          "lastSeenAt": "2026-07-25T18:40:24.511Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 6,
+          "lastMessage": "staged_component_entity_missing\nStaged VHDL for component \"rx_fifo\" did not declare entity \"rx_fifo\".\ncomponentId=rx_fifo\nexpectedEntity=rx_fifo\ndeclaredEntities=bridge_control_fsm",
+          "forbiddenConstruct": "staged component VHDL omitted or renamed the exact app-approved entity declaration",
+          "legalReplacementPattern": "regenerate only the failing component with the exact app-owned entity name and interface from the skeleton; do not return package-only code, wrapper entities, JSON, Markdown, or prose",
+          "lastSeenAt": "2026-07-22T10:12:22.833Z"
+        },
+        "interface_declaration_misuse::ghdl_synthesis_failure::::": {
+          "category": "interface_declaration_misuse",
+          "label": "Interface / Generic Declaration",
+          "failureCode": "ghdl_synthesis_failure",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA Architect hard-failed because the generated project did not pass GHDL analyze validation after 10 repair attempt(s). The app does not auto-fix VHDL file issues. Generated DUT failed the GHDL synthesis-quality gate for cpu_core_top: /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/automata-logicpro-ghdl-src-LsptYF/src/decoder.vhd:20:11:error: multiple assignments for \"ctrl_sig\" offsets 0:3\n   signal ctrl_sig : std_logic_vector(3 downto 0);\n          ^",
+          "forbiddenConstruct": "RTL that analyzes but cannot be synthesized by GHDL.",
+          "legalReplacementPattern": "Keep the contracted entity interface and replace unsupported/non-synthesizable RTL with equivalent synthesizable VHDL-2008.",
+          "lastSeenAt": "2026-07-21T23:29:20.458Z"
+        },
+        "package_type_definition::missing_reduction_helper::::": {
+          "category": "package_type_definition",
+          "label": "Package / Type Definition",
+          "failureCode": "missing_reduction_helper",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component fft_lite_or_analyzer_stage while analyzing src/fft_lite_or_analyzer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/src/fft_lite_or_analyzer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-gfsU3n/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error",
+          "forbiddenConstruct": "call to helper function \"or_reduce\" without a local function declaration or imported package export",
+          "legalReplacementPattern": "declare a local or_reduce(value : std_logic_vector) return std_logic helper before the architecture begin, or replace the call with an explicit reduction loop",
+          "lastSeenAt": "2026-07-22T00:28:09.994Z"
+        },
+        "illegal_operator_usage::category_only::::": {
+          "category": "illegal_operator_usage",
+          "label": "Illegal Operator Usage",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component sync_generator while analyzing src/sync_generator.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/src/sync_generator.vhd:47:74:error: no function declarations for operator \"+\"\n            pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;\n                                                                         ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/src/sync_generator.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-ceq9Ny/src/sync_generator.vhd:47:74:error: no function declarations for operator \"+\"\n            pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;\n                                                                         ^\nghdl:error: compilation error",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-22T22:38:59.397Z"
+        },
+        "interface_declaration_misuse::malformed_vhdl_keyword::::": {
+          "category": "interface_declaration_misuse",
+          "label": "Interface / Generic Declaration",
+          "failureCode": "malformed_vhdl_keyword",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component pixel_address_generator while analyzing src/pixel_address_generator.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/src/pixel_address_generator.vhd:29:24:error: 'others' choice not allowed for an aggregate in this context\n            if h_cnt = (others => '1') then\n                       ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/src/pixel_address_generator.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-o9XgWT/src/pixel_address_generator.vhd:29:24:error: 'others' choice not allowed for an aggregate in this context\n            if h_cnt = (others => '1') then\n                       ^\nghdl:error: compilation error",
+          "forbiddenConstruct": "malformed VHDL keyword token \"an\"",
+          "legalReplacementPattern": "replace \"an\" with exact VHDL keyword \"and\"",
+          "lastSeenAt": "2026-07-22T22:43:18.639Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_instance_component_missing,architecture_contract_instance_missing": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_instance_missing",
+            "architecture_contract_instance_component_missing"
+          ],
+          "issuePaths": [
+            "$.instances",
+            "$.instances[0]",
+            "$.instances[1]",
+            "$.instances[2]",
+            "$.instances[3]",
+            "$.instances[4]",
+            "$.instances[5]",
+            "$.instances[6]",
+            "$.instances[7]"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 16 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T18:51:31.053Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_instance_missing,architecture_contract_source_requirement_claim_missing,architecture_contract_synthesis_claims_missing,architecture_contract_synthesis_incomplete": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_synthesis_incomplete",
+            "architecture_contract_synthesis_claims_missing",
+            "architecture_contract_source_requirement_claim_missing",
+            "architecture_contract_instance_missing"
+          ],
+          "issuePaths": [
+            "$.architectureSynthesis",
+            "$.architectureSynthesis.evidenceClaimIds",
+            "$.sourceGroundedRequirements[0].sourceClaimId",
+            "$.sourceGroundedRequirements[1].sourceClaimId",
+            "$.sourceGroundedRequirements[2].sourceClaimId",
+            "$.sourceGroundedRequirements[3].sourceClaimId",
+            "$.sourceGroundedRequirements[4].sourceClaimId",
+            "$.sourceGroundedRequirements[5].sourceClaimId",
+            "$.instances"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 16 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T19:06:48.919Z"
         }
       }
+    },
+    "ollama::gemma4:31b::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "gemma4:31b",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 1,
+      "successes": 0,
+      "codeQualityFailures": 1,
+      "providerRuntimeFailures": 0,
+      "lastUpdatedAt": "2026-07-19T02:32:08.873Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 1,
+          "successes": 0,
+          "codeQualityFailures": 1,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Request was cancelled by the user.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-19T02:32:08.873Z"
+            }
+          }
+        }
+      },
+      "failureBuckets": {
+        "other::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "Request was cancelled by the user.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-19T02:32:08.873Z"
+        }
+      }
+    },
+    "ollama::gemma4:31b-mlx::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "gemma4:31b-mlx",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 4,
+      "successes": 0,
+      "codeQualityFailures": 4,
+      "providerRuntimeFailures": 9,
+      "lastUpdatedAt": "2026-07-21T08:29:26.601Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 4,
+          "successes": 0,
+          "codeQualityFailures": 4,
+          "providerRuntimeFailures": 9,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 4,
+              "lastMessage": "Request was cancelled by the user.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T08:29:26.601Z"
+            }
+          }
+        }
+      },
+      "failureBuckets": {
+        "other::category_only::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 4,
+          "lastMessage": "Request was cancelled by the user.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-21T08:29:26.601Z"
+        }
+      }
+    },
+    "ollama::qwen3.6:27b-mlx::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "qwen3.6:27b-mlx",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 15,
+      "successes": 0,
+      "codeQualityFailures": 15,
+      "providerRuntimeFailures": 0,
+      "lastUpdatedAt": "2026-07-21T20:36:06.698Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "500 Internal Server Error: {\"error\":\"mlx runner failed: Error: layer 24: missing linear attention projections (exit: exit status 1)\"}",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T20:35:53.678Z"
+            }
+          }
+        },
+        "mini_cpu_core": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "500 Internal Server Error: {\"error\":\"mlx runner failed: Error: layer 24: missing linear attention projections (exit: exit status 1)\"}",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T20:35:57.052Z"
+            }
+          }
+        },
+        "video_pattern_generator": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "500 Internal Server Error: {\"error\":\"mlx runner failed: Error: layer 24: missing linear attention projections (exit: exit status 1)\"}",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T20:36:00.392Z"
+            }
+          }
+        },
+        "dsp_chain": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "500 Internal Server Error: {\"error\":\"mlx runner failed: Error: layer 24: missing linear attention projections (exit: exit status 1)\"}",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T20:36:03.262Z"
+            }
+          }
+        },
+        "axi_stream_router": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "500 Internal Server Error: {\"error\":\"mlx runner failed: Error: layer 24: missing linear attention projections (exit: exit status 1)\"}",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T20:36:06.698Z"
+            }
+          }
+        }
+      },
+      "failureBuckets": {
+        "other::category_only::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 15,
+          "lastMessage": "500 Internal Server Error: {\"error\":\"mlx runner failed: Error: layer 24: missing linear attention projections (exit: exit status 1)\"}",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-21T20:36:06.698Z"
+        }
+      }
+    },
+    "ollama::rafw007/qwen36-a3b-claude-coder:latest::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "rafw007/qwen36-a3b-claude-coder:latest",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 4,
+      "successes": 0,
+      "codeQualityFailures": 4,
+      "providerRuntimeFailures": 0,
+      "lastUpdatedAt": "2026-07-21T21:01:12.142Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 3,
+          "successes": 0,
+          "codeQualityFailures": 3,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Ollama returned no generated text for model \"rafw007/qwen36-a3b-claude-coder:latest\" via /api/generate. Payload summary: keys=model, created_at, response, thinking, done, done_reason, context, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count; model=rafw007/qwen36-a3b-claude-coder:latest; done=true; done_reason=stop; response_length=0",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T20:57:25.648Z"
+            }
+          }
+        },
+        "mini_cpu_core": {
+          "attempts": 1,
+          "successes": 0,
+          "codeQualityFailures": 1,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Request was cancelled by the user.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-21T21:01:12.142Z"
+            }
+          }
+        }
+      },
+      "failureBuckets": {
+        "other::category_only::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 4,
+          "lastMessage": "Request was cancelled by the user.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-21T21:01:12.142Z"
+        }
+      }
+    },
+    "ollama::hf.co/mradermacher/qwen-32b-vhdl-gpt-gguf:q8_0::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "hf.co/mradermacher/qwen-32b-vhdl-gpt-GGUF:Q8_0",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 0,
+      "successes": 0,
+      "codeQualityFailures": 0,
+      "providerRuntimeFailures": 2,
+      "lastUpdatedAt": "2026-07-21T21:22:31.647Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 0,
+          "successes": 0,
+          "codeQualityFailures": 0,
+          "providerRuntimeFailures": 2,
+          "failureBuckets": {}
+        }
+      },
+      "failureBuckets": {}
     }
   }
 }

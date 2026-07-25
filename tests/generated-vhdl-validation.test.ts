@@ -33,6 +33,29 @@ test('resolveValidationSourceSelection keeps exact architect analysis-order file
   ]);
 });
 
+test('inferFailureDetailsFromGhdlMessage classifies GHDL internal compiler crashes as validation environment failures', () => {
+  const details = inferFailureDetailsFromGhdlMessage([
+    '******************** GHDL Bug occurred ***************************',
+    'Exception TYPES.INTERNAL_ERROR raised',
+    'Exception information:',
+    'raised TYPES.INTERNAL_ERROR : files_map.adb:813',
+  ].join('\n'));
+
+  assert.equal(details[0]?.code, 'ghdl_tool_internal_error');
+  assert.equal(details[0]?.category, 'validation_environment');
+  assert.match(details[0]?.legalReplacementPattern || '', /do not ask the LLM/i);
+});
+
+test('inferFailureDetailsFromGhdlMessage classifies filesystem hydration timeouts as validation environment failures', () => {
+  const details = inferFailureDetailsFromGhdlMessage(
+    'src/decoder.vhd: validation filesystem read failed before GHDL analysis: input/output error: Operation timed out',
+  );
+
+  assert.equal(details[0]?.code, 'validation_filesystem_timeout');
+  assert.equal(details[0]?.category, 'validation_environment');
+  assert.equal(details[0]?.relativePath, 'src/decoder.vhd');
+});
+
 test('resolveValidationSourceSelection accepts suffixed or rooted architect analysis-order paths', () => {
   const resolved = resolveValidationSourceSelection({
     availableSources: [
@@ -140,6 +163,42 @@ test('detectKnownVhdlAntiPatterns flags reserved shift operator enum literals pr
 
   assert.ok(findings.some((entry) => entry.includes('reserved VHDL identifier "SLL"')));
   assert.ok(findings.some((entry) => entry.includes('reserved VHDL identifier "SRL"')));
+});
+
+test('detectKnownVhdlAntiPatternDetails flags malformed reserved keyword typos proactively', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-keyword-'));
+  const sourcePath = path.join(root, 'src');
+  await fs.mkdir(sourcePath, { recursive: true });
+  await fs.writeFile(
+    path.join(sourcePath, 'spi_master.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity spi_master is',
+      '  port (',
+      "    data_i : in std_logic_vector(7 downt 0)",
+      '  );',
+      'end entity;',
+      '',
+      'architecture rtl of spi_master is',
+      '  singal status_reg : std_logic_vector(1 downt 0) := "00";',
+      'begin',
+      '  -- downt in a comment must not be treated as code',
+      '  report "singal in a string must not be treated as code";',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/spi_master.vhd']);
+  const keywordDetails = details.filter((detail) => detail.code === 'malformed_vhdl_keyword');
+
+  assert.equal(keywordDetails.length, 3);
+  assert.ok(keywordDetails.some((detail) => detail.message.includes('"downt" should be "downto"')));
+  assert.ok(keywordDetails.some((detail) => detail.message.includes('"singal" should be "signal"')));
+  assert.ok(keywordDetails.every((detail) => detail.category === 'interface_generic_port_syntax'));
 });
 
 test('detectKnownVhdlAntiPatterns flags resize on raw std_logic_vector operands', async () => {
@@ -444,11 +503,47 @@ test('inferFailureDetailsFromGhdlMessage maps recurring analyze errors into cano
   assert.equal(numericDetails[0]?.code, 'resize_on_raw_std_logic_vector');
   assert.equal(numericDetails[0]?.category, 'numeric_std_type_discipline');
 
+  const malformedKeywordDetails = inferFailureDetailsFromGhdlMessage([
+    'src/spi_master.vhd:11:41:error: \')\' is expected instead of \'<integer>\'',
+    '    data_i : in std_logic_vector(7 downt 0)',
+    '                                        ^',
+  ].join('\n'));
+  assert.equal(malformedKeywordDetails[0]?.code, 'malformed_vhdl_keyword');
+  assert.equal(malformedKeywordDetails[0]?.category, 'interface_generic_port_syntax');
+  assert.equal(malformedKeywordDetails[0]?.lineHint, 11);
+
   const functionReturnDetails = inferFailureDetailsFromGhdlMessage(
     'src/alu.vhd:35:23:error: can\'t match function call with type array type "UNRESOLVED_UNSIGNED"',
   );
   assert.equal(functionReturnDetails[0]?.code, 'typed_function_result_mismatch');
   assert.equal(functionReturnDetails[0]?.category, 'numeric_std_type_discipline');
+
+  const indexedConversionDetails = inferFailureDetailsFromGhdlMessage([
+    'src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced',
+    "      tmp_fl(2) := '1' when unsigned(data_i)(7) = '1' else '0';",
+  ].join('\n'));
+  assert.equal(indexedConversionDetails[0]?.code, 'type_conversion_indexed_or_sliced');
+  assert.equal(indexedConversionDetails[0]?.category, 'numeric_std_type_discipline');
+
+  const assignmentMismatchDetails = inferFailureDetailsFromGhdlMessage(
+    'src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can\'t match "tmp_res" with type array type "STD_ULOGIC_VECTOR"',
+  );
+  assert.equal(assignmentMismatchDetails[0]?.code, 'typed_assignment_mismatch');
+  assert.equal(assignmentMismatchDetails[0]?.category, 'numeric_std_type_discipline');
+
+  const mixedLogicalDetails = inferFailureDetailsFromGhdlMessage(
+    'src/alu_pkg_for_opcodes_flags.vhd:41:52:error: only one type of logical operators may be used to combine relation',
+  );
+  assert.equal(mixedLogicalDetails[0]?.code, 'mixed_logical_operator_precedence');
+  assert.equal(mixedLogicalDetails[0]?.category, 'numeric_std_type_discipline');
+
+  const reductionHelperDetails = inferFailureDetailsFromGhdlMessage([
+    'src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for "or_reduce"',
+    '    or_result <= or_reduce(data_reg);',
+  ].join('\n'));
+  assert.equal(reductionHelperDetails[0]?.code, 'missing_reduction_helper');
+  assert.equal(reductionHelperDetails[0]?.category, 'package_type_definition');
+  assert.match(reductionHelperDetails[0]?.legalReplacementPattern || '', /declare a local or_reduce/i);
 });
 
 test('inferFailureDetailsFromGhdlMessage recognizes reserved shift keywords and package/body misuse from raw analyze output', () => {
@@ -516,6 +611,17 @@ test('inferFailureDetailsFromGhdlMessage recognizes typed port associations and 
 });
 
 test('inferFailureDetailsFromGhdlMessage recognizes recurring string-contract testbench failures', () => {
+  const vectorLiteralWidthDetails = inferFailureDetailsFromGhdlMessage(
+    [
+      'src/uart_rx.vhd:33:25:error: string length does not match that of anonymous integer subtype defined at src/uart_rx.vhd:18:39',
+      '            status_s <= x"01";',
+      '                        ^',
+      'src/uart_rx.vhd:33:25:warning: value constraints don\'t match target ones [-Wruntime-error]',
+    ].join('\n'),
+  );
+  assert.equal(vectorLiteralWidthDetails[0]?.code, 'vector_literal_width_mismatch');
+  assert.equal(vectorLiteralWidthDetails[0]?.category, 'width_literal_mismatch');
+
   const unconstrainedStringDetails = inferFailureDetailsFromGhdlMessage(
     'tb/router_tb.vhd:33:5:error: declaration of variable "fail_msg" with unconstrained array type "string" is not allowed',
   );
@@ -2049,6 +2155,56 @@ test('detectKnownVhdlAntiPatternDetails flags illegal others aggregate compariso
   assert.match(detail?.legalReplacementPattern || '', /out_o'range/);
 });
 
+test('detectKnownVhdlAntiPatternDetails flags arithmetic on non-numeric self-increment before GHDL', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-nonnumeric-plus-'));
+  const srcPath = path.join(root, 'src');
+  await fs.mkdir(srcPath, { recursive: true });
+
+  await fs.writeFile(
+    path.join(srcPath, 'sync_generator.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity sync_generator is',
+      '  port (pattern_or_framebuffer_stage : out std_logic_vector(7 downto 0));',
+      'end entity;',
+      'architecture rtl of sync_generator is',
+      'begin',
+      '  process begin',
+      '    pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/sync_generator.vhd']);
+  const detail = details.find((entry) => entry.code === 'arithmetic_on_non_numeric_signal');
+
+  assert.ok(detail);
+  assert.equal(detail?.category, 'numeric_std_type_discipline');
+  assert.equal(detail?.relativePath, 'src/sync_generator.vhd');
+  assert.match(detail?.forbiddenConstruct || '', /pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage \+ 1/);
+  assert.match(detail?.legalReplacementPattern || '', /std_logic_vector\(unsigned\(pattern_or_framebuffer_stage\) \+ 1\)/);
+});
+
+test('inferFailureDetailsFromGhdlMessage classifies plus on non-numeric signal precisely', () => {
+  const details = inferFailureDetailsFromGhdlMessage([
+    'Staged GHDL checkpoint failed after leaf component sync_generator while analyzing src/sync_generator.vhd:',
+    '/tmp/src/sync_generator.vhd:47:74:error: no function declarations for operator "+"',
+    '            pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;',
+    '                                                                         ^',
+  ].join('\n'));
+
+  const detail = details.find((entry) => entry.code === 'arithmetic_on_non_numeric_signal');
+  assert.ok(detail);
+  assert.equal(detail?.category, 'numeric_std_type_discipline');
+  assert.match(detail?.legalReplacementPattern || '', /integer\/unsigned\/signed/);
+});
+
 test('detectKnownVhdlAntiPatternDetails flags comma-separated multidimensional packed vector ports', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-comma-vector-'));
   const srcPath = path.join(root, 'src');
@@ -2266,6 +2422,86 @@ test('detectKnownVhdlAntiPatternDetails returns machine-readable metadata for ph
   assert.ok(codes.has('typed_helper_actual_mismatch'));
   assert.ok(codes.has('scalar_bit_string_assignment'));
   assert.ok(codes.has('runtime_bound_check_risk'));
+});
+
+test('detectKnownVhdlAntiPatternDetails accepts explicitly guarded to_integer array indexing', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-guarded-index-'));
+  const srcPath = path.join(root, 'src');
+  await fs.mkdir(srcPath, { recursive: true });
+  await fs.writeFile(
+    path.join(srcPath, 'rx_fifo.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity rx_fifo is end entity;',
+      'architecture rtl of rx_fifo is',
+      '  type fifo_mem_t is array (natural range <>) of std_logic_vector(7 downto 0);',
+      '  signal mem : fifo_mem_t(0 to 15);',
+      '  signal wr_ptr : unsigned(3 downto 0);',
+      '  signal data_i : std_logic_vector(7 downto 0);',
+      'begin',
+      '  process(clk)',
+      '  begin',
+      '    if rising_edge(clk) then',
+      '      if to_integer(wr_ptr) >= mem\'low and to_integer(wr_ptr) <= mem\'high then',
+      '        mem(to_integer(wr_ptr)) <= data_i;',
+      '      end if;',
+      '    end if;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/rx_fifo.vhd']);
+  assert.equal(details.some((detail) => detail.code === 'runtime_bound_check_risk'), false);
+});
+
+test('detectKnownVhdlAntiPatternDetails flags unsafe pixel address generator math with precise class', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-pixel-address-contract-'));
+  const srcPath = path.join(root, 'src');
+  await fs.mkdir(srcPath, { recursive: true });
+  await fs.writeFile(
+    path.join(srcPath, 'pixel_address_generator.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity pixel_address_generator is',
+      '  generic (H_ACTIVE : natural := 640);',
+      '  port (',
+      '    h_count_i : in unsigned(9 downto 0);',
+      '    v_count_i : in unsigned(9 downto 0);',
+      '    active_i : in std_logic;',
+      '    pixel_addr_o : out std_logic_vector(18 downto 0)',
+      '  );',
+      'end entity;',
+      'architecture rtl of pixel_address_generator is',
+      'begin',
+      "  pixel_addr_o <= std_logic_vector(to_unsigned((to_integer(v_count_i) * H_ACTIVE) + to_integer(h_count_i), 19));",
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const details = await detectKnownVhdlAntiPatternDetails(root, ['src/pixel_address_generator.vhd']);
+  const pixelAddress = details.find((detail) => detail.code === 'pixel_address_numeric_contract');
+  assert.equal(pixelAddress?.relativePath, 'src/pixel_address_generator.vhd');
+  assert.match(pixelAddress?.legalReplacementPattern || '', /pixel_addr_o'length/i);
+});
+
+test('inferFailureDetailsFromGhdlMessage classifies pixel address synthesis math failures precisely', () => {
+  const details = inferFailureDetailsFromGhdlMessage([
+    '/tmp/src/pixel_address_generator.vhd:36:18:error: no function declarations for operator "*"',
+    'Generated DUT failed the GHDL synthesis-quality gate for video_pattern_generator',
+  ].join('\n'));
+
+  assert.equal(details.some((detail) => detail.code === 'pixel_address_numeric_contract'), true);
 });
 
 test('detectKnownVhdlAntiPatternDetails accepts nested aggregate choices inside interface defaults', async () => {
@@ -3180,6 +3416,45 @@ test('validateGeneratedProjectContracts flags self-checking testbenches without 
   assert.match(missingPassPath.legalReplacementPattern || '', /TEST PASSED/);
 });
 
+test('validateGeneratedProjectContracts does not treat RTL files with testbench in their name as runnable testbenches', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-rtl-testbench-name-'));
+  const srcPath = path.join(root, 'src');
+  await fs.mkdir(srcPath, { recursive: true });
+  await fs.writeFile(
+    path.join(srcPath, 'operation_testbench.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity operation_testbench is',
+      '  port (clk : in std_logic; rst : in std_logic);',
+      'end entity;',
+      'architecture rtl of operation_testbench is',
+      'begin',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await validateGeneratedProjectContracts({
+    macroId: 'fpga_vhdl_architect',
+    validationRoot: root,
+    selectedSources: [{
+      path: 'src/operation_testbench.vhd',
+      entities: ['operation_testbench'],
+      packages: [],
+      packageBodies: [],
+      dependencies: [],
+      isTestbench: false,
+    }],
+    topEntities: ['tb_operation_testbench'],
+    architectProject: null,
+  });
+
+  assert.equal(findings.some((detail) => detail.code === 'self_checking_testbench_missing_pass_path'), false);
+});
+
 test('validateGeneratedProjectContracts flags missing command contract and invalid source-order dependencies', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-order-contract-'));
   const sourcePath = path.join(root, 'src');
@@ -3603,6 +3878,28 @@ test('inferFailureDetailsFromGhdlMessage leaves generic report failures generic'
 
   assert.equal(details[0]?.code, 'ghdl_simulate_failure');
   assert.equal(details[0]?.category, 'simulation_success');
+});
+
+test('inferFailureDetailsFromGhdlMessage classifies protocol status assertion failures', () => {
+  const details = inferFailureDetailsFromGhdlMessage(
+    '/tmp/project/tb/tb_uart_spi_protocol_bridge_top.vhd:54:7:@76ns:(report error): FAIL FAIL error_o asserted',
+  );
+
+  assert.equal(details[0]?.code, 'protocol_status_behavior_mismatch');
+  assert.equal(details[0]?.assertionLabel, 'error_o asserted');
+  assert.equal(details[0]?.simulationTime, '76ns');
+  assert.match(details[0]?.expectedBehavior || '', /Protocol bridge status/i);
+  assert.ok(details[0]?.relatedSourcePaths?.some((entry) => entry.includes('bridge_control_fsm')));
+});
+
+test('inferFailureDetailsFromGhdlMessage classifies CPU top status assertions separately from protocol', () => {
+  const details = inferFailureDetailsFromGhdlMessage(
+    '/tmp/project/tb/tb_cpu_core_top.vhd:54:7:@86ns:(report error): FAIL done_o did not assert',
+  );
+
+  assert.equal(details[0]?.code, 'cpu_top_status_behavior_mismatch');
+  assert.notEqual(details[0]?.code, 'protocol_status_behavior_mismatch');
+  assert.ok(details[0]?.relatedSourcePaths?.some((entry) => entry.includes('control_fsm')));
 });
 
 test('inferFailureDetailsFromGhdlMessage classifies missing enum choices and non-vector numeric conversions', () => {
@@ -4589,4 +4886,117 @@ test('detectKnownVhdlAntiPatternDetails flags typed equality operand mismatches 
   const findings = await detectKnownVhdlAntiPatternDetails(root, ['tb/tb_cpu_top.vhd']);
 
   assert.ok(findings.some((detail) => detail.code === 'typed_equality_operand_mismatch'));
+});
+
+test('detectKnownVhdlAntiPatternDetails flags undriven top output ports before GHDL', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-undriven-top-'));
+  await fs.mkdir(path.join(root, 'src'), { recursive: true });
+  await fs.writeFile(
+    path.join(root, 'src/cpu_core_top.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity cpu_core_top is',
+      '  port (',
+      '    clk : in std_logic;',
+      '    rst : in std_logic;',
+      '    start_i : in std_logic;',
+      '    done_o : out std_logic',
+      '  );',
+      'end entity;',
+      'architecture rtl of cpu_core_top is',
+      'begin',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await detectKnownVhdlAntiPatternDetails(root, ['src/cpu_core_top.vhd']);
+
+  const detail = findings.find((entry) => entry.code === 'undriven_top_output_port');
+  assert.ok(detail);
+  assert.equal(detail?.category, 'top_integration_contract');
+  assert.match(detail?.message || '', /done_o/i);
+});
+
+test('detectKnownVhdlAntiPatternDetails flags multiple process drivers before GHDL synthesis', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'multi-driver-'));
+  try {
+    await fs.mkdir(path.join(root, 'src'), { recursive: true });
+    await fs.writeFile(path.join(root, 'src/decoder.vhd'), [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity decoder is',
+      '  port (clk : in std_logic; rst : in std_logic; opcode_i : in std_logic_vector(7 downto 0));',
+      'end entity;',
+      '',
+      'architecture rtl of decoder is',
+      '  signal ctrl_sig : std_logic_vector(3 downto 0);',
+      'begin',
+      '  process(clk, rst)',
+      '  begin',
+      "    if rst = '1' then",
+      "      ctrl_sig <= (others => '0');",
+      '    elsif rising_edge(clk) then',
+      '      null;',
+      '    end if;',
+      '  end process;',
+      '',
+      '  process(opcode_i)',
+      '  begin',
+      '    case opcode_i is',
+      '      when x"00" => ctrl_sig <= "0000";',
+      '      when others => ctrl_sig <= "1111";',
+      '    end case;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'), 'utf8');
+
+    const details = await detectKnownVhdlAntiPatternDetails(root, ['src/decoder.vhd']);
+    const multiDriver = details.find((detail) => detail.code === 'multiple_signal_driver_or_slice_assignment');
+    assert.ok(multiDriver);
+    assert.equal(multiDriver?.category, 'interface_generic_port_syntax');
+    assert.match(multiDriver?.message || '', /ctrl_sig/);
+  } finally {
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});
+
+test('detectKnownVhdlAntiPatternDetails accepts top output driven by assignment or child output', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-driven-top-'));
+  await fs.mkdir(path.join(root, 'src'), { recursive: true });
+  await fs.writeFile(
+    path.join(root, 'src/leaf.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'entity leaf is port (done_o : out std_logic); end entity;',
+      'architecture rtl of leaf is begin done_o <= \'1\'; end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+  await fs.writeFile(
+    path.join(root, 'src/top.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'entity top is port (done_o : out std_logic; error_o : out std_logic); end entity;',
+      'architecture rtl of top is',
+      'begin',
+      '  u_leaf : entity work.leaf port map (done_o => done_o);',
+      '  error_o <= \'0\';',
+      'end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await detectKnownVhdlAntiPatternDetails(root, ['src/leaf.vhd', 'src/top.vhd']);
+
+  assert.ok(!findings.some((detail) => detail.code === 'undriven_top_output_port'));
 });

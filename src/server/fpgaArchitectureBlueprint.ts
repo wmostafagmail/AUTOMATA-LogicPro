@@ -1,4 +1,8 @@
 import type { AiMacroId } from '../aiMacros';
+import {
+  synthesizeCuratedFpgaArchitecture,
+  type CuratedArchitectureSynthesis,
+} from './fpgaArchitectureKnowledge';
 
 export type FpgaArchitectureBlueprint = {
   designClass: string;
@@ -9,6 +13,13 @@ export type FpgaArchitectureBlueprint = {
   clockResetRules: string[];
   filePlan: string[];
   verificationPlan: string[];
+  patternId?: string;
+  matchedPatternIds?: string[];
+  methodologyRuleIds?: string[];
+  referenceDesignIds?: string[];
+  evidenceClaimIds?: string[];
+  topOutputOwnership?: string[];
+  timingContracts?: string[];
 };
 
 type BlueprintPreset = {
@@ -119,7 +130,20 @@ const BLUEPRINT_PRESETS: BlueprintPreset[] = [
       systemRole: 'Bridge UART-framed commands to an SPI master transaction path with buffering, control FSMs, and deterministic error reporting.',
       buildingBlocks: ['uart_rx', 'uart_tx', 'spi_master', 'tx_fifo', 'rx_fifo', 'bridge_control_fsm', 'status_error_block', 'top-level bridge entity'],
       externalInterfaces: ['clock/reset', 'uart_rx_i/uart_tx_o', 'spi_sclk_o/spi_mosi_o/spi_miso_i/spi_cs_o', 'busy/error/data_available status outputs'],
-      verificationPlan: ['prove nominal UART-command to SPI transaction', 'prove FIFO backpressure behavior', 'prove at least one error/recovery path'],
+      internalContracts: [
+        'bridge_control_fsm owns the transaction lifecycle and drives registered done/error/status intent through the top-level integration',
+        'status_error_block or equivalent registered status logic drives status_o deterministically: x"00" during reset/idle and x"01" after one completed nominal command',
+        'done_o asserts within four rising clock edges after a valid start_i pulse for the app-owned nominal scenario',
+        'error_o remains 0 for the app-owned nominal command x"5A"',
+        'FIFO read/write pointers are constrained to memory bounds or explicitly guarded before every memory access',
+      ],
+      verificationPlan: [
+        'prove nominal UART-command to SPI transaction',
+        'after reset, check error_o = 0, done_o = 0, and status_o = x"00"',
+        'after start_i with command x"5A", check done_o = 1, error_o = 0, and status_o = x"01" within the bounded completion window',
+        'prove FIFO backpressure behavior',
+        'prove at least one error/recovery path without weakening the nominal done/error/status checks',
+      ],
     },
   },
   {
@@ -190,12 +214,22 @@ function mergeBlueprint(base: FpgaArchitectureBlueprint, overlay: Partial<FpgaAr
   };
 }
 
-export function inferFpgaArchitectureBlueprintFromPrompt(promptText: string): FpgaArchitectureBlueprint {
-  const normalizedPrompt = promptText || '';
+function findBlueprintByDesignClass(designClass: string): FpgaArchitectureBlueprint | null {
+  const normalized = designClass.trim().toLowerCase();
+  if (!normalized) return null;
+  if (normalized === GENERIC_BLUEPRINT.designClass) return GENERIC_BLUEPRINT;
   const matchedPreset = BLUEPRINT_PRESETS.find((preset) => (
-    preset.keywords.some((keyword) => keyword.test(normalizedPrompt))
+    preset.blueprint.designClass.toLowerCase() === normalized
   ));
-  return matchedPreset ? mergeBlueprint(GENERIC_BLUEPRINT, matchedPreset.blueprint) : GENERIC_BLUEPRINT;
+  return matchedPreset ? mergeBlueprint(GENERIC_BLUEPRINT, matchedPreset.blueprint) : null;
+}
+
+export function inferFpgaArchitectureBlueprintFromPrompt(promptText: string): FpgaArchitectureBlueprint {
+  return synthesizeCuratedFpgaArchitecture(promptText).blueprint;
+}
+
+export function synthesizeFpgaArchitectureBlueprintFromPrompt(promptText: string): CuratedArchitectureSynthesis {
+  return synthesizeCuratedFpgaArchitecture(promptText);
 }
 
 function bulletSection(title: string, items: string[]) {
@@ -215,12 +249,19 @@ export function buildArchitectureBlueprintPromptSection(params: {
   }
 
   const blueprint = inferFpgaArchitectureBlueprintFromPrompt(params.promptText);
+  const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.promptText);
   return [
     `## ${params.heading || 'App-Owned Architecture Blueprint Contract'}`,
+    'Source mode: curated-first hybrid architecture synthesis',
     `Design class: ${blueprint.designClass}`,
     `System role: ${blueprint.systemRole}`,
+    `Primary design pattern: ${synthesis.primaryPattern.patternId}`,
+    `Pattern confidence: ${Math.round(synthesis.confidence * 100)}%`,
+    `Composed secondary patterns: ${synthesis.secondaryPatterns.map((pattern) => pattern.patternId).join(', ') || 'none'}`,
+    `Pattern families: ${[synthesis.primaryPattern, ...synthesis.secondaryPatterns].map((pattern) => pattern.family).filter(Boolean).join(', ') || 'unspecified'}`,
     '',
     'The model owns the detailed micro-architecture choices inside this contract, but the generated project must preserve these block/interface/file/test responsibilities. Do not replace this with a vague report.',
+    'The app-owned curated pattern library chooses the high-level building blocks. Official methodology/reference evidence may refine constraints, but the model must not invent a new architecture from scratch.',
     '',
     bulletSection('Required building blocks', blueprint.buildingBlocks),
     '',
@@ -228,11 +269,19 @@ export function buildArchitectureBlueprintPromptSection(params: {
     '',
     bulletSection('Internal interface contracts', blueprint.internalContracts),
     '',
+    bulletSection('Top output ownership', blueprint.topOutputOwnership || []),
+    '',
+    bulletSection('Timing contracts', blueprint.timingContracts || []),
+    '',
     bulletSection('Clock/reset rules', blueprint.clockResetRules),
     '',
     bulletSection('Required file-level scaffold', blueprint.filePlan),
     '',
     bulletSection('Required verification targets', blueprint.verificationPlan),
+    '',
+    bulletSection('Official methodology rules used', synthesis.methodologyRules.map((rule) => `${rule.ruleId}: ${rule.title} (${rule.sourceTitle})`)),
+    '',
+    bulletSection('Official reference-design evidence used', synthesis.referenceDesigns.map((reference) => `${reference.referenceId}: ${reference.title} (${reference.vendor})`)),
   ].join('\n');
 }
 

@@ -4,6 +4,9 @@ export type ModelQualityFailureBucket = {
   category: string;
   label: string;
   failureCode?: string | null;
+  stage?: string | null;
+  issueCodes?: string[];
+  issuePaths?: string[];
   ruleIds: string[];
   count: number;
   lastMessage: string;
@@ -50,6 +53,9 @@ export type ModelQualityAttemptEvent = {
     category: string;
     label: string;
     failureCode?: string | null;
+    stage?: string | null;
+    issueCodes?: string[];
+    issuePaths?: string[];
     ruleIds?: string[];
     message: string;
     forbiddenConstruct?: string | null;
@@ -135,9 +141,10 @@ function ensureDesignStats(entry: ModelQualityEntry, designKey: string): ModelQu
   return stats;
 }
 
-function bucketKey(category: string, ruleIds: string[]) {
+function bucketKey(category: string, ruleIds: string[], failureCode?: string | null, issueCodes?: string[]) {
   const normalizedRules = Array.from(new Set(ruleIds.filter(Boolean))).sort().join(',');
-  return `${category || 'other'}::${normalizedRules}`;
+  const normalizedIssues = Array.from(new Set(issueCodes || [])).sort().join(',');
+  return `${category || 'other'}::${failureCode || 'category_only'}::${normalizedRules}::${normalizedIssues}`;
 }
 
 const UNIVERSAL_VHDL_FAILURE_CATEGORIES = new Set([
@@ -189,11 +196,14 @@ function recordFailureBucket(
   failure: NonNullable<ModelQualityAttemptEvent['failure']>,
 ) {
   const ruleIds = Array.from(new Set(failure.ruleIds || []));
-  const key = bucketKey(failure.category, ruleIds);
+  const key = bucketKey(failure.category, ruleIds, failure.failureCode, failure.issueCodes);
   const existing = buckets[key];
   if (existing) {
     existing.count += 1;
     existing.failureCode = failure.failureCode || existing.failureCode || null;
+    existing.stage = failure.stage || existing.stage || null;
+    existing.issueCodes = Array.from(new Set([...(existing.issueCodes || []), ...(failure.issueCodes || [])])).slice(0, 20);
+    existing.issuePaths = Array.from(new Set([...(existing.issuePaths || []), ...(failure.issuePaths || [])])).slice(0, 20);
     existing.lastMessage = failure.message;
     existing.forbiddenConstruct = failure.forbiddenConstruct || existing.forbiddenConstruct || null;
     existing.legalReplacementPattern = failure.legalReplacementPattern || existing.legalReplacementPattern || null;
@@ -206,6 +216,9 @@ function recordFailureBucket(
     category: failure.category || 'other',
     label: failure.label || failure.category || 'Other',
     failureCode: failure.failureCode || null,
+    stage: failure.stage || null,
+    issueCodes: Array.from(new Set(failure.issueCodes || [])).slice(0, 20),
+    issuePaths: Array.from(new Set(failure.issuePaths || [])).slice(0, 20),
     ruleIds,
     count: 1,
     lastMessage: failure.message,

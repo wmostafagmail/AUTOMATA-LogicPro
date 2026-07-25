@@ -27,6 +27,7 @@ test('all code-generating macro system prompts include the shared strict GHDL/VH
 
     assert.match(prompt, /## Strict GHDL \/ VHDL Rules/);
     assert.match(prompt, /Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code\./);
+    assert.match(prompt, /Spell every VHDL reserved keyword exactly as the language defines it\./);
     assert.match(prompt, /Numeric_std functions such as `resize`, `shift_left`, and `shift_right` operate on `unsigned` or `signed`, not raw `std_logic_vector`\./);
     assert.match(prompt, /Do not place helper state such as `current_test`, `expected_count`, `pass_count`, `fail_count`, `res_int`/);
     assert.match(prompt, /Before returning the final answer, run a zero-tolerance self-audit across every generated VHDL file\./);
@@ -59,6 +60,7 @@ test('shared strict VHDL rules explicitly cover the core phase 2 legality classe
   const rules = buildCodeGeneratingMacroRuleList('fpga_vhdl_architect');
 
   assert.ok(rules.some((rule) => rule.includes('Do not use any VHDL reserved word, operator token, or predefined language keyword as an identifier anywhere in generated code.')));
+  assert.ok(rules.some((rule) => rule.includes('Spell every VHDL reserved keyword exactly as the language defines it.')));
   assert.ok(rules.some((rule) => rule.includes('Use VHDL operator keywords exactly as defined by the language')));
   assert.ok(rules.some((rule) => rule.includes('Inside entity/component generic and port declarations, use `:` between the interface name and its subtype/mode. Never use `=>` there')));
   assert.ok(rules.some((rule) => rule.includes('Do not insert explanatory prose inside VHDL declarations or executable statements.')));

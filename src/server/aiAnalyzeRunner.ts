@@ -25,10 +25,16 @@ import {
   assertFpgaArchitectProjectMatchesContract,
   attachFpgaArchitectureContractArtifact,
   buildApprovedFpgaArchitectureContractSection,
+  hashFpgaArchitectureContract,
   proposeApprovedFpgaArchitectureContract,
   validateFpgaArchitectProjectAgainstContract,
   type FpgaArchitectureContract,
 } from './fpgaArchitectureContract';
+import type { FpgaArchitectureRetrievalMode } from './fpgaArchitectureEvidence';
+import { getFpgaPipelineConfig } from './fpgaPipelineConfig';
+import { runStagedFpgaArchitectGeneration, type FpgaArchitectStageProgress } from './fpgaArchitectStagedGeneration';
+import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
+import { decideRepairCandidate } from './generatedCodeRepairTransaction';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -123,6 +129,16 @@ function collectGeneratedVhdlFailureCodes(validation: GeneratedVhdlValidationRes
   ].filter(Boolean) as string[]);
 }
 
+function isValidationEnvironmentFailure(validation: GeneratedVhdlValidationResult | null | undefined) {
+  if (!validation || validation.ok) return false;
+  if (validation.failureCategory === 'validation_environment') return true;
+  return (validation.failureDetails || []).some((detail) => (
+    detail.category === 'validation_environment'
+    || detail.code === 'ghdl_tool_internal_error'
+    || detail.code === 'validation_filesystem_timeout'
+  ));
+}
+
 function isFpgaArchitectProjectStructureContractFailure(validation: GeneratedVhdlValidationResult | null | undefined) {
   if (!validation || validation.ok) return false;
   const failureCodes = collectGeneratedVhdlFailureCodes(validation);
@@ -140,6 +156,48 @@ function summarizePostRepairValidation(validation: GeneratedVhdlValidationResult
     failureCode: getRepairFailureCode(validation),
     summary: validation.summary,
   };
+}
+
+function truncateOneLine(value: string | null | undefined, maxLength: number) {
+  if (!value) return null;
+  const oneLine = value.replace(/\s+/g, ' ').trim();
+  if (oneLine.length <= maxLength) return oneLine;
+  return `${oneLine.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
+function normalizeRepairPath(value: string) {
+  return value.replace(/\\/g, '/').replace(/^\/+/, '').toLowerCase();
+}
+
+function pathsReferToSameFile(left: string, right: string) {
+  const normalizedLeft = normalizeRepairPath(left);
+  const normalizedRight = normalizeRepairPath(right);
+  return normalizedLeft === normalizedRight
+    || normalizedLeft.endsWith(`/${normalizedRight}`)
+    || normalizedRight.endsWith(`/${normalizedLeft}`);
+}
+
+function buildSourceLineWindow(content: string, lineNumber: number, radius: number) {
+  const lines = content.split(/\r?\n/);
+  if (!Number.isFinite(lineNumber) || lineNumber < 1 || lineNumber > lines.length) {
+    return null;
+  }
+  const start = Math.max(1, lineNumber - radius);
+  const end = Math.min(lines.length, lineNumber + radius);
+  return lines
+    .slice(start - 1, end)
+    .map((line, index) => `${start + index}: ${line}`)
+    .join('\n');
+}
+
+function truncateGhdlRepairLogExcerpt(logs: string[]) {
+  const filtered = logs
+    .filter((line) => !line.startsWith('INNER_REPAIR_AUDIT |'))
+    .join('\n')
+    .trim();
+  if (!filtered) return null;
+  const maxLength = 2400;
+  return filtered.length <= maxLength ? filtered : filtered.slice(Math.max(0, filtered.length - maxLength));
 }
 
 function compactGeneratedVhdlValidationSummary(validation: GeneratedVhdlValidationResult) {
@@ -204,6 +262,8 @@ function formatRepairAuditEntry(entry: GeneratedVhdlRepairAuditEntry) {
     `repairAttempt=${entry.repairAttempt}`,
     `failureCode=${entry.failureCode || 'unknown'}`,
     `fileLine=${entry.fileLine || 'unknown'}`,
+    ...(entry.ghdlLogExcerpt ? [`ghdlLogExcerpt=${truncateOneLine(entry.ghdlLogExcerpt, 360)}`] : []),
+    ...(entry.sourceWindow ? [`sourceWindow=${truncateOneLine(entry.sourceWindow, 360)}`] : []),
     `repairType=${entry.repairType}`,
     `changedFiles=${entry.changedFiles.length > 0 ? entry.changedFiles.join(', ') : 'none'}`,
     `postRepairValidation=${entry.postRepairValidation.ok ? 'PASS' : 'FAIL'} ${entry.postRepairValidation.stage}` +
@@ -501,6 +561,16 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Preserve the check/assertion semantics; do not delete or weaken the comparison.',
         detail.forbiddenConstruct ? `  Failing comparison: ${detail.forbiddenConstruct}` : '',
       ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'vector_literal_width_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact literal assignment locally. Do not regenerate unrelated files or widen/narrow the public interface to match one hard-coded literal.',
+        '  A VHDL hex literal like `x"01"` is 8 bits wide. It is illegal to assign it directly to a 1-bit, 2-bit, 3-bit, or other differently sized vector object.',
+        '  For zero, use `(others => \'0\')`. For nonzero std_logic_vector targets, use `std_logic_vector(to_unsigned(value, target_signal\'length))`.',
+        '  For unsigned targets, use `to_unsigned(value, target_signal\'length)`; for signed targets, use `to_signed(value, target_signal\'length)`.',
+        '  Preserve the target signal/subtype width and repair only the literal expression or a local typed adapter.',
+        detail.forbiddenConstruct ? `  Failing literal evidence: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'tb_string_formal_actual_constraint_mismatch') {
       sections.push([
         `- ${detail.code}`,
@@ -607,6 +677,33 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  If the value is already unsigned/signed, call to_integer(value) directly.',
         '  If a vector encoding is required, create a correctly typed vector first using to_unsigned(value, width) or to_signed(value, width).',
       ].join('\n'));
+    } else if (detail.code === 'type_conversion_indexed_or_sliced') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact numeric_std expression locally. GHDL does not allow indexing or slicing a type-conversion call directly.',
+        '  Replace illegal forms like `unsigned(data_i)(7)` or `unsigned(data_i)(6 downto 0)` with a named typed local object first.',
+        '  Legal pattern: declare/reuse `variable data_u : unsigned(data_i\'range);`, assign `data_u := unsigned(data_i);`, then use `data_u(7)` or `data_u(6 downto 0)`.',
+        '  Keep all downstream assignments in a single typed domain and convert only once at the final boundary.',
+        detail.forbiddenConstruct ? `  Failing expression: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'typed_assignment_mismatch') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the assignment boundary locally. Do not mix unsigned/signed temporaries with std_logic_vector destinations without an explicit final conversion.',
+        '  If the destination is std_logic_vector and the temporary is unsigned/signed, assign `std_logic_vector(temp)`.',
+        '  If the destination is unsigned/signed, keep every branch result in that same typed domain.',
+        '  Do not alternate between std_logic_vector and unsigned/signed assignments inside the same temporary object.',
+        detail.forbiddenConstruct ? `  Failing assignment: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
+    } else if (detail.code === 'mixed_logical_operator_precedence') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact boolean/flag expression locally. VHDL does not allow mixed and/or relation chains without explicit grouping.',
+        '  Fully parenthesize every and-chain before combining it with or, especially overflow/carry/sign flag logic.',
+        '  Legal pattern: `((not a_sign) and (not b_sign) and result_sign) or (a_sign and b_sign and (not result_sign))`.',
+        '  Do not delete overflow terms, collapse the flag to a constant, or change the public interface just to satisfy syntax.',
+        detail.forbiddenConstruct ? `  Failing expression: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'out_port_actual_conversion') {
       sections.push([
         `- ${detail.code}`,
@@ -629,6 +726,15 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  If no generated package exports the symbol, add the type/subtype to the appropriate shared package and update analysis_order so dependents compile after it.',
         '  Preserve existing public package names and dependent interfaces unless the validator evidence says the package itself is illegal.',
       ].join('\n'));
+    } else if (detail.code === 'missing_reduction_helper') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact helper call locally. Do not invent a new package or change the public entity interface.',
+        '  If the file calls `or_reduce`, `and_reduce`, or `xor_reduce`, declare the matching local function in the architecture declarative region before `begin`.',
+        "  Legal helper shape: `function or_reduce(value : std_logic_vector) return std_logic is ... for index_v in value'range loop result_v := result_v or value(index_v); end loop; ...`.",
+        '  If the intended behavior is not a reduction, replace only the failing expression with an explicit equivalent loop or expression and keep all unrelated logic unchanged.',
+        detail.forbiddenConstruct ? `  Failing helper evidence: ${detail.forbiddenConstruct}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'unknown_port_map_formal') {
       sections.push([
         `- ${detail.code}`,
@@ -636,6 +742,16 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Inspect the target entity/component legal formal port list and replace only the bad formal name; do not invent ports or rename the target entity interface unless every dependent instantiation is updated coherently.',
         '  Preserve actual signal intent and connect it to the correct existing formal port, or leave the port intentionally unconnected only when the target mode and design intent allow it.',
       ].join('\n'));
+    } else if (detail.code === 'multiple_signal_driver_or_slice_assignment') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the exact signal-driver conflict locally. A synthesizable signal must have one architectural writer for the same bits.',
+        '  Legal pattern A: one combinational process assigns a default value and every case/if branch for the signal.',
+        '  Legal pattern B: one combinational *_next signal feeds one clocked register process; the public/internal registered signal is assigned only in that clocked process.',
+        '  Do not keep the same vector assigned in both a reset/clocked process and a separate combinational decode process.',
+        detail.forbiddenConstruct ? `  Failing driver evidence: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required replacement: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'interface_constant_not_visible') {
       sections.push([
         `- ${detail.code}`,
@@ -659,6 +775,15 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Introduce or reuse an internal mirror signal/variable for the computation and drive the out port from that internal object.',
         '  Preserve the external port interface exactly while repairing the internal implementation locally.',
       ].join('\n'));
+    } else if (detail.code === 'undriven_top_output_port') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the top/integration architecture contract locally. Every declared out/buffer/inout port must have exactly one legal driver.',
+        '  Prefer wiring the output from the correct child output through a named, correctly typed internal signal. If this is a status/control output, a small registered reset/start driver is allowed.',
+        '  Preserve the entity public interface exactly. Do not delete the output port, rename it, or silence the testbench assertion that observes it.',
+        detail.forbiddenConstruct ? `  Failing output evidence: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required replacement: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (
       detail.code === 'numeric_std_operator_misuse'
       || detail.code === 'illegal_numeric_logical_hybrid'
@@ -670,6 +795,9 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
       || detail.code === 'typed_unary_mismatch'
       || detail.code === 'typed_helper_actual_mismatch'
       || detail.code === 'typed_function_result_mismatch'
+      || detail.code === 'type_conversion_indexed_or_sliced'
+      || detail.code === 'typed_assignment_mismatch'
+      || detail.code === 'mixed_logical_operator_precedence'
       || detail.code === 'typed_port_association_mismatch'
       || detail.code === 'shift_left_on_raw_std_logic_vector'
       || detail.code === 'shift_right_on_raw_std_logic_vector'
@@ -726,6 +854,7 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
       || detail.code === 'cpu_reset_pc_behavior_mismatch'
       || detail.code === 'cpu_fetch_sequence_mismatch'
       || detail.code === 'cpu_control_signal_behavior_mismatch'
+      || detail.code === 'cpu_top_status_behavior_mismatch'
     ) {
       sections.push([
         `- ${detail.code}`,
@@ -746,14 +875,31 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
     } else if (
       detail.code === 'simulation_assertion_expected_actual_mismatch'
       || detail.code === 'simulation_valid_latency_mismatch'
+      || detail.code === 'protocol_status_behavior_mismatch'
     ) {
       sections.push([
         `- ${detail.code}`,
-        '  Treat this as an exact self-checking simulation failure with file, line, time, and assertion text already supplied above.',
+        detail.code === 'protocol_status_behavior_mismatch'
+          ? '  Treat this as a protocol/status behavioral contract mismatch, not a syntax repair.'
+          : '  Treat this as an exact self-checking simulation failure with file, line, time, and assertion text already supplied above.',
         '  Do not delete, weaken, skip, rename, or silence the failing assertion/report statement.',
-        '  Repair the smallest existing RTL or testbench timing/behavior cause that makes the asserted expected value true at the reported simulation time.',
+        detail.code === 'protocol_status_behavior_mismatch'
+          ? '  Repair the UART/SPI/protocol bridge control, FIFO/status, top-level wiring, or TB sampling contract that causes error_o/done_o/status_o to violate the check.'
+          : '  Repair the smallest existing RTL or testbench timing/behavior cause that makes the asserted expected value true at the reported simulation time.',
+        detail.assertionLabel ? `  Failing assertion label: ${detail.assertionLabel}.` : '',
+        detail.simulationTime ? `  Reported simulation time: ${detail.simulationTime}.` : '',
+        detail.expectedBehavior ? `  Expected behavior: ${detail.expectedBehavior}` : '',
+        detail.code === 'protocol_status_behavior_mismatch'
+          ? '  Prefer local fixes in the bridge top/control FSM/FIFOs/SPI/UART blocks, or adjust TB timing only if the RTL intentionally asserts done/error later than the app-owned scenario.'
+          : '',
+        detail.code === 'protocol_status_behavior_mismatch'
+          ? '  Choose exactly one legal repair path: (1) repair RTL control/status timing so done_o/error_o/status_o satisfy the supplied TB window, or (2) repair TB sampling only when the supplied RTL excerpts prove the design intentionally completes after the current check window.'
+          : '',
+        detail.code === 'protocol_status_behavior_mismatch'
+          ? '  Use the supplied failing TB line window, reset/start/data stimulus, wait_for_done helper, and protocol RTL excerpts; do not regenerate the whole project.'
+          : '',
         '  Preserve already-passing checks and do not broadly regenerate unrelated files.',
-      ].join('\n'));
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'ghdl_simulate_failure') {
       sections.push([
         `- ${detail.code}`,
@@ -908,6 +1054,7 @@ export async function runAiAnalyzeJob(params: {
   fpgaArchitectExecutionMode?: 'normal' | 'test_compact';
   enforceFpgaArchitectureContractGate?: boolean;
   approvedFpgaArchitectureContract?: FpgaArchitectureContract | null;
+  architectureRetrievalMode?: FpgaArchitectureRetrievalMode;
   applyMandatoryVhdlSkill: (taskPrompt: string) => Promise<{
     prompt: string;
     selection: DeterministicSkillSelection | null;
@@ -918,6 +1065,7 @@ export async function runAiAnalyzeJob(params: {
     model: string;
     prompt: string;
     signal?: AbortSignal;
+    generationProfile?: ModelGenerationProfile;
   }) => Promise<AiRunResult>;
   validateMacroOutput: (params: {
     macroId: AiMacroId;
@@ -999,6 +1147,7 @@ export async function runAiAnalyzeJob(params: {
     fileLine: string;
     status: string;
   }) => void | Promise<void>;
+  onArchitectureStageProgress?: (progress: FpgaArchitectStageProgress) => void | Promise<void>;
 }) {
   const {
     ai,
@@ -1039,6 +1188,7 @@ export async function runAiAnalyzeJob(params: {
     buildFpgaArchitectMarkdownReport,
     validateGeneratedVhdlWithGhdl,
     onInnerRepairProgress,
+    onArchitectureStageProgress,
   } = params;
 
   const resolvedPreparedPrompt = preparedPrompt || await applyMandatoryVhdlSkill(buildMacroExecutionPrompt({
@@ -1067,6 +1217,8 @@ export async function runAiAnalyzeJob(params: {
       provider: selectedProvider,
       model: selectedModel,
       userRequest: userQuery,
+      projectPath: normalizedProjectPath,
+      architectureRetrievalMode: params.architectureRetrievalMode || 'off',
       signal,
       runModelAnalysis,
     });
@@ -1077,14 +1229,49 @@ export async function runAiAnalyzeJob(params: {
   const initialPrompt = architectureContract
     ? `${baseGenerationPrompt}\n\n${buildApprovedFpgaArchitectureContractSection(architectureContract)}`
     : baseGenerationPrompt;
-  let aiResult = await runModelAnalysis({
-    ai,
-    provider: selectedProvider,
-    model: selectedModel,
-    prompt: initialPrompt,
-    signal,
-  });
-  const attemptTelemetries: AiRunTelemetry[] = [...contractAttemptTelemetries, aiResult.telemetry];
+  const pipelineConfig = getFpgaPipelineConfig();
+  const stagedGeneration = isFpgaArchitectMacro
+    && pipelineConfig.enabled
+    && pipelineConfig.stagedGeneration
+    && pipelineConfig.appOwnedTestbench
+    && architectureContract?.schemaVersion === '2.0'
+    ? await runStagedFpgaArchitectGeneration({
+      ai,
+      provider: selectedProvider,
+      model: selectedModel,
+      contract: architectureContract,
+      signal,
+      maxStageOutputChars: pipelineConfig.maxStageOutputChars,
+      stageGhdlValidation: pipelineConfig.stageGhdlValidation,
+      runModelAnalysis,
+      onStageProgress: onArchitectureStageProgress,
+    })
+    : null;
+  const stagedAttemptTelemetries = stagedGeneration?.attempts.map((attempt) => attempt.telemetry) || [];
+  let aiResult = stagedGeneration
+    ? {
+      text: stagedGeneration.text,
+      telemetry: stagedAttemptTelemetries.at(-1) || {
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        tokensPerSecond: null,
+        endToEndTokensPerSecond: null,
+        durationMs: 1,
+      },
+    }
+    : await runModelAnalysis({
+      ai,
+      provider: selectedProvider,
+      model: selectedModel,
+      prompt: initialPrompt,
+      signal,
+      generationProfile: buildModelGenerationProfile({ id: 'analysis', scope: `${macroId}\u0000${userQuery}` }),
+    });
+  const attemptTelemetries: AiRunTelemetry[] = [
+    ...contractAttemptTelemetries,
+    ...(stagedGeneration ? stagedAttemptTelemetries : [aiResult.telemetry]),
+  ];
   let responseText = aiResult.text;
   let responseTelemetry = aiResult.telemetry;
 
@@ -1127,6 +1314,7 @@ export async function runAiAnalyzeJob(params: {
         model: selectedModel,
         prompt: retryPrompt,
         signal,
+        generationProfile: buildModelGenerationProfile({ id: 'analysis', scope: `${macroId}\u0000artifact-retry\u0000${userQuery}` }),
       });
       attemptTelemetries.push(aiResult.telemetry);
       responseText = aiResult.text;
@@ -1153,6 +1341,7 @@ export async function runAiAnalyzeJob(params: {
       model: selectedModel,
       prompt: retryPrompt,
       signal,
+      generationProfile: buildModelGenerationProfile({ id: 'analysis', scope: `${macroId}\u0000validation-retry\u0000${userQuery}` }),
     });
     attemptTelemetries.push(aiResult.telemetry);
     responseText = aiResult.text;
@@ -1282,6 +1471,7 @@ export async function runAiAnalyzeJob(params: {
         model: selectedModel,
         prompt: repairPrompt,
         signal,
+        generationProfile: buildModelGenerationProfile({ id: 'repair', scope: `${macroId}\u0000manifest-repair\u0000${userQuery}` }),
       });
       attemptTelemetries.push(aiResult.telemetry);
       responseText = aiResult.text;
@@ -1304,6 +1494,7 @@ export async function runAiAnalyzeJob(params: {
             model: selectedModel,
             prompt: compactRetryPrompt,
             signal,
+            generationProfile: buildModelGenerationProfile({ id: 'repair', scope: `${macroId}\u0000manifest-${compactMode}\u0000${userQuery}` }),
           });
           attemptTelemetries.push(aiResult.telemetry);
           responseText = aiResult.text;
@@ -1330,14 +1521,36 @@ export async function runAiAnalyzeJob(params: {
       return null;
     }
 
+    if (isValidationEnvironmentFailure(params.validationResult)) {
+      return null;
+    }
+
     retryUsed = true;
     const repairAttemptNumber = params.repairAttempt || 1;
     const repairAttemptLimit = params.repairAttemptLimit || 1;
     let repairAudit = [...(params.validationResult.repairAudit || [])];
     const appendRepairAudit = (entry: GeneratedVhdlRepairAuditEntry) => {
+      const firstDetail = params.validationResult.failureDetails?.[0];
+      const evidenceValidation = firstDetail && entry.failureCode === firstDetail.code
+        ? params.validationResult
+        : null;
+      const detail = evidenceValidation?.failureDetails?.[0] || null;
+      const detailPath = detail?.relativePath || entry.fileLine?.match(/^([^:\n]+\.(?:vhd|vhdl))/i)?.[1] || null;
+      const detailLine = detail?.lineHint || Number.parseInt(entry.fileLine?.match(/\.vhd[l]?:(\d+)/i)?.[1] || '', 10) || null;
+      const matchedFile = detailPath
+        ? params.files.find((file) => pathsReferToSameFile(file.relativePath, detailPath))
+        : null;
+      const sourceWindow = matchedFile && detailLine
+        ? buildSourceLineWindow(matchedFile.content, detailLine, 4)
+        : null;
+      const ghdlLogExcerpt = truncateGhdlRepairLogExcerpt(params.validationResult.logs);
       repairAudit = [
         ...repairAudit,
-        entry,
+        {
+          ...entry,
+          ghdlLogExcerpt: entry.ghdlLogExcerpt ?? ghdlLogExcerpt,
+          sourceWindow: entry.sourceWindow ?? sourceWindow,
+        },
       ];
     };
     const deterministicNoChangeKeys = new Set<string>();
@@ -1468,10 +1681,34 @@ export async function runAiAnalyzeJob(params: {
           break;
         }
 
+        const candidateFiles = deterministicRepair.repairedFiles;
+        await persistRepairableFiles(candidateFiles);
+        const candidateValidation = await validateSynchronizedRepairableFiles(candidateFiles);
+        const candidateDecision = decideRepairCandidate({
+          previous: beforeValidation,
+          candidate: candidateValidation,
+          allowResolvedClassTransition: true,
+        });
+        if (pipelineConfig.transactionalRepair && !candidateDecision.accept) {
+          await persistRepairableFiles(beforeFiles);
+          syncArchitectProjectFilesFromRepairableFiles(beforeFiles);
+          appendRepairAudit({
+            repairAttempt: repairAttemptNumber,
+            failureCode: getRepairFailureCode(beforeValidation),
+            fileLine: summarizeRepairFailureLocation(beforeValidation),
+            repairType: 'deterministic_rollback',
+            changedFiles: collectChangedRepairPaths(beforeFiles, candidateFiles),
+            postRepairValidation: summarizePostRepairValidation(candidateValidation),
+          });
+          deterministicNoChangeKeys.add(noChangeKey);
+          deterministicFiles = beforeFiles;
+          deterministicValidation = withRepairAudit(beforeValidation, repairAudit);
+          break;
+        }
+
         deterministicChangedAny = true;
-        deterministicFiles = deterministicRepair.repairedFiles;
-        await persistRepairableFiles(deterministicFiles);
-        deterministicValidation = await validateSynchronizedRepairableFiles(deterministicFiles);
+        deterministicFiles = candidateFiles;
+        deterministicValidation = candidateValidation;
         appendRepairAudit({
           repairAttempt: repairAttemptNumber,
           failureCode: getRepairFailureCode(beforeValidation),
@@ -1542,6 +1779,7 @@ export async function runAiAnalyzeJob(params: {
       model: selectedModel,
       prompt: repairPrompt,
       signal,
+      generationProfile: buildModelGenerationProfile({ id: 'repair', scope: `${macroId}\u0000code-repair-${repairAttemptNumber}\u0000${getRepairFailureCode(params.validationResult) || 'unknown'}` }),
     });
     attemptTelemetries.push(aiResult.telemetry);
     responseText = aiResult.text;
@@ -1575,7 +1813,45 @@ export async function runAiAnalyzeJob(params: {
       repairs: parsedRepairs,
     });
     let repairedValidation = await validateSynchronizedRepairableFiles(updatedFiles);
+    const deterministicAfterLlm = repairedValidation.ok
+      ? {
+        files: updatedFiles,
+        validation: withRepairAudit(repairedValidation, repairAudit),
+        changed: false,
+      }
+      : await runDeterministicRepairPasses({
+        files: updatedFiles,
+        validation: withRepairAudit(repairedValidation, repairAudit),
+      });
+    const llmCandidateDecision = decideRepairCandidate({
+      previous: beforeLlmValidation,
+      candidate: deterministicAfterLlm.validation,
+    });
+    if (pipelineConfig.transactionalRepair && !llmCandidateDecision.accept) {
+      await persistRepairableFiles(beforeLlmFiles);
+      syncArchitectProjectFilesFromRepairableFiles(beforeLlmFiles);
+      appendRepairAudit({
+        repairAttempt: repairAttemptNumber,
+        failureCode: getRepairFailureCode(beforeLlmValidation),
+        fileLine: summarizeRepairFailureLocation(beforeLlmValidation),
+        repairType: 'llm_rollback',
+        changedFiles: collectChangedRepairPaths(beforeLlmFiles, updatedFiles),
+        postRepairValidation: summarizePostRepairValidation(deterministicAfterLlm.validation),
+      });
+      return {
+        repairedFiles: beforeLlmFiles,
+        validationResult: withRepairAudit({
+          ...beforeLlmValidation,
+          logs: [
+            ...beforeLlmValidation.logs,
+            `REPAIR_TRANSACTION_ROLLBACK | reason=${llmCandidateDecision.reason} | previousScore=${llmCandidateDecision.previousScore} | candidateScore=${llmCandidateDecision.candidateScore}`,
+          ],
+        }, repairAudit),
+        parsedRepairs: [],
+      };
+    }
     const previousFailureCode = getRepairFailureCode(beforeLlmValidation);
+    repairedValidation = deterministicAfterLlm.validation;
     const newFailureCode = getRepairFailureCode(repairedValidation);
     const introducedNewStaticFailure =
       !repairedValidation.ok
@@ -1603,17 +1879,6 @@ export async function runAiAnalyzeJob(params: {
       changedFiles: collectChangedRepairPaths(beforeLlmFiles, updatedFiles),
       postRepairValidation: summarizePostRepairValidation(repairedValidation),
     });
-
-    const deterministicAfterLlm = repairedValidation.ok
-      ? {
-        files: updatedFiles,
-        validation: withRepairAudit(repairedValidation, repairAudit),
-        changed: false,
-      }
-      : await runDeterministicRepairPasses({
-        files: updatedFiles,
-        validation: withRepairAudit(repairedValidation, repairAudit),
-      });
 
     return {
       repairedFiles: deterministicAfterLlm.files,
@@ -1703,6 +1968,7 @@ export async function runAiAnalyzeJob(params: {
         model: selectedModel,
         prompt: structureRepairPrompt,
         signal,
+        generationProfile: buildModelGenerationProfile({ id: 'repair', scope: `${macroId}\u0000structure-repair-${structureRepairAttempt}\u0000${userQuery}` }),
       });
       attemptTelemetries.push(aiResult.telemetry);
       responseText = aiResult.text;
@@ -1788,6 +2054,9 @@ export async function runAiAnalyzeJob(params: {
         repairAttempt <= FPGA_ARCHITECT_MAX_INNER_REPAIR_ATTEMPTS && ghdlValidation && !ghdlValidation.ok;
         repairAttempt += 1
       ) {
+        if (isValidationEnvironmentFailure(ghdlValidation)) {
+          break;
+        }
         const sharedRepair = await attemptSharedGeneratedCodeRepair({
           validationResult: ghdlValidation,
           files: repairableFiles,
@@ -1972,6 +2241,15 @@ export async function runAiAnalyzeJob(params: {
       })),
     } : null,
     architectureContract,
+    pipeline: architectureContract ? {
+      version: architectureContract.schemaVersion,
+      contractHash: hashFpgaArchitectureContract(architectureContract),
+      stagedGeneration: Boolean(stagedGeneration),
+      appOwnedTestbench: Boolean(stagedGeneration && pipelineConfig.appOwnedTestbench),
+      stageGhdlValidation: Boolean(stagedGeneration && pipelineConfig.stageGhdlValidation),
+      transactionalRepair: pipelineConfig.transactionalRepair,
+      synthesisQualityGate: pipelineConfig.synthesisQualityGate,
+    } : null,
     validation,
     deterministicSkillSelection,
   };

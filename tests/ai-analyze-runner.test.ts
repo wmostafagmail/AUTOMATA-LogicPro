@@ -446,6 +446,55 @@ test('buildFailureCodeSpecificRepairShaping adds typed port-map guidance and str
   assert.match(text, /Match the actual expression to the formal type exactly at the association boundary/i);
 });
 
+test('buildFailureCodeSpecificRepairShaping adds indexed-conversion and typed-assignment guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'prevalidate',
+    summary: 'fail',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'type_conversion_indexed_or_sliced',
+        category: 'numeric_std_type_discipline',
+        message: 'src/alu_pkg_for_opcodes_flags.vhd:40:53:error: type conversion cannot be indexed or sliced',
+        excerpt: 'unsigned(data_i)(7)',
+        relativePath: 'src/alu_pkg_for_opcodes_flags.vhd',
+        lineHint: 40,
+        forbiddenConstruct: 'unsigned(data_i)(7)',
+        legalReplacementPattern: 'assign unsigned(data_i) to data_u first, then index data_u',
+      },
+      {
+        code: 'typed_assignment_mismatch',
+        category: 'numeric_std_type_discipline',
+        message: 'src/alu_pkg_for_opcodes_flags.vhd:86:21:error: can\'t match "tmp_res" with type array type "STD_ULOGIC_VECTOR"',
+        excerpt: 'res_reg <= tmp_res;',
+        relativePath: 'src/alu_pkg_for_opcodes_flags.vhd',
+        lineHint: 86,
+        forbiddenConstruct: 'res_reg <= tmp_res',
+        legalReplacementPattern: 'use std_logic_vector(tmp_res) at the final assignment boundary',
+      },
+      {
+        code: 'mixed_logical_operator_precedence',
+        category: 'numeric_std_type_discipline',
+        message: 'src/alu_pkg_for_opcodes_flags.vhd:41:52:error: only one type of logical operators may be used to combine relation',
+        excerpt: 'not a and not b and r or a and b and not r',
+        relativePath: 'src/alu_pkg_for_opcodes_flags.vhd',
+        lineHint: 41,
+        forbiddenConstruct: 'not a and not b and r or a and b and not r',
+        legalReplacementPattern: '((not a) and (not b) and r) or (a and b and (not r))',
+      },
+    ],
+  });
+
+  assert.match(text, /GHDL does not allow indexing or slicing a type-conversion call directly/i);
+  assert.match(text, /data_u := unsigned\(data_i\)/);
+  assert.match(text, /convert only once at the final boundary/i);
+  assert.match(text, /std_logic_vector\(temp\)/);
+  assert.match(text, /fully parenthesize every and-chain/i);
+  assert.match(text, /\(\(not a_sign\) and \(not b_sign\) and result_sign\)/i);
+});
+
 test('buildFailureCodeSpecificRepairShaping adds reset/metavalue repair guidance for simulation failures', () => {
   const text = buildFailureCodeSpecificRepairShaping({
     ok: false,
@@ -777,6 +826,41 @@ test('buildFailureCodeSpecificRepairShaping adds CPU reset and control behaviora
   assert.match(text, /Do not remove, weaken, skip, rename, or silence/i);
 });
 
+test('buildFailureCodeSpecificRepairShaping adds protocol status behavioral repair guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'simulate',
+    summary: 'Generated VHDL failed GHDL simulation',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'protocol_status_behavior_mismatch',
+        category: 'simulation_success',
+        message: 'tb/tb_uart_spi_protocol_bridge_top.vhd:54: assertion failed at 76ns: FAIL FAIL error_o asserted',
+        excerpt: 'FAIL FAIL error_o asserted',
+        relativePath: 'tb/tb_uart_spi_protocol_bridge_top.vhd',
+        lineHint: 54,
+        forbiddenConstruct: 'self-checking assertion/report failure at 76ns: FAIL FAIL error_o asserted',
+        legalReplacementPattern: 'repair protocol bridge status behavior; do not delete, weaken, skip, rename, or silence the assertion',
+        assertionLabel: 'error_o asserted',
+        simulationTime: '76ns',
+        expectedBehavior: 'Protocol bridge status/error/done behavior must match the self-checking expectation at the reported simulation time.',
+        relatedSourcePaths: ['src/bridge_control_fsm.vhd', 'src/rx_fifo.vhd', 'src/spi_master.vhd'],
+      },
+    ],
+  });
+
+  assert.match(text, /protocol_status_behavior_mismatch/);
+  assert.match(text, /protocol\/status behavioral contract mismatch/i);
+  assert.match(text, /error_o\/done_o\/status_o/i);
+  assert.match(text, /assertion label: error_o asserted/i);
+  assert.match(text, /Choose exactly one legal repair path/i);
+  assert.match(text, /failing TB line window, reset\/start\/data stimulus, wait_for_done helper/i);
+  assert.match(text, /do not regenerate the whole project/i);
+  assert.match(text, /Do not delete, weaken, skip, rename, or silence/i);
+});
+
 test('buildFailureCodeSpecificRepairShaping adds ALU flag behavioral repair guidance', () => {
   const text = buildFailureCodeSpecificRepairShaping({
     ok: false,
@@ -842,6 +926,33 @@ test('buildFailureCodeSpecificRepairShaping adds string-contract repair guidance
   assert.match(text, /Remove mutable unconstrained local string variables/i);
   assert.match(text, /Do not declare constrained string formals/i);
   assert.match(text, /Replace constrained helper string formals with unconstrained read-only `string`/i);
+});
+
+test('buildFailureCodeSpecificRepairShaping adds vector literal width repair guidance', () => {
+  const text = buildFailureCodeSpecificRepairShaping({
+    ok: false,
+    stage: 'analyze',
+    summary: 'literal width mismatch',
+    logs: [],
+    validatedTopEntities: [],
+    failureDetails: [
+      {
+        code: 'vector_literal_width_mismatch',
+        category: 'width_literal_mismatch',
+        message: 'src/uart_rx.vhd:33: assigns x"01" to status_s with a different width.',
+        excerpt: 'status_s <= x"01";',
+        relativePath: 'src/uart_rx.vhd',
+        lineHint: 33,
+        forbiddenConstruct: 'status_s <= x"01"',
+        legalReplacementPattern: 'use std_logic_vector(to_unsigned(1, status_s\'length))',
+      },
+    ],
+  });
+
+  assert.match(text, /vector_literal_width_mismatch/);
+  assert.match(text, /x"01"` is 8 bits wide/);
+  assert.match(text, /std_logic_vector\(to_unsigned\(value, target_signal'length\)\)/);
+  assert.match(text, /Preserve the target signal\/subtype width/i);
 });
 
 test('runAiAnalyzeJob hard-fails artifact macros after retry when required artifacts are still missing', async () => {

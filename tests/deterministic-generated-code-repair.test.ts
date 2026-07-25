@@ -74,6 +74,82 @@ test('deterministic fixer converts plain architecture-body variables into shared
   assert.match(result.repairedFiles[0].content, /shared variable pass_count : integer := 0;/i);
 });
 
+test('deterministic fixer adds safe registered drivers for undriven status outputs', async () => {
+  const file = await createRepairableFile(
+    'src/cpu_core_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity cpu_core_top is',
+      '  port (',
+      '    clk : in std_logic;',
+      '    rst : in std_logic;',
+      '    start_i : in std_logic;',
+      '    done_o : out std_logic',
+      '  );',
+      'end entity;',
+      'architecture rtl of cpu_core_top is',
+      'begin',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'undriven_top_output_port',
+      category: 'top_integration_contract',
+      message: 'src/cpu_core_top.vhd:9: entity "cpu_core_top" declares output port "done_o" but the architecture never drives it.',
+      excerpt: 'done_o : out std_logic',
+      relativePath: 'src/cpu_core_top.vhd',
+      lineHint: 9,
+      forbiddenConstruct: 'output port "done_o" of entity "cpu_core_top" has no driver',
+      legalReplacementPattern: 'drive "done_o" with a registered process',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('undriven_top_output_port'));
+  assert.match(result.repairedFiles[0].content, /p_auto_done_o_driver/);
+  assert.match(result.repairedFiles[0].content, /done_o <= '1';/);
+});
+
+test('deterministic fixer does not guess arbitrary undriven data outputs', async () => {
+  const file = await createRepairableFile(
+    'src/data_top.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity data_top is',
+      '  port (data_o : out std_logic_vector(7 downto 0));',
+      'end entity;',
+      'architecture rtl of data_top is',
+      'begin',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'undriven_top_output_port',
+      category: 'top_integration_contract',
+      message: 'src/data_top.vhd:5: entity "data_top" declares output port "data_o" but the architecture never drives it.',
+      excerpt: 'data_o : out std_logic_vector(7 downto 0)',
+      relativePath: 'src/data_top.vhd',
+      lineHint: 5,
+      forbiddenConstruct: 'output port "data_o" of entity "data_top" has no driver',
+      legalReplacementPattern: 'wire the output from a known data producer',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, false);
+});
+
 test('deterministic fixer hoists architecture-body scratch variables into a sole process declarative region', async () => {
   const file = await createRepairableFile(
     'src/alu.vhd',
@@ -1460,6 +1536,53 @@ test('deterministic fixer injects missing IEEE use clauses for std_logic_1164 an
   assert.match(numericImportFix.repairedFiles[0].content, /^use ieee\.numeric_std\.all;$/im);
 });
 
+test('deterministic fixer inserts missing reduction helper before architecture begin', async () => {
+  const file = await createRepairableFile(
+    'src/fft_lite_or_analyzer_stage.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity fft_lite_or_analyzer_stage is',
+      '  port (data_i : in std_logic_vector(7 downto 0); or_result : out std_logic);',
+      'end entity;',
+      '',
+      'architecture rtl of fft_lite_or_analyzer_stage is',
+      '  signal data_reg : std_logic_vector(7 downto 0);',
+      'begin',
+      '  data_reg <= data_i;',
+      '  or_result <= or_reduce(data_reg);',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'missing_reduction_helper',
+      category: 'package_type_definition',
+      message: 'src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for "or_reduce"',
+      excerpt: 'or_result <= or_reduce(data_reg);',
+      relativePath: 'src/fft_lite_or_analyzer_stage.vhd',
+      lineHint: 12,
+      forbiddenConstruct: 'call to helper function "or_reduce" without a local function declaration or imported package export',
+      legalReplacementPattern: 'declare a local or_reduce(value : std_logic_vector) return std_logic helper before the architecture begin',
+    }),
+    availableFiles: [file],
+  });
+
+  const repaired = result.repairedFiles[0].content;
+  const helperIndex = repaired.search(/\bfunction\s+or_reduce\b/i);
+  const beginIndex = repaired.search(/\bbegin\b/i);
+  assert.equal(result.changed, true);
+  assert.deepEqual(result.appliedCodes, ['missing_reduction_helper']);
+  assert.ok(helperIndex > -1);
+  assert.ok(helperIndex < beginIndex);
+  assert.match(repaired, /for index_v in value'range loop/i);
+  assert.match(repaired, /result_v := result_v or value\(index_v\);/i);
+  assert.match(repaired, /or_result <= or_reduce\(data_reg\);/i);
+});
+
 test('deterministic fixer rewrites numeric discipline anti-patterns into typed forms when the fix is mechanical', async () => {
   const file = await createRepairableFile(
     'src/alu.vhd',
@@ -2435,6 +2558,99 @@ test('deterministic fixer repairs malformed one-bit character literals without t
   assert.match(next, /bit_v\s*:=\s*'0';/i);
 });
 
+test('deterministic fixer repairs malformed VHDL keyword typos without touching comments or strings', async () => {
+  const file = await createRepairableFile(
+    'src/spi_master.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity spi_master is',
+      '  port (',
+      '    data_i : in std_logic_vector(7 downt 0)',
+      '  );',
+      'end entity;',
+      '',
+      'architecture rtl of spi_master is',
+      '  singal status_reg : std_logic_vector(1 downt 0) := "00";',
+      'begin',
+      '  -- keep downt and singal in comments unchanged',
+      '  report "keep downt and singal in strings unchanged";',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'malformed_vhdl_keyword',
+      category: 'interface_generic_port_syntax',
+      message: 'src/spi_master.vhd:6: malformed VHDL keyword "downt" should be "downto".',
+      excerpt: 'data_i : in std_logic_vector(7 downt 0)',
+      relativePath: 'src/spi_master.vhd',
+      lineHint: 6,
+      forbiddenConstruct: 'malformed VHDL keyword token "downt"',
+      legalReplacementPattern: 'replace "downt" with exact VHDL keyword "downto"',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('malformed_vhdl_keyword'));
+  assert.match(next, /std_logic_vector\(7 downto 0\)/i);
+  assert.match(next, /\bsignal status_reg\b/i);
+  assert.match(next, /std_logic_vector\(1 downto 0\)/i);
+  assert.match(next, /-- keep downt and singal in comments unchanged/i);
+  assert.match(next, /"keep downt and singal in strings unchanged"/i);
+});
+
+test('deterministic fixer repairs fixed-width vector literal mismatches safely', async () => {
+  const file = await createRepairableFile(
+    'src/uart_rx.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity uart_rx is end entity;',
+      'architecture rtl of uart_rx is',
+      '  signal status_s : std_logic_vector(1 downto 0);',
+      '  signal data_s : unsigned(2 downto 0);',
+      '  signal keep_s : std_logic_vector(7 downto 0);',
+      'begin',
+      '  process(all)',
+      '  begin',
+      '    status_s <= x"01";',
+      '    data_s <= x"3";',
+      '    keep_s <= x"01";',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'vector_literal_width_mismatch',
+      category: 'width_literal_mismatch',
+      message: 'src/uart_rx.vhd:13: assigns fixed-width literal x"01" to a 2-bit vector.',
+      relativePath: 'src/uart_rx.vhd',
+      lineHint: 13,
+      forbiddenConstruct: 'status_s <= x"01"',
+      legalReplacementPattern: 'use std_logic_vector(to_unsigned(1, status_s\'length))',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('vector_literal_width_mismatch'));
+  assert.match(next, /status_s\s*<=\s*std_logic_vector\(to_unsigned\(1,\s*status_s'length\)\);/i);
+  assert.match(next, /data_s\s*<=\s*to_unsigned\(3,\s*data_s'length\);/i);
+  assert.match(next, /keep_s\s*<=\s*x"01";/i);
+});
+
 test('deterministic fixer rebuilds incomplete check_eq helper from call shape', async () => {
   const file = await createRepairableFile(
     'tb/tb_cpu_top.vhd',
@@ -2649,6 +2865,48 @@ test('deterministic fixer repairs illegal others aggregate comparisons', async (
   assert.match(next, /if out_o = \(out_o'range => '0'\) then/i);
 });
 
+test('deterministic fixer repairs std_logic_vector self-increment through numeric_std typing', async () => {
+  const file = await createRepairableFile(
+    'src/sync_generator.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity sync_generator is',
+      '  port (pattern_or_framebuffer_stage : out std_logic_vector(7 downto 0));',
+      'end entity;',
+      'architecture rtl of sync_generator is',
+      'begin',
+      '  process begin',
+      '    pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;',
+      '    wait;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'arithmetic_on_non_numeric_signal',
+      category: 'numeric_std_type_discipline',
+      message: 'src/sync_generator.vhd:10: applies "+" arithmetic to a std_logic_vector signal.',
+      excerpt: 'pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1;',
+      relativePath: 'src/sync_generator.vhd',
+      lineHint: 10,
+      forbiddenConstruct: 'pattern_or_framebuffer_stage <= pattern_or_framebuffer_stage + 1',
+      legalReplacementPattern: 'use std_logic_vector(unsigned(pattern_or_framebuffer_stage) + 1)',
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('arithmetic_on_non_numeric_signal'));
+  assert.match(next, /^\s*use ieee\.numeric_std\.all;\s*$/im);
+  assert.match(next, /pattern_or_framebuffer_stage <= std_logic_vector\(unsigned\(pattern_or_framebuffer_stage\) \+ 1\);/i);
+});
+
 test('deterministic fixer repairs package body signature drift and typed resize returns', async () => {
   const file = await createRepairableFile(
     'src/dsp_pkg_body.vhd',
@@ -2823,6 +3081,54 @@ test('deterministic fixer rewrites unsafe raw testbench indexing to a guarded he
   assert.match(next, /function tb_safe_slv_to_index\(value : std_logic_vector\) return natural is/i);
   assert.match(next, /data_o <= rom\(tb_safe_slv_to_index\(addr_slv\)\);/i);
   assert.doesNotMatch(next, /rom\(to_integer\(unsigned\(addr_slv\)\)\)/i);
+});
+
+test('deterministic fixer canonicalizes pixel address generator math', async () => {
+  const file = await createRepairableFile(
+    'src/pixel_address_generator.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity pixel_address_generator is',
+      '  generic (H_ACTIVE : natural := 640);',
+      '  port (',
+      '    h_count_i : in unsigned(9 downto 0);',
+      '    v_count_i : in unsigned(9 downto 0);',
+      '    active_i : in std_logic;',
+      '    pixel_addr_o : out std_logic_vector(18 downto 0)',
+      '  );',
+      'end entity;',
+      'architecture rtl of pixel_address_generator is',
+      'begin',
+      "  pixel_addr_o <= std_logic_vector(to_unsigned((to_integer(v_count_i) * H_ACTIVE) + to_integer(h_count_i), 19));",
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'pixel_address_numeric_contract',
+      category: 'numeric_std_type_discipline',
+      message: 'src/pixel_address_generator.vhd:16: unsafe pixel address math.',
+      excerpt: "pixel_addr_o <= std_logic_vector(to_unsigned((to_integer(v_count_i) * H_ACTIVE) + to_integer(h_count_i), 19));",
+      relativePath: 'src/pixel_address_generator.vhd',
+      lineHint: 16,
+      forbiddenConstruct: 'unsafe pixel address expression',
+      legalReplacementPattern: "pixel_addr_o <= std_logic_vector(to_unsigned(addr_int_v, pixel_addr_o'length));",
+    }),
+    availableFiles: [file],
+  });
+
+  const next = result.repairedFiles[0].content;
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('pixel_address_numeric_contract'));
+  assert.match(next, /pixel_address_contract_p\s*:\s*process\(all\)/i);
+  assert.match(next, /addr_int_v := \(y_idx_v \* H_ACTIVE\) \+ x_idx_v;/i);
+  assert.match(next, /pixel_addr_o <= std_logic_vector\(to_unsigned\(addr_int_v,\s*pixel_addr_o'length\)\);/i);
+  assert.doesNotMatch(next, /pixel_addr_o\s*<=\s*std_logic_vector\(to_unsigned\(\(to_integer/i);
 });
 
 test('deterministic fixer removes illegal unsigned conversion around integer values', async () => {
@@ -3292,4 +3598,106 @@ test('deterministic fixer rewrites same-width unsigned equality against std_logi
   assert.ok(result.appliedCodes.includes('typed_equality_operand_mismatch'));
   assert.match(result.repairedFiles[0].content, /if pc_q = to_unsigned\(0, pc_q'length\) then/i);
   assert.doesNotMatch(result.repairedFiles[0].content, /std_logic_vector\s*\(\s*to_unsigned/i);
+});
+
+test('deterministic fixer guards simple unchecked to_integer array writes', async () => {
+  const file = await createRepairableFile(
+    'src/rx_fifo.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'use ieee.numeric_std.all;',
+      '',
+      'entity rx_fifo is end entity;',
+      'architecture rtl of rx_fifo is',
+      '  type fifo_mem_t is array (natural range <>) of std_logic_vector(7 downto 0);',
+      '  signal mem : fifo_mem_t(0 to 15);',
+      '  signal wr_ptr : unsigned(3 downto 0);',
+      '  signal data_i : std_logic_vector(7 downto 0);',
+      'begin',
+      '  process(clk)',
+      '  begin',
+      '    if rising_edge(clk) then',
+      '      mem(to_integer(wr_ptr)) <= data_i;',
+      '    end if;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'runtime_bound_check_risk',
+      category: 'runtime_bound_risk',
+      message: 'src/rx_fifo.vhd:15: performs indexing with an unchecked to_integer(...) expression ("mem(to_integer(wr_ptr))").',
+      excerpt: 'mem(to_integer(wr_ptr)) <= data_i;',
+      relativePath: 'src/rx_fifo.vhd',
+      lineHint: 15,
+      forbiddenConstruct: 'unchecked index expression "mem(to_integer(wr_ptr))" using index conversion "to_integer(wr_ptr)"',
+      legalReplacementPattern: 'guard against mem bounds before indexing',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('runtime_bound_check_risk'));
+  assert.match(result.repairedFiles[0].content, /if to_integer\(wr_ptr\) >= mem'low and to_integer\(wr_ptr\) <= mem'high then/i);
+  assert.match(result.repairedFiles[0].content, /mem\(to_integer\(wr_ptr\)\) <= data_i;/i);
+});
+
+test('deterministic fixer removes redundant clocked writes when a combinational process owns a decoded signal', async () => {
+  const file = await createRepairableFile(
+    'src/decoder.vhd',
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      '',
+      'entity decoder is',
+      '  port (clk : in std_logic; rst : in std_logic; opcode_i : in std_logic_vector(7 downto 0));',
+      'end entity;',
+      '',
+      'architecture rtl of decoder is',
+      '  signal ctrl_sig : std_logic_vector(3 downto 0);',
+      'begin',
+      '  process(clk, rst)',
+      '  begin',
+      "    if rst = '1' then",
+      "      ctrl_sig <= (others => '0');",
+      '    elsif rising_edge(clk) then',
+      '      null;',
+      '    end if;',
+      '  end process;',
+      '',
+      '  process(opcode_i)',
+      '  begin',
+      '    case opcode_i is',
+      '      when x"00" => ctrl_sig <= "0000";',
+      '      when others => ctrl_sig <= "1111";',
+      '    end case;',
+      '  end process;',
+      'end architecture;',
+      '',
+    ].join('\n'),
+  );
+
+  const result = await applyDeterministicGeneratedCodeRepairs({
+    validation: createValidation({
+      code: 'multiple_signal_driver_or_slice_assignment',
+      category: 'interface_generic_port_syntax',
+      message: 'src/decoder.vhd:9: signal "ctrl_sig" is assigned in 2 separate process drivers.',
+      excerpt: 'signal ctrl_sig : std_logic_vector(3 downto 0);',
+      relativePath: 'src/decoder.vhd',
+      lineHint: 9,
+      forbiddenConstruct: 'signal "ctrl_sig" assigned in multiple independent processes',
+      legalReplacementPattern: 'make "ctrl_sig" single-writer',
+    }),
+    availableFiles: [file],
+  });
+
+  assert.equal(result.changed, true);
+  assert.ok(result.appliedCodes.includes('multiple_signal_driver_or_slice_assignment'));
+  assert.doesNotMatch(result.repairedFiles[0].content, /ctrl_sig <= \(others => '0'\);/i);
+  assert.match(result.repairedFiles[0].content, /Removed deterministic repair: ctrl_sig is driven by the combinational decode process/i);
+  assert.match(result.repairedFiles[0].content, /when x"00" => ctrl_sig <= "0000";/i);
 });
