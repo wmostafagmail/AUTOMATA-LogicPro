@@ -6,10 +6,13 @@ import {
   buildApprovedFpgaArchitectureContractSection,
   buildFpgaArchitectureContractDraft,
   buildFpgaArchitectureContractProposalPrompt,
+  buildFpgaArchitectureSelectionReviewPrompt,
   canonicalizeFpgaArchitectureContract,
+  completeFpgaArchitectureContract,
   hashFpgaArchitectureContract,
   normalizeFpgaArchitectureContract,
   parseAndValidateFpgaArchitectureContract,
+  parseFpgaArchitectureSelectionReview,
   proposeApprovedFpgaArchitectureContract,
   validateFpgaArchitectureContract,
   validateFpgaArchitectProjectAgainstContract,
@@ -178,6 +181,40 @@ test('architecture contract proposal prompt makes model-owned choices machine-ch
   assert.match(prompt, /claim_method_numeric_boundary_types/);
 });
 
+test('architecture selection review prompt asks the model to sanity-check selected curated blocks only', () => {
+  const prompt = buildFpgaArchitectureSelectionReviewPrompt({
+    userRequest: 'UART to SPI bridge with rx fifo and tx fifo buffering.',
+  });
+
+  assert.match(prompt, /reviewing the app-selected FPGA architecture approach/i);
+  assert.match(prompt, /App-selected curated architecture pattern/);
+  assert.match(prompt, /App-selected 3,600-catalog building-block specs/);
+  assert.match(prompt, /fit": "good \| partial \| poor/);
+  assert.match(prompt, /uart_spi_protocol_bridge/);
+  assert.match(prompt, /BB-0001/);
+  assert.doesNotMatch(prompt, /architecture\s+rtl\s+of/i);
+});
+
+test('architecture selection review parser normalizes strict JSON response', () => {
+  const review = parseFpgaArchitectureSelectionReview(JSON.stringify({
+    fit: 'partial',
+    confidence: 0.84,
+    selectedPrimaryPattern: 'pattern_protocol_bridge_uart_spi',
+    selectedSupportBlocks: ['BB-0001'],
+    missingBlocks: ['sync_fifo'],
+    unnecessaryBlocks: ['spi_slave'],
+    recommendedPrimaryPattern: '',
+    recommendedSupportBlocks: ['BB-0078'],
+    architectureRisks: ['FIFO depth was not selected.'],
+    reasoningSummary: 'Mostly right, but needs explicit buffering.',
+  }));
+
+  assert.equal(review.fit, 'partial');
+  assert.equal(review.confidence, 0.84);
+  assert.deepEqual(review.missingBlocks, ['sync_fifo']);
+  assert.deepEqual(review.recommendedSupportBlocks, ['BB-0078']);
+});
+
 test('app-owned contract draft validates before model refinement', () => {
   const contract = buildFpgaArchitectureContractDraft({ userRequest: 'Design an 8-bit ALU.' });
   const validation = validateFpgaArchitectureContract({ contract, userRequest: 'Design an 8-bit ALU.' });
@@ -222,6 +259,53 @@ test('contract normalization repairs safe source-order and generic-default shape
   const normalized = normalizeFpgaArchitectureContract(contract);
   assert.equal(normalized.components[1].generics[0].default, '1');
   assert.deepEqual(normalized.sourceOrder, ['src/alu_pkg.vhd', 'src/alu_top.vhd', 'tb/tb_alu_top.vhd']);
+});
+
+test('contract completion repairs safe ownership, verification, hierarchy, and instance-map gaps before validation', () => {
+  const contract = buildFpgaArchitectureContractDraft({ userRequest: 'Design an 8-bit ALU.' });
+  const top = contract.components.find((component) => component.kind === 'top')!;
+  const testbench = contract.components.find((component) => component.kind === 'testbench')!;
+  for (const component of contract.components) component.implements = [];
+  top.children = [];
+  top.dependsOn = contract.components.filter((component) => component.kind === 'package').map((component) => component.id);
+  testbench.children = [];
+  contract.instances = [];
+  contract.verification[0].covers = [];
+  contract.verification[0].coversBehaviors = [];
+
+  const completion = completeFpgaArchitectureContract({
+    contract,
+    userRequest: 'Design an 8-bit ALU.',
+  });
+  const validation = validateFpgaArchitectureContract({
+    contract: completion.contract,
+    userRequest: 'Design an 8-bit ALU.',
+  });
+
+  assert.equal(validation.ok, true, JSON.stringify(validation.issues, null, 2));
+  assert.ok(completion.fixes.some((fix) => fix.code === 'contract_completion_capability_owner_added'));
+  assert.ok(completion.fixes.some((fix) => fix.code === 'contract_completion_capability_verification_added'));
+  assert.ok(completion.fixes.some((fix) => fix.code === 'contract_completion_instance_map_completed'));
+  assert.equal(completion.contract.instances?.length, completion.contract.components.filter((component) => component.kind !== 'package').length - 1);
+});
+
+test('contract parse/validate uses completion so safe model omissions do not fail the contract gate', () => {
+  const contract = buildFpgaArchitectureContractDraft({ userRequest: 'Design an 8-bit ALU.' });
+  const top = contract.components.find((component) => component.kind === 'top')!;
+  const testbench = contract.components.find((component) => component.kind === 'testbench')!;
+  top.children = [];
+  testbench.children = [];
+  contract.instances = [];
+  contract.verification[0].covers = [];
+
+  const parsed = parseAndValidateFpgaArchitectureContract({
+    text: JSON.stringify(contract),
+    userRequest: 'Design an 8-bit ALU.',
+  });
+
+  assert.ok(parsed.instances?.length);
+  assert.ok(parsed.verification[0].covers.length >= contract.requiredCapabilityIds.length);
+  assert.equal(validateFpgaArchitectureContract({ contract: parsed, userRequest: 'Design an 8-bit ALU.' }).ok, true);
 });
 
 test('contract normalization declares safe implicit child-output connections', () => {
@@ -325,10 +409,13 @@ test('valid architecture contract passes deterministic schema and graph validati
   const contract = makeValidContract();
   const validation = validateFpgaArchitectureContract({ contract, userRequest: 'Design an 8-bit ALU.' });
   assert.equal(validation.ok, true, JSON.stringify(validation.issues, null, 2));
-  assert.deepEqual(parseAndValidateFpgaArchitectureContract({
+  const parsed = parseAndValidateFpgaArchitectureContract({
     text: JSON.stringify(contract),
     userRequest: 'Design an 8-bit ALU.',
-  }), normalizeFpgaArchitectureContract(contract));
+  });
+  assert.equal(parsed.designName, contract.designName);
+  assert.equal(parsed.topEntity, contract.topEntity);
+  assert.equal(validateFpgaArchitectureContract({ contract: parsed, userRequest: 'Design an 8-bit ALU.' }).ok, true);
 });
 
 test('explicit mandatory design class wins over unrelated base-prompt keywords', () => {
@@ -587,6 +674,18 @@ test('approved architecture contract is persisted as an app-owned project artifa
 test('contract proposal uses narrow repair prompting before VHDL generation', async () => {
   const contract = makeValidContract();
   const prompts: string[] = [];
+  const goodReview = {
+    fit: 'good',
+    confidence: 0.92,
+    selectedPrimaryPattern: 'pattern_alu_core',
+    selectedSupportBlocks: ['BB-0044'],
+    missingBlocks: [],
+    unnecessaryBlocks: [],
+    recommendedPrimaryPattern: '',
+    recommendedSupportBlocks: [],
+    architectureRisks: [],
+    reasoningSummary: 'The ALU pattern fits the request.',
+  };
   const result = await proposeApprovedFpgaArchitectureContract({
     ai: null,
     provider: 'ollama',
@@ -595,19 +694,155 @@ test('contract proposal uses narrow repair prompting before VHDL generation', as
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       return {
-        text: prompts.length === 1 ? '{"schemaVersion":"1.0"}' : JSON.stringify(contract),
+        text: prompts.length === 1
+          ? JSON.stringify(goodReview)
+          : prompts.length === 2
+            ? '{"schemaVersion":"1.0"}'
+            : JSON.stringify(contract),
         telemetry: { durationMs: 1 },
       };
     },
   });
-  assert.equal(prompts.length, 2);
-  assert.match(prompts[1], /previous architecture contract was rejected/i);
+  assert.equal(prompts.length, 3);
+  assert.match(prompts[0], /architecture approach/);
+  assert.match(prompts[2], /previous architecture contract was rejected/i);
   assert.equal(result.repaired, true);
   assert.equal(result.contract.topEntity, 'alu_top');
 });
 
+test('partial architecture selection review is injected into the contract proposal prompt', async () => {
+  const contract = makeValidContract();
+  const prompts: string[] = [];
+  const result = await proposeApprovedFpgaArchitectureContract({
+    ai: null,
+    provider: 'ollama',
+    model: 'test-model',
+    userRequest: 'Mandatory design class: alu. Design an 8-bit ALU with saturation.',
+    missingBlockFetchText: async () => 'saturating arithmetic unit FPGA VHDL numeric_std overflow saturation',
+    runModelAnalysis: async ({ prompt }) => {
+      prompts.push(prompt);
+      const isMissingBlockReview = /automatically discovered FPGA building-block contracts/.test(prompt);
+      return {
+        text: prompts.length === 1
+          ? JSON.stringify({
+            fit: 'partial',
+            confidence: 0.81,
+            selectedPrimaryPattern: 'pattern_alu_core',
+            selectedSupportBlocks: ['BB-0044'],
+            missingBlocks: ['saturating_arithmetic_unit'],
+            unnecessaryBlocks: [],
+            recommendedPrimaryPattern: '',
+            recommendedSupportBlocks: ['BB-0049'],
+            architectureRisks: ['Saturation behavior must be explicit.'],
+            reasoningSummary: 'ALU is right, but saturation support should be included.',
+          })
+          : isMissingBlockReview
+            ? JSON.stringify({
+              fit: 'good',
+              confidence: 0.88,
+              selectedPrimaryPattern: 'pattern_alu_core',
+              selectedSupportBlocks: ['saturating_arithmetic_unit'],
+              missingBlocks: [],
+              unnecessaryBlocks: [],
+              recommendedPrimaryPattern: '',
+              recommendedSupportBlocks: ['saturating_arithmetic_unit'],
+              architectureRisks: [],
+              reasoningSummary: 'The discovered saturating datapath contract is appropriate.',
+            })
+          : JSON.stringify(contract),
+        telemetry: { durationMs: 1 },
+      };
+    },
+  });
+
+  assert.equal(prompts.length, 3);
+  assert.match(prompts[1], /automatically discovered FPGA building-block contracts/i);
+  assert.match(prompts[2], /Architecture selection reviewer feedback/);
+  assert.match(prompts[2], /Auto-discovered temporary block contracts/);
+  assert.match(prompts[2], /saturating_arithmetic_unit/);
+  assert.equal((result as any).architectureSelectionReview.fit, 'partial');
+  assert.equal((result as any).missingBlockDiscovery.mode, 'auto_discovered');
+});
+
+test('unsafe missing block discovery pauses before architecture contract generation', async () => {
+  const prompts: string[] = [];
+  await assert.rejects(
+    proposeApprovedFpgaArchitectureContract({
+      ai: null,
+      provider: 'ollama',
+      model: 'test-model',
+      userRequest: 'Design an FPGA block with a custom quantum oracle adapter.',
+      missingBlockFetchText: async () => '',
+      runModelAnalysis: async ({ prompt }) => {
+        prompts.push(prompt);
+        return {
+          text: JSON.stringify({
+            fit: 'partial',
+            confidence: 0.8,
+            selectedPrimaryPattern: 'pattern_generic_rtl_project',
+            selectedSupportBlocks: [],
+            missingBlocks: ['custom:quantum oracle adapter'],
+            unnecessaryBlocks: [],
+            recommendedPrimaryPattern: '',
+            recommendedSupportBlocks: ['custom:quantum oracle adapter'],
+            architectureRisks: ['The selected catalog has no safe equivalent.'],
+            reasoningSummary: 'The project needs a custom block that is not safely known.',
+          }),
+          telemetry: { durationMs: 1 },
+        };
+      },
+    }),
+    /block discovery paused before VHDL generation/i,
+  );
+  assert.equal(prompts.length, 1);
+});
+
+test('poor architecture selection review pauses before VHDL generation with user action options', async () => {
+  const prompts: string[] = [];
+  await assert.rejects(
+    proposeApprovedFpgaArchitectureContract({
+      ai: null,
+      provider: 'ollama',
+      model: 'test-model',
+      userRequest: 'Design a flight controller for a drone.',
+      runModelAnalysis: async ({ prompt }) => {
+        prompts.push(prompt);
+        return {
+          text: JSON.stringify({
+            fit: 'poor',
+            confidence: 0.91,
+            selectedPrimaryPattern: 'pattern_protocol_bridge_uart_spi',
+            selectedSupportBlocks: ['BB-0001'],
+            missingBlocks: ['flight_controller', 'imu_sensor_frontend', 'pid_controller'],
+            unnecessaryBlocks: ['uart_spi_protocol_bridge'],
+            recommendedPrimaryPattern: 'pattern_flight_controller',
+            recommendedSupportBlocks: ['BB-0137', 'BB-0147', 'BB-0138'],
+            architectureRisks: ['Selected blocks are communication-only.'],
+            reasoningSummary: 'The selected architecture does not match a flight-control request.',
+          }),
+          telemetry: { durationMs: 1 },
+        };
+      },
+    }),
+    /Architecture selection review paused before VHDL generation/,
+  );
+  assert.equal(prompts.length, 1);
+});
+
 test('contract proposal gets two repair attempts before final contract-stage failure', async () => {
   const prompts: string[] = [];
+  const goodReview = {
+    fit: 'good',
+    confidence: 0.92,
+    selectedPrimaryPattern: 'pattern_alu_core',
+    selectedSupportBlocks: ['BB-0044'],
+    missingBlocks: [],
+    unnecessaryBlocks: [],
+    recommendedPrimaryPattern: '',
+    recommendedSupportBlocks: [],
+    architectureRisks: [],
+    reasoningSummary: 'The ALU pattern fits the request.',
+  };
   await assert.rejects(
     proposeApprovedFpgaArchitectureContract({
       ai: null,
@@ -617,20 +852,32 @@ test('contract proposal gets two repair attempts before final contract-stage fai
       runModelAnalysis: async ({ prompt }) => {
         prompts.push(prompt);
         return {
-          text: '{"schemaVersion":"1.0"}',
+          text: prompts.length === 1 ? JSON.stringify(goodReview) : '{"schemaVersion":"1.0"}',
           telemetry: { durationMs: 1 },
         };
       },
     }),
     /before VHDL generation/,
   );
-  assert.equal(prompts.length, 3);
-  assert.match(prompts[1], /Issue table: code \| path \| message/);
-  assert.match(prompts[2], /Return one complete JSON object only/);
+  assert.equal(prompts.length, 4);
+  assert.match(prompts[2], /Issue table: code \| path \| message/);
+  assert.match(prompts[3], /Return one complete JSON object only/);
 });
 
 test('contract proposal falls back to app-owned draft after repeated malformed JSON only', async () => {
   const prompts: string[] = [];
+  const goodReview = {
+    fit: 'good',
+    confidence: 0.92,
+    selectedPrimaryPattern: 'pattern_protocol_bridge_uart_spi',
+    selectedSupportBlocks: ['BB-0001'],
+    missingBlocks: [],
+    unnecessaryBlocks: [],
+    recommendedPrimaryPattern: '',
+    recommendedSupportBlocks: [],
+    architectureRisks: [],
+    reasoningSummary: 'The bridge pattern fits the request.',
+  };
   const result = await proposeApprovedFpgaArchitectureContract({
     ai: null,
     provider: 'ollama',
@@ -639,13 +886,15 @@ test('contract proposal falls back to app-owned draft after repeated malformed J
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       return {
-        text: '{"schemaVersion":"2.0","components":[{"id":"broken"',
+        text: prompts.length === 1
+          ? JSON.stringify(goodReview)
+          : '{"schemaVersion":"2.0","components":[{"id":"broken"',
         telemetry: { durationMs: 1 },
       };
     },
   });
 
-  assert.equal(prompts.length, 3);
+  assert.equal(prompts.length, 4);
   assert.equal(result.repaired, true);
   assert.equal((result as any).appOwnedFallback, true);
   assert.equal(result.contract.designClass, 'uart_spi_protocol_bridge');

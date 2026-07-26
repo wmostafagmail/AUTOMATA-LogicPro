@@ -13,7 +13,8 @@ import {
 } from '../src/server/fpgaArchitectStressLoop';
 import { classifyFpgaArchitectLoopFailure, summarizeFpgaArchitectLoopFailures } from '../src/server/fpgaArchitectLoopDiagnostics';
 import type { FpgaArchitectSweepPreset } from '../src/fpgaArchitectSweepConfig';
-import { FpgaArchitectureContractError } from '../src/server/fpgaArchitectureContract';
+import { FpgaArchitectureContractError, type FpgaArchitectureContract } from '../src/server/fpgaArchitectureContract';
+import { buildGoldenLeafLibraryPath, readGoldenLeafLibrary } from '../src/server/fpgaGoldenLeafLibrary';
 
 function createTestPreset(key: string, label: string): FpgaArchitectSweepPreset {
   return {
@@ -94,6 +95,107 @@ function buildLoopDependencies(projectRoot: string, overrideRunAiAnalyzeJob: (pa
     validateGeneratedVhdlWithGhdl: async () => ({ ok: true }),
   };
 }
+
+function makePassedLeafContract(): FpgaArchitectureContract {
+  return {
+    schemaVersion: '2.0',
+    designName: 'fifo_project',
+    designClass: 'uart_spi_protocol_bridge',
+    topEntity: 'fifo_top',
+    topTestbench: 'tb_fifo_top',
+    systemIntent: 'Exercise leaf promotion.',
+    assumptions: [],
+    requiredCapabilityIds: [],
+    components: [
+      {
+        id: 'rx_fifo',
+        kind: 'rtl',
+        name: 'rx_fifo',
+        file: 'src/rx_fifo.vhd',
+        responsibility: 'Buffer bytes.',
+        implements: [],
+        dependsOn: [],
+        children: [],
+        clockDomain: 'clk',
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Input.' },
+          { name: 'data_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Output.' },
+        ],
+        exports: [],
+      },
+    ],
+    clockDomains: [],
+    behaviors: [{ id: 'move', requirement: 'Move data.', inputs: ['data_i'], outputs: ['data_o'], timing: 'one cycle', resetBehavior: 'zero', latencyCycles: 1 }],
+    verification: [],
+    numericFormats: [],
+    instances: [],
+    connections: [],
+    stateMachines: [],
+    sourceOrder: ['src/rx_fifo.vhd'],
+  };
+}
+
+function makePassedLeafProject() {
+  return {
+    projectName: 'fifo_project',
+    sanitizedProjectName: 'fifo_project',
+    topEntity: 'fifo_top',
+    vhdlStandard: '08',
+    targetFpga: null,
+    summary: '',
+    assumptions: [],
+    warnings: [],
+    folderTree: '',
+    files: [{
+      path: 'src/rx_fifo.vhd',
+      fileType: 'vhdl_rtl',
+      purpose: 'Buffer bytes.',
+      content: [
+        'library ieee;',
+        'use ieee.std_logic_1164.all;',
+        'entity rx_fifo is',
+        '  port (',
+        '    clk : in std_logic;',
+        '    rst : in std_logic;',
+        '    data_i : in std_logic_vector(7 downto 0);',
+        '    data_o : out std_logic_vector(7 downto 0)',
+        '  );',
+        'end entity rx_fifo;',
+        'architecture rtl of rx_fifo is',
+        'begin',
+        '  data_o <= data_i;',
+        'end architecture rtl;',
+      ].join('\n'),
+    }],
+    ghdl: { analysisOrder: ['src/rx_fifo.vhd'], topTestbench: 'tb_fifo_top', runCommands: [], expectedResult: 'pass' },
+    qualityChecklist: [],
+  };
+}
+
+test('runFpgaArchitectStressLoop promotes validated leaf RTL into the golden leaf library', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-golden-promote-loop-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+  const preset = createTestPreset('uart_spi_bridge', 'UART SPI Bridge');
+  const contract = makePassedLeafContract();
+  await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => ({
+      architectureContract: contract,
+      architectProject: makePassedLeafProject(),
+      validation: { summary: 'Generated VHDL passed GHDL simulation.', repairAudit: [] },
+      outputDirectory: projectRoot,
+    })),
+    sessionManager,
+    session,
+    designPresets: [preset],
+    attemptsPerDesign: 1,
+  });
+  const library = await readGoldenLeafLibrary(buildGoldenLeafLibraryPath(projectRoot));
+  assert.equal(library.blocks.length, 1);
+  assert.equal(library.blocks[0].componentId, 'rx_fifo');
+});
 
 test('runFpgaArchitectStressLoop writes master and per-design logs and returns grouped summaries', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-'));

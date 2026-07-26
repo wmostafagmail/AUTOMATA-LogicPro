@@ -1,0 +1,78 @@
+FAIL 882 tb_program_counter
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_and_soc/tb_program_counter.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter:error: assertion failed
+  instance: .tb_program_counter(sim).stim
+./tb_program_counter:error: simulation failed
+
+FAIL 991 tb_program_counter_continuous
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter_continuous.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter_continuous.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter_continuous.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_frontend/tb_program_counter_continuous.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter_continuous:error: assertion failed
+  instance: .tb_program_counter_continuous(sim).stim
+./tb_program_counter_continuous:error: simulation failed
+
+FAIL 992 tb_program_counter_fault_tolerant
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter_fault_tolerant.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter_fault_tolerant.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter_fault_tolerant.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_frontend/tb_program_counter_fault_tolerant.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter_fault_tolerant:error: assertion failed
+  instance: .tb_program_counter_fault_tolerant(sim).stim
+./tb_program_counter_fault_tolerant:error: simulation failed
+
+FAIL 993 tb_program_counter_low_power
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter_low_power.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter_low_power.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter_low_power.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_frontend/tb_program_counter_low_power.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter_low_power:error: assertion failed
+  instance: .tb_program_counter_low_power(sim).stim
+./tb_program_counter_low_power:error: simulation failed
+
+FAIL 994 tb_program_counter_multi_channel
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter_multi_channel.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter_multi_channel.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter_multi_channel.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_frontend/tb_program_counter_multi_channel.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter_multi_channel:error: assertion failed
+  instance: .tb_program_counter_multi_channel(sim).stim
+./tb_program_counter_multi_channel:error: simulation failed
+
+FAIL 995 tb_program_counter_programmable
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter_programmable.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter_programmable.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter_programmable.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_frontend/tb_program_counter_programmable.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter_programmable:error: assertion failed
+  instance: .tb_program_counter_programmable(sim).stim
+./tb_program_counter_programmable:error: simulation failed
+
+FAIL 996 tb_program_counter_single_shot
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/e~tb_program_counter_single_shot.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_util_pkg.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/tb_program_counter_single_shot.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/program_counter_single_shot.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+ld: warning: object file (/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/build/ghdl_blocks/bb_program_counter_core.o) was built for newer 'macOS' version (28.0) than being linked (27.0)
+/Users/waleedmostafa/Documents/Automata LogicPro/data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_3600_v0_1/tb/blocks/cpu_frontend/tb_program_counter_single_shot.vhd:21:21:@65ns:(assertion error): PC redirect/sequential behavior mismatch
+./tb_program_counter_single_shot:error: assertion failed
+  instance: .tb_program_counter_single_shot(sim).stim
+./tb_program_counter_single_shot:error: simulation failed
+
+TOTAL checked=3600 failures=7

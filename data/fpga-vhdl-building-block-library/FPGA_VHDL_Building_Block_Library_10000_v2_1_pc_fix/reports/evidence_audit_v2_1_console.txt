@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "vhdl_files_scanned": 20071,
+  "entities": 20070,
+  "catalog_blocks": 10000,
+  "catalog_testbenches": 10000,
+  "cdc_named_files": 34
+}

@@ -1,0 +1,1 @@
+GHDL_NOT_AVAILABLE: focused 7-test regression not executed in generation environment.

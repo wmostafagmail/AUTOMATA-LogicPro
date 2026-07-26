@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "video_pattern_generator",
+  "designLabel": "VGA/HDMI Pattern Generator with Framebuffer",
+  "attempt": 9,
+  "designAttempt": 3,
+  "issueCount": 1,
+  "topIssueCodes": [
+    "architecture_missing_block_discovery_poor_fit"
+  ],
+  "message": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+  "issues": [
+    {
+      "code": "architecture_missing_block_discovery_poor_fit",
+      "path": "$.architectureSynthesis.buildingBlockCatalogIds",
+      "message": "Discovered blocks: pattern_pixel_generator, pattern_framebuffer_internal. Missing blocks after review: horizontal_timing_counter, vertical_timing_counter, sync_generation_logic, active_video_window, top_level_video_integration. Risks: Absence of pixel-domain timing counters prevents deterministic sync generation; Missing active-video window detection risks driving outputs during blanking intervals; No sync generation logic violates mandatory video timing requirements; Top-level integration wrapper is required to coordinate timing, sync, and pixel data paths."
+    }
+  ]
+}

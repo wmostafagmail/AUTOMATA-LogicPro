@@ -1,0 +1,42 @@
+{
+  "catalog_blocks": 3600,
+  "implementation_tiers": {
+    "C": 547,
+    "A": 1014,
+    "B": 2039
+  },
+  "archetypes": {
+    "protocol_shell": 499,
+    "uart_rx": 7,
+    "uart_tx": 7,
+    "stream": 488,
+    "mmio": 8,
+    "bus": 194,
+    "datapath": 412,
+    "crc": 26,
+    "sync_fifo": 110,
+    "async_fifo": 6,
+    "memory": 59,
+    "memory_service": 165,
+    "media": 246,
+    "video_timing": 33,
+    "control": 577,
+    "program_counter": 7,
+    "register_file": 1,
+    "counter": 138,
+    "pwm": 27,
+    "sensor": 46,
+    "debounce": 1,
+    "safety": 67,
+    "monitor": 63,
+    "cdc": 113,
+    "vector": 249,
+    "crypto_shell": 48,
+    "alu": 3
+  },
+  "core_files": 27,
+  "block_files": 3600,
+  "block_testbenches": 3600,
+  "deep_core_testbenches": 3,
+  "verification_claim": "Source generation and static structural validation only; GHDL compile/simulation not run in this environment."
+}

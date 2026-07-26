@@ -1,0 +1,17 @@
+name: VHDL qualification v2
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  static-and-models:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/evidence_audit.py
+      - run: python3 tests/python/test_reference_models.py
+  ghdl-qualified-cores:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ghdl/setup-ghdl-ci@nightly
+        with:
+          backend: mcode
+      - run: scripts/run_v2_qualification.sh

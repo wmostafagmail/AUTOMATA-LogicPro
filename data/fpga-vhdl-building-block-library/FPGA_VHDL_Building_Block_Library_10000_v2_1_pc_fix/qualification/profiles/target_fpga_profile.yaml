@@ -1,0 +1,27 @@
+profile_name: replace_me
+vendor: AMD|Intel|Lattice|Microchip
+family: replace_me
+part: replace_me
+package: replace_me
+speed_grade: replace_me
+tool:
+  name: replace_me
+  version: replace_me
+clocks:
+  - name: clk
+    period_ns: null
+    uncertainty_ns: null
+generated_clocks: []
+input_delays: []
+output_delays: []
+false_paths: []
+multicycle_paths: []
+pin_assignments: []
+pvt_corners: []
+required_reports:
+  - synthesis_utilization
+  - post_route_setup
+  - post_route_hold
+  - recovery_removal
+  - pulse_width
+  - unconstrained_paths

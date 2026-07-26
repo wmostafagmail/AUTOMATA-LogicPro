@@ -1,0 +1,3 @@
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+entity bbq_gray_counter_core is generic(WIDTH:positive:=8);port(clk,rst_n,enable,load:in std_logic;load_value:in std_logic_vector(WIDTH-1 downto 0);binary_count,gray_count:out std_logic_vector(WIDTH-1 downto 0));end;
+architecture rtl of bbq_gray_counter_core is signal b:unsigned(WIDTH-1 downto 0):=(others=>'0');begin binary_count<=std_logic_vector(b);gray_count<=std_logic_vector(b xor shift_right(b,1));process(clk)begin if rising_edge(clk) then if rst_n='0' then b<=(others=>'0');elsif load='1' then b<=unsigned(load_value);elsif enable='1' then b<=b+1;end if;end if;end process;end architecture;

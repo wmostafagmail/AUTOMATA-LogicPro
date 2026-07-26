@@ -1,0 +1,32 @@
+{
+  "libraryVersion": "FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix",
+  "libraryRoot": "data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix",
+  "ghdlVersion": "GHDL 6.0.0 (6.0.0.r0.ge589c698c) [Dunoon edition]",
+  "verifiedAt": "2026-07-26T13:08:13.000Z",
+  "blockCount": 10000,
+  "testbenchCount": 10000,
+  "coreCount": 27,
+  "trustedForReuse": true,
+  "targets": {
+    "static": {
+      "ok": true,
+      "exitCode": 0,
+      "summary": "make static passed: 10000 block files, 10000 instantiated-DUT TBs, 27 cores, 10000 manifest rows."
+    },
+    "core-regression": {
+      "ok": true,
+      "exitCode": 0,
+      "summary": "make core-regression passed. Core GHDL regression completed with non-fatal macOS linker-version warnings."
+    },
+    "all-smokes": {
+      "ok": true,
+      "exitCode": 0,
+      "summary": "make all-smokes equivalent passed locally: 10000/10000 block smoke testbenches completed with GHDL --elab-run --std=08 --assert-level=error --stop-time=500ns.",
+      "logPath": "data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix/build/ghdl_blocks/all-smokes-quiet.log"
+    }
+  },
+  "warnings": [
+    "The imported archive's own generation summary says GHDL was not run in its generation environment; this manifest records local GHDL qualification performed after import.",
+    "Core regression and all-smokes emitted non-fatal macOS linker warnings about object files built for macOS 28.0 while linking on 27.0."
+  ]
+}

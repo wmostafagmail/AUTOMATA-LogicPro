@@ -19,6 +19,13 @@ import {
   type GeneratedVhdlValidationResult,
 } from './generatedVhdlValidation';
 import { repairMalformedVhdlKeywordTypos } from './vhdlKeywordTypos';
+import {
+  findGoldenLeafCandidate,
+  type GoldenLeafCandidate,
+} from './fpgaGoldenLeafLibrary';
+import {
+  findVerifiedVhdlBlockCandidate,
+} from './fpgaVerifiedVhdlBlockLibrary';
 
 export type FpgaArchitectStage = 'packages' | 'leaf_rtl' | 'top_integration' | 'testbench' | 'collateral' | 'manifest';
 
@@ -300,6 +307,45 @@ function normalizeStagedVhdlContent(content: string) {
   ).content;
 }
 
+function extractMarkedRegion(content: string, region: 'DECLARATIONS' | 'STATEMENTS') {
+  const pattern = new RegExp(
+    `--\\s*MODEL_IMPLEMENTATION_${region}_BEGIN\\s*\\n([\\s\\S]*?)\\n\\s*--\\s*MODEL_IMPLEMENTATION_${region}_END`,
+    'i',
+  );
+  return content.match(pattern)?.[1] ?? null;
+}
+
+export function rewrapModelImplementationIntoSkeleton(params: {
+  skeleton: string;
+  modelContent: string;
+}) {
+  const declarations = extractMarkedRegion(params.modelContent, 'DECLARATIONS');
+  const statements = extractMarkedRegion(params.modelContent, 'STATEMENTS');
+  if (declarations === null && statements === null) return null;
+  let repaired = params.skeleton;
+  if (declarations !== null) {
+    repaired = repaired.replace(
+      /  -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN[\s\S]*?  -- MODEL_IMPLEMENTATION_DECLARATIONS_END/,
+      [
+        '  -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN',
+        declarations.trimEnd() || '  -- No generated declarations.',
+        '  -- MODEL_IMPLEMENTATION_DECLARATIONS_END',
+      ].join('\n'),
+    );
+  }
+  if (statements !== null) {
+    repaired = repaired.replace(
+      /  -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN[\s\S]*?  -- MODEL_IMPLEMENTATION_STATEMENTS_END/,
+      [
+        '  -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN',
+        statements.trimEnd() || '  -- No generated statements.',
+        '  -- MODEL_IMPLEMENTATION_STATEMENTS_END',
+      ].join('\n'),
+    );
+  }
+  return repaired;
+}
+
 function normalizeComponentInterface(component: FpgaArchitectureComponentContract) {
   return {
     name: component.name,
@@ -459,6 +505,41 @@ function buildInterfaceDriftRetryPrompt(params: {
   ].join('\n');
 }
 
+export function buildGoldenLeafAdaptationPrompt(params: {
+  contract: FpgaArchitectureContract;
+  component: FpgaArchitectureComponentContract;
+  skeleton: string;
+  candidate: GoldenLeafCandidate;
+}) {
+  return [
+    buildComponentPrompt({ contract: params.contract, component: params.component, skeleton: params.skeleton }),
+    '',
+    'A previous validated implementation for this leaf block is available as a proven baseline.',
+    'Adapt that implementation only for the exact deltas listed below.',
+    'Return one complete VHDL file only.',
+    'Preserve the approved entity declaration from the app-owned skeleton exactly.',
+    'Do not add, remove, reorder, rename, or retype any public generic or port beyond the approved skeleton.',
+    'Do not change unrelated internal behavior from the known-good implementation.',
+    '',
+    'Known-good block metadata:',
+    `designClass: ${params.candidate.block.designClass}`,
+    `componentId: ${params.candidate.block.componentId}`,
+    `entityName: ${params.candidate.block.entityName}`,
+    `passCount: ${params.candidate.block.passCount}`,
+    `contentHash: ${params.candidate.block.contentHash}`,
+    '',
+    'Required delta table:',
+    ...(params.candidate.comparison.deltas.length > 0
+      ? params.candidate.comparison.deltas.map((delta, index) => `${index + 1}. ${delta}`)
+      : ['1. No semantic deltas; preserve behavior while conforming to the approved skeleton.']),
+    '',
+    'Stored passing VHDL baseline:',
+    '```vhdl',
+    params.candidate.block.vhdlContent.trimEnd(),
+    '```',
+  ].join('\n');
+}
+
 function buildEntityMissingRetryPrompt(params: {
   contract: FpgaArchitectureContract;
   component: FpgaArchitectureComponentContract;
@@ -537,6 +618,9 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
   stage: FpgaArchitectStage;
   signal?: AbortSignal;
   maxStageOutputChars: number;
+  goldenLeafLibraryPath?: string | null;
+  verifiedVhdlBlockLibraryRoot?: string | null;
+  verifiedVhdlBlockQualificationPath?: string | null;
   runModelAnalysis: (params: {
     ai: any;
     provider: any;
@@ -562,14 +646,82 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
     if (content.length > params.maxStageOutputChars) {
       throw new Error(`Staged VHDL output for "${params.component.id}" exceeded ${params.maxStageOutputChars} characters.`);
     }
-    assertGeneratedComponentInterface(params.stage, params.component, content);
-    return content;
+    try {
+      assertGeneratedComponentInterface(params.stage, params.component, content);
+      return content;
+    } catch (error) {
+      if (!(error instanceof StagedPortInterfaceDriftError) && !(error instanceof StagedComponentEntityMissingError)) {
+        throw error;
+      }
+      const rewrapped = rewrapModelImplementationIntoSkeleton({
+        skeleton: params.skeleton,
+        modelContent: content,
+      });
+      if (!rewrapped) throw error;
+      const normalizedRewrapped = normalizeStagedVhdlContent(rewrapped);
+      assertGeneratedComponentInterface(params.stage, params.component, normalizedRewrapped);
+      return normalizedRewrapped;
+    }
   };
+
+  if (params.verifiedVhdlBlockLibraryRoot !== null) {
+    const verifiedCandidate = findVerifiedVhdlBlockCandidate({
+      component: params.component,
+      libraryRoot: params.verifiedVhdlBlockLibraryRoot || undefined,
+      qualificationPath: params.verifiedVhdlBlockQualificationPath || undefined,
+    });
+    if (verifiedCandidate) {
+      const content = normalizeStagedVhdlContent(verifiedCandidate.rtlContent);
+      assertGeneratedComponentInterface(params.stage, params.component, content);
+      return {
+        content,
+        attempts: stageAttempts,
+        dependencyFiles: verifiedCandidate.dependencyFiles,
+        verifiedVhdlBlock: verifiedCandidate,
+      };
+    }
+  }
+
+  if (params.goldenLeafLibraryPath) {
+    const candidate = await findGoldenLeafCandidate({
+      libraryPath: params.goldenLeafLibraryPath,
+      contract: params.contract,
+      component: params.component,
+      allowSinglePassFallback: isDeterministicFifoFallbackCandidate(params.component),
+    });
+    if (candidate?.comparison.kind === 'exact_match') {
+      const content = normalizeStagedVhdlContent(candidate.block.vhdlContent);
+      assertGeneratedComponentInterface(params.stage, params.component, content);
+      return {
+        content,
+        attempts: stageAttempts,
+        dependencyFiles: [],
+      };
+    }
+    if (candidate?.comparison.kind === 'safe_adaptation') {
+      try {
+        return {
+          content: await runOnce(buildGoldenLeafAdaptationPrompt({
+            contract: params.contract,
+            component: params.component,
+            skeleton: params.skeleton,
+            candidate,
+          }), 0),
+          attempts: stageAttempts,
+          dependencyFiles: [],
+        };
+      } catch (error: any) {
+        if (error?.name === 'AbortError' || /aborted|aborterror/i.test(String(error?.message || error))) throw error;
+        stageAttempts.length = 0;
+      }
+    }
+  }
 
   try {
     return {
       content: await runOnce(buildComponentPrompt({ contract: params.contract, component: params.component, skeleton: params.skeleton }), 0),
       attempts: stageAttempts,
+      dependencyFiles: [],
     };
   } catch (error) {
     if (!(error instanceof StagedPortInterfaceDriftError) && !(error instanceof StagedComponentEntityMissingError)) {
@@ -581,6 +733,7 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       return {
         content: fallbackContent,
         attempts: stageAttempts,
+        dependencyFiles: [],
       };
     }
     const retryPrompt = error instanceof StagedComponentEntityMissingError
@@ -600,6 +753,7 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       return {
         content: await runOnce(retryPrompt, 1),
         attempts: stageAttempts,
+        dependencyFiles: [],
       };
     } catch (retryError) {
       if (
@@ -611,6 +765,7 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
         return {
           content: fallbackContent,
           attempts: stageAttempts,
+          dependencyFiles: [],
         };
       }
       throw retryError;
@@ -679,6 +834,9 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   signal?: AbortSignal;
   maxStageOutputChars: number;
   stageGhdlValidation?: boolean;
+  goldenLeafLibraryPath?: string | null;
+  verifiedVhdlBlockLibraryRoot?: string | null;
+  verifiedVhdlBlockQualificationPath?: string | null;
   runModelAnalysis: (params: {
     ai: any;
     provider: any;
@@ -692,6 +850,21 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   if (params.contract.schemaVersion !== '2.0') throw new Error('Staged FPGA generation requires an approved Architecture Contract V2.');
   const files: FpgaArchitectFile[] = [];
   const attempts: Array<StagedAiResult<TTelemetry>> = [];
+  const generatedSourceOrder = [...params.contract.sourceOrder];
+  const addGeneratedDependencyFile = (file: FpgaArchitectFile, beforePath: string) => {
+    const normalizedPath = file.path.replace(/\\/g, '/');
+    if (!files.some((candidate) => candidate.path.replace(/\\/g, '/') === normalizedPath)) {
+      files.push(file);
+    }
+    if (!generatedSourceOrder.includes(normalizedPath)) {
+      const beforeIndex = generatedSourceOrder.indexOf(beforePath.replace(/\\/g, '/'));
+      if (beforeIndex >= 0) {
+        generatedSourceOrder.splice(beforeIndex, 0, normalizedPath);
+      } else {
+        generatedSourceOrder.unshift(normalizedPath);
+      }
+    }
+  };
   const totalStages = 6;
   const notify = async (stage: FpgaArchitectStage, stageIndex: number, componentId: string, status: FpgaArchitectStageProgress['status']) => {
     await params.onStageProgress?.({ stage, stageIndex, totalStages, componentId, status });
@@ -712,7 +885,7 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   for (const component of leafComponents) {
     await notify('leaf_rtl', 2, component.id, 'starting');
     const skeleton = renderLeafSkeleton(params.contract, component);
-    const { content, attempts: stageAttempts } = await generateComponentWithInterfaceRetry({
+    const { content, attempts: stageAttempts, dependencyFiles } = await generateComponentWithInterfaceRetry({
       ai: params.ai,
       provider: params.provider,
       model: params.model,
@@ -722,13 +895,19 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
       stage: 'leaf_rtl',
       signal: params.signal,
       maxStageOutputChars: params.maxStageOutputChars,
+      goldenLeafLibraryPath: params.goldenLeafLibraryPath,
+      verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
+      verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
       runModelAnalysis: params.runModelAnalysis,
     });
     attempts.push(...stageAttempts);
+    for (const dependencyFile of dependencyFiles) {
+      addGeneratedDependencyFile(dependencyFile, component.file);
+    }
     files.push({ path: component.file, fileType: fileTypeForComponent(component), purpose: component.responsibility, content });
     if (params.stageGhdlValidation) {
       await notify('leaf_rtl', 2, component.id, 'validating');
-      await runGhdlStageCheckpoint({ files, sourceOrder: params.contract.sourceOrder, label: `leaf component ${component.id}`, signal: params.signal });
+      await runGhdlStageCheckpoint({ files, sourceOrder: generatedSourceOrder, label: `leaf component ${component.id}`, signal: params.signal });
     }
     await notify('leaf_rtl', 2, component.id, 'completed');
   }
@@ -752,15 +931,21 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
       stage: 'top_integration',
       signal: params.signal,
       maxStageOutputChars: params.maxStageOutputChars,
+      goldenLeafLibraryPath: params.goldenLeafLibraryPath,
+      verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
+      verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
       runModelAnalysis: params.runModelAnalysis,
     });
     topContent = generated.content;
     attempts.push(...generated.attempts);
+    for (const dependencyFile of generated.dependencyFiles) {
+      addGeneratedDependencyFile(dependencyFile, top.file);
+    }
   }
   files.push({ path: top.file, fileType: fileTypeForComponent(top), purpose: top.responsibility, content: topContent });
   if (params.stageGhdlValidation) {
     await notify('top_integration', 3, top.id, 'validating');
-    await runGhdlStageCheckpoint({ files, sourceOrder: params.contract.sourceOrder, label: `integration top ${top.id}`, signal: params.signal });
+    await runGhdlStageCheckpoint({ files, sourceOrder: generatedSourceOrder, label: `integration top ${top.id}`, signal: params.signal });
   }
   await notify('top_integration', 3, top.id, 'completed');
 
@@ -770,13 +955,13 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   files.push({ path: testbench.file, fileType: fileTypeForComponent(testbench), purpose: testbench.responsibility, content: renderAppOwnedTestbench(params.contract) });
   if (params.stageGhdlValidation) {
     await notify('testbench', 4, testbench.id, 'validating');
-    await runGhdlStageCheckpoint({ files, sourceOrder: params.contract.sourceOrder, label: `testbench ${testbench.id}`, signal: params.signal });
+    await runGhdlStageCheckpoint({ files, sourceOrder: generatedSourceOrder, label: `testbench ${testbench.id}`, signal: params.signal });
   }
   await notify('testbench', 4, testbench.id, 'completed');
 
   await notify('collateral', 5, '', 'starting');
-  const runCommands = buildDeterministicArchitectGhdlRunCommands({ analysisOrder: params.contract.sourceOrder, topTestbench: params.contract.topTestbench, vhdlStandard: '08' });
-  files.push({ path: 'sim/ghdl_plan.json', fileType: 'json', purpose: 'App-owned deterministic GHDL command plan', content: `${JSON.stringify({ standard: '08', analysisOrder: params.contract.sourceOrder, topTestbench: params.contract.topTestbench, runCommands, expectedResult: 'TEST PASSED' }, null, 2)}\n` });
+  const runCommands = buildDeterministicArchitectGhdlRunCommands({ analysisOrder: generatedSourceOrder, topTestbench: params.contract.topTestbench, vhdlStandard: '08' });
+  files.push({ path: 'sim/ghdl_plan.json', fileType: 'json', purpose: 'App-owned deterministic GHDL command plan', content: `${JSON.stringify({ standard: '08', analysisOrder: generatedSourceOrder, topTestbench: params.contract.topTestbench, runCommands, expectedResult: 'TEST PASSED' }, null, 2)}\n` });
   files.push({ path: 'architecture/contract-summary.md', fileType: 'markdown', purpose: 'Concise app-owned architecture summary', content: `# ${params.contract.designName}\n\n${params.contract.systemIntent}\n\nContract SHA-256: \`${hashFpgaArchitectureContract(params.contract)}\`\n` });
   await notify('collateral', 5, '', 'completed');
 
@@ -792,7 +977,7 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
     warnings: [],
     folderTree: Array.from(new Set(files.map((file) => file.path.split('/')[0]))).map((folder) => `${folder}/`).join('\n'),
     files,
-    ghdl: { analysisOrder: params.contract.sourceOrder, topTestbench: params.contract.topTestbench, runCommands, expectedResult: 'TEST PASSED' },
+    ghdl: { analysisOrder: generatedSourceOrder, topTestbench: params.contract.topTestbench, runCommands, expectedResult: 'TEST PASSED' },
     qualityChecklist: [
       'Architecture Contract V2 approved and hashed before VHDL generation.',
       'Package, interface, integration, and testbench structure rendered by the app.',

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  buildBuildingBlockCatalogPromptSection,
+  buildKnownGoodLeafAvailabilityPromptSection,
   CURATED_DESIGN_PATTERNS,
   synthesizeCuratedFpgaArchitecture,
 } from '../src/server/fpgaArchitectureKnowledge';
@@ -110,4 +112,42 @@ test('representative families produce valid app-owned contract drafts', () => {
     assert.equal(validation.ok, true, `${prompt}: ${JSON.stringify(validation.issues, null, 2)}`);
     assert.equal(contract.sourceOrder.at(-1), contract.components.find((component) => component.kind === 'testbench')?.file);
   }
+});
+
+test('curated architecture synthesis includes selected 3600-catalog building-block specs', () => {
+  const synthesis = synthesizeCuratedFpgaArchitecture('UART to SPI bridge with rx fifo and tx fifo buffering');
+  const catalogNames = synthesis.buildingBlockCatalogEntries.map(({ entry }) => entry.name);
+
+  assert.ok(synthesis.blueprint.buildingBlockCatalogIds.length > 0);
+  assert.ok(synthesis.blueprint.buildingBlockCatalogSummaries.some((summary) => /uart_spi_protocol_bridge/i.test(summary)));
+  assert.ok(catalogNames.includes('uart_spi_protocol_bridge'));
+  assert.ok(catalogNames.includes('uart_rx'));
+  assert.ok(catalogNames.includes('uart_tx'));
+  assert.ok(catalogNames.includes('spi_master'));
+  assert.ok(catalogNames.includes('sync_fifo') || catalogNames.includes('stream_fifo'));
+});
+
+test('catalog prompt section exposes compact enhanced building-block guidance', () => {
+  const section = buildBuildingBlockCatalogPromptSection({
+    promptText: 'AXI DMA framebuffer VGA output',
+    maxEntries: 6,
+  });
+
+  assert.match(section, /Curated Building-Block Catalog Matches/);
+  assert.match(section, /framebuffer_controller/);
+  assert.match(section, /pixel_address_generator/);
+  assert.match(section, /Representative ports:/);
+  assert.match(section, /Configurables:/);
+  assert.doesNotMatch(section, /architecture\s+rtl/i);
+});
+
+test('known-good leaf availability prompt section is compact metadata only', () => {
+  const section = buildKnownGoodLeafAvailabilityPromptSection([
+    { componentId: 'rx_fifo', mode: 'exact_match', passCount: 3 },
+    { componentId: 'spi_master', mode: 'safe_adaptation', passCount: 2 },
+  ]);
+  assert.match(section, /rx_fifo: exact_match; passing samples=3/);
+  assert.match(section, /spi_master: safe_adaptation; passing samples=2/);
+  assert.doesNotMatch(section, /entity\s+rx_fifo\s+is/i);
+  assert.doesNotMatch(section, /architecture\s+rtl/i);
 });

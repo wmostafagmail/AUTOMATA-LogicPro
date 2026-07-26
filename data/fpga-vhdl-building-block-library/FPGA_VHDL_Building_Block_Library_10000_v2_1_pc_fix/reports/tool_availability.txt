@@ -1,0 +1,11 @@
+Tool availability in the artifact-generation environment:
+ghdl: NOT_AVAILABLE
+nvc: NOT_AVAILABLE
+yosys: NOT_AVAILABLE
+vivado: NOT_AVAILABLE
+quartus_sh: NOT_AVAILABLE
+radiantc: NOT_AVAILABLE
+diamondc: NOT_AVAILABLE
+
+Consequence: VHDL analysis/elaboration/simulation, synthesis, CDC/RDC, and post-route timing were not executable in this environment.
+The supplied CI/local scripts intentionally fail rather than convert missing tools into PASS results.

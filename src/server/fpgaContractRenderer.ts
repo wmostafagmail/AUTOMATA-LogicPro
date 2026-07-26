@@ -5,7 +5,7 @@ import type {
   FpgaArchitecturePortContract,
 } from './fpgaArchitectureContract';
 
-function renderLibraryContext(contract: FpgaArchitectureContract, component: FpgaArchitectureComponentContract) {
+export function renderLibraryContext(contract: FpgaArchitectureContract, component: FpgaArchitectureComponentContract) {
   const packageUses = component.dependsOn
     .map((id) => contract.components.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate?.kind === 'package')

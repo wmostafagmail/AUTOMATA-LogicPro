@@ -6,3 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+data/fpga-vhdl-building-block-library/**/build/
+data/fpga-vhdl-building-block-library/**/e~*.o

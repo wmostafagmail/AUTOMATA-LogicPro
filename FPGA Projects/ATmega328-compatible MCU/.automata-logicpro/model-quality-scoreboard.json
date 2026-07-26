@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-25T19:06:48.919Z",
+  "updatedAt": "2026-07-26T09:36:45.955Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 424,
-      "successes": 217,
-      "codeQualityFailures": 207,
-      "providerRuntimeFailures": 11,
-      "lastUpdatedAt": "2026-07-25T19:06:48.919Z",
+      "attempts": 450,
+      "successes": 220,
+      "codeQualityFailures": 230,
+      "providerRuntimeFailures": 14,
+      "lastUpdatedAt": "2026-07-26T09:36:45.955Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 136,
+          "attempts": 142,
           "successes": 58,
-          "codeQualityFailures": 78,
+          "codeQualityFailures": 84,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -260,11 +260,11 @@
                 "ghdl-instantiation-rules",
                 "ghdl-entity-format"
               ],
-              "count": 6,
-              "lastMessage": "staged_port_interface_drift\nStaged VHDL for \"status_error_block\" changed the approved port interface.\ncomponentId=status_error_block\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
+              "count": 8,
+              "lastMessage": "staged_port_interface_drift\nStaged VHDL for \"uart_tx\" changed the approved port interface.\ncomponentId=uart_tx\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
               "forbiddenConstruct": "staged component VHDL changed the app-approved entity generic/port interface",
               "legalReplacementPattern": "regenerate only the failing component implementation while preserving the exact app-owned entity declaration, generic names/order/defaults, and port names/order/modes/types",
-              "lastSeenAt": "2026-07-25T18:40:24.511Z"
+              "lastSeenAt": "2026-07-25T22:51:12.580Z"
             },
             "architecture_contract::architecture_contract_validation_failed::::": {
               "category": "architecture_contract",
@@ -335,14 +335,48 @@
               "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
               "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
               "lastSeenAt": "2026-07-25T19:06:48.919Z"
+            },
+            "numeric_std_typing::category_only::ghdl-explicit-resizing,ghdl-no-raw-slv-arithmetic::": {
+              "category": "numeric_std_typing",
+              "label": "numeric_std Typing",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-no-raw-slv-arithmetic",
+                "ghdl-explicit-resizing"
+              ],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component rx_fifo while analyzing src/rx_fifo.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:27:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:19:20 is not composite\n         wr_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:28:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:20:20 is not composite\n         rd_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:31:23:error: no overloaded function found matching \"to_integer\"\n         if to_integer(wr_ptr) >= mem'low and to_integer(wr_ptr) <= mem'high then\n                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:32:26:error: no overloaded function found matching \"to_integer\"\n           mem(to_integer(wr_ptr)) <= data_i;\n                         ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:27:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:19:20 is not composite\n         wr_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:28:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:20:20 is not composite\n         rd_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:31:23:error: no overloaded function found matching \"to_integer\"\n         if to_integer(wr_ptr) >= mem'low and to_integer(wr_ptr) <= mem'high then\n                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:32:26:error: no overloaded function found matching \"to_integer\"\n           mem(to_integer(wr_ptr)) <= data_i;\n                         ^\nghdl:error: compilation error",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-25T22:33:05.593Z"
+            },
+            "package_type_definition::package_symbol_not_visible::ghdl-record-package-rules,ghdl-source-ordering::": {
+              "category": "package_type_definition",
+              "label": "Package / Type Definition",
+              "failureCode": "package_symbol_not_visible",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-record-package-rules",
+                "ghdl-source-ordering"
+              ],
+              "count": 3,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component spi_master while analyzing src/spi_master.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "custom type or package symbol \"done_o\" used where it is not visible",
+              "legalReplacementPattern": "declare/export \"done_o\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
+              "lastSeenAt": "2026-07-26T09:35:05.916Z"
             }
           }
         },
         "mini_cpu_core": {
-          "attempts": 92,
+          "attempts": 99,
           "successes": 47,
-          "codeQualityFailures": 45,
-          "providerRuntimeFailures": 3,
+          "codeQualityFailures": 52,
+          "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
               "category": "reserved_identifier",
@@ -513,11 +547,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 2,
-              "lastMessage": "Ollama returned no generated text for model \"charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest\" via /api/chat. Payload summary: keys=model, created_at, message, done, done_reason, total_duration, load_duration, prompt_eval_count, prompt_eval_duration, eval_count, eval_duration; model=charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest; done=true; done_reason=length; message_keys=role, content, thinking; message_content_length=0",
+              "count": 4,
+              "lastMessage": "Request was cancelled by the user.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-19T10:18:39.374Z"
+              "lastSeenAt": "2026-07-26T09:36:45.955Z"
             },
             "context_budget::category_only::::": {
               "category": "context_budget",
@@ -578,14 +612,74 @@
               "forbiddenConstruct": "RTL that analyzes but cannot be synthesized by GHDL.",
               "legalReplacementPattern": "Keep the contracted entity interface and replace unsupported/non-synthesizable RTL with equivalent synthesizable VHDL-2008.",
               "lastSeenAt": "2026-07-21T23:29:20.458Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_capability_owner_kind,architecture_evidence_source_unapproved": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_evidence_source_unapproved",
+                "architecture_contract_capability_owner_kind"
+              ],
+              "issuePaths": [
+                "$.sourceGroundedRequirements[0].sourceUrl",
+                "$.sourceGroundedRequirements[1].sourceUrl",
+                "$.sourceGroundedRequirements[2].sourceUrl",
+                "$.sourceGroundedRequirements[3].sourceUrl",
+                "$.sourceGroundedRequirements[4].sourceUrl",
+                "$.sourceGroundedRequirements[5].sourceUrl",
+                "$.sourceGroundedRequirements[6].sourceUrl",
+                "$.components[3].implements"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 8 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T19:27:39.776Z"
+            },
+            "runtime_bound_risk::category_only::ghdl-arithmetic-width-rules::": {
+              "category": "runtime_bound_risk",
+              "label": "Runtime Bound Risk",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-arithmetic-width-rules"
+              ],
+              "count": 2,
+              "lastMessage": "Staged pre-GHDL validation failed after leaf component instruction_memory_interface before invoking GHDL.\nsrc/instruction_memory_interface.vhd:37: performs indexing with an unchecked to_integer(...) expression (\"program_rom(to_integer(pc_reg))\"). Generated indexing and array math must guard bounds explicitly so simulation does not fail with avoidable range errors.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-25T23:07:43.931Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_missing_block_discovery_poor_fit": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_missing_block_discovery_poor_fit"
+              ],
+              "issuePaths": [
+                "$.architectureSynthesis.buildingBlockCatalogIds"
+              ],
+              "ruleIds": [],
+              "count": 2,
+              "lastMessage": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T22:56:50.055Z"
             }
           }
         },
         "video_pattern_generator": {
-          "attempts": 83,
+          "attempts": 89,
           "successes": 50,
-          "codeQualityFailures": 33,
-          "providerRuntimeFailures": 2,
+          "codeQualityFailures": 39,
+          "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
               "category": "reserved_identifier",
@@ -645,11 +739,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 4,
-              "lastMessage": "Staged GHDL checkpoint failed after leaf component alu_pkg_for_opcodes_flags while analyzing src/alu_pkg_for_opcodes_flags.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:43:81:error: only one type of logical operators may be used to combine relation\n             v_overflow := (not data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                                ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:44:43:error: only one type of logical operators may be used to combine relation\n                            (data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:52:77:error: only one type of logical operators may be used to combine relation\n             v_overflow := (data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:53:47:error: only one type of logical operators may be used to combine relation\n                            (not data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                              ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:43:81:error: only one type of logical operators may be used to combine relation\n             v_overflow := (not data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                                ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:44:43:error: only one type of logical operators may be used to combine relation\n                            (data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:52:77:error: only one type of logical operators may be used to combine relation\n             v_overflow := (data_a_i(7)) and (not data_b_i(7)) and v_res(7) or\n                                                                            ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eZ6XqO/src/alu_pkg_for_opcodes_flags.vhd:53:47:error: only one type of logical operators may be used to combine relation\n                            (not data_a_i(7)) and (data_b_i(7)) and (not v_res(7));\n                                              ^\nghdl:error: compilation error",
+              "count": 5,
+              "lastMessage": "Staged pre-GHDL validation failed after leaf component pixel_address_generator before invoking GHDL.\nsrc/pixel_address_generator.vhd:32: applies \"+\" arithmetic to \"pixel_addr\", but \"pixel_addr\" is address_type rather than integer/unsigned/signed.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-19T11:28:25.831Z"
+              "lastSeenAt": "2026-07-25T23:17:15.390Z"
             },
             "numeric_std_typing::type_conversion_indexed_or_sliced::::": {
               "category": "numeric_std_typing",
@@ -753,13 +847,117 @@
               "forbiddenConstruct": "malformed VHDL keyword token \"an\"",
               "legalReplacementPattern": "replace \"an\" with exact VHDL keyword \"and\"",
               "lastSeenAt": "2026-07-22T22:43:18.639Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_behavior_unverified,architecture_contract_child_dependency_missing,architecture_contract_component_responsibility,architecture_contract_connection_sink_direction,architecture_contract_connection_sink_type,architecture_contract_connection_source_type,architecture_contract_instance_actual_unknown,architecture_contract_instance_missing,architecture_contract_placeholder": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_child_dependency_missing",
+                "architecture_contract_component_responsibility",
+                "architecture_contract_instance_missing",
+                "architecture_contract_instance_actual_unknown",
+                "architecture_contract_connection_source_type",
+                "architecture_contract_connection_sink_type",
+                "architecture_contract_connection_sink_direction",
+                "architecture_contract_behavior_unverified",
+                "architecture_contract_placeholder"
+              ],
+              "issuePaths": [
+                "$.components[7].dependsOn",
+                "$.components[8].responsibility",
+                "$.components[8].dependsOn",
+                "$.instances",
+                "$.instances[2].portMap.start_i",
+                "$.instances[3].portMap.aw_valid_i",
+                "$.instances[3].portMap.w_valid_i",
+                "$.instances[3].portMap.b_ready_i",
+                "$.instances[3].portMap.ar_valid_i",
+                "$.instances[3].portMap.r_ready_i",
+                "$.connections[0]",
+                "$.connections[1]",
+                "$.connections[2]",
+                "$.connections[2].sinks",
+                "$.verification",
+                "$"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 31 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T20:37:28.854Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_component_responsibility,architecture_contract_placeholder": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_component_responsibility",
+                "architecture_contract_placeholder"
+              ],
+              "issuePaths": [
+                "$.components[8].responsibility",
+                "$"
+              ],
+              "ruleIds": [],
+              "count": 2,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 2 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T21:31:17.875Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_capability_unowned,architecture_contract_capability_unverified,architecture_contract_instance_generic_missing,architecture_contract_instance_missing": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_capability_unverified",
+                "architecture_contract_capability_unowned",
+                "architecture_contract_instance_missing",
+                "architecture_contract_instance_generic_missing"
+              ],
+              "issuePaths": [
+                "$.verification",
+                "$.components",
+                "$.instances",
+                "$.instances[0].genericMap",
+                "$.instances[1].genericMap"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 31 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T23:22:23.779Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_missing_block_discovery_poor_fit": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_missing_block_discovery_poor_fit"
+              ],
+              "issuePaths": [
+                "$.architectureSynthesis.buildingBlockCatalogIds"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T23:53:28.927Z"
             }
           }
         },
         "dsp_chain": {
-          "attempts": 63,
+          "attempts": 67,
           "successes": 32,
-          "codeQualityFailures": 31,
+          "codeQualityFailures": 35,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -914,11 +1112,11 @@
                 "ghdl-record-package-rules",
                 "ghdl-source-ordering"
               ],
-              "count": 2,
-              "lastMessage": "Staged GHDL checkpoint failed after leaf component fft_lite_or_analyzer_stage while analyzing src/fft_lite_or_analyzer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error",
-              "forbiddenConstruct": "custom type or package symbol \"or_reduce\" used where it is not visible",
-              "legalReplacementPattern": "declare/export \"or_reduce\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
-              "lastSeenAt": "2026-07-21T17:16:02.227Z"
+              "count": 3,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component output_valid_stage while analyzing src/output_valid_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd:34:4:error: no declaration for \"done_o\"\n   done_o   <= valid_reg;\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd:35:4:error: no declaration for \"error_o\"\n   error_o  <= '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd:36:4:error: no declaration for \"status_o\"\n   status_o <= valid_reg;\n   ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd:34:4:error: no declaration for \"done_o\"\n   done_o   <= valid_reg;\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd:35:4:error: no declaration for \"error_o\"\n   error_o  <= '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-TBjZz5/src/output_valid_stage.vhd:36:4:error: no declaration for \"status_o\"\n   status_o <= valid_reg;\n   ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "custom type or package symbol \"done_o\" used where it is not visible",
+              "legalReplacementPattern": "declare/export \"done_o\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
+              "lastSeenAt": "2026-07-25T21:39:12.191Z"
             },
             "other::category_only::::": {
               "category": "other",
@@ -947,12 +1145,30 @@
               "forbiddenConstruct": "call to helper function \"or_reduce\" without a local function declaration or imported package export",
               "legalReplacementPattern": "declare a local or_reduce(value : std_logic_vector) return std_logic helper before the architecture begin, or replace the call with an explicit reduction loop",
               "lastSeenAt": "2026-07-22T00:28:09.994Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_missing_block_discovery_poor_fit": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_missing_block_discovery_poor_fit"
+              ],
+              "issuePaths": [
+                "$.architectureSynthesis.buildingBlockCatalogIds"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-25T23:56:52.406Z"
             }
           }
         },
         "axi_stream_router": {
-          "attempts": 50,
-          "successes": 30,
+          "attempts": 53,
+          "successes": 33,
           "codeQualityFailures": 20,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
@@ -1248,11 +1464,11 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 21,
+          "count": 24,
           "lastMessage": "Request was cancelled by the user.",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-22T19:42:38.174Z"
+          "lastSeenAt": "2026-07-26T09:36:45.955Z"
         },
         "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
           "category": "reserved_identifier",
@@ -1418,11 +1634,11 @@
             "ghdl-record-package-rules",
             "ghdl-source-ordering"
           ],
-          "count": 4,
-          "lastMessage": "Staged GHDL checkpoint failed after leaf component fft_lite_or_analyzer_stage while analyzing src/fft_lite_or_analyzer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-eI4Vxn/src/fft_lite_or_analyzer_stage.vhd:44:17:error: no declaration for \"or_reduce\"\n   or_result <= or_reduce(data_reg);\n                ^\nghdl:error: compilation error",
-          "forbiddenConstruct": "custom type or package symbol \"or_reduce\" used where it is not visible",
-          "legalReplacementPattern": "declare/export \"or_reduce\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
-          "lastSeenAt": "2026-07-21T17:16:02.227Z"
+          "count": 8,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component spi_master while analyzing src/spi_master.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error",
+          "forbiddenConstruct": "custom type or package symbol \"done_o\" used where it is not visible",
+          "legalReplacementPattern": "declare/export \"done_o\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
+          "lastSeenAt": "2026-07-26T09:35:05.916Z"
         },
         "simulation_assertion::protocol_status_behavior_mismatch::::": {
           "category": "simulation_assertion",
@@ -1449,11 +1665,11 @@
             "ghdl-instantiation-rules",
             "ghdl-entity-format"
           ],
-          "count": 6,
-          "lastMessage": "staged_port_interface_drift\nStaged VHDL for \"status_error_block\" changed the approved port interface.\ncomponentId=status_error_block\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
+          "count": 8,
+          "lastMessage": "staged_port_interface_drift\nStaged VHDL for \"uart_tx\" changed the approved port interface.\ncomponentId=uart_tx\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
           "forbiddenConstruct": "staged component VHDL changed the app-approved entity generic/port interface",
           "legalReplacementPattern": "regenerate only the failing component implementation while preserving the exact app-owned entity declaration, generic names/order/defaults, and port names/order/modes/types",
-          "lastSeenAt": "2026-07-25T18:40:24.511Z"
+          "lastSeenAt": "2026-07-25T22:51:12.580Z"
         },
         "architecture_contract::architecture_contract_validation_failed::::": {
           "category": "architecture_contract",
@@ -1580,6 +1796,169 @@
           "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
           "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
           "lastSeenAt": "2026-07-25T19:06:48.919Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_capability_owner_kind,architecture_evidence_source_unapproved": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_evidence_source_unapproved",
+            "architecture_contract_capability_owner_kind"
+          ],
+          "issuePaths": [
+            "$.sourceGroundedRequirements[0].sourceUrl",
+            "$.sourceGroundedRequirements[1].sourceUrl",
+            "$.sourceGroundedRequirements[2].sourceUrl",
+            "$.sourceGroundedRequirements[3].sourceUrl",
+            "$.sourceGroundedRequirements[4].sourceUrl",
+            "$.sourceGroundedRequirements[5].sourceUrl",
+            "$.sourceGroundedRequirements[6].sourceUrl",
+            "$.components[3].implements"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 8 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T19:27:39.776Z"
+        },
+        "runtime_bound_risk::category_only::ghdl-arithmetic-width-rules::": {
+          "category": "runtime_bound_risk",
+          "label": "Runtime Bound Risk",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-arithmetic-width-rules"
+          ],
+          "count": 2,
+          "lastMessage": "Staged pre-GHDL validation failed after leaf component instruction_memory_interface before invoking GHDL.\nsrc/instruction_memory_interface.vhd:37: performs indexing with an unchecked to_integer(...) expression (\"program_rom(to_integer(pc_reg))\"). Generated indexing and array math must guard bounds explicitly so simulation does not fail with avoidable range errors.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-25T23:07:43.931Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_behavior_unverified,architecture_contract_child_dependency_missing,architecture_contract_component_responsibility,architecture_contract_connection_sink_direction,architecture_contract_connection_sink_type,architecture_contract_connection_source_type,architecture_contract_instance_actual_unknown,architecture_contract_instance_missing,architecture_contract_placeholder": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_child_dependency_missing",
+            "architecture_contract_component_responsibility",
+            "architecture_contract_instance_missing",
+            "architecture_contract_instance_actual_unknown",
+            "architecture_contract_connection_source_type",
+            "architecture_contract_connection_sink_type",
+            "architecture_contract_connection_sink_direction",
+            "architecture_contract_behavior_unverified",
+            "architecture_contract_placeholder"
+          ],
+          "issuePaths": [
+            "$.components[7].dependsOn",
+            "$.components[8].responsibility",
+            "$.components[8].dependsOn",
+            "$.instances",
+            "$.instances[2].portMap.start_i",
+            "$.instances[3].portMap.aw_valid_i",
+            "$.instances[3].portMap.w_valid_i",
+            "$.instances[3].portMap.b_ready_i",
+            "$.instances[3].portMap.ar_valid_i",
+            "$.instances[3].portMap.r_ready_i",
+            "$.connections[0]",
+            "$.connections[1]",
+            "$.connections[2]",
+            "$.connections[2].sinks",
+            "$.verification",
+            "$"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 31 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T20:37:28.854Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_component_responsibility,architecture_contract_placeholder": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_component_responsibility",
+            "architecture_contract_placeholder"
+          ],
+          "issuePaths": [
+            "$.components[8].responsibility",
+            "$"
+          ],
+          "ruleIds": [],
+          "count": 2,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 2 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T21:31:17.875Z"
+        },
+        "numeric_std_typing::category_only::ghdl-explicit-resizing,ghdl-no-raw-slv-arithmetic::": {
+          "category": "numeric_std_typing",
+          "label": "numeric_std Typing",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-no-raw-slv-arithmetic",
+            "ghdl-explicit-resizing"
+          ],
+          "count": 1,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component rx_fifo while analyzing src/rx_fifo.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:27:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:19:20 is not composite\n         wr_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:28:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:20:20 is not composite\n         rd_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:31:23:error: no overloaded function found matching \"to_integer\"\n         if to_integer(wr_ptr) >= mem'low and to_integer(wr_ptr) <= mem'high then\n                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:32:26:error: no overloaded function found matching \"to_integer\"\n           mem(to_integer(wr_ptr)) <= data_i;\n                         ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:27:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:19:20 is not composite\n         wr_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:28:20:error: type anonymous integer subtype defined at /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:20:20 is not composite\n         rd_ptr <= (others => '0');\n                   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:31:23:error: no overloaded function found matching \"to_integer\"\n         if to_integer(wr_ptr) >= mem'low and to_integer(wr_ptr) <= mem'high then\n                      ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-BEaKhJ/src/rx_fifo.vhd:32:26:error: no overloaded function found matching \"to_integer\"\n           mem(to_integer(wr_ptr)) <= data_i;\n                         ^\nghdl:error: compilation error",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-25T22:33:05.593Z"
+        },
+        "other::architecture_contract_validation_failed::::architecture_missing_block_discovery_poor_fit": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_missing_block_discovery_poor_fit"
+          ],
+          "issuePaths": [
+            "$.architectureSynthesis.buildingBlockCatalogIds"
+          ],
+          "ruleIds": [],
+          "count": 6,
+          "lastMessage": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T23:56:52.406Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_capability_unowned,architecture_contract_capability_unverified,architecture_contract_instance_generic_missing,architecture_contract_instance_missing": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_capability_unverified",
+            "architecture_contract_capability_unowned",
+            "architecture_contract_instance_missing",
+            "architecture_contract_instance_generic_missing"
+          ],
+          "issuePaths": [
+            "$.verification",
+            "$.components",
+            "$.instances",
+            "$.instances[0].genericMap",
+            "$.instances[1].genericMap"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 31 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-25T23:22:23.779Z"
         }
       }
     },

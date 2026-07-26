@@ -1,0 +1,14 @@
+name: GHDL regression
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ghdl/setup-ghdl-ci@nightly
+        with:
+          backend: mcode
+      - run: make static
+      - run: make core-regression
+      # Enable after reviewing runtime and Tier B/C expectations:
+      # - run: make all-smokes

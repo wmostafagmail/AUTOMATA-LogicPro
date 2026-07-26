@@ -1,0 +1,22 @@
+block_name: replace_me
+protocol: replace_me
+revision: replace_me
+role: controller|target|endpoint|bridge|monitor
+optional_features: []
+clock_frequency_hz: null
+external_phy_or_hard_ip: null
+vip:
+  vendor: replace_me
+  version: replace_me
+  suite: replace_me
+required_scenarios:
+  - reset_and_recovery
+  - legal_transactions
+  - malformed_transactions
+  - backpressure_and_stalls
+  - maximum_length
+  - timeout_and_retry
+  - error_responses
+  - randomized_traffic
+interoperability_targets: []
+waivers: []

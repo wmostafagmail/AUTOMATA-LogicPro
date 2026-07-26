@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "mini_cpu_core",
+  "designLabel": "Mini RISC-V / Custom 8-bit CPU Core",
+  "attempt": 5,
+  "designAttempt": 2,
+  "issueCount": 1,
+  "topIssueCodes": [
+    "architecture_missing_block_discovery_poor_fit"
+  ],
+  "message": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+  "issues": [
+    {
+      "code": "architecture_missing_block_discovery_poor_fit",
+      "path": "$.architectureSynthesis.buildingBlockCatalogIds",
+      "message": "Discovered blocks: branch_handler, instruction_fetch_unit. Missing blocks after review: instruction_decoder, alu, register_file, control_unit, program_memory_interface, data_memory_interface, cpu_top. Risks: Reset polarity mismatch: User request specifies synchronous active-high reset, but discovered blocks use rst_ni (active-low).; Discovered blocks lack data/address buses required for memory and register interfaces.; Critical CPU components (ALU, RegFile, Decoder) are missing from the discovered set.; Generic FSM wrappers may not provide necessary control signals for a complete CPU datapath.."
+    }
+  ]
+}

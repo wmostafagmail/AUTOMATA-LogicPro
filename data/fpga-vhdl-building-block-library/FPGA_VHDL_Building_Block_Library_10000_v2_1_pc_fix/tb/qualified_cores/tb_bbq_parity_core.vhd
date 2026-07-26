@@ -1,0 +1,2 @@
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all; library std; use std.env.all;
+entity tb_bbq_parity_core is end;architecture sim of tb_bbq_parity_core is signal d:std_logic_vector(7 downto 0);signal p,r,e:std_logic;begin dut:entity work.bbq_parity_core generic map(WIDTH=>8,ODD_PARITY=>false)port map(d,p,r,e);process begin d<=x"07";r<='1';wait for 1 ns;assert p='1' and e='0' severity failure;r<='0';wait for 1 ns;assert e='1' severity failure;report "PASS" severity note;stop;wait;end process;end;

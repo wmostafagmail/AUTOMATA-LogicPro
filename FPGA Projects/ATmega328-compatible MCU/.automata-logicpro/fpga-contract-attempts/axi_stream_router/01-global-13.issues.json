@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "axi_stream_router",
+  "designLabel": "AXI-Stream Packet Router / Network Switch",
+  "attempt": 13,
+  "designAttempt": 1,
+  "issueCount": 2,
+  "topIssueCodes": [
+    "architecture_contract_connection_sink_direction",
+    "architecture_contract_instance_actual_unknown"
+  ],
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 2 issue(s).",
+  "issues": [
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[0].portMap.valid_i",
+      "message": "Port actual \"s_axis_valid_i\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_connection_sink_direction",
+      "path": "$.connections[1].sinks",
+      "message": "Connection sink port \"ready_o\" must be in or inout."
+    }
+  ]
+}

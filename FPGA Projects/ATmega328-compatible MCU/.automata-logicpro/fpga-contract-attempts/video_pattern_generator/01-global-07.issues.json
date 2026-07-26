@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "video_pattern_generator",
+  "designLabel": "VGA/HDMI Pattern Generator with Framebuffer",
+  "attempt": 7,
+  "designAttempt": 1,
+  "issueCount": 31,
+  "topIssueCodes": [
+    "architecture_contract_child_dependency_missing",
+    "architecture_contract_instance_actual_unknown",
+    "architecture_contract_instance_missing",
+    "architecture_contract_behavior_unverified",
+    "architecture_contract_connection_sink_type",
+    "architecture_contract_connection_source_type",
+    "architecture_contract_component_responsibility",
+    "architecture_contract_connection_sink_direction",
+    "architecture_contract_placeholder"
+  ],
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 31 issue(s).",
+  "issues": [
+    {
+      "code": "architecture_contract_child_dependency_missing",
+      "path": "$.components[7].dependsOn",
+      "message": "Instantiated child \"horizontal_counter\" must also be listed in dependsOn for source ordering."
+    },
+    {
+      "code": "architecture_contract_child_dependency_missing",
+      "path": "$.components[7].dependsOn",
+      "message": "Instantiated child \"vertical_counter\" must also be listed in dependsOn for source ordering."
+    },
+    {
+      "code": "architecture_contract_child_dependency_missing",
+      "path": "$.components[7].dependsOn",
+      "message": "Instantiated child \"sync_generator\" must also be listed in dependsOn for source ordering."
+    },
+    {
+      "code": "architecture_contract_child_dependency_missing",
+      "path": "$.components[7].dependsOn",
+      "message": "Instantiated child \"active_video_window\" must also be listed in dependsOn for source ordering."
+    },
+    {
+      "code": "architecture_contract_component_responsibility",
+      "path": "$.components[8].responsibility",
+      "message": "Component responsibility must be complete and precise."
+    },
+    {
+      "code": "architecture_contract_child_dependency_missing",
+      "path": "$.components[8].dependsOn",
+      "message": "Instantiated child \"pixel_address_generator\" must also be listed in dependsOn for source ordering."
+    },
+    {
+      "code": "architecture_contract_child_dependency_missing",
+      "path": "$.components[8].dependsOn",
+      "message": "Instantiated child \"pattern_or_framebuffer_stage\" must also be listed in dependsOn for source ordering."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"vga_timing_generator_core\" -> \"horizontal_counter\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"vga_timing_generator_core\" -> \"vertical_counter\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"vga_timing_generator_core\" -> \"sync_generator\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"vga_timing_generator_core\" -> \"active_video_window\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"framebuffer_controller_core\" -> \"pixel_address_generator\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_missing",
+      "path": "$.instances",
+      "message": "Hierarchy edge \"framebuffer_controller_core\" -> \"pattern_or_framebuffer_stage\" requires exactly one instance contract."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[2].portMap.start_i",
+      "message": "Port actual \"dma_start\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[3].portMap.aw_valid_i",
+      "message": "Port actual \"axi_aw_valid\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[3].portMap.w_valid_i",
+      "message": "Port actual \"axi_w_valid\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[3].portMap.b_ready_i",
+      "message": "Port actual \"axi_b_ready\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[3].portMap.ar_valid_i",
+      "message": "Port actual \"axi_ar_valid\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_instance_actual_unknown",
+      "path": "$.instances[3].portMap.r_ready_i",
+      "message": "Port actual \"axi_r_ready\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+    },
+    {
+      "code": "architecture_contract_connection_source_type",
+      "path": "$.connections[0]",
+      "message": "Connection type must match source port type \"std_logic\"."
+    },
+    {
+      "code": "architecture_contract_connection_sink_type",
+      "path": "$.connections[0]",
+      "message": "Connection type must match sink port type \"std_logic\"."
+    },
+    {
+      "code": "architecture_contract_connection_source_type",
+      "path": "$.connections[1]",
+      "message": "Connection type must match source port type \"std_logic_vector(7 downto 0)\"."
+    },
+    {
+      "code": "architecture_contract_connection_sink_type",
+      "path": "$.connections[1]",
+      "message": "Connection type must match sink port type \"std_logic\"."
+    },
+    {
+      "code": "architecture_contract_connection_source_type",
+      "path": "$.connections[2]",
+      "message": "Connection type must match source port type \"std_logic\"."
+    },
+    {
+      "code": "architecture_contract_connection_sink_type",
+      "path": "$.connections[2]",
+      "message": "Connection type must match sink port type \"std_logic\"."
+    },
+    {
+      "code": "architecture_contract_connection_sink_direction",
+      "path": "$.connections[2].sinks",
+      "message": "Connection sink port \"done_o\" must be in or inout."
+    },
+    {
+      "code": "architecture_contract_behavior_unverified",
+      "path": "$.verification",
+      "message": "No verification scenario covers behavior \"behavior_vga_timing_generator_core\"."
+    },
+    {
+      "code": "architecture_contract_behavior_unverified",
+      "path": "$.verification",
+      "message": "No verification scenario covers behavior \"behavior_framebuffer_controller_core\"."
+    },
+    {
+      "code": "architecture_contract_behavior_unverified",
+      "path": "$.verification",
+      "message": "No verification scenario covers behavior \"behavior_dma_engine_core\"."
+    },
+    {
+      "code": "architecture_contract_behavior_unverified",
+      "path": "$.verification",
+      "message": "No verification scenario covers behavior \"behavior_axi4_memory_mapped_master_core\"."
+    },
+    {
+      "code": "architecture_contract_placeholder",
+      "path": "$",
+      "message": "Architecture contract contains a placeholder/TBD/TODO value."
+    }
+  ]
+}

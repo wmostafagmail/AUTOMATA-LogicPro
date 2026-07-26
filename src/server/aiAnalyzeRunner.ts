@@ -35,6 +35,7 @@ import { getFpgaPipelineConfig } from './fpgaPipelineConfig';
 import { runStagedFpgaArchitectGeneration, type FpgaArchitectStageProgress } from './fpgaArchitectStagedGeneration';
 import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
 import { decideRepairCandidate } from './generatedCodeRepairTransaction';
+import { buildGoldenLeafLibraryPath } from './fpgaGoldenLeafLibrary';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -1243,6 +1244,7 @@ export async function runAiAnalyzeJob(params: {
       signal,
       maxStageOutputChars: pipelineConfig.maxStageOutputChars,
       stageGhdlValidation: pipelineConfig.stageGhdlValidation,
+      goldenLeafLibraryPath: buildGoldenLeafLibraryPath(normalizedProjectPath),
       runModelAnalysis,
       onStageProgress: onArchitectureStageProgress,
     })

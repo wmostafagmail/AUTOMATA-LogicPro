@@ -6,6 +6,7 @@ import {
   synthesizeFpgaArchitectureBlueprintFromPrompt,
   type FpgaArchitectureBlueprint,
 } from './fpgaArchitectureBlueprint';
+import { formatBuildingBlockCatalogPromptSection } from './fpgaBuildingBlockCatalog';
 import {
   formatFpgaArchitectureEvidenceFactsForPrompt,
   isApprovedFpgaArchitectureEvidenceUrl,
@@ -13,6 +14,12 @@ import {
   type FpgaArchitectureRetrievalMode,
 } from './fpgaArchitectureEvidence';
 import { collectFpgaArchitectureEvidence } from './fpgaArchitectureRetrieval';
+import {
+  buildMissingBlockFitReviewPrompt,
+  discoverMissingFpgaBlocks,
+  formatMissingBlockDiscoveryPromptSection,
+  type FpgaMissingBlockDiscoveryResult,
+} from './fpgaMissingBlockDiscovery';
 import { VHDL_RESERVED_IDENTIFIERS } from './ghdlStrictVhdlRules';
 import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
 import { parseVhdlSemanticModel } from './vhdlSemanticFrontend';
@@ -145,6 +152,7 @@ export type FpgaArchitectureSynthesisMetadata = {
   synthesisId: string;
   primaryPatternId: string;
   secondaryPatternIds: string[];
+  buildingBlockCatalogIds?: string[];
   methodologyRuleIds: string[];
   referenceDesignIds: string[];
   evidenceClaimIds: string[];
@@ -154,6 +162,22 @@ export type FpgaArchitectureSynthesisMetadata = {
   sourceHashes?: string[];
   evidenceFreshness?: string;
   confidence: number;
+};
+
+export type FpgaArchitectureSelectionReviewFit = 'good' | 'partial' | 'poor' | 'unavailable';
+
+export type FpgaArchitectureSelectionReview = {
+  fit: FpgaArchitectureSelectionReviewFit;
+  confidence: number;
+  selectedPrimaryPattern: string;
+  selectedSupportBlocks: string[];
+  missingBlocks: string[];
+  unnecessaryBlocks: string[];
+  recommendedPrimaryPattern: string;
+  recommendedSupportBlocks: string[];
+  architectureRisks: string[];
+  reasoningSummary: string;
+  userActionPrompt?: string;
 };
 
 export type FpgaArchitectureSourceGroundedRequirement = {
@@ -613,6 +637,7 @@ export function buildFpgaArchitectureContractDraft(params: {
       synthesisId: synthesis.synthesisId,
       primaryPatternId: synthesis.primaryPattern.patternId,
       secondaryPatternIds: synthesis.secondaryPatterns.map((pattern) => pattern.patternId),
+      buildingBlockCatalogIds: synthesis.buildingBlockCatalogEntries.map(({ entry }) => entry.id),
       methodologyRuleIds: synthesis.methodologyRules.map((rule) => rule.ruleId),
       referenceDesignIds: synthesis.referenceDesigns.map((reference) => reference.referenceId),
       evidenceClaimIds: [
@@ -735,6 +760,7 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
       synthesisId: '<app-owned synthesis id>',
       primaryPatternId: '<selected curated design-pattern id>',
       secondaryPatternIds: ['<composed pattern id>'],
+      buildingBlockCatalogIds: ['<selected building-block catalog id>'],
       methodologyRuleIds: ['<official methodology rule id>'],
       referenceDesignIds: ['<official reference design id>'],
       evidenceClaimIds: ['<source claim id>'],
@@ -763,6 +789,9 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
   evidenceFacts?: FpgaArchitectureEvidenceFact[];
   retrievalMode?: FpgaArchitectureRetrievalMode;
   retrievalWarnings?: string[];
+  architectureSelectionReview?: FpgaArchitectureSelectionReview;
+  missingBlockDiscovery?: FpgaMissingBlockDiscoveryResult;
+  missingBlockFitReview?: FpgaArchitectureSelectionReview;
 }) {
   const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
   const blueprint = synthesis.blueprint;
@@ -798,6 +827,14 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
     'Selected pattern timing contracts:',
     ...synthesis.primaryPattern.timingContracts.map((entry) => `- ${entry}`),
     '',
+    formatBuildingBlockCatalogPromptSection(synthesis.buildingBlockCatalogEntries, {
+      heading: 'Selected Curated Building-Block Catalog Specs',
+      maxEntries: 10,
+    }),
+    '',
+    ...buildArchitectureSelectionReviewGuidance(params.architectureSelectionReview),
+    formatMissingBlockDiscoveryPromptSection(params.missingBlockDiscovery),
+    ...buildArchitectureSelectionReviewGuidance(params.missingBlockFitReview),
     'Official methodology/reference evidence. Keep only these source-grounded requirements and do not invent unsupported claims:',
     ...synthesis.evidenceClaims.map((claim) => `- ${claim.claimId}: ${claim.contractImplication} [${claim.sourceTitle}]`),
     '',
@@ -854,6 +891,12 @@ export function buildFpgaArchitectureContractRepairPrompt(params: {
   userRequest: string;
   invalidResponse: string;
   issues: FpgaArchitectureContractIssue[];
+  evidenceFacts?: FpgaArchitectureEvidenceFact[];
+  retrievalMode?: FpgaArchitectureRetrievalMode;
+  retrievalWarnings?: string[];
+  architectureSelectionReview?: FpgaArchitectureSelectionReview;
+  missingBlockDiscovery?: FpgaMissingBlockDiscoveryResult;
+  missingBlockFitReview?: FpgaArchitectureSelectionReview;
 }) {
   const topIssues = params.issues.slice(0, 50);
   const issueCodes = new Set(params.issues.map((issue) => issue.code));
@@ -874,7 +917,15 @@ export function buildFpgaArchitectureContractRepairPrompt(params: {
     ]
     : [];
   return [
-    buildFpgaArchitectureContractProposalPrompt({ userRequest: params.userRequest }),
+    buildFpgaArchitectureContractProposalPrompt({
+      userRequest: params.userRequest,
+      evidenceFacts: params.evidenceFacts,
+      retrievalMode: params.retrievalMode,
+      retrievalWarnings: params.retrievalWarnings,
+      architectureSelectionReview: params.architectureSelectionReview,
+      missingBlockDiscovery: params.missingBlockDiscovery,
+      missingBlockFitReview: params.missingBlockFitReview,
+    }),
     '',
     'The previous architecture contract was rejected by deterministic validation.',
     'Return one complete JSON object only. No Markdown, no comments, no prose, no code fences, no trailing text.',
@@ -924,6 +975,141 @@ function asString(value: unknown) {
 
 function asStringArray(value: unknown) {
   return Array.isArray(value) ? value.map(asString).filter(Boolean) : [];
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  const numberValue = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+}
+
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+export function buildFpgaArchitectureSelectionReviewPrompt(params: {
+  userRequest: string;
+}) {
+  const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const selectedCatalogEntries = synthesis.buildingBlockCatalogEntries.slice(0, 16);
+  return [
+    'You are reviewing the app-selected FPGA architecture approach before any Architecture Contract or VHDL is generated.',
+    'Return exactly one JSON object and no Markdown, prose, code fences, VHDL, comments, or trailing text.',
+    '',
+    'User request:',
+    params.userRequest,
+    '',
+    'App-selected curated architecture pattern:',
+    JSON.stringify({
+      primaryPatternId: synthesis.primaryPattern.patternId,
+      primaryDesignClass: synthesis.primaryPattern.designClass,
+      secondaryPatternIds: synthesis.secondaryPatterns.map((pattern) => pattern.patternId),
+      systemRole: synthesis.primaryPattern.systemRole,
+      requiredBlocks: synthesis.primaryPattern.requiredBlocks.map((block) => ({
+        id: block.id,
+        kind: block.kind,
+        responsibility: block.responsibility,
+      })),
+      topOutputOwnership: synthesis.primaryPattern.topOutputOwnership,
+      timingContracts: synthesis.primaryPattern.timingContracts,
+    }, null, 2),
+    '',
+    'App-selected 3,600-catalog building-block specs:',
+    JSON.stringify(selectedCatalogEntries.map(({ entry, score, matchedTerms }) => ({
+      id: entry.id,
+      name: entry.name,
+      category: entry.category,
+      subcategory: entry.subcategory,
+      summary: entry.summary,
+      representativePorts: entry.ports.slice(0, 8),
+      configurables: entry.configurables.slice(0, 6),
+      implementationNotes: entry.implementationNotes,
+      score,
+      matchedTerms,
+    })), null, 2),
+    '',
+    'Review rules:',
+    '- Judge whether the selected primary pattern and support blocks are the right starting approach for the user request.',
+    '- You are not generating VHDL and must not invent free-form architecture outside the curated selection.',
+    '- If the selection is mostly right but missing support blocks, use fit "partial".',
+    '- Use fit "poor" only when the primary architecture class is clearly wrong for the user request.',
+    '- Recommended patterns/blocks must be named as existing app-selected pattern ids, design classes, catalog IDs, or catalog block names visible above when possible.',
+    '- If a custom block is truly required, prefix it with "custom:" and explain the risk.',
+    '',
+    'Return this exact JSON shape:',
+    JSON.stringify({
+      fit: 'good | partial | poor',
+      confidence: 0.0,
+      selectedPrimaryPattern: synthesis.primaryPattern.patternId,
+      selectedSupportBlocks: ['<selected catalog id or block name>'],
+      missingBlocks: ['<missing block id/name or custom:block_name>'],
+      unnecessaryBlocks: ['<unnecessary selected block id/name>'],
+      recommendedPrimaryPattern: '<pattern id or design class; empty if unchanged>',
+      recommendedSupportBlocks: ['<catalog id/name or custom:block_name>'],
+      architectureRisks: ['<short risk>'],
+      reasoningSummary: '<one concise sentence>',
+    }, null, 2),
+  ].join('\n');
+}
+
+export function parseFpgaArchitectureSelectionReview(text: string): FpgaArchitectureSelectionReview {
+  let parsed: any;
+  try {
+    parsed = JSON.parse(extractJsonObject(text));
+  } catch (error: any) {
+    throw new FpgaArchitectureContractError(`Architecture selection review JSON was invalid: ${error?.message || String(error)}`, [{
+      code: 'architecture_selection_review_json_invalid',
+      path: '$',
+      message: error?.message || String(error),
+    }]);
+  }
+
+  const rawFit = asString(parsed?.fit).toLowerCase();
+  const fit: FpgaArchitectureSelectionReviewFit = rawFit === 'good' || rawFit === 'partial' || rawFit === 'poor'
+    ? rawFit
+    : 'unavailable';
+  return {
+    fit,
+    confidence: clamp01(asNumber(parsed?.confidence, 0)),
+    selectedPrimaryPattern: asString(parsed?.selectedPrimaryPattern),
+    selectedSupportBlocks: asStringArray(parsed?.selectedSupportBlocks).slice(0, 16),
+    missingBlocks: asStringArray(parsed?.missingBlocks).slice(0, 16),
+    unnecessaryBlocks: asStringArray(parsed?.unnecessaryBlocks).slice(0, 16),
+    recommendedPrimaryPattern: asString(parsed?.recommendedPrimaryPattern),
+    recommendedSupportBlocks: asStringArray(parsed?.recommendedSupportBlocks).slice(0, 16),
+    architectureRisks: asStringArray(parsed?.architectureRisks).slice(0, 12),
+    reasoningSummary: asString(parsed?.reasoningSummary).slice(0, 600),
+  };
+}
+
+function buildUnavailableArchitectureSelectionReview(reason: string): FpgaArchitectureSelectionReview {
+  return {
+    fit: 'unavailable',
+    confidence: 0,
+    selectedPrimaryPattern: '',
+    selectedSupportBlocks: [],
+    missingBlocks: [],
+    unnecessaryBlocks: [],
+    recommendedPrimaryPattern: '',
+    recommendedSupportBlocks: [],
+    architectureRisks: [],
+    reasoningSummary: reason,
+  };
+}
+
+function buildArchitectureSelectionReviewGuidance(review: FpgaArchitectureSelectionReview | undefined) {
+  if (!review || review.fit === 'good' || review.fit === 'unavailable') return [];
+  return [
+    'Architecture selection reviewer feedback:',
+    `- Fit: ${review.fit}; confidence: ${Math.round(review.confidence * 100)}%`,
+    `- Recommended primary pattern: ${review.recommendedPrimaryPattern || 'unchanged'}`,
+    `- Missing blocks: ${review.missingBlocks.join(', ') || 'none'}`,
+    `- Unnecessary blocks: ${review.unnecessaryBlocks.join(', ') || 'none'}`,
+    `- Recommended support blocks: ${review.recommendedSupportBlocks.join(', ') || 'none'}`,
+    `- Risks: ${review.architectureRisks.join('; ') || 'none'}`,
+    `- Summary: ${review.reasoningSummary || 'No additional reviewer summary.'}`,
+    'Apply this feedback only within the app-owned curated architecture and catalog constraints. Do not invent arbitrary blocks unless they are prefixed with "custom:" and necessary.',
+    '',
+  ];
 }
 
 export function parseFpgaArchitectureContract(text: string): FpgaArchitectureContract {
@@ -1089,6 +1275,7 @@ export function parseFpgaArchitectureContract(text: string): FpgaArchitectureCon
       synthesisId: asString(parsed.architectureSynthesis.synthesisId),
       primaryPatternId: asString(parsed.architectureSynthesis.primaryPatternId),
       secondaryPatternIds: asStringArray(parsed.architectureSynthesis.secondaryPatternIds),
+      ...(Array.isArray(parsed.architectureSynthesis.buildingBlockCatalogIds) ? { buildingBlockCatalogIds: asStringArray(parsed.architectureSynthesis.buildingBlockCatalogIds) } : {}),
       methodologyRuleIds: asStringArray(parsed.architectureSynthesis.methodologyRuleIds),
       referenceDesignIds: asStringArray(parsed.architectureSynthesis.referenceDesignIds),
       evidenceClaimIds: asStringArray(parsed.architectureSynthesis.evidenceClaimIds),
@@ -1144,6 +1331,7 @@ export function normalizeFpgaArchitectureContract(contract: FpgaArchitectureCont
       architectureSynthesis: {
         ...contract.architectureSynthesis,
         secondaryPatternIds: contract.architectureSynthesis.secondaryPatternIds || [],
+        buildingBlockCatalogIds: contract.architectureSynthesis.buildingBlockCatalogIds || [],
         methodologyRuleIds: contract.architectureSynthesis.methodologyRuleIds || [],
         referenceDesignIds: contract.architectureSynthesis.referenceDesignIds || [],
         evidenceClaimIds: contract.architectureSynthesis.evidenceClaimIds || [],
@@ -1186,6 +1374,380 @@ export function normalizeFpgaArchitectureContract(contract: FpgaArchitectureCont
   normalizeSafeImplicitOutputConnections(normalized);
 
   return normalized;
+}
+
+export type FpgaArchitectureContractCompletionFix = {
+  code: string;
+  path: string;
+  message: string;
+};
+
+export type FpgaArchitectureContractCompletionResult = {
+  contract: FpgaArchitectureContract;
+  fixes: FpgaArchitectureContractCompletionFix[];
+};
+
+function tokenizeContractText(value: string) {
+  return new Set(
+    String(value || '')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/g)
+      .filter((token) => token.length > 1),
+  );
+}
+
+function overlapScore(left: Set<string>, right: Set<string>) {
+  let score = 0;
+  for (const token of left) {
+    if (right.has(token)) score += 1;
+  }
+  return score;
+}
+
+function inferImplementationKindForCapability(capability: { id: string; description: string }) {
+  return classifyCapabilityOwnership(capability);
+}
+
+function findBestComponentForCapability(
+  components: FpgaArchitectureComponentContract[],
+  capability: { id: string; description: string },
+) {
+  const expectedKind = inferImplementationKindForCapability(capability);
+  const capabilityTokens = tokenizeContractText(`${capability.id} ${capability.description}`);
+  let best: { component: FpgaArchitectureComponentContract; score: number } | null = null;
+  for (const component of components) {
+    if (component.kind !== expectedKind) continue;
+    const componentTokens = tokenizeContractText([
+      component.id,
+      component.name,
+      component.file,
+      component.responsibility,
+      component.exports.join(' '),
+      component.ports.map((port) => `${port.name} ${port.purpose}`).join(' '),
+    ].join(' '));
+    const exactBoost = component.id.toLowerCase() === capability.id.toLowerCase()
+      || component.name.toLowerCase() === capability.id.toLowerCase()
+      || capability.id.toLowerCase().includes(component.id.toLowerCase())
+      || component.id.toLowerCase().includes(capability.id.toLowerCase())
+      ? 6
+      : 0;
+    const score = overlapScore(capabilityTokens, componentTokens) + exactBoost;
+    if (score > 0 && (!best || score > best.score || component.id.localeCompare(best.component.id) < 0)) {
+      best = { component, score };
+    }
+  }
+  if (best) return best.component;
+  return components.find((component) => component.kind === expectedKind) || null;
+}
+
+function ensureUniqueString(values: string[], value: string) {
+  if (!values.some((entry) => entry.toLowerCase() === value.toLowerCase())) values.push(value);
+}
+
+function literalForPortType(type: string, preferActive = false) {
+  const normalized = normalizeType(type);
+  if (/\b(?:std_logic|std_ulogic)\b/.test(normalized) && !/vector/.test(normalized)) return preferActive ? "'1'" : "'0'";
+  if (/\b(?:std_logic_vector|std_ulogic_vector|unsigned|signed)\b/.test(normalized)) return "(others => '0')";
+  if (/\bboolean\b/.test(normalized)) return preferActive ? 'true' : 'false';
+  if (/\bpositive\b/.test(normalized)) return '1';
+  if (/\b(?:integer|natural)\b/.test(normalized)) return '0';
+  return "(others => '0')";
+}
+
+function compatiblePort(parent: FpgaArchitectureComponentContract, childPort: FpgaArchitecturePortContract) {
+  const childType = normalizeType(childPort.type);
+  const childName = childPort.name.toLowerCase();
+  const inputModes = childPort.mode === 'in' ? ['in', 'inout'] : ['out', 'buffer', 'inout'];
+  const exactName = parent.ports.find((port) => (
+    inputModes.includes(port.mode)
+    && port.name.toLowerCase() === childName
+    && normalizeType(port.type) === childType
+  ));
+  if (exactName) return exactName;
+  const aliases = childName === 'enable_i' ? ['start_i', 'valid_i']
+    : childName === 'start_i' ? ['enable_i', 'valid_i']
+    : childName === 'rst_i' || childName === 'reset_i' ? ['rst', 'reset']
+    : childName === 'clk_i' || childName === 'clock_i' ? ['clk', 'clock']
+    : [];
+  for (const alias of aliases) {
+    const match = parent.ports.find((port) => (
+      inputModes.includes(port.mode)
+      && port.name.toLowerCase() === alias
+      && normalizeType(port.type) === childType
+    ));
+    if (match) return match;
+  }
+  return parent.ports.find((port) => inputModes.includes(port.mode) && normalizeType(port.type) === childType) || null;
+}
+
+function isWritablePort(port: FpgaArchitecturePortContract) {
+  return port.mode === 'out' || port.mode === 'buffer' || port.mode === 'inout';
+}
+
+function isInputLikePort(port: FpgaArchitecturePortContract) {
+  return port.mode === 'in' || port.mode === 'inout';
+}
+
+function isSafeStatusLikeName(name: string) {
+  return /^(?:done|valid|ready|error|status)(?:_o|_out)?$/i.test(name);
+}
+
+function stableConnectionId(instanceLabel: string, portName: string, used: Set<string>) {
+  const base = stableId(`${instanceLabel}_${portName}`, 'conn');
+  let candidate = base;
+  let suffix = 2;
+  while (used.has(candidate.toLowerCase()) || !isLegalVhdlIdentifier(candidate)) {
+    candidate = `${base}_${suffix}`;
+    suffix += 1;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function buildCompletedInstance(params: {
+  contract: FpgaArchitectureContract;
+  parent: FpgaArchitectureComponentContract;
+  child: FpgaArchitectureComponentContract;
+  existing?: FpgaArchitectureInstanceContract;
+  usedConnectionIds: Set<string>;
+  usedWritableActuals: Set<string>;
+}) {
+  const { parent, child, existing } = params;
+  const genericMap: Record<string, string> = { ...(existing?.genericMap || {}) };
+  const portMap: Record<string, string> = { ...(existing?.portMap || {}) };
+  const newConnections: FpgaArchitectureConnectionContract[] = [];
+
+  for (const generic of child.generics) {
+    if (!(generic.name in genericMap)) {
+      genericMap[generic.name] = generic.default || defaultGenericValueForType(generic.type) || '0';
+    }
+  }
+
+  for (const childPort of child.ports) {
+    if (portMap[childPort.name]) continue;
+    const parentPort = compatiblePort(parent, childPort);
+    if (parentPort) {
+      const candidateActual = parentPort.name;
+      if (isWritablePort(childPort)) {
+        const key = `${parent.id}:${candidateActual.toLowerCase()}`;
+        if (!params.usedWritableActuals.has(key)) {
+          portMap[childPort.name] = candidateActual;
+          params.usedWritableActuals.add(key);
+          continue;
+        }
+      } else {
+        portMap[childPort.name] = candidateActual;
+        continue;
+      }
+    }
+
+    if (parent.kind === 'testbench') {
+      portMap[childPort.name] = childPort.name;
+      continue;
+    }
+
+    if (isInputLikePort(childPort) && !isWritablePort(childPort)) {
+      const active = /(?:enable|valid|ready|start)/i.test(childPort.name);
+      portMap[childPort.name] = literalForPortType(childPort.type, active);
+      continue;
+    }
+
+    const connectionId = stableConnectionId(existing?.label || `u_${child.id}`, childPort.name, params.usedConnectionIds);
+    portMap[childPort.name] = connectionId;
+    newConnections.push({
+      id: connectionId,
+      type: childPort.type,
+      source: { componentId: child.id, port: childPort.name },
+      sinks: [],
+      clockDomain: parent.clockDomain || child.clockDomain || null,
+      cdc: 'none',
+    });
+  }
+
+  return {
+    instance: {
+      id: existing?.id || uniqueStableId(`${parent.id}_${child.id}_inst`, 'instance', new Set()),
+      parentComponentId: parent.id,
+      childComponentId: child.id,
+      label: existing?.label || uniqueStableId(`u_${child.id}`, 'u_child', new Set()),
+      genericMap,
+      portMap,
+    },
+    newConnections,
+  };
+}
+
+export function completeFpgaArchitectureContract(params: {
+  contract: FpgaArchitectureContract;
+  userRequest: string;
+}): FpgaArchitectureContractCompletionResult {
+  const fixes: FpgaArchitectureContractCompletionFix[] = [];
+  const blueprint = inferFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const expectedCapabilities = requiredCapabilitiesForBlueprint(blueprint);
+  const contract = normalizeFpgaArchitectureContract({
+    ...params.contract,
+    components: params.contract.components.map((component) => ({ ...component })),
+  });
+  const componentById = new Map(contract.components.map((component) => [component.id, component]));
+
+  for (const capability of expectedCapabilities) {
+    if (!contract.requiredCapabilityIds.includes(capability.id)) {
+      contract.requiredCapabilityIds.push(capability.id);
+      fixes.push({
+        code: 'contract_completion_required_capability_added',
+        path: '$.requiredCapabilityIds',
+        message: `Restored app-owned required capability "${capability.id}".`,
+      });
+    }
+    if (!contract.components.some((component) => component.implements.includes(capability.id))) {
+      const owner = findBestComponentForCapability(contract.components, capability);
+      if (owner) {
+        ensureUniqueString(owner.implements, capability.id);
+        fixes.push({
+          code: 'contract_completion_capability_owner_added',
+          path: `$.components.${owner.id}.implements`,
+          message: `Assigned capability "${capability.id}" to existing ${owner.kind} component "${owner.id}".`,
+        });
+      }
+    }
+  }
+
+  const top = contract.components.find((component) => component.kind === 'top' && component.name === contract.topEntity)
+    || contract.components.find((component) => component.kind === 'top');
+  const testbench = contract.components.find((component) => component.kind === 'testbench' && component.name === contract.topTestbench)
+    || contract.components.find((component) => component.kind === 'testbench');
+  if (top) {
+    for (const rtl of contract.components.filter((component) => component.kind === 'rtl')) {
+      if (!top.children.includes(rtl.id)) {
+        top.children.push(rtl.id);
+        fixes.push({
+          code: 'contract_completion_top_child_added',
+          path: `$.components.${top.id}.children`,
+          message: `Connected RTL component "${rtl.id}" under top component "${top.id}".`,
+        });
+      }
+      if (!top.dependsOn.includes(rtl.id)) top.dependsOn.push(rtl.id);
+    }
+  }
+  if (testbench && top) {
+    if (testbench.children.length !== 1 || testbench.children[0] !== top.id) {
+      testbench.children = [top.id];
+      fixes.push({
+        code: 'contract_completion_testbench_child_repaired',
+        path: `$.components.${testbench.id}.children`,
+        message: `Made the testbench instantiate only approved top "${top.id}".`,
+      });
+    }
+    ensureUniqueString(testbench.dependsOn, top.id);
+  }
+
+  contract.verification = contract.verification.length > 0 ? contract.verification : [{
+    id: `verify_${stableId(contract.designName, 'design')}_contract`,
+    requirement: 'Self-check the app-owned architecture contract with deterministic stimulus and expected observable outputs.',
+    stimulus: 'Drive reset and one deterministic scenario.',
+    expected: 'DUT outputs match the app-owned contract.',
+    observables: top?.ports.filter(isWritablePort).map((port) => port.name) || [],
+    covers: [],
+    coversBehaviors: [],
+    actions: [{ kind: 'finish', message: 'TEST PASSED' }],
+  }];
+  const primaryVerification = contract.verification[0];
+  for (const capability of expectedCapabilities) {
+    if (!contract.verification.some((verification) => verification.covers.includes(capability.id))) {
+      ensureUniqueString(primaryVerification.covers, capability.id);
+      fixes.push({
+        code: 'contract_completion_capability_verification_added',
+        path: `$.verification.${primaryVerification.id}.covers`,
+        message: `Covered required capability "${capability.id}" in deterministic verification.`,
+      });
+    }
+  }
+
+  for (const behavior of contract.behaviors) {
+    if (!behavior.resetBehavior) behavior.resetBehavior = 'Reset drives all observable outputs to their safe default values.';
+    if (!Number.isInteger(behavior.latencyCycles) || Number(behavior.latencyCycles) < 0) behavior.latencyCycles = 0;
+    behavior.preconditions = behavior.preconditions || [];
+    if (!contract.verification.some((verification) => verification.coversBehaviors?.includes(behavior.id))) {
+      primaryVerification.coversBehaviors = primaryVerification.coversBehaviors || [];
+      ensureUniqueString(primaryVerification.coversBehaviors, behavior.id);
+      fixes.push({
+        code: 'contract_completion_behavior_verification_added',
+        path: `$.verification.${primaryVerification.id}.coversBehaviors`,
+        message: `Covered behavior "${behavior.id}" in deterministic verification.`,
+      });
+    }
+  }
+
+  if (top) {
+    for (const output of top.ports.filter(isWritablePort)) {
+      if (!isSafeStatusLikeName(output.name)) continue;
+      if (!contract.behaviors.some((behavior) => behavior.outputs.map((name) => name.toLowerCase()).includes(output.name.toLowerCase()))) {
+        contract.behaviors.push({
+          id: `behavior_${stableId(output.name, 'status_output')}`,
+          requirement: `Top status/control output ${output.name} is explicitly driven by the integration contract.`,
+          inputs: top.ports.filter((port) => port.mode === 'in').map((port) => port.name).slice(0, 4),
+          outputs: [output.name],
+          timing: 'Driven to a safe reset value and a deterministic nominal value inside the bounded verification window.',
+          resetBehavior: `${output.name} resets to ${literalForPortType(output.type)}.`,
+          latencyCycles: 1,
+          preconditions: ['rst is asserted before nominal stimulus.'],
+        });
+        fixes.push({
+          code: 'contract_completion_status_behavior_added',
+          path: '$.behaviors',
+          message: `Added app-owned top status output behavior for "${output.name}".`,
+        });
+      }
+      if (!primaryVerification.observables.some((name) => name.toLowerCase() === output.name.toLowerCase())) {
+        primaryVerification.observables.push(output.name);
+      }
+    }
+  }
+
+  const existingInstances = contract.instances || [];
+  const completedInstances: FpgaArchitectureInstanceContract[] = [];
+  const usedInstanceEdges = new Set<string>();
+  const usedConnectionIds = new Set((contract.connections || []).map((connection) => connection.id.toLowerCase()));
+  const usedWritableActuals = new Set<string>();
+  const connectionAdditions: FpgaArchitectureConnectionContract[] = [];
+  for (const parent of contract.components) {
+    for (const childId of parent.children) {
+      const child = componentById.get(childId);
+      if (!child) continue;
+      const edgeKey = `${parent.id}->${child.id}`;
+      if (usedInstanceEdges.has(edgeKey)) continue;
+      usedInstanceEdges.add(edgeKey);
+      const existing = existingInstances.find((instance) => instance.parentComponentId === parent.id && instance.childComponentId === child.id);
+      const completed = buildCompletedInstance({
+        contract,
+        parent,
+        child,
+        existing,
+        usedConnectionIds,
+        usedWritableActuals,
+      });
+      completedInstances.push(completed.instance);
+      connectionAdditions.push(...completed.newConnections);
+      if (!existing || Object.keys(completed.instance.genericMap).length !== Object.keys(existing.genericMap || {}).length || Object.keys(completed.instance.portMap).length !== Object.keys(existing.portMap || {}).length) {
+        fixes.push({
+          code: 'contract_completion_instance_map_completed',
+          path: '$.instances',
+          message: `Completed hierarchy instance map for "${parent.id}" -> "${child.id}".`,
+        });
+      }
+    }
+  }
+  contract.instances = [
+    ...completedInstances,
+    ...existingInstances.filter((instance) => !usedInstanceEdges.has(`${instance.parentComponentId}->${instance.childComponentId}`)),
+  ];
+  contract.connections = [...(contract.connections || []), ...connectionAdditions];
+  contract.sourceOrder = buildNormalizedSourceOrder(contract.components);
+
+  return {
+    contract: normalizeFpgaArchitectureContract(contract),
+    fixes,
+  };
 }
 
 function normalizeSafeImplicitOutputConnections(contract: FpgaArchitectureContract) {
@@ -1723,7 +2285,12 @@ export function parseAndValidateFpgaArchitectureContract(params: {
   text: string;
   userRequest: string;
 }) {
-  const contract = parseFpgaArchitectureContract(params.text);
+  const parsedContract = parseFpgaArchitectureContract(params.text);
+  const completion = completeFpgaArchitectureContract({
+    contract: parsedContract,
+    userRequest: params.userRequest,
+  });
+  const contract = completion.contract;
   const validation = validateFpgaArchitectureContract({ contract, userRequest: params.userRequest });
   if (!validation.ok) {
     throw new FpgaArchitectureContractError(
@@ -1742,6 +2309,7 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
   projectPath?: string | null;
   architectureRetrievalMode?: FpgaArchitectureRetrievalMode;
   signal?: AbortSignal;
+  missingBlockFetchText?: (url: string, signal?: AbortSignal) => Promise<string>;
   runModelAnalysis: (params: {
     ai: any;
     provider: any;
@@ -1752,6 +2320,102 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
   }) => Promise<{ text: string; telemetry: TTelemetry }>;
 }) {
   const baseSynthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const reviewResult = await params.runModelAnalysis({
+    ai: params.ai,
+    provider: params.provider,
+    model: params.model,
+    prompt: buildFpgaArchitectureSelectionReviewPrompt({
+      userRequest: params.userRequest,
+    }),
+    signal: params.signal,
+    generationProfile: buildModelGenerationProfile({
+      id: 'contract_json',
+      scope: `${params.userRequest}\u0000architecture-selection-review`,
+    }),
+  });
+  let architectureSelectionReview: FpgaArchitectureSelectionReview;
+  try {
+    architectureSelectionReview = parseFpgaArchitectureSelectionReview(reviewResult.text);
+  } catch (error: any) {
+    architectureSelectionReview = buildUnavailableArchitectureSelectionReview(error?.message || String(error));
+  }
+  if (architectureSelectionReview.fit === 'poor' && architectureSelectionReview.confidence >= 0.6) {
+    const selectedPattern = baseSynthesis.primaryPattern.patternId;
+    const recommendedPattern = architectureSelectionReview.recommendedPrimaryPattern || 'not provided';
+    const userActionPrompt = [
+      `Architecture selection may not match your request. The app selected "${selectedPattern}", but the reviewer recommended "${recommendedPattern}".`,
+      'Choose one next action: Use recommended architecture, keep current architecture, edit selected blocks, retry architecture selection, or cancel before VHDL generation.',
+    ].join(' ');
+    throw new FpgaArchitectureContractError(
+      `Architecture selection review paused before VHDL generation. ${userActionPrompt}`,
+      [{
+        code: 'architecture_selection_review_poor_fit',
+        path: '$.architectureSynthesis.primaryPatternId',
+        message: [
+          userActionPrompt,
+          `Missing blocks: ${architectureSelectionReview.missingBlocks.join(', ') || 'none'}.`,
+          `Unnecessary blocks: ${architectureSelectionReview.unnecessaryBlocks.join(', ') || 'none'}.`,
+          `Risks: ${architectureSelectionReview.architectureRisks.join('; ') || architectureSelectionReview.reasoningSummary || 'none'}.`,
+        ].join(' '),
+      }],
+    );
+  }
+  const missingBlockDiscovery = await discoverMissingFpgaBlocks({
+    missingBlocks: architectureSelectionReview.missingBlocks,
+    userRequest: params.userRequest,
+    signal: params.signal,
+    fetchText: params.missingBlockFetchText,
+  });
+  if (missingBlockDiscovery.unresolvedBlocks.length > 0) {
+    throw new FpgaArchitectureContractError(
+      [
+        'Architecture block discovery paused before VHDL generation.',
+        'The app automatically searched/normalized missing blocks, but at least one block was unsafe or unresolved.',
+        'Narrow the requested block role, choose a known reusable FPGA block, or add it to the curated catalog.',
+      ].join(' '),
+      [{
+        code: 'architecture_missing_block_discovery_unresolved',
+        path: '$.architectureSynthesis.buildingBlockCatalogIds',
+        message: [
+          `Requested missing blocks: ${missingBlockDiscovery.requestedBlocks.join(', ') || 'none'}.`,
+          `Unresolved blocks: ${missingBlockDiscovery.unresolvedBlocks.join(', ') || 'none'}.`,
+          `Unsafe reasons: ${missingBlockDiscovery.unsafeReasons.join('; ') || 'none'}.`,
+        ].join(' '),
+      }],
+    );
+  }
+  let missingBlockFitReview: FpgaArchitectureSelectionReview | undefined;
+  let missingBlockFitReviewAttempt: { text: string; telemetry: TTelemetry } | undefined;
+  if (missingBlockDiscovery.discoveredBlocks.length > 0) {
+    missingBlockFitReviewAttempt = await params.runModelAnalysis({
+      ai: params.ai,
+      provider: params.provider,
+      model: params.model,
+      prompt: buildMissingBlockFitReviewPrompt({
+        userRequest: params.userRequest,
+        discovery: missingBlockDiscovery,
+      }),
+      signal: params.signal,
+      generationProfile: buildModelGenerationProfile({
+        id: 'contract_json',
+        scope: `${params.userRequest}\u0000missing-block-fit-review`,
+      }),
+    });
+    try {
+      missingBlockFitReview = parseFpgaArchitectureSelectionReview(missingBlockFitReviewAttempt.text);
+    } catch (error: any) {
+      missingBlockFitReview = buildUnavailableArchitectureSelectionReview(error?.message || String(error));
+    }
+    if (missingBlockFitReview.fit === 'poor' && missingBlockFitReview.confidence >= 0.6) {
+      missingBlockFitReview = {
+        ...missingBlockFitReview,
+        architectureRisks: [
+          ...missingBlockFitReview.architectureRisks,
+          'Auto-discovered support blocks were judged as poor fit; preserve the app-owned curated pattern and use contract completion to avoid free-form block invention.',
+        ].slice(0, 12),
+      };
+    }
+  }
   const evidence = await collectFpgaArchitectureEvidence({
     promptText: params.userRequest,
     synthesis: baseSynthesis,
@@ -1764,6 +2428,9 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
     evidenceFacts: evidence.facts,
     retrievalMode: evidence.retrievalMode,
     retrievalWarnings: evidence.warnings,
+    architectureSelectionReview,
+    missingBlockDiscovery,
+    missingBlockFitReview,
   });
   const attempts: Array<{ text: string; telemetry: TTelemetry }> = [];
   let latestResponse = '';
@@ -1792,6 +2459,11 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
         attempts,
         repaired: attempt > 0,
         evidence,
+        architectureSelectionReview,
+        architectureSelectionReviewAttempt: reviewResult,
+        missingBlockDiscovery,
+        missingBlockFitReview,
+        missingBlockFitReviewAttempt,
       };
     } catch (error: any) {
       latestError = error instanceof FpgaArchitectureContractError
@@ -1806,6 +2478,12 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
           path: '$',
           message: latestError.message,
         }],
+        evidenceFacts: evidence.facts,
+        retrievalMode: evidence.retrievalMode,
+        retrievalWarnings: evidence.warnings,
+        architectureSelectionReview,
+        missingBlockDiscovery,
+        missingBlockFitReview,
       });
     }
   }
@@ -1824,6 +2502,11 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
       repaired: true,
       appOwnedFallback: true,
       evidence,
+      architectureSelectionReview,
+      architectureSelectionReviewAttempt: reviewResult,
+      missingBlockDiscovery,
+      missingBlockFitReview,
+      missingBlockFitReviewAttempt,
     };
   }
 

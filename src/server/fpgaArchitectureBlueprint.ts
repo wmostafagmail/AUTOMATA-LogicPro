@@ -1,4 +1,5 @@
 import type { AiMacroId } from '../aiMacros';
+import { formatBuildingBlockCatalogPromptSection } from './fpgaBuildingBlockCatalog';
 import {
   synthesizeCuratedFpgaArchitecture,
   type CuratedArchitectureSynthesis,
@@ -8,6 +9,8 @@ export type FpgaArchitectureBlueprint = {
   designClass: string;
   systemRole: string;
   buildingBlocks: string[];
+  buildingBlockCatalogIds?: string[];
+  buildingBlockCatalogSummaries?: string[];
   externalInterfaces: string[];
   internalContracts: string[];
   clockResetRules: string[];
@@ -206,6 +209,8 @@ function mergeBlueprint(base: FpgaArchitectureBlueprint, overlay: Partial<FpgaAr
     ...base,
     ...overlay,
     buildingBlocks: overlay.buildingBlocks || base.buildingBlocks,
+    buildingBlockCatalogIds: overlay.buildingBlockCatalogIds || base.buildingBlockCatalogIds,
+    buildingBlockCatalogSummaries: overlay.buildingBlockCatalogSummaries || base.buildingBlockCatalogSummaries,
     externalInterfaces: overlay.externalInterfaces || base.externalInterfaces,
     internalContracts: overlay.internalContracts || base.internalContracts,
     clockResetRules: overlay.clockResetRules || base.clockResetRules,
@@ -264,6 +269,10 @@ export function buildArchitectureBlueprintPromptSection(params: {
     'The app-owned curated pattern library chooses the high-level building blocks. Official methodology/reference evidence may refine constraints, but the model must not invent a new architecture from scratch.',
     '',
     bulletSection('Required building blocks', blueprint.buildingBlocks),
+    '',
+    bulletSection('Curated catalog building-block specs selected', blueprint.buildingBlockCatalogSummaries || []),
+    '',
+    formatBuildingBlockCatalogPromptSection(synthesis.buildingBlockCatalogEntries, { maxEntries: 10 }),
     '',
     bulletSection('Required external interfaces', blueprint.externalInterfaces),
     '',

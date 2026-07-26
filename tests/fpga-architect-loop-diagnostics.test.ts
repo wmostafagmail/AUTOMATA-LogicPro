@@ -13,6 +13,12 @@ test('classifyFpgaArchitectLoopFailure recognizes new contract-oriented failure 
   assert.equal(architectureDiagnostic.category, 'architecture_contract');
   assert.equal(architectureDiagnostic.label, 'Architecture Contract');
 
+  const missingBlockDiagnostic = classifyFpgaArchitectLoopFailure(
+    'Architecture block discovery paused before VHDL generation. architecture_missing_block_discovery_poor_fit The reviewer judged the auto-discovered block contracts as a poor fit.',
+  );
+  assert.equal(missingBlockDiagnostic.category, 'architecture_contract');
+  assert.equal(missingBlockDiagnostic.label, 'Architecture Contract');
+
   const commandDiagnostic = classifyFpgaArchitectLoopFailure(
     'The generated GHDL command contract is incomplete. FPGA Architect projects must include exact analyze, elaborate, and run commands.',
   );

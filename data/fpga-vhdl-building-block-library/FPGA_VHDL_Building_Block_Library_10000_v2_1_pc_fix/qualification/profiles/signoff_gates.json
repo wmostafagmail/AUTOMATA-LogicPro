@@ -1,0 +1,35 @@
+{
+  "source_gate": [
+    "VHDL-2008 analysis",
+    "elaboration",
+    "self-checking simulation"
+  ],
+  "protocol_gate": [
+    "named protocol revision frozen",
+    "assertion/VIP suite passed",
+    "malformed and backpressure scenarios passed",
+    "interoperability tested",
+    "PHY/hard-IP identified"
+  ],
+  "cdc_gate": [
+    "clock/reset map supplied",
+    "structural CDC tool clean or waivers reviewed",
+    "MTBF calculated for synchronizers",
+    "async FIFO constraints reviewed",
+    "RDC analysis completed"
+  ],
+  "numeric_gate": [
+    "fixed-point format frozen",
+    "rounding/overflow policy frozen",
+    "bit-exact oracle supplied",
+    "random and boundary vector suite passed",
+    "error budget met"
+  ],
+  "timing_gate": [
+    "exact FPGA part and speed grade",
+    "complete clocks and I/O constraints",
+    "post-route STA",
+    "all setup/hold/recovery/removal checks pass",
+    "PVT corners and generated clocks reviewed"
+  ]
+}

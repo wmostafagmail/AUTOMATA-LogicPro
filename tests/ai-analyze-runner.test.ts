@@ -361,9 +361,23 @@ test('runAiAnalyzeJob approves an architecture contract before VHDL generation a
     enforceFpgaArchitectureContractGate: true,
     runModelAnalysis: async ({ prompt, provider, model }: { prompt: string; provider: string; model: string }) => {
       params.__runCalls.push({ prompt, provider, model });
+      const isArchitectureSelectionReview = /reviewing the app-selected FPGA architecture approach/.test(prompt);
       const isContractProposal = /before any VHDL is generated/.test(prompt);
       return {
-        text: isContractProposal ? JSON.stringify(contract) : '# PROJECT\nmanifest',
+        text: isArchitectureSelectionReview
+          ? JSON.stringify({
+            fit: 'good',
+            confidence: 0.93,
+            selectedPrimaryPattern: 'pattern_alu_core',
+            selectedSupportBlocks: ['BB-0044'],
+            missingBlocks: [],
+            unnecessaryBlocks: [],
+            recommendedPrimaryPattern: '',
+            recommendedSupportBlocks: [],
+            architectureRisks: [],
+            reasoningSummary: 'The ALU architecture selection fits.',
+          })
+          : isContractProposal ? JSON.stringify(contract) : '# PROJECT\nmanifest',
         telemetry: {
           inputTokens: 50,
           outputTokens: 25,
@@ -398,10 +412,11 @@ test('runAiAnalyzeJob approves an architecture contract before VHDL generation a
 
   const result = await runAiAnalyzeJob(params);
 
-  assert.equal(params.__runCalls.length, 2);
-  assert.match(params.__runCalls[0].prompt, /Return exactly one JSON object/);
-  assert.match(params.__runCalls[1].prompt, /Approved FPGA Architecture Contract/);
-  assert.match(params.__runCalls[1].prompt, /immutable source of truth/);
+  assert.equal(params.__runCalls.length, 3);
+  assert.match(params.__runCalls[0].prompt, /architecture approach/);
+  assert.match(params.__runCalls[1].prompt, /Return exactly one JSON object/);
+  assert.match(params.__runCalls[2].prompt, /Approved FPGA Architecture Contract/);
+  assert.match(params.__runCalls[2].prompt, /immutable source of truth/);
   assert.equal(result.architectureContract?.topEntity, 'alu_top');
   assert.equal(result.architectProject?.files.some((file: any) => file.path === 'architecture/architecture-contract.json'), true);
   assert.equal(result.telemetry.retryCount, 0);

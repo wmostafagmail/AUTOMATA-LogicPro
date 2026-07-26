@@ -1,0 +1,7 @@
+tb/blocks/cpu_and_soc/tb_program_counter.vhd
+tb/blocks/cpu_frontend/tb_program_counter_continuous.vhd
+tb/blocks/cpu_frontend/tb_program_counter_fault_tolerant.vhd
+tb/blocks/cpu_frontend/tb_program_counter_low_power.vhd
+tb/blocks/cpu_frontend/tb_program_counter_multi_channel.vhd
+tb/blocks/cpu_frontend/tb_program_counter_programmable.vhd
+tb/blocks/cpu_frontend/tb_program_counter_single_shot.vhd

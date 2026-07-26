@@ -265,6 +265,10 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'self_checking_testbench_missing_pass_path':
       return 'testbench_structure';
     case 'staged_port_interface_drift':
+    case 'architecture_selection_review_poor_fit':
+    case 'architecture_missing_block_discovery_poor_fit':
+    case 'architecture_missing_block_discovery_unresolved':
+    case 'architecture_contract_output_driver_missing':
       return 'architecture_contract';
     case 'model_output_budget_exhausted':
       return 'context_budget';
@@ -354,13 +358,19 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
       ? 'ghdl_tool_internal_error'
       : 'validation_filesystem_timeout';
   } else if (category === 'other' && (
-    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|drifted from the approved architecture contract|staged_port_interface_drift|staged_component_entity_missing|did not declare entity|changed the approved (?:generic|port) interface/i.test(message)
+    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|architecture_selection_review_[a-z0-9_]+|architecture_missing_block_discovery_[a-z0-9_]+|drifted from the approved architecture contract|staged_port_interface_drift|staged_component_entity_missing|did not declare entity|changed the approved (?:generic|port) interface/i.test(message)
   )) {
     category = 'architecture_contract';
     if (/staged_port_interface_drift|changed the approved (?:generic|port) interface/i.test(message)) {
       inferredFailureCode = 'staged_port_interface_drift';
     } else if (/staged_component_entity_missing|did not declare entity/i.test(message)) {
       inferredFailureCode = 'staged_component_entity_missing';
+    } else if (/architecture_missing_block_discovery_poor_fit/i.test(message)) {
+      inferredFailureCode = 'architecture_missing_block_discovery_poor_fit';
+    } else if (/architecture_missing_block_discovery_unresolved/i.test(message)) {
+      inferredFailureCode = 'architecture_missing_block_discovery_unresolved';
+    } else if (/architecture_selection_review_poor_fit/i.test(message)) {
+      inferredFailureCode = 'architecture_selection_review_poor_fit';
     }
   } else if (category === 'other' && (
     /manifest was still invalid|json fallback was not valid|markdown manifest was invalid|project json was still invalid|project manifest was still invalid/i.test(message)

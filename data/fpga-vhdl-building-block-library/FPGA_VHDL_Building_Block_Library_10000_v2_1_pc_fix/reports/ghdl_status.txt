@@ -1,0 +1,1 @@
+GHDL_NOT_AVAILABLE: syntax/elaboration/simulation gate not executed

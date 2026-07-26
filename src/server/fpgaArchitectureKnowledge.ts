@@ -1,3 +1,10 @@
+import {
+  formatBuildingBlockCatalogPromptSection,
+  selectFpgaBuildingBlockCatalogEntries,
+  type SelectedFpgaBuildingBlockCatalogEntry,
+} from './fpgaBuildingBlockCatalog';
+import { formatVerifiedVhdlBlockLibraryPromptSection } from './fpgaVerifiedVhdlBlockLibrary';
+
 export type CuratedPatternBlock = {
   id: string;
   kind: 'package' | 'rtl' | 'top' | 'testbench';
@@ -70,11 +77,14 @@ export type CuratedArchitectureSynthesis = {
   methodologyRules: CuratedMethodologyRule[];
   referenceDesigns: CuratedReferenceDesign[];
   evidenceClaims: CuratedEvidenceClaim[];
+  buildingBlockCatalogEntries: SelectedFpgaBuildingBlockCatalogEntry[];
   confidence: number;
   blueprint: {
     designClass: string;
     systemRole: string;
     buildingBlocks: string[];
+    buildingBlockCatalogIds: string[];
+    buildingBlockCatalogSummaries: string[];
     externalInterfaces: string[];
     internalContracts: string[];
     clockResetRules: string[];
@@ -88,6 +98,12 @@ export type CuratedArchitectureSynthesis = {
     topOutputOwnership: string[];
     timingContracts: string[];
   };
+};
+
+export type KnownGoodLeafAvailability = {
+  componentId: string;
+  mode: 'exact_match' | 'safe_adaptation';
+  passCount: number;
 };
 
 const GENERIC_PATTERN: CuratedDesignPattern = {
@@ -801,6 +817,7 @@ const PRIMARY_PATTERN_HINTS: Array<{ designClass: string; keywords: RegExp[] }> 
   { designClass: 'fir_filter', keywords: [/\bfir\b/i, /streaming\s+fir/i] },
   { designClass: 'fft_pipeline', keywords: [/\bfft\b/i] },
   { designClass: 'cordic_engine', keywords: [/\bcordic\b/i] },
+  { designClass: 'uart_spi_protocol_bridge', keywords: [/\buart\b.*\bspi\b/i, /\bspi\b.*\buart\b/i, /\buart\b.*\bbridge\b/i, /\bspi\b.*\bbridge\b/i] },
   { designClass: 'i2c_controller', keywords: [/\bi2c\b/i, /i\s*2\s*c/i] },
   { designClass: 'spi_controller', keywords: [/\bspi\b/i] },
   { designClass: 'uart_core', keywords: [/\buart\b/i] },
@@ -947,13 +964,24 @@ export function synthesizeCuratedFpgaArchitecture(promptText: string): CuratedAr
   const referenceDesigns = selectReferenceDesigns(patterns);
   const evidenceClaims = buildEvidenceClaims(methodologyRules, referenceDesigns);
   const matchedPatternIds = patterns.map((pattern) => pattern.patternId);
+  const patternBuildingBlocks = unique(patterns.flatMap((pattern) => pattern.requiredBlocks.map((block) => (
+    `${block.id}: ${block.responsibility}`
+  ))));
+  const buildingBlockCatalogEntries = selectFpgaBuildingBlockCatalogEntries({
+    promptText: normalizedPrompt,
+    designClass: primaryPattern.designClass,
+    requiredBlockHints: patternBuildingBlocks,
+    maxEntries: 12,
+  });
 
   const blueprint = {
     designClass: primaryPattern.designClass,
     systemRole: primaryPattern.systemRole,
-    buildingBlocks: unique(patterns.flatMap((pattern) => pattern.requiredBlocks.map((block) => (
-      `${block.id}: ${block.responsibility}`
-    )))),
+    buildingBlocks: patternBuildingBlocks,
+    buildingBlockCatalogIds: buildingBlockCatalogEntries.map(({ entry }) => entry.id),
+    buildingBlockCatalogSummaries: buildingBlockCatalogEntries.map(({ entry }) => (
+      `${entry.id} ${entry.name}: ${entry.summary}`
+    )),
     externalInterfaces: unique(patterns.flatMap((pattern) => pattern.externalInterfaces)),
     internalContracts: unique([
       ...patterns.flatMap((pattern) => pattern.internalConnections),
@@ -991,7 +1019,35 @@ export function synthesizeCuratedFpgaArchitecture(promptText: string): CuratedAr
     methodologyRules,
     referenceDesigns,
     evidenceClaims,
+    buildingBlockCatalogEntries,
     confidence,
     blueprint,
   };
+}
+
+export function buildBuildingBlockCatalogPromptSection(params: {
+  promptText: string;
+  heading?: string;
+  maxEntries?: number;
+}) {
+  const synthesis = synthesizeCuratedFpgaArchitecture(params.promptText);
+  const catalogSection = formatBuildingBlockCatalogPromptSection(synthesis.buildingBlockCatalogEntries, {
+    heading: params.heading,
+    maxEntries: params.maxEntries,
+  });
+  const verifiedVhdlSection = formatVerifiedVhdlBlockLibraryPromptSection(
+    synthesis.buildingBlockCatalogEntries.map(({ entry }) => entry.name),
+  );
+  return [catalogSection, verifiedVhdlSection].filter(Boolean).join('\n\n');
+}
+
+export function buildKnownGoodLeafAvailabilityPromptSection(items: KnownGoodLeafAvailability[]) {
+  if (items.length === 0) return '';
+  return [
+    '## Known-Good Leaf Implementations',
+    'The app has prior passing leaf implementations for the components below. Use the architecture contract as source of truth; staged generation will reuse or adapt full VHDL only after exact interface checks.',
+    ...items
+      .sort((left, right) => left.componentId.localeCompare(right.componentId))
+      .map((item) => `- ${item.componentId}: ${item.mode}; passing samples=${item.passCount}`),
+  ].join('\n');
 }

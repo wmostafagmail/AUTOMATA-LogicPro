@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict';
+import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
 import test from 'node:test';
 import {
+  rewrapModelImplementationIntoSkeleton,
   runStagedFpgaArchitectGeneration,
   StagedComponentEntityMissingError,
   StagedPortInterfaceDriftError,
 } from '../src/server/fpgaArchitectStagedGeneration';
 import { parseFpgaArchitectResponse } from '../src/server/fpgaArchitect';
 import type { FpgaArchitectureContract } from '../src/server/fpgaArchitectureContract';
+import {
+  buildLeafBehaviorSignature,
+  buildLeafInterfaceSignature,
+  writeGoldenLeafLibrary,
+} from '../src/server/fpgaGoldenLeafLibrary';
 
 const contract: FpgaArchitectureContract = {
   schemaVersion: '2.0', designName: 'logic_gate', designClass: 'generic_fpga_vhdl_system', topEntity: 'logic_gate', topTestbench: 'tb_logic_gate', systemIntent: 'Implement one AND gate.', assumptions: ['Combinational.'], requiredCapabilityIds: [],
@@ -17,6 +26,190 @@ const contract: FpgaArchitectureContract = {
   verification: [{ id: 'check_and', requirement: 'Check AND.', stimulus: 'Drive ones.', expected: 'One.', observables: ['y_o'], covers: [], coversBehaviors: ['and_behavior'], actions: [{ kind: 'drive', signal: 'a_i', value: "'1'" }, { kind: 'drive', signal: 'b_i', value: "'1'" }, { kind: 'expect', signal: 'y_o', value: "'1'", message: 'AND' }, { kind: 'finish', message: 'TEST PASSED' }] }],
   numericFormats: [], instances: [{ id: 'tb_dut', parentComponentId: 'tb_logic_gate', childComponentId: 'logic_gate', label: 'dut', genericMap: {}, portMap: { a_i: 'a_i', b_i: 'b_i', y_o: 'y_o' } }], connections: [], stateMachines: [], sourceOrder: ['src/logic_gate.vhd', 'tb/tb_logic_gate.vhd'],
 };
+
+function fifoGoldenVhdl(width = 8) {
+  return [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'use ieee.numeric_std.all;',
+    'entity rx_fifo is',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    `    data_i : in std_logic_vector(${width - 1} downto 0);`,
+    `    data_o : out std_logic_vector(${width - 1} downto 0)`,
+    '  );',
+    'end entity rx_fifo;',
+    'architecture rtl of rx_fifo is',
+    'begin',
+    '  data_o <= data_i;',
+    'end architecture rtl;',
+    '',
+  ].join('\n');
+}
+
+function makeGoldenLeafContract(width = 8, clockDomain = 'clk'): FpgaArchitectureContract {
+  const vectorType = `std_logic_vector(${width - 1} downto 0)`;
+  return {
+    schemaVersion: '2.0',
+    designName: 'uart_spi_bridge',
+    designClass: 'uart_spi_protocol_bridge',
+    topEntity: 'fifo_top',
+    topTestbench: 'tb_fifo_top',
+    systemIntent: 'Exercise golden leaf reuse.',
+    assumptions: [],
+    requiredCapabilityIds: [],
+    components: [
+      {
+        id: 'rx_fifo',
+        kind: 'rtl',
+        name: 'rx_fifo',
+        file: 'src/rx_fifo.vhd',
+        responsibility: 'Buffer response bytes with bounded pointer/index logic.',
+        implements: [],
+        dependsOn: [],
+        children: [],
+        clockDomain,
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'data_i', mode: 'in', type: vectorType, purpose: 'Input.' },
+          { name: 'data_o', mode: 'out', type: vectorType, purpose: 'Output.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'fifo_top',
+        kind: 'top',
+        name: 'fifo_top',
+        file: 'src/fifo_top.vhd',
+        responsibility: 'Instantiate FIFO.',
+        implements: [],
+        dependsOn: ['rx_fifo'],
+        children: ['rx_fifo'],
+        clockDomain,
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'data_i', mode: 'in', type: vectorType, purpose: 'Input.' },
+          { name: 'data_o', mode: 'out', type: vectorType, purpose: 'Output.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'tb_fifo_top',
+        kind: 'testbench',
+        name: 'tb_fifo_top',
+        file: 'tb/tb_fifo_top.vhd',
+        responsibility: 'Self-check FIFO top.',
+        implements: [],
+        dependsOn: ['fifo_top'],
+        children: ['fifo_top'],
+        clockDomain: null,
+        generics: [],
+        ports: [],
+        exports: [],
+      },
+    ],
+    clockDomains: [],
+    behaviors: [{ id: 'fifo_move', requirement: 'Move data.', inputs: ['data_i'], outputs: ['data_o'], timing: 'one cycle', resetBehavior: 'zero', latencyCycles: 1 }],
+    verification: [],
+    numericFormats: [],
+    instances: [
+      { id: 'fifo_inst', parentComponentId: 'fifo_top', childComponentId: 'rx_fifo', label: 'u_rx_fifo', genericMap: {}, portMap: { clk: 'clk', rst: 'rst', data_i: 'data_i', data_o: 'data_o' } },
+      { id: 'tb_dut', parentComponentId: 'tb_fifo_top', childComponentId: 'fifo_top', label: 'dut', genericMap: {}, portMap: { clk: 'clk', rst: 'rst', data_i: 'data_i', data_o: 'data_o' } },
+    ],
+    connections: [],
+    stateMachines: [],
+    sourceOrder: ['src/rx_fifo.vhd', 'src/fifo_top.vhd', 'tb/tb_fifo_top.vhd'],
+  };
+}
+
+async function writeGoldenLibraryForContract(libraryPath: string, sourceContract = makeGoldenLeafContract(), passCount = 2) {
+  const component = sourceContract.components.find((candidate) => candidate.id === 'rx_fifo')!;
+  await writeGoldenLeafLibrary(libraryPath, {
+    libraryVersion: 1,
+    blocks: [{
+      libraryVersion: 1,
+      designClass: sourceContract.designClass,
+      componentId: component.id,
+      entityName: component.name,
+      filePath: component.file,
+      interfaceSignature: buildLeafInterfaceSignature(component),
+      behaviorSignature: buildLeafBehaviorSignature(sourceContract, component),
+      contentHash: 'golden-hash',
+      contractHash: 'contract-hash',
+      sourceDesignKey: 'uart_spi_bridge',
+      sourceAttempt: 1,
+      passCount,
+      repairCount: 0,
+      promotedAt: '2026-01-01T00:00:00.000Z',
+      vhdlContent: fifoGoldenVhdl(),
+    }],
+  });
+}
+
+async function writeVerifiedVhdlLibraryForContract(root: string, sourceContract = makeGoldenLeafContract()) {
+  const component = sourceContract.components.find((candidate) => candidate.id === 'rx_fifo')!;
+  await fs.mkdir(path.join(root, 'reports'), { recursive: true });
+  await fs.mkdir(path.join(root, 'rtl', 'blocks', 'memory'), { recursive: true });
+  await fs.mkdir(path.join(root, 'rtl', 'common'), { recursive: true });
+  await fs.mkdir(path.join(root, 'rtl', 'cores'), { recursive: true });
+  await fs.mkdir(path.join(root, 'tb', 'blocks', 'memory'), { recursive: true });
+  await fs.writeFile(path.join(root, 'reports', 'verification_matrix.csv'), [
+    'block_id,name,category,subcategory,origin,function,archetype,implementation_tier,protocol_status,timing_status,cdc_status,numeric_status,core,source_file,testbench_file,static_validation,ghdl_analysis,functional_simulation',
+    '0001,rx_fifo,Memory,FIFO,fixture,FIFO fixture,leaf,A,ok,ok,ok,ok,bb_fifo_core,rtl/blocks/memory/rx_fifo.vhd,tb/blocks/memory/tb_rx_fifo.vhd,PASS,PASS,PASS',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'rtl', 'common', 'bb_util_pkg.vhd'), 'package bb_util_pkg is end package;\n');
+  await fs.writeFile(path.join(root, 'rtl', 'cores', 'bb_fifo_core.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity bb_fifo_core is',
+    '  port (data_i : in std_logic_vector(7 downto 0); data_o : out std_logic_vector(7 downto 0));',
+    'end entity;',
+    'architecture rtl of bb_fifo_core is begin',
+    '  data_o <= data_i;',
+    'end architecture;',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'rtl', 'blocks', 'memory', 'rx_fifo.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'use work.bb_util_pkg.all;',
+    'entity rx_fifo is',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    data_i : in std_logic_vector(7 downto 0);',
+    '    data_o : out std_logic_vector(7 downto 0)',
+    '  );',
+    'end entity rx_fifo;',
+    'architecture rtl of rx_fifo is begin',
+    '  u_core : entity work.bb_fifo_core port map(data_i => data_i, data_o => data_o);',
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'tb', 'blocks', 'memory', 'tb_rx_fifo.vhd'), 'entity tb_rx_fifo is end entity;\narchitecture sim of tb_rx_fifo is begin end architecture;\n');
+  const qualificationPath = path.join(root, 'qualification.json');
+  const target = { ok: true, exitCode: 0, summary: 'passed' };
+  await fs.writeFile(qualificationPath, JSON.stringify({
+    libraryVersion: 'fixture',
+    libraryRoot: root,
+    ghdlVersion: 'GHDL fixture',
+    verifiedAt: '2026-01-01T00:00:00.000Z',
+    blockCount: 1,
+    testbenchCount: 1,
+    coreCount: 1,
+    trustedForReuse: true,
+    targets: { static: target, 'core-regression': target, 'all-smokes': target },
+    warnings: [],
+  }, null, 2));
+  assert.equal(component.name, 'rx_fifo');
+  return qualificationPath;
+}
 
 test('staged generation uses the model only for constrained RTL and preserves manifest compatibility', async () => {
   const prompts: string[] = [];
@@ -55,6 +248,50 @@ test('staged generation retries a component once when the public port interface 
   assert.match(prompts[1], /expectedPorts: a_i, b_i, y_o/);
   assert.equal(result.attempts.length, 2);
   assert.match(result.project.files.find((file) => file.path === 'src/logic_gate.vhd')?.content || '', /y_o <= a_i and b_i/);
+});
+
+test('staged generation can rewrap marked implementation regions into the app-owned skeleton', () => {
+  const skeleton = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity logic_gate is',
+    '  port (a_i : in std_logic; b_i : in std_logic; y_o : out std_logic);',
+    'end entity logic_gate;',
+    'architecture rtl of logic_gate is',
+    '  -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN',
+    '  -- MODEL_IMPLEMENTATION_DECLARATIONS_END',
+    'begin',
+    '  -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN',
+    '  -- MODEL_IMPLEMENTATION_STATEMENTS_END',
+    'end architecture rtl;',
+    '',
+  ].join('\n');
+  const drifted = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity logic_gate is',
+    '  port (a_i : in std_logic; b_i : in std_logic; extra_o : out std_logic; y_o : out std_logic);',
+    'end entity logic_gate;',
+    'architecture rtl of logic_gate is',
+    '  -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN',
+    '  signal tmp_s : std_logic;',
+    '  -- MODEL_IMPLEMENTATION_DECLARATIONS_END',
+    'begin',
+    '  -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN',
+    '  tmp_s <= a_i and b_i;',
+    '  y_o <= tmp_s;',
+    '  -- MODEL_IMPLEMENTATION_STATEMENTS_END',
+    'end architecture rtl;',
+    '',
+  ].join('\n');
+
+  const rewrapped = rewrapModelImplementationIntoSkeleton({ skeleton, modelContent: drifted });
+
+  assert.ok(rewrapped);
+  assert.match(rewrapped, /port \(a_i : in std_logic; b_i : in std_logic; y_o : out std_logic\)/);
+  assert.doesNotMatch(rewrapped, /extra_o/);
+  assert.match(rewrapped, /signal tmp_s : std_logic/);
+  assert.match(rewrapped, /y_o <= tmp_s/);
 });
 
 test('staged generation retries a component once when the required entity declaration is missing', async () => {
@@ -104,6 +341,110 @@ test('staged generation retries a component once when the required entity declar
   assert.match(prompts[1], /declaredEntities: wrong_logic_gate/);
   assert.equal(result.attempts.length, 2);
   assert.match(result.project.files.find((file) => file.path === 'src/logic_gate.vhd')?.content || '', /entity logic_gate is/i);
+});
+
+test('staged generation reuses an exact known-good leaf without calling the model', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-golden-exact-'));
+  const libraryPath = path.join(tempDir, 'fpga-golden-leaf-library.json');
+  const goldenContract = makeGoldenLeafContract();
+  await writeGoldenLibraryForContract(libraryPath, goldenContract);
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: goldenContract,
+    maxStageOutputChars: 20_000,
+    goldenLeafLibraryPath: libraryPath,
+    runModelAnalysis: async () => {
+      throw new Error('model should not be called for exact golden leaf reuse');
+    },
+  });
+
+  const fifoFile = result.project.files.find((file) => file.path === 'src/rx_fifo.vhd')?.content || '';
+  assert.match(fifoFile, /data_o <= data_i;/);
+  assert.equal(result.attempts.length, 0);
+});
+
+test('staged generation reuses an exact verified VHDL library leaf with dependencies before calling the model', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-verified-vhdl-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeVerifiedVhdlLibraryForContract(verifiedLibraryRoot);
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeGoldenLeafContract(),
+    maxStageOutputChars: 20_000,
+    verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+    verifiedVhdlBlockQualificationPath,
+    runModelAnalysis: async () => {
+      throw new Error('model should not be called for exact verified VHDL library reuse');
+    },
+  });
+
+  const filePaths = result.project.files.map((file) => file.path);
+  assert.ok(filePaths.includes('lib/fpga_vhdl_blocks/common/bb_util_pkg.vhd'));
+  assert.ok(filePaths.includes('lib/fpga_vhdl_blocks/cores/bb_fifo_core.vhd'));
+  assert.match(result.project.files.find((file) => file.path === 'src/rx_fifo.vhd')?.content || '', /entity work\.bb_fifo_core/);
+  assert.deepEqual(result.project.ghdl.analysisOrder.slice(0, 3), [
+    'lib/fpga_vhdl_blocks/common/bb_util_pkg.vhd',
+    'lib/fpga_vhdl_blocks/cores/bb_fifo_core.vhd',
+    'src/rx_fifo.vhd',
+  ]);
+  assert.equal(result.attempts.length, 0);
+});
+
+test('staged generation adapts a safe near-match from a known-good leaf baseline', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-golden-adapt-'));
+  const libraryPath = path.join(tempDir, 'fpga-golden-leaf-library.json');
+  await writeGoldenLibraryForContract(libraryPath, makeGoldenLeafContract(8));
+  const prompts: string[] = [];
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeGoldenLeafContract(16),
+    maxStageOutputChars: 20_000,
+    goldenLeafLibraryPath: libraryPath,
+    runModelAnalysis: async ({ prompt }) => {
+      prompts.push(prompt);
+      assert.match(prompt, /Stored passing VHDL baseline:/);
+      assert.match(prompt, /port data_i type: std_logic_vector\(7 downto 0\) -> std_logic_vector\(15 downto 0\)/);
+      return {
+        text: fifoGoldenVhdl(16),
+        telemetry: { durationMs: 1 },
+      };
+    },
+  });
+
+  const fifoFile = result.project.files.find((file) => file.path === 'src/rx_fifo.vhd')?.content || '';
+  assert.equal(prompts.length, 1);
+  assert.match(fifoFile, /std_logic_vector\(15 downto 0\)/);
+});
+
+test('staged generation falls back to skeleton prompt for unsafe known-good mismatches', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-golden-unsafe-'));
+  const libraryPath = path.join(tempDir, 'fpga-golden-leaf-library.json');
+  await writeGoldenLibraryForContract(libraryPath, makeGoldenLeafContract(8, 'clk'));
+  const prompts: string[] = [];
+  await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeGoldenLeafContract(8, 'spi_clk'),
+    maxStageOutputChars: 20_000,
+    goldenLeafLibraryPath: libraryPath,
+    runModelAnalysis: async ({ prompt }) => {
+      prompts.push(prompt);
+      assert.doesNotMatch(prompt, /Stored passing VHDL baseline:/);
+      return {
+        text: fifoGoldenVhdl(8),
+        telemetry: { durationMs: 1 },
+      };
+    },
+  });
+
+  assert.equal(prompts.length, 1);
 });
 
 test('staged generation uses deterministic FIFO fallback immediately after FIFO entity drift', async () => {

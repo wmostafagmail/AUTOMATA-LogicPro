@@ -44,6 +44,10 @@ import {
   writeFpgaGoldenContract,
 } from './fpgaGoldenContracts';
 import { hashGeneratedFpgaVhdl, summarizeFpgaReproducibility } from './fpgaReproducibilityMetrics';
+import {
+  buildGoldenLeafLibraryPath,
+  promotePassedLeafBlocks,
+} from './fpgaGoldenLeafLibrary';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -1440,6 +1444,7 @@ export async function runFpgaArchitectStressLoop(params: {
   const masterLogPath = path.join(logDirectory, 'fpga-architect-sweep.log');
   const modelQualityScoreboardPath = path.join(logDirectory, 'model-quality-scoreboard.json');
   const goldenContractDirectory = path.join(logDirectory, 'fpga-architect-golden-contracts');
+  const goldenLeafLibraryPath = buildGoldenLeafLibraryPath(projectPath);
   const metaPath = path.join(logDirectory, 'fpga-architect-sweep.meta.json');
   const sweepOutputRoot = path.join(projectPath, 'fpga-architect-sweep');
   const runtimeInfo = await buildFpgaArchitectSweepRuntimeInfo();
@@ -1879,12 +1884,23 @@ export async function runFpgaArchitectStressLoop(params: {
         const generatedVhdlHash = analysisResult?.architectProject
           ? hashGeneratedFpgaVhdl(analysisResult.architectProject)
           : null;
+        const goldenLeafPromotion = approvedArchitectureContract && analysisResult?.architectProject
+          ? await promotePassedLeafBlocks({
+            libraryPath: goldenLeafLibraryPath,
+            contract: approvedArchitectureContract,
+            project: analysisResult.architectProject,
+            sourceDesignKey: preset.key,
+            sourceAttempt: activeGlobalAttempt,
+            repairCount: analysisResult?.validation?.repairAudit?.length || 0,
+          })
+          : null;
         const successMessage = [
           'PASS',
           analysisResult?.validation?.summary ? `Validation: ${analysisResult.validation.summary}` : '',
           analysisResult?.outputDirectory ? `Output: ${analysisResult.outputDirectory}` : '',
           architectureContractHash ? `Architecture Contract Hash: ${architectureContractHash}` : '',
           generatedVhdlHash ? `Generated VHDL Hash: ${generatedVhdlHash}` : '',
+          goldenLeafPromotion ? `Golden Leaf Blocks: promoted=${goldenLeafPromotion.promoted}; updated=${goldenLeafPromotion.updated}; skipped=${goldenLeafPromotion.skipped}` : '',
         ].filter(Boolean).join('\n');
         const resultEntry: RunLoopAttemptResult = {
           attempt: activeGlobalAttempt,

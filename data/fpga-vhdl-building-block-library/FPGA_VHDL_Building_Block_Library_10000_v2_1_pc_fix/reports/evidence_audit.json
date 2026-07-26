@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "vhdl_files_scanned": 20071,
+  "entities": 20070,
+  "catalog_blocks": 10000,
+  "catalog_testbenches": 10000,
+  "errors": [],
+  "warnings": [
+    "CDC-named source lacks ASYNC_REG marker: rtl/blocks/clock_reset_cdc/gray_counter_synchronizer_low_power.vhd",
+    "CDC-named source lacks ASYNC_REG marker: rtl/blocks/clock_reset_cdc/gray_counter_synchronizer_programmable.vhd",
+    "CDC-named source lacks ASYNC_REG marker: rtl/blocks/clock_reset_cdc/gray_counter_synchronizer_continuous.vhd",
+    "CDC-named source lacks ASYNC_REG marker: rtl/blocks/clock_reset_cdc/gray_counter_synchronizer_multi_channel.vhd",
+    "CDC-named source lacks ASYNC_REG marker: rtl/blocks/clock_reset_cdc/gray_counter_synchronizer_fault_tolerant.vhd",
+    "CDC-named source lacks ASYNC_REG marker: rtl/blocks/clock_reset_cdc/gray_counter_synchronizer_single_shot.vhd"
+  ],
+  "cdc_named_files": 34
+}

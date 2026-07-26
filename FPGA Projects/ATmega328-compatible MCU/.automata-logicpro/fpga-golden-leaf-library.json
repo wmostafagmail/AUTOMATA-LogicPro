@@ -1,0 +1,981 @@
+{
+  "libraryVersion": 1,
+  "blocks": [
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "arbiter",
+      "entityName": "arbiter",
+      "filePath": "src/arbiter.vhd",
+      "interfaceSignature": {
+        "entityName": "arbiter",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "arbiter",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "26f9b638eb939edfdbf81b6563257580d39aa320a3c3a85675db557cabb9d5da",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 14,
+      "passCount": 2,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:23:29.900Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity arbiter is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity arbiter;\n\narchitecture rtl of arbiter is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type arb_state_t is (ST_IDLE, ST_ACTIVE, ST_COMPLETE);\n   signal arb_state : arb_state_t := ST_IDLE;\n   signal data_reg  : std_logic_vector(7 downto 0) := (others => '0');\n   signal done_sig  : std_logic := '0';\n   signal error_sig : std_logic := '0';\n   signal status_sig: std_logic_vector(3 downto 0) := (others => '0');\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         arb_state <= ST_IDLE;\n         data_reg  <= (others => '0');\n         done_sig  <= '0';\n         error_sig <= '0';\n         status_sig<= (others => '0');\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            case arb_state is\n               when ST_IDLE =>\n                  data_reg  <= data_i;\n                  arb_state <= ST_ACTIVE;\n                  done_sig  <= '0';\n                  error_sig <= '0';\n                  status_sig<= x\"1\";\n               when ST_ACTIVE =>\n                  arb_state <= ST_COMPLETE;\n                  done_sig  <= '1';\n               when ST_COMPLETE =>\n                  arb_state <= ST_IDLE;\n                  done_sig  <= '0';\n               when others =>\n                  arb_state <= ST_IDLE;\n            end case;\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "arbiter",
+      "entityName": "arbiter",
+      "filePath": "src/arbiter.vhd",
+      "interfaceSignature": {
+        "entityName": "arbiter",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "arbiter",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "ff05997d5cc4494f3201a1b896ce2375bd4920b02f5a2fea590a35554f7acb7a",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 13,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:11:27.143Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity arbiter is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity arbiter;\n\narchitecture rtl of arbiter is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type arb_state_t is (ST_IDLE, ST_ACTIVE);\n   signal state_reg : arb_state_t := ST_IDLE;\n   signal data_reg  : std_logic_vector(7 downto 0) := (others => '0');\n   signal done_sig  : std_logic := '0';\n   signal error_sig : std_logic := '0';\n   signal status_sig: std_logic_vector(7 downto 0) := (others => '0');\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         state_reg <= ST_IDLE;\n         data_reg  <= (others => '0');\n         done_sig  <= '0';\n         error_sig <= '0';\n         status_sig<= (others => '0');\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            data_reg  <= data_i;\n            state_reg <= ST_ACTIVE;\n            done_sig  <= '1';\n            error_sig <= '0';\n            status_sig<= data_i;\n         else\n            state_reg <= ST_IDLE;\n            done_sig  <= '0';\n            error_sig <= '0';\n            status_sig<= (others => '0');\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "backpressure_control",
+      "entityName": "backpressure_control",
+      "filePath": "src/backpressure_control.vhd",
+      "interfaceSignature": {
+        "entityName": "backpressure_control",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "backpressure_control",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "5d538bef69f059357ea042cf2a9a3855f9f9d2a9e4f66db340966976fee74f42",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 13,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:11:27.143Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity backpressure_control is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity backpressure_control;\n\narchitecture rtl of backpressure_control is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal ready_reg : std_logic := '0';\n   signal bp_reg    : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         ready_reg <= '0';\n         bp_reg    <= '0';\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            ready_reg <= '1';\n            bp_reg    <= '0';\n         else\n            ready_reg <= '0';\n            bp_reg    <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "backpressure_control",
+      "entityName": "backpressure_control",
+      "filePath": "src/backpressure_control.vhd",
+      "interfaceSignature": {
+        "entityName": "backpressure_control",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "backpressure_control",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "7a766f87ba6870b3e6f108a21d02e3ec2acecb015894f4b76dc780f283736872",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 14,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:17:28.427Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity backpressure_control is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity backpressure_control;\n\narchitecture rtl of backpressure_control is\n  signal valid_reg : std_logic := '0';\n  signal data_reg  : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n  process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        valid_reg <= '0';\n        data_reg  <= (others => '0');\n      elsif enable_i = '1' then\n        valid_reg <= '1';\n        data_reg  <= data_i;\n      else\n        valid_reg <= '0';\n        data_reg  <= (others => '0');\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "backpressure_control",
+      "entityName": "backpressure_control",
+      "filePath": "src/backpressure_control.vhd",
+      "interfaceSignature": {
+        "entityName": "backpressure_control",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "backpressure_control",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "aae41e117a3e2c823b88a499d0f0680346f56f409ded5090125b4e89d23b5c93",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 15,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:23:29.900Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity backpressure_control is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity backpressure_control;\n\narchitecture rtl of backpressure_control is\n   signal ctrl_reg : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         ctrl_reg <= (others => '0');\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            ctrl_reg <= data_i;\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "egress_interface_blocks",
+      "entityName": "egress_interface_blocks",
+      "filePath": "src/egress_interface_blocks.vhd",
+      "interfaceSignature": {
+        "entityName": "egress_interface_blocks",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "egress_interface_blocks",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "7369dc183049ee7537c1f00d07fea5c69296e8faaf525645d85d4986c67879c3",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 14,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:17:28.427Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity egress_interface_blocks is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity egress_interface_blocks;\n\narchitecture rtl of egress_interface_blocks is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal reg_data : std_logic_vector(7 downto 0);\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n     if rising_edge(clk) then\n       if rst = '1' then\n         reg_data <= (others => '0');\n       elsif enable_i = '1' then\n         reg_data <= data_i;\n       end if;\n     end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "egress_interface_blocks",
+      "entityName": "egress_interface_blocks",
+      "filePath": "src/egress_interface_blocks.vhd",
+      "interfaceSignature": {
+        "entityName": "egress_interface_blocks",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "egress_interface_blocks",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "7b0d5d14e189b1e55183ed590e1de51e5405fadec0bf43d15d46b40fd40f717e",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 15,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:23:29.900Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity egress_interface_blocks is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity egress_interface_blocks;\n\narchitecture rtl of egress_interface_blocks is\n   signal data_reg : std_logic_vector(7 downto 0) := (others => '0');\n   signal status_reg : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            data_reg <= (others => '0');\n            status_reg <= (others => '0');\n         else\n            if enable_i = '1' then\n               data_reg <= data_i;\n               status_reg <= data_i;\n            end if;\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "egress_interface_blocks",
+      "entityName": "egress_interface_blocks",
+      "filePath": "src/egress_interface_blocks.vhd",
+      "interfaceSignature": {
+        "entityName": "egress_interface_blocks",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "egress_interface_blocks",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "904223e2f4bc32ae81aced092e0a640bf2b1d23f31c00258090da190ebbd717a",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 13,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:11:27.143Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity egress_interface_blocks is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity egress_interface_blocks;\n\narchitecture rtl of egress_interface_blocks is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (IDLE, ACTIVE);\n   signal state_reg, state_next : state_type;\n   signal done_reg, done_next : std_logic;\n   signal error_reg, error_next : std_logic;\n   signal status_reg, status_next : std_logic_vector(7 downto 0);\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         state_reg <= IDLE;\n         done_reg <= '0';\n         error_reg <= '0';\n         status_reg <= (others => '0');\n      elsif rising_edge(clk) then\n         state_reg <= state_next;\n         done_reg <= done_next;\n         error_reg <= error_next;\n         status_reg <= status_next;\n      end if;\n   end process;\n\n   process(state_reg, enable_i, data_i)\n   begin\n      state_next <= state_reg;\n      done_next <= '0';\n      error_next <= '0';\n      status_next <= (others => '0');\n\n      case state_reg is\n         when IDLE =>\n            if enable_i = '1' then\n               state_next <= ACTIVE;\n            end if;\n         when ACTIVE =>\n            state_next <= IDLE;\n            done_next <= '1';\n            status_next <= data_i;\n         when others =>\n            null;\n      end case;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "ingress_interface_blocks",
+      "entityName": "ingress_interface_blocks",
+      "filePath": "src/ingress_interface_blocks.vhd",
+      "interfaceSignature": {
+        "entityName": "ingress_interface_blocks",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "ingress_interface_blocks",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "301775914b94f96d30662f38f0be13f66e1b4694da3b8f67b00fb9e26dedd1a6",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 13,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:11:27.143Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity ingress_interface_blocks is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity ingress_interface_blocks;\n\narchitecture rtl of ingress_interface_blocks is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (IDLE, CAPTURE);\n   signal current_state : state_type := IDLE;\n   signal data_reg : std_logic_vector(7 downto 0) := (others => '0');\n   signal valid_flag : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         current_state <= IDLE;\n         data_reg <= (others => '0');\n         valid_flag <= '0';\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            current_state <= CAPTURE;\n            data_reg <= data_i;\n            valid_flag <= '1';\n         else\n            current_state <= IDLE;\n            valid_flag <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "ingress_interface_blocks",
+      "entityName": "ingress_interface_blocks",
+      "filePath": "src/ingress_interface_blocks.vhd",
+      "interfaceSignature": {
+        "entityName": "ingress_interface_blocks",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "ingress_interface_blocks",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "a255be4e66cb6c7c7724c9a5c4a424564d07e022244e657defcc3ab001b6532f",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 14,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:17:28.426Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity ingress_interface_blocks is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity ingress_interface_blocks;\n\narchitecture rtl of ingress_interface_blocks is\n   signal capture_valid : std_logic := '0';\n   signal capture_data  : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         capture_valid <= '0';\n         capture_data  <= (others => '0');\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            capture_valid <= '1';\n            capture_data  <= data_i;\n         else\n            capture_valid <= '0';\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "ingress_interface_blocks",
+      "entityName": "ingress_interface_blocks",
+      "filePath": "src/ingress_interface_blocks.vhd",
+      "interfaceSignature": {
+        "entityName": "ingress_interface_blocks",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "ingress_interface_blocks",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "b7e09c7ceb4292315f1fc096192c75217929bfa7f9f4adc0a6be1b061e00ff1f",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 15,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:23:29.900Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity ingress_interface_blocks is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity ingress_interface_blocks;\n\narchitecture rtl of ingress_interface_blocks is\n  signal valid_sig : std_logic;\n  signal ready_sig : std_logic;\n  signal data_reg : std_logic_vector(7 downto 0);\n  signal capture_valid : std_logic;\nbegin\n  valid_sig <= enable_i;\n  ready_sig <= '1';\n\n  process(clk, rst)\n  begin\n    if rst = '1' then\n      data_reg <= (others => '0');\n      capture_valid <= '0';\n    elsif rising_edge(clk) then\n      if valid_sig = '1' and ready_sig = '1' then\n        data_reg <= data_i;\n        capture_valid <= '1';\n      else\n        capture_valid <= '0';\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "packet_tracker",
+      "entityName": "packet_tracker",
+      "filePath": "src/packet_tracker.vhd",
+      "interfaceSignature": {
+        "entityName": "packet_tracker",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "packet_tracker",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "56ccc10af228e56fe94f178da82f212b8c5cad1889700d135e006a38bb0b98f8",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 14,
+      "passCount": 2,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:23:29.901Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity packet_tracker is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity packet_tracker;\n\narchitecture rtl of packet_tracker is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (IDLE, TRACKING, COMPLETE);\n   signal current_state : state_type := IDLE;\n   signal byte_counter : unsigned(7 downto 0) := (others => '0');\n   signal packet_valid : std_logic := '0';\n   signal packet_boundary : std_logic := '0';\n   signal route_select : unsigned(3 downto 0) := (others => '0');\n   signal status_reg : unsigned(3 downto 0) := (others => '0');\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            current_state <= IDLE;\n            byte_counter <= (others => '0');\n            packet_valid <= '0';\n            packet_boundary <= '0';\n            route_select <= (others => '0');\n            status_reg <= (others => '0');\n         elsif enable_i = '1' then\n            case current_state is\n               when IDLE =>\n                  current_state <= TRACKING;\n                  byte_counter <= (others => '0');\n                  packet_valid <= '1';\n                  packet_boundary <= '0';\n                  route_select <= (others => '0');\n                  status_reg <= (others => '0');\n               when TRACKING =>\n                  byte_counter <= byte_counter + 1;\n                  packet_valid <= '1';\n                  packet_boundary <= '0';\n                  status_reg <= (others => '0');\n                  if byte_counter = 7 then\n                     current_state <= COMPLETE;\n                     packet_boundary <= '1';\n                     status_reg <= (others => '0');\n                  end if;\n               when COMPLETE =>\n                  current_state <= IDLE;\n                  packet_valid <= '0';\n                  packet_boundary <= '0';\n                  status_reg <= (others => '0');\n            end case;\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "packet_tracker",
+      "entityName": "packet_tracker",
+      "filePath": "src/packet_tracker.vhd",
+      "interfaceSignature": {
+        "entityName": "packet_tracker",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "packet_tracker",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "dd9ddc51d33b94880c52a4d31dfb536196436e114aca73697cbca94245b9f2df",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 13,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:11:27.143Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity packet_tracker is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity packet_tracker;\n\narchitecture rtl of packet_tracker is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n  type pkt_state_t is (IDLE, ACTIVE);\n  signal pkt_state : pkt_state_t := IDLE;\n  signal byte_cnt : unsigned(7 downto 0) := (others => '0');\n  signal route_id : std_logic_vector(3 downto 0) := (others => '0');\n  signal pkt_status : std_logic_vector(7 downto 0) := (others => '0');\n  signal is_active : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n  process(clk, rst)\n  begin\n    if rst = '1' then\n      pkt_state <= IDLE;\n      byte_cnt <= (others => '0');\n      route_id <= (others => '0');\n      pkt_status <= (others => '0');\n      is_active <= '0';\n    elsif rising_edge(clk) then\n      if enable_i = '1' then\n        case pkt_state is\n          when IDLE =>\n            pkt_state <= ACTIVE;\n            is_active <= '1';\n            byte_cnt <= (others => '0');\n            route_id <= data_i(7 downto 4);\n            pkt_status <= data_i;\n          when ACTIVE =>\n            byte_cnt <= byte_cnt + 1;\n            pkt_status <= std_logic_vector(byte_cnt(7 downto 0));\n        end case;\n      else\n        if pkt_state = ACTIVE then\n          pkt_state <= IDLE;\n          is_active <= '0';\n          byte_cnt <= (others => '0');\n        end if;\n      end if;\n    end if;\n  end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "routing_decision_logic",
+      "entityName": "routing_decision_logic",
+      "filePath": "src/routing_decision_logic.vhd",
+      "interfaceSignature": {
+        "entityName": "routing_decision_logic",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "routing_decision_logic",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "16c4725b0889c38a12524298de63e1d3caf3703e25f617211d387ed071a071ae",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 13,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:11:27.143Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity routing_decision_logic is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity routing_decision_logic;\n\narchitecture rtl of routing_decision_logic is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type route_e is (ROUTE_A, ROUTE_B, ROUTE_C, ROUTE_D);\n   signal route_reg : route_e := ROUTE_A;\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         route_reg <= ROUTE_A;\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            case data_i(7 downto 6) is\n               when \"00\" => route_reg <= ROUTE_A;\n               when \"01\" => route_reg <= ROUTE_B;\n               when \"10\" => route_reg <= ROUTE_C;\n               when others => route_reg <= ROUTE_D;\n            end case;\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "routing_decision_logic",
+      "entityName": "routing_decision_logic",
+      "filePath": "src/routing_decision_logic.vhd",
+      "interfaceSignature": {
+        "entityName": "routing_decision_logic",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "routing_decision_logic",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "1ee4db9623f6f052e930cc455ce39e783369a5ae977ac58c7424df1c56d08bf5",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 15,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:23:29.900Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity routing_decision_logic is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity routing_decision_logic;\n\narchitecture rtl of routing_decision_logic is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type route_fsm_t is (ROUTE_IDLE, ROUTE_DECODE, ROUTE_VALID);\n   signal route_fsm : route_fsm_t := ROUTE_IDLE;\n   signal route_sel : std_logic_vector(1 downto 0) := \"00\";\n   signal pkt_status : std_logic_vector(1 downto 0) := \"00\";\n   signal pkt_done : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         route_fsm <= ROUTE_IDLE;\n         route_sel <= \"00\";\n         pkt_status <= \"00\";\n         pkt_done <= '0';\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            case data_i(7 downto 6) is\n               when \"00\" =>\n                  route_sel <= \"00\";\n                  pkt_status <= \"01\";\n                  pkt_done <= '1';\n               when \"01\" =>\n                  route_sel <= \"01\";\n                  pkt_status <= \"01\";\n                  pkt_done <= '1';\n               when \"10\" =>\n                  route_sel <= \"10\";\n                  pkt_status <= \"10\";\n                  pkt_done <= '1';\n               when others =>\n                  route_sel <= \"11\";\n                  pkt_status <= \"00\";\n                  pkt_done <= '1';\n            end case;\n            route_fsm <= ROUTE_VALID;\n         else\n            route_fsm <= ROUTE_IDLE;\n            pkt_done <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "axi_stream_router",
+      "componentId": "routing_decision_logic",
+      "entityName": "routing_decision_logic",
+      "filePath": "src/routing_decision_logic.vhd",
+      "interfaceSignature": {
+        "entityName": "routing_decision_logic",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "routing_decision_logic",
+        "clockDomain": "axi_stream_router_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_arbiter",
+          "behavior_backpressure_control",
+          "behavior_egress_interface_blocks",
+          "behavior_ingress_interface_blocks",
+          "behavior_packet_tracker",
+          "behavior_routing_decision_logic",
+          "behavior_stream_pkg",
+          "behavior_stream_router_top",
+          "behavior_tb_stream_router_top"
+        ]
+      },
+      "contentHash": "b2a96f021178102a781af50eaa502185ad1a4162f83663a1e49bd3e460c2cf61",
+      "contractHash": "6f15f789e35b82098ce1b24950372ee31dc79547a7bddcfe93d219ee6acfb32c",
+      "sourceDesignKey": "axi_stream_router",
+      "sourceAttempt": 14,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T00:17:28.426Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity routing_decision_logic is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity routing_decision_logic;\n\narchitecture rtl of routing_decision_logic is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal route_sel_s : std_logic_vector(3 downto 0);\n   signal status_s : std_logic_vector(7 downto 0);\n   signal done_s : std_logic;\n   signal error_s : std_logic;\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            route_sel_s <= (others => '0');\n            status_s <= (others => '0');\n            done_s <= '0';\n            error_s <= '0';\n         elsif enable_i = '1' then\n            case data_i is\n               when x\"00\" => route_sel_s <= \"0000\"; status_s <= x\"01\";\n               when x\"01\" => route_sel_s <= \"0001\"; status_s <= x\"02\";\n               when x\"02\" => route_sel_s <= \"0010\"; status_s <= x\"04\";\n               when others => route_sel_s <= \"1111\"; status_s <= x\"FF\";\n            end case;\n            done_s <= '1';\n            error_s <= '0';\n         else\n            done_s <= '0';\n            error_s <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    }
+  ]
+}

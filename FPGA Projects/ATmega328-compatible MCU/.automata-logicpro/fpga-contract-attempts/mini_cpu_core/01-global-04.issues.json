@@ -7,14 +7,14 @@
   "designAttempt": 1,
   "issueCount": 1,
   "topIssueCodes": [
-    "architecture_contract_json_invalid"
+    "architecture_missing_block_discovery_poor_fit"
   ],
-  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or '}' after property value in JSON at position 23835 (line 869 column 23)",
+  "message": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
   "issues": [
     {
-      "code": "architecture_contract_json_invalid",
-      "path": "$",
-      "message": "Expected ',' or '}' after property value in JSON at position 23835 (line 869 column 23)"
+      "code": "architecture_missing_block_discovery_poor_fit",
+      "path": "$.architectureSynthesis.buildingBlockCatalogIds",
+      "message": "Discovered blocks: control_fsm, program_memory_interface, data_memory_interface. Missing blocks after review: instruction_fetch, instruction_decoder, alu, register_file, branch_handler, cpu_top. Risks: Auto-discovered contracts are generic FSM wrappers that do not provide CPU-specific datapath ports (address/data buses, control signals).; Critical CPU components are missing: fetch unit, decoder, ALU, register file, and branch logic.; Reset polarity mismatch: discovered blocks use active-low rst_ni, conflicting with the synchronous active-high reset requirement.; Memory interfaces lack explicit address/data ports required for a functional CPU core.; No explicit interconnect or pipeline stage definitions between fetch, decode, execute, and write-back.."
     }
   ]
 }

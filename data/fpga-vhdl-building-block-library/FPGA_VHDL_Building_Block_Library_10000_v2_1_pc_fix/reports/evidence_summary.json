@@ -1,0 +1,28 @@
+{
+  "release": "FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix",
+  "catalog_entities": 10000,
+  "catalog_testbenches": 10000,
+  "qualified_reference_cores": 20,
+  "qualified_reference_testbenches": 20,
+  "vhdl_files_scanned": 20071,
+  "entity_declarations_found": 20070,
+  "source_tree_audit": "PASS",
+  "source_tree_warnings": 6,
+  "python_reference_model_checks": 178471,
+  "python_reference_model_status": "PASS",
+  "ghdl_status": "NOT_AVAILABLE; VHDL compile/elaboration/simulation not executed",
+  "protocol_compliance": "NOT_SIGNED_OFF",
+  "cdc_rdc_signoff": "NOT_SIGNED_OFF",
+  "numerical_signoff": "PARTIAL_ORACLE_EVIDENCE_ONLY; no VHDL equivalence run",
+  "synthesis": "NOT_RUN",
+  "timing_closure": "NOT_RUN; exact target and constraints required",
+  "production_preverified_blocks": 0,
+  "claim": "Reference implementation package with explicit evidence gates; not a production-qualified IP library.",
+  "program_counter_fix": {
+    "status": "APPLIED",
+    "changed_testbenches": 7,
+    "changed_rtl_files": 0,
+    "root_cause": "testbench delta-cycle sampling race",
+    "focused_ghdl_regression": "PENDING_RERUN; GHDL unavailable in generation environment"
+  }
+}
