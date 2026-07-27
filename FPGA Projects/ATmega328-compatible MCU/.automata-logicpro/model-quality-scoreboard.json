@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T22:16:04.243Z",
+  "updatedAt": "2026-07-27T22:23:34.513Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 520,
+      "attempts": 523,
       "successes": 225,
-      "codeQualityFailures": 295,
+      "codeQualityFailures": 298,
       "providerRuntimeFailures": 14,
-      "lastUpdatedAt": "2026-07-27T22:16:04.243Z",
+      "lastUpdatedAt": "2026-07-27T22:23:34.513Z",
       "designs": {
         "uart_spi_bridge": {
           "attempts": 169,
@@ -433,9 +433,9 @@
           }
         },
         "mini_cpu_core": {
-          "attempts": 114,
+          "attempts": 117,
           "successes": 49,
-          "codeQualityFailures": 65,
+          "codeQualityFailures": 68,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -782,11 +782,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 9,
-              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"program_counter\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=program_counter\ncomponentName=program_counter\nverifiedBlock=program_counter\nverifiedEntity=program_counter_det_cfg\nunsafeReasons=verified port stall cannot be safely mapped | verified port sequential_advance cannot be safely mapped | verified port redirect_valid cannot be safely mapped | verified port redirect_pc cannot be safely mapped | approved port data_i has no verified driver/source\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "count": 12,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"register_file\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=register_file\ncomponentName=register_file\nverifiedBlock=register_file\nverifiedEntity=register_file_det_cfg\nunsafeReasons=verified port src_addr cannot be safely mapped | verified port dst_addr cannot be safely mapped | port data_i/data_in type differs unsafely: std_logic_vector(7 downto 0) vs std_logic_vector(data_width - 1 downto 0)\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-27T19:53:43.019Z"
+              "lastSeenAt": "2026-07-27T22:23:34.513Z"
             }
           }
         },
@@ -2267,11 +2267,11 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 40,
-          "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_tx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_tx\ncomponentName=uart_tx\nverifiedBlock=uart_tx\nverifiedEntity=uart_tx_det_cfg\nunsafeReasons=verified port tx_valid cannot be safely mapped\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+          "count": 43,
+          "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"register_file\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=register_file\ncomponentName=register_file\nverifiedBlock=register_file\nverifiedEntity=register_file_det_cfg\nunsafeReasons=verified port src_addr cannot be safely mapped | verified port dst_addr cannot be safely mapped | port data_i/data_in type differs unsafely: std_logic_vector(7 downto 0) vs std_logic_vector(data_width - 1 downto 0)\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-27T22:16:04.243Z"
+          "lastSeenAt": "2026-07-27T22:23:34.513Z"
         },
         "top_integration_contract::undriven_top_output_port::ghdl-instantiation-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches::": {
           "category": "top_integration_contract",
