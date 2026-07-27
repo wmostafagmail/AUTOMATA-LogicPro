@@ -1,0 +1,23 @@
+{
+  "behavioralContractIds": [
+    "timer-basic-v1"
+  ],
+  "capability": "timer",
+  "facadeId": "timer_periodic",
+  "implementationTier": "bootstrap-canonical-core",
+  "qualification": {
+    "architectureResolution": "ready",
+    "ghdl": "not-run-in-generation-environment",
+    "synthesis": "not-run",
+    "timing": "not-run"
+  },
+  "rules": {
+    "allInputsMustResolve": true,
+    "namedAssociationsRequired": true,
+    "silentTieoffForbidden": true
+  },
+  "schemaVersion": "1.0.0",
+  "sourceEntity": "timer_periodic",
+  "sourcePath": "rtl/facades/counter_timer/timer_periodic.vhd",
+  "version": "1.0.0"
+}

@@ -1,0 +1,23 @@
+{
+  "behavioralContractIds": [
+    "generic_counter-basic-v1"
+  ],
+  "capability": "generic_counter",
+  "facadeId": "generic_counter_basic",
+  "implementationTier": "bootstrap-canonical-core",
+  "qualification": {
+    "architectureResolution": "ready",
+    "ghdl": "not-run-in-generation-environment",
+    "synthesis": "not-run",
+    "timing": "not-run"
+  },
+  "rules": {
+    "allInputsMustResolve": true,
+    "namedAssociationsRequired": true,
+    "silentTieoffForbidden": true
+  },
+  "schemaVersion": "1.0.0",
+  "sourceEntity": "generic_counter_basic",
+  "sourcePath": "rtl/facades/counter_timer/generic_counter_basic.vhd",
+  "version": "1.0.0"
+}

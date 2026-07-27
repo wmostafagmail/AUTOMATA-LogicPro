@@ -1,0 +1,12 @@
+{
+  "capability": "program_counter",
+  "facade": "program_counter_redirectable",
+  "genericOverrides": {
+    "G_INSTR_BYTES": 4,
+    "G_PC_WIDTH": 32,
+    "G_RESET_VECTOR": 0
+  },
+  "id": "pc-redirect-32",
+  "resolutionMode": "strict",
+  "version": "1.0.0"
+}

@@ -1,0 +1,23 @@
+{
+  "behavioralContractIds": [
+    "uart_rx-basic-v1"
+  ],
+  "capability": "uart_rx",
+  "facadeId": "uart_rx_basic",
+  "implementationTier": "qualified-source-wrapper",
+  "qualification": {
+    "architectureResolution": "ready",
+    "ghdl": "not-run-in-generation-environment",
+    "synthesis": "not-run",
+    "timing": "not-run"
+  },
+  "rules": {
+    "allInputsMustResolve": true,
+    "namedAssociationsRequired": true,
+    "silentTieoffForbidden": true
+  },
+  "schemaVersion": "1.0.0",
+  "sourceEntity": "uart_rx",
+  "sourcePath": "rtl/blocks/communication/uart_rx.vhd",
+  "version": "1.0.0"
+}

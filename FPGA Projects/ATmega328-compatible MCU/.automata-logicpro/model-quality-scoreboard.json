@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T21:03:19.565Z",
+  "updatedAt": "2026-07-27T22:16:04.243Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 514,
+      "attempts": 520,
       "successes": 225,
-      "codeQualityFailures": 289,
+      "codeQualityFailures": 295,
       "providerRuntimeFailures": 14,
-      "lastUpdatedAt": "2026-07-27T21:03:19.565Z",
+      "lastUpdatedAt": "2026-07-27T22:16:04.243Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 163,
+          "attempts": 169,
           "successes": 61,
-          "codeQualityFailures": 102,
+          "codeQualityFailures": 108,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -149,11 +149,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 15,
+              "count": 16,
               "lastMessage": "Request was cancelled by the user.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-26T21:13:38.753Z"
+              "lastSeenAt": "2026-07-27T22:04:22.513Z"
             },
             "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
               "category": "reserved_identifier",
@@ -406,11 +406,29 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 11,
-              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_rx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_rx\ncomponentName=uart_rx\nverifiedBlock=uart_rx\nverifiedEntity=uart_rx_det_cfg\nunsafeReasons=verified port uart_rx cannot be safely mapped\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "count": 14,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_tx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_tx\ncomponentName=uart_tx\nverifiedBlock=uart_tx\nverifiedEntity=uart_tx_det_cfg\nunsafeReasons=verified port tx_valid cannot be safely mapped\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-27T19:23:50.868Z"
+              "lastSeenAt": "2026-07-27T22:16:04.243Z"
+            },
+            "top_integration_contract::undriven_top_output_port::ghdl-instantiation-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches::": {
+              "category": "top_integration_contract",
+              "label": "Top Integration Contract",
+              "failureCode": "undriven_top_output_port",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-instantiation-rules",
+                "ghdl-self-checking-testbenches",
+                "ghdl-reset-discipline"
+              ],
+              "count": 2,
+              "lastMessage": "Staged pre-GHDL validation failed after leaf component uart_rx before invoking GHDL.\nlib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd:12: entity \"uart_rx\" declares output port \"rx_data\" but the architecture never drives it. Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.\nlib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd: entity \"uart_rx\" declares output port \"rx_valid\" but the architecture never drives it. Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.\nlib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd:12: entity \"uart_rx\" declares output port \"framing_error\" but the architecture never drives it. Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.",
+              "forbiddenConstruct": "top/integration output port \"rx_data\" has no architecture driver",
+              "legalReplacementPattern": "drive \"rx_data\" with a concurrent assignment, a registered process, or a child output port mapped through a correctly typed signal",
+              "lastSeenAt": "2026-07-27T22:02:19.818Z"
             }
           }
         },
@@ -1690,11 +1708,11 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 27,
+          "count": 28,
           "lastMessage": "Request was cancelled by the user.",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-27T21:03:19.565Z"
+          "lastSeenAt": "2026-07-27T22:04:22.513Z"
         },
         "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
           "category": "reserved_identifier",
@@ -2249,11 +2267,29 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 37,
-          "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"ingress_interface_blocks\".\ncomponentId=ingress_interface_blocks\ncomponentName=ingress_interface_blocks\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+          "count": 40,
+          "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_tx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_tx\ncomponentName=uart_tx\nverifiedBlock=uart_tx\nverifiedEntity=uart_tx_det_cfg\nunsafeReasons=verified port tx_valid cannot be safely mapped\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-27T21:03:13.987Z"
+          "lastSeenAt": "2026-07-27T22:16:04.243Z"
+        },
+        "top_integration_contract::undriven_top_output_port::ghdl-instantiation-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches::": {
+          "category": "top_integration_contract",
+          "label": "Top Integration Contract",
+          "failureCode": "undriven_top_output_port",
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [
+            "ghdl-instantiation-rules",
+            "ghdl-self-checking-testbenches",
+            "ghdl-reset-discipline"
+          ],
+          "count": 2,
+          "lastMessage": "Staged pre-GHDL validation failed after leaf component uart_rx before invoking GHDL.\nlib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd:12: entity \"uart_rx\" declares output port \"rx_data\" but the architecture never drives it. Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.\nlib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd: entity \"uart_rx\" declares output port \"rx_valid\" but the architecture never drives it. Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.\nlib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd:12: entity \"uart_rx\" declares output port \"framing_error\" but the architecture never drives it. Top/integration outputs must be assigned locally or connected to a child output before GHDL validation.",
+          "forbiddenConstruct": "top/integration output port \"rx_data\" has no architecture driver",
+          "legalReplacementPattern": "drive \"rx_data\" with a concurrent assignment, a registered process, or a child output port mapped through a correctly typed signal",
+          "lastSeenAt": "2026-07-27T22:02:19.818Z"
         }
       }
     },

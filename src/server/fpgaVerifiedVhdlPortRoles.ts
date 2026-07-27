@@ -84,8 +84,8 @@ export function classifyVerifiedPortRole(
     evidence.push(reason);
   };
 
-  if (/^(?:clk|clock|aclk|sclk|mclk|pclk)$/.test(base)) set('clock', 100, `name ${port.name} is clock-like`);
-  if (/^(?:rst|reset|rstn|resetn|rst_n|reset_n|aresetn|reset_b)$/.test(base) || /rst_n|reset_n|aresetn|resetn/.test(name)) {
+  if (/^(?:clk|clock|aclk|sclk|mclk|pclk|pixel_clk|pix_clk|video_clk)$/.test(base)) set('clock', 100, `name ${port.name} is clock-like`);
+  if (/^(?:rst|reset|rstn|resetn|rst_n|reset_n|aresetn|reset_b)$/.test(base) || /rst_n|rst_ni|reset_n|reset_ni|aresetn|resetn/.test(name)) {
     set('reset', 100, `name ${port.name} is reset-like`);
   }
   if (/^(?:en|enable|ce|clock_enable|cke)$/.test(base)) {
@@ -102,7 +102,7 @@ export function classifyVerifiedPortRole(
   if (/addr|address|pc(?:_|$)|index/.test(name)) set('address', 78, `name ${port.name} is address-like`);
   if (/ctrl|control|cmd|opcode|op_/.test(name)) set('control', 74, `name ${port.name} is control-like`);
 
-  if (mode === 'in' && /(?:^|_)uart_rx$|(?:^|_)rx$|serial_rx|rxd|miso|mosi/.test(name) && isScalarLogic(type)) {
+  if (mode === 'in' && /(?:^|_)uart_rx$|(?:^|_)rx$|rx_i$|serial_rx|rxd|miso|mosi/.test(name) && isScalarLogic(type)) {
     set('serial_rx', 92, `input ${port.name} is serial receive-like`);
   }
   if ((mode === 'out' || mode === 'buffer') && /(?:^|_)uart_tx$|(?:^|_)tx$|serial_tx|txd|miso|mosi/.test(name) && isScalarLogic(type)) {
@@ -125,7 +125,7 @@ export function classifyVerifiedPortRole(
 
   return {
     role,
-    activeLowReset: role === 'reset' && /(?:_n$|n$|_b$|aresetn|resetn)/i.test(name),
+    activeLowReset: role === 'reset' && /(?:_n$|_ni$|n$|_b$|aresetn|resetn)/i.test(name),
     optional,
     confidence,
     evidence,
@@ -141,4 +141,3 @@ export function rolesCompatible(verified: VerifiedPortRoleEvidence, approved: Ve
   if (verified.role === 'error' && approved.role === 'status') return true;
   return false;
 }
-

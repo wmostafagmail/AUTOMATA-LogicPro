@@ -5010,3 +5010,52 @@ test('detectKnownVhdlAntiPatternDetails accepts top output driven by assignment 
 
   assert.ok(!findings.some((detail) => detail.code === 'undriven_top_output_port'));
 });
+
+test('detectKnownVhdlAntiPatternDetails accepts compact wrapper outputs driven by child entity outputs', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-vhdl-compact-wrapper-'));
+  await fs.mkdir(path.join(root, 'lib/fpga_vhdl_blocks/blocks/communication'), { recursive: true });
+  await fs.mkdir(path.join(root, 'lib/fpga_vhdl_blocks/cores'), { recursive: true });
+  await fs.writeFile(
+    path.join(root, 'lib/fpga_vhdl_blocks/cores/bb_uart_rx_core.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'entity bb_uart_rx_core is port (',
+      '  clk : in std_logic;',
+      '  rst_n : in std_logic;',
+      '  uart_rx : in std_logic;',
+      '  rx_data : out std_logic_vector(7 downto 0);',
+      '  rx_valid : out std_logic;',
+      '  framing_error : out std_logic',
+      '); end entity;',
+      "architecture rtl of bb_uart_rx_core is begin rx_data <= x\"00\"; rx_valid <= '0'; framing_error <= '0'; end architecture;",
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+  await fs.writeFile(
+    path.join(root, 'lib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd'),
+    [
+      'library ieee;',
+      'use ieee.std_logic_1164.all;',
+      'entity uart_rx is port (',
+      '  clk : in std_logic;',
+      '  rst_n : in std_logic;',
+      '  uart_rx : in std_logic;',
+      '  rx_data : out std_logic_vector(7 downto 0);',
+      '  rx_valid : out std_logic;',
+      '  framing_error : out std_logic',
+      '); end entity;',
+      'architecture rtl of uart_rx is begin u_core:entity work.bb_uart_rx_core port map(clk=>clk,rst_n=>rst_n,uart_rx=>uart_rx,rx_data=>rx_data,rx_valid=>rx_valid,framing_error=>framing_error);end architecture;',
+      '',
+    ].join('\n'),
+    'utf8',
+  );
+
+  const findings = await detectKnownVhdlAntiPatternDetails(root, [
+    'lib/fpga_vhdl_blocks/cores/bb_uart_rx_core.vhd',
+    'lib/fpga_vhdl_blocks/blocks/communication/uart_rx.vhd',
+  ]);
+
+  assert.ok(!findings.some((detail) => detail.code === 'undriven_top_output_port'));
+});

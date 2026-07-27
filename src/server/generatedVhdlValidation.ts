@@ -2074,20 +2074,30 @@ function collectEntityOrComponentInterfaceRegions(content: string) {
 
 function collectPortMapInstances(content: string) {
   const instances: Array<{ name: string; associations: string; index: number; associationsIndex: number }> = [];
-  const expression =
-    /(?:^|\n)\s*[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?:entity\s+work\.)?(?!(?:in|out|inout|buffer|linkage|signal|variable|constant|unsigned|signed|std_logic|std_logic_vector)\b)([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bport\s+map\s*\(/gi;
-
-  for (const match of content.matchAll(expression)) {
-    const name = match[1];
-    const openParenIndex = (match.index ?? 0) + match[0].lastIndexOf('(');
+  const seen = new Set<number>();
+  const pushInstance = (match: RegExpMatchArray, name: string | undefined, matchIndex: number) => {
+    const openParenIndex = matchIndex + match[0].lastIndexOf('(');
     const closeIndex = findBalancedCloseParen(content, openParenIndex);
-    if (!name || closeIndex < 0) continue;
+    if (!name || closeIndex < 0 || seen.has(matchIndex)) return;
+    seen.add(matchIndex);
     instances.push({
       name,
       associations: content.slice(openParenIndex + 1, closeIndex),
-      index: match.index ?? 0,
+      index: matchIndex,
       associationsIndex: openParenIndex + 1,
     });
+  };
+
+  const directEntityExpression =
+    /\b[a-zA-Z][a-zA-Z0-9_]*\s*:\s*entity\s+work\.([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bport\s+map\s*\(/gi;
+  for (const match of content.matchAll(directEntityExpression)) {
+    pushInstance(match, match[1], match.index ?? 0);
+  }
+
+  const componentExpression =
+    /(?:^|[\n;]|\bbegin\b)\s*[a-zA-Z][a-zA-Z0-9_]*\s*:\s*(?!(?:entity|in|out|inout|buffer|linkage|signal|variable|constant|unsigned|signed|std_logic|std_logic_vector)\b)([a-zA-Z][a-zA-Z0-9_]*)\b[\s\S]*?\bport\s+map\s*\(/gi;
+  for (const match of content.matchAll(componentExpression)) {
+    pushInstance(match, match[1], match.index ?? 0);
   }
 
   return instances;

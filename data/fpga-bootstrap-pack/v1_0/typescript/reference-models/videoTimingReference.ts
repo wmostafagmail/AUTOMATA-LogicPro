@@ -1,0 +1,1 @@
+export interface Timing {active:number;front:number;sync:number;back:number}; export function total(t:Timing){return t.active+t.front+t.sync+t.back;} export function inActive(pos:number,t:Timing){return pos>=0&&pos<t.active;} export function inSync(pos:number,t:Timing){return pos>=t.active+t.front&&pos<t.active+t.front+t.sync;}

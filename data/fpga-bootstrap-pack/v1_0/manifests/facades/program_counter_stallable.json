@@ -1,0 +1,23 @@
+{
+  "behavioralContractIds": [
+    "program_counter-basic-v1"
+  ],
+  "capability": "program_counter",
+  "facadeId": "program_counter_stallable",
+  "implementationTier": "qualified-source-wrapper",
+  "qualification": {
+    "architectureResolution": "ready",
+    "ghdl": "not-run-in-generation-environment",
+    "synthesis": "not-run",
+    "timing": "not-run"
+  },
+  "rules": {
+    "allInputsMustResolve": true,
+    "namedAssociationsRequired": true,
+    "silentTieoffForbidden": true
+  },
+  "schemaVersion": "1.0.0",
+  "sourceEntity": "program_counter",
+  "sourcePath": "rtl/blocks/cpu_and_soc/program_counter.vhd",
+  "version": "1.0.0"
+}

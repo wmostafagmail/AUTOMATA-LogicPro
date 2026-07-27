@@ -1,0 +1,23 @@
+{
+  "behavioralContractIds": [
+    "async_fifo-basic-v1"
+  ],
+  "capability": "async_fifo",
+  "facadeId": "async_fifo_basic",
+  "implementationTier": "qualified-source-wrapper",
+  "qualification": {
+    "architectureResolution": "ready",
+    "ghdl": "not-run-in-generation-environment",
+    "synthesis": "not-run",
+    "timing": "not-run"
+  },
+  "rules": {
+    "allInputsMustResolve": true,
+    "namedAssociationsRequired": true,
+    "silentTieoffForbidden": true
+  },
+  "schemaVersion": "1.0.0",
+  "sourceEntity": "async_fifo",
+  "sourcePath": "rtl/blocks/memory/async_fifo.vhd",
+  "version": "1.0.0"
+}

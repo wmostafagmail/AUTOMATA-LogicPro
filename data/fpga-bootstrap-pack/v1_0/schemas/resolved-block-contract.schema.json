@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "configurationId": {
+      "type": "string"
+    },
+    "generics": {
+      "type": "object"
+    },
+    "instanceId": {
+      "type": "string"
+    },
+    "ports": {
+      "type": "object"
+    },
+    "requestedCapability": {
+      "type": "string"
+    },
+    "resolutionStatus": {
+      "enum": [
+        "resolved",
+        "unresolved",
+        "invalid"
+      ]
+    },
+    "selectedFacade": {
+      "type": "object"
+    },
+    "selectedImplementation": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "instanceId",
+    "requestedCapability",
+    "selectedImplementation",
+    "selectedFacade",
+    "generics",
+    "ports",
+    "configurationId",
+    "resolutionStatus"
+  ],
+  "type": "object"
+}

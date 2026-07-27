@@ -1,0 +1,18 @@
+{
+  "capability": "video_timing",
+  "id": "video_timing-basic-v1",
+  "qualificationBoundary": [
+    "does not establish synthesis",
+    "does not establish timing closure",
+    "does not establish full protocol compliance",
+    "does not establish full formal verification"
+  ],
+  "requirements": [
+    "reset behavior shall be checked",
+    "nominal configured behavior shall be checked",
+    "testbench shall be self-checking",
+    "checks shall occur after signal propagation"
+  ],
+  "status": "bootstrap",
+  "version": "1.0.0"
+}

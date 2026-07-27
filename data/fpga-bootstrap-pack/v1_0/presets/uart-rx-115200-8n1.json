@@ -1,0 +1,12 @@
+{
+  "capability": "uart_rx",
+  "facade": "uart_rx_basic",
+  "genericOverrides": {
+    "G_BAUD_RATE": 115200,
+    "G_CLOCK_HZ": 100000000,
+    "G_DATA_BITS": 8
+  },
+  "id": "uart-rx-115200-8n1",
+  "resolutionMode": "strict",
+  "version": "1.0.0"
+}

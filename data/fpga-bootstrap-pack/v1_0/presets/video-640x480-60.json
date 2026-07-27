@@ -1,0 +1,8 @@
+{
+  "capability": "video_timing",
+  "facade": "video_timing_640x480",
+  "genericOverrides": {},
+  "id": "video-640x480-60",
+  "resolutionMode": "strict",
+  "version": "1.0.0"
+}

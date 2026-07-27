@@ -1,6 +1,6 @@
 {
-  "runtimeFingerprint": "c0a27e775a82",
-  "runtimePid": 20822,
+  "runtimeFingerprint": "1ca04d7ee83e",
+  "runtimePid": 41972,
   "sourceFiles": [
     "src/server/generatedVhdlValidation.ts",
     "src/server/fpgaArchitectLoopDiagnostics.ts",
@@ -8,5 +8,5 @@
     "src/server/aiAnalyzeRunner.ts",
     "src/server/fpgaArchitectStressLoop.ts"
   ],
-  "createdAt": "2026-07-27T19:00:21.568Z"
+  "createdAt": "2026-07-27T22:07:27.298Z"
 }

@@ -1,0 +1,11 @@
+{
+  "capability": "timer",
+  "facade": "timer_periodic",
+  "genericOverrides": {
+    "G_CLOCK_HZ": 100000000,
+    "G_PERIOD_US": 1000
+  },
+  "id": "timer-1ms-100mhz",
+  "resolutionMode": "strict",
+  "version": "1.0.0"
+}

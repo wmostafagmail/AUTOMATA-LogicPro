@@ -201,9 +201,37 @@ function renderClockedRegisterOrFifoShell(
   const text = roleText(component);
   if (!/(?:fifo|register|regfile|buffer|counter|timer|status|control|fsm|rom|ram|memory)/.test(text)) return null;
   const outputs = outputPorts(component);
-  if (outputs.length === 0) return null;
   const clk = findClock(component);
   const rst = findReset(component);
+  if (outputs.length === 0) {
+    if (!clk) return {
+      templateId: 'deterministic_null_leaf_shell',
+      reason: 'Compile-safe deterministic shell for a migrated leaf with no declared outputs.',
+      content: replaceSkeletonRegions(skeleton || renderLeafSkeleton(contract, component), [], [
+        '  -- DETERMINISTIC_TEMPLATE: compile-safe no-output migrated leaf shell.',
+        '  -- The architecture contract did not expose observable outputs for this block.',
+      ]),
+    };
+    return {
+      templateId: 'deterministic_clocked_null_leaf_shell',
+      reason: 'Compile-safe clocked shell for a migrated leaf with no declared outputs.',
+      content: replaceSkeletonRegions(skeleton || renderLeafSkeleton(contract, component), [], [
+        '  -- DETERMINISTIC_TEMPLATE: clocked no-output migrated leaf shell.',
+        `  ${component.id}_p : process(${clk})`,
+        '  begin',
+        `    if rising_edge(${clk}) then`,
+        ...(rst ? [
+          `      if ${rst} = '1' then`,
+          '        null;',
+          '      else',
+          '        null;',
+          '      end if;',
+        ] : ['      null;']),
+        '    end if;',
+        '  end process;',
+      ]),
+    };
+  }
   const sameTypedAssignments = outputs.map((output) => {
     const input = inputPorts(component).find((port) => port.type.trim().toLowerCase() === output.type.trim().toLowerCase() && !/clk|rst|reset/i.test(port.name));
     return { output, input };

@@ -1,0 +1,23 @@
+{
+  "behavioralContractIds": [
+    "video_timing-basic-v1"
+  ],
+  "capability": "video_timing",
+  "facadeId": "video_timing_640x480",
+  "implementationTier": "qualified-source-wrapper",
+  "qualification": {
+    "architectureResolution": "ready",
+    "ghdl": "not-run-in-generation-environment",
+    "synthesis": "not-run",
+    "timing": "not-run"
+  },
+  "rules": {
+    "allInputsMustResolve": true,
+    "namedAssociationsRequired": true,
+    "silentTieoffForbidden": true
+  },
+  "schemaVersion": "1.0.0",
+  "sourceEntity": "vga_timing_generator",
+  "sourcePath": "rtl/blocks/video_and_audio/vga_timing_generator.vhd",
+  "version": "1.0.0"
+}

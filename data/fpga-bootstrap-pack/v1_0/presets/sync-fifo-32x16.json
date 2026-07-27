@@ -1,0 +1,11 @@
+{
+  "capability": "sync_fifo",
+  "facade": "sync_fifo_basic",
+  "genericOverrides": {
+    "G_DATA_WIDTH": 32,
+    "G_DEPTH": 16
+  },
+  "id": "sync-fifo-32x16",
+  "resolutionMode": "strict",
+  "version": "1.0.0"
+}

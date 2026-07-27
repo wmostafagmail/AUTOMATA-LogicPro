@@ -1,0 +1,306 @@
+{
+  "fileCount": 60,
+  "files": [
+    {
+      "bytes": 972,
+      "path": "CODEX_INTEGRATION_TASK.md",
+      "sha256": "2cef79182eab1b0f652ddeae8f66694a17618f9f483ce8c7202d3b98b16260b6"
+    },
+    {
+      "bytes": 1010,
+      "path": "README.md",
+      "sha256": "bd6ec703d95e2ee871a537d06dd18eefba6890915a9f5f321c97d8fabc983e3b"
+    },
+    {
+      "bytes": 529,
+      "path": "contracts/async_fifo-basic-v1.json",
+      "sha256": "b73e16c0315f36dff95a835e7359899e8d2055aa9b1cf5bb8443e8e095726c01"
+    },
+    {
+      "bytes": 539,
+      "path": "contracts/generic_counter-basic-v1.json",
+      "sha256": "0bc0a387d42a907c12025b2e3d983527369c375ff9082e215daf8f456f8f47cf"
+    },
+    {
+      "bytes": 539,
+      "path": "contracts/program_counter-basic-v1.json",
+      "sha256": "c1754dd3c1fbaba110e9dfe8a748b18c071c14e05e913b25bba8ff3f4afea94f"
+    },
+    {
+      "bytes": 527,
+      "path": "contracts/sync_fifo-basic-v1.json",
+      "sha256": "4fdc10ae751b1c285f01bea1eb9d8614916ebd8cb52f7156d25f09186c7c6eeb"
+    },
+    {
+      "bytes": 519,
+      "path": "contracts/timer-basic-v1.json",
+      "sha256": "035e560e63374884469153fa337378176b57d564b4e6471a502599e16e56abd5"
+    },
+    {
+      "bytes": 523,
+      "path": "contracts/uart_rx-basic-v1.json",
+      "sha256": "88a3922e1822d3dd598e5ce3b2a842e7c41842828865d0c258792debce4deb53"
+    },
+    {
+      "bytes": 523,
+      "path": "contracts/uart_tx-basic-v1.json",
+      "sha256": "2ba251d03db1613d0773fe69cd5a82b6b718e3978de075a9224861c04a0cb65c"
+    },
+    {
+      "bytes": 533,
+      "path": "contracts/video_timing-basic-v1.json",
+      "sha256": "3f635188be7301c5b3e6994855a78886125f56a4f7a250c5aaef3024bed206cb"
+    },
+    {
+      "bytes": 290,
+      "path": "docs/QUALIFICATION_BOUNDARIES.md",
+      "sha256": "6616c345c702b08963e90540b1a14880236fc15f26f919ea304383bf9d05f6e9"
+    },
+    {
+      "bytes": 604,
+      "path": "manifests/facades/async_fifo_basic.json",
+      "sha256": "88e295d76d8d84357873aedf9b1cd2541756f14ce9eeb441c06fd12bb139600f"
+    },
+    {
+      "bytes": 649,
+      "path": "manifests/facades/generic_counter_basic.json",
+      "sha256": "2f920ed1830b3328419d557b6c234101d7d2ab687960f4fdd0ff141e68491dcb"
+    },
+    {
+      "bytes": 634,
+      "path": "manifests/facades/program_counter_basic.json",
+      "sha256": "63564013d4a1ea17b30c044c1cbc2c47af9530e109937e305cc6e048ba70f86b"
+    },
+    {
+      "bytes": 633,
+      "path": "manifests/facades/program_counter_full.json",
+      "sha256": "dd17af3b9a2a54523c6d05bd5eaf488a9e6860ff9ce9628c4ef3df9439bfb702"
+    },
+    {
+      "bytes": 641,
+      "path": "manifests/facades/program_counter_redirectable.json",
+      "sha256": "f777b3fea3e64bb9831a523e13627a220a5e024fc3f56ee70473c21cefccdd96"
+    },
+    {
+      "bytes": 638,
+      "path": "manifests/facades/program_counter_stallable.json",
+      "sha256": "fa83eccae33a0726c5aaeb81cad08d65e47b9d5a5f49b87b4143bac31f72bc5c"
+    },
+    {
+      "bytes": 599,
+      "path": "manifests/facades/sync_fifo_basic.json",
+      "sha256": "f8e28bbf72f6a3603d7185bfae86a92b3b455eb677cfe4b775ce3c0b4a9d8fb1"
+    },
+    {
+      "bytes": 608,
+      "path": "manifests/facades/timer_periodic.json",
+      "sha256": "ecccebae5d5d5ab0fffecf05a97892c19c41c96cd14f45e9bf0304b2138b278a"
+    },
+    {
+      "bytes": 596,
+      "path": "manifests/facades/uart_rx_basic.json",
+      "sha256": "fd2d3220b64cec29490c85fa02d7fc6ac667bb840d6fe0d07e99f7886b82e986"
+    },
+    {
+      "bytes": 596,
+      "path": "manifests/facades/uart_tx_basic.json",
+      "sha256": "08eda51ced756f58274d8e0ab213a54c4fbded890c6124dbc93ab89a6e8767c1"
+    },
+    {
+      "bytes": 641,
+      "path": "manifests/facades/video_timing_640x480.json",
+      "sha256": "ae25143e3f935e38799e78981151250a0b38bcd70f9cdc2ab2ec8279aa7d54f3"
+    },
+    {
+      "bytes": 216,
+      "path": "presets/async-fifo-32x16.json",
+      "sha256": "504882de487932e0a6161a4d9db41b9038a60f58f22fec0e74f9598b3b93adb9"
+    },
+    {
+      "bytes": 254,
+      "path": "presets/counter-16-1000.json",
+      "sha256": "2d77487f8c542423d1cb0d1d54cfa194c68e6085336e30821deded2eb9a02bc7"
+    },
+    {
+      "bytes": 249,
+      "path": "presets/pc-basic-32.json",
+      "sha256": "8669924bc2763dede105222f7b2b6aff0ede044bde120ec653d497f5f6877321"
+    },
+    {
+      "bytes": 259,
+      "path": "presets/pc-redirect-32.json",
+      "sha256": "92fb9a11c3c34dcca9860075fbef885c15881d28f2c5cc6f27619efcacacf664"
+    },
+    {
+      "bytes": 213,
+      "path": "presets/sync-fifo-32x16.json",
+      "sha256": "c4c70ff3125dc588360df51158257559f0dae9300e1aecf003c9bf9ae4dbd4cc"
+    },
+    {
+      "bytes": 220,
+      "path": "presets/timer-1ms-100mhz.json",
+      "sha256": "1937f5c852b73b19b0b2d06baa8747b5d6b3e410246ec195d73df520b7d9063e"
+    },
+    {
+      "bytes": 247,
+      "path": "presets/uart-rx-115200-8n1.json",
+      "sha256": "914e1edb627fb3365b9e30b0b52db3fc10849df2dbe9ad18698b78f54cf8409e"
+    },
+    {
+      "bytes": 247,
+      "path": "presets/uart-tx-115200-8n1.json",
+      "sha256": "9e719cb254dca6adaf0a0084c390d254f54a67fd21966699c1d5ecafe197055f"
+    },
+    {
+      "bytes": 177,
+      "path": "presets/video-640x480-60.json",
+      "sha256": "b82f5f25fa4c1ead196ef2bd6a16cacab9dab3955329f84261ee45de027b2db1"
+    },
+    {
+      "bytes": 659,
+      "path": "rtl/facades/control/program_counter_basic.vhd",
+      "sha256": "a65b1380c3384b324329f2a52803a09e6015b32db71e5a5ea2c72dd97dfe4668"
+    },
+    {
+      "bytes": 795,
+      "path": "rtl/facades/control/program_counter_full.vhd",
+      "sha256": "e38aab9335d217b5763c278981aa3ad09e573b0fe8399aaa102f4bca7b9a5a4f"
+    },
+    {
+      "bytes": 761,
+      "path": "rtl/facades/control/program_counter_redirectable.vhd",
+      "sha256": "132c49a3f7f1217ba935e627a00a32d2006aac3d51b1d826a807c2b90d51eec9"
+    },
+    {
+      "bytes": 679,
+      "path": "rtl/facades/control/program_counter_stallable.vhd",
+      "sha256": "72c18ae4dba4b8a7b9b10c7880e1cb204a40982d59c1f0ede3db3f3b83f65e0d"
+    },
+    {
+      "bytes": 896,
+      "path": "rtl/facades/counter_timer/generic_counter_basic.vhd",
+      "sha256": "af05d5d1c583e45e6944276861497824acb43696ab4aef64b3440c943f110a3c"
+    },
+    {
+      "bytes": 721,
+      "path": "rtl/facades/counter_timer/timer_periodic.vhd",
+      "sha256": "c8d326ce3c905980bc00d9baf54feea0e7af7b90d483a7d01b76a2fe1969e55a"
+    },
+    {
+      "bytes": 854,
+      "path": "rtl/facades/fifo/async_fifo_basic.vhd",
+      "sha256": "ffa62888e247cd958c00e2fac8c1a1f8ff83c75c776219e327482e5cb07efe1d"
+    },
+    {
+      "bytes": 870,
+      "path": "rtl/facades/fifo/sync_fifo_basic.vhd",
+      "sha256": "11bf388d1206a5ac1d39a9799f5310992323bc2378e106327bcfeb6374cf0398"
+    },
+    {
+      "bytes": 681,
+      "path": "rtl/facades/uart/uart_rx_basic.vhd",
+      "sha256": "0adab51dbd57fea685a9b676d6e23d2d01f77ea161a7d63579eab6001bf89485"
+    },
+    {
+      "bytes": 709,
+      "path": "rtl/facades/uart/uart_tx_basic.vhd",
+      "sha256": "349a23ef33a5061f7d042d1f8c4120ba5909406a88374b1caa6fcb8cadbacc76"
+    },
+    {
+      "bytes": 931,
+      "path": "rtl/facades/video/video_timing_640x480.vhd",
+      "sha256": "c6e813cd5472a66c913aa9c8437866279fbdbb878a6d3523db2a3979e1ef3820"
+    },
+    {
+      "bytes": 217,
+      "path": "schemas/facade.schema.json",
+      "sha256": "54dd44b9e006bd1231bd80201676ef89979fbd0e192e26d3202bd8b019503b37"
+    },
+    {
+      "bytes": 789,
+      "path": "schemas/resolved-block-contract.schema.json",
+      "sha256": "8281530284bd254707c9191434d704c9c03d29aa730c8ff2474ba771c077516f"
+    },
+    {
+      "bytes": 1283,
+      "path": "scripts/run_ghdl_regression.sh",
+      "sha256": "2d18414d9d5b58c0c18ed3306c9584110a4ccbff3efe6ef7a9b1863b2701e7a5"
+    },
+    {
+      "bytes": 594,
+      "path": "scripts/validate_facades.py",
+      "sha256": "322b5e2c722ba214f50c338b51748780a50a8a4cf12f427cdb2794065d7b4a5e"
+    },
+    {
+      "bytes": 574,
+      "path": "scripts/validate_vhdl_static.py",
+      "sha256": "83fda9eac5f8b7f3289858ba866689cc77c5d661abc1bebffa0d899b3869d690"
+    },
+    {
+      "bytes": 1134,
+      "path": "source_snapshots/rtl/blocks/communication/uart_rx.vhd",
+      "sha256": "9f7835420bad9a7bf6b25fa1a3f4124d81cd9e146c38ddc7d9085017a31424c8"
+    },
+    {
+      "bytes": 1147,
+      "path": "source_snapshots/rtl/blocks/communication/uart_tx.vhd",
+      "sha256": "2ba52b387faabd3dbe5d9213ec418c52865e01cdadc595e406f199df7970977c"
+    },
+    {
+      "bytes": 1355,
+      "path": "source_snapshots/rtl/blocks/cpu_and_soc/program_counter.vhd",
+      "sha256": "26752b9445f8270c61e36db7ad1bad541fcdfb3f9c4a37d713715918bc8335e0"
+    },
+    {
+      "bytes": 1339,
+      "path": "source_snapshots/rtl/blocks/memory/async_fifo.vhd",
+      "sha256": "969d7b7cef0c70d020426b94db5d0c5807fd082b371f52c322d924cac7101360"
+    },
+    {
+      "bytes": 1323,
+      "path": "source_snapshots/rtl/blocks/memory/sync_fifo.vhd",
+      "sha256": "1674086cfcd8745fcc0b15f6d3c0b5e371062113226749e125f4e2adf733e921"
+    },
+    {
+      "bytes": 1486,
+      "path": "source_snapshots/rtl/blocks/video_and_audio/vga_timing_generator.vhd",
+      "sha256": "f36c359198040799804a8b076eac43c628e9784bfc151fc204c1d4c5c5fbf505"
+    },
+    {
+      "bytes": 809,
+      "path": "tb/facades/tb_generic_counter_basic.vhd",
+      "sha256": "6f6ce651541a4efebb39b611d2f9fb6bb4d6cd67a9dfbc7e47099107c801d4ff"
+    },
+    {
+      "bytes": 664,
+      "path": "tb/facades/tb_program_counter_basic.vhd",
+      "sha256": "820365b7fc3de74595063488d6d2d9b04d77227a0ccec1b8e2552a5ce38831cf"
+    },
+    {
+      "bytes": 554,
+      "path": "tb/facades/tb_timer_periodic.vhd",
+      "sha256": "7a7f62ec4ceba0b981de0ad4c00be9a60415dfd83d0d0cea86405dc15747c61e"
+    },
+    {
+      "bytes": 447,
+      "path": "typescript/reference-models/programCounterReference.ts",
+      "sha256": "88ed1d5c2647b81c00eee0d06b9c536eaeb0ca3f1ce37352276e312bd321319a"
+    },
+    {
+      "bytes": 330,
+      "path": "typescript/reference-models/videoTimingReference.ts",
+      "sha256": "46dfe548e56c2a8da0e6aece881a97666825e5943cd8b282080aa694a05f5707"
+    },
+    {
+      "bytes": 3820,
+      "path": "typescript/registries/bootstrapRegistry.ts",
+      "sha256": "6ee2feda507bcfd6b02dbe6f46b8d749f82791f1f0ba821675e0e6f36222b62e"
+    },
+    {
+      "bytes": 939,
+      "path": "typescript/types/resolution.ts",
+      "sha256": "737eff4f6aeb9fdb981c5a37bb32d4acd36d7a5d0d7a0812d7eee28deb32ea73"
+    }
+  ],
+  "release": "AUTOMATA_LogicPro_FPGA_Bootstrap_Pack_v1_0"
+}

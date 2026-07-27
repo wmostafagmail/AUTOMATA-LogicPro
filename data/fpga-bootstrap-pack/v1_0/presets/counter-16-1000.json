@@ -1,0 +1,12 @@
+{
+  "capability": "generic_counter",
+  "facade": "generic_counter_basic",
+  "genericOverrides": {
+    "G_RESET_VALUE": 0,
+    "G_TERMINAL_VALUE": 999,
+    "G_WIDTH": 16
+  },
+  "id": "counter-16-1000",
+  "resolutionMode": "strict",
+  "version": "1.0.0"
+}

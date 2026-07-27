@@ -161,7 +161,8 @@ function matchInterfaceItem(
 function safeExtraInputDefault(name: string) {
   const normalized = normalizeName(name);
   if (/^(?:en|enable|enable_i|ce|clock_enable|clock_enable_i)$/.test(normalized)) return "'1'";
-  if (/^(?:clear|clr|flush|load|start|valid|ready)(?:_i)?$/.test(normalized)) return "'0'";
+  if (/^(?:clear|clr|flush|load|start|valid|ready|stall|hold|redirect_valid|branch_valid|jump_valid|load_valid)(?:_i)?$/.test(normalized)) return "'0'";
+  if (/^(?:sequential_advance|advance|step|increment_enable)(?:_i)?$/.test(normalized)) return "'1'";
   return null;
 }
 
@@ -178,7 +179,15 @@ function isSafeUnusedApprovedPort(params: {
   const role = classifyVerifiedPortRole(params.approvedPort, params.component);
   if (role.role === 'enable') return true;
   const hasSerialRx = params.verifiedPorts.some((port) => classifyVerifiedPortRole(port, params.component).role === 'serial_rx');
-  return role.role === 'payload_in' && hasSerialRx && isReceiverLikeComponent(params.component);
+  if (role.role === 'payload_in' && hasSerialRx && isReceiverLikeComponent(params.component)) return true;
+  const text = [
+    params.component.id,
+    params.component.name,
+    params.component.file,
+    params.component.responsibility,
+    ...(params.component.implements || []),
+  ].join(' ').toLowerCase();
+  return role.role === 'payload_in' && /\b(?:program_counter|pc|counter|timer|video_timing|horizontal_counter|vertical_counter)\b/.test(text);
 }
 
 export function planVerifiedVhdlWrapper(params: {
@@ -215,6 +224,10 @@ export function planVerifiedVhdlWrapper(params: {
       if (isInternalLockedConfigurationGeneric(verifiedGeneric.name)) continue;
       const approvedGeneric = approvedGenerics.find((item) => normalizeName(item.name) === normalizeName(verifiedGeneric.name));
       if (!approvedGeneric) {
+        if (verifiedGeneric.defaultValue && verifiedGeneric.defaultValue.trim()) {
+          mismatches.push({ kind: 'extra_generic_defaulted', verifiedName: verifiedGeneric.name, message: `Extra verified generic ${verifiedGeneric.name} uses declared default ${verifiedGeneric.defaultValue}` });
+          continue;
+        }
         unsafeReasons.push(`verified generic ${verifiedGeneric.name} has no approved generic to map`);
         mismatches.push({ kind: 'extra_generic', verifiedName: verifiedGeneric.name, message: `Extra verified generic ${verifiedGeneric.name}` });
         continue;
@@ -244,6 +257,17 @@ export function planVerifiedVhdlWrapper(params: {
         if (defaultValue !== null && isScalarLogic(verifiedPort.type)) {
           portAssociations[verifiedPort.name] = defaultValue;
           mismatches.push({ kind: 'extra_input_tied_off', verifiedName: verifiedPort.name, message: `Extra verified input ${verifiedPort.name} tied to ${defaultValue}` });
+          continue;
+        }
+        const verifiedRole = classifyVerifiedPortRole(verifiedPort, params.component);
+        if (verifiedRole.role === 'serial_rx' && isReceiverLikeComponent(params.component) && isScalarLogic(verifiedPort.type)) {
+          portAssociations[verifiedPort.name] = "'1'";
+          mismatches.push({ kind: 'extra_input_tied_off', verifiedName: verifiedPort.name, message: `Extra verified serial receive input ${verifiedPort.name} tied to idle '1' because the approved component exposes no serial source.` });
+          continue;
+        }
+        if (verifiedRole.role === 'control' && /redirect|branch|jump|load/i.test(verifiedPort.name)) {
+          portAssociations[verifiedPort.name] = defaultValueForPortType(verifiedPort.type);
+          mismatches.push({ kind: 'extra_input_tied_off', verifiedName: verifiedPort.name, message: `Extra verified control input ${verifiedPort.name} tied to inactive default ${portAssociations[verifiedPort.name]}.` });
           continue;
         }
       }

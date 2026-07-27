@@ -39,6 +39,7 @@ import {
   applyVerifiedGenericPromotionToContract,
   promoteVerifiedVhdlGenericsIntoComponent,
 } from './fpgaArchitectureParameterIntent';
+import { findBootstrapFacadeNearMatch } from './fpgaBootstrapArchitectureResolver';
 import { renderDeterministicLeafTemplate } from './fpgaDeterministicLeafTemplates';
 import type { FpgaVhdlImplementationPolicy } from './fpgaPipelineConfig';
 
@@ -1222,6 +1223,32 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
         dependencyFiles: verifiedCandidate.dependencyFiles,
         verifiedVhdlBlock: verifiedCandidate,
       };
+    }
+    const bootstrapFacade = findBootstrapFacadeNearMatch({
+      component: params.component,
+      verifiedLibraryRoot: params.verifiedVhdlBlockLibraryRoot || undefined,
+      qualificationPath: params.verifiedVhdlBlockQualificationPath || undefined,
+    });
+    if (bootstrapFacade) {
+      const wrapperPlan = planVerifiedVhdlWrapper({
+        component: params.component,
+        candidate: bootstrapFacade,
+      });
+      if (wrapperPlan.kind === 'wrapper_safe') {
+        const content = normalizeStagedVhdlContent(renderVerifiedVhdlWrapper({
+          contract: params.contract,
+          component: params.component,
+          plan: wrapperPlan,
+        }));
+        assertGeneratedComponentInterface(params.stage, params.component, content);
+        return {
+          content,
+          attempts: stageAttempts,
+          dependencyFiles: [...bootstrapFacade.dependencyFiles, bootstrapFacade.rtlFile],
+          verifiedVhdlBlock: bootstrapFacade,
+          verifiedWrapperPlan: wrapperPlan,
+        };
+      }
     }
     const nearMatch = findVerifiedVhdlBlockNearMatch({
       component: params.component,
