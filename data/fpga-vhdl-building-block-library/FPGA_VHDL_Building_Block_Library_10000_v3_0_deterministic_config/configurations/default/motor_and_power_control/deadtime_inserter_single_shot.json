@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "deadtime_inserter_single_shot",
+  "wrapper_entity": "deadtime_inserter_single_shot_det_cfg",
+  "configuration_id": "DEADTIME_INSERTER_SINGLE_SHOT_A93A8D95658249CF",
+  "generics": {
+    "WIDTH": 16
+  }
+}

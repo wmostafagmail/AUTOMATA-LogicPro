@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iq_calibration_engine_microcoded",
+  "wrapper_entity": "iq_calibration_engine_microcoded_det_cfg",
+  "configuration_id": "IQ_CALIBRATION_ENGINE_MICROCODED_1E8A6AD043DA31E2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

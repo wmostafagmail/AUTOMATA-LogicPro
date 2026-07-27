@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_iterative",
+  "wrapper_entity": "logarithmic_quantizer_iterative_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_ITERATIVE_59809A7A8AA52E98",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_unpacker_framebuffer",
+  "wrapper_entity": "mipi_csi2_unpacker_framebuffer_det_cfg",
+  "configuration_id": "MIPI_CSI2_UNPACKER_FRAMEBUFFER_557B521D796F6976",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

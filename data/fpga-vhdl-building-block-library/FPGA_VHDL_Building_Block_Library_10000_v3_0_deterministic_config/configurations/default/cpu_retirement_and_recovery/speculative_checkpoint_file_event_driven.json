@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_event_driven",
+  "wrapper_entity": "speculative_checkpoint_file_event_driven_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_EVENT_DRIVEN_0BD3E5ED6A4349B9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

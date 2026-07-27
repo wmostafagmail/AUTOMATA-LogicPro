@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "flash_attention_tile_engine_single_cycle",
+  "wrapper_entity": "flash_attention_tile_engine_single_cycle_det_cfg",
+  "configuration_id": "FLASH_ATTENTION_TILE_ENGINE_SINGLE_CYCLE_39229E1B1215FE41",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

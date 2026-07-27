@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_multi_channel",
+  "wrapper_entity": "capacitance_measurement_engine_multi_channel_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_MULTI_CHANNEL_5B0F41DEB899A4D6",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

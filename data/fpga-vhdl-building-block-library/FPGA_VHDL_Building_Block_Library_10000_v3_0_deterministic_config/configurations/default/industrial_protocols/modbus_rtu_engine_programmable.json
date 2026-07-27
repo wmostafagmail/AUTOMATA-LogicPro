@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_rtu_engine_programmable",
+  "wrapper_entity": "modbus_rtu_engine_programmable_det_cfg",
+  "configuration_id": "MODBUS_RTU_ENGINE_PROGRAMMABLE_3FFC46419E961394",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "victim_cache_controller_qos_aware",
+  "wrapper_entity": "victim_cache_controller_qos_aware_det_cfg",
+  "configuration_id": "VICTIM_CACHE_CONTROLLER_QOS_AWARE_2385B2933D0D04CC",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

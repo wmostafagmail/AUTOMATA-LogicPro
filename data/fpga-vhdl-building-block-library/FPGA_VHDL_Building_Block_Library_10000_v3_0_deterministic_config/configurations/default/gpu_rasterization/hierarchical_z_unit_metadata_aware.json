@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_metadata_aware",
+  "wrapper_entity": "hierarchical_z_unit_metadata_aware_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_METADATA_AWARE_7D9006C876551627",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

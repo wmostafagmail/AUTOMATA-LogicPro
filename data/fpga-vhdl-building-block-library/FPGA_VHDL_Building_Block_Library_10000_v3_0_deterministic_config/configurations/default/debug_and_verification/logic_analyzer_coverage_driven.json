@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_analyzer_coverage_driven",
+  "wrapper_entity": "logic_analyzer_coverage_driven_det_cfg",
+  "configuration_id": "LOGIC_ANALYZER_COVERAGE_DRIVEN_756CE1A2CAF7E9EC",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

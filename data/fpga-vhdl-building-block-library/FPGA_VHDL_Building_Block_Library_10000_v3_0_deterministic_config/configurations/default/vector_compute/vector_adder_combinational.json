@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_adder_combinational",
+  "wrapper_entity": "vector_adder_combinational_det_cfg",
+  "configuration_id": "VECTOR_ADDER_COMBINATIONAL_F06129B52150CB7B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

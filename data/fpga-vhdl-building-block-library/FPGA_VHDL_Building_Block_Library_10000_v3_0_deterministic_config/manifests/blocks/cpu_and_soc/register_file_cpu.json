@@ -1,0 +1,129 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "register_file_cpu",
+    "entity": "register_file_cpu",
+    "version": "3.0.0",
+    "category": "cpu_and_soc",
+    "source": "rtl/blocks/cpu_and_soc/register_file_cpu.vhd",
+    "wrapper_entity": "register_file_cpu_det_cfg"
+  },
+  "configuration": {
+    "id": "REGISTER_FILE_CPU_D0E11087D6EA60D6",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "XLEN",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "REG_COUNT",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "ZERO_REGISTER",
+        "type": "boolean",
+        "default": "true",
+        "minimum": null
+      }
+    ],
+    "resolved_defaults": {
+      "XLEN": 32,
+      "REG_COUNT": 32,
+      "ZERO_REGISTER": true
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rs1_addr",
+        "direction": "in",
+        "type": "std_logic_vector(clog2(REG_COUNT)-1 downto 0)"
+      },
+      {
+        "name": "rs2_addr",
+        "direction": "in",
+        "type": "std_logic_vector(clog2(REG_COUNT)-1 downto 0)"
+      },
+      {
+        "name": "rd_addr",
+        "direction": "in",
+        "type": "std_logic_vector(clog2(REG_COUNT)-1 downto 0)"
+      },
+      {
+        "name": "rd_wdata",
+        "direction": "in",
+        "type": "std_logic_vector(XLEN-1 downto 0)"
+      },
+      {
+        "name": "rd_we",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rs1_rdata",
+        "direction": "out",
+        "type": "std_logic_vector(XLEN-1 downto 0)"
+      },
+      {
+        "name": "rs2_rdata",
+        "direction": "out",
+        "type": "std_logic_vector(XLEN-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/cpu_and_soc/register_file_cpu_det_cfg.vhd",
+    "configuration_file": "configurations/default/register_file_cpu.json"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "rtc_controller_continuous",
+  "wrapper_entity": "rtc_controller_continuous_det_cfg",
+  "configuration_id": "RTC_CONTROLLER_CONTINUOUS_F07224CA50FF665B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

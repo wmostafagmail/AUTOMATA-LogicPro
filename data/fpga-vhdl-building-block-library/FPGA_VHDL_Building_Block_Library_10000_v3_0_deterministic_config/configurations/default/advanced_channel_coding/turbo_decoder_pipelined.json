@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "turbo_decoder_pipelined",
+  "wrapper_entity": "turbo_decoder_pipelined_det_cfg",
+  "configuration_id": "TURBO_DECODER_PIPELINED_BA291519112C0007",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

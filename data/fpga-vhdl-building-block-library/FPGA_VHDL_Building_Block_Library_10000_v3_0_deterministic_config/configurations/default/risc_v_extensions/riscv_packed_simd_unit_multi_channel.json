@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_packed_simd_unit_multi_channel",
+  "wrapper_entity": "riscv_packed_simd_unit_multi_channel_det_cfg",
+  "configuration_id": "RISCV_PACKED_SIMD_UNIT_MULTI_CHANNEL_AE60DFDE5E32B161",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

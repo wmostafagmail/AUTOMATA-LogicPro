@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_constrained_random",
+  "wrapper_entity": "scan_chain_controller_constrained_random_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_CONSTRAINED_RANDOM_AEC9FE7771A43871",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_decompression_engine_low_power",
+  "wrapper_entity": "texture_decompression_engine_low_power_det_cfg",
+  "configuration_id": "TEXTURE_DECOMPRESSION_ENGINE_LOW_POWER_0DA18722FA0F41D4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

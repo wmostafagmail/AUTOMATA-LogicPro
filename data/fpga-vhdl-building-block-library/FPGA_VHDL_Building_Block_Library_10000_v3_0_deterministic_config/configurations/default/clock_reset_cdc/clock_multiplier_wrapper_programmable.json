@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_multiplier_wrapper_programmable",
+  "wrapper_entity": "clock_multiplier_wrapper_programmable_det_cfg",
+  "configuration_id": "CLOCK_MULTIPLIER_WRAPPER_PROGRAMMABLE_305C166791ADD1E1",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_fully_unrolled",
+  "wrapper_entity": "kyber_ntt_engine_fully_unrolled_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_FULLY_UNROLLED_78BC1F1B1715CF54",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

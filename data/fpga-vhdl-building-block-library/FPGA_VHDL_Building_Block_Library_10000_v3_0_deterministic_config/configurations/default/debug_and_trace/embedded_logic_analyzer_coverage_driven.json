@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_coverage_driven",
+  "wrapper_entity": "embedded_logic_analyzer_coverage_driven_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_COVERAGE_DRIVEN_064F15D2F245E804",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

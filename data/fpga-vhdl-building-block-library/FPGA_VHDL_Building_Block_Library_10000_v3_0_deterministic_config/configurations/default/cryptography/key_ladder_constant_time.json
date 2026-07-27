@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "key_ladder_constant_time",
+  "wrapper_entity": "key_ladder_constant_time_det_cfg",
+  "configuration_id": "KEY_LADDER_CONSTANT_TIME_A367C05D7C91F2B2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

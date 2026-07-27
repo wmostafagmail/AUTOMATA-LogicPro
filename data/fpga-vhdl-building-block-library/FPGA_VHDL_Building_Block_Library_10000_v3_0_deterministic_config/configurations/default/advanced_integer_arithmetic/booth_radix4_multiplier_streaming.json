@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix4_multiplier_streaming",
+  "wrapper_entity": "booth_radix4_multiplier_streaming_det_cfg",
+  "configuration_id": "BOOTH_RADIX4_MULTIPLIER_STREAMING_081B2C98E7A766CF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

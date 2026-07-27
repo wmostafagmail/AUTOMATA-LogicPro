@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spacefibre_lane_engine_router",
+  "wrapper_entity": "spacefibre_lane_engine_router_det_cfg",
+  "configuration_id": "SPACEFIBRE_LANE_ENGINE_ROUTER_C74802193406BEA7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

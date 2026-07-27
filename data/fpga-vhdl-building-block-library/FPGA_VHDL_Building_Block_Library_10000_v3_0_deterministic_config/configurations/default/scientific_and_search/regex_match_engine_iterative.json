@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "regex_match_engine_iterative",
+  "wrapper_entity": "regex_match_engine_iterative_det_cfg",
+  "configuration_id": "REGEX_MATCH_ENGINE_ITERATIVE_1C7EC0A01D805A0D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 184
+  }
+}

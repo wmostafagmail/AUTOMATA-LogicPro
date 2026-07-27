@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_sparse_scheduler_fully_parallel",
+  "wrapper_entity": "block_sparse_scheduler_fully_parallel_det_cfg",
+  "configuration_id": "BLOCK_SPARSE_SCHEDULER_FULLY_PARALLEL_B5D2695F030C08F9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

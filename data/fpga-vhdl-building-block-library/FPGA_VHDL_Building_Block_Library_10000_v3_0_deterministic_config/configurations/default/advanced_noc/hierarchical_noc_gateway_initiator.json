@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_initiator",
+  "wrapper_entity": "hierarchical_noc_gateway_initiator_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_INITIATOR_857AD3BB4A09DCB4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

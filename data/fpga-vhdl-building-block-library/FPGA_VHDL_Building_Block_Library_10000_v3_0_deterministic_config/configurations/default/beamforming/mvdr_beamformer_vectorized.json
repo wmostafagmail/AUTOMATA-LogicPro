@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mvdr_beamformer_vectorized",
+  "wrapper_entity": "mvdr_beamformer_vectorized_det_cfg",
+  "configuration_id": "MVDR_BEAMFORMER_VECTORIZED_8B22CCDB04C7B21A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

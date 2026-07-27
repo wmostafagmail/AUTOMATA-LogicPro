@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "checksum_accumulator_iterative",
+  "wrapper_entity": "checksum_accumulator_iterative_det_cfg",
+  "configuration_id": "CHECKSUM_ACCUMULATOR_ITERATIVE_1F5113EFF389865C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

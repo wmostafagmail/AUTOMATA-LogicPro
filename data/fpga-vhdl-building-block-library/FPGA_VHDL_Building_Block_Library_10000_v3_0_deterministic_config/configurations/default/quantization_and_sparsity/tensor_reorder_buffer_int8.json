@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_reorder_buffer_int8",
+  "wrapper_entity": "tensor_reorder_buffer_int8_det_cfg",
+  "configuration_id": "TENSOR_REORDER_BUFFER_INT8_4F9A389FBC4C9483",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

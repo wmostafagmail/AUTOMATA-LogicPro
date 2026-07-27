@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_metadata_aware",
+  "wrapper_entity": "hdr_merge_engine_metadata_aware_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_METADATA_AWARE_266E89624CEDBE87",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

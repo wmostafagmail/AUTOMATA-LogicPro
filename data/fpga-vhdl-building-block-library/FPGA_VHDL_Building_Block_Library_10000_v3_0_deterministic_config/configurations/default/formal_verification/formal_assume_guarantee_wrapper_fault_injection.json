@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_assume_guarantee_wrapper_fault_injection",
+  "wrapper_entity": "formal_assume_guarantee_wrapper_fault_injection_det_cfg",
+  "configuration_id": "FORMAL_ASSUME_GUARANTEE_WRAPPER_FAULT_INJECTION_560CDE6DEA6EE450",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

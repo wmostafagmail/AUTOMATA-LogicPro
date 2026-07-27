@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arinc429_controller_qos_aware",
+  "wrapper_entity": "arinc429_controller_qos_aware_det_cfg",
+  "configuration_id": "ARINC429_CONTROLLER_QOS_AWARE_0325B85EAA5E5A05",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

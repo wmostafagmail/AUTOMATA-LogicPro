@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "integer_execution_unit_combinational",
+  "wrapper_entity": "integer_execution_unit_combinational_det_cfg",
+  "configuration_id": "INTEGER_EXECUTION_UNIT_COMBINATIONAL_F540C31446BCB613",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

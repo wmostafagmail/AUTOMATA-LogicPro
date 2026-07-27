@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "database_filter_engine_iterative",
+  "wrapper_entity": "database_filter_engine_iterative_det_cfg",
+  "configuration_id": "DATABASE_FILTER_ENGINE_ITERATIVE_4DC42E325EF34CFA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 93
+  }
+}

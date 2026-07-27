@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_adder_resource_shared",
+  "wrapper_entity": "integer_adder_resource_shared_det_cfg",
+  "configuration_id": "INTEGER_ADDER_RESOURCE_SHARED_534D9FF3B1317F8A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

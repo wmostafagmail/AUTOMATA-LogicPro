@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_temporal_redundancy",
+  "wrapper_entity": "secure_boot_root_temporal_redundancy_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_TEMPORAL_REDUNDANCY_1A80C787273B4EE0",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

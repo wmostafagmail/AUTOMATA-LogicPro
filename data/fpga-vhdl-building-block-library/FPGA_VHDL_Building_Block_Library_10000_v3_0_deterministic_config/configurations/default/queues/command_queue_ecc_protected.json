@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "command_queue_ecc_protected",
+  "wrapper_entity": "command_queue_ecc_protected_det_cfg",
+  "configuration_id": "COMMAND_QUEUE_ECC_PROTECTED_1B628B9EA2FC5A38",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

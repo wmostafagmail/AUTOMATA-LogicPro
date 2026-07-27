@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_low_power",
+  "wrapper_entity": "privilege_trap_router_low_power_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_LOW_POWER_152C0B1423577D6F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

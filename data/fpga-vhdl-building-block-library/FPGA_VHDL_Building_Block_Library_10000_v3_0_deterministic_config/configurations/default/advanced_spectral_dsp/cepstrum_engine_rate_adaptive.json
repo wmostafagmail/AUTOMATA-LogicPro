@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cepstrum_engine_rate_adaptive",
+  "wrapper_entity": "cepstrum_engine_rate_adaptive_det_cfg",
+  "configuration_id": "CEPSTRUM_ENGINE_RATE_ADAPTIVE_0080F8BED42ABD1A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

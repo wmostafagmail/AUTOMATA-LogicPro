@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "glyph_cache_controller_clock_crossing",
+  "wrapper_entity": "glyph_cache_controller_clock_crossing_det_cfg",
+  "configuration_id": "GLYPH_CACHE_CONTROLLER_CLOCK_CROSSING_92C393250360D06D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

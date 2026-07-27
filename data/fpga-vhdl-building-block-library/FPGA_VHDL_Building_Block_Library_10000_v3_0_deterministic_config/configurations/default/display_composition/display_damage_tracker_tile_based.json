@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_tile_based",
+  "wrapper_entity": "display_damage_tracker_tile_based_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_TILE_BASED_6AE8D2035C05AD1B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

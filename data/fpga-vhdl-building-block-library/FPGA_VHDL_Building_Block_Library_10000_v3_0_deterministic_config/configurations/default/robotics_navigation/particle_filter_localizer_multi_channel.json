@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_multi_channel",
+  "wrapper_entity": "particle_filter_localizer_multi_channel_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_MULTI_CHANNEL_B42A40001FFC2066",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

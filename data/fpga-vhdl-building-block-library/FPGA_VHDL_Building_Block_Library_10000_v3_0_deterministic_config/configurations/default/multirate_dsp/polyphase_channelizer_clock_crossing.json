@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_channelizer_clock_crossing",
+  "wrapper_entity": "polyphase_channelizer_clock_crossing_det_cfg",
+  "configuration_id": "POLYPHASE_CHANNELIZER_CLOCK_CROSSING_80656C619E6558F6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

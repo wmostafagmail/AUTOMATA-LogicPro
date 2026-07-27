@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_request_node_initiator",
+  "wrapper_entity": "chi_request_node_initiator_det_cfg",
+  "configuration_id": "CHI_REQUEST_NODE_INITIATOR_87873A6DEA7D0633",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

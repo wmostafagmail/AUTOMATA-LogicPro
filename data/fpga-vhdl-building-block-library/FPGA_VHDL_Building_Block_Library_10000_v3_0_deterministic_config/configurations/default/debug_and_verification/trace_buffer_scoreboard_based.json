@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trace_buffer_scoreboard_based",
+  "wrapper_entity": "trace_buffer_scoreboard_based_det_cfg",
+  "configuration_id": "TRACE_BUFFER_SCOREBOARD_BASED_2497EB230D6B3B40",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

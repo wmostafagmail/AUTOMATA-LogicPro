@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speed_loop_controller_programmable",
+  "wrapper_entity": "speed_loop_controller_programmable_det_cfg",
+  "configuration_id": "SPEED_LOOP_CONTROLLER_PROGRAMMABLE_96DD92F9CF9B84A2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

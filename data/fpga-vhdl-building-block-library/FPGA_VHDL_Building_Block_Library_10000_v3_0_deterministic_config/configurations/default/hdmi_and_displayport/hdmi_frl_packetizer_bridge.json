@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_bridge",
+  "wrapper_entity": "hdmi_frl_packetizer_bridge_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_BRIDGE_9D1234ECF73AF103",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

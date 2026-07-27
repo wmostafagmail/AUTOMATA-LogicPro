@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_saturating",
+  "wrapper_entity": "newton_raphson_reciprocal_saturating_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_SATURATING_1B580081B7361C8B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

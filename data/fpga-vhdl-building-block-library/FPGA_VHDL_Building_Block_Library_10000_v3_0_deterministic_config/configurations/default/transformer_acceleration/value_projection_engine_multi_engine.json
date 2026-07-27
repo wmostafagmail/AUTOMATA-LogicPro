@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "value_projection_engine_multi_engine",
+  "wrapper_entity": "value_projection_engine_multi_engine_det_cfg",
+  "configuration_id": "VALUE_PROJECTION_ENGINE_MULTI_ENGINE_7406C45CAB24E697",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

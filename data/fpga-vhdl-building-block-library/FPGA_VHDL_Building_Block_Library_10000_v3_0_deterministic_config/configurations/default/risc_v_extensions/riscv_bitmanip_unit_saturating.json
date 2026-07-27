@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_saturating",
+  "wrapper_entity": "riscv_bitmanip_unit_saturating_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_SATURATING_78E7EEF80346EE72",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "inverse_kinematics_engine_programmable",
+  "wrapper_entity": "inverse_kinematics_engine_programmable_det_cfg",
+  "configuration_id": "INVERSE_KINEMATICS_ENGINE_PROGRAMMABLE_669772F2DFD47681",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

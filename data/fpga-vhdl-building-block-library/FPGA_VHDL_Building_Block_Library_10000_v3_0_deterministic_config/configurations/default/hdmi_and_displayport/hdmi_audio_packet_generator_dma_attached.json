@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_dma_attached",
+  "wrapper_entity": "hdmi_audio_packet_generator_dma_attached_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_DMA_ATTACHED_372E73AC8D841E1F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

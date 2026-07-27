@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_low_power",
+  "wrapper_entity": "riscv_bitmanip_unit_low_power_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_LOW_POWER_A971AF799E01B038",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

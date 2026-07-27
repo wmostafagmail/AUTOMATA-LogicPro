@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_master_monitor",
+  "wrapper_entity": "spi_master_monitor_det_cfg",
+  "configuration_id": "SPI_MASTER_MONITOR_C65D698CB25367EB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

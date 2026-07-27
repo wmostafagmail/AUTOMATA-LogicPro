@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_bridge",
+  "wrapper_entity": "sata_link_engine_bridge_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_BRIDGE_90AD0355C70B67D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

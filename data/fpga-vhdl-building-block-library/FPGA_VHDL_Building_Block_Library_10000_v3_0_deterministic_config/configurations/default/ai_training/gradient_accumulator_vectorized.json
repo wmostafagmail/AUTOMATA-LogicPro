@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gradient_accumulator_vectorized",
+  "wrapper_entity": "gradient_accumulator_vectorized_det_cfg",
+  "configuration_id": "GRADIENT_ACCUMULATOR_VECTORIZED_CAE74BD5CE9C90BB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

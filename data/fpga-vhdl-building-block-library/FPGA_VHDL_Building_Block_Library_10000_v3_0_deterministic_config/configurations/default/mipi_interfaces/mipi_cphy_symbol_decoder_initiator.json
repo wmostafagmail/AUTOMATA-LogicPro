@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_initiator",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_initiator_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_INITIATOR_7921037FEEC0A70F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

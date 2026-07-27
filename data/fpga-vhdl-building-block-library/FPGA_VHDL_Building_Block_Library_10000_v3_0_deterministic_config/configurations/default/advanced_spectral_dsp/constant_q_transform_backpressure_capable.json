@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constant_q_transform_backpressure_capable",
+  "wrapper_entity": "constant_q_transform_backpressure_capable_det_cfg",
+  "configuration_id": "CONSTANT_Q_TRANSFORM_BACKPRESSURE_CAPABLE_BD21364C5213F91A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

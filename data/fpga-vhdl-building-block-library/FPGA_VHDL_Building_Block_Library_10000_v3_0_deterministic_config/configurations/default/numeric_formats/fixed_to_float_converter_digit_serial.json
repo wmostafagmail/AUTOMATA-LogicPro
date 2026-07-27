@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_to_float_converter_digit_serial",
+  "wrapper_entity": "fixed_to_float_converter_digit_serial_det_cfg",
+  "configuration_id": "FIXED_TO_FLOAT_CONVERTER_DIGIT_SERIAL_0144381BCD38386B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

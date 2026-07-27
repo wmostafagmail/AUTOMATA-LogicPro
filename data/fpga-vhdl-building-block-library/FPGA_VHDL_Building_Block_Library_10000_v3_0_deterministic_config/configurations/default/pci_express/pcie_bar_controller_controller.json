@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_bar_controller_controller",
+  "wrapper_entity": "pcie_bar_controller_controller_det_cfg",
+  "configuration_id": "PCIE_BAR_CONTROLLER_CONTROLLER_A445A439CE5B2654",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

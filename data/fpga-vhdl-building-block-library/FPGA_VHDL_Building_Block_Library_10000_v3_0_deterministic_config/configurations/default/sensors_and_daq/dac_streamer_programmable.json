@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dac_streamer_programmable",
+  "wrapper_entity": "dac_streamer_programmable_det_cfg",
+  "configuration_id": "DAC_STREAMER_PROGRAMMABLE_D6765781A62D1297",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

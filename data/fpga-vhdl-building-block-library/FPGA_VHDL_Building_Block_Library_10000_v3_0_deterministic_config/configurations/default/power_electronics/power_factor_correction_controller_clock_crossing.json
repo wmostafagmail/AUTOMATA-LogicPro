@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_clock_crossing",
+  "wrapper_entity": "power_factor_correction_controller_clock_crossing_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_CLOCK_CROSSING_D1398B1AE2564988",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

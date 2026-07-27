@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frequency_offset_estimator_continuous",
+  "wrapper_entity": "frequency_offset_estimator_continuous_det_cfg",
+  "configuration_id": "FREQUENCY_OFFSET_ESTIMATOR_CONTINUOUS_6EF4693B133F05C0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 207
+  }
+}

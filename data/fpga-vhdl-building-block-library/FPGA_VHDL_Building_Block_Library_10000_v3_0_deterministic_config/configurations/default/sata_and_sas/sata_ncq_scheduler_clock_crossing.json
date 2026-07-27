@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_ncq_scheduler_clock_crossing",
+  "wrapper_entity": "sata_ncq_scheduler_clock_crossing_det_cfg",
+  "configuration_id": "SATA_NCQ_SCHEDULER_CLOCK_CROSSING_9EB795ED35890496",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

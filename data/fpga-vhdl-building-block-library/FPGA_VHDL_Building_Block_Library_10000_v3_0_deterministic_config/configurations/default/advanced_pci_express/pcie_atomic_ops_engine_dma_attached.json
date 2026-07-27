@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_atomic_ops_engine_dma_attached",
+  "wrapper_entity": "pcie_atomic_ops_engine_dma_attached_det_cfg",
+  "configuration_id": "PCIE_ATOMIC_OPS_ENGINE_DMA_ATTACHED_7EEB414929785009",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

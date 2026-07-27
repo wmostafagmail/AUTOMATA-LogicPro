@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "end_around_carry_adder_vectorized",
+  "wrapper_entity": "end_around_carry_adder_vectorized_det_cfg",
+  "configuration_id": "END_AROUND_CARRY_ADDER_VECTORIZED_F3B2FAC096A146D9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "golden_model_comparator_randomized",
+  "wrapper_entity": "golden_model_comparator_randomized_det_cfg",
+  "configuration_id": "GOLDEN_MODEL_COMPARATOR_RANDOMIZED_5005563CB16BEC8C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

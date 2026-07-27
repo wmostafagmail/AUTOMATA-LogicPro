@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_software_configurable",
+  "wrapper_entity": "qubit_pulse_sequencer_software_configurable_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_SOFTWARE_CONFIGURABLE_EAC0D43E98F7000C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_single_cycle",
+  "wrapper_entity": "carry_skip_adder_single_cycle_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_SINGLE_CYCLE_52ED2D94DC7689A4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

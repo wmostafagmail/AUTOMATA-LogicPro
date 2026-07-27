@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "true_dual_port_ram_single_clock",
+  "wrapper_entity": "true_dual_port_ram_single_clock_det_cfg",
+  "configuration_id": "TRUE_DUAL_PORT_RAM_SINGLE_CLOCK_EE03C2B9D2A48333",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

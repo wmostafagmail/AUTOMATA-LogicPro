@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_rate_adaptive",
+  "wrapper_entity": "sampler_state_unit_rate_adaptive_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_RATE_ADAPTIVE_F86F0E0D9A18B112",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

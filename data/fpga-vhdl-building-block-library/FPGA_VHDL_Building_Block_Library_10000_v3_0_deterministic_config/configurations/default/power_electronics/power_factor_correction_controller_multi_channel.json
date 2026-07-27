@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_multi_channel",
+  "wrapper_entity": "power_factor_correction_controller_multi_channel_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_MULTI_CHANNEL_FA227521C5EFC521",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

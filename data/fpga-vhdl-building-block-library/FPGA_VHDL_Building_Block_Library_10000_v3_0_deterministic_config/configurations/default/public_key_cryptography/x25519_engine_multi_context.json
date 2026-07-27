@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "x25519_engine_multi_context",
+  "wrapper_entity": "x25519_engine_multi_context_det_cfg",
+  "configuration_id": "X25519_ENGINE_MULTI_CONTEXT_9B34C6ABC29F48BE",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

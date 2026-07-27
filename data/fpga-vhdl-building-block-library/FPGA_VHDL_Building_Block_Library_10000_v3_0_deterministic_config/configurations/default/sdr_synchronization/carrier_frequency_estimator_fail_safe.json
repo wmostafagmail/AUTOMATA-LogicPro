@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_fail_safe",
+  "wrapper_entity": "carrier_frequency_estimator_fail_safe_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_FAIL_SAFE_BC2DAE0685369EEA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

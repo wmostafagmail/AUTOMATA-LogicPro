@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_fail_safe",
+  "wrapper_entity": "free_list_allocator_fail_safe_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_FAIL_SAFE_840116B49C3FC192",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

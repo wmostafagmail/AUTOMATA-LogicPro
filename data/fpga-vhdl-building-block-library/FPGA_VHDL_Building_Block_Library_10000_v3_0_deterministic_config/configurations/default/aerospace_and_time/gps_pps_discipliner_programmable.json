@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gps_pps_discipliner_programmable",
+  "wrapper_entity": "gps_pps_discipliner_programmable_det_cfg",
+  "configuration_id": "GPS_PPS_DISCIPLINER_PROGRAMMABLE_E5C0C04372BD5508",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

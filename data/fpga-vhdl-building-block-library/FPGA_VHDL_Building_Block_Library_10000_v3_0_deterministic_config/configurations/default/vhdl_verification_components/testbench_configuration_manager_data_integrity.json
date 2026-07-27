@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "testbench_configuration_manager_data_integrity",
+  "wrapper_entity": "testbench_configuration_manager_data_integrity_det_cfg",
+  "configuration_id": "TESTBENCH_CONFIGURATION_MANAGER_DATA_INTEGRITY_EAAF9047CAD14F9F",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

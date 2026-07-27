@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_flash_controller_width_adapted",
+  "wrapper_entity": "spi_flash_controller_width_adapted_det_cfg",
+  "configuration_id": "SPI_FLASH_CONTROLLER_WIDTH_ADAPTED_EF075C7EB13B56B6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

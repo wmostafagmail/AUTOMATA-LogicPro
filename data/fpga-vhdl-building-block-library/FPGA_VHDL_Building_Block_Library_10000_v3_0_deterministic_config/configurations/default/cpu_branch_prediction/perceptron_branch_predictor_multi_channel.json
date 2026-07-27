@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_multi_channel",
+  "wrapper_entity": "perceptron_branch_predictor_multi_channel_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_MULTI_CHANNEL_17E757B0FB78289C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

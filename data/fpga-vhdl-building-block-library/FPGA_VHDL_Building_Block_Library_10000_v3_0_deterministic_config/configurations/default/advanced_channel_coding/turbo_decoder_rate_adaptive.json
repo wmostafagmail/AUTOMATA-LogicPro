@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "turbo_decoder_rate_adaptive",
+  "wrapper_entity": "turbo_decoder_rate_adaptive_det_cfg",
+  "configuration_id": "TURBO_DECODER_RATE_ADAPTIVE_3AEA5FEBD96B8C18",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

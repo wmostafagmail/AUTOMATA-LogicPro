@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "viewport_transform_engine_single_cycle",
+  "wrapper_entity": "viewport_transform_engine_single_cycle_det_cfg",
+  "configuration_id": "VIEWPORT_TRANSFORM_ENGINE_SINGLE_CYCLE_2034ADAC17B19B64",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

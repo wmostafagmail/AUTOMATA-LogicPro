@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "csr_tensor_decoder_backpressure_capable",
+  "wrapper_entity": "csr_tensor_decoder_backpressure_capable_det_cfg",
+  "configuration_id": "CSR_TENSOR_DECODER_BACKPRESSURE_CAPABLE_D0C65F917C324C0B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

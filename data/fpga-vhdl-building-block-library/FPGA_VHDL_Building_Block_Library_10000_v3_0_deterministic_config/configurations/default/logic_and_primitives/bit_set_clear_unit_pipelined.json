@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_set_clear_unit_pipelined",
+  "wrapper_entity": "bit_set_clear_unit_pipelined_det_cfg",
+  "configuration_id": "BIT_SET_CLEAR_UNIT_PIPELINED_B5B7ADE8E91F370A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

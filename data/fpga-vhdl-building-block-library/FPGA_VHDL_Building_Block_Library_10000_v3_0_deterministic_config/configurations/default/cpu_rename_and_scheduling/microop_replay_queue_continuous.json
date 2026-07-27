@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_continuous",
+  "wrapper_entity": "microop_replay_queue_continuous_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_CONTINUOUS_3A2FA636D99BD68D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

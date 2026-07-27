@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_deadline_aware",
+  "wrapper_entity": "free_list_allocator_deadline_aware_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_DEADLINE_AWARE_3A749F07A8511A50",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

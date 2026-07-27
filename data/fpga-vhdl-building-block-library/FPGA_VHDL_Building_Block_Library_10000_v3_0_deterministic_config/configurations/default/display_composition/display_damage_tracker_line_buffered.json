@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_line_buffered",
+  "wrapper_entity": "display_damage_tracker_line_buffered_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_LINE_BUFFERED_4A5B9269312F5A8E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

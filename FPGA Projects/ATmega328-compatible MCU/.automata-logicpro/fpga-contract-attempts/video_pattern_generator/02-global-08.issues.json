@@ -5,169 +5,33 @@
   "designLabel": "VGA/HDMI Pattern Generator with Framebuffer",
   "attempt": 8,
   "designAttempt": 2,
-  "issueCount": 31,
+  "issueCount": 4,
   "topIssueCodes": [
-    "architecture_contract_capability_unverified",
-    "architecture_contract_capability_unowned",
-    "architecture_contract_instance_generic_missing",
-    "architecture_contract_instance_missing"
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required",
+    "architecture_intent_unknown_required_field"
   ],
-  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 31 issue(s).",
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What data width and numeric format should the design use?",
   "issues": [
     {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"vga_timing_generator_pkg\"."
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
     },
     {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"vga_timing_generator_core\"."
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
     },
     {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"vga_timing_generator_core\"."
+      "code": "architecture_intent_unknown_required_field",
+      "path": "$.intent.widthOrFormat",
+      "message": "What data width and numeric format should the design use?"
     },
     {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"vga_timing_generator_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"vga_timing_generator_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"tb_vga_timing_generator_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"tb_vga_timing_generator_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"framebuffer_controller_pkg\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"framebuffer_controller_core\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"framebuffer_controller_core\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"framebuffer_controller_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"framebuffer_controller_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"tb_framebuffer_controller_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"tb_framebuffer_controller_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"dma_engine_pkg\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"dma_engine_core\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"dma_engine_core\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"dma_engine_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"dma_engine_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"tb_dma_engine_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"tb_dma_engine_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"axi4_memory_mapped_master_pkg\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"axi4_memory_mapped_master_core\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"axi4_memory_mapped_master_core\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"axi4_memory_mapped_master_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"axi4_memory_mapped_master_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unowned",
-      "path": "$.components",
-      "message": "No component owns required capability \"tb_axi4_memory_mapped_master_top\"."
-    },
-    {
-      "code": "architecture_contract_capability_unverified",
-      "path": "$.verification",
-      "message": "No verification item covers required capability \"tb_axi4_memory_mapped_master_top\"."
-    },
-    {
-      "code": "architecture_contract_instance_missing",
-      "path": "$.instances",
-      "message": "Hierarchy edge \"tb_video_top\" -> \"video_top\" requires exactly one instance contract."
-    },
-    {
-      "code": "architecture_contract_instance_generic_missing",
-      "path": "$.instances[0].genericMap",
-      "message": "Instance is missing named generic association \"C_H_TOTAL\"."
-    },
-    {
-      "code": "architecture_contract_instance_generic_missing",
-      "path": "$.instances[1].genericMap",
-      "message": "Instance is missing named generic association \"C_V_TOTAL\"."
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
     }
   ]
 }

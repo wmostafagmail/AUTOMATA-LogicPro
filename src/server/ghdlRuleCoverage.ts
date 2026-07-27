@@ -119,6 +119,12 @@ const ACTIONABLE_RULE_OVERRIDES: Record<string, Partial<CanonicalRuleActionabili
     validatorFailureCodes: ['tb_unconstrained_string_variable', 'invalid_subprogram_formal_syntax', 'clock_edge_helper_requires_signal_formal', 'subprogram_call_arity_mismatch', 'subprogram_actual_type_mismatch', 'tb_unguarded_logic_index_conversion', 'testbench_missing_dut_instantiation', 'checked_signal_not_dut_driven', 'testbench_drives_dut_output_signal', 'simulation_assertion_expected_actual_mismatch', 'alu_flag_behavior_mismatch', 'alu_result_behavior_mismatch'],
     repairStrategy: 'repair self-checking helpers and assertions locally without weakening checks; preserve exact failing PASS/FAIL evidence',
   },
+  'ghdl-instantiation-rules': {
+    forbiddenExamples: ['leaf component assigns a top-level status output it does not declare', 'named port map uses a formal not declared by the target entity'],
+    legalExamples: ['assign only local signals or out/buffer/inout ports declared by this entity', 'wire parent/top outputs only in the owning top integration component'],
+    validatorFailureCodes: ['component_output_ownership_violation', 'unknown_port_map_formal', 'unconnected_required_input_port', 'undriven_top_output_port', 'staged_port_interface_drift'],
+    repairStrategy: 'preserve the approved entity/component interface; repair only the failing instantiation or local implementation ownership boundary, never by inventing parent outputs in a leaf',
+  },
   'ghdl-identifier-safety': {
     forbiddenExamples: ['label', 'body', 'and', 'or', 'xor', 'not', 'sll', 'srl'],
     legalExamples: ['label_text', 'pkg_body_impl', 'op_and', 'op_shift_left'],
@@ -1055,6 +1061,7 @@ export const GHDL_FAILURE_CODE_TO_RULE_IDS: Record<string, string[]> = {
   typed_equality_operand_mismatch: ['ghdl-explicit-boundary-conversions', 'ghdl-no-raw-slv-arithmetic'],
   mixed_logical_operator_precedence: ['ghdl-no-raw-slv-arithmetic'],
   staged_port_interface_drift: ['ghdl-instantiation-rules', 'ghdl-entity-format'],
+  component_output_ownership_violation: ['ghdl-instantiation-rules', 'ghdl-entity-format'],
   model_output_budget_exhausted: ['ghdl-clean-command-contract'],
   package_symbol_not_visible: ['ghdl-record-package-rules', 'ghdl-source-ordering'],
   unknown_port_map_formal: ['ghdl-instantiation-rules', 'ghdl-entity-format'],

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_latency_checking",
+  "wrapper_entity": "trigger_matrix_latency_checking_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_LATENCY_CHECKING_B8201913CA9DAD91",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

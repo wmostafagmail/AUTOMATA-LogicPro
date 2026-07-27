@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_software_configurable",
+  "wrapper_entity": "reorder_commit_engine_software_configurable_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_SOFTWARE_CONFIGURABLE_B00D22793202D9CB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

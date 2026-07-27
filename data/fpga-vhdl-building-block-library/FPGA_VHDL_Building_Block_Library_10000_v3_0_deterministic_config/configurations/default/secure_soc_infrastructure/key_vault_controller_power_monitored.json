@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_power_monitored",
+  "wrapper_entity": "key_vault_controller_power_monitored_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_POWER_MONITORED_558B0F07C67E4318",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

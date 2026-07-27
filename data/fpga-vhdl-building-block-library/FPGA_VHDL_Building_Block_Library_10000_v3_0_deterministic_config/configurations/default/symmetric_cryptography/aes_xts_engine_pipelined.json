@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_pipelined",
+  "wrapper_entity": "aes_xts_engine_pipelined_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_PIPELINED_C2B8F6FD1F6E330F",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

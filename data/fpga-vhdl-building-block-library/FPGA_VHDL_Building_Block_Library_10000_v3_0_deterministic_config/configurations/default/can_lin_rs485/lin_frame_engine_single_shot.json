@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_frame_engine_single_shot",
+  "wrapper_entity": "lin_frame_engine_single_shot_det_cfg",
+  "configuration_id": "LIN_FRAME_ENGINE_SINGLE_SHOT_5E160B85BBD4B5C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

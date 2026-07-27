@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_compressor_rate_adaptive",
+  "wrapper_entity": "lz4_compressor_rate_adaptive_det_cfg",
+  "configuration_id": "LZ4_COMPRESSOR_RATE_ADAPTIVE_A08397D5C6009DE4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

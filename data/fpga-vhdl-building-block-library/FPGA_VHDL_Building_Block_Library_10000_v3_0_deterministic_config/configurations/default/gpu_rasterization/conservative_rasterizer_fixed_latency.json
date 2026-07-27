@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "conservative_rasterizer_fixed_latency",
+  "wrapper_entity": "conservative_rasterizer_fixed_latency_det_cfg",
+  "configuration_id": "CONSERVATIVE_RASTERIZER_FIXED_LATENCY_B5C10CBB58A4F4AE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

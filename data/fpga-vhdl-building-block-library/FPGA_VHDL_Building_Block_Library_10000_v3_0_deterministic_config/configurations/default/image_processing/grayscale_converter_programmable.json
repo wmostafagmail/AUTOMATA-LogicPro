@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "grayscale_converter_programmable",
+  "wrapper_entity": "grayscale_converter_programmable_det_cfg",
+  "configuration_id": "GRAYSCALE_CONVERTER_PROGRAMMABLE_0B2C580CD7BA2B98",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

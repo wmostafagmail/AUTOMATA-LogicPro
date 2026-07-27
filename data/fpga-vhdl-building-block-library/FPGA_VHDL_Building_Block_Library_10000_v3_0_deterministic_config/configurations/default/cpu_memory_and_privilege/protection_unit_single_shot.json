@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "protection_unit_single_shot",
+  "wrapper_entity": "protection_unit_single_shot_det_cfg",
+  "configuration_id": "PROTECTION_UNIT_SINGLE_SHOT_0B5C9437C21B0823",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

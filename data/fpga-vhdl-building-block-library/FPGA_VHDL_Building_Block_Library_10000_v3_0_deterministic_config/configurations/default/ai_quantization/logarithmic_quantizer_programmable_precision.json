@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_programmable_precision",
+  "wrapper_entity": "logarithmic_quantizer_programmable_precision_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_PROGRAMMABLE_PRECISION_A878DA9E46986B52",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tile_binning_engine_resource_shared",
+  "wrapper_entity": "tile_binning_engine_resource_shared_det_cfg",
+  "configuration_id": "TILE_BINNING_ENGINE_RESOURCE_SHARED_813D72BABC230D16",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

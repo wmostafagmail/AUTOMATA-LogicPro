@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_hsv_low_latency",
+  "wrapper_entity": "rgb_to_hsv_low_latency_det_cfg",
+  "configuration_id": "RGB_TO_HSV_LOW_LATENCY_F7150060FC358420",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

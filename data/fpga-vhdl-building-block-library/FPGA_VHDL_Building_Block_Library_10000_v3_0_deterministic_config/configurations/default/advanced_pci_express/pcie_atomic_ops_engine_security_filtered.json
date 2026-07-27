@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_atomic_ops_engine_security_filtered",
+  "wrapper_entity": "pcie_atomic_ops_engine_security_filtered_det_cfg",
+  "configuration_id": "PCIE_ATOMIC_OPS_ENGINE_SECURITY_FILTERED_AB1B4454B03D5364",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

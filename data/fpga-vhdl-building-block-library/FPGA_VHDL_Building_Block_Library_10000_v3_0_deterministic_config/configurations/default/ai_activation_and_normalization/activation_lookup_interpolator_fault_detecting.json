@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_lookup_interpolator_fault_detecting",
+  "wrapper_entity": "activation_lookup_interpolator_fault_detecting_det_cfg",
+  "configuration_id": "ACTIVATION_LOOKUP_INTERPOLATOR_FAULT_DETECTING_56C62DD205F0251F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

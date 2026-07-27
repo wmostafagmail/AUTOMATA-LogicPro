@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_divider_pipelined",
+  "wrapper_entity": "floating_point_divider_pipelined_det_cfg",
+  "configuration_id": "FLOATING_POINT_DIVIDER_PIPELINED_53FBEF602A2BBDCA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

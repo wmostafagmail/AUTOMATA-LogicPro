@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_multi_channel",
+  "wrapper_entity": "adaptive_mesh_router_multi_channel_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_MULTI_CHANNEL_F069CCB5ECC83C5A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

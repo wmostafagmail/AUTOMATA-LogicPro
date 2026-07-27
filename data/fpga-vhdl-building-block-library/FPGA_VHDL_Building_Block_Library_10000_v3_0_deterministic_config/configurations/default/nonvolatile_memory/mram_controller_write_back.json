@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mram_controller_write_back",
+  "wrapper_entity": "mram_controller_write_back_det_cfg",
+  "configuration_id": "MRAM_CONTROLLER_WRITE_BACK_C4963C6B39454918",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

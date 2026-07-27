@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi4_memory_mapped_master",
+  "wrapper_entity": "axi4_memory_mapped_master_det_cfg",
+  "configuration_id": "AXI4_MEMORY_MAPPED_MASTER_DDAB042813D5B876",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clipping_engine_pipelined",
+  "wrapper_entity": "clipping_engine_pipelined_det_cfg",
+  "configuration_id": "CLIPPING_ENGINE_PIPELINED_BAAB149574FECD36",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

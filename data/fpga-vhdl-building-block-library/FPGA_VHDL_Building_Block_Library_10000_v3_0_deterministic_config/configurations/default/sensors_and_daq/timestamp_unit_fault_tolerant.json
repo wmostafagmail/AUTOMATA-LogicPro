@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "timestamp_unit_fault_tolerant",
+  "wrapper_entity": "timestamp_unit_fault_tolerant_det_cfg",
+  "configuration_id": "TIMESTAMP_UNIT_FAULT_TOLERANT_8F7CFF05A93E8DC2",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

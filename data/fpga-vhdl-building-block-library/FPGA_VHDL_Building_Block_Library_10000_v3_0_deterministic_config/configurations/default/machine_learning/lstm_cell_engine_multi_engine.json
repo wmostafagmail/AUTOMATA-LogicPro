@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "lstm_cell_engine_multi_engine",
+  "wrapper_entity": "lstm_cell_engine_multi_engine_det_cfg",
+  "configuration_id": "LSTM_CELL_ENGINE_MULTI_ENGINE_C56C03CDEE4E552D",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

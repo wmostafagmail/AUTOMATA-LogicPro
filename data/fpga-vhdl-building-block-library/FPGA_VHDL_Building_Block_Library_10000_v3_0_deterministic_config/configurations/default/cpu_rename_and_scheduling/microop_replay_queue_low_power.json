@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_low_power",
+  "wrapper_entity": "microop_replay_queue_low_power_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_LOW_POWER_955A574A8943CAEB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

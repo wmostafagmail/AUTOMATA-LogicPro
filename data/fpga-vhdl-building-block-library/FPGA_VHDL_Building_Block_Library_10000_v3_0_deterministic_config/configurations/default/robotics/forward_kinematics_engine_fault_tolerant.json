@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "forward_kinematics_engine_fault_tolerant",
+  "wrapper_entity": "forward_kinematics_engine_fault_tolerant_det_cfg",
+  "configuration_id": "FORWARD_KINEMATICS_ENGINE_FAULT_TOLERANT_4EBC5A1451661352",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

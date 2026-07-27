@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_balancing_controller_software_configurable",
+  "wrapper_entity": "battery_balancing_controller_software_configurable_det_cfg",
+  "configuration_id": "BATTERY_BALANCING_CONTROLLER_SOFTWARE_CONFIGURABLE_FDDF1EF3B401A882",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

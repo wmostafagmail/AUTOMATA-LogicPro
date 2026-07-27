@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "triangle_setup_engine_pipelined",
+  "wrapper_entity": "triangle_setup_engine_pipelined_det_cfg",
+  "configuration_id": "TRIANGLE_SETUP_ENGINE_PIPELINED_DA8204AB8629BA67",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

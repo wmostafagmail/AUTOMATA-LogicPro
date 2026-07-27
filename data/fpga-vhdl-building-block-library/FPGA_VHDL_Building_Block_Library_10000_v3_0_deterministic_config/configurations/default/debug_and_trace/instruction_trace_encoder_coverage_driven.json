@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_trace_encoder_coverage_driven",
+  "wrapper_entity": "instruction_trace_encoder_coverage_driven_det_cfg",
+  "configuration_id": "INSTRUCTION_TRACE_ENCODER_COVERAGE_DRIVEN_3861C55DE2C3EABF",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

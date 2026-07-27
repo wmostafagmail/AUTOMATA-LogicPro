@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_security_filtered",
+  "wrapper_entity": "adaptive_mesh_router_security_filtered_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_SECURITY_FILTERED_56052DB0ACEB785D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

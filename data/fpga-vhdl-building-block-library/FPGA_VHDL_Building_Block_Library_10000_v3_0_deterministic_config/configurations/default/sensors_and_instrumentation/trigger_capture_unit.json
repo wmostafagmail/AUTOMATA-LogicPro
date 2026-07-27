@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "trigger_capture_unit",
+  "wrapper_entity": "trigger_capture_unit_det_cfg",
+  "configuration_id": "TRIGGER_CAPTURE_UNIT_A9A45D181067F1B1",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

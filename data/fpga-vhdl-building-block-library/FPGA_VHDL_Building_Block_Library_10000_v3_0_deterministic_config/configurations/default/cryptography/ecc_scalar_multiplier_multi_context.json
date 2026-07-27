@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "ecc_scalar_multiplier_multi_context",
+  "wrapper_entity": "ecc_scalar_multiplier_multi_context_det_cfg",
+  "configuration_id": "ECC_SCALAR_MULTIPLIER_MULTI_CONTEXT_6C39BFAE33D98BBC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

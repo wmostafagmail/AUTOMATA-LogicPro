@@ -1,0 +1,24 @@
+block_name: replace_me
+clock_domains:
+  - name: replace_me
+    frequency_hz: null
+    relationship: asynchronous|synchronous|mesochronous
+resets:
+  - name: replace_me
+    assertion: asynchronous|synchronous
+    deassertion: synchronized|synchronous
+crossings: []
+synchronizer_mtbf_target_years: null
+cdc_tool:
+  name: replace_me
+  version: replace_me
+rdc_tool:
+  name: replace_me
+  version: replace_me
+waivers: []
+required_reports:
+  - structural_cdc
+  - reconvergence
+  - coherency
+  - reset_domain_crossing
+  - mtbf

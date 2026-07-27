@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "edge_event_counter",
+  "wrapper_entity": "edge_event_counter_det_cfg",
+  "configuration_id": "EDGE_EVENT_COUNTER_6358154D6151FD18",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

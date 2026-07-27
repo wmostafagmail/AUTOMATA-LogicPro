@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sensor_calibration_unit_single_shot",
+  "wrapper_entity": "sensor_calibration_unit_single_shot_det_cfg",
+  "configuration_id": "SENSOR_CALIBRATION_UNIT_SINGLE_SHOT_EB7B1B4CB966700B",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

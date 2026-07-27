@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_tcp_engine_continuous",
+  "wrapper_entity": "modbus_tcp_engine_continuous_det_cfg",
+  "configuration_id": "MODBUS_TCP_ENGINE_CONTINUOUS_92683B2C73B3EEAC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

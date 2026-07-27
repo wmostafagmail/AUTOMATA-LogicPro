@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_crc_engine_continuous",
+  "wrapper_entity": "usb_crc_engine_continuous_det_cfg",
+  "configuration_id": "USB_CRC_ENGINE_CONTINUOUS_1064DD7C83D01671",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

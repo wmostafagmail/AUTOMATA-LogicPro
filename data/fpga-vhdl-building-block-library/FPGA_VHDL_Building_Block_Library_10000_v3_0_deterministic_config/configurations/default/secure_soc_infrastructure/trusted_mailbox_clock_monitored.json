@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_clock_monitored",
+  "wrapper_entity": "trusted_mailbox_clock_monitored_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_CLOCK_MONITORED_5FA63B77047F2389",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

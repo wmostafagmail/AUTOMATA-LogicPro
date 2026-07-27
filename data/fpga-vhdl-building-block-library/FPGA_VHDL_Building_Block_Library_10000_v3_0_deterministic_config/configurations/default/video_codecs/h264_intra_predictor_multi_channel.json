@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_multi_channel",
+  "wrapper_entity": "h264_intra_predictor_multi_channel_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_MULTI_CHANNEL_CB1F9DC78BE64CAC",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_low_power",
+  "wrapper_entity": "hdr_merge_engine_low_power_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_LOW_POWER_C65DDC5EA5EC47B7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

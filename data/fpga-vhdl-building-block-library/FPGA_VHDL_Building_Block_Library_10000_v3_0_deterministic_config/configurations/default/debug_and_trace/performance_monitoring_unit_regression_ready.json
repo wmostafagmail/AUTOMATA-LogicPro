@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_regression_ready",
+  "wrapper_entity": "performance_monitoring_unit_regression_ready_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_REGRESSION_READY_C6911A5373F4DA5E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

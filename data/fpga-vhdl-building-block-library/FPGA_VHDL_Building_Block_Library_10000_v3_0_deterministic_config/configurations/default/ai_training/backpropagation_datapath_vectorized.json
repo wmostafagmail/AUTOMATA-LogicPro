@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "backpropagation_datapath_vectorized",
+  "wrapper_entity": "backpropagation_datapath_vectorized_det_cfg",
+  "configuration_id": "BACKPROPAGATION_DATAPATH_VECTORIZED_0E1193C377A5E05A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_generator_low_power",
+  "wrapper_entity": "pwm_generator_low_power_det_cfg",
+  "configuration_id": "PWM_GENERATOR_LOW_POWER_7776F0480901E006",
+  "generics": {
+    "WIDTH": 16
+  }
+}

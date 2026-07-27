@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "regex_dfa_engine_packet_aware",
+  "wrapper_entity": "regex_dfa_engine_packet_aware_det_cfg",
+  "configuration_id": "REGEX_DFA_ENGINE_PACKET_AWARE_9D791FD36C57C880",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

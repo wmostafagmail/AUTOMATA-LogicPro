@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_priority_aware",
+  "wrapper_entity": "wakeup_select_unit_priority_aware_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_PRIORITY_AWARE_4A1F146E0BDAEEBC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

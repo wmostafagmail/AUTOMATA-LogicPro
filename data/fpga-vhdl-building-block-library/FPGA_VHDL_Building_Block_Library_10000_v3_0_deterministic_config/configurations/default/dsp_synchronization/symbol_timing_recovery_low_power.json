@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "symbol_timing_recovery_low_power",
+  "wrapper_entity": "symbol_timing_recovery_low_power_det_cfg",
+  "configuration_id": "SYMBOL_TIMING_RECOVERY_LOW_POWER_B201AC43CD3973DF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 162
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_stream_endpoint",
+  "wrapper_entity": "avalon_stream_endpoint_det_cfg",
+  "configuration_id": "AVALON_STREAM_ENDPOINT_5BBE72EC8E5DCD28",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 172
+  }
+}

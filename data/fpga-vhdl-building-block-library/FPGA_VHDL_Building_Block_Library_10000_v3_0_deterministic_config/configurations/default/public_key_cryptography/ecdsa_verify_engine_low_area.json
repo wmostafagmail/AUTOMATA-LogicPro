@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_verify_engine_low_area",
+  "wrapper_entity": "ecdsa_verify_engine_low_area_det_cfg",
+  "configuration_id": "ECDSA_VERIFY_ENGINE_LOW_AREA_3F5364248CA1BC9C",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

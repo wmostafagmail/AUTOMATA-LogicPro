@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microcode_rom_multi_channel",
+  "wrapper_entity": "microcode_rom_multi_channel_det_cfg",
+  "configuration_id": "MICROCODE_ROM_MULTI_CHANNEL_0FD332D084E74F69",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

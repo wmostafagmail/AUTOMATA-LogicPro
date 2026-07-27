@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_single_shot",
+  "wrapper_entity": "gardner_timing_detector_single_shot_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_SINGLE_SHOT_E50A2793520030E0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

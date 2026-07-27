@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_dma_streaming",
+  "wrapper_entity": "oscilloscope_trigger_engine_dma_streaming_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_DMA_STREAMING_65B6A1661B6A450F",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

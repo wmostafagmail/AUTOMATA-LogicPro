@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "montgomery_multiplier_dma_attached",
+  "wrapper_entity": "montgomery_multiplier_dma_attached_det_cfg",
+  "configuration_id": "MONTGOMERY_MULTIPLIER_DMA_ATTACHED_2FD9DAB0FA370EF4",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

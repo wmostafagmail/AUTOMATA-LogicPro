@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_copy_engine_single_shot",
+  "wrapper_entity": "memory_copy_engine_single_shot_det_cfg",
+  "configuration_id": "MEMORY_COPY_ENGINE_SINGLE_SHOT_F4F32691240928A7",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

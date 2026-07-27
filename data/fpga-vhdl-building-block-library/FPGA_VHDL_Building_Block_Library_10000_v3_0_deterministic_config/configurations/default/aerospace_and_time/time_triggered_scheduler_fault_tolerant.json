@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "time_triggered_scheduler_fault_tolerant",
+  "wrapper_entity": "time_triggered_scheduler_fault_tolerant_det_cfg",
+  "configuration_id": "TIME_TRIGGERED_SCHEDULER_FAULT_TOLERANT_266016725977AD3C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

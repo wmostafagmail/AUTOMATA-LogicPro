@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_frame_parser_fault_tolerant",
+  "wrapper_entity": "ethernet_frame_parser_fault_tolerant_det_cfg",
+  "configuration_id": "ETHERNET_FRAME_PARSER_FAULT_TOLERANT_E820B2591FC2D48A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

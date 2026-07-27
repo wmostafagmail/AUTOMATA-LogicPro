@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_coherency_bridge_buffered",
+  "wrapper_entity": "cxl_coherency_bridge_buffered_det_cfg",
+  "configuration_id": "CXL_COHERENCY_BRIDGE_BUFFERED_61D95C1DE87CB97F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

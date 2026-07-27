@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "trajectory_generator_low_power",
+  "wrapper_entity": "trajectory_generator_low_power_det_cfg",
+  "configuration_id": "TRAJECTORY_GENERATOR_LOW_POWER_0E431923B924F78A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

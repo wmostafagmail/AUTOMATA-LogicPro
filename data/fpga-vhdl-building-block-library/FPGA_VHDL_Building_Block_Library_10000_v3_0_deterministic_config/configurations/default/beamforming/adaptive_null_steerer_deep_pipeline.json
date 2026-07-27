@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_deep_pipeline",
+  "wrapper_entity": "adaptive_null_steerer_deep_pipeline_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_DEEP_PIPELINE_F5E4413A237E6853",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

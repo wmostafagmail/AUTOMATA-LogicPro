@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "triggered_waveform_recorder_oversampled",
+  "wrapper_entity": "triggered_waveform_recorder_oversampled_det_cfg",
+  "configuration_id": "TRIGGERED_WAVEFORM_RECORDER_OVERSAMPLED_BB3D54CBE0E764E4",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

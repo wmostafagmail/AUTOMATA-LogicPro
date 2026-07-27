@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_packet_engine_fault_tolerant",
+  "wrapper_entity": "profinet_packet_engine_fault_tolerant_det_cfg",
+  "configuration_id": "PROFINET_PACKET_ENGINE_FAULT_TOLERANT_837B271EDA3FD81B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

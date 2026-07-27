@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "thermometer_encoder_pipelined",
+  "wrapper_entity": "thermometer_encoder_pipelined_det_cfg",
+  "configuration_id": "THERMOMETER_ENCODER_PIPELINED_1681855C7C32DF6C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "matched_filter_continuous",
+  "wrapper_entity": "matched_filter_continuous_det_cfg",
+  "configuration_id": "MATCHED_FILTER_CONTINUOUS_0BF22865A3E3780D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 92
+  }
+}

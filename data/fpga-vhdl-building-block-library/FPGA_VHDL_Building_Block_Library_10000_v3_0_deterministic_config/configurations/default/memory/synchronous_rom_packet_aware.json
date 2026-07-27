@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "synchronous_rom_packet_aware",
+  "wrapper_entity": "synchronous_rom_packet_aware_det_cfg",
+  "configuration_id": "SYNCHRONOUS_ROM_PACKET_AWARE_EE5C543862746B29",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

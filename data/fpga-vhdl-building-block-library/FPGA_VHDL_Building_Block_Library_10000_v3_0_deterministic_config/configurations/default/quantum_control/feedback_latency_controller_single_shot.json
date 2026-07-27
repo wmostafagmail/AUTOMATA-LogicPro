@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_single_shot",
+  "wrapper_entity": "feedback_latency_controller_single_shot_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_SINGLE_SHOT_CD4F846EE454809F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

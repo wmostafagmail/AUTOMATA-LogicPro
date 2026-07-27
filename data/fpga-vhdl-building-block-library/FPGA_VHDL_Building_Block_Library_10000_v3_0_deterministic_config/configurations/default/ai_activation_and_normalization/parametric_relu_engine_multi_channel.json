@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parametric_relu_engine_multi_channel",
+  "wrapper_entity": "parametric_relu_engine_multi_channel_det_cfg",
+  "configuration_id": "PARAMETRIC_RELU_ENGINE_MULTI_CHANNEL_CF3C4E38AB9C2DBA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

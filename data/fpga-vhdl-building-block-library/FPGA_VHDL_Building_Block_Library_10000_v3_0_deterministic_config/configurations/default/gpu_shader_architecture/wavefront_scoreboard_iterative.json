@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wavefront_scoreboard_iterative",
+  "wrapper_entity": "wavefront_scoreboard_iterative_det_cfg",
+  "configuration_id": "WAVEFRONT_SCOREBOARD_ITERATIVE_2439463E61B39494",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

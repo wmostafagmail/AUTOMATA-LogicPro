@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_oriented_control_programmable",
+  "wrapper_entity": "field_oriented_control_programmable_det_cfg",
+  "configuration_id": "FIELD_ORIENTED_CONTROL_PROGRAMMABLE_11D5BB827BF07978",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

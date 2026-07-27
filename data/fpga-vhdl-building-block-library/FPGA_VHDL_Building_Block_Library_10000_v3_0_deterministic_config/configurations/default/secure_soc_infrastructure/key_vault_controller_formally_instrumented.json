@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_formally_instrumented",
+  "wrapper_entity": "key_vault_controller_formally_instrumented_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_FORMALLY_INSTRUMENTED_8911B5AADD94A6E6",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

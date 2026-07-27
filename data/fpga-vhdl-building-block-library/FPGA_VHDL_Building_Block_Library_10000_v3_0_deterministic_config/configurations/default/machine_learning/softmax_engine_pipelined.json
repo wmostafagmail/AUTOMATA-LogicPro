@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "softmax_engine_pipelined",
+  "wrapper_entity": "softmax_engine_pipelined_det_cfg",
+  "configuration_id": "SOFTMAX_ENGINE_PIPELINED_1BA62CE2A8849EEC",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

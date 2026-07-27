@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "black_level_correction_line_buffered",
+  "wrapper_entity": "black_level_correction_line_buffered_det_cfg",
+  "configuration_id": "BLACK_LEVEL_CORRECTION_LINE_BUFFERED_BF5588DFAA2FC599",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_rate_adaptive",
+  "wrapper_entity": "display_damage_tracker_rate_adaptive_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_RATE_ADAPTIVE_AB7E0B2D4E0BA430",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

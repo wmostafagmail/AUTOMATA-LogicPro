@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "crest_factor_reducer_resource_shared",
+  "wrapper_entity": "crest_factor_reducer_resource_shared_det_cfg",
+  "configuration_id": "CREST_FACTOR_REDUCER_RESOURCE_SHARED_8C95D9F4D3507385",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 172
+  }
+}

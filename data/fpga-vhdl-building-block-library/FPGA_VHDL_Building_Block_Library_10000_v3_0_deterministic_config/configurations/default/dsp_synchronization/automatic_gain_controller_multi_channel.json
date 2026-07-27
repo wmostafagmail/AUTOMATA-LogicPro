@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automatic_gain_controller_multi_channel",
+  "wrapper_entity": "automatic_gain_controller_multi_channel_det_cfg",
+  "configuration_id": "AUTOMATIC_GAIN_CONTROLLER_MULTI_CHANNEL_ADC1C5ACCDCE1D3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 104
+  }
+}

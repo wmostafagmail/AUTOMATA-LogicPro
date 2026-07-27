@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_rounder_pipelined",
+  "wrapper_entity": "fixed_point_rounder_pipelined_det_cfg",
+  "configuration_id": "FIXED_POINT_ROUNDER_PIPELINED_846B01E7108EA00B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

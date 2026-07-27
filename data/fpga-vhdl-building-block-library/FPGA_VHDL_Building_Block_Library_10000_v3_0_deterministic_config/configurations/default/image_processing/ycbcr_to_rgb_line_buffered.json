@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ycbcr_to_rgb_line_buffered",
+  "wrapper_entity": "ycbcr_to_rgb_line_buffered_det_cfg",
+  "configuration_id": "YCBCR_TO_RGB_LINE_BUFFERED_44A5B0E8C0AF15B8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

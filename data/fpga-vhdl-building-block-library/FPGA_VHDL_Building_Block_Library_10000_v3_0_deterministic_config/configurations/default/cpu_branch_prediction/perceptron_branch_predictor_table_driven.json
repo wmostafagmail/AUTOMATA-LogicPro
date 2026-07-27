@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_table_driven",
+  "wrapper_entity": "perceptron_branch_predictor_table_driven_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_TABLE_DRIVEN_D2E956B87E58A74B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

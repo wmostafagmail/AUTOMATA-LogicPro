@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_security_filtered",
+  "wrapper_entity": "ip_fragment_reassembly_security_filtered_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_SECURITY_FILTERED_C20A4DB079A9241D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

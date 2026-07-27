@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_dma_attached",
+  "wrapper_entity": "aes_xts_engine_dma_attached_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_DMA_ATTACHED_0627085192B4A8C0",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

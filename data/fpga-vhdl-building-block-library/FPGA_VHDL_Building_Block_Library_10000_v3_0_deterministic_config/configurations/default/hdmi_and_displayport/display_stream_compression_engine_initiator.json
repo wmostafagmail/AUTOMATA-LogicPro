@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_initiator",
+  "wrapper_entity": "display_stream_compression_engine_initiator_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_INITIATOR_09B70E43131D1FE8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

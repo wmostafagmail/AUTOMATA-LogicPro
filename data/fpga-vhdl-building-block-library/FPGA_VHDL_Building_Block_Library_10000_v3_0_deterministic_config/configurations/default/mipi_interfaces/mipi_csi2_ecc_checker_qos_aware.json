@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_ecc_checker_qos_aware",
+  "wrapper_entity": "mipi_csi2_ecc_checker_qos_aware_det_cfg",
+  "configuration_id": "MIPI_CSI2_ECC_CHECKER_QOS_AWARE_1681157656B57C4E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

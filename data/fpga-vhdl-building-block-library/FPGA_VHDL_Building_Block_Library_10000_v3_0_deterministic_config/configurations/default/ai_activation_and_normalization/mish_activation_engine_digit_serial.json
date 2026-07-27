@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mish_activation_engine_digit_serial",
+  "wrapper_entity": "mish_activation_engine_digit_serial_det_cfg",
+  "configuration_id": "MISH_ACTIVATION_ENGINE_DIGIT_SERIAL_CD7A239FC98C2DEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

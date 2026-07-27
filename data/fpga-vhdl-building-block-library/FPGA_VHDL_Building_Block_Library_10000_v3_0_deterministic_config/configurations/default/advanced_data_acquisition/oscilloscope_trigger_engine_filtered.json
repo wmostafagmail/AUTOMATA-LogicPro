@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_filtered",
+  "wrapper_entity": "oscilloscope_trigger_engine_filtered_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_FILTERED_9BC13E44CAAE5003",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

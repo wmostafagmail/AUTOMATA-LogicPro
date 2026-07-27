@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_deadline_aware",
+  "wrapper_entity": "precise_state_recovery_deadline_aware_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_DEADLINE_AWARE_29A2E2E668FB683B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

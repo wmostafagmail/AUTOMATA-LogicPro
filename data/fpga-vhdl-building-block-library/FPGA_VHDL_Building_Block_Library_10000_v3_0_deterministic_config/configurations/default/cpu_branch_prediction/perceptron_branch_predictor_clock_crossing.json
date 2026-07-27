@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_clock_crossing",
+  "wrapper_entity": "perceptron_branch_predictor_clock_crossing_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_CLOCK_CROSSING_B2D9FBE667E784A4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "asynchronous_rom_single_clock",
+  "wrapper_entity": "asynchronous_rom_single_clock_det_cfg",
+  "configuration_id": "ASYNCHRONOUS_ROM_SINGLE_CLOCK_5778124D0E991A9B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

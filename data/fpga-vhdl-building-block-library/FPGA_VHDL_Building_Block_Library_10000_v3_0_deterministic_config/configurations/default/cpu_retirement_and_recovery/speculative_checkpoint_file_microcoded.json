@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_microcoded",
+  "wrapper_entity": "speculative_checkpoint_file_microcoded_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_MICROCODED_D9FD8AF2294206A7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

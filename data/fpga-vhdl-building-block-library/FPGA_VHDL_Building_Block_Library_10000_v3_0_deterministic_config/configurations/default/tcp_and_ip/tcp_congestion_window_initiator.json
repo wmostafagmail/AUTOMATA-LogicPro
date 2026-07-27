@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_congestion_window_initiator",
+  "wrapper_entity": "tcp_congestion_window_initiator_det_cfg",
+  "configuration_id": "TCP_CONGESTION_WINDOW_INITIATOR_C35CF2137B72AD32",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

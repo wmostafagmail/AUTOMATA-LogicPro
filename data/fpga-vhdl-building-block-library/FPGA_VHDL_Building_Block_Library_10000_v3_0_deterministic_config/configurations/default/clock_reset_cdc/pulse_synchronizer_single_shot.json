@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pulse_synchronizer_single_shot",
+  "wrapper_entity": "pulse_synchronizer_single_shot_det_cfg",
+  "configuration_id": "PULSE_SYNCHRONIZER_SINGLE_SHOT_DCE6794A37D182D9",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

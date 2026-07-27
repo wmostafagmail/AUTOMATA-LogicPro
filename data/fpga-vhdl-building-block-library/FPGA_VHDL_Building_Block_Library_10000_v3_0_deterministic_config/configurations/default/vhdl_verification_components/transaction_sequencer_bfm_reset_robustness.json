@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_reset_robustness",
+  "wrapper_entity": "transaction_sequencer_bfm_reset_robustness_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_RESET_ROBUSTNESS_ABB29874E62A7D9B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

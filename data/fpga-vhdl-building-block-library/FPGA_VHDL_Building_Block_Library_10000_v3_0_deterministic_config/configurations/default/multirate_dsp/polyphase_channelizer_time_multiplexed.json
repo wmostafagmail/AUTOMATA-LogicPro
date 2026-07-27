@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_channelizer_time_multiplexed",
+  "wrapper_entity": "polyphase_channelizer_time_multiplexed_det_cfg",
+  "configuration_id": "POLYPHASE_CHANNELIZER_TIME_MULTIPLEXED_020489C6A89E361B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

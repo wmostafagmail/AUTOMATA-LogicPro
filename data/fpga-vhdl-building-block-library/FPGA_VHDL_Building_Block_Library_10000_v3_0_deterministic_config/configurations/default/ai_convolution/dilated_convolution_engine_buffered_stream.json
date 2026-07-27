@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dilated_convolution_engine_buffered_stream",
+  "wrapper_entity": "dilated_convolution_engine_buffered_stream_det_cfg",
+  "configuration_id": "DILATED_CONVOLUTION_ENGINE_BUFFERED_STREAM_652D033CE573FA5C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

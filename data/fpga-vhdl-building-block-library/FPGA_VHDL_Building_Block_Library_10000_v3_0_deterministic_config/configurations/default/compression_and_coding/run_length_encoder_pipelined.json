@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "run_length_encoder_pipelined",
+  "wrapper_entity": "run_length_encoder_pipelined_det_cfg",
+  "configuration_id": "RUN_LENGTH_ENCODER_PIPELINED_30F5E2DFC4FCAE81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_control_transfer_multi_channel",
+  "wrapper_entity": "usb_control_transfer_multi_channel_det_cfg",
+  "configuration_id": "USB_CONTROL_TRANSFER_MULTI_CHANNEL_39ADFBCC8B2B9499",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

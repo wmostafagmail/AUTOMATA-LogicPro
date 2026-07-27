@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_filter_combinational",
+  "wrapper_entity": "halfband_filter_combinational_det_cfg",
+  "configuration_id": "HALFBAND_FILTER_COMBINATIONAL_2934CA0DE407AA5A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 74
+  }
+}

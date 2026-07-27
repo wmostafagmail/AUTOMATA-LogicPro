@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_atomic_ops_engine_software_configurable",
+  "wrapper_entity": "pcie_atomic_ops_engine_software_configurable_det_cfg",
+  "configuration_id": "PCIE_ATOMIC_OPS_ENGINE_SOFTWARE_CONFIGURABLE_9454DB3BA65607CB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

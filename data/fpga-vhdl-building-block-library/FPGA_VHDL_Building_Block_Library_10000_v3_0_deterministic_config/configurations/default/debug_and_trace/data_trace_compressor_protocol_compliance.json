@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_protocol_compliance",
+  "wrapper_entity": "data_trace_compressor_protocol_compliance_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_PROTOCOL_COMPLIANCE_06298D0D979B3F6B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

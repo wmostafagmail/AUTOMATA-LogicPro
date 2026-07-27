@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_programmable",
+  "wrapper_entity": "display_gamma_lut_programmable_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_PROGRAMMABLE_F5F7FD9254533E7B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

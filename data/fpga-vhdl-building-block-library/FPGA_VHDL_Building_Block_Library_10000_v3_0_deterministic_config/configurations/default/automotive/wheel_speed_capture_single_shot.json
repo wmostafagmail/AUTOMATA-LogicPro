@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wheel_speed_capture_single_shot",
+  "wrapper_entity": "wheel_speed_capture_single_shot_det_cfg",
+  "configuration_id": "WHEEL_SPEED_CAPTURE_SINGLE_SHOT_827E5B171BA60075",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

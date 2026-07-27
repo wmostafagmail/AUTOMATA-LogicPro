@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_distributed_clock_target",
+  "wrapper_entity": "ethercat_distributed_clock_target_det_cfg",
+  "configuration_id": "ETHERCAT_DISTRIBUTED_CLOCK_TARGET_31AEEE0A8F40DC0F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

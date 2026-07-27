@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_clock_crossing",
+  "wrapper_entity": "can_fd_controller_clock_crossing_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_CLOCK_CROSSING_929AB468FB36C9C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

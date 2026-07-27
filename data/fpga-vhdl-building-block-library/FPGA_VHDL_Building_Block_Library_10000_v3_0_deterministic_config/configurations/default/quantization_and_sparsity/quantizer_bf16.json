@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quantizer_bf16",
+  "wrapper_entity": "quantizer_bf16_det_cfg",
+  "configuration_id": "QUANTIZER_BF16_5D8DD49ECB77F728",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

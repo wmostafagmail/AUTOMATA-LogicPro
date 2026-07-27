@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_combinational",
+  "wrapper_entity": "divergent_branch_stack_combinational_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_COMBINATIONAL_5ED9773CBBD9AFDA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

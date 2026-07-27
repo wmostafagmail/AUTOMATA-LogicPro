@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_equalizer_single_cycle",
+  "wrapper_entity": "audio_equalizer_single_cycle_det_cfg",
+  "configuration_id": "AUDIO_EQUALIZER_SINGLE_CYCLE_F254DB6E990FD42F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

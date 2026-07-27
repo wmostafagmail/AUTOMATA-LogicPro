@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "timeout_monitor_programmable",
+  "wrapper_entity": "timeout_monitor_programmable_det_cfg",
+  "configuration_id": "TIMEOUT_MONITOR_PROGRAMMABLE_617988D929ABB184",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

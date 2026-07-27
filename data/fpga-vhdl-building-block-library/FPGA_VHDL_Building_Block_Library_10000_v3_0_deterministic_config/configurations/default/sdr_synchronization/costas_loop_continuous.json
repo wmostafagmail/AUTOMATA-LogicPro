@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_continuous",
+  "wrapper_entity": "costas_loop_continuous_det_cfg",
+  "configuration_id": "COSTAS_LOOP_CONTINUOUS_6589EF909CB2256F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithm_approximator_resource_shared",
+  "wrapper_entity": "logarithm_approximator_resource_shared_det_cfg",
+  "configuration_id": "LOGARITHM_APPROXIMATOR_RESOURCE_SHARED_EE1F8DC8819BFF92",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

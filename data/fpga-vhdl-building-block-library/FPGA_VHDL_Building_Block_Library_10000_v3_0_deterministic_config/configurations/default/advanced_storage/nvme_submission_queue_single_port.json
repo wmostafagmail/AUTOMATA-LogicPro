@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nvme_submission_queue_single_port",
+  "wrapper_entity": "nvme_submission_queue_single_port_det_cfg",
+  "configuration_id": "NVME_SUBMISSION_QUEUE_SINGLE_PORT_89B7CE8D1AC1F7C2",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ycbcr_to_rgb_streaming",
+  "wrapper_entity": "ycbcr_to_rgb_streaming_det_cfg",
+  "configuration_id": "YCBCR_TO_RGB_STREAMING_6419D27834A94DC1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

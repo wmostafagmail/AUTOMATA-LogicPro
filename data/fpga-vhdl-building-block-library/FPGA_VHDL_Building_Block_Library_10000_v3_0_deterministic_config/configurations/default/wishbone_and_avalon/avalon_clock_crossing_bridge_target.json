@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_clock_crossing_bridge_target",
+  "wrapper_entity": "avalon_clock_crossing_bridge_target_det_cfg",
+  "configuration_id": "AVALON_CLOCK_CROSSING_BRIDGE_TARGET_CC0F383D09E82C76",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

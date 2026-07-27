@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_request_node_clock_crossing",
+  "wrapper_entity": "chi_request_node_clock_crossing_det_cfg",
+  "configuration_id": "CHI_REQUEST_NODE_CLOCK_CROSSING_DED50AA31F9AE260",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_nor_controller_multi_channel",
+  "wrapper_entity": "spi_nor_controller_multi_channel_det_cfg",
+  "configuration_id": "SPI_NOR_CONTROLLER_MULTI_CHANNEL_B5014291F08D0E37",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

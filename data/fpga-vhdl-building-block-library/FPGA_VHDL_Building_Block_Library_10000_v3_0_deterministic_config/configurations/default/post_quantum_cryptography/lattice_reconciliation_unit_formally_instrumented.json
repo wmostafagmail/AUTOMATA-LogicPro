@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lattice_reconciliation_unit_formally_instrumented",
+  "wrapper_entity": "lattice_reconciliation_unit_formally_instrumented_det_cfg",
+  "configuration_id": "LATTICE_RECONCILIATION_UNIT_FORMALLY_INSTRUMENTED_3D406B238B6604DF",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

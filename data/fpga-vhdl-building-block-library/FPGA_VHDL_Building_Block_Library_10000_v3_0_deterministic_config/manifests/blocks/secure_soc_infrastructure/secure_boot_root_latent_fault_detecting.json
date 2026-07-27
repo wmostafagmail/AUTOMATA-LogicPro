@@ -1,0 +1,117 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "secure_boot_root_latent_fault_detecting",
+    "entity": "secure_boot_root_latent_fault_detecting",
+    "version": "3.0.0",
+    "category": "secure_soc_infrastructure",
+    "source": "rtl/blocks/secure_soc_infrastructure/secure_boot_root_latent_fault_detecting.vhd",
+    "wrapper_entity": "secure_boot_root_latent_fault_detecting_det_cfg"
+  },
+  "configuration": {
+    "id": "SECURE_BOOT_ROOT_LATENT_FAULT_DETECTING_FF3DB69E9904546D",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "MON_WIDTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      },
+      {
+        "name": "COUNT_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "MON_WIDTH": 16,
+      "COUNT_WIDTH": 32
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "monitored_signals",
+        "direction": "in",
+        "type": "std_logic_vector(MON_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "clear_faults",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "fault_detected",
+        "direction": "out",
+        "type": "std_logic_vector(MON_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "safe_state_req",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "irq",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "error_count",
+        "direction": "out",
+        "type": "std_logic_vector(COUNT_WIDTH-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "shared-core surrogate only; block-specific golden model and numerical qualification required."
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "interface-wrapper smoke-test scaffold; named algorithm/architecture not yet qualified.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/secure_soc_infrastructure/secure_boot_root_latent_fault_detecting_det_cfg.vhd",
+    "configuration_file": "configurations/default/secure_boot_root_latent_fault_detecting.json"
+  }
+}

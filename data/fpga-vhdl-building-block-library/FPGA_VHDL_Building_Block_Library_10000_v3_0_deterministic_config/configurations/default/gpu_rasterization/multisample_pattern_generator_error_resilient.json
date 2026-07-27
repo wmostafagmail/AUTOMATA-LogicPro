@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multisample_pattern_generator_error_resilient",
+  "wrapper_entity": "multisample_pattern_generator_error_resilient_det_cfg",
+  "configuration_id": "MULTISAMPLE_PATTERN_GENERATOR_ERROR_RESILIENT_ACA97AD5698B90D1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

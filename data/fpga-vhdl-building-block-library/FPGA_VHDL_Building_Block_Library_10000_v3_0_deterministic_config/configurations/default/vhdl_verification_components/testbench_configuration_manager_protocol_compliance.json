@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "testbench_configuration_manager_protocol_compliance",
+  "wrapper_entity": "testbench_configuration_manager_protocol_compliance_det_cfg",
+  "configuration_id": "TESTBENCH_CONFIGURATION_MANAGER_PROTOCOL_COMPLIANCE_32B5E1412D61C7AF",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

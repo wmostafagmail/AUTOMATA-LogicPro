@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_aware_shaper_redundant",
+  "wrapper_entity": "time_aware_shaper_redundant_det_cfg",
+  "configuration_id": "TIME_AWARE_SHAPER_REDUNDANT_13A4F6E3914A8B80",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

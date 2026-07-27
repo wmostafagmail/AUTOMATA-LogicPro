@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_buffered",
+  "wrapper_entity": "can_fd_controller_buffered_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_BUFFERED_7BA18CD057BF872E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

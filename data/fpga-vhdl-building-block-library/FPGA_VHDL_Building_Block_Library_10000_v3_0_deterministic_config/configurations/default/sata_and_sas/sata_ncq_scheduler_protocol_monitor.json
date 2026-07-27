@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_ncq_scheduler_protocol_monitor",
+  "wrapper_entity": "sata_ncq_scheduler_protocol_monitor_det_cfg",
+  "configuration_id": "SATA_NCQ_SCHEDULER_PROTOCOL_MONITOR_64901747104FF706",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

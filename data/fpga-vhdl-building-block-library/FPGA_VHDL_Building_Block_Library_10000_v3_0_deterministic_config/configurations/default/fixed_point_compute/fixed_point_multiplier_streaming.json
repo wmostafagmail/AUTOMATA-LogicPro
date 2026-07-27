@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_multiplier_streaming",
+  "wrapper_entity": "fixed_point_multiplier_streaming_det_cfg",
+  "configuration_id": "FIXED_POINT_MULTIPLIER_STREAMING_EFA1156C90CB7BFF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

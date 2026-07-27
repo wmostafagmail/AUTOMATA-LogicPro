@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_rounding_unit_buffered_stream",
+  "wrapper_entity": "floating_point_rounding_unit_buffered_stream_det_cfg",
+  "configuration_id": "FLOATING_POINT_ROUNDING_UNIT_BUFFERED_STREAM_6D48DE25FFD8420F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

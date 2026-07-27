@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "black_level_correction_multi_plane",
+  "wrapper_entity": "black_level_correction_multi_plane_det_cfg",
+  "configuration_id": "BLACK_LEVEL_CORRECTION_MULTI_PLANE_3C04E6831781D68A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

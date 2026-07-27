@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "asynchronous_rom_ecc_protected",
+  "wrapper_entity": "asynchronous_rom_ecc_protected_det_cfg",
+  "configuration_id": "ASYNCHRONOUS_ROM_ECC_PROTECTED_1284FAED84424795",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

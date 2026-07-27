@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wavefront_scoreboard_digit_serial",
+  "wrapper_entity": "wavefront_scoreboard_digit_serial_det_cfg",
+  "configuration_id": "WAVEFRONT_SCOREBOARD_DIGIT_SERIAL_F33222A195C3C506",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

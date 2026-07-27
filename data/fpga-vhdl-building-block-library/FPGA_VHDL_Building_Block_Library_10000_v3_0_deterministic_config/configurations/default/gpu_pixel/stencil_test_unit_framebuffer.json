@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "stencil_test_unit_framebuffer",
+  "wrapper_entity": "stencil_test_unit_framebuffer_det_cfg",
+  "configuration_id": "STENCIL_TEST_UNIT_FRAMEBUFFER_4B7D1346CAFDF746",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

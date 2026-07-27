@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "temporal_noise_reduction_framebuffer",
+  "wrapper_entity": "temporal_noise_reduction_framebuffer_det_cfg",
+  "configuration_id": "TEMPORAL_NOISE_REDUCTION_FRAMEBUFFER_F6AAF7E3076C842B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1487,6 +1487,9 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
 
   const unknownPortMapFormal = message.match(/no declaration for "([a-zA-Z][a-zA-Z0-9_]*)"/i);
   const unknownPortMapSymbol = unknownPortMapFormal?.[1]?.toLowerCase() || null;
+  const undeclaredAssignedSymbol = unknownPortMapFormal
+    ? new RegExp(`^\\s*${unknownPortMapFormal[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*(?:\\([^\\n;]*\\)|\\.[a-zA-Z][a-zA-Z0-9_]*)?\\s*(?:<=|:=)`, 'im').test(message)
+    : false;
   if (unknownPortMapFormal && /\bport\s+map\b[\s\S]*=>/i.test(message)) {
     push({
       code: 'unknown_port_map_formal',
@@ -1494,6 +1497,16 @@ export function inferFailureDetailsFromGhdlMessage(message: string): GeneratedVh
       message,
       forbiddenConstruct: `named port-map formal "${unknownPortMapFormal[1]}" is not declared by the instantiated entity/component`,
       legalReplacementPattern: 'inspect the instantiated entity/component declaration and rewrite the port map to use only exact formal port names',
+    });
+  } else if (unknownPortMapFormal && undeclaredAssignedSymbol) {
+    const symbol = unknownPortMapFormal[1];
+    push({
+      code: 'component_output_ownership_violation',
+      category: 'interface_generic_port_syntax',
+      message,
+      forbiddenConstruct: `component assigns undeclared or non-owned target "${symbol}"`,
+      legalReplacementPattern:
+        `remove the assignment to "${symbol}" unless it is declared locally or present as an out/buffer/inout port in this component's approved entity interface`,
     });
   } else if (
     unknownPortMapFormal

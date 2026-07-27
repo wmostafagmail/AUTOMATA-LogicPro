@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_buffered",
+  "wrapper_entity": "pcie_sriov_vf_manager_buffered_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_BUFFERED_36B8ECA7ED6D5BAA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

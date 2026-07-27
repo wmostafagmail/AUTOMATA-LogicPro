@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_latent_fault_detecting",
+  "wrapper_entity": "anti_rollback_counter_latent_fault_detecting_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_LATENT_FAULT_DETECTING_280584967E77C11A",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

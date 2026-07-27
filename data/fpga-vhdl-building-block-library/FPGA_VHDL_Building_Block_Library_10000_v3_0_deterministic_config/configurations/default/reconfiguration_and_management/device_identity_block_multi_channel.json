@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "device_identity_block_multi_channel",
+  "wrapper_entity": "device_identity_block_multi_channel_det_cfg",
+  "configuration_id": "DEVICE_IDENTITY_BLOCK_MULTI_CHANNEL_3941947E28CAC7D3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_fault_injectable",
+  "wrapper_entity": "measured_boot_engine_fault_injectable_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_FAULT_INJECTABLE_167DEDFB1A76FB68",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

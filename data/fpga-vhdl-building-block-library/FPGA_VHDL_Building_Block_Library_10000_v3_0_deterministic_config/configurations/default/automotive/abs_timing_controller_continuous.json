@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "abs_timing_controller_continuous",
+  "wrapper_entity": "abs_timing_controller_continuous_det_cfg",
+  "configuration_id": "ABS_TIMING_CONTROLLER_CONTINUOUS_E723A7B44169CA1A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

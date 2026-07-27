@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pitch_shift_engine_error_detecting",
+  "wrapper_entity": "pitch_shift_engine_error_detecting_det_cfg",
+  "configuration_id": "PITCH_SHIFT_ENGINE_ERROR_DETECTING_27FE81F720367E4C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

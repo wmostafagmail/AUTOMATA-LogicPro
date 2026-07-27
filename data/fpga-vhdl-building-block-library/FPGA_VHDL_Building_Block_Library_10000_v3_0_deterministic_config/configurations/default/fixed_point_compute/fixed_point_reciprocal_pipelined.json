@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_reciprocal_pipelined",
+  "wrapper_entity": "fixed_point_reciprocal_pipelined_det_cfg",
+  "configuration_id": "FIXED_POINT_RECIPROCAL_PIPELINED_EBC502C88FCB3E8D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_lookup_interpolator_resource_shared",
+  "wrapper_entity": "activation_lookup_interpolator_resource_shared_det_cfg",
+  "configuration_id": "ACTIVATION_LOOKUP_INTERPOLATOR_RESOURCE_SHARED_CC4C72C2C1129AE3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

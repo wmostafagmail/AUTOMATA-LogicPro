@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frame_counter_framebuffer",
+  "wrapper_entity": "frame_counter_framebuffer_det_cfg",
+  "configuration_id": "FRAME_COUNTER_FRAMEBUFFER_009CC67805380BA3",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

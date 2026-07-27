@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "indirect_branch_predictor_clock_crossing",
+  "wrapper_entity": "indirect_branch_predictor_clock_crossing_det_cfg",
+  "configuration_id": "INDIRECT_BRANCH_PREDICTOR_CLOCK_CROSSING_AF4E0DEE30207976",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

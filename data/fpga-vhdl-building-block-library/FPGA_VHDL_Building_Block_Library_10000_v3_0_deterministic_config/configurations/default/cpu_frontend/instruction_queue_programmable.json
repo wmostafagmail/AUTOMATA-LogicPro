@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_queue_programmable",
+  "wrapper_entity": "instruction_queue_programmable_det_cfg",
+  "configuration_id": "INSTRUCTION_QUEUE_PROGRAMMABLE_9EBEDDF7F6FE8649",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

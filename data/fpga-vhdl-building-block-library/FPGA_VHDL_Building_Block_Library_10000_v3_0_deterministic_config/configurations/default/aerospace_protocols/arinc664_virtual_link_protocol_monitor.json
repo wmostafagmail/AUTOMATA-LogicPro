@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arinc664_virtual_link_protocol_monitor",
+  "wrapper_entity": "arinc664_virtual_link_protocol_monitor_det_cfg",
+  "configuration_id": "ARINC664_VIRTUAL_LINK_PROTOCOL_MONITOR_3E04564F9B770342",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

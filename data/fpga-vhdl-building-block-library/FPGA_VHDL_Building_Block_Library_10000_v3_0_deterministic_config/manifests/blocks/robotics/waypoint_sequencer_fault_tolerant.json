@@ -1,0 +1,141 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "waypoint_sequencer_fault_tolerant",
+    "entity": "waypoint_sequencer_fault_tolerant",
+    "version": "3.0.0",
+    "category": "robotics",
+    "source": "rtl/blocks/robotics/waypoint_sequencer_fault_tolerant.vhd",
+    "wrapper_entity": "waypoint_sequencer_fault_tolerant_det_cfg"
+  },
+  "configuration": {
+    "id": "WAYPOINT_SEQUENCER_FAULT_TOLERANT_6D5C4BB7111365F9",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "CMD_WIDTH",
+        "type": "positive",
+        "default": "8",
+        "minimum": 1
+      },
+      {
+        "name": "CFG_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "STATUS_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "LATENCY_CYCLES",
+        "type": "positive",
+        "default": "4",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "CMD_WIDTH": 8,
+      "CFG_WIDTH": 32,
+      "STATUS_WIDTH": 32,
+      "LATENCY_CYCLES": 4
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "start",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "abort",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "command",
+        "direction": "in",
+        "type": "std_logic_vector(CMD_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "cfg",
+        "direction": "in",
+        "type": "std_logic_vector(CFG_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "busy",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "done",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "error",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "status",
+        "direction": "out",
+        "type": "std_logic_vector(STATUS_WIDTH-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/robotics/waypoint_sequencer_fault_tolerant_det_cfg.vhd",
+    "configuration_file": "configurations/default/waypoint_sequencer_fault_tolerant.json"
+  }
+}

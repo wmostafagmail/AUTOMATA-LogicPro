@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_distributed_clock_router",
+  "wrapper_entity": "ethercat_distributed_clock_router_det_cfg",
+  "configuration_id": "ETHERCAT_DISTRIBUTED_CLOCK_ROUTER_1622E79F317E5672",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

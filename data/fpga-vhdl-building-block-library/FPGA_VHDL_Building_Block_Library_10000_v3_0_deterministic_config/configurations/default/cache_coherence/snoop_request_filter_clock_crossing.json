@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "snoop_request_filter_clock_crossing",
+  "wrapper_entity": "snoop_request_filter_clock_crossing_det_cfg",
+  "configuration_id": "SNOOP_REQUEST_FILTER_CLOCK_CROSSING_D9F80032F72AD8AF",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

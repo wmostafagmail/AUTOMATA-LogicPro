@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_metadata_aware",
+  "wrapper_entity": "color_key_blender_metadata_aware_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_METADATA_AWARE_B452ACF695C3565D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

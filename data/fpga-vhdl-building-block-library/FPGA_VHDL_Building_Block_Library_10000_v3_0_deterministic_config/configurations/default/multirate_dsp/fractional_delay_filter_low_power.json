@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fractional_delay_filter_low_power",
+  "wrapper_entity": "fractional_delay_filter_low_power_det_cfg",
+  "configuration_id": "FRACTIONAL_DELAY_FILTER_LOW_POWER_642F883978EDC929",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

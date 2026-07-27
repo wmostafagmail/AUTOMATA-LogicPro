@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv4_header_parser_continuous",
+  "wrapper_entity": "ipv4_header_parser_continuous_det_cfg",
+  "configuration_id": "IPV4_HEADER_PARSER_CONTINUOUS_FEAEFFDC2E491D0A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

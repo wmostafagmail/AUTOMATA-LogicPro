@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_rate_converter",
+  "wrapper_entity": "sample_rate_converter_det_cfg",
+  "configuration_id": "SAMPLE_RATE_CONVERTER_98F18ABFAE15B64D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 122
+  }
+}

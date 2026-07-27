@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sign_extension_unit_pipelined",
+  "wrapper_entity": "sign_extension_unit_pipelined_det_cfg",
+  "configuration_id": "SIGN_EXTENSION_UNIT_PIPELINED_13D629036ED4D07F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

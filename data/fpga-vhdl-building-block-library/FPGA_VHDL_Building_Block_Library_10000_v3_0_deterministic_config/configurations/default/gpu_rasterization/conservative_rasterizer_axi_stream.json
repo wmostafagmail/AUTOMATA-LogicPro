@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "conservative_rasterizer_axi_stream",
+  "wrapper_entity": "conservative_rasterizer_axi_stream_det_cfg",
+  "configuration_id": "CONSERVATIVE_RASTERIZER_AXI_STREAM_9EAFB132C49DF552",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

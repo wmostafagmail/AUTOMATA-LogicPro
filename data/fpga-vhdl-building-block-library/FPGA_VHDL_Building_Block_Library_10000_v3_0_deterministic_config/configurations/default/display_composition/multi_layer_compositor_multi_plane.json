@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_multi_plane",
+  "wrapper_entity": "multi_layer_compositor_multi_plane_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_MULTI_PLANE_7F94781FDA75F567",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

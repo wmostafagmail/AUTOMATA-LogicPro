@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_high_throughput",
+  "wrapper_entity": "color_key_blender_high_throughput_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_HIGH_THROUGHPUT_0A378A074ED06F12",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

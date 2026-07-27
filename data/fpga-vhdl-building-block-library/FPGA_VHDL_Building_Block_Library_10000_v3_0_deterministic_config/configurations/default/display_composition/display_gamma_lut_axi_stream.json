@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_axi_stream",
+  "wrapper_entity": "display_gamma_lut_axi_stream_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_AXI_STREAM_F36AE24D4A69EF10",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

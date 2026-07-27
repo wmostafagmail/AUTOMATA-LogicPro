@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gain_offset_calibration",
+  "wrapper_entity": "gain_offset_calibration_det_cfg",
+  "configuration_id": "GAIN_OFFSET_CALIBRATION_5B826C373570B75F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 146
+  }
+}

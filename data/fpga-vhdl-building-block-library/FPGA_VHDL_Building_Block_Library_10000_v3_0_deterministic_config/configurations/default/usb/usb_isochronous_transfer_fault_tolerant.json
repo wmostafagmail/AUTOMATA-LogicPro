@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_isochronous_transfer_fault_tolerant",
+  "wrapper_entity": "usb_isochronous_transfer_fault_tolerant_det_cfg",
+  "configuration_id": "USB_ISOCHRONOUS_TRANSFER_FAULT_TOLERANT_10FEC67B48F39ACB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

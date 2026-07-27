@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_software_configurable",
+  "wrapper_entity": "automotive_ethernet_tsn_software_configurable_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_SOFTWARE_CONFIGURABLE_C82E5532D8B8E964",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

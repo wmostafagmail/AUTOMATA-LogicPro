@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "phase_detector_fault_tolerant",
+  "wrapper_entity": "phase_detector_fault_tolerant_det_cfg",
+  "configuration_id": "PHASE_DETECTOR_FAULT_TOLERANT_7281E1863B4B6359",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 17
+  }
+}

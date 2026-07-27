@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "victim_cache_controller_single_port",
+  "wrapper_entity": "victim_cache_controller_single_port_det_cfg",
+  "configuration_id": "VICTIM_CACHE_CONTROLLER_SINGLE_PORT_6D88647FBD9C3A2B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

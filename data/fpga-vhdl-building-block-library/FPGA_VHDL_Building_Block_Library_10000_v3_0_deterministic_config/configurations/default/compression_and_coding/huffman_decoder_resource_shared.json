@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "huffman_decoder_resource_shared",
+  "wrapper_entity": "huffman_decoder_resource_shared_det_cfg",
+  "configuration_id": "HUFFMAN_DECODER_RESOURCE_SHARED_0F40CD31EBAFBAB4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 247
+  }
+}

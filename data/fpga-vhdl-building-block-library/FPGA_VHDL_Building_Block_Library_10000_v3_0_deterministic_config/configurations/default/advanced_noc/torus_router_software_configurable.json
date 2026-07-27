@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_software_configurable",
+  "wrapper_entity": "torus_router_software_configurable_det_cfg",
+  "configuration_id": "TORUS_ROUTER_SOFTWARE_CONFIGURABLE_14C51827EB3A0DC9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

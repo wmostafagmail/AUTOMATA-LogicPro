@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_formal_friendly",
+  "wrapper_entity": "trigger_matrix_formal_friendly_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_FORMAL_FRIENDLY_FB70D041A4DB1CFB",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

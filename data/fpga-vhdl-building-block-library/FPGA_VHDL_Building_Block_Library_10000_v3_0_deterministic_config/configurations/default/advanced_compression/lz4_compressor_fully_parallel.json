@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_compressor_fully_parallel",
+  "wrapper_entity": "lz4_compressor_fully_parallel_det_cfg",
+  "configuration_id": "LZ4_COMPRESSOR_FULLY_PARALLEL_85E47C0183E36D34",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

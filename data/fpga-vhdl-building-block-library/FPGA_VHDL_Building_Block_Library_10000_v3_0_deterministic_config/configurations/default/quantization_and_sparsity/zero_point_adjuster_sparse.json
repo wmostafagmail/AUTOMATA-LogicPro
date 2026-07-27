@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_point_adjuster_sparse",
+  "wrapper_entity": "zero_point_adjuster_sparse_det_cfg",
+  "configuration_id": "ZERO_POINT_ADJUSTER_SPARSE_EEC62D8EE80240BB",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

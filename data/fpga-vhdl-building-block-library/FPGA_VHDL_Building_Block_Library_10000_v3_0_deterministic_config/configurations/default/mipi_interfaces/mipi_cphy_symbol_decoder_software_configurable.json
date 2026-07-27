@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_software_configurable",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_software_configurable_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_SOFTWARE_CONFIGURABLE_80316E071102194B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

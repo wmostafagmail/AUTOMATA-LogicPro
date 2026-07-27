@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_qos_aware",
+  "wrapper_entity": "can_fd_controller_qos_aware_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_QOS_AWARE_1F49B28D2A64A18A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "weight_update_engine_deep_pipeline",
+  "wrapper_entity": "weight_update_engine_deep_pipeline_det_cfg",
+  "configuration_id": "WEIGHT_UPDATE_ENGINE_DEEP_PIPELINE_68659DF8A41AFADC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

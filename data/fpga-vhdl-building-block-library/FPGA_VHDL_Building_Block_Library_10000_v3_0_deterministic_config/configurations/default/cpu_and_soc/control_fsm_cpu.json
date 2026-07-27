@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "control_fsm_cpu",
+  "wrapper_entity": "control_fsm_cpu_det_cfg",
+  "configuration_id": "CONTROL_FSM_CPU_630DB9B312D168C1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

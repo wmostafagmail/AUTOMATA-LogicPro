@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "montgomery_multiplier_low_area",
+  "wrapper_entity": "montgomery_multiplier_low_area_det_cfg",
+  "configuration_id": "MONTGOMERY_MULTIPLIER_LOW_AREA_148E3FEFCDEE66D0",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

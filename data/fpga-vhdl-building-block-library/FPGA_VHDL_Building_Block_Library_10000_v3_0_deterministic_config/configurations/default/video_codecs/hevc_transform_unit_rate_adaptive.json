@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_rate_adaptive",
+  "wrapper_entity": "hevc_transform_unit_rate_adaptive_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_RATE_ADAPTIVE_28641B30CD533757",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

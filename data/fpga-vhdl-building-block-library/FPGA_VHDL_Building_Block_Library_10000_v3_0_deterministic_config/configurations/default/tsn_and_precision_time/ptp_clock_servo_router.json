@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_router",
+  "wrapper_entity": "ptp_clock_servo_router_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_ROUTER_F440B2224C5210AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_crc_engine_iterative",
+  "wrapper_entity": "ethernet_crc_engine_iterative_det_cfg",
+  "configuration_id": "ETHERNET_CRC_ENGINE_ITERATIVE_A5DAAC86D45869AB",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

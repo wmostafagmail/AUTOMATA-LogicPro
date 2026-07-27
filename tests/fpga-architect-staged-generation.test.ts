@@ -6,6 +6,9 @@ import test from 'node:test';
 import {
   rewrapModelImplementationIntoSkeleton,
   runStagedFpgaArchitectGeneration,
+  ModelVhdlGenerationBlockedByPolicyError,
+  HybridImplementationSourceUnresolvedError,
+  StagedComponentOutputOwnershipError,
   StagedComponentEntityMissingError,
   StagedPortInterfaceDriftError,
 } from '../src/server/fpgaArchitectStagedGeneration';
@@ -26,6 +29,202 @@ const contract: FpgaArchitectureContract = {
   verification: [{ id: 'check_and', requirement: 'Check AND.', stimulus: 'Drive ones.', expected: 'One.', observables: ['y_o'], covers: [], coversBehaviors: ['and_behavior'], actions: [{ kind: 'drive', signal: 'a_i', value: "'1'" }, { kind: 'drive', signal: 'b_i', value: "'1'" }, { kind: 'expect', signal: 'y_o', value: "'1'", message: 'AND' }, { kind: 'finish', message: 'TEST PASSED' }] }],
   numericFormats: [], instances: [{ id: 'tb_dut', parentComponentId: 'tb_logic_gate', childComponentId: 'logic_gate', label: 'dut', genericMap: {}, portMap: { a_i: 'a_i', b_i: 'b_i', y_o: 'y_o' } }], connections: [], stateMachines: [], sourceOrder: ['src/logic_gate.vhd', 'tb/tb_logic_gate.vhd'],
 };
+
+test('strict staged generation renders deterministic logic leaf without calling the model', async () => {
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract,
+    maxStageOutputChars: 20_000,
+    runModelAnalysis: async () => {
+      throw new Error('model must not be called under strict deterministic VHDL policy');
+    },
+  });
+
+  const logicFile = result.project.files.find((file) => file.path === 'src/logic_gate.vhd')?.content || '';
+  assert.equal(result.attempts.length, 0);
+  assert.match(logicFile, /DETERMINISTIC_TEMPLATE: scalar logic AND/i);
+  assert.match(logicFile, /y_o <= a_i and b_i;/i);
+});
+
+test('strict staged generation blocks fresh model VHDL when no verified or deterministic source exists', async () => {
+  const strictContract: FpgaArchitectureContract = {
+    ...contract,
+    designName: 'custom_crypto',
+    topEntity: 'custom_crypto_top',
+    topTestbench: 'tb_custom_crypto_top',
+    components: [
+      {
+        id: 'custom_crypto_unit',
+        kind: 'rtl',
+        name: 'custom_crypto_unit',
+        file: 'src/custom_crypto_unit.vhd',
+        responsibility: 'Implement a custom cryptographic transform not covered by deterministic templates.',
+        implements: [],
+        dependsOn: [],
+        children: [],
+        clockDomain: null,
+        generics: [],
+        ports: [
+          { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Input byte.' },
+          { name: 'ready_o', mode: 'out', type: 'std_logic', purpose: 'Ready flag.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'custom_crypto_top',
+        kind: 'top',
+        name: 'custom_crypto_top',
+        file: 'src/custom_crypto_top.vhd',
+        responsibility: 'Integrate custom crypto.',
+        implements: [],
+        dependsOn: ['custom_crypto_unit'],
+        children: ['custom_crypto_unit'],
+        clockDomain: null,
+        generics: [],
+        ports: [
+          { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Input byte.' },
+          { name: 'ready_o', mode: 'out', type: 'std_logic', purpose: 'Ready flag.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'tb_custom_crypto_top',
+        kind: 'testbench',
+        name: 'tb_custom_crypto_top',
+        file: 'tb/tb_custom_crypto_top.vhd',
+        responsibility: 'Check custom crypto top.',
+        implements: [],
+        dependsOn: ['custom_crypto_top'],
+        children: ['custom_crypto_top'],
+        clockDomain: null,
+        generics: [],
+        ports: [],
+        exports: [],
+      },
+    ],
+    instances: [
+      { id: 'u_custom_crypto_unit', parentComponentId: 'custom_crypto_top', childComponentId: 'custom_crypto_unit', label: 'u_custom_crypto_unit', genericMap: {}, portMap: { data_i: 'data_i', ready_o: 'ready_o' } },
+      { id: 'tb_dut', parentComponentId: 'tb_custom_crypto_top', childComponentId: 'custom_crypto_top', label: 'dut', genericMap: {}, portMap: { data_i: 'data_i', ready_o: 'ready_o' } },
+    ],
+    sourceOrder: ['src/custom_crypto_unit.vhd', 'src/custom_crypto_top.vhd', 'tb/tb_custom_crypto_top.vhd'],
+  };
+
+  await assert.rejects(
+    runStagedFpgaArchitectGeneration({
+      ai: null,
+      provider: 'ollama',
+      model: 'model',
+      contract: strictContract,
+      maxStageOutputChars: 20_000,
+      runModelAnalysis: async () => {
+        throw new Error('model must not be called for missing deterministic implementation source');
+      },
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof ModelVhdlGenerationBlockedByPolicyError);
+      assert.equal(error.failureCode, 'model_vhdl_generation_blocked_by_policy');
+      assert.equal(error.componentId, 'custom_crypto_unit');
+      return true;
+    },
+  );
+});
+
+test('strict staged generation renders framebuffer pixel stage without illegal integer bitmask operators', async () => {
+  const videoContract: FpgaArchitectureContract = {
+    ...contract,
+    designName: 'video_pattern',
+    designClass: 'video_pattern_generator',
+    topEntity: 'video_top',
+    topTestbench: 'tb_video_top',
+    components: [
+      {
+        id: 'pattern_or_framebuffer_stage',
+        kind: 'rtl',
+        name: 'pattern_or_framebuffer_stage',
+        file: 'src/pattern_or_framebuffer_stage.vhd',
+        responsibility: 'Produce deterministic pixel data from a framebuffer address.',
+        implements: [],
+        dependsOn: [],
+        children: [],
+        clockDomain: null,
+        generics: [],
+        ports: [
+          { name: 'fb_addr', mode: 'in', type: 'std_logic_vector(18 downto 0)', purpose: 'Framebuffer address.' },
+          { name: 'active_i', mode: 'in', type: 'std_logic', purpose: 'Active video.' },
+          { name: 'pixel_val', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Pixel value.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'video_top',
+        kind: 'top',
+        name: 'video_top',
+        file: 'src/video_top.vhd',
+        responsibility: 'Integrate video pattern stage.',
+        implements: [],
+        dependsOn: ['pattern_or_framebuffer_stage'],
+        children: ['pattern_or_framebuffer_stage'],
+        clockDomain: null,
+        generics: [],
+        ports: [
+          { name: 'fb_addr', mode: 'in', type: 'std_logic_vector(18 downto 0)', purpose: 'Framebuffer address.' },
+          { name: 'active_i', mode: 'in', type: 'std_logic', purpose: 'Active video.' },
+          { name: 'pixel_val', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Pixel value.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'tb_video_top',
+        kind: 'testbench',
+        name: 'tb_video_top',
+        file: 'tb/tb_video_top.vhd',
+        responsibility: 'Check video top.',
+        implements: [],
+        dependsOn: ['video_top'],
+        children: ['video_top'],
+        clockDomain: null,
+        generics: [],
+        ports: [],
+        exports: [],
+      },
+    ],
+    instances: [
+      { id: 'u_pattern', parentComponentId: 'video_top', childComponentId: 'pattern_or_framebuffer_stage', label: 'u_pattern', genericMap: {}, portMap: { fb_addr: 'fb_addr', active_i: 'active_i', pixel_val: 'pixel_val' } },
+      { id: 'tb_dut', parentComponentId: 'tb_video_top', childComponentId: 'video_top', label: 'dut', genericMap: {}, portMap: { fb_addr: 'fb_addr', active_i: 'active_i', pixel_val: 'pixel_val' } },
+    ],
+    verification: [{
+      id: 'check_pixel_stage',
+      requirement: 'Check active pixel output.',
+      stimulus: 'Drive active video and address.',
+      expected: 'Pixel value is deterministic.',
+      observables: ['pixel_val'],
+      covers: [],
+      coversBehaviors: [],
+      actions: [
+        { kind: 'drive', signal: 'active_i', value: "'1'" },
+        { kind: 'drive', signal: 'fb_addr', value: '"0000000000000000011"' },
+        { kind: 'finish', message: 'TEST PASSED' },
+      ],
+    }],
+    sourceOrder: ['src/pattern_or_framebuffer_stage.vhd', 'src/video_top.vhd', 'tb/tb_video_top.vhd'],
+  };
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: videoContract,
+    maxStageOutputChars: 20_000,
+    runModelAnalysis: async () => {
+      throw new Error('model must not be called for deterministic video pixel template');
+    },
+  });
+
+  const pixelFile = result.project.files.find((file) => file.path === 'src/pattern_or_framebuffer_stage.vhd')?.content || '';
+  assert.doesNotMatch(pixelFile, /to_integer\s*\(\s*unsigned\s*\([^)]*\)\s*\)\s+and\s+255/i);
+  assert.match(pixelFile, /resize\(unsigned\(fb_addr\),\s*8\)/i);
+});
 
 function fifoGoldenVhdl(width = 8) {
   return [
@@ -127,6 +326,83 @@ function makeGoldenLeafContract(width = 8, clockDomain = 'clk'): FpgaArchitectur
   };
 }
 
+function makeConfigurableFifoContract(width = 16, depth = 64): FpgaArchitectureContract {
+  const componentGenerics = [
+    { name: 'DATA_WIDTH', type: 'positive', default: String(width) },
+    { name: 'DEPTH', type: 'positive', default: String(depth) },
+  ];
+  const leafPorts = [
+    { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+    { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+    { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(DATA_WIDTH-1 downto 0)', purpose: 'Input.' },
+    { name: 'data_o', mode: 'out' as const, type: 'std_logic_vector(DATA_WIDTH-1 downto 0)', purpose: 'Output.' },
+  ];
+  const topPorts = [
+    { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+    { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+    { name: 'data_i', mode: 'in' as const, type: `std_logic_vector(${width - 1} downto 0)`, purpose: 'Input.' },
+    { name: 'data_o', mode: 'out' as const, type: `std_logic_vector(${width - 1} downto 0)`, purpose: 'Output.' },
+  ];
+  return {
+    ...makeGoldenLeafContract(),
+    components: [
+      {
+        id: 'rx_fifo',
+        kind: 'rtl',
+        name: 'rx_fifo',
+        file: 'src/rx_fifo.vhd',
+        responsibility: 'Configurable FIFO.',
+        implements: [],
+        dependsOn: [],
+        children: [],
+        clockDomain: 'clk',
+        generics: componentGenerics,
+        ports: leafPorts,
+        exports: [],
+      },
+      {
+        id: 'fifo_top',
+        kind: 'top',
+        name: 'fifo_top',
+        file: 'src/fifo_top.vhd',
+        responsibility: 'Instantiate configurable FIFO.',
+        implements: [],
+        dependsOn: ['rx_fifo'],
+        children: ['rx_fifo'],
+        clockDomain: 'clk',
+        generics: [],
+        ports: topPorts,
+        exports: [],
+      },
+      {
+        id: 'tb_fifo_top',
+        kind: 'testbench',
+        name: 'tb_fifo_top',
+        file: 'tb/tb_fifo_top.vhd',
+        responsibility: 'Self-check configurable FIFO top.',
+        implements: [],
+        dependsOn: ['fifo_top'],
+        children: ['fifo_top'],
+        clockDomain: null,
+        generics: [],
+        ports: [],
+        exports: [],
+      },
+    ],
+    instances: [
+      {
+        id: 'fifo_inst',
+        parentComponentId: 'fifo_top',
+        childComponentId: 'rx_fifo',
+        label: 'u_rx_fifo',
+        genericMap: { DATA_WIDTH: String(width), DEPTH: String(depth) },
+        portMap: { clk: 'clk', rst: 'rst', data_i: 'data_i', data_o: 'data_o' },
+      },
+      { id: 'tb_dut', parentComponentId: 'tb_fifo_top', childComponentId: 'fifo_top', label: 'dut', genericMap: {}, portMap: { clk: 'clk', rst: 'rst', data_i: 'data_i', data_o: 'data_o' } },
+    ],
+  };
+}
+
 async function writeGoldenLibraryForContract(libraryPath: string, sourceContract = makeGoldenLeafContract(), passCount = 2) {
   const component = sourceContract.components.find((candidate) => candidate.id === 'rx_fifo')!;
   await writeGoldenLeafLibrary(libraryPath, {
@@ -211,11 +487,157 @@ async function writeVerifiedVhdlLibraryForContract(root: string, sourceContract 
   return qualificationPath;
 }
 
+async function writeConfigurableVerifiedVhdlLibrary(root: string) {
+  const qualificationPath = await writeVerifiedVhdlLibraryForContract(root);
+  await fs.writeFile(path.join(root, 'rtl', 'blocks', 'memory', 'rx_fifo.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity rx_fifo is',
+    '  generic (',
+    '    DATA_WIDTH : positive := 8;',
+    '    DEPTH : positive := 16',
+    '  );',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);',
+    '    data_o : out std_logic_vector(DATA_WIDTH-1 downto 0)',
+    '  );',
+    'end entity rx_fifo;',
+    'architecture rtl of rx_fifo is begin',
+    '  data_o <= data_i;',
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+  return qualificationPath;
+}
+
+function makeUartRxContractMissingVerifiedGenerics(): FpgaArchitectureContract {
+  const base = makeGoldenLeafContract();
+  return {
+    ...base,
+    designName: 'uart_rx_demo',
+    designClass: 'uart_core',
+    topEntity: 'uart_rx_top',
+    topTestbench: 'tb_uart_rx_top',
+    components: [
+      {
+        id: 'uart_rx',
+        kind: 'rtl',
+        name: 'uart_rx',
+        file: 'src/uart_rx.vhd',
+        responsibility: 'Receive UART frames.',
+        implements: [],
+        dependsOn: [],
+        children: [],
+        clockDomain: 'clk',
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'rx_i', mode: 'in', type: 'std_logic', purpose: 'UART serial input.' },
+          { name: 'data_o', mode: 'out', type: 'std_logic_vector(DATA_BITS-1 downto 0)', purpose: 'Received byte.' },
+          { name: 'valid_o', mode: 'out', type: 'std_logic', purpose: 'Data valid pulse.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'uart_rx_top',
+        kind: 'top',
+        name: 'uart_rx_top',
+        file: 'src/uart_rx_top.vhd',
+        responsibility: 'Instantiate UART RX.',
+        implements: [],
+        dependsOn: ['uart_rx'],
+        children: ['uart_rx'],
+        clockDomain: 'clk',
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'rx_i', mode: 'in', type: 'std_logic', purpose: 'UART serial input.' },
+          { name: 'data_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Received byte.' },
+          { name: 'valid_o', mode: 'out', type: 'std_logic', purpose: 'Data valid pulse.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'tb_uart_rx_top',
+        kind: 'testbench',
+        name: 'tb_uart_rx_top',
+        file: 'tb/tb_uart_rx_top.vhd',
+        responsibility: 'Self-check UART RX.',
+        implements: [],
+        dependsOn: ['uart_rx_top'],
+        children: ['uart_rx_top'],
+        clockDomain: null,
+        generics: [],
+        ports: [],
+        exports: [],
+      },
+    ],
+    instances: [
+      { id: 'uart_rx_inst', parentComponentId: 'uart_rx_top', childComponentId: 'uart_rx', label: 'u_uart_rx', genericMap: {}, portMap: { clk: 'clk', rst: 'rst', rx_i: 'rx_i', data_o: 'data_o', valid_o: 'valid_o' } },
+      { id: 'tb_dut', parentComponentId: 'tb_uart_rx_top', childComponentId: 'uart_rx_top', label: 'dut', genericMap: {}, portMap: { clk: 'clk', rst: 'rst', rx_i: 'rx_i', data_o: 'data_o', valid_o: 'valid_o' } },
+    ],
+    sourceOrder: ['src/uart_rx.vhd', 'src/uart_rx_top.vhd', 'tb/tb_uart_rx_top.vhd'],
+    assumptions: ['UART RX demo uses verified-library defaults when the prompt does not specify clock/baud/data bits.'],
+  };
+}
+
+async function writeUartRxVerifiedVhdlLibrary(root: string) {
+  await fs.mkdir(path.join(root, 'reports'), { recursive: true });
+  await fs.mkdir(path.join(root, 'rtl', 'blocks', 'communication'), { recursive: true });
+  await fs.writeFile(path.join(root, 'reports', 'verification_matrix.csv'), [
+    'block_id,name,category,subcategory,origin,function,archetype,implementation_tier,protocol_status,timing_status,cdc_status,numeric_status,core,source_file,testbench_file,static_validation,ghdl_analysis,functional_simulation',
+    '0002,uart_rx,Communication,UART,fixture,UART RX fixture,leaf,A,ok,ok,ok,ok,,rtl/blocks/communication/uart_rx.vhd,,PASS,PASS,PASS',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'rtl', 'blocks', 'communication', 'uart_rx.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity uart_rx is',
+    '  generic (',
+    '    CLOCK_HZ : positive := 100000000;',
+    '    BAUD_RATE : positive := 115200;',
+    '    DATA_BITS : positive := 8',
+    '  );',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    rx_i : in std_logic;',
+    '    data_o : out std_logic_vector(DATA_BITS-1 downto 0);',
+    '    valid_o : out std_logic',
+    '  );',
+    'end entity uart_rx;',
+    'architecture rtl of uart_rx is begin',
+    "  data_o <= (others => '0');",
+    "  valid_o <= '0';",
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+  const target = { ok: true, exitCode: 0, summary: 'passed' };
+  const qualificationPath = path.join(root, 'qualification.json');
+  await fs.writeFile(qualificationPath, JSON.stringify({
+    libraryVersion: 'fixture',
+    libraryRoot: root,
+    ghdlVersion: 'GHDL fixture',
+    verifiedAt: '2026-01-01T00:00:00.000Z',
+    blockCount: 1,
+    testbenchCount: 0,
+    coreCount: 0,
+    trustedForReuse: true,
+    targets: { static: target, 'core-regression': target, 'all-smokes': target },
+    warnings: [],
+  }, null, 2));
+  return qualificationPath;
+}
+
 test('staged generation uses the model only for constrained RTL and preserves manifest compatibility', async () => {
   const prompts: string[] = [];
   const progress: string[] = [];
   const result = await runStagedFpgaArchitectGeneration({
-    ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000,
+    ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000, vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async ({ prompt, generationProfile }) => {
       prompts.push(prompt);
       assert.equal(generationProfile?.temperature, 0);
@@ -233,7 +655,7 @@ test('staged generation uses the model only for constrained RTL and preserves ma
 test('staged generation retries a component once when the public port interface drifts', async () => {
   const prompts: string[] = [];
   const result = await runStagedFpgaArchitectGeneration({
-    ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000,
+    ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000, vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       if (prompts.length === 1) {
@@ -248,6 +670,30 @@ test('staged generation retries a component once when the public port interface 
   assert.match(prompts[1], /expectedPorts: a_i, b_i, y_o/);
   assert.equal(result.attempts.length, 2);
   assert.match(result.project.files.find((file) => file.path === 'src/logic_gate.vhd')?.content || '', /y_o <= a_i and b_i/);
+});
+
+test('staged generation retries a component once when it assigns a non-owned output', async () => {
+  const prompts: string[] = [];
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000, vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
+    runModelAnalysis: async ({ prompt }) => {
+      prompts.push(prompt);
+      if (prompts.length === 1) {
+        return { text: 'library ieee; use ieee.std_logic_1164.all; entity logic_gate is port (a_i : in std_logic; b_i : in std_logic; y_o : out std_logic); end entity logic_gate; architecture rtl of logic_gate is begin done_o <= a_i and b_i; y_o <= a_i and b_i; end architecture rtl;', telemetry: { durationMs: 1 } };
+      }
+      return { text: 'library ieee; use ieee.std_logic_1164.all; entity logic_gate is port (a_i : in std_logic; b_i : in std_logic; y_o : out std_logic); end entity logic_gate; architecture rtl of logic_gate is begin y_o <= a_i and b_i; end architecture rtl;', telemetry: { durationMs: 1 } };
+    },
+  });
+
+  assert.equal(prompts.length, 2);
+  assert.match(prompts[1], /component_output_ownership_violation/);
+  assert.match(prompts[1], /assignedTarget: done_o/);
+  assert.match(prompts[1], /allowedOutputPorts: y_o/);
+  assert.match(prompts[1], /Remove assignments to undeclared parent\/top\/sibling outputs/);
+  assert.equal(result.attempts.length, 2);
+  const fileContent = result.project.files.find((file) => file.path === 'src/logic_gate.vhd')?.content || '';
+  assert.match(fileContent, /y_o <= a_i and b_i/);
+  assert.doesNotMatch(fileContent, /done_o\s*<=/);
 });
 
 test('staged generation can rewrap marked implementation regions into the app-owned skeleton', () => {
@@ -302,6 +748,7 @@ test('staged generation retries a component once when the required entity declar
     model: 'model',
     contract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       if (prompts.length === 1) {
@@ -354,6 +801,7 @@ test('staged generation reuses an exact known-good leaf without calling the mode
     model: 'model',
     contract: goldenContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     goldenLeafLibraryPath: libraryPath,
     runModelAnalysis: async () => {
       throw new Error('model should not be called for exact golden leaf reuse');
@@ -375,6 +823,7 @@ test('staged generation reuses an exact verified VHDL library leaf with dependen
     model: 'model',
     contract: makeGoldenLeafContract(),
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
     verifiedVhdlBlockQualificationPath,
     runModelAnalysis: async () => {
@@ -394,6 +843,159 @@ test('staged generation reuses an exact verified VHDL library leaf with dependen
   assert.equal(result.attempts.length, 0);
 });
 
+test('staged generation accepts configured verified VHDL generics without calling the model', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-verified-params-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeConfigurableVerifiedVhdlLibrary(verifiedLibraryRoot);
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeConfigurableFifoContract(16, 64),
+    maxStageOutputChars: 20_000,
+    stageGhdlValidation: true,
+    verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+    verifiedVhdlBlockQualificationPath,
+    runModelAnalysis: async () => {
+      throw new Error('model should not be called for safe configured verified VHDL reuse');
+    },
+  });
+
+  const fifoFile = result.project.files.find((file) => file.path === 'src/rx_fifo.vhd')?.content || '';
+  const topFile = result.project.files.find((file) => file.path === 'src/fifo_top.vhd')?.content || '';
+  assert.match(fifoFile, /DATA_WIDTH : positive := 8/);
+  assert.match(topFile, /generic map \(/);
+  assert.match(topFile, /DATA_WIDTH => 16/);
+  assert.match(topFile, /DEPTH => 64/);
+  assert.equal(result.attempts.length, 0);
+});
+
+test('staged generation promotes missing verified-library generics before reuse', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-verified-promote-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeUartRxVerifiedVhdlLibrary(verifiedLibraryRoot);
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeUartRxContractMissingVerifiedGenerics(),
+    maxStageOutputChars: 20_000,
+    stageGhdlValidation: true,
+    verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+    verifiedVhdlBlockQualificationPath,
+    runModelAnalysis: async () => {
+      throw new Error('model should not be called when verified generics can be promoted safely');
+    },
+  });
+
+  const uartFile = result.project.files.find((file) => file.path === 'src/uart_rx.vhd')?.content || '';
+  const topFile = result.project.files.find((file) => file.path === 'src/uart_rx_top.vhd')?.content || '';
+  const summary = result.project.files.find((file) => file.path === 'architecture/contract-summary.md')?.content || '';
+  assert.match(uartFile, /CLOCK_HZ : positive := 100000000/);
+  assert.match(topFile, /generic map \(/);
+  assert.match(topFile, /clock_hz => 100000000/i);
+  assert.match(topFile, /baud_rate => 115200/i);
+  assert.match(topFile, /data_bits => 8/i);
+  assert.match(summary, /VERIFIED_GENERIC_PROMOTION component=uart_rx generic=clock_hz value=100000000 source=verified_default/i);
+  assert.equal(result.project.assumptions.some((entry) => /VERIFIED_GENERIC_PROMOTION.*baud_rate/i.test(entry)), true);
+  assert.equal(result.attempts.length, 0);
+});
+
+test('staged generation wraps a safe near-match verified VHDL library leaf without calling the model', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-verified-wrapper-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeVerifiedVhdlLibraryForContract(verifiedLibraryRoot);
+  await fs.writeFile(path.join(verifiedLibraryRoot, 'rtl', 'blocks', 'memory', 'rx_fifo.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'use ieee.numeric_std.all;',
+    'use work.bb_util_pkg.all;',
+    'entity bb_rx_fifo is',
+    '  port (',
+    '    clk_i : in std_logic;',
+    '    rst_i : in std_logic;',
+    '    din_i : in std_logic_vector(7 downto 0);',
+    '    dout_o : out unsigned(7 downto 0)',
+    '  );',
+    'end entity bb_rx_fifo;',
+    'architecture rtl of bb_rx_fifo is begin',
+    '  dout_o <= unsigned(din_i);',
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeGoldenLeafContract(),
+    maxStageOutputChars: 20_000,
+    verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+    verifiedVhdlBlockQualificationPath,
+    runModelAnalysis: async () => {
+      throw new Error('model should not be called for safe verified wrapper reuse');
+    },
+  });
+
+  const filePaths = result.project.files.map((file) => file.path);
+  const wrappedFile = result.project.files.find((file) => file.path === 'src/rx_fifo.vhd')?.content || '';
+  assert.ok(filePaths.includes('lib/fpga_vhdl_blocks/blocks/memory/rx_fifo.vhd'));
+  assert.match(wrappedFile, /VERIFIED_WRAPPER/);
+  assert.match(wrappedFile, /u_verified_leaf : entity work\.bb_rx_fifo/);
+  assert.match(wrappedFile, /dout_o => w_dout_o_adapt/);
+  assert.match(wrappedFile, /data_o <= std_logic_vector\(w_dout_o_adapt\);/);
+  assert.deepEqual(result.project.ghdl.analysisOrder.slice(0, 3), [
+    'lib/fpga_vhdl_blocks/common/bb_util_pkg.vhd',
+    'lib/fpga_vhdl_blocks/blocks/memory/rx_fifo.vhd',
+    'src/rx_fifo.vhd',
+  ]);
+  assert.equal(result.attempts.length, 0);
+});
+
+test('staged generation switches to typed hybrid failure when verified wrapper is unsafe', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-verified-wrapper-unsafe-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeVerifiedVhdlLibraryForContract(verifiedLibraryRoot);
+  await fs.writeFile(path.join(verifiedLibraryRoot, 'rtl', 'blocks', 'memory', 'rx_fifo.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity bb_rx_fifo is',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    mode_i : in std_logic;',
+    '    data_i : in std_logic_vector(7 downto 0);',
+    '    data_o : out std_logic_vector(7 downto 0)',
+    '  );',
+    'end entity bb_rx_fifo;',
+    'architecture rtl of bb_rx_fifo is begin',
+    '  data_o <= data_i;',
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+
+  await assert.rejects(
+    runStagedFpgaArchitectGeneration({
+      ai: null,
+      provider: 'ollama',
+      model: 'model',
+      contract: makeGoldenLeafContract(),
+      maxStageOutputChars: 20_000,
+      verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+      verifiedVhdlBlockQualificationPath,
+      runModelAnalysis: async () => {
+        throw new Error('model should not be called for unsafe verified wrapper mismatch');
+      },
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof HybridImplementationSourceUnresolvedError);
+      assert.equal(error.failureCode, 'hybrid_implementation_source_unresolved');
+      assert.match(error.message, /mode_i/);
+      return true;
+    },
+  );
+});
+
 test('staged generation adapts a safe near-match from a known-good leaf baseline', async () => {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-golden-adapt-'));
   const libraryPath = path.join(tempDir, 'fpga-golden-leaf-library.json');
@@ -405,6 +1007,7 @@ test('staged generation adapts a safe near-match from a known-good leaf baseline
     model: 'model',
     contract: makeGoldenLeafContract(16),
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     goldenLeafLibraryPath: libraryPath,
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
@@ -433,6 +1036,7 @@ test('staged generation falls back to skeleton prompt for unsafe known-good mism
     model: 'model',
     contract: makeGoldenLeafContract(8, 'spi_clk'),
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     goldenLeafLibraryPath: libraryPath,
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
@@ -561,6 +1165,7 @@ test('staged generation uses deterministic FIFO fallback immediately after FIFO 
     model: 'model',
     contract: fifoContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       return {
@@ -689,6 +1294,7 @@ test('staged generation uses deterministic FIFO fallback immediately after FIFO 
     model: 'model',
     contract: fifoContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       return {
@@ -838,6 +1444,7 @@ test('staged generation does not inject bridge status-output contract into fifo 
     model: 'model',
     contract: bridgeContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async ({ prompt }) => {
       prompts.push(prompt);
       return {
@@ -867,7 +1474,7 @@ test('staged generation does not inject bridge status-output contract into fifo 
 test('staged generation throws typed metadata after repeated port interface drift', async () => {
   await assert.rejects(
     runStagedFpgaArchitectGeneration({
-      ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000,
+      ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000, vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
       runModelAnalysis: async () => ({
         text: 'library ieee; use ieee.std_logic_1164.all; entity logic_gate is port (a_i : in std_logic; b_i : in std_logic; bad_o : out std_logic); end entity logic_gate; architecture rtl of logic_gate is begin bad_o <= a_i and b_i; end architecture rtl;',
         telemetry: { durationMs: 1 },
@@ -884,6 +1491,26 @@ test('staged generation throws typed metadata after repeated port interface drif
   );
 });
 
+test('staged generation throws typed metadata after repeated output ownership violations', async () => {
+  await assert.rejects(
+    runStagedFpgaArchitectGeneration({
+      ai: null, provider: 'ollama', model: 'model', contract, maxStageOutputChars: 20_000, vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
+      runModelAnalysis: async () => ({
+        text: 'library ieee; use ieee.std_logic_1164.all; entity logic_gate is port (a_i : in std_logic; b_i : in std_logic; y_o : out std_logic); end entity logic_gate; architecture rtl of logic_gate is begin done_o <= a_i and b_i; y_o <= a_i and b_i; end architecture rtl;',
+        telemetry: { durationMs: 1 },
+      }),
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof StagedComponentOutputOwnershipError);
+      assert.equal(error.failureCode, 'component_output_ownership_violation');
+      assert.equal(error.assignedTarget, 'done_o');
+      assert.deepEqual(error.allowedOutputPorts, ['y_o']);
+      assert.match(error.excerpt, /done_o <=/);
+      return true;
+    },
+  );
+});
+
 test('staged generation throws typed metadata after repeated missing entity declaration', async () => {
   await assert.rejects(
     runStagedFpgaArchitectGeneration({
@@ -892,6 +1519,7 @@ test('staged generation throws typed metadata after repeated missing entity decl
       model: 'model',
       contract,
       maxStageOutputChars: 20_000,
+      vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
       runModelAnalysis: async () => ({
         text: [
           'library ieee;',
@@ -1018,6 +1646,7 @@ test('staged generation normalizes reserved enum literals and missing parity hel
     model: 'model',
     contract: parityContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     runModelAnalysis: async () => ({
       text: [
         'library ieee;',
@@ -1120,6 +1749,7 @@ test('staged generation repairs safe vector literal width mismatches before GHDL
     model: 'model',
     contract: statusContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     stageGhdlValidation: true,
     runModelAnalysis: async () => ({
       text: [
@@ -1227,6 +1857,7 @@ test('staged generation pre-repairs non-numeric arithmetic and illegal others ag
     model: 'model',
     contract: videoContract,
     maxStageOutputChars: 20_000,
+    vhdlImplementationPolicy: 'allow_model_vhdl_fallback',
     stageGhdlValidation: true,
     runModelAnalysis: async () => ({
       text: [

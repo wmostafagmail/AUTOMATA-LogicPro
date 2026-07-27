@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_port_register_file_multi_queue",
+  "wrapper_entity": "multi_port_register_file_multi_queue_det_cfg",
+  "configuration_id": "MULTI_PORT_REGISTER_FILE_MULTI_QUEUE_733F672FE56C2684",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

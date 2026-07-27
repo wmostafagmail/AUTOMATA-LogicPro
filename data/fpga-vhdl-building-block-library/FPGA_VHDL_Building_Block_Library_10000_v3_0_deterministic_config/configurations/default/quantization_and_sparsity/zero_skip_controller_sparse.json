@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_skip_controller_sparse",
+  "wrapper_entity": "zero_skip_controller_sparse_det_cfg",
+  "configuration_id": "ZERO_SKIP_CONTROLLER_SPARSE_3BCEA07AD4366057",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

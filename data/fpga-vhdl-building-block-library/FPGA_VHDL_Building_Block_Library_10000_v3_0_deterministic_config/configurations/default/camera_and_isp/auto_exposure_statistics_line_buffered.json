@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "auto_exposure_statistics_line_buffered",
+  "wrapper_entity": "auto_exposure_statistics_line_buffered_det_cfg",
+  "configuration_id": "AUTO_EXPOSURE_STATISTICS_LINE_BUFFERED_A9291F54E43CA357",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

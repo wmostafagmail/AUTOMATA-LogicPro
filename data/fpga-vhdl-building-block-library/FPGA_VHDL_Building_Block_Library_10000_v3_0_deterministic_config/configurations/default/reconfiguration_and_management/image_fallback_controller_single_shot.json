@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "image_fallback_controller_single_shot",
+  "wrapper_entity": "image_fallback_controller_single_shot_det_cfg",
+  "configuration_id": "IMAGE_FALLBACK_CONTROLLER_SINGLE_SHOT_6DD86F2AA44EBDCF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

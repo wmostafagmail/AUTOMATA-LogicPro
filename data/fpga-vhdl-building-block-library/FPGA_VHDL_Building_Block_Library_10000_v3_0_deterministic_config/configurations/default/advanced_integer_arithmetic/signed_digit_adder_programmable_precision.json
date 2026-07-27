@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_programmable_precision",
+  "wrapper_entity": "signed_digit_adder_programmable_precision_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_PROGRAMMABLE_PRECISION_69157435194781F5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

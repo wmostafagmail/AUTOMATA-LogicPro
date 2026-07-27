@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "crest_factor_reducer_single_cycle",
+  "wrapper_entity": "crest_factor_reducer_single_cycle_det_cfg",
+  "configuration_id": "CREST_FACTOR_REDUCER_SINGLE_CYCLE_3CF1AC3F02A5E2EE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 156
+  }
+}

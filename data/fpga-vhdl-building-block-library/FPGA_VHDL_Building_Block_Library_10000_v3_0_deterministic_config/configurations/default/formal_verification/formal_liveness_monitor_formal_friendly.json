@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_formal_friendly",
+  "wrapper_entity": "formal_liveness_monitor_formal_friendly_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_FORMAL_FRIENDLY_DD02C808B29408E9",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

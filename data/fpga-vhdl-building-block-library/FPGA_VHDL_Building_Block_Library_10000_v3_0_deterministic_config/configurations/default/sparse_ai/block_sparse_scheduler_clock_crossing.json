@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_sparse_scheduler_clock_crossing",
+  "wrapper_entity": "block_sparse_scheduler_clock_crossing_det_cfg",
+  "configuration_id": "BLOCK_SPARSE_SCHEDULER_CLOCK_CROSSING_F5DCC0C1D15BF96F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithm_approximator_single_cycle",
+  "wrapper_entity": "logarithm_approximator_single_cycle_det_cfg",
+  "configuration_id": "LOGARITHM_APPROXIMATOR_SINGLE_CYCLE_C66189B876927B9C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

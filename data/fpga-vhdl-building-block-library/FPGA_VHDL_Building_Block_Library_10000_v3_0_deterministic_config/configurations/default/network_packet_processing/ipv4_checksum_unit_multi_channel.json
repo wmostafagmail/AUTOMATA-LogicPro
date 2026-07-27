@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv4_checksum_unit_multi_channel",
+  "wrapper_entity": "ipv4_checksum_unit_multi_channel_det_cfg",
+  "configuration_id": "IPV4_CHECKSUM_UNIT_MULTI_CHANNEL_8F713B4E077A2122",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

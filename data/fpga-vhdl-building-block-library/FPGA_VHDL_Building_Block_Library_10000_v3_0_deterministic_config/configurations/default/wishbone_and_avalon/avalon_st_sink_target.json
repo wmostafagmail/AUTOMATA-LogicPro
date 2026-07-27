@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_st_sink_target",
+  "wrapper_entity": "avalon_st_sink_target_det_cfg",
+  "configuration_id": "AVALON_ST_SINK_TARGET_95B5086C51488EC0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 249
+  }
+}

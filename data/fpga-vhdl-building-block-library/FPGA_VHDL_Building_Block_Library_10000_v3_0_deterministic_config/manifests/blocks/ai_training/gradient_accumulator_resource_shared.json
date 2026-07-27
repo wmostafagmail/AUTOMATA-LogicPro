@@ -1,0 +1,134 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "gradient_accumulator_resource_shared",
+    "entity": "gradient_accumulator_resource_shared",
+    "version": "3.0.0",
+    "category": "ai_training",
+    "source": "rtl/blocks/ai_training/gradient_accumulator_resource_shared.vhd",
+    "wrapper_entity": "gradient_accumulator_resource_shared_det_cfg"
+  },
+  "configuration": {
+    "id": "GRADIENT_ACCUMULATOR_RESOURCE_SHARED_10C8865936D95A5A",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "RESULT_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "SIGNED_MODE",
+        "type": "boolean",
+        "default": "false",
+        "minimum": null
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "RESULT_WIDTH": 32,
+      "SIGNED_MODE": false
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "in_a",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "in_b",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "in_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "in_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "result",
+        "direction": "out",
+        "type": "std_logic_vector(RESULT_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "out_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "out_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "error",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "shared-core surrogate only; block-specific golden model and numerical qualification required."
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "interface-wrapper smoke-test scaffold; named algorithm/architecture not yet qualified.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/ai_training/gradient_accumulator_resource_shared_det_cfg.vhd",
+    "configuration_file": "configurations/default/gradient_accumulator_resource_shared.json"
+  }
+}

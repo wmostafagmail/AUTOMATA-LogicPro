@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sine_wave_generator_combinational",
+  "wrapper_entity": "sine_wave_generator_combinational_det_cfg",
+  "configuration_id": "SINE_WAVE_GENERATOR_COMBINATIONAL_ADF4542203230B35",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

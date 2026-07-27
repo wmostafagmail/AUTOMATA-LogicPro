@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_tile_swizzler_banked",
+  "wrapper_entity": "tensor_tile_swizzler_banked_det_cfg",
+  "configuration_id": "TENSOR_TILE_SWIZZLER_BANKED_1910BF51D0CA346A",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

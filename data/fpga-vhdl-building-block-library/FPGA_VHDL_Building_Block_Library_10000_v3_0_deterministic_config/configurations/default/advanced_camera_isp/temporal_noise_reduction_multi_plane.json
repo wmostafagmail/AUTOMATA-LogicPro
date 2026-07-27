@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "temporal_noise_reduction_multi_plane",
+  "wrapper_entity": "temporal_noise_reduction_multi_plane_det_cfg",
+  "configuration_id": "TEMPORAL_NOISE_REDUCTION_MULTI_PLANE_DF6E3D7A3FBD8AE2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

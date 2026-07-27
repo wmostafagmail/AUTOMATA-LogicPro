@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "skid_buffer",
+  "wrapper_entity": "skid_buffer_det_cfg",
+  "configuration_id": "SKID_BUFFER_1A77B32C72A1E0B7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

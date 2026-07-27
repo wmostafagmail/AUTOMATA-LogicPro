@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_redundant",
+  "wrapper_entity": "hdmi_frl_packetizer_redundant_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_REDUNDANT_AA3CADD9D2FE87FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

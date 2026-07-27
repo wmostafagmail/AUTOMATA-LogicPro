@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_tile_loader_int16",
+  "wrapper_entity": "matrix_tile_loader_int16_det_cfg",
+  "configuration_id": "MATRIX_TILE_LOADER_INT16_ED4A2732366EDF95",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

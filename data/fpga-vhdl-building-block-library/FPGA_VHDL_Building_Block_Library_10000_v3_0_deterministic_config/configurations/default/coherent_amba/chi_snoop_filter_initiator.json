@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_initiator",
+  "wrapper_entity": "chi_snoop_filter_initiator_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_INITIATOR_A270AFD606C6D331",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

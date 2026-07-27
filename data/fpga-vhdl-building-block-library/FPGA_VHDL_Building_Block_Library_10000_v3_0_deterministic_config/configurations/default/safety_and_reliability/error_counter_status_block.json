@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "error_counter_status_block",
+  "wrapper_entity": "error_counter_status_block_det_cfg",
+  "configuration_id": "ERROR_COUNTER_STATUS_BLOCK_5FB1531120A78DBE",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

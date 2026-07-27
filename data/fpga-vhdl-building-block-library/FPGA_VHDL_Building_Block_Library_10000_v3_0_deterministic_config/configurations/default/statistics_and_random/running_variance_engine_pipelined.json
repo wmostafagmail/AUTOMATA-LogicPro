@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_pipelined",
+  "wrapper_entity": "running_variance_engine_pipelined_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_PIPELINED_818BFF0077A71742",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_multi_channel",
+  "wrapper_entity": "shader_special_function_unit_multi_channel_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_MULTI_CHANNEL_8FF2721031415ABF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

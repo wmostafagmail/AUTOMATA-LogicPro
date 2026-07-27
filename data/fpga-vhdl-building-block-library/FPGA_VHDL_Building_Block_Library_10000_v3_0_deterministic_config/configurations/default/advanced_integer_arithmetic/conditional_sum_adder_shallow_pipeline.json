@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_shallow_pipeline",
+  "wrapper_entity": "conditional_sum_adder_shallow_pipeline_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_SHALLOW_PIPELINE_8DF352F13960E4D7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

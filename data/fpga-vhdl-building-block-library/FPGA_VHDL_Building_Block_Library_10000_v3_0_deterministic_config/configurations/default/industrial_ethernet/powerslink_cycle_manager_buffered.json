@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_buffered",
+  "wrapper_entity": "powerslink_cycle_manager_buffered_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_BUFFERED_7C9CA6290F3D6E16",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

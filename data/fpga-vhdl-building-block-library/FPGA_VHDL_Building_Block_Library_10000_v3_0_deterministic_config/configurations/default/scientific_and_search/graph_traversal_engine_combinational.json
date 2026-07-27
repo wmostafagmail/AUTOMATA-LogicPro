@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "graph_traversal_engine_combinational",
+  "wrapper_entity": "graph_traversal_engine_combinational_det_cfg",
+  "configuration_id": "GRAPH_TRAVERSAL_ENGINE_COMBINATIONAL_9D99956E71B37179",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 191
+  }
+}

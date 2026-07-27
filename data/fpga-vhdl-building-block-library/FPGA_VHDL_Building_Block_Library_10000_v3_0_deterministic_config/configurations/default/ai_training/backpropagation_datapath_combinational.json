@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "backpropagation_datapath_combinational",
+  "wrapper_entity": "backpropagation_datapath_combinational_det_cfg",
+  "configuration_id": "BACKPROPAGATION_DATAPATH_COMBINATIONAL_FE12403E4ABE6067",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

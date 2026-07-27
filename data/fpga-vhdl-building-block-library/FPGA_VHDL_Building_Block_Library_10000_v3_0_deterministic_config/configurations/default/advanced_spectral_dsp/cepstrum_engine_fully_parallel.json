@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cepstrum_engine_fully_parallel",
+  "wrapper_entity": "cepstrum_engine_fully_parallel_det_cfg",
+  "configuration_id": "CEPSTRUM_ENGINE_FULLY_PARALLEL_AFC7A4D560C6876A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

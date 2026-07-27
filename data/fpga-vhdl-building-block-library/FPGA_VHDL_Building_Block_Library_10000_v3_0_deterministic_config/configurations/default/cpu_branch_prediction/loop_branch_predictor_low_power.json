@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_low_power",
+  "wrapper_entity": "loop_branch_predictor_low_power_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_LOW_POWER_B014F09C83DBDFB3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dynamic_function_exchange_manager_table_driven",
+  "wrapper_entity": "dynamic_function_exchange_manager_table_driven_det_cfg",
+  "configuration_id": "DYNAMIC_FUNCTION_EXCHANGE_MANAGER_TABLE_DRIVEN_E02337974F0EE91A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

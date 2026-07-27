@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_software_configurable",
+  "wrapper_entity": "key_vault_controller_software_configurable_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_SOFTWARE_CONFIGURABLE_EDEF753768494C52",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

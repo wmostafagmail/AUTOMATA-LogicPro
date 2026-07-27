@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_cascade_single_lane",
+  "wrapper_entity": "halfband_cascade_single_lane_det_cfg",
+  "configuration_id": "HALFBAND_CASCADE_SINGLE_LANE_EC628104E2D7409C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

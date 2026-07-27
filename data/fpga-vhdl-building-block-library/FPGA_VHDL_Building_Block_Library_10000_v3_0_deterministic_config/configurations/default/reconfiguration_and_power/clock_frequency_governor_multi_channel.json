@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clock_frequency_governor_multi_channel",
+  "wrapper_entity": "clock_frequency_governor_multi_channel_det_cfg",
+  "configuration_id": "CLOCK_FREQUENCY_GOVERNOR_MULTI_CHANNEL_7745849573839254",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nor_execute_in_place_cache_write_through",
+  "wrapper_entity": "nor_execute_in_place_cache_write_through_det_cfg",
+  "configuration_id": "NOR_EXECUTE_IN_PLACE_CACHE_WRITE_THROUGH_0D2D8D9F335AF346",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

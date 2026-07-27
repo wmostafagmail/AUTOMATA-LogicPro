@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "cordic_engine",
+  "wrapper_entity": "cordic_engine_det_cfg",
+  "configuration_id": "CORDIC_ENGINE_04EC9DA62F286671",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

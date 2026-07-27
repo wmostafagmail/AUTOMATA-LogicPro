@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "hyperbolic_function_engine_pipelined",
+  "wrapper_entity": "hyperbolic_function_engine_pipelined_det_cfg",
+  "configuration_id": "HYPERBOLIC_FUNCTION_ENGINE_PIPELINED_799712D0D2EED7F2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

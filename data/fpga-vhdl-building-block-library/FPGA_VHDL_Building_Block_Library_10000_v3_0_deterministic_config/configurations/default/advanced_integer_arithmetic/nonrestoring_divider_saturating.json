@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_saturating",
+  "wrapper_entity": "nonrestoring_divider_saturating_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_SATURATING_1863F8C38976E0DC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

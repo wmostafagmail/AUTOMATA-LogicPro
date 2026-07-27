@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "descriptor_fifo_packet_aware",
+  "wrapper_entity": "descriptor_fifo_packet_aware_det_cfg",
+  "configuration_id": "DESCRIPTOR_FIFO_PACKET_AWARE_B4F97EB07127C18A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

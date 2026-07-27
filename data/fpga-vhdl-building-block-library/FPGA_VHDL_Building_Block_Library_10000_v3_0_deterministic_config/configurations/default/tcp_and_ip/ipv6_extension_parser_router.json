@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_extension_parser_router",
+  "wrapper_entity": "ipv6_extension_parser_router_det_cfg",
+  "configuration_id": "IPV6_EXTENSION_PARSER_ROUTER_C63D1E4209A3A533",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

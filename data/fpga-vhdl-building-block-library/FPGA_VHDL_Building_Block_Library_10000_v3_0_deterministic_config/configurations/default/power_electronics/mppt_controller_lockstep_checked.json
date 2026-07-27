@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_lockstep_checked",
+  "wrapper_entity": "mppt_controller_lockstep_checked_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_LOCKSTEP_CHECKED_96348C0C0F2B8D34",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

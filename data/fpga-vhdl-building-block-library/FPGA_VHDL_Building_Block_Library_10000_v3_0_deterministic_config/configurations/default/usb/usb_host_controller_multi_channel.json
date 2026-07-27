@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_host_controller_multi_channel",
+  "wrapper_entity": "usb_host_controller_multi_channel_det_cfg",
+  "configuration_id": "USB_HOST_CONTROLLER_MULTI_CHANNEL_F324F62DA813EB71",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

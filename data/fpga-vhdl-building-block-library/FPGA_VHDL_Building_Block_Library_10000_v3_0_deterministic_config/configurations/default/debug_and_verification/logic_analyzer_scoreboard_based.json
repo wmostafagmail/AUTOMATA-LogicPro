@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_analyzer_scoreboard_based",
+  "wrapper_entity": "logic_analyzer_scoreboard_based_det_cfg",
+  "configuration_id": "LOGIC_ANALYZER_SCOREBOARD_BASED_8843F794BCC2B947",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_qos_aware",
+  "wrapper_entity": "flexray_controller_qos_aware_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_QOS_AWARE_72A65FCAC6CB70AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

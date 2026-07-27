@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sent_sensor_decoder_router",
+  "wrapper_entity": "sent_sensor_decoder_router_det_cfg",
+  "configuration_id": "SENT_SENSOR_DECODER_ROUTER_4BB8A07C23FBD6CE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

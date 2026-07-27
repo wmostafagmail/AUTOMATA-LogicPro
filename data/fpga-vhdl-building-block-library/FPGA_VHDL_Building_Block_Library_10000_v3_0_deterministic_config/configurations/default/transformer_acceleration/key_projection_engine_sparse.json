@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "key_projection_engine_sparse",
+  "wrapper_entity": "key_projection_engine_sparse_det_cfg",
+  "configuration_id": "KEY_PROJECTION_ENGINE_SPARSE_8CE44F497CCD4A78",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

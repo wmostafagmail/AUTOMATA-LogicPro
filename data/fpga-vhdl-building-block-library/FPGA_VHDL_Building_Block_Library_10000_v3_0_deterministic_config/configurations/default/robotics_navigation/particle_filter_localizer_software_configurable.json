@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_software_configurable",
+  "wrapper_entity": "particle_filter_localizer_software_configurable_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_SOFTWARE_CONFIGURABLE_4EB9FD1EC28A957B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

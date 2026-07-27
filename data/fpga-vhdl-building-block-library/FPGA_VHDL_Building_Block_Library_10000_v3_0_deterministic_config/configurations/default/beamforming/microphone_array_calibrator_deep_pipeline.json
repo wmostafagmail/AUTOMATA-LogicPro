@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "microphone_array_calibrator_deep_pipeline",
+  "wrapper_entity": "microphone_array_calibrator_deep_pipeline_det_cfg",
+  "configuration_id": "MICROPHONE_ARRAY_CALIBRATOR_DEEP_PIPELINE_01C3FEC3AEA6A4A9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

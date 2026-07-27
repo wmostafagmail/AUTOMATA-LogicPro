@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_protocol_monitor",
+  "wrapper_entity": "hdmi_audio_packet_generator_protocol_monitor_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_PROTOCOL_MONITOR_AF318517F2349EA0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

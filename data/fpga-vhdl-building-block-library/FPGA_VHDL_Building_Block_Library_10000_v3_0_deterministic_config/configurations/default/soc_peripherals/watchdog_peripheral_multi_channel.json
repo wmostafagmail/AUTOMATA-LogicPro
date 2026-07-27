@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_peripheral_multi_channel",
+  "wrapper_entity": "watchdog_peripheral_multi_channel_det_cfg",
+  "configuration_id": "WATCHDOG_PERIPHERAL_MULTI_CHANNEL_1A5F77F130488CEB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

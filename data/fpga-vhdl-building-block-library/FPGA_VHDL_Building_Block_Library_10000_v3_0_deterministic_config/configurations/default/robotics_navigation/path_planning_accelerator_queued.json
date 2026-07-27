@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_queued",
+  "wrapper_entity": "path_planning_accelerator_queued_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_QUEUED_5F6B359D11E959ED",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

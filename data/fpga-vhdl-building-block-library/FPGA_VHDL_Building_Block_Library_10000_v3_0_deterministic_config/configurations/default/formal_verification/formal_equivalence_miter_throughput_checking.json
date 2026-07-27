@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_throughput_checking",
+  "wrapper_entity": "formal_equivalence_miter_throughput_checking_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_THROUGHPUT_CHECKING_C52998D681427EDE",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

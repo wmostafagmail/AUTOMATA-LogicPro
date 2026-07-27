@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "goldschmidt_reciprocal_shallow_pipeline",
+  "wrapper_entity": "goldschmidt_reciprocal_shallow_pipeline_det_cfg",
+  "configuration_id": "GOLDSCHMIDT_RECIPROCAL_SHALLOW_PIPELINE_6F3561C1EAAD42D7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

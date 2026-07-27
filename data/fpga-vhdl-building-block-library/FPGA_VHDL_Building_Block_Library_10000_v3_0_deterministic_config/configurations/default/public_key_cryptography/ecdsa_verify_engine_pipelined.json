@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_verify_engine_pipelined",
+  "wrapper_entity": "ecdsa_verify_engine_pipelined_det_cfg",
+  "configuration_id": "ECDSA_VERIFY_ENGINE_PIPELINED_2376FD7A0017187B",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

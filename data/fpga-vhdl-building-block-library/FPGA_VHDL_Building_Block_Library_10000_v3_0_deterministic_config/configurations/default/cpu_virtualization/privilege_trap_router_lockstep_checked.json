@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_lockstep_checked",
+  "wrapper_entity": "privilege_trap_router_lockstep_checked_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_LOCKSTEP_CHECKED_6891BD8424710641",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "framebuffer_reader_streaming",
+  "wrapper_entity": "framebuffer_reader_streaming_det_cfg",
+  "configuration_id": "FRAMEBUFFER_READER_STREAMING_F89C3AA135A9A125",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_single_cycle",
+  "wrapper_entity": "sparse_cholesky_engine_single_cycle_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_SINGLE_CYCLE_0668C44B6CD5F997",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

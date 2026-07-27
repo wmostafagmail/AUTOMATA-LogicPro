@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_streaming",
+  "wrapper_entity": "sampler_state_unit_streaming_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_STREAMING_C576F197EB5A9B1C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

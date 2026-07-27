@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_saturating",
+  "wrapper_entity": "binary_to_bcd_converter_saturating_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_SATURATING_CC80448FB330EC41",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

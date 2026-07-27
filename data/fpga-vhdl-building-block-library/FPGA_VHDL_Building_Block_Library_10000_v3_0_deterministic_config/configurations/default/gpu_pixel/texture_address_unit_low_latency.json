@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_address_unit_low_latency",
+  "wrapper_entity": "texture_address_unit_low_latency_det_cfg",
+  "configuration_id": "TEXTURE_ADDRESS_UNIT_LOW_LATENCY_8B26AC69465353C5",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

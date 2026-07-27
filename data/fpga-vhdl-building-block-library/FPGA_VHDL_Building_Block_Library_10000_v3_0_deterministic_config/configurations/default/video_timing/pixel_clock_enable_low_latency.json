@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_clock_enable_low_latency",
+  "wrapper_entity": "pixel_clock_enable_low_latency_det_cfg",
+  "configuration_id": "PIXEL_CLOCK_ENABLE_LOW_LATENCY_AB3643D7421AFBF8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

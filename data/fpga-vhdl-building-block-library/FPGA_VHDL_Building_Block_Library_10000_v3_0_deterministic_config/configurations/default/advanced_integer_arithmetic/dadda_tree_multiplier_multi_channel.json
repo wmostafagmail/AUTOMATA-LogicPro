@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_multi_channel",
+  "wrapper_entity": "dadda_tree_multiplier_multi_channel_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_MULTI_CHANNEL_C319D04ED73D9CCC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

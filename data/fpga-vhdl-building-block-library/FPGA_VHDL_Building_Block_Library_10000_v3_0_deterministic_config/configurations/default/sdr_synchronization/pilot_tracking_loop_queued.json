@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_queued",
+  "wrapper_entity": "pilot_tracking_loop_queued_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_QUEUED_A52B42309AE34F86",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

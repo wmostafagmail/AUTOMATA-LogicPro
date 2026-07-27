@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_software_configurable",
+  "wrapper_entity": "anti_rollback_counter_software_configurable_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_SOFTWARE_CONFIGURABLE_5EA8508DE1B569C5",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

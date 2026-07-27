@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "asynchronous_reset_controller_programmable",
+  "wrapper_entity": "asynchronous_reset_controller_programmable_det_cfg",
+  "configuration_id": "ASYNCHRONOUS_RESET_CONTROLLER_PROGRAMMABLE_9786AB8DB356B98C",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

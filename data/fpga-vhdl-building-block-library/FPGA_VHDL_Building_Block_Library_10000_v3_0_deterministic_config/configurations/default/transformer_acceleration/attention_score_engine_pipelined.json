@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_score_engine_pipelined",
+  "wrapper_entity": "attention_score_engine_pipelined_det_cfg",
+  "configuration_id": "ATTENTION_SCORE_ENGINE_PIPELINED_8ABE42F0FF1CDB3B",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mailbox_peripheral_multi_channel",
+  "wrapper_entity": "mailbox_peripheral_multi_channel_det_cfg",
+  "configuration_id": "MAILBOX_PERIPHERAL_MULTI_CHANNEL_EDD22DD4C7AE78D6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_queued",
+  "wrapper_entity": "precise_state_recovery_queued_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_QUEUED_315AFC7593556677",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

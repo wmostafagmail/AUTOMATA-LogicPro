@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gaussian_noise_generator_error_detecting",
+  "wrapper_entity": "gaussian_noise_generator_error_detecting_det_cfg",
+  "configuration_id": "GAUSSIAN_NOISE_GENERATOR_ERROR_DETECTING_DE59A4BA1254D6D4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

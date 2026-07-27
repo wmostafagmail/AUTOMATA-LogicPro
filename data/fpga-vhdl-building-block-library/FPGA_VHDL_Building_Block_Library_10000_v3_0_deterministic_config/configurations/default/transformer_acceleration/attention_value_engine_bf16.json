@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_value_engine_bf16",
+  "wrapper_entity": "attention_value_engine_bf16_det_cfg",
+  "configuration_id": "ATTENTION_VALUE_ENGINE_BF16_73ED8A60C2455E98",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

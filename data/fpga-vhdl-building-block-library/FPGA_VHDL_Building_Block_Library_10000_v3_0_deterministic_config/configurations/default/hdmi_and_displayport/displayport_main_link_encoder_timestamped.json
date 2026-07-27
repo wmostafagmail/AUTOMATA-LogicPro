@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_main_link_encoder_timestamped",
+  "wrapper_entity": "displayport_main_link_encoder_timestamped_det_cfg",
+  "configuration_id": "DISPLAYPORT_MAIN_LINK_ENCODER_TIMESTAMPED_5F677FB05568ED1C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "pulse_width_meter_continuous",
+  "wrapper_entity": "pulse_width_meter_continuous_det_cfg",
+  "configuration_id": "PULSE_WIDTH_METER_CONTINUOUS_5A6CFBF9B9B2F2C1",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "camera_parallel_receiver_framebuffer",
+  "wrapper_entity": "camera_parallel_receiver_framebuffer_det_cfg",
+  "configuration_id": "CAMERA_PARALLEL_RECEIVER_FRAMEBUFFER_9AF61413B3DC49B4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

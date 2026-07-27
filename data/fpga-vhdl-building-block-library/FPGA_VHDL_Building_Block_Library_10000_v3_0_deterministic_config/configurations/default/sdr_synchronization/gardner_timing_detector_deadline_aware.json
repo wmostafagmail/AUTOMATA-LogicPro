@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_deadline_aware",
+  "wrapper_entity": "gardner_timing_detector_deadline_aware_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_DEADLINE_AWARE_5D5DB968A5EB07C5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

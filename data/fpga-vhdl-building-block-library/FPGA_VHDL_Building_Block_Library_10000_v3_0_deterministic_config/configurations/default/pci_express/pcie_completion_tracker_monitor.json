@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_completion_tracker_monitor",
+  "wrapper_entity": "pcie_completion_tracker_monitor_det_cfg",
+  "configuration_id": "PCIE_COMPLETION_TRACKER_MONITOR_D16460624627E24A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spatial_noise_reduction_fixed_latency",
+  "wrapper_entity": "spatial_noise_reduction_fixed_latency_det_cfg",
+  "configuration_id": "SPATIAL_NOISE_REDUCTION_FIXED_LATENCY_BDAFAE366949EE61",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

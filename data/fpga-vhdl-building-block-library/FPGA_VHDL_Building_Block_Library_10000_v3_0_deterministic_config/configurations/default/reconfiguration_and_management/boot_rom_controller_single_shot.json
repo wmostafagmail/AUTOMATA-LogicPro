@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_rom_controller_single_shot",
+  "wrapper_entity": "boot_rom_controller_single_shot_det_cfg",
+  "configuration_id": "BOOT_ROM_CONTROLLER_SINGLE_SHOT_C7B6A82C230539D1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

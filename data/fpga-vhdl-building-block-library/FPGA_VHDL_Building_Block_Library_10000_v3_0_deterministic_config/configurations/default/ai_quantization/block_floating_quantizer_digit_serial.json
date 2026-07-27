@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_digit_serial",
+  "wrapper_entity": "block_floating_quantizer_digit_serial_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_DIGIT_SERIAL_960978EF6B60EA0A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

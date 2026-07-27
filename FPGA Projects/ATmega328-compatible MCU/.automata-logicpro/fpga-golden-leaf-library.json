@@ -976,6 +976,1990 @@
       "repairCount": 0,
       "promotedAt": "2026-07-26T00:17:28.426Z",
       "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.axi_stream_router_pkg.all;\n\nentity routing_decision_logic is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity routing_decision_logic;\n\narchitecture rtl of routing_decision_logic is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal route_sel_s : std_logic_vector(3 downto 0);\n   signal status_s : std_logic_vector(7 downto 0);\n   signal done_s : std_logic;\n   signal error_s : std_logic;\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            route_sel_s <= (others => '0');\n            status_s <= (others => '0');\n            done_s <= '0';\n            error_s <= '0';\n         elsif enable_i = '1' then\n            case data_i is\n               when x\"00\" => route_sel_s <= \"0000\"; status_s <= x\"01\";\n               when x\"01\" => route_sel_s <= \"0001\"; status_s <= x\"02\";\n               when x\"02\" => route_sel_s <= \"0010\"; status_s <= x\"04\";\n               when others => route_sel_s <= \"1111\"; status_s <= x\"FF\";\n            end case;\n            done_s <= '1';\n            error_s <= '0';\n         else\n            done_s <= '0';\n            error_s <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "alu",
+      "entityName": "alu",
+      "filePath": "src/alu.vhd",
+      "interfaceSignature": {
+        "entityName": "alu",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "alu",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "12b83145a4e15c2197ca36fde93aee4c46efd54330b44b21877d3c2e313858f4",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 5,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:37:07.897Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity alu is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity alu;\n\narchitecture rtl of alu is\n   signal alu_result : std_logic_vector(7 downto 0);\n   signal zero_flag  : std_logic;\n   signal carry_flag : std_logic;\n   signal overflow_flag : std_logic;\nbegin\n   process(clk, rst)\n     variable op_code : std_logic_vector(3 downto 0);\n     variable operand : unsigned(7 downto 0);\n   begin\n     if rst = '1' then\n       alu_result <= (others => '0');\n       zero_flag  <= '0';\n       carry_flag <= '0';\n       overflow_flag <= '0';\n     elsif rising_edge(clk) then\n       if enable_i = '1' then\n         op_code := data_i(7 downto 4);\n         operand := resize(unsigned(data_i(3 downto 0)), 8);\n         case op_code is\n           when \"0000\" => -- ADD\n             alu_result <= std_logic_vector(operand + operand);\n             carry_flag <= '0';\n             zero_flag  <= '1' when (operand + operand) = 0 else '0';\n             overflow_flag <= '0';\n           when \"0001\" => -- SUB\n             alu_result <= std_logic_vector(operand - operand);\n             carry_flag <= '0';\n             zero_flag  <= '1' when (operand - operand) = 0 else '0';\n             overflow_flag <= '0';\n           when \"0010\" => -- AND\n             alu_result <= std_logic_vector(operand and operand);\n             zero_flag  <= '1' when (operand and operand) = 0 else '0';\n             carry_flag <= '0';\n             overflow_flag <= '0';\n           when \"0011\" => -- OR\n             alu_result <= std_logic_vector(operand or operand);\n             zero_flag  <= '1' when (operand or operand) = 0 else '0';\n             carry_flag <= '0';\n             overflow_flag <= '0';\n           when \"0100\" => -- XOR\n             alu_result <= std_logic_vector(operand xor operand);\n             zero_flag  <= '1' when (operand xor operand) = 0 else '0';\n             carry_flag <= '0';\n             overflow_flag <= '0';\n           when others =>\n             alu_result <= (others => '0');\n             zero_flag  <= '0';\n             carry_flag <= '0';\n             overflow_flag <= '0';\n         end case;\n       end if;\n     end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "alu",
+      "entityName": "alu",
+      "filePath": "src/alu.vhd",
+      "interfaceSignature": {
+        "entityName": "alu",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "alu",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "d0790493d39d926a37c9f7e454cec7b53356da8b6430d0e4efa18d49d6a8a28e",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 6,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:49:19.539Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity alu is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n    );\nend entity alu;\n\narchitecture rtl of alu is\n   signal alu_result : std_logic_vector(7 downto 0);\n   signal alu_flags : std_logic_vector(3 downto 0);\n   signal op_code : std_logic_vector(3 downto 0);\nbegin\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            alu_result <= (others => '0');\n            alu_flags <= (others => '0');\n         elsif enable_i = '1' then\n            op_code <= data_i(7 downto 4);\n            case op_code is\n               when \"0000\" =>\n                  alu_result <= std_logic_vector(unsigned(data_i) + unsigned(data_i));\n                  alu_flags <= (others => '0');\n               when \"0001\" =>\n                  alu_result <= std_logic_vector(unsigned(data_i) - unsigned(data_i));\n                  alu_flags <= (others => '0');\n               when \"0010\" =>\n                  alu_result <= std_logic_vector(unsigned(data_i) and unsigned(data_i));\n                  alu_flags <= (others => '0');\n               when \"0011\" =>\n                  alu_result <= std_logic_vector(unsigned(data_i) or unsigned(data_i));\n                  alu_flags <= (others => '0');\n               when \"0100\" =>\n                  alu_result <= std_logic_vector(unsigned(data_i) xor unsigned(data_i));\n                  alu_flags <= (others => '0');\n               when others =>\n                  alu_result <= (others => '0');\n                  alu_flags <= (others => '0');\n            end case;\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "control_fsm",
+      "entityName": "control_fsm",
+      "filePath": "src/control_fsm.vhd",
+      "interfaceSignature": {
+        "entityName": "control_fsm",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "control_fsm",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "336fccd9afe9065b34e27d4962c94766190f221f9d009502d00c99ef1856da49",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 6,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:49:19.539Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity control_fsm is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity control_fsm;\n\narchitecture rtl of control_fsm is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (IDLE, FETCH, DECODE, EXECUTE, WRITEBACK, HALT);\n   signal current_state, next_state : state_type;\n   signal fetch_req_s, decode_s, execute_s, wb_s, halt_s : std_logic;\n   signal done_s, error_s : std_logic;\n   signal status_s : std_logic_vector(7 downto 0);\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            current_state <= IDLE;\n         else\n            current_state <= next_state;\n         end if;\n      end if;\n   end process;\n\n   process(current_state, enable_i, data_i)\n   begin\n      next_state <= current_state;\n      fetch_req_s <= '0';\n      decode_s <= '0';\n      execute_s <= '0';\n      wb_s <= '0';\n      halt_s <= '0';\n      done_s <= '0';\n      error_s <= '0';\n      status_s <= (others => '0');\n\n      case current_state is\n         when IDLE =>\n            if enable_i = '1' then\n               next_state <= FETCH;\n            end if;\n         when FETCH =>\n            next_state <= DECODE;\n            fetch_req_s <= '1';\n            status_s <= data_i;\n         when DECODE =>\n            next_state <= EXECUTE;\n            decode_s <= '1';\n            status_s <= data_i;\n         when EXECUTE =>\n            next_state <= WRITEBACK;\n            execute_s <= '1';\n            status_s <= data_i;\n         when WRITEBACK =>\n            next_state <= IDLE;\n            wb_s <= '1';\n            done_s <= '1';\n         when HALT =>\n            next_state <= HALT;\n            halt_s <= '1';\n            error_s <= '1';\n            status_s <= (others => '1');\n         when others =>\n            next_state <= IDLE;\n      end case;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "control_fsm",
+      "entityName": "control_fsm",
+      "filePath": "src/control_fsm.vhd",
+      "interfaceSignature": {
+        "entityName": "control_fsm",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "control_fsm",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "e5d3d10b3ea2a57ff332213875735997a0c7d6aa973eba03620d36cb0e863c96",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 5,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:37:07.897Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity control_fsm is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity control_fsm;\n\narchitecture rtl of control_fsm is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (ST_IDLE, ST_FETCH, ST_DECODE, ST_EXECUTE, ST_WRITEBACK);\n   signal state_reg : state_type := ST_IDLE;\n   signal pc_reg    : unsigned(7 downto 0) := (others => '0');\n   signal ir_reg    : std_logic_vector(7 downto 0) := (others => '0');\n   signal alu_res   : unsigned(7 downto 0) := (others => '0');\n   signal wb_en     : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         state_reg <= ST_IDLE;\n         pc_reg    <= (others => '0');\n         ir_reg    <= (others => '0');\n         alu_res   <= (others => '0');\n         wb_en     <= '0';\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            case state_reg is\n               when ST_IDLE =>\n                  state_reg <= ST_FETCH;\n                  pc_reg    <= pc_reg;\n                  ir_reg    <= ir_reg;\n                  alu_res   <= alu_res;\n                  wb_en     <= '0';\n               when ST_FETCH =>\n                  state_reg <= ST_DECODE;\n                  pc_reg    <= pc_reg + to_unsigned(1, pc_reg'length);\n                  ir_reg    <= data_i;\n                  alu_res   <= alu_res;\n                  wb_en     <= '0';\n               when ST_DECODE =>\n                  state_reg <= ST_EXECUTE;\n                  pc_reg    <= pc_reg;\n                  ir_reg    <= ir_reg;\n                  alu_res   <= alu_res;\n                  wb_en     <= '0';\n               when ST_EXECUTE =>\n                  state_reg <= ST_WRITEBACK;\n                  pc_reg    <= pc_reg;\n                  ir_reg    <= ir_reg;\n                  alu_res   <= to_unsigned(to_integer(unsigned(ir_reg)) + 1, alu_res'length);\n                  wb_en     <= '0';\n               when ST_WRITEBACK =>\n                  state_reg <= ST_IDLE;\n                  pc_reg    <= pc_reg;\n                  ir_reg    <= ir_reg;\n                  alu_res   <= alu_res;\n                  wb_en     <= '1';\n               when others =>\n                  state_reg <= ST_IDLE;\n                  pc_reg    <= (others => '0');\n                  ir_reg    <= (others => '0');\n                  alu_res   <= (others => '0');\n                  wb_en     <= '0';\n            end case;\n         else\n            state_reg <= ST_IDLE;\n            pc_reg    <= (others => '0');\n            ir_reg    <= (others => '0');\n            alu_res   <= (others => '0');\n            wb_en     <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "data_memory_interface",
+      "entityName": "data_memory_interface",
+      "filePath": "src/data_memory_interface.vhd",
+      "interfaceSignature": {
+        "entityName": "data_memory_interface",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "data_memory_interface",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "d6d9720b8cbdc62e0a0354937e92e4dec9b63a1c6dfddd90dc1efa39726ca91a",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 5,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:37:07.897Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity data_memory_interface is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity data_memory_interface;\n\narchitecture rtl of data_memory_interface is\n  signal data_mem_reg : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n  process(clk, rst)\n  begin\n    if rst = '1' then\n      data_mem_reg <= (others => '0');\n    elsif rising_edge(clk) then\n      if enable_i = '1' then\n        data_mem_reg <= data_i;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "data_memory_interface",
+      "entityName": "data_memory_interface",
+      "filePath": "src/data_memory_interface.vhd",
+      "interfaceSignature": {
+        "entityName": "data_memory_interface",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "data_memory_interface",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "f2825d6061d7dcb11a55edcefbe5ba9bd9d1dd2a6a5354fb99a51ec8e8ca3693",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 6,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:49:19.539Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity data_memory_interface is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity data_memory_interface;\n\narchitecture rtl of data_memory_interface is\n  signal mem_we : std_logic := '0';\n  signal mem_addr : unsigned(7 downto 0) := (others => '0');\n  signal mem_data : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n  process(clk, rst)\n  begin\n    if rst = '1' then\n      mem_we <= '0';\n      mem_addr <= (others => '0');\n      mem_data <= (others => '0');\n    elsif rising_edge(clk) then\n      if enable_i = '1' then\n        mem_we <= '1';\n        mem_addr <= unsigned(data_i);\n        mem_data <= data_i;\n      else\n        mem_we <= '0';\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "instruction_memory_interface",
+      "entityName": "instruction_memory_interface",
+      "filePath": "src/instruction_memory_interface.vhd",
+      "interfaceSignature": {
+        "entityName": "instruction_memory_interface",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "instruction_memory_interface",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "35718e3035e069961ba82693ef00ba753398f771d7339aa15064e47e1f797442",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 5,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:37:07.896Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity instruction_memory_interface is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity instruction_memory_interface;\n\narchitecture rtl of instruction_memory_interface is\n   signal pc_reg : unsigned(7 downto 0) := (others => '0');\n   signal instr_reg : std_logic_vector(7 downto 0) := (others => '0');\n   signal fetch_ack : std_logic := '0';\nbegin\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            pc_reg <= (others => '0');\n            instr_reg <= (others => '0');\n            fetch_ack <= '0';\n         elsif enable_i = '1' then\n            instr_reg <= data_i;\n            pc_reg <= pc_reg + 1;\n            fetch_ack <= '1';\n         else\n            fetch_ack <= '0';\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "instruction_memory_interface",
+      "entityName": "instruction_memory_interface",
+      "filePath": "src/instruction_memory_interface.vhd",
+      "interfaceSignature": {
+        "entityName": "instruction_memory_interface",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "instruction_memory_interface",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "8be3011462ac9bfe09abf1ba32e53ae3f4de4775719b4b7b00aae763c9ecb0d3",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 6,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:49:19.538Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity instruction_memory_interface is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity instruction_memory_interface;\n\narchitecture rtl of instruction_memory_interface is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal inst_reg : std_logic_vector(7 downto 0) := (others => '0');\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n     if rst = '1' then\n       inst_reg <= (others => '0');\n     elsif rising_edge(clk) then\n       if enable_i = '1' then\n         inst_reg <= data_i;\n       end if;\n     end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "program_counter",
+      "entityName": "program_counter",
+      "filePath": "src/program_counter.vhd",
+      "interfaceSignature": {
+        "entityName": "program_counter",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "program_counter",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "6bd54c38b78c3470f245c77ab5badc4579ec80731e65cacc93c4afb8c3a6e080",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 5,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:37:07.896Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity program_counter is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity program_counter;\n\narchitecture rtl of program_counter is\n   signal pc_reg : std_logic_vector(7 downto 0) := (others => '0');\nbegin\n   process(clk)\n   begin\n     if rising_edge(clk) then\n       if rst = '1' then\n         pc_reg <= (others => '0');\n       elsif enable_i = '1' then\n         pc_reg <= std_logic_vector(unsigned(pc_reg) + 1);\n       end if;\n     end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "program_counter",
+      "entityName": "program_counter",
+      "filePath": "src/program_counter.vhd",
+      "interfaceSignature": {
+        "entityName": "program_counter",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "program_counter",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "deffbecfcf2c5a71adc53f0e4db2e518c055c228be3f8e3ae8e55068438df410",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 6,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:49:19.538Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity program_counter is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity program_counter;\n\narchitecture rtl of program_counter is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal pc_reg : unsigned(7 downto 0) := (others => '0');\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         pc_reg <= (others => '0');\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            pc_reg <= pc_reg + 1;\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "register_file",
+      "entityName": "register_file",
+      "filePath": "src/register_file.vhd",
+      "interfaceSignature": {
+        "entityName": "register_file",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "register_file",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "2dfc97c8ba7661a5b580a14e527b67f8a80241123b1a220c27b988b12cc6d3f0",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 6,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:49:19.538Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity register_file is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity register_file;\n\narchitecture rtl of register_file is\n   type reg_array_t is array (natural range <>) of std_logic_vector(7 downto 0);\n   signal regs : reg_array_t(0 to 7) := (others => (others => '0'));\nbegin\n   process(clk, rst)\n   begin\n     if rst = '1' then\n       regs <= (others => (others => '0'));\n     elsif rising_edge(clk) then\n       if enable_i = '1' then\n         regs(0) <= data_i;\n       end if;\n     end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "cpu_core",
+      "componentId": "register_file",
+      "entityName": "register_file",
+      "filePath": "src/register_file.vhd",
+      "interfaceSignature": {
+        "entityName": "register_file",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "register_file",
+        "clockDomain": "cpu_core_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_alu",
+          "behavior_control_fsm",
+          "behavior_cpu_pkg",
+          "behavior_cpu_top",
+          "behavior_data_memory_interface",
+          "behavior_decoder",
+          "behavior_instruction_memory_interface",
+          "behavior_program_counter",
+          "behavior_register_file",
+          "behavior_tb_cpu_top"
+        ]
+      },
+      "contentHash": "2f2a6accfd739249b60f8037f4fe3e9c7bd6e01f2cf9d206b24502084f7847dd",
+      "contractHash": "de376a9a682c6d95e0a978e2f911fc92348e09593b3bfdd42dc5ee3d99c65fae",
+      "sourceDesignKey": "mini_cpu_core",
+      "sourceAttempt": 5,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T17:37:07.896Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.cpu_core_pkg.all;\n\nentity register_file is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity register_file;\n\narchitecture rtl of register_file is\n   type reg_array_t is array (natural range <>) of std_logic_vector(7 downto 0);\n   signal regs : reg_array_t(0 to 7) := (others => (others => '0'));\nbegin\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            regs <= (others => (others => '0'));\n         elsif enable_i = '1' then\n            regs(0) <= data_i;\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "bridge_control_fsm",
+      "entityName": "bridge_control_fsm",
+      "filePath": "src/bridge_control_fsm.vhd",
+      "interfaceSignature": {
+        "entityName": "bridge_control_fsm",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "bridge_control_fsm",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "0c15c99a6dd67f3fcae3a09cdea5274cccb118920f56e183054f93e62e4d33b2",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.426Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity bridge_control_fsm is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity bridge_control_fsm;\n\narchitecture rtl of bridge_control_fsm is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (ST_IDLE, ST_START, ST_PROC1, ST_PROC2, ST_DONE);\n   signal state_reg, state_next : state_type := ST_IDLE;\n   signal done_sig : std_logic := '0';\n   signal error_sig : std_logic := '0';\n   signal status_sig : std_logic_vector(7 downto 0) := x\"00\";\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   fsm_proc : process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            state_reg <= ST_IDLE;\n            done_sig <= '0';\n            error_sig <= '0';\n            status_sig <= x\"00\";\n         else\n            state_reg <= state_next;\n            if state_next = ST_DONE then\n               done_sig <= '1';\n               status_sig <= x\"01\";\n            else\n               done_sig <= '0';\n               status_sig <= x\"00\";\n            end if;\n            error_sig <= '0';\n         end if;\n      end if;\n   end process fsm_proc;\n\n   next_state_proc : process(state_reg, enable_i)\n   begin\n      state_next <= state_reg;\n      case state_reg is\n         when ST_IDLE =>\n            if enable_i = '1' then\n               state_next <= ST_START;\n            end if;\n         when ST_START =>\n            state_next <= ST_PROC1;\n         when ST_PROC1 =>\n            state_next <= ST_PROC2;\n         when ST_PROC2 =>\n            state_next <= ST_DONE;\n         when ST_DONE =>\n            state_next <= ST_IDLE;\n         when others =>\n            state_next <= ST_IDLE;\n      end case;\n   end process next_state_proc;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "bridge_control_fsm",
+      "entityName": "bridge_control_fsm",
+      "filePath": "src/bridge_control_fsm.vhd",
+      "interfaceSignature": {
+        "entityName": "bridge_control_fsm",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "bridge_control_fsm",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "c7032bf605fe18c633d26857934cbd75d971d652f28e883128e842bfd8672480",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.215Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity bridge_control_fsm is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity bridge_control_fsm;\n\narchitecture rtl of bridge_control_fsm is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "bridge_control_fsm",
+      "entityName": "bridge_control_fsm",
+      "filePath": "src/bridge_control_fsm.vhd",
+      "interfaceSignature": {
+        "entityName": "bridge_control_fsm",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "bridge_control_fsm",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "de4c8cb06fa026102c826fe9b4a62bc49a510b483bcfc2e9a5c3ca9a3de20629",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 1,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:06:44.060Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity bridge_control_fsm is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity bridge_control_fsm;\n\narchitecture rtl of bridge_control_fsm is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (IDLE_ST, START_ST, PROC_ST, DONE_ST);\n   signal state_reg : state_type := IDLE_ST;\n   signal state_next : state_type;\n   signal byte_cnt : unsigned(1 downto 0) := \"00\";\n   signal cmd_valid : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            state_reg <= IDLE_ST;\n            byte_cnt <= \"00\";\n         else\n            state_reg <= state_next;\n            if state_next = START_ST then\n               byte_cnt <= \"00\";\n            elsif state_next = PROC_ST then\n               byte_cnt <= byte_cnt + 1;\n            end if;\n         end if;\n      end if;\n   end process;\n\n   process(state_reg, enable_i, data_i, byte_cnt)\n   begin\n      state_next <= state_reg;\n      cmd_valid <= '0';\n      case state_reg is\n         when IDLE_ST =>\n            if enable_i = '1' and data_i = x\"5A\" then\n               state_next <= START_ST;\n               cmd_valid <= '1';\n            end if;\n         when START_ST =>\n            state_next <= PROC_ST;\n         when PROC_ST =>\n            if byte_cnt = 2 then\n               state_next <= DONE_ST;\n            else\n               state_next <= PROC_ST;\n            end if;\n         when DONE_ST =>\n            state_next <= IDLE_ST;\n         when others =>\n            state_next <= IDLE_ST;\n      end case;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "rx_fifo",
+      "entityName": "rx_fifo",
+      "filePath": "src/rx_fifo.vhd",
+      "interfaceSignature": {
+        "entityName": "rx_fifo",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "rx_fifo",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "0cd44069919ffe0da53f4c5cdf0d26757cf74480c2441ecb7870c6056ba5723d",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.215Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity rx_fifo is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity rx_fifo;\n\narchitecture rtl of rx_fifo is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "rx_fifo",
+      "entityName": "rx_fifo",
+      "filePath": "src/rx_fifo.vhd",
+      "interfaceSignature": {
+        "entityName": "rx_fifo",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "rx_fifo",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "1c711abd2ff4682aa078994429126f4928e7912c67cffed93ba814472aea0217",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.425Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity rx_fifo is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity rx_fifo;\n\narchitecture rtl of rx_fifo is\n  -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type state_type is (ST_IDLE, ST_START, ST_PROC1, ST_PROC2, ST_DONE);\n   signal state_reg : state_type := ST_IDLE;\n   signal state_next : state_type;\n   signal cmd_valid : std_logic;\n  -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n  -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   cmd_valid <= '1' when enable_i = '1' and data_i = x\"5A\" else '0';\n\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            state_reg <= ST_IDLE;\n         else\n            state_reg <= state_next;\n         end if;\n      end if;\n   end process;\n\n   process(state_reg, cmd_valid)\n   begin\n      state_next <= state_reg;\n      case state_reg is\n         when ST_IDLE =>\n            if cmd_valid = '1' then\n               state_next <= ST_START;\n            end if;\n         when ST_START =>\n            state_next <= ST_PROC1;\n         when ST_PROC1 =>\n            state_next <= ST_PROC2;\n         when ST_PROC2 =>\n            state_next <= ST_DONE;\n         when ST_DONE =>\n            state_next <= ST_IDLE;\n         when others =>\n            state_next <= ST_IDLE;\n      end case;\n   end process;\n  -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "rx_fifo",
+      "entityName": "rx_fifo",
+      "filePath": "src/rx_fifo.vhd",
+      "interfaceSignature": {
+        "entityName": "rx_fifo",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "rx_fifo",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "9395a25ec95d59e2fa6d0435c03a235d65f189589f2880b750ffbf1058d578df",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 1,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:06:44.060Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity rx_fifo is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity rx_fifo;\n\narchitecture rtl of rx_fifo is\n  constant FIFO_DEPTH : natural := 16;\n  type mem_t is array (natural range <>) of std_logic_vector(7 downto 0);\n  signal mem : mem_t(0 to FIFO_DEPTH-1);\n  signal wr_ptr : natural := 0;\n  signal rd_ptr : natural := 0;\n  signal count : natural := 0;\n  signal full : std_logic := '0';\n  signal empty : std_logic := '1';\nbegin\n  process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        wr_ptr <= 0;\n        rd_ptr <= 0;\n        count <= 0;\n        full <= '0';\n        empty <= '1';\n      elsif enable_i = '1' then\n        if count < FIFO_DEPTH then\n          mem(wr_ptr) <= data_i;\n          wr_ptr <= (wr_ptr + 1) mod FIFO_DEPTH;\n          count <= count + 1;\n          if count = FIFO_DEPTH - 1 then\n            full <= '1';\n          end if;\n          empty <= '0';\n        end if;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "spi_master",
+      "entityName": "spi_master",
+      "filePath": "src/spi_master.vhd",
+      "interfaceSignature": {
+        "entityName": "spi_master",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "spi_master",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "27948fad2e2f5e7f35e21f77ea55f4a1c8d76228db91e2a63b81af0c770073a1",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.215Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity spi_master is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity spi_master;\n\narchitecture rtl of spi_master is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "spi_master",
+      "entityName": "spi_master",
+      "filePath": "src/spi_master.vhd",
+      "interfaceSignature": {
+        "entityName": "spi_master",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "spi_master",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "a5d824a3122d41ece13821ba73982de8cc7248009e0d614b9ba91a9bc9295fc3",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 1,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:06:44.060Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity spi_master is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity spi_master;\n\narchitecture rtl of spi_master is\n  type state_type is (IDLE, STAGE1, STAGE2, STAGE3, DONE);\n  signal state_reg : state_type := IDLE;\n  signal cnt_reg : integer range 0 to 4 := 0;\n  signal done_reg : std_logic := '0';\n  signal error_reg : std_logic := '0';\n  signal status_reg : std_logic_vector(7 downto 0) := \"00000000\";\nbegin\n  process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        state_reg <= IDLE;\n        cnt_reg <= 0;\n        done_reg <= '0';\n        error_reg <= '0';\n        status_reg <= \"00000000\";\n      else\n        case state_reg is\n          when IDLE =>\n            if enable_i = '1' then\n              state_reg <= STAGE1;\n              cnt_reg <= 1;\n            end if;\n          when STAGE1 =>\n            state_reg <= STAGE2;\n            cnt_reg <= 2;\n          when STAGE2 =>\n            state_reg <= STAGE3;\n            cnt_reg <= 3;\n          when STAGE3 =>\n            state_reg <= DONE;\n            cnt_reg <= 4;\n          when DONE =>\n            done_reg <= '1';\n            error_reg <= '0';\n            status_reg <= \"00000001\";\n            state_reg <= IDLE;\n            cnt_reg <= 0;\n          when others =>\n            state_reg <= IDLE;\n        end case;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "spi_master",
+      "entityName": "spi_master",
+      "filePath": "src/spi_master.vhd",
+      "interfaceSignature": {
+        "entityName": "spi_master",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "spi_master",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "ea330ace4b228053315baa4a0c65b3cf32b481136bdc80b38b8a281c8fbc2c40",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.425Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity spi_master is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity spi_master;\n\narchitecture rtl of spi_master is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n  type state_type is (IDLE, SHIFT, DONE);\n  signal state_reg, state_next : state_type := IDLE;\n  signal tx_cnt : integer range 0 to 3 := 0;\n  signal data_reg : std_logic_vector(7 downto 0) := (others => '0');\n  signal sclk_reg : std_logic := '0';\n  signal cs_reg : std_logic := '1';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n  process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        state_reg <= IDLE;\n        tx_cnt <= 0;\n        data_reg <= (others => '0');\n        sclk_reg <= '0';\n        cs_reg <= '1';\n      else\n        state_reg <= state_next;\n        case state_next is\n          when SHIFT =>\n            if tx_cnt < 3 then\n              tx_cnt <= tx_cnt + 1;\n              data_reg <= data_reg(6 downto 0) & '0';\n            else\n              tx_cnt <= 0;\n            end if;\n          when others =>\n            tx_cnt <= 0;\n        end case;\n        if state_next = IDLE and enable_i = '1' then\n          data_reg <= data_i;\n        end if;\n        sclk_reg <= not sclk_reg when state_next = SHIFT else '0';\n        cs_reg <= '0' when state_next = SHIFT else '1';\n      end if;\n    end if;\n  end process;\n\n  process(state_reg, enable_i, tx_cnt)\n  begin\n    state_next <= IDLE;\n    case state_reg is\n      when IDLE =>\n        if enable_i = '1' then\n          state_next <= SHIFT;\n        end if;\n      when SHIFT =>\n        if tx_cnt = 3 then\n          state_next <= DONE;\n        end if;\n      when DONE =>\n        state_next <= IDLE;\n      when others =>\n        state_next <= IDLE;\n    end case;\n  end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "status_error_block",
+      "entityName": "status_error_block",
+      "filePath": "src/status_error_block.vhd",
+      "interfaceSignature": {
+        "entityName": "status_error_block",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "status_error_block",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "11150746a4d2d8e05e600b63824d0adf0a5fb94a7a1170c331e30c72861ffde5",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 1,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:06:44.061Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity status_error_block is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity status_error_block;\n\narchitecture rtl of status_error_block is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal status_reg : std_logic_vector(7 downto 0) := x\"00\";\n   signal nominal_flag : std_logic := '0';\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            status_reg <= x\"00\";\n            nominal_flag <= '0';\n         elsif enable_i = '1' then\n            if data_i = x\"5A\" then\n               status_reg <= x\"01\";\n               nominal_flag <= '1';\n            else\n               status_reg <= x\"00\";\n               nominal_flag <= '0';\n            end if;\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "status_error_block",
+      "entityName": "status_error_block",
+      "filePath": "src/status_error_block.vhd",
+      "interfaceSignature": {
+        "entityName": "status_error_block",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "status_error_block",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "3ad6bbde25c0232691bcf9e85ae0500acbef3e3485296a7bdf60ac9f0c9a0f44",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.426Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity status_error_block is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity status_error_block;\n\narchitecture rtl of status_error_block is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   signal status_reg : std_logic_vector(7 downto 0) := x\"00\";\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n     if rst = '1' then\n       status_reg <= x\"00\";\n     elsif rising_edge(clk) then\n       if enable_i = '1' then\n         if data_i = x\"5A\" then\n           status_reg <= x\"01\";\n         else\n           status_reg <= x\"00\";\n         end if;\n       end if;\n     end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "status_error_block",
+      "entityName": "status_error_block",
+      "filePath": "src/status_error_block.vhd",
+      "interfaceSignature": {
+        "entityName": "status_error_block",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "status_error_block",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "c22b0b3f575c65e68de035d08276bbb89f0fc6258bf48d73c8a8e3eb29aa59c8",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.215Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity status_error_block is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity status_error_block;\n\narchitecture rtl of status_error_block is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "tx_fifo",
+      "entityName": "tx_fifo",
+      "filePath": "src/tx_fifo.vhd",
+      "interfaceSignature": {
+        "entityName": "tx_fifo",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "tx_fifo",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "3750515175235e09811f723bdfea9db4574be8eef19ff53ba6967501094137c5",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.215Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity tx_fifo is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity tx_fifo;\n\narchitecture rtl of tx_fifo is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "tx_fifo",
+      "entityName": "tx_fifo",
+      "filePath": "src/tx_fifo.vhd",
+      "interfaceSignature": {
+        "entityName": "tx_fifo",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "tx_fifo",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "dc55b4bfe59adbce881aa6614573c1bc7bd9fd0dfc3646fa0a42cf9e747701b7",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 1,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:06:44.060Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity tx_fifo is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity tx_fifo;\n\narchitecture rtl of tx_fifo is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   constant FIFO_DEPTH : natural := 16;\n   type fifo_mem_t is array (natural range <>) of std_logic_vector(7 downto 0);\n   signal mem : fifo_mem_t(0 to FIFO_DEPTH - 1) := (others => (others => '0'));\n   signal wr_ptr : natural range 0 to FIFO_DEPTH - 1 := 0;\n   signal rd_ptr : natural range 0 to FIFO_DEPTH - 1 := 0;\n   signal cnt : natural range 0 to FIFO_DEPTH := 0;\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   fifo_proc : process (clk, rst)\n   begin\n      if rst = '1' then\n         wr_ptr <= 0;\n         rd_ptr <= 0;\n         cnt <= 0;\n      elsif rising_edge(clk) then\n         if enable_i = '1' and cnt < FIFO_DEPTH then\n            mem(wr_ptr) <= data_i;\n            if wr_ptr = FIFO_DEPTH - 1 then\n               wr_ptr <= 0;\n            else\n               wr_ptr <= wr_ptr + 1;\n            end if;\n            cnt <= cnt + 1;\n         end if;\n      end if;\n   end process fifo_proc;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "tx_fifo",
+      "entityName": "tx_fifo",
+      "filePath": "src/tx_fifo.vhd",
+      "interfaceSignature": {
+        "entityName": "tx_fifo",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "tx_fifo",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "deccdeb08140e001e7978c787bc7a40347878f7825cc9ff75f096d8378e1c8f8",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.425Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity tx_fifo is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity tx_fifo;\n\narchitecture rtl of tx_fifo is\n   constant FIFO_DEPTH : natural := 16;\n   type mem_t is array (0 to FIFO_DEPTH - 1) of std_logic_vector(7 downto 0);\n   \n   signal mem : mem_t := (others => (others => '0'));\n   signal w_ptr : natural := 0;\n   signal count : natural := 0;\n   signal full : std_logic := '0';\nbegin\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            w_ptr <= 0;\n            count <= 0;\n            full <= '0';\n         else\n            if enable_i = '1' and full = '0' then\n               mem(w_ptr) <= data_i;\n               if w_ptr = FIFO_DEPTH - 1 then\n                  w_ptr <= 0;\n               else\n                  w_ptr <= w_ptr + 1;\n               end if;\n               if count = FIFO_DEPTH - 1 then\n                  full <= '1';\n               else\n                  full <= '0';\n                  count <= count + 1;\n               end if;\n            end if;\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "uart_rx",
+      "entityName": "uart_rx",
+      "filePath": "src/uart_rx.vhd",
+      "interfaceSignature": {
+        "entityName": "uart_rx",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "uart_rx",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "08cf1926eb0e2447db9fe2e2c63803b7ccb0add020554dbfab3d9332fb7c29a4",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 1,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:06:44.059Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity uart_rx is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity uart_rx;\n\narchitecture rtl of uart_rx is\n   signal rx_data_reg : std_logic_vector(7 downto 0);\n   signal rx_valid_reg : std_logic;\nbegin\n   process(clk, rst)\n   begin\n      if rst = '1' then\n         rx_data_reg <= (others => '0');\n         rx_valid_reg <= '0';\n      elsif rising_edge(clk) then\n         if enable_i = '1' then\n            rx_data_reg <= data_i;\n            rx_valid_reg <= '1';\n         else\n            rx_valid_reg <= '0';\n         end if;\n      end if;\n   end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "uart_rx",
+      "entityName": "uart_rx",
+      "filePath": "src/uart_rx.vhd",
+      "interfaceSignature": {
+        "entityName": "uart_rx",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "uart_rx",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "2a23e9eed14ca1d2ff1b3270cd81d1c8f8d3567d8b14347d198a043189f5ddf5",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.425Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity uart_rx is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity uart_rx;\n\narchitecture rtl of uart_rx is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type uart_rx_state_t is (IDLE_ST, START_ST, DATA_ST, STOP_ST);\n   signal state_reg : uart_rx_state_t := IDLE_ST;\n   signal data_reg  : std_logic_vector(7 downto 0) := (others => '0');\n   signal valid_reg : std_logic := '0';\n   signal status_reg: std_logic_vector(7 downto 0) := x\"00\";\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk)\n   begin\n      if rising_edge(clk) then\n         if rst = '1' then\n            state_reg  <= IDLE_ST;\n            data_reg   <= (others => '0');\n            valid_reg  <= '0';\n            status_reg <= x\"00\";\n         elsif enable_i = '1' then\n            case state_reg is\n               when IDLE_ST =>\n                  state_reg <= START_ST;\n               when START_ST =>\n                  state_reg <= DATA_ST;\n               when DATA_ST =>\n                  data_reg <= data_i;\n                  state_reg <= STOP_ST;\n               when STOP_ST =>\n                  valid_reg <= '1';\n                  status_reg <= x\"01\";\n                  state_reg <= IDLE_ST;\n               when others =>\n                  state_reg <= IDLE_ST;\n            end case;\n         else\n            valid_reg <= '0';\n         end if;\n      end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "uart_rx",
+      "entityName": "uart_rx",
+      "filePath": "src/uart_rx.vhd",
+      "interfaceSignature": {
+        "entityName": "uart_rx",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "uart_rx",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "fdb9b8d60c70911b4e72d268126b9304808a0adafc2d4d95295fb9e1c7aa335e",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.214Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity uart_rx is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity uart_rx;\n\narchitecture rtl of uart_rx is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "uart_tx",
+      "entityName": "uart_tx",
+      "filePath": "src/uart_tx.vhd",
+      "interfaceSignature": {
+        "entityName": "uart_tx",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "uart_tx",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "0db9c021dfd245b52c454ac50ad730f8fcbbac0df3b3c5fcc2fb5cd30c53ff30",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 3,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:56:50.425Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity uart_tx is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n   );\nend entity uart_tx;\n\narchitecture rtl of uart_tx is\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_BEGIN\n   type uart_state_type is (ST_IDLE, ST_START, ST_DATA, ST_STOP);\n   signal state_reg : uart_state_type := ST_IDLE;\n   signal data_reg  : std_logic_vector(7 downto 0) := (others => '0');\n   signal bit_cnt   : integer range 0 to 8 := 0;\n   signal baud_cnt  : integer range 0 to 15 := 0;\n   -- MODEL_IMPLEMENTATION_DECLARATIONS_END\nbegin\n   -- MODEL_IMPLEMENTATION_STATEMENTS_BEGIN\n   process(clk, rst)\n   begin\n     if rst = '1' then\n       state_reg <= ST_IDLE;\n       data_reg  <= (others => '0');\n       bit_cnt   <= 0;\n       baud_cnt  <= 0;\n     elsif rising_edge(clk) then\n       if enable_i = '1' and state_reg = ST_IDLE then\n         data_reg <= data_i;\n         state_reg <= ST_START;\n         bit_cnt   <= 0;\n       elsif state_reg /= ST_IDLE then\n         if baud_cnt = 15 then\n           baud_cnt <= 0;\n           case state_reg is\n             when ST_START =>\n               bit_cnt <= 1;\n               state_reg <= ST_DATA;\n             when ST_DATA =>\n               if bit_cnt = 8 then\n                 state_reg <= ST_STOP;\n                 bit_cnt   <= 0;\n               else\n                 bit_cnt <= bit_cnt + 1;\n               end if;\n             when ST_STOP =>\n               state_reg <= ST_IDLE;\n               bit_cnt   <= 0;\n             when others =>\n               state_reg <= ST_IDLE;\n           end case;\n         else\n           baud_cnt <= baud_cnt + 1;\n         end if;\n       end if;\n     end if;\n   end process;\n   -- MODEL_IMPLEMENTATION_STATEMENTS_END\nend architecture rtl;"
+    },
+    {
+      "libraryVersion": 1,
+      "designClass": "uart_spi_protocol_bridge",
+      "componentId": "uart_tx",
+      "entityName": "uart_tx",
+      "filePath": "src/uart_tx.vhd",
+      "interfaceSignature": {
+        "entityName": "uart_tx",
+        "generics": [],
+        "ports": [
+          {
+            "name": "clk",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "rst",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "enable_i",
+            "mode": "in",
+            "type": "std_logic",
+            "defaultValue": null
+          },
+          {
+            "name": "data_i",
+            "mode": "in",
+            "type": "std_logic_vector(7 downto 0)",
+            "defaultValue": null
+          }
+        ]
+      },
+      "behaviorSignature": {
+        "componentId": "uart_tx",
+        "clockDomain": "uart_spi_protocol_bridge_clk_domain",
+        "outputPorts": [],
+        "behaviorIds": [
+          "behavior_bridge_control_fsm",
+          "behavior_bridge_pkg",
+          "behavior_bridge_top",
+          "behavior_rx_fifo",
+          "behavior_spi_master",
+          "behavior_status_error_block",
+          "behavior_tb_bridge_top",
+          "behavior_tx_fifo",
+          "behavior_uart_rx",
+          "behavior_uart_tx"
+        ]
+      },
+      "contentHash": "f39f50fa9e22e85430041f6dcb45b264742fedf5f0fcab06af530960cd7f7960",
+      "contractHash": "85336703bb469a0b9300352c3ed01da06a7609b095684cb270fbba1992ff1d25",
+      "sourceDesignKey": "uart_spi_bridge",
+      "sourceAttempt": 2,
+      "passCount": 1,
+      "repairCount": 0,
+      "promotedAt": "2026-07-26T16:45:45.214Z",
+      "vhdlContent": "library ieee;\nuse ieee.std_logic_1164.all;\nuse ieee.numeric_std.all;\nuse work.uart_spi_protocol_bridge_pkg.all;\n\nentity uart_tx is\n  port (\n    clk : in std_logic;\n    rst : in std_logic;\n    enable_i : in std_logic;\n    data_i : in std_logic_vector(7 downto 0)\n  );\nend entity uart_tx;\n\narchitecture rtl of uart_tx is\nbegin\n  p_shell : process(clk)\n  begin\n    if rising_edge(clk) then\n      if rst = '1' then\n        null;\n      elsif enable_i = '1' then\n        null;\n      end if;\n    end if;\n  end process;\nend architecture rtl;"
     }
   ]
 }

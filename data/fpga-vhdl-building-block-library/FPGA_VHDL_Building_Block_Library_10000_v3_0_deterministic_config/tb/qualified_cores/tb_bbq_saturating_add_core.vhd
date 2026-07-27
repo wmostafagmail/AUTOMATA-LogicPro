@@ -1,0 +1,2 @@
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all; library std; use std.env.all;
+entity tb_bbq_saturating_add_core is end;architecture sim of tb_bbq_saturating_add_core is signal a,b,r:std_logic_vector(7 downto 0);signal s:std_logic;begin dut:entity work.bbq_saturating_add_core generic map(WIDTH=>8,SIGNED_MODE=>true)port map(a,b,r,s);process begin a<=x"64";b<=x"64";wait for 1 ns;assert r=x"7F" and s='1' severity failure;a<=x"F6";b<=x"FB";wait for 1 ns;assert signed(r)=-15 and s='0' severity failure;report "PASS" severity note;stop;wait;end process;end;

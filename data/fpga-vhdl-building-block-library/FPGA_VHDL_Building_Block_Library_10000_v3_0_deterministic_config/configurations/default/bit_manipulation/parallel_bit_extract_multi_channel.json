@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_multi_channel",
+  "wrapper_entity": "parallel_bit_extract_multi_channel_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_MULTI_CHANNEL_AF1BE23A699F7686",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

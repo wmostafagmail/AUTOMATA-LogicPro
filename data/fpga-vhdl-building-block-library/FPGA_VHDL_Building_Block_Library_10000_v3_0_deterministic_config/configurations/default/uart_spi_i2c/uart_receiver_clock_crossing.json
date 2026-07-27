@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "uart_receiver_clock_crossing",
+  "wrapper_entity": "uart_receiver_clock_crossing_det_cfg",
+  "configuration_id": "UART_RECEIVER_CLOCK_CROSSING_16AED265A7154793",
+  "generics": {
+    "CLOCK_HZ": 50000000,
+    "BAUD_RATE": 115200,
+    "DATA_BITS": 8
+  }
+}

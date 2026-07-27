@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_protocol_monitor",
+  "wrapper_entity": "credit_based_shaper_protocol_monitor_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_PROTOCOL_MONITOR_1030DBD8FE3A02E0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

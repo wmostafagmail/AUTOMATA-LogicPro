@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "content_addressable_memory_packet_aware",
+  "wrapper_entity": "content_addressable_memory_packet_aware_det_cfg",
+  "configuration_id": "CONTENT_ADDRESSABLE_MEMORY_PACKET_AWARE_5D85B619AC69DC3C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

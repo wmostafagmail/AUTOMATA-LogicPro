@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_priority_aware",
+  "wrapper_entity": "partial_bitstream_authenticator_priority_aware_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_PRIORITY_AWARE_49E108A79C4E9FD2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

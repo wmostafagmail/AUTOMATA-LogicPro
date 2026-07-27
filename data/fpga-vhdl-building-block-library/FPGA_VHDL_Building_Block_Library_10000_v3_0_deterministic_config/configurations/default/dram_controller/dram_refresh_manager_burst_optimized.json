@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_refresh_manager_burst_optimized",
+  "wrapper_entity": "dram_refresh_manager_burst_optimized_det_cfg",
+  "configuration_id": "DRAM_REFRESH_MANAGER_BURST_OPTIMIZED_C37F23E2A9916969",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

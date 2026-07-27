@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_randomized",
+  "wrapper_entity": "scoreboard_randomized_det_cfg",
+  "configuration_id": "SCOREBOARD_RANDOMIZED_D47FC114910DDFBF",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

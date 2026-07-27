@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_endpoint_wrapper_width_adapted",
+  "wrapper_entity": "pcie_endpoint_wrapper_width_adapted_det_cfg",
+  "configuration_id": "PCIE_ENDPOINT_WRAPPER_WIDTH_ADAPTED_464B7B1C30259B43",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

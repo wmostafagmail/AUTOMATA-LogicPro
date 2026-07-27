@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_power_delivery_engine_clock_crossing",
+  "wrapper_entity": "usb_power_delivery_engine_clock_crossing_det_cfg",
+  "configuration_id": "USB_POWER_DELIVERY_ENGINE_CLOCK_CROSSING_9ECA3323C4E6765D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

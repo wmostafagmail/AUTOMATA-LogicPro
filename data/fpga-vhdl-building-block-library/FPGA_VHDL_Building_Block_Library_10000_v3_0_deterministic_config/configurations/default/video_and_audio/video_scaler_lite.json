@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "video_scaler_lite",
+  "wrapper_entity": "video_scaler_lite_det_cfg",
+  "configuration_id": "VIDEO_SCALER_LITE_40681223A577B3B6",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

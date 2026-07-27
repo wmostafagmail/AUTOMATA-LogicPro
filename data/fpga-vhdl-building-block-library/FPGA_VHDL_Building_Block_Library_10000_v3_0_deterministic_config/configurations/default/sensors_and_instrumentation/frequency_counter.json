@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_counter",
+  "wrapper_entity": "frequency_counter_det_cfg",
+  "configuration_id": "FREQUENCY_COUNTER_8D182FB648E643D7",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

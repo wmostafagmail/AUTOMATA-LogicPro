@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_generator_pipelined",
+  "wrapper_entity": "crc_generator_pipelined_det_cfg",
+  "configuration_id": "CRC_GENERATOR_PIPELINED_8B322BDBCAC12D22",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

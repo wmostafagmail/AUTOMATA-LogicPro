@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_notch_tracker_single_lane",
+  "wrapper_entity": "adaptive_notch_tracker_single_lane_det_cfg",
+  "configuration_id": "ADAPTIVE_NOTCH_TRACKER_SINGLE_LANE_E98FCD37B8664E14",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

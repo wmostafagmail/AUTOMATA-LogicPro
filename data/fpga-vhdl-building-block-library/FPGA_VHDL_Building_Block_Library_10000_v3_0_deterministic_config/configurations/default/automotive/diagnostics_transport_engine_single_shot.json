@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "diagnostics_transport_engine_single_shot",
+  "wrapper_entity": "diagnostics_transport_engine_single_shot_det_cfg",
+  "configuration_id": "DIAGNOSTICS_TRANSPORT_ENGINE_SINGLE_SHOT_FEED8315E6AB9431",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

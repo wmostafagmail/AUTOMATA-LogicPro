@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_link_training_security_filtered",
+  "wrapper_entity": "usb3_link_training_security_filtered_det_cfg",
+  "configuration_id": "USB3_LINK_TRAINING_SECURITY_FILTERED_6B8EF153BDA21C69",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

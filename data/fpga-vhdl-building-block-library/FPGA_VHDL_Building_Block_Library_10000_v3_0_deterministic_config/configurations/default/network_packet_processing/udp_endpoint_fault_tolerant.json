@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "udp_endpoint_fault_tolerant",
+  "wrapper_entity": "udp_endpoint_fault_tolerant_det_cfg",
+  "configuration_id": "UDP_ENDPOINT_FAULT_TOLERANT_46BB5A380F0D88FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

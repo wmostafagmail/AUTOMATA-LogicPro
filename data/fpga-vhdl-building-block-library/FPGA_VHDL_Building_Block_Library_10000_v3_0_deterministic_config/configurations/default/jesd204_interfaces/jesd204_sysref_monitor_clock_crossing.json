@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_sysref_monitor_clock_crossing",
+  "wrapper_entity": "jesd204_sysref_monitor_clock_crossing_det_cfg",
+  "configuration_id": "JESD204_SYSREF_MONITOR_CLOCK_CROSSING_EF4E527C80FAF2A7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

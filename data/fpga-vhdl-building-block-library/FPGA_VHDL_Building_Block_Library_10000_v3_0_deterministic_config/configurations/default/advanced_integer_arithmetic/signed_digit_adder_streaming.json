@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_streaming",
+  "wrapper_entity": "signed_digit_adder_streaming_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_STREAMING_ABC15EA9D7FB39F9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_vector_lane_iterative",
+  "wrapper_entity": "riscv_vector_lane_iterative_det_cfg",
+  "configuration_id": "RISCV_VECTOR_LANE_ITERATIVE_05CD7DB5D7DE0A1B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

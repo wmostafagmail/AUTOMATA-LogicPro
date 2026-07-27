@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_buffered",
+  "wrapper_entity": "display_stream_compression_engine_buffered_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_BUFFERED_3C3AE2221CC90C57",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

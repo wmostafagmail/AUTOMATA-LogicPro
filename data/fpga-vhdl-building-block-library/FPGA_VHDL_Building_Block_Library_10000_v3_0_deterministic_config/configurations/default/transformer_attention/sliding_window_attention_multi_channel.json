@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_multi_channel",
+  "wrapper_entity": "sliding_window_attention_multi_channel_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_MULTI_CHANNEL_1BDB5477E506234A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

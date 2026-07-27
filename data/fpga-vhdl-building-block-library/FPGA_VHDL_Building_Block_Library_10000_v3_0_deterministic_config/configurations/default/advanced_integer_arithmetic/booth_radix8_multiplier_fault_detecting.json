@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix8_multiplier_fault_detecting",
+  "wrapper_entity": "booth_radix8_multiplier_fault_detecting_det_cfg",
+  "configuration_id": "BOOTH_RADIX8_MULTIPLIER_FAULT_DETECTING_6013A85923BA530A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

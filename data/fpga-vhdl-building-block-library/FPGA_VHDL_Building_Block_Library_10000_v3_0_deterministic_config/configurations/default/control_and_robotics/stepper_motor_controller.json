@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stepper_motor_controller",
+  "wrapper_entity": "stepper_motor_controller_det_cfg",
+  "configuration_id": "STEPPER_MOTOR_CONTROLLER_89FD368C39516A1B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

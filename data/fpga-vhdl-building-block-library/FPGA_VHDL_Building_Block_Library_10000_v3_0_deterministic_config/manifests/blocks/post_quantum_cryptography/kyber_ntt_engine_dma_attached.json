@@ -1,0 +1,127 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "kyber_ntt_engine_dma_attached",
+    "entity": "kyber_ntt_engine_dma_attached",
+    "version": "3.0.0",
+    "category": "post_quantum_cryptography",
+    "source": "rtl/blocks/post_quantum_cryptography/kyber_ntt_engine_dma_attached.vhd",
+    "wrapper_entity": "kyber_ntt_engine_dma_attached_det_cfg"
+  },
+  "configuration": {
+    "id": "KYBER_NTT_ENGINE_DMA_ATTACHED_A1247DFFD8F18911",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "128",
+        "minimum": 1
+      },
+      {
+        "name": "KEY_WIDTH",
+        "type": "positive",
+        "default": "128",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 128,
+      "KEY_WIDTH": 128
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "data_in",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "key_in",
+        "direction": "in",
+        "type": "std_logic_vector(KEY_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "in_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "in_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "data_out",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "out_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "out_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "fault",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "integration_shell_only; external compliant controller/PHY/VIP required"
+    },
+    "numerical": {
+      "status": "shared-core surrogate only; block-specific golden model and numerical qualification required."
+    }
+  },
+  "maturity": {
+    "implementation_tier": "C",
+    "verification": "interface-wrapper smoke-test scaffold; named algorithm/architecture not yet qualified.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/post_quantum_cryptography/kyber_ntt_engine_dma_attached_det_cfg.vhd",
+    "configuration_file": "configurations/default/kyber_ntt_engine_dma_attached.json"
+  }
+}

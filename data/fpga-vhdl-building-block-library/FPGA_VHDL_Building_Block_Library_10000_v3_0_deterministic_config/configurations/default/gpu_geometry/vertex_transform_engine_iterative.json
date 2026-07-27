@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "vertex_transform_engine_iterative",
+  "wrapper_entity": "vertex_transform_engine_iterative_det_cfg",
+  "configuration_id": "VERTEX_TRANSFORM_ENGINE_ITERATIVE_5B6DB41B6A29F798",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

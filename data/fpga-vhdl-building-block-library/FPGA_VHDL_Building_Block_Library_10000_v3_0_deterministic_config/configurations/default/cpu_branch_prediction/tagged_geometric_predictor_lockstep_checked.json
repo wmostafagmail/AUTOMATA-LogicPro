@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_lockstep_checked",
+  "wrapper_entity": "tagged_geometric_predictor_lockstep_checked_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_LOCKSTEP_CHECKED_75C297AF76F73C26",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

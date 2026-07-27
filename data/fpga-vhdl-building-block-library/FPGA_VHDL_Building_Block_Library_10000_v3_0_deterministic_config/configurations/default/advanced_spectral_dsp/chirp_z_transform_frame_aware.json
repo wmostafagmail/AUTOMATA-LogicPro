@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chirp_z_transform_frame_aware",
+  "wrapper_entity": "chirp_z_transform_frame_aware_det_cfg",
+  "configuration_id": "CHIRP_Z_TRANSFORM_FRAME_AWARE_5971AAAB85C827E9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

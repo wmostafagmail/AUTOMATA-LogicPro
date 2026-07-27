@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "scale_apply_engine_sparse",
+  "wrapper_entity": "scale_apply_engine_sparse_det_cfg",
+  "configuration_id": "SCALE_APPLY_ENGINE_SPARSE_035B7DB6F17B5D30",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

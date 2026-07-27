@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_hsv_line_buffered",
+  "wrapper_entity": "rgb_to_hsv_line_buffered_det_cfg",
+  "configuration_id": "RGB_TO_HSV_LINE_BUFFERED_9D398691FB47FB8B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

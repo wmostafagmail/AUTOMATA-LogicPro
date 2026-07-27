@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_key_agile",
+  "wrapper_entity": "aes_gcm_engine_key_agile_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_KEY_AGILE_5106E94D5839925E",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

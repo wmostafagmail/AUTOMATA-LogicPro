@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "space_vector_pwm_single_shot",
+  "wrapper_entity": "space_vector_pwm_single_shot_det_cfg",
+  "configuration_id": "SPACE_VECTOR_PWM_SINGLE_SHOT_0682A41BF278A78B",
+  "generics": {
+    "WIDTH": 16
+  }
+}

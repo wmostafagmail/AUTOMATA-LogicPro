@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_score_engine_bf16",
+  "wrapper_entity": "attention_score_engine_bf16_det_cfg",
+  "configuration_id": "ATTENTION_SCORE_ENGINE_BF16_A8DA86388AC04A38",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_multi_channel",
+  "wrapper_entity": "chi_snoop_filter_multi_channel_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_MULTI_CHANNEL_B6BCD9C8AF7B96C3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_buffered",
+  "wrapper_entity": "cxl_cache_agent_buffered_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_BUFFERED_3548CDBE73529B52",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

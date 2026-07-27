@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "virtual_interrupt_controller_multi_channel",
+  "wrapper_entity": "virtual_interrupt_controller_multi_channel_det_cfg",
+  "configuration_id": "VIRTUAL_INTERRUPT_CONTROLLER_MULTI_CHANNEL_9D99B0C36E0982EC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

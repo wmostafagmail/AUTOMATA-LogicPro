@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "functional_coverage_database_assertion_based",
+  "wrapper_entity": "functional_coverage_database_assertion_based_det_cfg",
+  "configuration_id": "FUNCTIONAL_COVERAGE_DATABASE_ASSERTION_BASED_E9DEFCA2D21C9B7E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

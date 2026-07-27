@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_encoder_packet_aware",
+  "wrapper_entity": "polar_encoder_packet_aware_det_cfg",
+  "configuration_id": "POLAR_ENCODER_PACKET_AWARE_3C2A1E5CADDB98DD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

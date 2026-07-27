@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_device_controller_continuous",
+  "wrapper_entity": "usb_device_controller_continuous_det_cfg",
+  "configuration_id": "USB_DEVICE_CONTROLLER_CONTINUOUS_47FC5EB5EA0D146E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_multi_channel",
+  "wrapper_entity": "hierarchical_z_unit_multi_channel_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_MULTI_CHANNEL_5B02CE060914F24B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

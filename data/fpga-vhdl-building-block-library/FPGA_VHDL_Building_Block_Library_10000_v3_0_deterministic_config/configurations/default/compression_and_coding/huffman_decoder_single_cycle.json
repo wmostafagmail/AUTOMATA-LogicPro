@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "huffman_decoder_single_cycle",
+  "wrapper_entity": "huffman_decoder_single_cycle_det_cfg",
+  "configuration_id": "HUFFMAN_DECODER_SINGLE_CYCLE_DE733520DC8877A2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 41
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_balancing_controller_table_driven",
+  "wrapper_entity": "battery_balancing_controller_table_driven_det_cfg",
+  "configuration_id": "BATTERY_BALANCING_CONTROLLER_TABLE_DRIVEN_5A67E057FA4B3A8A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

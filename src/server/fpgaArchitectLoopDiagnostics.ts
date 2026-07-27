@@ -6,6 +6,7 @@ import {
 import { getCanonicalRuleIdsForFailureCode } from './vhdlSkillRules';
 
 export type FpgaArchitectLoopFailureCategory =
+  | 'architecture_intent'
   | 'architecture_contract'
   | 'manifest_structure'
   | 'provider_runtime'
@@ -39,6 +40,7 @@ export type FpgaArchitectLoopFailureCategory =
   | 'simulation_assertion'
   | 'testbench_structure'
   | 'source_selection'
+  | 'implementation_source'
   | 'context_budget'
   | 'validation_environment'
   | 'other';
@@ -68,6 +70,7 @@ export type FpgaArchitectLoopFailureBucket = {
 };
 
 const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
+  architecture_intent: 'Architecture Intent',
   architecture_contract: 'Architecture Contract',
   manifest_structure: 'Manifest / JSON Structure',
   provider_runtime: 'Provider / Runtime',
@@ -101,12 +104,14 @@ const CATEGORY_LABELS: Record<FpgaArchitectLoopFailureCategory, string> = {
   simulation_assertion: 'Simulation Assertion',
   testbench_structure: 'Testbench DUT Wiring',
   source_selection: 'Validation Source Selection',
+  implementation_source: 'Implementation Source',
   context_budget: 'Context Budget',
   validation_environment: 'Validation Environment',
   other: 'Other',
 };
 
 const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory, string>> = {
+  architecture_intent: 'architecture_intent_clarification_required',
   manifest_structure: 'no_generated_artifacts',
   reserved_identifier: 'reserved_identifier',
   missing_ieee_clause: 'missing_std_logic_1164_clause',
@@ -136,6 +141,7 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
   protocol_functional_mismatch: 'ghdl_simulate_failure',
   testbench_structure: 'testbench_missing_dut_instantiation',
   source_selection: 'source_selection',
+  implementation_source: 'verified_leaf_implementation_missing',
   context_budget: 'context_budget_exceeded',
   validation_environment: 'validation_environment',
   simulation_assertion: 'ghdl_simulate_failure',
@@ -143,6 +149,13 @@ const CATEGORY_FAILURE_CODE_MAP: Partial<Record<FpgaArchitectLoopFailureCategory
 
 function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopFailureCategory | null {
   switch (code) {
+    case 'architecture_parameter_clarification_required':
+    case 'architecture_parameter_unknown_required_value':
+    case 'architecture_parameter_invalid_user_value':
+    case 'architecture_intent_unknown_required_field':
+    case 'architecture_intent_ambiguous_design_class':
+    case 'architecture_intent_clarification_required':
+      return 'architecture_intent';
     case 'reserved_identifier':
     case 'case_insensitive_identifier_collision':
       return 'reserved_identifier';
@@ -182,6 +195,7 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
     case 'out_port_actual_conversion':
     case 'unknown_port_map_formal':
     case 'unconnected_required_input_port':
+    case 'component_output_ownership_violation':
     case 'multiple_signal_driver_or_slice_assignment':
       return 'interface_declaration_misuse';
     case 'undriven_top_output_port':
@@ -247,6 +261,19 @@ function mapGeneratedFailureCodeToLoopCategory(code: string): FpgaArchitectLoopF
       return 'unresolved_work_unit';
     case 'source_selection':
       return 'source_selection';
+    case 'verified_leaf_implementation_missing':
+    case 'deterministic_template_not_applicable':
+    case 'deterministic_parameterization_unsafe':
+    case 'model_vhdl_generation_blocked_by_policy':
+    case 'verified_semantic_wrapper_unsafe_mismatch':
+    case 'verified_wrapper_unsafe_mismatch':
+    case 'verified_wrapper_candidate_rejected':
+    case 'verified_parameter_unsafe_mismatch':
+    case 'verified_parameter_constraint_violation':
+    case 'verified_parameter_smoke_failed':
+    case 'hybrid_implementation_source_search_started':
+    case 'hybrid_implementation_source_unresolved':
+      return 'implementation_source';
     case 'ghdl_simulate_failure':
     case 'alu_flag_behavior_mismatch':
     case 'alu_result_behavior_mismatch':
@@ -358,13 +385,62 @@ export function classifyFpgaArchitectLoopFailure(message: string): FpgaArchitect
       ? 'ghdl_tool_internal_error'
       : 'validation_filesystem_timeout';
   } else if (category === 'other' && (
-    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|architecture_selection_review_[a-z0-9_]+|architecture_missing_block_discovery_[a-z0-9_]+|drifted from the approved architecture contract|staged_port_interface_drift|staged_component_entity_missing|did not declare entity|changed the approved (?:generic|port) interface/i.test(message)
+    /architecture (?:intent|parameters?) needs clarification|architecture_(?:intent|parameter)_[a-z0-9_]+|awaiting_architecture_clarification/i.test(message)
+  )) {
+    category = 'architecture_intent';
+    if (/architecture_parameter_unknown_required_value/i.test(message)) {
+      inferredFailureCode = 'architecture_parameter_unknown_required_value';
+    } else if (/architecture_parameter_invalid_user_value/i.test(message)) {
+      inferredFailureCode = 'architecture_parameter_invalid_user_value';
+    } else if (/architecture_parameter_clarification_required/i.test(message)) {
+      inferredFailureCode = 'architecture_parameter_clarification_required';
+    } else if (/architecture_intent_ambiguous_design_class/i.test(message)) {
+      inferredFailureCode = 'architecture_intent_ambiguous_design_class';
+    } else if (/architecture_intent_unknown_required_field/i.test(message)) {
+      inferredFailureCode = 'architecture_intent_unknown_required_field';
+    } else {
+      inferredFailureCode = 'architecture_intent_clarification_required';
+    }
+  } else if (category === 'other' && (
+    /verified_leaf_implementation_missing|model_vhdl_generation_blocked_by_policy|deterministic_template_not_applicable|deterministic_parameterization_unsafe|verified_semantic_wrapper_unsafe_mismatch|verified_wrapper_unsafe_mismatch|verified_wrapper_candidate_rejected|verified_parameter_unsafe_mismatch|verified_parameter_constraint_violation|verified_parameter_smoke_failed|hybrid_implementation_source_search_started|hybrid_implementation_source_unresolved/i.test(message)
+  )) {
+    category = 'implementation_source';
+    if (/hybrid_implementation_source_unresolved/i.test(message)) {
+      inferredFailureCode = 'hybrid_implementation_source_unresolved';
+    } else if (/hybrid_implementation_source_search_started/i.test(message)) {
+      inferredFailureCode = 'hybrid_implementation_source_search_started';
+    } else if (/verified_semantic_wrapper_unsafe_mismatch/i.test(message)) {
+      inferredFailureCode = 'verified_semantic_wrapper_unsafe_mismatch';
+    } else if (/verified_wrapper_unsafe_mismatch/i.test(message)) {
+      inferredFailureCode = 'verified_wrapper_unsafe_mismatch';
+    } else if (/verified_wrapper_candidate_rejected/i.test(message)) {
+      inferredFailureCode = 'verified_wrapper_candidate_rejected';
+    } else if (/verified_parameter_smoke_failed/i.test(message)) {
+      inferredFailureCode = 'verified_parameter_smoke_failed';
+    } else if (/verified_parameter_constraint_violation/i.test(message)) {
+      inferredFailureCode = 'verified_parameter_constraint_violation';
+    } else if (/verified_parameter_unsafe_mismatch/i.test(message)) {
+      inferredFailureCode = 'verified_parameter_unsafe_mismatch';
+    } else if (/model_vhdl_generation_blocked_by_policy/i.test(message)) {
+      inferredFailureCode = 'model_vhdl_generation_blocked_by_policy';
+    } else if (/deterministic_template_not_applicable/i.test(message)) {
+      inferredFailureCode = 'deterministic_template_not_applicable';
+    } else if (/deterministic_parameterization_unsafe/i.test(message)) {
+      inferredFailureCode = 'deterministic_parameterization_unsafe';
+    } else {
+      inferredFailureCode = 'verified_leaf_implementation_missing';
+    }
+  } else if (category === 'other' && (
+    /architecture proposal was rejected before vhdl generation|approved fpga architecture contract|architecture_contract_[a-z0-9_]+|architecture_selection_review_[a-z0-9_]+|architecture_missing_block_discovery_[a-z0-9_]+|drifted from the approved architecture contract|staged_port_interface_drift|staged_component_entity_missing|component_output_ownership_violation|did not declare entity|changed the approved (?:generic|port) interface|assigns "[a-zA-Z][a-zA-Z0-9_]*", but that name is not owned by this component/i.test(message)
   )) {
     category = 'architecture_contract';
     if (/staged_port_interface_drift|changed the approved (?:generic|port) interface/i.test(message)) {
       inferredFailureCode = 'staged_port_interface_drift';
     } else if (/staged_component_entity_missing|did not declare entity/i.test(message)) {
       inferredFailureCode = 'staged_component_entity_missing';
+    } else if (/component_output_ownership_violation|assigns "[a-zA-Z][a-zA-Z0-9_]*", but that name is not owned by this component/i.test(message)) {
+      category = 'interface_declaration_misuse';
+      inferredFailureCode = 'component_output_ownership_violation';
     } else if (/architecture_missing_block_discovery_poor_fit/i.test(message)) {
       inferredFailureCode = 'architecture_missing_block_discovery_poor_fit';
     } else if (/architecture_missing_block_discovery_unresolved/i.test(message)) {

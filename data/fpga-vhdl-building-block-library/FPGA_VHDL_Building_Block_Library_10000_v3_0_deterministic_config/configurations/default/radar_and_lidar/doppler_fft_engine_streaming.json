@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "doppler_fft_engine_streaming",
+  "wrapper_entity": "doppler_fft_engine_streaming_det_cfg",
+  "configuration_id": "DOPPLER_FFT_ENGINE_STREAMING_354592D781F24A32",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 253
+  }
+}

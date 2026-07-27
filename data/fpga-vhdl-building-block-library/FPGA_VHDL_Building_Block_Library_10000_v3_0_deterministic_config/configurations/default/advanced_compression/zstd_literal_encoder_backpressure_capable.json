@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zstd_literal_encoder_backpressure_capable",
+  "wrapper_entity": "zstd_literal_encoder_backpressure_capable_det_cfg",
+  "configuration_id": "ZSTD_LITERAL_ENCODER_BACKPRESSURE_CAPABLE_C69B427ECBD0CD24",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

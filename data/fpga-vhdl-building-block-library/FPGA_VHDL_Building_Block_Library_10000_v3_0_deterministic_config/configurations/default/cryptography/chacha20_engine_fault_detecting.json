@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_engine_fault_detecting",
+  "wrapper_entity": "chacha20_engine_fault_detecting_det_cfg",
+  "configuration_id": "CHACHA20_ENGINE_FAULT_DETECTING_43647FA5223D23A4",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_priority_aware",
+  "wrapper_entity": "perceptron_branch_predictor_priority_aware_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_PRIORITY_AWARE_9D47C08CE28D1334",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

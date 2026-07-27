@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_security_filtered",
+  "wrapper_entity": "storage_phy_oob_controller_security_filtered_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_SECURITY_FILTERED_B7197B04216C2551",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "time_to_digital_converter_filtered",
+  "wrapper_entity": "time_to_digital_converter_filtered_det_cfg",
+  "configuration_id": "TIME_TO_DIGITAL_CONVERTER_FILTERED_936A7FB7D2C7AF15",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

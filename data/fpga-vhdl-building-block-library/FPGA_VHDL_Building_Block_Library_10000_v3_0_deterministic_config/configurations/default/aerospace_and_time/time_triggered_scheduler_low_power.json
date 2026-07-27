@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "time_triggered_scheduler_low_power",
+  "wrapper_entity": "time_triggered_scheduler_low_power_det_cfg",
+  "configuration_id": "TIME_TRIGGERED_SCHEDULER_LOW_POWER_F0E9685DC739457F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

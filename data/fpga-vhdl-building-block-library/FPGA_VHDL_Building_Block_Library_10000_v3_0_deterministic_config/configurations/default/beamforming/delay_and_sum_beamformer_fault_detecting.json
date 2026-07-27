@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_fault_detecting",
+  "wrapper_entity": "delay_and_sum_beamformer_fault_detecting_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_FAULT_DETECTING_DE1059EC76CDEF76",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

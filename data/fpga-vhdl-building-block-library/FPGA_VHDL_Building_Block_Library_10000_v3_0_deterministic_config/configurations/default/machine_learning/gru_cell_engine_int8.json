@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gru_cell_engine_int8",
+  "wrapper_entity": "gru_cell_engine_int8_det_cfg",
+  "configuration_id": "GRU_CELL_ENGINE_INT8_DDC926383276E4CF",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

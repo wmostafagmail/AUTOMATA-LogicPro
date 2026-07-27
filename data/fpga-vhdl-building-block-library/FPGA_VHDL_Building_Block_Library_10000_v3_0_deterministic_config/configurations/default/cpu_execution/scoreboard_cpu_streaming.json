@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_cpu_streaming",
+  "wrapper_entity": "scoreboard_cpu_streaming_det_cfg",
+  "configuration_id": "SCOREBOARD_CPU_STREAMING_9D1562B20BB30D48",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

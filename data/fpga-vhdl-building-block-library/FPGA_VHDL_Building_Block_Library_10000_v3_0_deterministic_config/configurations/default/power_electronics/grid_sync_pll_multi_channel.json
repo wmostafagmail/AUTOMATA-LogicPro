@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_multi_channel",
+  "wrapper_entity": "grid_sync_pll_multi_channel_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_MULTI_CHANNEL_9CF7425E36036F34",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

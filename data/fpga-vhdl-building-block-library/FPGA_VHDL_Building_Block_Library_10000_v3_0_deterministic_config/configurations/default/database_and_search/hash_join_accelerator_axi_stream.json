@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_join_accelerator_axi_stream",
+  "wrapper_entity": "hash_join_accelerator_axi_stream_det_cfg",
+  "configuration_id": "HASH_JOIN_ACCELERATOR_AXI_STREAM_6F210B11EA3962C3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

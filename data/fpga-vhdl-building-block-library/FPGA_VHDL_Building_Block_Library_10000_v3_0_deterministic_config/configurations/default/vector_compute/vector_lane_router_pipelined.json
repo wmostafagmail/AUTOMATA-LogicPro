@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_lane_router_pipelined",
+  "wrapper_entity": "vector_lane_router_pipelined_det_cfg",
+  "configuration_id": "VECTOR_LANE_ROUTER_PIPELINED_330B698D30294523",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rasterizer_multi_plane",
+  "wrapper_entity": "rasterizer_multi_plane_det_cfg",
+  "configuration_id": "RASTERIZER_MULTI_PLANE_8C9A677AA4027DD4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

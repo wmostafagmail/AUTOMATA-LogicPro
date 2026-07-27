@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "register_map_testbench",
+  "wrapper_entity": "register_map_testbench_det_cfg",
+  "configuration_id": "REGISTER_MAP_TESTBENCH_1EAD2140035063BB",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

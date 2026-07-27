@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_code_counter_multi_channel",
+  "wrapper_entity": "gray_code_counter_multi_channel_det_cfg",
+  "configuration_id": "GRAY_CODE_COUNTER_MULTI_CHANNEL_2FD98EA623F3AEAE",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

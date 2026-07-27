@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gru_cell_engine_bf16",
+  "wrapper_entity": "gru_cell_engine_bf16_det_cfg",
+  "configuration_id": "GRU_CELL_ENGINE_BF16_1C94E5EA2159A269",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

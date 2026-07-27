@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_main_link_encoder_endpoint",
+  "wrapper_entity": "displayport_main_link_encoder_endpoint_det_cfg",
+  "configuration_id": "DISPLAYPORT_MAIN_LINK_ENCODER_ENDPOINT_67E36B89F2ECB2C1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

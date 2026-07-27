@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "health_telemetry_block",
+  "wrapper_entity": "health_telemetry_block_det_cfg",
+  "configuration_id": "HEALTH_TELEMETRY_BLOCK_F9C7CC6D928464AF",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_programmable",
+  "wrapper_entity": "h264_deblocking_filter_programmable_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_PROGRAMMABLE_31FE924C6F300B09",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

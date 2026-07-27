@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_microcoded",
+  "wrapper_entity": "partial_bitstream_authenticator_microcoded_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_MICROCODED_F5419BF34EA5DC7D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

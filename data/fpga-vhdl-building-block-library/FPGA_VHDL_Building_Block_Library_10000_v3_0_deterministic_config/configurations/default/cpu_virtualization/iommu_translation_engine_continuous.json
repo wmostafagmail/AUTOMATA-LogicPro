@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iommu_translation_engine_continuous",
+  "wrapper_entity": "iommu_translation_engine_continuous_det_cfg",
+  "configuration_id": "IOMMU_TRANSLATION_ENGINE_CONTINUOUS_8C841E4C4721D717",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

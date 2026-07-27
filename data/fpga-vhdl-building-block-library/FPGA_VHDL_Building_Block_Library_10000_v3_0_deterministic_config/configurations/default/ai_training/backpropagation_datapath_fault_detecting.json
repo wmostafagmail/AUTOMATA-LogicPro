@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "backpropagation_datapath_fault_detecting",
+  "wrapper_entity": "backpropagation_datapath_fault_detecting_det_cfg",
+  "configuration_id": "BACKPROPAGATION_DATAPATH_FAULT_DETECTING_74FC6614CBE63C2A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_fully_parallel",
+  "wrapper_entity": "binary_to_bcd_converter_fully_parallel_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_FULLY_PARALLEL_AF7C9131052CBF3E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

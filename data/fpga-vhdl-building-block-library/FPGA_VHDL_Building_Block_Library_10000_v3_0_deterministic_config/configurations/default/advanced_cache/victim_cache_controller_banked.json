@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "victim_cache_controller_banked",
+  "wrapper_entity": "victim_cache_controller_banked_det_cfg",
+  "configuration_id": "VICTIM_CACHE_CONTROLLER_BANKED_9AD43A924687F520",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

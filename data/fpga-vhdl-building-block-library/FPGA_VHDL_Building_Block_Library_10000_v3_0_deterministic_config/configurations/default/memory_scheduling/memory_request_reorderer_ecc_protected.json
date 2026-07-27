@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_request_reorderer_ecc_protected",
+  "wrapper_entity": "memory_request_reorderer_ecc_protected_det_cfg",
+  "configuration_id": "MEMORY_REQUEST_REORDERER_ECC_PROTECTED_3B811D19544DC7D3",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

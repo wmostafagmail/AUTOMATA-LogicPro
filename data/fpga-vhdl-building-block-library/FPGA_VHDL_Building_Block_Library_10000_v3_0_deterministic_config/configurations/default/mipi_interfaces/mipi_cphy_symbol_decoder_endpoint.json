@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_endpoint",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_endpoint_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_ENDPOINT_E3E01ED8151E96A7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

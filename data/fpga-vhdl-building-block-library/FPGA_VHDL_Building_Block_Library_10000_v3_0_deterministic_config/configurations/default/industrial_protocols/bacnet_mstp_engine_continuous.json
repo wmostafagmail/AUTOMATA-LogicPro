@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bacnet_mstp_engine_continuous",
+  "wrapper_entity": "bacnet_mstp_engine_continuous_det_cfg",
+  "configuration_id": "BACNET_MSTP_ENGINE_CONTINUOUS_CD182EC4CD27A529",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

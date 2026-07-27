@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "cordic_sine_cosine_pipelined",
+  "wrapper_entity": "cordic_sine_cosine_pipelined_det_cfg",
+  "configuration_id": "CORDIC_SINE_COSINE_PIPELINED_EDB7FA87555DFCDD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_voltage_controller_low_power",
+  "wrapper_entity": "adaptive_voltage_controller_low_power_det_cfg",
+  "configuration_id": "ADAPTIVE_VOLTAGE_CONTROLLER_LOW_POWER_63FF5240AF840067",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_formally_instrumented",
+  "wrapper_entity": "perceptron_branch_predictor_formally_instrumented_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_FORMALLY_INSTRUMENTED_AB0701F9C874FA8D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

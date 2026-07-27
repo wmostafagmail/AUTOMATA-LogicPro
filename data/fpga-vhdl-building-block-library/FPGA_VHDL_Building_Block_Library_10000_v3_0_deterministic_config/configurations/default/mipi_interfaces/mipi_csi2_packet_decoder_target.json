@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_packet_decoder_target",
+  "wrapper_entity": "mipi_csi2_packet_decoder_target_det_cfg",
+  "configuration_id": "MIPI_CSI2_PACKET_DECODER_TARGET_F4FE13CFDE58B928",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

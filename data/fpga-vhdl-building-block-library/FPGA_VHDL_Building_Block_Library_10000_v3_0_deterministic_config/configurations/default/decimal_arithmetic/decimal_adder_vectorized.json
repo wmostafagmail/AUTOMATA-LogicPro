@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_adder_vectorized",
+  "wrapper_entity": "decimal_adder_vectorized_det_cfg",
+  "configuration_id": "DECIMAL_ADDER_VECTORIZED_8CF8C18302EF818C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

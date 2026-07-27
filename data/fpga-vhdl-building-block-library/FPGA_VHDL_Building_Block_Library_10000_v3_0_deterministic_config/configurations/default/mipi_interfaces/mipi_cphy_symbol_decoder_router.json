@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_router",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_router_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_ROUTER_5F1680D5F55FCCAE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

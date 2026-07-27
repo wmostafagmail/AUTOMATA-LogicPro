@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multi_head_attention_engine_sparse",
+  "wrapper_entity": "multi_head_attention_engine_sparse_det_cfg",
+  "configuration_id": "MULTI_HEAD_ATTENTION_ENGINE_SPARSE_0C92F0FFC6CF57D6",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

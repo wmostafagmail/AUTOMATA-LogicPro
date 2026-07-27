@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "framebuffer_reader",
+  "wrapper_entity": "framebuffer_reader_det_cfg",
+  "configuration_id": "FRAMEBUFFER_READER_117FE8D1DCF268AA",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

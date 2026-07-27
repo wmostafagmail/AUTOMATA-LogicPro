@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "microphone_array_calibrator_buffered_stream",
+  "wrapper_entity": "microphone_array_calibrator_buffered_stream_det_cfg",
+  "configuration_id": "MICROPHONE_ARRAY_CALIBRATOR_BUFFERED_STREAM_2B03ADBF6736D02C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

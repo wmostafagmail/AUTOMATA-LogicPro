@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_qos_aware",
+  "wrapper_entity": "ptp_clock_servo_qos_aware_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_QOS_AWARE_478986ED7C6540AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

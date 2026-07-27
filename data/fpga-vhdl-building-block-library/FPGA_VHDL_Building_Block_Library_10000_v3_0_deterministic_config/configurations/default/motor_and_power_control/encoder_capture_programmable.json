@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "encoder_capture_programmable",
+  "wrapper_entity": "encoder_capture_programmable_det_cfg",
+  "configuration_id": "ENCODER_CAPTURE_PROGRAMMABLE_D8422ADDC541C7F8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_poly1305_engine_masked",
+  "wrapper_entity": "chacha20_poly1305_engine_masked_det_cfg",
+  "configuration_id": "CHACHA20_POLY1305_ENGINE_MASKED_B7262DB3B376ADD9",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

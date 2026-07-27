@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_deadline_aware",
+  "wrapper_entity": "obstacle_avoidance_controller_deadline_aware_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_DEADLINE_AWARE_F67F6989AD72F2A2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

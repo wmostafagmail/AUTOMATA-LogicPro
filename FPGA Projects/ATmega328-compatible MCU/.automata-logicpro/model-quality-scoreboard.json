@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-26T09:36:45.955Z",
+  "updatedAt": "2026-07-27T21:03:19.565Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 450,
-      "successes": 220,
-      "codeQualityFailures": 230,
+      "attempts": 514,
+      "successes": 225,
+      "codeQualityFailures": 289,
       "providerRuntimeFailures": 14,
-      "lastUpdatedAt": "2026-07-26T09:36:45.955Z",
+      "lastUpdatedAt": "2026-07-27T21:03:19.565Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 142,
-          "successes": 58,
-          "codeQualityFailures": 84,
+          "attempts": 163,
+          "successes": 61,
+          "codeQualityFailures": 102,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -149,11 +149,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 13,
+              "count": 15,
               "lastMessage": "Request was cancelled by the user.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-22T19:42:38.174Z"
+              "lastSeenAt": "2026-07-26T21:13:38.753Z"
             },
             "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
               "category": "reserved_identifier",
@@ -364,18 +364,60 @@
                 "ghdl-record-package-rules",
                 "ghdl-source-ordering"
               ],
-              "count": 3,
-              "lastMessage": "Staged GHDL checkpoint failed after leaf component spi_master while analyzing src/spi_master.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error",
+              "count": 5,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component uart_tx while analyzing src/uart_tx.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:46:4:error: no declaration for \"done_o\"\n   done_o <= '1' when state_reg = ST_DONE else '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:47:4:error: no declaration for \"error_o\"\n   error_o <= '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:48:4:error: no declaration for \"status_o\"\n   status_o <= x\"01\" when state_reg = ST_DONE else x\"00\";\n   ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:46:4:error: no declaration for \"done_o\"\n   done_o <= '1' when state_reg = ST_DONE else '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:47:4:error: no declaration for \"error_o\"\n   error_o <= '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:48:4:error: no declaration for \"status_o\"\n   status_o <= x\"01\" when state_reg = ST_DONE else x\"00\";\n   ^\nghdl:error: compilation error",
               "forbiddenConstruct": "custom type or package symbol \"done_o\" used where it is not visible",
               "legalReplacementPattern": "declare/export \"done_o\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
-              "lastSeenAt": "2026-07-26T09:35:05.916Z"
+              "lastSeenAt": "2026-07-26T13:40:14.323Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required,architecture_intent_unknown_required_field": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_intent_ambiguous_design_class",
+                "architecture_intent_unknown_required_field",
+                "architecture_intent_clarification_required"
+              ],
+              "issuePaths": [
+                "$.intent.unknown_acronym:FILE",
+                "$.intent.unknown_acronym:JSON",
+                "$.intent.unknown_acronym:SCLK",
+                "$.intent.unknown_acronym:MOSI",
+                "$.intent.unknown_acronym:MISO",
+                "$.intent.unknown_acronym:PASS",
+                "$.intent.unknown_acronym:FAIL",
+                "$.intent.widthOrFormat",
+                "$.intent"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does SCLK mean in this FPGA design? What does MOSI mean in this FPGA design?",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-26T15:35:34.886Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 11,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_rx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_rx\ncomponentName=uart_rx\nverifiedBlock=uart_rx\nverifiedEntity=uart_rx_det_cfg\nunsafeReasons=verified port uart_rx cannot be safely mapped\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-27T19:23:50.868Z"
             }
           }
         },
         "mini_cpu_core": {
-          "attempts": 99,
-          "successes": 47,
-          "codeQualityFailures": 52,
+          "attempts": 114,
+          "successes": 49,
+          "codeQualityFailures": 65,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -672,13 +714,68 @@
               "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
               "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
               "lastSeenAt": "2026-07-25T22:56:50.055Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_intent_ambiguous_design_class",
+                "architecture_intent_clarification_required"
+              ],
+              "issuePaths": [
+                "$.intent.unknown_acronym:FILE",
+                "$.intent.unknown_acronym:JSON",
+                "$.intent.unknown_acronym:RISC",
+                "$.intent.unknown_acronym:ISA",
+                "$.intent",
+                "$.intent.unknown_acronym:FAIL",
+                "$.intent.unknown_acronym:RESET"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does RISC mean in this FPGA design? What does ISA mean in this FPGA design?",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-26T15:35:44.732Z"
+            },
+            "illegal_operator_usage::illegal_numeric_logical_hybrid::ghdl-no-raw-slv-arithmetic::": {
+              "category": "illegal_operator_usage",
+              "label": "Illegal Operator Usage",
+              "failureCode": "illegal_numeric_logical_hybrid",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-no-raw-slv-arithmetic"
+              ],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component alu while analyzing src/alu.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd:44:53:error: no function declarations for operator \"and\"\n                  tmp_result := unsigned(operand_s) and 1;\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd:47:53:error: no function declarations for operator \"or\"\n                  tmp_result := unsigned(operand_s) or 1;\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd:50:53:error: no function declarations for operator \"xor\"\n                  tmp_result := unsigned(operand_s) xor 1;\n                                                    ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd:44:53:error: no function declarations for operator \"and\"\n                  tmp_result := unsigned(operand_s) and 1;\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd:47:53:error: no function declarations for operator \"or\"\n                  tmp_result := unsigned(operand_s) or 1;\n                                                    ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-jKMVuN/src/alu.vhd:50:53:error: no function declarations for operator \"xor\"\n                  tmp_result := unsigned(operand_s) xor 1;\n                                                    ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "bitwise/logical operator use on mismatched or non-typed operands",
+              "legalReplacementPattern": "ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator",
+              "lastSeenAt": "2026-07-26T17:14:50.233Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 9,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"program_counter\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=program_counter\ncomponentName=program_counter\nverifiedBlock=program_counter\nverifiedEntity=program_counter_det_cfg\nunsafeReasons=verified port stall cannot be safely mapped | verified port sequential_advance cannot be safely mapped | verified port redirect_valid cannot be safely mapped | verified port redirect_pc cannot be safely mapped | approved port data_i has no verified driver/source\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-27T19:53:43.019Z"
             }
           }
         },
         "video_pattern_generator": {
-          "attempts": 89,
+          "attempts": 100,
           "successes": 50,
-          "codeQualityFailures": 39,
+          "codeQualityFailures": 50,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -951,13 +1048,66 @@
               "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
               "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
               "lastSeenAt": "2026-07-25T23:53:28.927Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required,architecture_intent_unknown_required_field": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_intent_ambiguous_design_class",
+                "architecture_intent_unknown_required_field",
+                "architecture_intent_clarification_required"
+              ],
+              "issuePaths": [
+                "$.intent.unknown_acronym:FILE",
+                "$.intent.unknown_acronym:JSON",
+                "$.intent.widthOrFormat",
+                "$.intent"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What data width and numeric format should the design use?",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-26T15:35:54.846Z"
+            },
+            "illegal_operator_usage::illegal_numeric_logical_hybrid::ghdl-no-raw-slv-arithmetic::": {
+              "category": "illegal_operator_usage",
+              "label": "Illegal Operator Usage",
+              "failureCode": "illegal_numeric_logical_hybrid",
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [
+                "ghdl-no-raw-slv-arithmetic"
+              ],
+              "count": 1,
+              "lastMessage": "Staged GHDL checkpoint failed after leaf component pattern_or_framebuffer_stage while analyzing src/pattern_or_framebuffer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:91:error: no function declarations for operator \"and\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:60:error: no overloaded function found matching \"to_unsigned\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                           ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:91:error: no function declarations for operator \"and\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:60:error: no overloaded function found matching \"to_unsigned\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                           ^\nghdl:error: compilation error",
+              "forbiddenConstruct": "bitwise/logical operator use on mismatched or non-typed operands",
+              "legalReplacementPattern": "ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator",
+              "lastSeenAt": "2026-07-26T18:06:53.974Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 7,
+              "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"horizontal_counter\".\ncomponentId=horizontal_counter\ncomponentName=horizontal_counter\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-27T20:17:35.441Z"
             }
           }
         },
         "dsp_chain": {
-          "attempts": 67,
+          "attempts": 76,
           "successes": 32,
-          "codeQualityFailures": 35,
+          "codeQualityFailures": 44,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -1163,13 +1313,52 @@
               "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
               "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
               "lastSeenAt": "2026-07-25T23:56:52.406Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required,architecture_intent_unknown_required_field": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_intent_ambiguous_design_class",
+                "architecture_intent_unknown_required_field",
+                "architecture_intent_clarification_required"
+              ],
+              "issuePaths": [
+                "$.intent.unknown_acronym:FILE",
+                "$.intent.unknown_acronym:JSON",
+                "$.intent.unknown_acronym:FIR",
+                "$.intent.unknown_acronym:FFT",
+                "$.intent.widthOrFormat",
+                "$.intent"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does FIR mean in this FPGA design? What does FFT mean in this FPGA design?",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-26T15:36:04.507Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 6,
+              "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"sample_input_stage\".\ncomponentId=sample_input_stage\ncomponentName=sample_input_stage\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-27T20:49:35.603Z"
             }
           }
         },
         "axi_stream_router": {
-          "attempts": 53,
+          "attempts": 61,
           "successes": 33,
-          "codeQualityFailures": 20,
+          "codeQualityFailures": 28,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -1229,11 +1418,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 1,
-              "lastMessage": "Staged VHDL for \"alu_pkg_for_opcodes_flags\" changed the approved port interface.",
+              "count": 2,
+              "lastMessage": "Request was cancelled by the user.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-19T11:54:13.432Z"
+              "lastSeenAt": "2026-07-27T21:03:19.565Z"
             },
             "illegal_operator_usage::illegal_numeric_logical_hybrid::ghdl-no-raw-slv-arithmetic::": {
               "category": "illegal_operator_usage",
@@ -1250,6 +1439,43 @@
               "forbiddenConstruct": "bitwise/logical operator use on mismatched or non-typed operands",
               "legalReplacementPattern": "ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator",
               "lastSeenAt": "2026-07-19T12:02:41.451Z"
+            },
+            "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required,architecture_intent_unknown_required_field": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_intent_ambiguous_design_class",
+                "architecture_intent_unknown_required_field",
+                "architecture_intent_clarification_required"
+              ],
+              "issuePaths": [
+                "$.intent.unknown_acronym:FILE",
+                "$.intent.unknown_acronym:JSON",
+                "$.intent.widthOrFormat",
+                "$.intent"
+              ],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What data width and numeric format should the design use?",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-26T15:36:14.245Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 4,
+              "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"ingress_interface_blocks\".\ncomponentId=ingress_interface_blocks\ncomponentName=ingress_interface_blocks\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-27T21:03:13.987Z"
             }
           }
         }
@@ -1464,11 +1690,11 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 24,
+          "count": 27,
           "lastMessage": "Request was cancelled by the user.",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-26T09:36:45.955Z"
+          "lastSeenAt": "2026-07-27T21:03:19.565Z"
         },
         "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
           "category": "reserved_identifier",
@@ -1571,11 +1797,11 @@
           "ruleIds": [
             "ghdl-no-raw-slv-arithmetic"
           ],
-          "count": 1,
-          "lastMessage": "Staged GHDL checkpoint failed after leaf component operation_testbench while analyzing src/operation_testbench.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:43:79:error: no function declarations for operator \"and\"\n          when \"0010\" => status_sig <= std_logic_vector(unsigned(operand_reg) and 16#FF#);\n                                                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:44:79:error: no function declarations for operator \"or\"\n          when \"0011\" => status_sig <= std_logic_vector(unsigned(operand_reg) or 16#00#);\n                                                                              ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:43:79:error: no function declarations for operator \"and\"\n          when \"0010\" => status_sig <= std_logic_vector(unsigned(operand_reg) and 16#FF#);\n                                                                              ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-AOKTLD/src/operation_testbench.vhd:44:79:error: no function declarations for operator \"or\"\n          when \"0011\" => status_sig <= std_logic_vector(unsigned(operand_reg) or 16#00#);\n                                                                              ^\nghdl:error: compilation error",
+          "count": 3,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component pattern_or_framebuffer_stage while analyzing src/pattern_or_framebuffer_stage.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:91:error: no function declarations for operator \"and\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:60:error: no overloaded function found matching \"to_unsigned\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                           ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:91:error: no function declarations for operator \"and\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                                                          ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-16nioM/src/pattern_or_framebuffer_stage.vhd:36:60:error: no overloaded function found matching \"to_unsigned\"\n                  pixel_val <= std_logic_vector(to_unsigned(to_integer(unsigned(fb_addr)) and 255, 8));\n                                                           ^\nghdl:error: compilation error",
           "forbiddenConstruct": "bitwise/logical operator use on mismatched or non-typed operands",
           "legalReplacementPattern": "ensure both operands are in the same typed domain and use explicit unsigned/signed or boolean comparisons before applying the operator",
-          "lastSeenAt": "2026-07-19T12:02:41.451Z"
+          "lastSeenAt": "2026-07-26T18:06:53.974Z"
         },
         "context_budget::model_output_budget_exhausted::ghdl-clean-command-contract::": {
           "category": "context_budget",
@@ -1634,11 +1860,11 @@
             "ghdl-record-package-rules",
             "ghdl-source-ordering"
           ],
-          "count": 8,
-          "lastMessage": "Staged GHDL checkpoint failed after leaf component spi_master while analyzing src/spi_master.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:33:10:error: no declaration for \"done_o\"\n         done_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:34:10:error: no declaration for \"error_o\"\n         error_o <= '0';\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:35:10:error: no declaration for \"status_o\"\n         status_o <= x\"00\";\n         ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:47:16:error: no declaration for \"done_o\"\n               done_o <= '0';\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:48:16:error: no declaration for \"status_o\"\n               status_o <= x\"00\";\n               ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:59:14:error: no declaration for \"done_o\"\n             done_o <= '1';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:60:14:error: no declaration for \"error_o\"\n             error_o <= '0';\n             ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-Ax5CWV/src/spi_master.vhd:61:14:error: no declaration for \"status_o\"\n             status_o <= x\"01\";\n             ^\nghdl:error: compilation error",
+          "count": 10,
+          "lastMessage": "Staged GHDL checkpoint failed after leaf component uart_tx while analyzing src/uart_tx.vhd:\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:46:4:error: no declaration for \"done_o\"\n   done_o <= '1' when state_reg = ST_DONE else '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:47:4:error: no declaration for \"error_o\"\n   error_o <= '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:48:4:error: no declaration for \"status_o\"\n   status_o <= x\"01\" when state_reg = ST_DONE else x\"00\";\n   ^\nghdl:error: compilation error\n\nCommand failed: ghdl -a --std=08 --workdir=/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/work /var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:46:4:error: no declaration for \"done_o\"\n   done_o <= '1' when state_reg = ST_DONE else '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:47:4:error: no declaration for \"error_o\"\n   error_o <= '0';\n   ^\n/var/folders/57/y54cjhm10sq92hntm4p1n2kh0000gn/T/logicpro-stage-ghdl-0t3Ewj/src/uart_tx.vhd:48:4:error: no declaration for \"status_o\"\n   status_o <= x\"01\" when state_reg = ST_DONE else x\"00\";\n   ^\nghdl:error: compilation error",
           "forbiddenConstruct": "custom type or package symbol \"done_o\" used where it is not visible",
           "legalReplacementPattern": "declare/export \"done_o\" in a selected package, import it with use work.<package>.all in the failing file, and analyze that package before the dependent source",
-          "lastSeenAt": "2026-07-26T09:35:05.916Z"
+          "lastSeenAt": "2026-07-26T13:40:14.323Z"
         },
         "simulation_assertion::protocol_status_behavior_mismatch::::": {
           "category": "simulation_assertion",
@@ -1959,6 +2185,75 @@
           "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
           "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
           "lastSeenAt": "2026-07-25T23:22:23.779Z"
+        },
+        "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required,architecture_intent_unknown_required_field": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_intent_ambiguous_design_class",
+            "architecture_intent_unknown_required_field",
+            "architecture_intent_clarification_required"
+          ],
+          "issuePaths": [
+            "$.intent.unknown_acronym:FILE",
+            "$.intent.unknown_acronym:JSON",
+            "$.intent.unknown_acronym:SCLK",
+            "$.intent.unknown_acronym:MOSI",
+            "$.intent.unknown_acronym:MISO",
+            "$.intent.unknown_acronym:PASS",
+            "$.intent.unknown_acronym:FAIL",
+            "$.intent.widthOrFormat",
+            "$.intent",
+            "$.intent.unknown_acronym:FIR",
+            "$.intent.unknown_acronym:FFT"
+          ],
+          "ruleIds": [],
+          "count": 12,
+          "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What data width and numeric format should the design use?",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-26T15:36:14.245Z"
+        },
+        "other::architecture_contract_validation_failed::::architecture_intent_ambiguous_design_class,architecture_intent_clarification_required": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_intent_ambiguous_design_class",
+            "architecture_intent_clarification_required"
+          ],
+          "issuePaths": [
+            "$.intent.unknown_acronym:FILE",
+            "$.intent.unknown_acronym:JSON",
+            "$.intent.unknown_acronym:RISC",
+            "$.intent.unknown_acronym:ISA",
+            "$.intent",
+            "$.intent.unknown_acronym:FAIL",
+            "$.intent.unknown_acronym:RESET"
+          ],
+          "ruleIds": [],
+          "count": 3,
+          "lastMessage": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does RISC mean in this FPGA design? What does ISA mean in this FPGA design?",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-26T15:35:44.732Z"
+        },
+        "implementation_source::category_only::::": {
+          "category": "implementation_source",
+          "label": "Implementation Source",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 37,
+          "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"ingress_interface_blocks\".\ncomponentId=ingress_interface_blocks\ncomponentName=ingress_interface_blocks\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-27T21:03:13.987Z"
         }
       }
     },

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_multiplier_saturating",
+  "wrapper_entity": "decimal_multiplier_saturating_det_cfg",
+  "configuration_id": "DECIMAL_MULTIPLIER_SATURATING_56A7B78760687387",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

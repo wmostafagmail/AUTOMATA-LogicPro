@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reservation_station_streaming",
+  "wrapper_entity": "reservation_station_streaming_det_cfg",
+  "configuration_id": "RESERVATION_STATION_STREAMING_EFA46D2264C8F19A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

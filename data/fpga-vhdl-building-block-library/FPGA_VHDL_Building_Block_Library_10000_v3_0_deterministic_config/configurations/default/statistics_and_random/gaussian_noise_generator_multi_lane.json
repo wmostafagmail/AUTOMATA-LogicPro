@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gaussian_noise_generator_multi_lane",
+  "wrapper_entity": "gaussian_noise_generator_multi_lane_det_cfg",
+  "configuration_id": "GAUSSIAN_NOISE_GENERATOR_MULTI_LANE_74D3CDB483A5F6BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

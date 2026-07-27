@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "histogram_accumulator_combinational",
+  "wrapper_entity": "histogram_accumulator_combinational_det_cfg",
+  "configuration_id": "HISTOGRAM_ACCUMULATOR_COMBINATIONAL_1750C35E1293474B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

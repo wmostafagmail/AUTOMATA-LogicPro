@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_table_driven",
+  "wrapper_entity": "tagged_geometric_predictor_table_driven_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_TABLE_DRIVEN_2F8F95009C85BDE0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

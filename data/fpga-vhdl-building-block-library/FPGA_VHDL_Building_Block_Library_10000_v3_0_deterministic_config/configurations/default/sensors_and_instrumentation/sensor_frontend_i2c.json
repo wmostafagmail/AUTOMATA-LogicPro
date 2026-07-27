@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sensor_frontend_i2c",
+  "wrapper_entity": "sensor_frontend_i2c_det_cfg",
+  "configuration_id": "SENSOR_FRONTEND_I2C_340BC736BD4DE070",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

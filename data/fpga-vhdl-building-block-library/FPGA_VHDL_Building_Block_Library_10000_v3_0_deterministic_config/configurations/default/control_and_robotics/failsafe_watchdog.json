@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "failsafe_watchdog",
+  "wrapper_entity": "failsafe_watchdog_det_cfg",
+  "configuration_id": "FAILSAFE_WATCHDOG_9806D627970E9772",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

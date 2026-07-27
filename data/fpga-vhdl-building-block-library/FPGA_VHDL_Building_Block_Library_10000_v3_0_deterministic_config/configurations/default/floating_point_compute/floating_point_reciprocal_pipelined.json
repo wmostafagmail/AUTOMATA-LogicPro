@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_reciprocal_pipelined",
+  "wrapper_entity": "floating_point_reciprocal_pipelined_det_cfg",
+  "configuration_id": "FLOATING_POINT_RECIPROCAL_PIPELINED_57FDD93D9DC31D7B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

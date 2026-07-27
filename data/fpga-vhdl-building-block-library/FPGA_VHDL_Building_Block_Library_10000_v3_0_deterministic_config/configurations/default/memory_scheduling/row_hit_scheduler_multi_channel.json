@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "row_hit_scheduler_multi_channel",
+  "wrapper_entity": "row_hit_scheduler_multi_channel_det_cfg",
+  "configuration_id": "ROW_HIT_SCHEDULER_MULTI_CHANNEL_E7AB01CD99A3E494",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

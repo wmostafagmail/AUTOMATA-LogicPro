@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_saturator_single_cycle",
+  "wrapper_entity": "fixed_point_saturator_single_cycle_det_cfg",
+  "configuration_id": "FIXED_POINT_SATURATOR_SINGLE_CYCLE_5122A9F6A711D8B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

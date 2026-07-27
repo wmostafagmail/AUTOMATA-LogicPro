@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_cpu_resource_shared",
+  "wrapper_entity": "reorder_buffer_cpu_resource_shared_det_cfg",
+  "configuration_id": "REORDER_BUFFER_CPU_RESOURCE_SHARED_3032DA45B866F1C1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

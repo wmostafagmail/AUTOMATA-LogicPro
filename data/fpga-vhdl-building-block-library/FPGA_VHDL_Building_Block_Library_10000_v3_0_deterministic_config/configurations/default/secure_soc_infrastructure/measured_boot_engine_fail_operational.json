@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_fail_operational",
+  "wrapper_entity": "measured_boot_engine_fail_operational_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_FAIL_OPERATIONAL_4C5B8D8FA356F892",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

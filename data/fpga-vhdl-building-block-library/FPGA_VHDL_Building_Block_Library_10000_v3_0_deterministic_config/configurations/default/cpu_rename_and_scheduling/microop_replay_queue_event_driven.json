@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_event_driven",
+  "wrapper_entity": "microop_replay_queue_event_driven_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_EVENT_DRIVEN_61764C7798C14992",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

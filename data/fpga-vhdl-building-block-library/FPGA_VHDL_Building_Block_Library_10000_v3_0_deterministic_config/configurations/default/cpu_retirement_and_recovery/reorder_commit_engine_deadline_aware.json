@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_deadline_aware",
+  "wrapper_entity": "reorder_commit_engine_deadline_aware_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_DEADLINE_AWARE_14589B1350962664",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

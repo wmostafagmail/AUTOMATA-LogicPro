@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ldpc_encoder_pipelined",
+  "wrapper_entity": "ldpc_encoder_pipelined_det_cfg",
+  "configuration_id": "LDPC_ENCODER_PIPELINED_BFE5C0EE01076508",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

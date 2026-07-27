@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_transpose_engine_multi_engine",
+  "wrapper_entity": "matrix_transpose_engine_multi_engine_det_cfg",
+  "configuration_id": "MATRIX_TRANSPOSE_ENGINE_MULTI_ENGINE_0BA0BE06F2049940",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

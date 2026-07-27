@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_adder_single_cycle",
+  "wrapper_entity": "decimal_adder_single_cycle_det_cfg",
+  "configuration_id": "DECIMAL_ADDER_SINGLE_CYCLE_150F3719B2096ADB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

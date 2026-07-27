@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_packetized",
+  "wrapper_entity": "frame_preemption_controller_packetized_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_PACKETIZED_3E29F0656064FC43",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

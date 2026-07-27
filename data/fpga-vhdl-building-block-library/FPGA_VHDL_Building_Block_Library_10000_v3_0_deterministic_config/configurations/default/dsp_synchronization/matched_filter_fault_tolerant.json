@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "matched_filter_fault_tolerant",
+  "wrapper_entity": "matched_filter_fault_tolerant_det_cfg",
+  "configuration_id": "MATCHED_FILTER_FAULT_TOLERANT_93283FBA4F6D44AD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 127
+  }
+}

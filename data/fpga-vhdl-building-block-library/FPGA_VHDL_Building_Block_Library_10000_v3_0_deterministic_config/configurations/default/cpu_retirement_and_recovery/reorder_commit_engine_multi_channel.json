@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_multi_channel",
+  "wrapper_entity": "reorder_commit_engine_multi_channel_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_MULTI_CHANNEL_3C342FA5E76C4658",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_border_unit_multi_channel",
+  "wrapper_entity": "texture_border_unit_multi_channel_det_cfg",
+  "configuration_id": "TEXTURE_BORDER_UNIT_MULTI_CHANNEL_3363870023C11E1E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

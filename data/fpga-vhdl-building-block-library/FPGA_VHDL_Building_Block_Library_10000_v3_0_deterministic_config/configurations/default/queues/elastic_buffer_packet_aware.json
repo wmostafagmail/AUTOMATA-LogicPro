@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "elastic_buffer_packet_aware",
+  "wrapper_entity": "elastic_buffer_packet_aware_det_cfg",
+  "configuration_id": "ELASTIC_BUFFER_PACKET_AWARE_413908977E59A6B3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

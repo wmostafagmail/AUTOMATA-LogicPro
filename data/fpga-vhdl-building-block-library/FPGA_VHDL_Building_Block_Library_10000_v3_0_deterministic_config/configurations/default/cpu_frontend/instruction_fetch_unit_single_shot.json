@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "instruction_fetch_unit_single_shot",
+  "wrapper_entity": "instruction_fetch_unit_single_shot_det_cfg",
+  "configuration_id": "INSTRUCTION_FETCH_UNIT_SINGLE_SHOT_59164B00E8297263",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

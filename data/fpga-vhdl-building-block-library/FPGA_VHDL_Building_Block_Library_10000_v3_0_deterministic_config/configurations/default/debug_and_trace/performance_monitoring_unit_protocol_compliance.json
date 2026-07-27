@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_protocol_compliance",
+  "wrapper_entity": "performance_monitoring_unit_protocol_compliance_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_PROTOCOL_COMPLIANCE_F2F6875F1750DE7D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

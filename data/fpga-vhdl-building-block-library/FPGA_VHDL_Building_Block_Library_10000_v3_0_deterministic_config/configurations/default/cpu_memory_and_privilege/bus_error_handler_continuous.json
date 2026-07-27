@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bus_error_handler_continuous",
+  "wrapper_entity": "bus_error_handler_continuous_det_cfg",
+  "configuration_id": "BUS_ERROR_HANDLER_CONTINUOUS_B02463970894EBD4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

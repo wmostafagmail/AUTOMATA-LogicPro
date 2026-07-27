@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_replay_buffer_target",
+  "wrapper_entity": "pcie_replay_buffer_target_det_cfg",
+  "configuration_id": "PCIE_REPLAY_BUFFER_TARGET_C1BE2DE4886AD336",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dc_offset_remover_resource_shared",
+  "wrapper_entity": "dc_offset_remover_resource_shared_det_cfg",
+  "configuration_id": "DC_OFFSET_REMOVER_RESOURCE_SHARED_0F2DEDBE7CD75369",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 60
+  }
+}

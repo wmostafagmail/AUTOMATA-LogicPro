@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_iterative",
+  "wrapper_entity": "block_floating_quantizer_iterative_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_ITERATIVE_C2EA68C5B9FF572F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "flash_attention_tile_engine_buffered_stream",
+  "wrapper_entity": "flash_attention_tile_engine_buffered_stream_det_cfg",
+  "configuration_id": "FLASH_ATTENTION_TILE_ENGINE_BUFFERED_STREAM_39268A2D7D6FF998",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

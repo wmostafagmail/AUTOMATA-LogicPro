@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "csr_tensor_decoder_low_power",
+  "wrapper_entity": "csr_tensor_decoder_low_power_det_cfg",
+  "configuration_id": "CSR_TENSOR_DECODER_LOW_POWER_B7CA397980A7BDED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

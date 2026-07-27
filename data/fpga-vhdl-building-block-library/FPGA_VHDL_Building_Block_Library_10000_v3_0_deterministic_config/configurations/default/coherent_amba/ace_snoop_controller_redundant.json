@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_redundant",
+  "wrapper_entity": "ace_snoop_controller_redundant_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_REDUNDANT_A0D6313ABDFEDE8E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv4_checksum_unit_continuous",
+  "wrapper_entity": "ipv4_checksum_unit_continuous_det_cfg",
+  "configuration_id": "IPV4_CHECKSUM_UNIT_CONTINUOUS_7AAF683F3BA5A025",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

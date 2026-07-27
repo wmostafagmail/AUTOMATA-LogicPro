@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "grayscale_converter_multi_plane",
+  "wrapper_entity": "grayscale_converter_multi_plane_det_cfg",
+  "configuration_id": "GRAYSCALE_CONVERTER_MULTI_PLANE_C73A2AB601E2417F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

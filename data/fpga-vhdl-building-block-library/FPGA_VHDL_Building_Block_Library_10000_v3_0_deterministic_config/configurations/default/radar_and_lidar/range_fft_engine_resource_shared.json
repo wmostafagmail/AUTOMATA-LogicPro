@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "range_fft_engine_resource_shared",
+  "wrapper_entity": "range_fft_engine_resource_shared_det_cfg",
+  "configuration_id": "RANGE_FFT_ENGINE_RESOURCE_SHARED_792EFDEF18969475",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 106
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dphy_lane_controller_clock_crossing",
+  "wrapper_entity": "mipi_dphy_lane_controller_clock_crossing_det_cfg",
+  "configuration_id": "MIPI_DPHY_LANE_CONTROLLER_CLOCK_CROSSING_1139776C38A3CDA5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

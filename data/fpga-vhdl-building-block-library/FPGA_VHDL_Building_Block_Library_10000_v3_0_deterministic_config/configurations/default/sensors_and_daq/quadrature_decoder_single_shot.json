@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_decoder_single_shot",
+  "wrapper_entity": "quadrature_decoder_single_shot_det_cfg",
+  "configuration_id": "QUADRATURE_DECODER_SINGLE_SHOT_55929E6E527B8F3D",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

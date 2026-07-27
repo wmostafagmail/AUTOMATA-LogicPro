@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "cam_angle_decoder_fault_tolerant",
+  "wrapper_entity": "cam_angle_decoder_fault_tolerant_det_cfg",
+  "configuration_id": "CAM_ANGLE_DECODER_FAULT_TOLERANT_6C9A4C75B253F226",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

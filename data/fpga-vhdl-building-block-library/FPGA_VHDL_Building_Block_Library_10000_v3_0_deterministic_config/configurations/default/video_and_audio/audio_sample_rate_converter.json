@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_sample_rate_converter",
+  "wrapper_entity": "audio_sample_rate_converter_det_cfg",
+  "configuration_id": "AUDIO_SAMPLE_RATE_CONVERTER_92BA8B09D83D159F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

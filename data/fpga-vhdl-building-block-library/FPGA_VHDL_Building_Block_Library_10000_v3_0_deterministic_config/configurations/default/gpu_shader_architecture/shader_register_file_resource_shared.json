@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_resource_shared",
+  "wrapper_entity": "shader_register_file_resource_shared_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_RESOURCE_SHARED_6C41B0CBD5B1CECE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

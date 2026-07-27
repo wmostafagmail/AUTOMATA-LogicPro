@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_redundant",
+  "wrapper_entity": "hdmi_audio_packet_generator_redundant_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_REDUNDANT_3FDF373363574F65",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

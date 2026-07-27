@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multidrop_address_filter_fault_tolerant",
+  "wrapper_entity": "multidrop_address_filter_fault_tolerant_det_cfg",
+  "configuration_id": "MULTIDROP_ADDRESS_FILTER_FAULT_TOLERANT_A2F2DDCDDA2459BF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

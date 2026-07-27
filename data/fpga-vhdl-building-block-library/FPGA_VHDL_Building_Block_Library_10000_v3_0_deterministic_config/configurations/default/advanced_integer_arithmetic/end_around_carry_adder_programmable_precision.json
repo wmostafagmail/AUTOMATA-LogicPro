@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "end_around_carry_adder_programmable_precision",
+  "wrapper_entity": "end_around_carry_adder_programmable_precision_det_cfg",
+  "configuration_id": "END_AROUND_CARRY_ADDER_PROGRAMMABLE_PRECISION_3D93B6120696241F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

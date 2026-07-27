@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_framebuffer",
+  "wrapper_entity": "hevc_transform_unit_framebuffer_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_FRAMEBUFFER_1D96B1862FFCD38F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

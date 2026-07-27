@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "maximum_torque_per_ampere_table_driven",
+  "wrapper_entity": "maximum_torque_per_ampere_table_driven_det_cfg",
+  "configuration_id": "MAXIMUM_TORQUE_PER_AMPERE_TABLE_DRIVEN_B21B3C777174F6F4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

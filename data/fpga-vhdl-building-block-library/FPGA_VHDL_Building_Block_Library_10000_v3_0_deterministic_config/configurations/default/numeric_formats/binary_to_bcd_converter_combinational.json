@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_combinational",
+  "wrapper_entity": "binary_to_bcd_converter_combinational_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_COMBINATIONAL_867D40D3C48808FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

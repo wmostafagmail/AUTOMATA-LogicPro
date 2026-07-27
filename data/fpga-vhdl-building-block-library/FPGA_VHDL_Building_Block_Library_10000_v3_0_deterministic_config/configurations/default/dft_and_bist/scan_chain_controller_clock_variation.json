@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_clock_variation",
+  "wrapper_entity": "scan_chain_controller_clock_variation_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_CLOCK_VARIATION_E3FEC79A47E20A1A",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

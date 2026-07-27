@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sent_sensor_decoder_clock_crossing",
+  "wrapper_entity": "sent_sensor_decoder_clock_crossing_det_cfg",
+  "configuration_id": "SENT_SENSOR_DECODER_CLOCK_CROSSING_71C80B864C571FE8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

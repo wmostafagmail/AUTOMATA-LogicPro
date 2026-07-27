@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "current_loop_controller_programmable",
+  "wrapper_entity": "current_loop_controller_programmable_det_cfg",
+  "configuration_id": "CURRENT_LOOP_CONTROLLER_PROGRAMMABLE_CEC229E0A152B60B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

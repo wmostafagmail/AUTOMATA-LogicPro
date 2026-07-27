@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_clock_crossing",
+  "wrapper_entity": "multi_layer_compositor_clock_crossing_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_CLOCK_CROSSING_B702999F13A361B3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

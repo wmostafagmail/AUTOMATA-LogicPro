@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_telemetry_programmable",
+  "wrapper_entity": "power_telemetry_programmable_det_cfg",
+  "configuration_id": "POWER_TELEMETRY_PROGRAMMABLE_C5C28C4978A5830A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

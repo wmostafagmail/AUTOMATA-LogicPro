@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_tlp_parser_controller",
+  "wrapper_entity": "pcie_tlp_parser_controller_det_cfg",
+  "configuration_id": "PCIE_TLP_PARSER_CONTROLLER_C37CFEC83771BAC9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

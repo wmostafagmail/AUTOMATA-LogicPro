@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "database_sort_engine_multi_lane",
+  "wrapper_entity": "database_sort_engine_multi_lane_det_cfg",
+  "configuration_id": "DATABASE_SORT_ENGINE_MULTI_LANE_9E0AACD2967A5287",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

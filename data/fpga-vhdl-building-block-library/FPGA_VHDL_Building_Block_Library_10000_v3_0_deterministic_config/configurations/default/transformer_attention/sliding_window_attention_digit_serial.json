@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_digit_serial",
+  "wrapper_entity": "sliding_window_attention_digit_serial_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_DIGIT_SERIAL_388A4A09A7ECAF07",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

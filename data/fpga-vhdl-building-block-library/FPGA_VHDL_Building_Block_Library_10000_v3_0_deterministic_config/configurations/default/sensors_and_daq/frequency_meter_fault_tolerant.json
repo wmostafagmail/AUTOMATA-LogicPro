@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_meter_fault_tolerant",
+  "wrapper_entity": "frequency_meter_fault_tolerant_det_cfg",
+  "configuration_id": "FREQUENCY_METER_FAULT_TOLERANT_69515A29FAA12CA8",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_ram_wrapper_packet_aware",
+  "wrapper_entity": "block_ram_wrapper_packet_aware_det_cfg",
+  "configuration_id": "BLOCK_RAM_WRAPPER_PACKET_AWARE_BF32EC739044D7F9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_framebuffer",
+  "wrapper_entity": "color_key_blender_framebuffer_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_FRAMEBUFFER_CD728E75A523682E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

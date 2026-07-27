@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_deep_pipeline",
+  "wrapper_entity": "binary_to_bcd_converter_deep_pipeline_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_DEEP_PIPELINE_4C66BEB7C4B3BE0F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

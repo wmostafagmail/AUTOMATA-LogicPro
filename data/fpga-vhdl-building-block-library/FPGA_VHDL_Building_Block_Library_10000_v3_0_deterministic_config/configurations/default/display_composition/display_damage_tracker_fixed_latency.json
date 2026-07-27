@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_fixed_latency",
+  "wrapper_entity": "display_damage_tracker_fixed_latency_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_FIXED_LATENCY_64F3FE2151C8CD13",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

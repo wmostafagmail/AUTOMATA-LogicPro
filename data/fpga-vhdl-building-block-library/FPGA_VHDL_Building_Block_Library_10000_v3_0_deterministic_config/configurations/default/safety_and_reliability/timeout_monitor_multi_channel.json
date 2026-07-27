@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "timeout_monitor_multi_channel",
+  "wrapper_entity": "timeout_monitor_multi_channel_det_cfg",
+  "configuration_id": "TIMEOUT_MONITOR_MULTI_CHANNEL_D32D55EFC8391311",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

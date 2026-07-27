@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dilated_convolution_engine_low_power",
+  "wrapper_entity": "dilated_convolution_engine_low_power_det_cfg",
+  "configuration_id": "DILATED_CONVOLUTION_ENGINE_LOW_POWER_5D262EF4608E7C4D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

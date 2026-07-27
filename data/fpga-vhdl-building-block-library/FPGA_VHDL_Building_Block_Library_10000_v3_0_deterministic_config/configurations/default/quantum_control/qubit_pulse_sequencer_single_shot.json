@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_single_shot",
+  "wrapper_entity": "qubit_pulse_sequencer_single_shot_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_SINGLE_SHOT_22B961255BA68A33",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

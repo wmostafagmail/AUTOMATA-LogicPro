@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "delta_correlation_prefetcher_burst_optimized",
+  "wrapper_entity": "delta_correlation_prefetcher_burst_optimized_det_cfg",
+  "configuration_id": "DELTA_CORRELATION_PREFETCHER_BURST_OPTIMIZED_AEC6AA67113C66D5",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

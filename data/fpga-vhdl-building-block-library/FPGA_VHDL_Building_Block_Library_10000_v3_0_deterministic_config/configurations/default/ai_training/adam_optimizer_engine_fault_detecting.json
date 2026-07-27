@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_fault_detecting",
+  "wrapper_entity": "adam_optimizer_engine_fault_detecting_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_FAULT_DETECTING_0CE16EE8403B680A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_software_configurable",
+  "wrapper_entity": "safety_island_controller_software_configurable_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_SOFTWARE_CONFIGURABLE_C50D90185B010172",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

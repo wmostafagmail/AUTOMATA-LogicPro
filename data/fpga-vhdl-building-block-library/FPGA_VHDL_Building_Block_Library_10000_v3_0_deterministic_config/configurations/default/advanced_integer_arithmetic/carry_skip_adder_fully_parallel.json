@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_fully_parallel",
+  "wrapper_entity": "carry_skip_adder_fully_parallel_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_FULLY_PARALLEL_7D7D00670EC7743B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

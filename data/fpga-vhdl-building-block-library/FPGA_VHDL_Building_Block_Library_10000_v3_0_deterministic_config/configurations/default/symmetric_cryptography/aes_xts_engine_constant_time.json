@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_constant_time",
+  "wrapper_entity": "aes_xts_engine_constant_time_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_CONSTANT_TIME_C0C7C4CD090F29CF",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

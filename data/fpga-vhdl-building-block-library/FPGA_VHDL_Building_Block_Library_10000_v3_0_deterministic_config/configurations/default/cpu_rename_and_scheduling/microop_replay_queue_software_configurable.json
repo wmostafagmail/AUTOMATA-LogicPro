@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_software_configurable",
+  "wrapper_entity": "microop_replay_queue_software_configurable_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_SOFTWARE_CONFIGURABLE_0554167CFC3527D7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

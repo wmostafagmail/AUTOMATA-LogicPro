@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rotary_position_encoder_int8",
+  "wrapper_entity": "rotary_position_encoder_int8_det_cfg",
+  "configuration_id": "ROTARY_POSITION_ENCODER_INT8_6F1F2909E399114D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

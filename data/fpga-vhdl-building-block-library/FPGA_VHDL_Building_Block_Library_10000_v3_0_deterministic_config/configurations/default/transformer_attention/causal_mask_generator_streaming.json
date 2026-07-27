@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "causal_mask_generator_streaming",
+  "wrapper_entity": "causal_mask_generator_streaming_det_cfg",
+  "configuration_id": "CAUSAL_MASK_GENERATOR_STREAMING_49CEE43B262EB83D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

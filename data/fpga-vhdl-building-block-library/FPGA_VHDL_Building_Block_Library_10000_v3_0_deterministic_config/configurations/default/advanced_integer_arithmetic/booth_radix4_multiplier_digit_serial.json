@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix4_multiplier_digit_serial",
+  "wrapper_entity": "booth_radix4_multiplier_digit_serial_det_cfg",
+  "configuration_id": "BOOTH_RADIX4_MULTIPLIER_DIGIT_SERIAL_1DF31EF1AC3892A7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

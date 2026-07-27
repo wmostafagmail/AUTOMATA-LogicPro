@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arp_endpoint_single_shot",
+  "wrapper_entity": "arp_endpoint_single_shot_det_cfg",
+  "configuration_id": "ARP_ENDPOINT_SINGLE_SHOT_F62603CA0888E8ED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

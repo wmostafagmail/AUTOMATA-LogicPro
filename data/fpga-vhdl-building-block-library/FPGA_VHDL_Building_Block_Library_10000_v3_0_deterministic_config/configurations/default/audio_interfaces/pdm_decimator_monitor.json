@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pdm_decimator_monitor",
+  "wrapper_entity": "pdm_decimator_monitor_det_cfg",
+  "configuration_id": "PDM_DECIMATOR_MONITOR_0370D265DDDA116E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

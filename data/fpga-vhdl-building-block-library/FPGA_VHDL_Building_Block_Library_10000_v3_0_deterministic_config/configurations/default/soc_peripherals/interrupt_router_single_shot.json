@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "interrupt_router_single_shot",
+  "wrapper_entity": "interrupt_router_single_shot_det_cfg",
+  "configuration_id": "INTERRUPT_ROUTER_SINGLE_SHOT_70FDF33C081F7986",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spdif_transmitter_clock_crossing",
+  "wrapper_entity": "spdif_transmitter_clock_crossing_det_cfg",
+  "configuration_id": "SPDIF_TRANSMITTER_CLOCK_CROSSING_1CB4278B0B8F4A2B",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

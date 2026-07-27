@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_cpu_iterative",
+  "wrapper_entity": "reorder_buffer_cpu_iterative_det_cfg",
+  "configuration_id": "REORDER_BUFFER_CPU_ITERATIVE_5BB7D7EE17272361",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

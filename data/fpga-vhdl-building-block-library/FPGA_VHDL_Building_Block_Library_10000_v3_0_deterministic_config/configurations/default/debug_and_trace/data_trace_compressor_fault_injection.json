@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_fault_injection",
+  "wrapper_entity": "data_trace_compressor_fault_injection_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_FAULT_INJECTION_18EF807E211548D6",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

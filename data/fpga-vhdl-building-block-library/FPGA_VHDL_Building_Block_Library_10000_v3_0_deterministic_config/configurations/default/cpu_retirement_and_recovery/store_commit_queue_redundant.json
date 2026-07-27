@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_redundant",
+  "wrapper_entity": "store_commit_queue_redundant_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_REDUNDANT_3DA3D5233A0AECB5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

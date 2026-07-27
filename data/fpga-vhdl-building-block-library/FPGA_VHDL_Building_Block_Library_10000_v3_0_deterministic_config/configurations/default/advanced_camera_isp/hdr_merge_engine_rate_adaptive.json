@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_rate_adaptive",
+  "wrapper_entity": "hdr_merge_engine_rate_adaptive_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_RATE_ADAPTIVE_E1D3E63A2AD5F7A1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_latent_fault_detecting",
+  "wrapper_entity": "key_vault_controller_latent_fault_detecting_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_LATENT_FAULT_DETECTING_ACE9F0E4388550ED",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

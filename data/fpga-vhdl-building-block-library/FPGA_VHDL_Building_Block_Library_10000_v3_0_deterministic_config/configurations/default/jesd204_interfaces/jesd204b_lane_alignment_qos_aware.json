@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_lane_alignment_qos_aware",
+  "wrapper_entity": "jesd204b_lane_alignment_qos_aware_det_cfg",
+  "configuration_id": "JESD204B_LANE_ALIGNMENT_QOS_AWARE_1BB00222AF91DF43",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

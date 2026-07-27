@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wallace_tree_multiplier_streaming",
+  "wrapper_entity": "wallace_tree_multiplier_streaming_det_cfg",
+  "configuration_id": "WALLACE_TREE_MULTIPLIER_STREAMING_9B8FBFF6E45C82BE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

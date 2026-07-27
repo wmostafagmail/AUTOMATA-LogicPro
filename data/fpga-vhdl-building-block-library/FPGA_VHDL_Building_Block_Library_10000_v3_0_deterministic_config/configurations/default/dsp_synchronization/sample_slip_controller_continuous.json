@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_slip_controller_continuous",
+  "wrapper_entity": "sample_slip_controller_continuous_det_cfg",
+  "configuration_id": "SAMPLE_SLIP_CONTROLLER_CONTINUOUS_3F4EC2A2A4675307",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 218
+  }
+}

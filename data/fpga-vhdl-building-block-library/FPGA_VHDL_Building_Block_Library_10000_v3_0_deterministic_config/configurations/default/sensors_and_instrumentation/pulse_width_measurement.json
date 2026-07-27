@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "pulse_width_measurement",
+  "wrapper_entity": "pulse_width_measurement_det_cfg",
+  "configuration_id": "PULSE_WIDTH_MEASUREMENT_DFD06CEAE987CAE0",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

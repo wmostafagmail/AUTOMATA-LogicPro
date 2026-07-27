@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zoned_storage_manager_interleaved",
+  "wrapper_entity": "zoned_storage_manager_interleaved_det_cfg",
+  "configuration_id": "ZONED_STORAGE_MANAGER_INTERLEAVED_5D653BD2E1712AA4",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

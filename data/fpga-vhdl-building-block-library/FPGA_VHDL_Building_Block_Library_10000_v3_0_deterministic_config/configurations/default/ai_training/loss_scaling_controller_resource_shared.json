@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_resource_shared",
+  "wrapper_entity": "loss_scaling_controller_resource_shared_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_RESOURCE_SHARED_C7F9AA2D466E9733",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wheel_speed_capture_fault_tolerant",
+  "wrapper_entity": "wheel_speed_capture_fault_tolerant_det_cfg",
+  "configuration_id": "WHEEL_SPEED_CAPTURE_FAULT_TOLERANT_AECCA537AE02020D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

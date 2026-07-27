@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_join_accelerator_low_power",
+  "wrapper_entity": "hash_join_accelerator_low_power_det_cfg",
+  "configuration_id": "HASH_JOIN_ACCELERATOR_LOW_POWER_1CBC983D9FA4DC56",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

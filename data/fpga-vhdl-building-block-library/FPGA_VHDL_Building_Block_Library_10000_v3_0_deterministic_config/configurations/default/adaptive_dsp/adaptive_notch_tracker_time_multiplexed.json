@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_notch_tracker_time_multiplexed",
+  "wrapper_entity": "adaptive_notch_tracker_time_multiplexed_det_cfg",
+  "configuration_id": "ADAPTIVE_NOTCH_TRACKER_TIME_MULTIPLEXED_C06D4C150EA9C66E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

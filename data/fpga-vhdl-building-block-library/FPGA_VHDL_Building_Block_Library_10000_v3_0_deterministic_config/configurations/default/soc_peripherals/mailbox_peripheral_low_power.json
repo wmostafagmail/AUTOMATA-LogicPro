@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mailbox_peripheral_low_power",
+  "wrapper_entity": "mailbox_peripheral_low_power_det_cfg",
+  "configuration_id": "MAILBOX_PERIPHERAL_LOW_POWER_FF2F57F4826AFDF0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

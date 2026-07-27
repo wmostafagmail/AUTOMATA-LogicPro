@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_priority_aware",
+  "wrapper_entity": "waveform_envelope_generator_priority_aware_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_PRIORITY_AWARE_EE786EEB1B0807D0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

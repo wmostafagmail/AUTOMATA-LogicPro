@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "pooling_engine_pipelined",
+  "wrapper_entity": "pooling_engine_pipelined_det_cfg",
+  "configuration_id": "POOLING_ENGINE_PIPELINED_316107DB8D5202D4",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

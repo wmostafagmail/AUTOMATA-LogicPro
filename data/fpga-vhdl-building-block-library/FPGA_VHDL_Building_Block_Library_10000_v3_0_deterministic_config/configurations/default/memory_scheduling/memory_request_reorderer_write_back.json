@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_request_reorderer_write_back",
+  "wrapper_entity": "memory_request_reorderer_write_back_det_cfg",
+  "configuration_id": "MEMORY_REQUEST_REORDERER_WRITE_BACK_D01680301F405C61",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

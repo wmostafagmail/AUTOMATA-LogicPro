@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polynomial_sampler_high_throughput",
+  "wrapper_entity": "polynomial_sampler_high_throughput_det_cfg",
+  "configuration_id": "POLYNOMIAL_SAMPLER_HIGH_THROUGHPUT_B9EC356571D9DFD3",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

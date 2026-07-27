@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ahb_to_apb_bridge_bridge",
+  "wrapper_entity": "ahb_to_apb_bridge_bridge_det_cfg",
+  "configuration_id": "AHB_TO_APB_BRIDGE_BRIDGE_96DC0581855EF0BB",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

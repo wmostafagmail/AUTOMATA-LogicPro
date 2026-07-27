@@ -1,4 +1,5 @@
 export type FpgaSweepMode = 'repair_convergence' | 'clean_reproducibility';
+export type FpgaVhdlImplementationPolicy = 'verified_or_template_only' | 'allow_model_vhdl_fallback';
 
 export type FpgaPipelineConfig = {
   enabled: boolean;
@@ -11,6 +12,8 @@ export type FpgaPipelineConfig = {
   stageGhdlValidation: boolean;
   defaultSweepMode: FpgaSweepMode;
   maxStageOutputChars: number;
+  vhdlImplementationPolicy: FpgaVhdlImplementationPolicy;
+  hybridOnUnsafeWrapper: boolean;
 };
 
 function envBoolean(name: string, fallback: boolean) {
@@ -26,6 +29,7 @@ function envPositiveInteger(name: string, fallback: number) {
 
 export function getFpgaPipelineConfig(): FpgaPipelineConfig {
   const requestedSweepMode = String(process.env.FPGA_ARCHITECT_SWEEP_MODE || '').trim();
+  const requestedVhdlPolicy = String(process.env.FPGA_ARCHITECT_VHDL_IMPLEMENTATION_POLICY || '').trim();
   return {
     enabled: envBoolean('FPGA_ARCHITECT_PIPELINE_V2', true),
     contractVersion: '2.0',
@@ -39,5 +43,9 @@ export function getFpgaPipelineConfig(): FpgaPipelineConfig {
       ? 'clean_reproducibility'
       : 'repair_convergence',
     maxStageOutputChars: envPositiveInteger('FPGA_ARCHITECT_MAX_STAGE_OUTPUT_CHARS', 48_000),
+    vhdlImplementationPolicy: requestedVhdlPolicy === 'allow_model_vhdl_fallback'
+      ? 'allow_model_vhdl_fallback'
+      : 'verified_or_template_only',
+    hybridOnUnsafeWrapper: envBoolean('FPGA_ARCHITECT_HYBRID_ON_UNSAFE_WRAPPER', true),
   };
 }

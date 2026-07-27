@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pitch_shift_engine_deep_pipelined",
+  "wrapper_entity": "pitch_shift_engine_deep_pipelined_det_cfg",
+  "configuration_id": "PITCH_SHIFT_ENGINE_DEEP_PIPELINED_6CC10343C1E4BEFA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

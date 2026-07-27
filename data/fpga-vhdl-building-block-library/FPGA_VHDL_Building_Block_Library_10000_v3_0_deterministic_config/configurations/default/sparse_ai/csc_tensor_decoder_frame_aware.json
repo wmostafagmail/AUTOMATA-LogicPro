@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "csc_tensor_decoder_frame_aware",
+  "wrapper_entity": "csc_tensor_decoder_frame_aware_det_cfg",
+  "configuration_id": "CSC_TENSOR_DECODER_FRAME_AWARE_34FE402D1257E08F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

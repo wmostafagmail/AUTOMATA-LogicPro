@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_checker_single_cycle",
+  "wrapper_entity": "crc_checker_single_cycle_det_cfg",
+  "configuration_id": "CRC_CHECKER_SINGLE_CYCLE_5883AB429702D269",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

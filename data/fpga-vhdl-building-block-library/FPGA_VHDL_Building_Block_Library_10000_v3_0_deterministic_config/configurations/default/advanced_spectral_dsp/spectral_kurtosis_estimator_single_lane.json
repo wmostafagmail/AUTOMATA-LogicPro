@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spectral_kurtosis_estimator_single_lane",
+  "wrapper_entity": "spectral_kurtosis_estimator_single_lane_det_cfg",
+  "configuration_id": "SPECTRAL_KURTOSIS_ESTIMATOR_SINGLE_LANE_EE2D98E8DFCB4A05",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

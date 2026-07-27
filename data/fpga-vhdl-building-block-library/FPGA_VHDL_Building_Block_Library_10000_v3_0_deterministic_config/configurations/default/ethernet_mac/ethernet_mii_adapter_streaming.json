@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_mii_adapter_streaming",
+  "wrapper_entity": "ethernet_mii_adapter_streaming_det_cfg",
+  "configuration_id": "ETHERNET_MII_ADAPTER_STREAMING_AAA5041241310DE9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

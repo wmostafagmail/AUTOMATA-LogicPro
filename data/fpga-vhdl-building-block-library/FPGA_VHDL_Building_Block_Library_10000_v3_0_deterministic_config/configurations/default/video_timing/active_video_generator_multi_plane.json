@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "active_video_generator_multi_plane",
+  "wrapper_entity": "active_video_generator_multi_plane_det_cfg",
+  "configuration_id": "ACTIVE_VIDEO_GENERATOR_MULTI_PLANE_65BC234CBE7FEB04",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

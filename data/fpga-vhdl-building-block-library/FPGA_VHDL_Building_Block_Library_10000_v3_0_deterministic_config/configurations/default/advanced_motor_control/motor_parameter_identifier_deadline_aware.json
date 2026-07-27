@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "motor_parameter_identifier_deadline_aware",
+  "wrapper_entity": "motor_parameter_identifier_deadline_aware_det_cfg",
+  "configuration_id": "MOTOR_PARAMETER_IDENTIFIER_DEADLINE_AWARE_E870D1FF1502A386",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

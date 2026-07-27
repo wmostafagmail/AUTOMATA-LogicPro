@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_target_buffer_multi_channel",
+  "wrapper_entity": "branch_target_buffer_multi_channel_det_cfg",
+  "configuration_id": "BRANCH_TARGET_BUFFER_MULTI_CHANNEL_5E917CD018E0BEBF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

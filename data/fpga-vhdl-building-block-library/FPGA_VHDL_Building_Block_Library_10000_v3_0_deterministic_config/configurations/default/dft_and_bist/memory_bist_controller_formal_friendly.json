@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_bist_controller_formal_friendly",
+  "wrapper_entity": "memory_bist_controller_formal_friendly_det_cfg",
+  "configuration_id": "MEMORY_BIST_CONTROLLER_FORMAL_FRIENDLY_E9EE7EF569F572E0",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

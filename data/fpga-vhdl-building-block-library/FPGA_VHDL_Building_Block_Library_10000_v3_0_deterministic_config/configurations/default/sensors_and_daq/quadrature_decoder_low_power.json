@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_decoder_low_power",
+  "wrapper_entity": "quadrature_decoder_low_power_det_cfg",
+  "configuration_id": "QUADRATURE_DECODER_LOW_POWER_08932903C4754F72",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

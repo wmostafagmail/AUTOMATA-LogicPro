@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "depth_test_unit_line_buffered",
+  "wrapper_entity": "depth_test_unit_line_buffered_det_cfg",
+  "configuration_id": "DEPTH_TEST_UNIT_LINE_BUFFERED_3B8D948AF93B6594",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

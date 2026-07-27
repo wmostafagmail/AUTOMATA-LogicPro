@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bitstream_loader_fault_tolerant",
+  "wrapper_entity": "bitstream_loader_fault_tolerant_det_cfg",
+  "configuration_id": "BITSTREAM_LOADER_FAULT_TOLERANT_80F3D56BA69DBCD6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_clock_crossing",
+  "wrapper_entity": "microop_replay_queue_clock_crossing_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_CLOCK_CROSSING_824C2A726B84F7FE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_decoder_time_multiplexed",
+  "wrapper_entity": "adpcm_decoder_time_multiplexed_det_cfg",
+  "configuration_id": "ADPCM_DECODER_TIME_MULTIPLEXED_53DB6B75F3AE231A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

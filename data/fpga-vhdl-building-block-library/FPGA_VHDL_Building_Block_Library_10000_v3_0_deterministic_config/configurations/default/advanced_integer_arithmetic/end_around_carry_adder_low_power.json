@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "end_around_carry_adder_low_power",
+  "wrapper_entity": "end_around_carry_adder_low_power_det_cfg",
+  "configuration_id": "END_AROUND_CARRY_ADDER_LOW_POWER_B96E4B325A896BEC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

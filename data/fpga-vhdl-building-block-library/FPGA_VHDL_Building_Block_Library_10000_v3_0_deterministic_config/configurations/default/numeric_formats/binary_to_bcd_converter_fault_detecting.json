@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_fault_detecting",
+  "wrapper_entity": "binary_to_bcd_converter_fault_detecting_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_FAULT_DETECTING_EA38E159AE7F3E8F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

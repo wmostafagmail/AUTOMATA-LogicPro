@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_low_power",
+  "wrapper_entity": "stage2_address_translator_low_power_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_LOW_POWER_FAFFFF2DA7BBD5ED",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

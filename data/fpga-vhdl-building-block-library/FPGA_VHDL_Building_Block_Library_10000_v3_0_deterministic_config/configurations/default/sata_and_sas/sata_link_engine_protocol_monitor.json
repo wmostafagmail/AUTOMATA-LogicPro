@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_protocol_monitor",
+  "wrapper_entity": "sata_link_engine_protocol_monitor_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_PROTOCOL_MONITOR_448103EE79838353",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ofdm_demodulator_combinational",
+  "wrapper_entity": "ofdm_demodulator_combinational_det_cfg",
+  "configuration_id": "OFDM_DEMODULATOR_COMBINATIONAL_ECDB3CD9EB120298",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 159
+  }
+}

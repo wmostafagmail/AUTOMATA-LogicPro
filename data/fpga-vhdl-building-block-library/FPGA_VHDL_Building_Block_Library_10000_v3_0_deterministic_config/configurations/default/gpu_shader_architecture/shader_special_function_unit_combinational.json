@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_combinational",
+  "wrapper_entity": "shader_special_function_unit_combinational_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_COMBINATIONAL_7512C6D0F8278153",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

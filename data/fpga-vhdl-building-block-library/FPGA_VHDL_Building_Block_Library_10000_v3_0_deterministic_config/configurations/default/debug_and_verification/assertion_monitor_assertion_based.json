@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "assertion_monitor_assertion_based",
+  "wrapper_entity": "assertion_monitor_assertion_based_det_cfg",
+  "configuration_id": "ASSERTION_MONITOR_ASSERTION_BASED_40330DA9622B82E1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

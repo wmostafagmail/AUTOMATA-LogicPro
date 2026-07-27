@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_fault_detecting",
+  "wrapper_entity": "logarithmic_quantizer_fault_detecting_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_FAULT_DETECTING_EEDD2F0C9677BF9C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fram_controller_single_port",
+  "wrapper_entity": "fram_controller_single_port_det_cfg",
+  "configuration_id": "FRAM_CONTROLLER_SINGLE_PORT_245E86B5ECB3135A",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

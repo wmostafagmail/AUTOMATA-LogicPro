@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_subtractor_single_cycle",
+  "wrapper_entity": "integer_subtractor_single_cycle_det_cfg",
+  "configuration_id": "INTEGER_SUBTRACTOR_SINGLE_CYCLE_0D3EC2D8F1ECC13D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

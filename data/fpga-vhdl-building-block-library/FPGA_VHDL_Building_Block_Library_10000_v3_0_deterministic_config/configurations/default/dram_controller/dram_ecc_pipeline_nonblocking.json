@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_ecc_pipeline_nonblocking",
+  "wrapper_entity": "dram_ecc_pipeline_nonblocking_det_cfg",
+  "configuration_id": "DRAM_ECC_PIPELINE_NONBLOCKING_69EDBCAACDBAD3D8",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

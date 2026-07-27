@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_request_node_endpoint",
+  "wrapper_entity": "chi_request_node_endpoint_det_cfg",
+  "configuration_id": "CHI_REQUEST_NODE_ENDPOINT_77BE625B51D15280",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

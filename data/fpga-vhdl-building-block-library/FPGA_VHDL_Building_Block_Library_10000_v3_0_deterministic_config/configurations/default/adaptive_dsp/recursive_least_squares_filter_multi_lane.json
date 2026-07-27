@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "recursive_least_squares_filter_multi_lane",
+  "wrapper_entity": "recursive_least_squares_filter_multi_lane_det_cfg",
+  "configuration_id": "RECURSIVE_LEAST_SQUARES_FILTER_MULTI_LANE_6023E575F82300BF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

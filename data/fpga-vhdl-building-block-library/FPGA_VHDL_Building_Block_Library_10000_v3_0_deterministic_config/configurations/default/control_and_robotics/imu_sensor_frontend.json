@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "imu_sensor_frontend",
+  "wrapper_entity": "imu_sensor_frontend_det_cfg",
+  "configuration_id": "IMU_SENSOR_FRONTEND_E7B0D70A30F2F9F7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_fail_safe",
+  "wrapper_entity": "grid_sync_pll_fail_safe_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_FAIL_SAFE_B749503D4CDADFEB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_voltage_controller_multi_channel",
+  "wrapper_entity": "adaptive_voltage_controller_multi_channel_det_cfg",
+  "configuration_id": "ADAPTIVE_VOLTAGE_CONTROLLER_MULTI_CHANNEL_4D7BD323CF19E055",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

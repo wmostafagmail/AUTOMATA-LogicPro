@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adc_capture_continuous",
+  "wrapper_entity": "adc_capture_continuous_det_cfg",
+  "configuration_id": "ADC_CAPTURE_CONTINUOUS_C9519A48F2C068B7",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

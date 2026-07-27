@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_qos_aware",
+  "wrapper_entity": "sata_link_engine_qos_aware_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_QOS_AWARE_F584328D6A8FD1AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

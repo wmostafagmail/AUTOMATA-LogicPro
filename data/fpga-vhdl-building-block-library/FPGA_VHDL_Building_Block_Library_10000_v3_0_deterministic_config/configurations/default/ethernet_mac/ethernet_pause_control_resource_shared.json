@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_pause_control_resource_shared",
+  "wrapper_entity": "ethernet_pause_control_resource_shared_det_cfg",
+  "configuration_id": "ETHERNET_PAUSE_CONTROL_RESOURCE_SHARED_918BAE0843919FC9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

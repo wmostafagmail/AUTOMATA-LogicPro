@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_balancing_controller_clock_crossing",
+  "wrapper_entity": "battery_balancing_controller_clock_crossing_det_cfg",
+  "configuration_id": "BATTERY_BALANCING_CONTROLLER_CLOCK_CROSSING_10C633786F6CDBAE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

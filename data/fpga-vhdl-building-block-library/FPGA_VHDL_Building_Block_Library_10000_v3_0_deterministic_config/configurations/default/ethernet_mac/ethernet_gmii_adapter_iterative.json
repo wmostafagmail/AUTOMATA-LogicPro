@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_gmii_adapter_iterative",
+  "wrapper_entity": "ethernet_gmii_adapter_iterative_det_cfg",
+  "configuration_id": "ETHERNET_GMII_ADAPTER_ITERATIVE_793AC0B906230740",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

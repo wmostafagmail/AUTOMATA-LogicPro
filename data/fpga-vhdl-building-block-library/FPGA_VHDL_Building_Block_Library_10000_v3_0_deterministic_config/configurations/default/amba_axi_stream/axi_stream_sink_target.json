@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_sink_target",
+  "wrapper_entity": "axi_stream_sink_target_det_cfg",
+  "configuration_id": "AXI_STREAM_SINK_TARGET_A423BECCB0A9FBF7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 247
+  }
+}

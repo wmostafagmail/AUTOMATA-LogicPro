@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_timestamped",
+  "wrapper_entity": "profinet_irt_scheduler_timestamped_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_TIMESTAMPED_21D5C6487828A319",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

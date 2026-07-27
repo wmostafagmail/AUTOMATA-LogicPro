@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_formally_instrumented",
+  "wrapper_entity": "power_factor_correction_controller_formally_instrumented_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_FORMALLY_INSTRUMENTED_870B54D356750FA6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

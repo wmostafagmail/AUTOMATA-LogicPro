@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_fixed_latency",
+  "wrapper_entity": "sampler_state_unit_fixed_latency_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_FIXED_LATENCY_DD4C518398EB18BB",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

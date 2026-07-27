@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sparse_accumulator_bank_packet_aware",
+  "wrapper_entity": "sparse_accumulator_bank_packet_aware_det_cfg",
+  "configuration_id": "SPARSE_ACCUMULATOR_BANK_PACKET_AWARE_7CE86549B26BE060",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

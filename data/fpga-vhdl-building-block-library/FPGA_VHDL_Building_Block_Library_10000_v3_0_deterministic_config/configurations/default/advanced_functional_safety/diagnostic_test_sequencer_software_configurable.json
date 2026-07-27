@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_software_configurable",
+  "wrapper_entity": "diagnostic_test_sequencer_software_configurable_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_SOFTWARE_CONFIGURABLE_CF5727595A5B4638",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

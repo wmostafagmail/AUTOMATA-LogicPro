@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "deformable_convolution_engine_streaming",
+  "wrapper_entity": "deformable_convolution_engine_streaming_det_cfg",
+  "configuration_id": "DEFORMABLE_CONVOLUTION_ENGINE_STREAMING_0343875484F9818F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

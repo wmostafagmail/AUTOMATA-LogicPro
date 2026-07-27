@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fram_controller_dual_port",
+  "wrapper_entity": "fram_controller_dual_port_det_cfg",
+  "configuration_id": "FRAM_CONTROLLER_DUAL_PORT_4004CA952ABC38F9",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

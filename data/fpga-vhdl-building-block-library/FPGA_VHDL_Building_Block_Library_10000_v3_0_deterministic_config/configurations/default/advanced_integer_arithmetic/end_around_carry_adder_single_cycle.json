@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "end_around_carry_adder_single_cycle",
+  "wrapper_entity": "end_around_carry_adder_single_cycle_det_cfg",
+  "configuration_id": "END_AROUND_CARRY_ADDER_SINGLE_CYCLE_8C74A847B5245602",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

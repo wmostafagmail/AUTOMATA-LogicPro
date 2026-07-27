@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "video_sync_generator_framebuffer",
+  "wrapper_entity": "video_sync_generator_framebuffer_det_cfg",
+  "configuration_id": "VIDEO_SYNC_GENERATOR_FRAMEBUFFER_4D2F34678ED2630C",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

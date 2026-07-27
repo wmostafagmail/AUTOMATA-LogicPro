@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_deadline_aware",
+  "wrapper_entity": "wakeup_select_unit_deadline_aware_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_DEADLINE_AWARE_DCBA7BD1DE95E642",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

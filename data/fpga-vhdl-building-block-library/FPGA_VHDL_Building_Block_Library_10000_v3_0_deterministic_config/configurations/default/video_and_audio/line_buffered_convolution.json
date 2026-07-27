@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "line_buffered_convolution",
+  "wrapper_entity": "line_buffered_convolution_det_cfg",
+  "configuration_id": "LINE_BUFFERED_CONVOLUTION_26B26A7582E5E13C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

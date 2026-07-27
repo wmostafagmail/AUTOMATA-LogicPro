@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_header_parser_low_power",
+  "wrapper_entity": "ipv6_header_parser_low_power_det_cfg",
+  "configuration_id": "IPV6_HEADER_PARSER_LOW_POWER_3CB6F5A07D4B6209",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "carrier_recovery_loop_single_shot",
+  "wrapper_entity": "carrier_recovery_loop_single_shot_det_cfg",
+  "configuration_id": "CARRIER_RECOVERY_LOOP_SINGLE_SHOT_4403858CF6BD5BF2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 72
+  }
+}

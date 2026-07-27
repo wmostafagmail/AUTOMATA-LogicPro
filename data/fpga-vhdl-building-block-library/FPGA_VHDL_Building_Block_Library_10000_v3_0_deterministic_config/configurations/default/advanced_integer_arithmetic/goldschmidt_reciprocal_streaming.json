@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "goldschmidt_reciprocal_streaming",
+  "wrapper_entity": "goldschmidt_reciprocal_streaming_det_cfg",
+  "configuration_id": "GOLDSCHMIDT_RECIPROCAL_STREAMING_AEE7745F8125CCEE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

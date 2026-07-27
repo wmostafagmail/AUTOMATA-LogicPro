@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_software_configurable",
+  "wrapper_entity": "hdmi_frl_packetizer_software_configurable_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_SOFTWARE_CONFIGURABLE_DFEA77A4E603177F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

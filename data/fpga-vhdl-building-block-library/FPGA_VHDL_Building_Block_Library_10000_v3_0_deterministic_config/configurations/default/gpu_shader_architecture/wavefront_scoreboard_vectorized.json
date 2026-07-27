@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wavefront_scoreboard_vectorized",
+  "wrapper_entity": "wavefront_scoreboard_vectorized_det_cfg",
+  "configuration_id": "WAVEFRONT_SCOREBOARD_VECTORIZED_EF7974EAD77155BF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

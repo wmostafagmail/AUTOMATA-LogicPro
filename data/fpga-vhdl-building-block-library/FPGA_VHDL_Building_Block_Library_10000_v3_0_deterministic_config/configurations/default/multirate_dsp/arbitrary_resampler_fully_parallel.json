@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arbitrary_resampler_fully_parallel",
+  "wrapper_entity": "arbitrary_resampler_fully_parallel_det_cfg",
+  "configuration_id": "ARBITRARY_RESAMPLER_FULLY_PARALLEL_3100C327FE4F2329",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

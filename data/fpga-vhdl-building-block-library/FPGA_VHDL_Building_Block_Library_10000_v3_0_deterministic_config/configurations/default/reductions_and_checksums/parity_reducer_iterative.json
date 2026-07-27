@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parity_reducer_iterative",
+  "wrapper_entity": "parity_reducer_iterative_det_cfg",
+  "configuration_id": "PARITY_REDUCER_ITERATIVE_4CDC59A31BBF4206",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

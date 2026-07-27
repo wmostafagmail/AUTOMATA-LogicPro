@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "convolution_engine_streaming",
+  "wrapper_entity": "convolution_engine_streaming_det_cfg",
+  "configuration_id": "CONVOLUTION_ENGINE_STREAMING_F915236BB8FC4031",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

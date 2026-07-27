@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_low_noise",
+  "wrapper_entity": "oscilloscope_trigger_engine_low_noise_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_LOW_NOISE_195FA1CF5F7CF190",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

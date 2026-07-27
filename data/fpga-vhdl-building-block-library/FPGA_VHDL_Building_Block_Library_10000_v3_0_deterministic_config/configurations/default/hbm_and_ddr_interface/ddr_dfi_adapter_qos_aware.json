@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_dfi_adapter_qos_aware",
+  "wrapper_entity": "ddr_dfi_adapter_qos_aware_det_cfg",
+  "configuration_id": "DDR_DFI_ADAPTER_QOS_AWARE_D0BD34FAA5395214",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "functional_coverage_database_scoreboard_based",
+  "wrapper_entity": "functional_coverage_database_scoreboard_based_det_cfg",
+  "configuration_id": "FUNCTIONAL_COVERAGE_DATABASE_SCOREBOARD_BASED_852F4B24E5C9F02B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

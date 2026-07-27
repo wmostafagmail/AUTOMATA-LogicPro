@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_equalizer_iterative",
+  "wrapper_entity": "audio_equalizer_iterative_det_cfg",
+  "configuration_id": "AUDIO_EQUALIZER_ITERATIVE_45BC160C06A1C426",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

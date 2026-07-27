@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_initiator",
+  "wrapper_entity": "profinet_irt_scheduler_initiator_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_INITIATOR_B5352E18A2B655C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

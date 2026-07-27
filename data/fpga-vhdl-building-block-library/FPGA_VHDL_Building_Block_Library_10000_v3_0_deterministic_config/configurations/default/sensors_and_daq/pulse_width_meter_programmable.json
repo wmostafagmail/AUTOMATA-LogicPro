@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "pulse_width_meter_programmable",
+  "wrapper_entity": "pulse_width_meter_programmable_det_cfg",
+  "configuration_id": "PULSE_WIDTH_METER_PROGRAMMABLE_641287C61AFBF481",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

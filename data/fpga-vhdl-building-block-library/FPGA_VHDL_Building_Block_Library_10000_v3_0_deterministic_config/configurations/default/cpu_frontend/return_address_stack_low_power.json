@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "return_address_stack_low_power",
+  "wrapper_entity": "return_address_stack_low_power_det_cfg",
+  "configuration_id": "RETURN_ADDRESS_STACK_LOW_POWER_B63123CFA2F3A018",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_verify_engine_constant_time",
+  "wrapper_entity": "ecdsa_verify_engine_constant_time_det_cfg",
+  "configuration_id": "ECDSA_VERIFY_ENGINE_CONSTANT_TIME_DB4737D644725944",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

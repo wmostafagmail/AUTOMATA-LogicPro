@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tile_binning_engine_iterative",
+  "wrapper_entity": "tile_binning_engine_iterative_det_cfg",
+  "configuration_id": "TILE_BINNING_ENGINE_ITERATIVE_D4BA9133B081BFC9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

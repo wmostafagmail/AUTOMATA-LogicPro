@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_lockstep_checked",
+  "wrapper_entity": "sliding_mode_observer_lockstep_checked_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_LOCKSTEP_CHECKED_9CD462FA1C449214",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

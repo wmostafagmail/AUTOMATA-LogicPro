@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_key_agile",
+  "wrapper_entity": "aes_xts_engine_key_agile_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_KEY_AGILE_9E6C822D466AA7B6",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

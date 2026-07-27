@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chromatic_aberration_corrector_clock_crossing",
+  "wrapper_entity": "chromatic_aberration_corrector_clock_crossing_det_cfg",
+  "configuration_id": "CHROMATIC_ABERRATION_CORRECTOR_CLOCK_CROSSING_3445F4A8108EA370",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

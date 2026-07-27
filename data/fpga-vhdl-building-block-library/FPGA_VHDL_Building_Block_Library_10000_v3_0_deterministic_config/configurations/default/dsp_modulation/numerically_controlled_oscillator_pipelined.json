@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "numerically_controlled_oscillator_pipelined",
+  "wrapper_entity": "numerically_controlled_oscillator_pipelined_det_cfg",
+  "configuration_id": "NUMERICALLY_CONTROLLED_OSCILLATOR_PIPELINED_CE9FC6AA16026A39",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 251
+  }
+}

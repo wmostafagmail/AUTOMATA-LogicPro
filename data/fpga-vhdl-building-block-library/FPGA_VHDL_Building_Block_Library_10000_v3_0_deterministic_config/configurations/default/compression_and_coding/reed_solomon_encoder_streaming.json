@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reed_solomon_encoder_streaming",
+  "wrapper_entity": "reed_solomon_encoder_streaming_det_cfg",
+  "configuration_id": "REED_SOLOMON_ENCODER_STREAMING_4B7AF7DF42A4D70C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

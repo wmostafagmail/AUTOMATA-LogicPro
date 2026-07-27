@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_grayscale",
+  "wrapper_entity": "rgb_to_grayscale_det_cfg",
+  "configuration_id": "RGB_TO_GRAYSCALE_5DC4DE6BCA598A8B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

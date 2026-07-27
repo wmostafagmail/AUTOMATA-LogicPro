@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_formally_instrumented",
+  "wrapper_entity": "carrier_frequency_estimator_formally_instrumented_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_FORMALLY_INSTRUMENTED_449EA42CD246D483",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

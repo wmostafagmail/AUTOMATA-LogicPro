@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_lockstep_checked",
+  "wrapper_entity": "wakeup_select_unit_lockstep_checked_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_LOCKSTEP_CHECKED_8A4A564860079322",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_ip_adapter_low_power",
+  "wrapper_entity": "ethernet_ip_adapter_low_power_det_cfg",
+  "configuration_id": "ETHERNET_IP_ADAPTER_LOW_POWER_ADD55A827D1822E3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

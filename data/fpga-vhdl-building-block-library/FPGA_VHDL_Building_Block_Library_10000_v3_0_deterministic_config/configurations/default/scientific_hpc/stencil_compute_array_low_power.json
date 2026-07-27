@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stencil_compute_array_low_power",
+  "wrapper_entity": "stencil_compute_array_low_power_det_cfg",
+  "configuration_id": "STENCIL_COMPUTE_ARRAY_LOW_POWER_B54D1A9582A88FDD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

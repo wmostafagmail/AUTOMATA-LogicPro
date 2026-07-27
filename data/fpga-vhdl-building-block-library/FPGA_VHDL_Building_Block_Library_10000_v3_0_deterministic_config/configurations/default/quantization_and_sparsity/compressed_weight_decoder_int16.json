@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "compressed_weight_decoder_int16",
+  "wrapper_entity": "compressed_weight_decoder_int16_det_cfg",
+  "configuration_id": "COMPRESSED_WEIGHT_DECODER_INT16_64B759D66EB6B941",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

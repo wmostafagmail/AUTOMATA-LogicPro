@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chromatic_aberration_corrector_low_power",
+  "wrapper_entity": "chromatic_aberration_corrector_low_power_det_cfg",
+  "configuration_id": "CHROMATIC_ABERRATION_CORRECTOR_LOW_POWER_652B3DF2CB915A32",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

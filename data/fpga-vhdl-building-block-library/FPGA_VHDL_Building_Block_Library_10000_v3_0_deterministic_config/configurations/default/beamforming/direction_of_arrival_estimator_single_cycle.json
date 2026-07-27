@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "direction_of_arrival_estimator_single_cycle",
+  "wrapper_entity": "direction_of_arrival_estimator_single_cycle_det_cfg",
+  "configuration_id": "DIRECTION_OF_ARRIVAL_ESTIMATOR_SINGLE_CYCLE_36FDCD92259A576D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

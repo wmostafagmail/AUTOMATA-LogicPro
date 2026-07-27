@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fault_injector_randomized",
+  "wrapper_entity": "fault_injector_randomized_det_cfg",
+  "configuration_id": "FAULT_INJECTOR_RANDOMIZED_6090FF1E46D05E52",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

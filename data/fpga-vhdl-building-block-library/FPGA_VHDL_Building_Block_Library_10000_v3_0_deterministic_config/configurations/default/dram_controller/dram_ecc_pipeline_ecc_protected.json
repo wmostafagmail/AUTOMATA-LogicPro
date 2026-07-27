@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_ecc_pipeline_ecc_protected",
+  "wrapper_entity": "dram_ecc_pipeline_ecc_protected_det_cfg",
+  "configuration_id": "DRAM_ECC_PIPELINE_ECC_PROTECTED_ADE9427683724CC7",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

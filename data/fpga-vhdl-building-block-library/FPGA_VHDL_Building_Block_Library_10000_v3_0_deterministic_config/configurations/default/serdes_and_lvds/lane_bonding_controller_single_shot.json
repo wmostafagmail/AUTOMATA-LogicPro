@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lane_bonding_controller_single_shot",
+  "wrapper_entity": "lane_bonding_controller_single_shot_det_cfg",
+  "configuration_id": "LANE_BONDING_CONTROLLER_SINGLE_SHOT_CA2818CDE9607A5D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

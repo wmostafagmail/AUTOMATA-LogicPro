@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_continuous",
+  "wrapper_entity": "path_planning_accelerator_continuous_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_CONTINUOUS_06FBA912D57D3DEA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

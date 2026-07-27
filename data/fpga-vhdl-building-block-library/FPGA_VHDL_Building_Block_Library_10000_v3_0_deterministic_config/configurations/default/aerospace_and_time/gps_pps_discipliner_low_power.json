@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gps_pps_discipliner_low_power",
+  "wrapper_entity": "gps_pps_discipliner_low_power_det_cfg",
+  "configuration_id": "GPS_PPS_DISCIPLINER_LOW_POWER_D6DBBD69EC4CDFE5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

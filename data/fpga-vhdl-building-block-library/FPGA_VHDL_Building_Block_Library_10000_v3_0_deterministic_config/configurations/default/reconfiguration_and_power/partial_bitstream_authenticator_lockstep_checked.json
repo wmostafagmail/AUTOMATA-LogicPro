@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_lockstep_checked",
+  "wrapper_entity": "partial_bitstream_authenticator_lockstep_checked_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_LOCKSTEP_CHECKED_B6B01E1B29B55B39",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

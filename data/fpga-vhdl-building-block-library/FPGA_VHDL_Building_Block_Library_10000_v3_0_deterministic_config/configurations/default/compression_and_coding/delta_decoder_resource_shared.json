@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "delta_decoder_resource_shared",
+  "wrapper_entity": "delta_decoder_resource_shared_det_cfg",
+  "configuration_id": "DELTA_DECODER_RESOURCE_SHARED_30564D58009B4711",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 9
+  }
+}

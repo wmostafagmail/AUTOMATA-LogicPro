@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "control_status_supervisor",
+  "wrapper_entity": "control_status_supervisor_det_cfg",
+  "configuration_id": "CONTROL_STATUS_SUPERVISOR_954D4C85E9BD8732",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

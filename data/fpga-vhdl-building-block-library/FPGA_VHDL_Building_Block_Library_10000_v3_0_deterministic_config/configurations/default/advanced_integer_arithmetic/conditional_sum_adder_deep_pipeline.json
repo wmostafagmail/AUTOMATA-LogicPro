@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_deep_pipeline",
+  "wrapper_entity": "conditional_sum_adder_deep_pipeline_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_DEEP_PIPELINE_6A8A0D5A47D94273",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

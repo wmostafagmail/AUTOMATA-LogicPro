@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_redundant",
+  "wrapper_entity": "credit_based_shaper_redundant_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_REDUNDANT_6BE39C0FE2F25449",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

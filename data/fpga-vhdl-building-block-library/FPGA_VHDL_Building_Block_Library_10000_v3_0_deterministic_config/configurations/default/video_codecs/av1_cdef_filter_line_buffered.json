@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "av1_cdef_filter_line_buffered",
+  "wrapper_entity": "av1_cdef_filter_line_buffered_det_cfg",
+  "configuration_id": "AV1_CDEF_FILTER_LINE_BUFFERED_A8A6FF5B41C8E669",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

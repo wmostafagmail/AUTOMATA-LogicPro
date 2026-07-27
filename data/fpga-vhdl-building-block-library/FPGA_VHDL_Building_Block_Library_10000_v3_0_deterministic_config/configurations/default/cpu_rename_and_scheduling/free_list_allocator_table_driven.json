@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_table_driven",
+  "wrapper_entity": "free_list_allocator_table_driven_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_TABLE_DRIVEN_10F1ED7527EE29C4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

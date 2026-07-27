@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "absolute_value_unit_streaming",
+  "wrapper_entity": "absolute_value_unit_streaming_det_cfg",
+  "configuration_id": "ABSOLUTE_VALUE_UNIT_STREAMING_5BD27E08E4ECA54F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

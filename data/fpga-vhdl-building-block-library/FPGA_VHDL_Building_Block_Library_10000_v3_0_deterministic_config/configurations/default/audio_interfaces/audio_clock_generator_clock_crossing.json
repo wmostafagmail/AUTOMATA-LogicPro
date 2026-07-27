@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_clock_generator_clock_crossing",
+  "wrapper_entity": "audio_clock_generator_clock_crossing_det_cfg",
+  "configuration_id": "AUDIO_CLOCK_GENERATOR_CLOCK_CROSSING_7FB18A1E62D57917",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

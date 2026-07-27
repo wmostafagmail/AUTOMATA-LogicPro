@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bounding_box_decoder_pipelined",
+  "wrapper_entity": "bounding_box_decoder_pipelined_det_cfg",
+  "configuration_id": "BOUNDING_BOX_DECODER_PIPELINED_F54701488AF75D76",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

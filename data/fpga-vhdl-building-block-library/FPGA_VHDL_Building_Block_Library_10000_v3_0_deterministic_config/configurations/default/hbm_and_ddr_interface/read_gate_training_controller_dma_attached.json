@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_gate_training_controller_dma_attached",
+  "wrapper_entity": "read_gate_training_controller_dma_attached_det_cfg",
+  "configuration_id": "READ_GATE_TRAINING_CONTROLLER_DMA_ATTACHED_4A63416B309C371F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "program_counter_multi_channel",
+  "wrapper_entity": "program_counter_multi_channel_det_cfg",
+  "configuration_id": "PROGRAM_COUNTER_MULTI_CHANNEL_6B3AE654EF7D03DC",
+  "generics": {
+    "PC_WIDTH": 32,
+    "RESET_VECTOR": 0,
+    "INSTR_BYTES": 4
+  }
+}

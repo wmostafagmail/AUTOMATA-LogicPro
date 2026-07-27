@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_multi_plane",
+  "wrapper_entity": "display_damage_tracker_multi_plane_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_MULTI_PLANE_91187BC460590E01",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

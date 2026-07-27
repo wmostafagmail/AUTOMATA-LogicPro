@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "issue_queue_streaming",
+  "wrapper_entity": "issue_queue_streaming_det_cfg",
+  "configuration_id": "ISSUE_QUEUE_STREAMING_95259C18106E3A02",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "conservative_rasterizer_framebuffer",
+  "wrapper_entity": "conservative_rasterizer_framebuffer_det_cfg",
+  "configuration_id": "CONSERVATIVE_RASTERIZER_FRAMEBUFFER_83089578D2AB801C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

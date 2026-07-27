@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deadlock_avoidance_unit_endpoint",
+  "wrapper_entity": "deadlock_avoidance_unit_endpoint_det_cfg",
+  "configuration_id": "DEADLOCK_AVOIDANCE_UNIT_ENDPOINT_7399B71AA27942E8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

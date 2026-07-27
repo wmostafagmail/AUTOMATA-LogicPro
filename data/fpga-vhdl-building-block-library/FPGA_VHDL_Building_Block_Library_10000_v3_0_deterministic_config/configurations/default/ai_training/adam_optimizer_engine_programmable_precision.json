@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_programmable_precision",
+  "wrapper_entity": "adam_optimizer_engine_programmable_precision_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_PROGRAMMABLE_PRECISION_2AF928BF3F63F84A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

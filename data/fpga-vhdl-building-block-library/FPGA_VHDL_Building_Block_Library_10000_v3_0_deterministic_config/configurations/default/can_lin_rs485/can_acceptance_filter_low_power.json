@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_acceptance_filter_low_power",
+  "wrapper_entity": "can_acceptance_filter_low_power_det_cfg",
+  "configuration_id": "CAN_ACCEPTANCE_FILTER_LOW_POWER_F7BD3636DBE33FBC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

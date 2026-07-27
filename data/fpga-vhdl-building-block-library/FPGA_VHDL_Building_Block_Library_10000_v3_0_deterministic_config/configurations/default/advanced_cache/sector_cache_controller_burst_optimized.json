@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sector_cache_controller_burst_optimized",
+  "wrapper_entity": "sector_cache_controller_burst_optimized_det_cfg",
+  "configuration_id": "SECTOR_CACHE_CONTROLLER_BURST_OPTIMIZED_9A453F03EE2B8FEA",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

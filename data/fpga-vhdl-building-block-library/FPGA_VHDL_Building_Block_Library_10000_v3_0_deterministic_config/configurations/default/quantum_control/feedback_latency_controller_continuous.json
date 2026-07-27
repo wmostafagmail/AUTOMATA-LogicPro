@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_continuous",
+  "wrapper_entity": "feedback_latency_controller_continuous_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_CONTINUOUS_F3420A560EFC3AD4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

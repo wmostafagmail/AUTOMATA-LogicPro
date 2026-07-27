@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_microcoded",
+  "wrapper_entity": "gardner_timing_detector_microcoded_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_MICROCODED_DF45EB01C5B696CB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

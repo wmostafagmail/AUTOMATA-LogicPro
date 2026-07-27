@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arp_endpoint_multi_channel",
+  "wrapper_entity": "arp_endpoint_multi_channel_det_cfg",
+  "configuration_id": "ARP_ENDPOINT_MULTI_CHANNEL_71D402576852C8E7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

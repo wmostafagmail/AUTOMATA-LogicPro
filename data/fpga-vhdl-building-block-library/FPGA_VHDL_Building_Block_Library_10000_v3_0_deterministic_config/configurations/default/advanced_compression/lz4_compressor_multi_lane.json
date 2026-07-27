@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_compressor_multi_lane",
+  "wrapper_entity": "lz4_compressor_multi_lane_det_cfg",
+  "configuration_id": "LZ4_COMPRESSOR_MULTI_LANE_0AC9FDCE1A965D72",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_peripheral_continuous",
+  "wrapper_entity": "pwm_peripheral_continuous_det_cfg",
+  "configuration_id": "PWM_PERIPHERAL_CONTINUOUS_C175D349E71141FB",
+  "generics": {
+    "WIDTH": 16
+  }
+}

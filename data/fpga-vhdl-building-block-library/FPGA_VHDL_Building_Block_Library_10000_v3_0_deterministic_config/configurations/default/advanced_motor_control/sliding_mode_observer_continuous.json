@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_continuous",
+  "wrapper_entity": "sliding_mode_observer_continuous_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_CONTINUOUS_76462A3AAF7D6C67",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

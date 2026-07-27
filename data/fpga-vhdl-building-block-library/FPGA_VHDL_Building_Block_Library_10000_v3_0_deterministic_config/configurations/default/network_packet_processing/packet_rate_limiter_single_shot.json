@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_rate_limiter_single_shot",
+  "wrapper_entity": "packet_rate_limiter_single_shot_det_cfg",
+  "configuration_id": "PACKET_RATE_LIMITER_SINGLE_SHOT_34D6FB6507B4E86B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

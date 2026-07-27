@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_buffered",
+  "wrapper_entity": "hierarchical_noc_gateway_buffered_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_BUFFERED_C8F99F7E30DB8F9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "assertion_monitor_transaction_level",
+  "wrapper_entity": "assertion_monitor_transaction_level_det_cfg",
+  "configuration_id": "ASSERTION_MONITOR_TRANSACTION_LEVEL_E34F4BBB6991B834",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

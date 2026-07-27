@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_set_clear_unit_combinational",
+  "wrapper_entity": "bit_set_clear_unit_combinational_det_cfg",
+  "configuration_id": "BIT_SET_CLEAR_UNIT_COMBINATIONAL_22A126C634D907EE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

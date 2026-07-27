@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "issue_queue_pipelined",
+  "wrapper_entity": "issue_queue_pipelined_det_cfg",
+  "configuration_id": "ISSUE_QUEUE_PIPELINED_30470E83E8C8F673",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

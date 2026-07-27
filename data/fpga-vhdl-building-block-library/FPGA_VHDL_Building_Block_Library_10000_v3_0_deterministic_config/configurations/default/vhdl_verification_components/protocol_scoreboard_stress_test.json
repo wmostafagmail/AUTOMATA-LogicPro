@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_scoreboard_stress_test",
+  "wrapper_entity": "protocol_scoreboard_stress_test_det_cfg",
+  "configuration_id": "PROTOCOL_SCOREBOARD_STRESS_TEST_C5CAC7B18E986B70",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

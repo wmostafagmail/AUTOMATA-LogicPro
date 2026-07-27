@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dilated_convolution_engine_fault_detecting",
+  "wrapper_entity": "dilated_convolution_engine_fault_detecting_det_cfg",
+  "configuration_id": "DILATED_CONVOLUTION_ENGINE_FAULT_DETECTING_760B8D8A0F37E96A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

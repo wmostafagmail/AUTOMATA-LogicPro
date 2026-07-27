@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "karatsuba_multiplier_shallow_pipeline",
+  "wrapper_entity": "karatsuba_multiplier_shallow_pipeline_det_cfg",
+  "configuration_id": "KARATSUBA_MULTIPLIER_SHALLOW_PIPELINE_1C395EEE4412F361",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

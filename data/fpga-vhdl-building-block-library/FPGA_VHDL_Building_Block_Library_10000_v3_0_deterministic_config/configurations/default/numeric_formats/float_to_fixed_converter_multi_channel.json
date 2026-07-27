@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "float_to_fixed_converter_multi_channel",
+  "wrapper_entity": "float_to_fixed_converter_multi_channel_det_cfg",
+  "configuration_id": "FLOAT_TO_FIXED_CONVERTER_MULTI_CHANNEL_AA5A1FD70F49274E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

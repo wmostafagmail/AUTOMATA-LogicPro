@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_deadline_aware",
+  "wrapper_entity": "carrier_frequency_estimator_deadline_aware_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_DEADLINE_AWARE_6612FE15B0FBE779",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

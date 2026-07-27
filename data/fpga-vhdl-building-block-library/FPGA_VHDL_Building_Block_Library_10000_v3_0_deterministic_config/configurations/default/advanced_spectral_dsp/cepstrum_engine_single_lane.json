@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cepstrum_engine_single_lane",
+  "wrapper_entity": "cepstrum_engine_single_lane_det_cfg",
+  "configuration_id": "CEPSTRUM_ENGINE_SINGLE_LANE_C0C3454B6D6CF053",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

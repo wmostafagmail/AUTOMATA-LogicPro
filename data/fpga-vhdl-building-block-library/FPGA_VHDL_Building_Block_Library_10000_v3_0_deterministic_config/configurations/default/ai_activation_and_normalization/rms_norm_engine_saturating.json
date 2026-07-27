@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rms_norm_engine_saturating",
+  "wrapper_entity": "rms_norm_engine_saturating_det_cfg",
+  "configuration_id": "RMS_NORM_ENGINE_SATURATING_AB76E6284F8859AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

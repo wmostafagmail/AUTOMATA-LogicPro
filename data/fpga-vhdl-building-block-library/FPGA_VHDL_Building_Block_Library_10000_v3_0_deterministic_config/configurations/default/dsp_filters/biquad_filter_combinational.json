@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "biquad_filter_combinational",
+  "wrapper_entity": "biquad_filter_combinational_det_cfg",
+  "configuration_id": "BIQUAD_FILTER_COMBINATIONAL_5A4807B22AFD1DDA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 47
+  }
+}

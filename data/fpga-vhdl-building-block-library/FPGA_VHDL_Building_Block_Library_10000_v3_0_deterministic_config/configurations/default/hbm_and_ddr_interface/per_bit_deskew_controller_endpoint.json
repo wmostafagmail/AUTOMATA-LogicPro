@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "per_bit_deskew_controller_endpoint",
+  "wrapper_entity": "per_bit_deskew_controller_endpoint_det_cfg",
+  "configuration_id": "PER_BIT_DESKEW_CONTROLLER_ENDPOINT_C8D2135B9D76C653",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

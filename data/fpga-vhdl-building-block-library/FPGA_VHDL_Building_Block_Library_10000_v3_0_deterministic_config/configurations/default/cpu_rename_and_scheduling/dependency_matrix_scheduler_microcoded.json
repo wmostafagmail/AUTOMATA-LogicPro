@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_microcoded",
+  "wrapper_entity": "dependency_matrix_scheduler_microcoded_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_MICROCODED_EE6B8CC069D68B82",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

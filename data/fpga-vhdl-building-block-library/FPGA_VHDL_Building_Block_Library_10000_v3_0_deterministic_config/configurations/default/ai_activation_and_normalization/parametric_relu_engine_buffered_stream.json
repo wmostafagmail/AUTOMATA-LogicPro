@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parametric_relu_engine_buffered_stream",
+  "wrapper_entity": "parametric_relu_engine_buffered_stream_det_cfg",
+  "configuration_id": "PARAMETRIC_RELU_ENGINE_BUFFERED_STREAM_BE308A9A062E8F36",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

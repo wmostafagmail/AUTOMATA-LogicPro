@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_cascade_packet_aware",
+  "wrapper_entity": "halfband_cascade_packet_aware_det_cfg",
+  "configuration_id": "HALFBAND_CASCADE_PACKET_AWARE_F5DFB65B87591F0D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

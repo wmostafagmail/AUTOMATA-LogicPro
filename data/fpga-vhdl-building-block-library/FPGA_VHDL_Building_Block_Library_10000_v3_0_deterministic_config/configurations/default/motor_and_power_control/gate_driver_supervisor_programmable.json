@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gate_driver_supervisor_programmable",
+  "wrapper_entity": "gate_driver_supervisor_programmable_det_cfg",
+  "configuration_id": "GATE_DRIVER_SUPERVISOR_PROGRAMMABLE_344D4985E4AD4971",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

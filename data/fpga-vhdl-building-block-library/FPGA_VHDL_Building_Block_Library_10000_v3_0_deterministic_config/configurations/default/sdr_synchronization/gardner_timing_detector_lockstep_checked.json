@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_lockstep_checked",
+  "wrapper_entity": "gardner_timing_detector_lockstep_checked_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_LOCKSTEP_CHECKED_52082AD00439045D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

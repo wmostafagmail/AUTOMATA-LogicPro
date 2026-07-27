@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_reciprocal_single_cycle",
+  "wrapper_entity": "fixed_point_reciprocal_single_cycle_det_cfg",
+  "configuration_id": "FIXED_POINT_RECIPROCAL_SINGLE_CYCLE_F3736C288F060407",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

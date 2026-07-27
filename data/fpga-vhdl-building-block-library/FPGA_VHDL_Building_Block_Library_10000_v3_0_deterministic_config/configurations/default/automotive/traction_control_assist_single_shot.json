@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "traction_control_assist_single_shot",
+  "wrapper_entity": "traction_control_assist_single_shot_det_cfg",
+  "configuration_id": "TRACTION_CONTROL_ASSIST_SINGLE_SHOT_2D53C337FA963333",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

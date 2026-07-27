@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_monitor_frontend_low_power",
+  "wrapper_entity": "battery_monitor_frontend_low_power_det_cfg",
+  "configuration_id": "BATTERY_MONITOR_FRONTEND_LOW_POWER_F8A87EE7F6AA0045",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

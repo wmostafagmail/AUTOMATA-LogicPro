@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_permutation_network_programmable_precision",
+  "wrapper_entity": "bit_permutation_network_programmable_precision_det_cfg",
+  "configuration_id": "BIT_PERMUTATION_NETWORK_PROGRAMMABLE_PRECISION_B889D00B6AA1C5AB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

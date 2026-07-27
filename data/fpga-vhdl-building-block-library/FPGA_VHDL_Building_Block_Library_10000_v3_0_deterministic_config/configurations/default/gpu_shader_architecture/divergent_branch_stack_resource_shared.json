@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_resource_shared",
+  "wrapper_entity": "divergent_branch_stack_resource_shared_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_RESOURCE_SHARED_C0F5E06B4756E0DA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

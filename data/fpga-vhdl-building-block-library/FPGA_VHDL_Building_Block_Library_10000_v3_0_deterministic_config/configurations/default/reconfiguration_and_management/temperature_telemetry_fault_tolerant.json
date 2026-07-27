@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "temperature_telemetry_fault_tolerant",
+  "wrapper_entity": "temperature_telemetry_fault_tolerant_det_cfg",
+  "configuration_id": "TEMPERATURE_TELEMETRY_FAULT_TOLERANT_A29249E75BDEF1EC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

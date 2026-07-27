@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_endpoint_scheduler_qos_aware",
+  "wrapper_entity": "usb3_endpoint_scheduler_qos_aware_det_cfg",
+  "configuration_id": "USB3_ENDPOINT_SCHEDULER_QOS_AWARE_C586D33E0647C64E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_schedule_table_multi_channel",
+  "wrapper_entity": "lin_schedule_table_multi_channel_det_cfg",
+  "configuration_id": "LIN_SCHEDULE_TABLE_MULTI_CHANNEL_058D12DF86673A59",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

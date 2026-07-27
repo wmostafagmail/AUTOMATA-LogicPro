@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "exponential_approximator_iterative",
+  "wrapper_entity": "exponential_approximator_iterative_det_cfg",
+  "configuration_id": "EXPONENTIAL_APPROXIMATOR_ITERATIVE_CE570FCB1B4FE0B3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

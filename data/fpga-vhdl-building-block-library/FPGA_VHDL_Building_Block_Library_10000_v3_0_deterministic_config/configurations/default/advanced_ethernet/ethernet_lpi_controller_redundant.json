@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_lpi_controller_redundant",
+  "wrapper_entity": "ethernet_lpi_controller_redundant_det_cfg",
+  "configuration_id": "ETHERNET_LPI_CONTROLLER_REDUNDANT_124CC094749E9464",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

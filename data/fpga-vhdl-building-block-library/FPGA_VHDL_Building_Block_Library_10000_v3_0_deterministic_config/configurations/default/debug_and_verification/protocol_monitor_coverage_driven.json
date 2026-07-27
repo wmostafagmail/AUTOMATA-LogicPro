@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_monitor_coverage_driven",
+  "wrapper_entity": "protocol_monitor_coverage_driven_det_cfg",
+  "configuration_id": "PROTOCOL_MONITOR_COVERAGE_DRIVEN_08A774ED42B01597",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

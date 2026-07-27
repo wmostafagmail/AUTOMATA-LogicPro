@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_bist_controller_data_integrity",
+  "wrapper_entity": "logic_bist_controller_data_integrity_det_cfg",
+  "configuration_id": "LOGIC_BIST_CONTROLLER_DATA_INTEGRITY_70D7608FB90DFE3C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

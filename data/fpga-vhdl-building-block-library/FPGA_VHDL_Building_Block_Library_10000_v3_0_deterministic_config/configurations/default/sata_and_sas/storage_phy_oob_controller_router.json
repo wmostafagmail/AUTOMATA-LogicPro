@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_router",
+  "wrapper_entity": "storage_phy_oob_controller_router_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_ROUTER_4EC1CB5F04F238C6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

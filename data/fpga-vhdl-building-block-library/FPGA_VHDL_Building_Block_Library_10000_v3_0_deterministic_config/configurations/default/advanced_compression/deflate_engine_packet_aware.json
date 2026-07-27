@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deflate_engine_packet_aware",
+  "wrapper_entity": "deflate_engine_packet_aware_det_cfg",
+  "configuration_id": "DEFLATE_ENGINE_PACKET_AWARE_FF9E1C53B142D075",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

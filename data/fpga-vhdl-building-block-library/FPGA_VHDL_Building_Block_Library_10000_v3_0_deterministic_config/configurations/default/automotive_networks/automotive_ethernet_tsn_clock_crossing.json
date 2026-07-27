@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_clock_crossing",
+  "wrapper_entity": "automotive_ethernet_tsn_clock_crossing_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_CLOCK_CROSSING_C5556FDFF68EB7D5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

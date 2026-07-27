@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "conservative_rasterizer_programmable",
+  "wrapper_entity": "conservative_rasterizer_programmable_det_cfg",
+  "configuration_id": "CONSERVATIVE_RASTERIZER_PROGRAMMABLE_0DE02BB6EBCEAA59",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

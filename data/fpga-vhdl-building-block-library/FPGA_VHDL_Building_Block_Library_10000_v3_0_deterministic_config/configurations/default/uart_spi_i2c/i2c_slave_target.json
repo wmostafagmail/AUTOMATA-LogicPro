@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2c_slave_target",
+  "wrapper_entity": "i2c_slave_target_det_cfg",
+  "configuration_id": "I2C_SLAVE_TARGET_9E37364209A8EEEC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

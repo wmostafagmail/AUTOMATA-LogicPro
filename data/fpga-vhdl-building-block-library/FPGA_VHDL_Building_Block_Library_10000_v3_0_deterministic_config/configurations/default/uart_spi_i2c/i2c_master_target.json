@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2c_master_target",
+  "wrapper_entity": "i2c_master_target_det_cfg",
+  "configuration_id": "I2C_MASTER_TARGET_FFFED7B30E48DF87",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

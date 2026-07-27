@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_prefix_sum_streaming",
+  "wrapper_entity": "vector_prefix_sum_streaming_det_cfg",
+  "configuration_id": "VECTOR_PREFIX_SUM_STREAMING_C3ACF24E9B6DC472",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

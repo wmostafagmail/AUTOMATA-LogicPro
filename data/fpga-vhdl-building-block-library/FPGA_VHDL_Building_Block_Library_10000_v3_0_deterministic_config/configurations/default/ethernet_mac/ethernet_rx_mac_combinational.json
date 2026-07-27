@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_rx_mac_combinational",
+  "wrapper_entity": "ethernet_rx_mac_combinational_det_cfg",
+  "configuration_id": "ETHERNET_RX_MAC_COMBINATIONAL_EC7AA6AAADA48AD9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

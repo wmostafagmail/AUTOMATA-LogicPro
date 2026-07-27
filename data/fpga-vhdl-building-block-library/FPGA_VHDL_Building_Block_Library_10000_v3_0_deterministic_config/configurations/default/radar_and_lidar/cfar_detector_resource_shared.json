@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cfar_detector_resource_shared",
+  "wrapper_entity": "cfar_detector_resource_shared_det_cfg",
+  "configuration_id": "CFAR_DETECTOR_RESOURCE_SHARED_2DEAB04FE55A7B74",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 100
+  }
+}

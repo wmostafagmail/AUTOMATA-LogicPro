@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_monitor_assertion_based",
+  "wrapper_entity": "protocol_monitor_assertion_based_det_cfg",
+  "configuration_id": "PROTOCOL_MONITOR_ASSERTION_BASED_ADCCB20DCCB8702D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

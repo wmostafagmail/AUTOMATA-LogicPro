@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_rate_tracking_loop_deep_pipelined",
+  "wrapper_entity": "sample_rate_tracking_loop_deep_pipelined_det_cfg",
+  "configuration_id": "SAMPLE_RATE_TRACKING_LOOP_DEEP_PIPELINED_5F00C439C35E7D7C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

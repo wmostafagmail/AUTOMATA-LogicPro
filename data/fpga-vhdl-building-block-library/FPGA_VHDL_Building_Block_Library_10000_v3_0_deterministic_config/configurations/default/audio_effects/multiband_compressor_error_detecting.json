@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multiband_compressor_error_detecting",
+  "wrapper_entity": "multiband_compressor_error_detecting_det_cfg",
+  "configuration_id": "MULTIBAND_COMPRESSOR_ERROR_DETECTING_6A3F9D74D88D920E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

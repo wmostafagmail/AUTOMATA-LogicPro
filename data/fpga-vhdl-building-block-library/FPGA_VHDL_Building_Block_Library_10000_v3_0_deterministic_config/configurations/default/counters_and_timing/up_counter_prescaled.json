@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "up_counter_prescaled",
+  "wrapper_entity": "up_counter_prescaled_det_cfg",
+  "configuration_id": "UP_COUNTER_PRESCALED_45A91C4BC03ACEC3",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "causal_mask_generator_programmable_precision",
+  "wrapper_entity": "causal_mask_generator_programmable_precision_det_cfg",
+  "configuration_id": "CAUSAL_MASK_GENERATOR_PROGRAMMABLE_PRECISION_A64CB5B0F779CC9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

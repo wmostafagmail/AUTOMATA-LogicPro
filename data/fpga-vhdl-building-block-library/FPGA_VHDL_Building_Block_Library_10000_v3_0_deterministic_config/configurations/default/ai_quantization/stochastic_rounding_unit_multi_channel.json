@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stochastic_rounding_unit_multi_channel",
+  "wrapper_entity": "stochastic_rounding_unit_multi_channel_det_cfg",
+  "configuration_id": "STOCHASTIC_ROUNDING_UNIT_MULTI_CHANNEL_C9C449AEABBDD063",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

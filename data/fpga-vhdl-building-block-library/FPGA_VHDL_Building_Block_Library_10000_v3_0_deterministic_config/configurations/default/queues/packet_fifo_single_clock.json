@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_fifo_single_clock",
+  "wrapper_entity": "packet_fifo_single_clock_det_cfg",
+  "configuration_id": "PACKET_FIFO_SINGLE_CLOCK_A3489411910E3C5A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

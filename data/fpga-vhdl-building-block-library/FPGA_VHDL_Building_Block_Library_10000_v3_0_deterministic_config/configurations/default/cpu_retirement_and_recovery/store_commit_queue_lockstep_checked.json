@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_lockstep_checked",
+  "wrapper_entity": "store_commit_queue_lockstep_checked_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_LOCKSTEP_CHECKED_A4FCFFF4D3025A61",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

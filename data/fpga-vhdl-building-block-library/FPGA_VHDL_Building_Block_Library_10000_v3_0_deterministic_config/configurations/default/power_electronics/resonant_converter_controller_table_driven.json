@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_table_driven",
+  "wrapper_entity": "resonant_converter_controller_table_driven_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_TABLE_DRIVEN_844B7ACC8C74E048",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

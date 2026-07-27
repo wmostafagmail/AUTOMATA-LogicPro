@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "softmax_engine_sparse",
+  "wrapper_entity": "softmax_engine_sparse_det_cfg",
+  "configuration_id": "SOFTMAX_ENGINE_SPARSE_269FC3F940AA8BFA",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

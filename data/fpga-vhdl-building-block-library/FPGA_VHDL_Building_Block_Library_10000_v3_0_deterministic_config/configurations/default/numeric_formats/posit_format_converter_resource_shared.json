@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_resource_shared",
+  "wrapper_entity": "posit_format_converter_resource_shared_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_RESOURCE_SHARED_24FD9016CD450567",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

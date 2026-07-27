@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_formally_instrumented",
+  "wrapper_entity": "resonant_converter_controller_formally_instrumented_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_FORMALLY_INSTRUMENTED_B3700B3D9A4A3059",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

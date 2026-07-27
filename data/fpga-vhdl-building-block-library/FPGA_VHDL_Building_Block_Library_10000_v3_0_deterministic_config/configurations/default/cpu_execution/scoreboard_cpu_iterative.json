@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_cpu_iterative",
+  "wrapper_entity": "scoreboard_cpu_iterative_det_cfg",
+  "configuration_id": "SCOREBOARD_CPU_ITERATIVE_C6477CC6E0185FD7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

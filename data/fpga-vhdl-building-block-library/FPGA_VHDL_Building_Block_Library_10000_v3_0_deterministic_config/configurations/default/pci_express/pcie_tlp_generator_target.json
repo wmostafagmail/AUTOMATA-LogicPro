@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_tlp_generator_target",
+  "wrapper_entity": "pcie_tlp_generator_target_det_cfg",
+  "configuration_id": "PCIE_TLP_GENERATOR_TARGET_D5190A1E1AB1E37A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

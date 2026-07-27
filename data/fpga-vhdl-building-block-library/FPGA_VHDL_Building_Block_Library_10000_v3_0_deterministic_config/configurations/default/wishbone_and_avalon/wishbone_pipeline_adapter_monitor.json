@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_pipeline_adapter_monitor",
+  "wrapper_entity": "wishbone_pipeline_adapter_monitor_det_cfg",
+  "configuration_id": "WISHBONE_PIPELINE_ADAPTER_MONITOR_F99F31191AEED590",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

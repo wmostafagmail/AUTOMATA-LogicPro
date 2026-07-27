@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_multiplier_streaming",
+  "wrapper_entity": "decimal_multiplier_streaming_det_cfg",
+  "configuration_id": "DECIMAL_MULTIPLIER_STREAMING_178EB8969FDDA11E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

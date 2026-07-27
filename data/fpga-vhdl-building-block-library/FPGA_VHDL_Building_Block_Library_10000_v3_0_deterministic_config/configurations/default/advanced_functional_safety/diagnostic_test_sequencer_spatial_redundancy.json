@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_spatial_redundancy",
+  "wrapper_entity": "diagnostic_test_sequencer_spatial_redundancy_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_SPATIAL_REDUNDANCY_2D4924AD46E074CA",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

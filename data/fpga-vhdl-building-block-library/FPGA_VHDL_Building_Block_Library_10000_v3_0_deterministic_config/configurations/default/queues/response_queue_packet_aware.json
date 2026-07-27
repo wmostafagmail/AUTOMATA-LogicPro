@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "response_queue_packet_aware",
+  "wrapper_entity": "response_queue_packet_aware_det_cfg",
+  "configuration_id": "RESPONSE_QUEUE_PACKET_AWARE_C0FA75CC73449403",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

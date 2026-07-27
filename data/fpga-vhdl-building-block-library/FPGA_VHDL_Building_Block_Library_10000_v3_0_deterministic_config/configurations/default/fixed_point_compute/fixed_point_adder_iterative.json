@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_adder_iterative",
+  "wrapper_entity": "fixed_point_adder_iterative_det_cfg",
+  "configuration_id": "FIXED_POINT_ADDER_ITERATIVE_3E315EAC6E7E2200",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

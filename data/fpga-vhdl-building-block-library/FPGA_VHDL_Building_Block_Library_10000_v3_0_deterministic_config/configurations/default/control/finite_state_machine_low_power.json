@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "finite_state_machine_low_power",
+  "wrapper_entity": "finite_state_machine_low_power_det_cfg",
+  "configuration_id": "FINITE_STATE_MACHINE_LOW_POWER_80376C23CEB324DD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

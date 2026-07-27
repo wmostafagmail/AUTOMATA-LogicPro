@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quantizer_pipelined",
+  "wrapper_entity": "quantizer_pipelined_det_cfg",
+  "configuration_id": "QUANTIZER_PIPELINED_F8E604F1E6A4336D",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

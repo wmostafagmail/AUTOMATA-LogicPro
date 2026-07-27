@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fragment_queue_low_latency",
+  "wrapper_entity": "fragment_queue_low_latency_det_cfg",
+  "configuration_id": "FRAGMENT_QUEUE_LOW_LATENCY_B46536073BD0AF80",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

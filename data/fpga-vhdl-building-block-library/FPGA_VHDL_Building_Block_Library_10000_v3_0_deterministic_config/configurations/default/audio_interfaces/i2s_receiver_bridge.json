@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2s_receiver_bridge",
+  "wrapper_entity": "i2s_receiver_bridge_det_cfg",
+  "configuration_id": "I2S_RECEIVER_BRIDGE_FF2A1A3DFFE074A2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

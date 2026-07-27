@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "active_video_generator_streaming",
+  "wrapper_entity": "active_video_generator_streaming_det_cfg",
+  "configuration_id": "ACTIVE_VIDEO_GENERATOR_STREAMING_F911F3EB6C070994",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

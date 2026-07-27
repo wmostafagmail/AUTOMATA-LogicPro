@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_core_lockstep_monitor_clock_monitored",
+  "wrapper_entity": "dual_core_lockstep_monitor_clock_monitored_det_cfg",
+  "configuration_id": "DUAL_CORE_LOCKSTEP_MONITOR_CLOCK_MONITORED_1DFA593F9EDE9A38",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

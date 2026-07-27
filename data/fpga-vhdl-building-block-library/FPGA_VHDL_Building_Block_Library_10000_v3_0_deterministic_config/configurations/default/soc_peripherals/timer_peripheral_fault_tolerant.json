@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "timer_peripheral_fault_tolerant",
+  "wrapper_entity": "timer_peripheral_fault_tolerant_det_cfg",
+  "configuration_id": "TIMER_PERIPHERAL_FAULT_TOLERANT_6D55CA5A967E7EEC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_st_sink_clock_crossing",
+  "wrapper_entity": "avalon_st_sink_clock_crossing_det_cfg",
+  "configuration_id": "AVALON_ST_SINK_CLOCK_CROSSING_753A8B8C61A14065",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

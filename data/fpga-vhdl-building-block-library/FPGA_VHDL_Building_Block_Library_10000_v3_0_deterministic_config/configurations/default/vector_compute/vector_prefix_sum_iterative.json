@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_prefix_sum_iterative",
+  "wrapper_entity": "vector_prefix_sum_iterative_det_cfg",
+  "configuration_id": "VECTOR_PREFIX_SUM_ITERATIVE_08A7B4E9B0994A85",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

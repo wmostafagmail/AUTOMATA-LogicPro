@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "serializer_fault_tolerant",
+  "wrapper_entity": "serializer_fault_tolerant_det_cfg",
+  "configuration_id": "SERIALIZER_FAULT_TOLERANT_2AD4AE552EC4E20C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

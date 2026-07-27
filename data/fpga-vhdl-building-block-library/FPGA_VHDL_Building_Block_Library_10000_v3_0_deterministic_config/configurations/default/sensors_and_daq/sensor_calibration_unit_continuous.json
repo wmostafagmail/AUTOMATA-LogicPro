@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sensor_calibration_unit_continuous",
+  "wrapper_entity": "sensor_calibration_unit_continuous_det_cfg",
+  "configuration_id": "SENSOR_CALIBRATION_UNIT_CONTINUOUS_7F894C825F20A180",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

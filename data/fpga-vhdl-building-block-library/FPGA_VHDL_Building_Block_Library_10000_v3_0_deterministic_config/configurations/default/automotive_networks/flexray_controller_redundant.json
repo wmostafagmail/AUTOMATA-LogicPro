@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_redundant",
+  "wrapper_entity": "flexray_controller_redundant_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_REDUNDANT_0A6FAFE6F0E92D4F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

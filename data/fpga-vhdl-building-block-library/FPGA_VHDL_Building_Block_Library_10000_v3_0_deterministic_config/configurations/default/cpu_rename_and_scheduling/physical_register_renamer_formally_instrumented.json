@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_formally_instrumented",
+  "wrapper_entity": "physical_register_renamer_formally_instrumented_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_FORMALLY_INSTRUMENTED_2DE67CB268F2304C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

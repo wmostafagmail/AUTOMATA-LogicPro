@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "spectrum_analyzer_frontend_calibrated",
+  "wrapper_entity": "spectrum_analyzer_frontend_calibrated_det_cfg",
+  "configuration_id": "SPECTRUM_ANALYZER_FRONTEND_CALIBRATED_6BD02672AF04B8DF",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

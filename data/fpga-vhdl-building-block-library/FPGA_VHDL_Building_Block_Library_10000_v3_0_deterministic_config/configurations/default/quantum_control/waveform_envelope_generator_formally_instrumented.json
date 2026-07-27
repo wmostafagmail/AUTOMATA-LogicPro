@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_formally_instrumented",
+  "wrapper_entity": "waveform_envelope_generator_formally_instrumented_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_FORMALLY_INSTRUMENTED_6B051251793DC065",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

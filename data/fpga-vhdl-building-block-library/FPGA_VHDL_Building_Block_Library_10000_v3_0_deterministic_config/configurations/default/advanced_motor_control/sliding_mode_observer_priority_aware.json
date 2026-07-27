@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_priority_aware",
+  "wrapper_entity": "sliding_mode_observer_priority_aware_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_PRIORITY_AWARE_CCEE07BE9C54EB72",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_clock_crossing",
+  "wrapper_entity": "torus_router_clock_crossing_det_cfg",
+  "configuration_id": "TORUS_ROUTER_CLOCK_CROSSING_1D7DF8DA835FEEFF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

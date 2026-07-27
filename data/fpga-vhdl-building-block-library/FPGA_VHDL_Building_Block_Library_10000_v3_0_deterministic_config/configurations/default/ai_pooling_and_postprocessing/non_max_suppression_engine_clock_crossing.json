@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "non_max_suppression_engine_clock_crossing",
+  "wrapper_entity": "non_max_suppression_engine_clock_crossing_det_cfg",
+  "configuration_id": "NON_MAX_SUPPRESSION_ENGINE_CLOCK_CROSSING_21A97F567F99074B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

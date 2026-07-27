@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_clock_monitored",
+  "wrapper_entity": "key_vault_controller_clock_monitored_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_CLOCK_MONITORED_C5AFD6867AF43257",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

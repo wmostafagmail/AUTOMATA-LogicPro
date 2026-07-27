@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_ncq_scheduler_dma_attached",
+  "wrapper_entity": "sata_ncq_scheduler_dma_attached_det_cfg",
+  "configuration_id": "SATA_NCQ_SCHEDULER_DMA_ATTACHED_5D37D4303B280862",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

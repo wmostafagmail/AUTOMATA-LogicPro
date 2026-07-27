@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "comma_detector_continuous",
+  "wrapper_entity": "comma_detector_continuous_det_cfg",
+  "configuration_id": "COMMA_DETECTOR_CONTINUOUS_5E389E5A10601446",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

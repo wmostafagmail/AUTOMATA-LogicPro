@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dilithium_ntt_engine_constant_time",
+  "wrapper_entity": "dilithium_ntt_engine_constant_time_det_cfg",
+  "configuration_id": "DILITHIUM_NTT_ENGINE_CONSTANT_TIME_3949C122ED7BEE87",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

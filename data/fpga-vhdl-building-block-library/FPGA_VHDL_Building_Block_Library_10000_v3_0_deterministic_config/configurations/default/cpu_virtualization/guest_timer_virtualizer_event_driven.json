@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_event_driven",
+  "wrapper_entity": "guest_timer_virtualizer_event_driven_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_EVENT_DRIVEN_C479B79951B7DF75",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

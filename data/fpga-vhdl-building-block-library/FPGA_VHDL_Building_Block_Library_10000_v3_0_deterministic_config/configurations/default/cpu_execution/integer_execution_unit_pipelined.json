@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "integer_execution_unit_pipelined",
+  "wrapper_entity": "integer_execution_unit_pipelined_det_cfg",
+  "configuration_id": "INTEGER_EXECUTION_UNIT_PIPELINED_593094B9811C1323",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

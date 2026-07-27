@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "serial_collision_detector_continuous",
+  "wrapper_entity": "serial_collision_detector_continuous_det_cfg",
+  "configuration_id": "SERIAL_COLLISION_DETECTOR_CONTINUOUS_87838B288575F797",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

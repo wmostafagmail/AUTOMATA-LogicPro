@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_error_resilient",
+  "wrapper_entity": "bezier_curve_rasterizer_error_resilient_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_ERROR_RESILIENT_92326D9A753F0BF5",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "threshold_detector_continuous",
+  "wrapper_entity": "threshold_detector_continuous_det_cfg",
+  "configuration_id": "THRESHOLD_DETECTOR_CONTINUOUS_955DC1FFF1F19368",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

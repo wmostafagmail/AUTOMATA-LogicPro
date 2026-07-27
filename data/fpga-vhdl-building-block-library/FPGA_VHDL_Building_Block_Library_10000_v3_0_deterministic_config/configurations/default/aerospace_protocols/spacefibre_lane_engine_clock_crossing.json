@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spacefibre_lane_engine_clock_crossing",
+  "wrapper_entity": "spacefibre_lane_engine_clock_crossing_det_cfg",
+  "configuration_id": "SPACEFIBRE_LANE_ENGINE_CLOCK_CROSSING_ADE3053824B3CBF3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_lookup_interpolator_buffered_stream",
+  "wrapper_entity": "activation_lookup_interpolator_buffered_stream_det_cfg",
+  "configuration_id": "ACTIVATION_LOOKUP_INTERPOLATOR_BUFFERED_STREAM_EA6EF47F56CF7C6E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

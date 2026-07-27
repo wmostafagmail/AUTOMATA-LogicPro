@@ -1,0 +1,11 @@
+{
+  "wrapper_entity": "program_counter_64bit_cfg",
+  "source_entity": "program_counter",
+  "configuration_id": "PROGRAM_COUNTER_AAD86D1164F22FDC",
+  "resolved_generics": {
+    "PC_WIDTH": 64,
+    "RESET_VECTOR": 4096,
+    "INSTR_BYTES": 4
+  },
+  "output": "/mnt/data/FPGA_VHDL_Building_Block_Library_10000_v3_0_deterministic_config/examples/deterministic_top/program_counter_64bit_cfg.vhd"
+}

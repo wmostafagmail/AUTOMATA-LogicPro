@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_formally_instrumented",
+  "wrapper_entity": "measured_boot_engine_formally_instrumented_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_FORMALLY_INSTRUMENTED_B5D8D93A415932DC",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

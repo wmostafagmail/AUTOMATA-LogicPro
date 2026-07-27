@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_redundant",
+  "wrapper_entity": "can_fd_controller_redundant_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_REDUNDANT_044CE234D64F7817",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

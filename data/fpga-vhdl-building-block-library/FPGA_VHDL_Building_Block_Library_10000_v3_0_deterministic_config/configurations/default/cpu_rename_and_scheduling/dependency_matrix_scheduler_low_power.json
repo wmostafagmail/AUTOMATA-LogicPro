@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_low_power",
+  "wrapper_entity": "dependency_matrix_scheduler_low_power_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_LOW_POWER_1306DF14BED3D8D8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

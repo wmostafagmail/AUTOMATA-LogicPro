@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "boolean_expression_evaluator_resource_shared",
+  "wrapper_entity": "boolean_expression_evaluator_resource_shared_det_cfg",
+  "configuration_id": "BOOLEAN_EXPRESSION_EVALUATOR_RESOURCE_SHARED_5789AB2C51888D10",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

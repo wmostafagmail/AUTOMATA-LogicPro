@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_high_throughput",
+  "wrapper_entity": "display_damage_tracker_high_throughput_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_HIGH_THROUGHPUT_992F329FBEEB4DE5",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

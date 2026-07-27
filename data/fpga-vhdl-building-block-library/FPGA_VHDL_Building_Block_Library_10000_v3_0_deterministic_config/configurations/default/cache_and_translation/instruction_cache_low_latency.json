@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_cache_low_latency",
+  "wrapper_entity": "instruction_cache_low_latency_det_cfg",
+  "configuration_id": "INSTRUCTION_CACHE_LOW_LATENCY_C07237E5B6D16F91",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

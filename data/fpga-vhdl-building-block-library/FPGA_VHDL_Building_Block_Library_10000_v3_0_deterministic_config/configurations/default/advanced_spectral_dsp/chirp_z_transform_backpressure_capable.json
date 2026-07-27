@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chirp_z_transform_backpressure_capable",
+  "wrapper_entity": "chirp_z_transform_backpressure_capable_det_cfg",
+  "configuration_id": "CHIRP_Z_TRANSFORM_BACKPRESSURE_CAPABLE_20A1543AAFD9D524",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "configuration_crc_checker_low_power",
+  "wrapper_entity": "configuration_crc_checker_low_power_det_cfg",
+  "configuration_id": "CONFIGURATION_CRC_CHECKER_LOW_POWER_3A0A0E0BC5B72C5B",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

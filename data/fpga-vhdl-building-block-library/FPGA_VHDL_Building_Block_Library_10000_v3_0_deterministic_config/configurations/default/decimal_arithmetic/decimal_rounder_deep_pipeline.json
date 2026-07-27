@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_rounder_deep_pipeline",
+  "wrapper_entity": "decimal_rounder_deep_pipeline_det_cfg",
+  "configuration_id": "DECIMAL_ROUNDER_DEEP_PIPELINE_1453676E97B29DE4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

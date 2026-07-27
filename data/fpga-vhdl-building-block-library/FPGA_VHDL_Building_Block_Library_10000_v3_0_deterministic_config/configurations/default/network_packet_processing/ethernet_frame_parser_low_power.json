@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_frame_parser_low_power",
+  "wrapper_entity": "ethernet_frame_parser_low_power_det_cfg",
+  "configuration_id": "ETHERNET_FRAME_PARSER_LOW_POWER_4B8EA5B258D40D3E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

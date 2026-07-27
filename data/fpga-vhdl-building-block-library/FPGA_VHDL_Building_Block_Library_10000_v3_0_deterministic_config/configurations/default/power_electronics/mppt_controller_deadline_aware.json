@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_deadline_aware",
+  "wrapper_entity": "mppt_controller_deadline_aware_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_DEADLINE_AWARE_8F71366C123614D8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

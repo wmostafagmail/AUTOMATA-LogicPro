@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "non_max_suppression_engine_multi_lane",
+  "wrapper_entity": "non_max_suppression_engine_multi_lane_det_cfg",
+  "configuration_id": "NON_MAX_SUPPRESSION_ENGINE_MULTI_LANE_D16A7117BFB1AB7B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

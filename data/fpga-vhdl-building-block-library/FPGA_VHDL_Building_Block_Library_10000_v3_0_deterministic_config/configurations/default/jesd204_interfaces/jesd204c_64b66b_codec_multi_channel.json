@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204c_64b66b_codec_multi_channel",
+  "wrapper_entity": "jesd204c_64b66b_codec_multi_channel_det_cfg",
+  "configuration_id": "JESD204C_64B66B_CODEC_MULTI_CHANNEL_C3CF1BB9BE6226B6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

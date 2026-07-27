@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_lockstep_checked",
+  "wrapper_entity": "costas_loop_lockstep_checked_det_cfg",
+  "configuration_id": "COSTAS_LOOP_LOCKSTEP_CHECKED_4571706DDB5C02F2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

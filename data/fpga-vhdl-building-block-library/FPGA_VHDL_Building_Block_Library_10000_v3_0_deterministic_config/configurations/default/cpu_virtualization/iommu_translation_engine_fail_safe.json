@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iommu_translation_engine_fail_safe",
+  "wrapper_entity": "iommu_translation_engine_fail_safe_det_cfg",
+  "configuration_id": "IOMMU_TRANSLATION_ENGINE_FAIL_SAFE_AF0CDC2780135C20",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

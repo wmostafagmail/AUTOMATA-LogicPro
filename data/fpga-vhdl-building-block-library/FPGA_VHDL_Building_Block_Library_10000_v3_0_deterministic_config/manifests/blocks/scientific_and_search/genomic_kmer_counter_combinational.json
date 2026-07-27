@@ -1,0 +1,143 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "genomic_kmer_counter_combinational",
+    "entity": "genomic_kmer_counter_combinational",
+    "version": "3.0.0",
+    "category": "scientific_and_search",
+    "source": "rtl/blocks/scientific_and_search/genomic_kmer_counter_combinational.vhd",
+    "wrapper_entity": "genomic_kmer_counter_combinational_det_cfg"
+  },
+  "configuration": {
+    "id": "GENOMIC_KMER_COUNTER_COMBINATIONAL_43B8737B10006D58",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "COUNT_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "MODULUS",
+        "type": "positive",
+        "default": "65536",
+        "minimum": 1
+      },
+      {
+        "name": "STEP",
+        "type": "positive",
+        "default": "1",
+        "minimum": 1
+      },
+      {
+        "name": "SATURATING",
+        "type": "boolean",
+        "default": "false",
+        "minimum": null
+      },
+      {
+        "name": "DOWN_COUNT",
+        "type": "boolean",
+        "default": "false",
+        "minimum": null
+      }
+    ],
+    "resolved_defaults": {
+      "COUNT_WIDTH": 32,
+      "MODULUS": 65536,
+      "STEP": 1,
+      "SATURATING": false,
+      "DOWN_COUNT": false
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "enable",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "load",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "clear",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "load_value",
+        "direction": "in",
+        "type": "std_logic_vector(COUNT_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "count",
+        "direction": "out",
+        "type": "std_logic_vector(COUNT_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "terminal_count",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "overflow",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "bit-accurate integer behavior for implemented operation subset"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/scientific_and_search/genomic_kmer_counter_combinational_det_cfg.vhd",
+    "configuration_file": "configurations/default/genomic_kmer_counter_combinational.json"
+  }
+}

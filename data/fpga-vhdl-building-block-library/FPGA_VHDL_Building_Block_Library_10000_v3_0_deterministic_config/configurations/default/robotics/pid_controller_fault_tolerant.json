@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pid_controller_fault_tolerant",
+  "wrapper_entity": "pid_controller_fault_tolerant_det_cfg",
+  "configuration_id": "PID_CONTROLLER_FAULT_TOLERANT_088FF0F985149808",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

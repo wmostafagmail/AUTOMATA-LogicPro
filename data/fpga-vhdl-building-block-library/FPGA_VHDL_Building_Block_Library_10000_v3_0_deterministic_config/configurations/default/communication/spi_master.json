@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_master",
+  "wrapper_entity": "spi_master_det_cfg",
+  "configuration_id": "SPI_MASTER_D90A7B356AFF7925",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

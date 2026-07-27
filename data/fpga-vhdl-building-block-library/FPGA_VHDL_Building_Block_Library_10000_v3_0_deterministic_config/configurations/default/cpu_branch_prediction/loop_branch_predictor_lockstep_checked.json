@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_lockstep_checked",
+  "wrapper_entity": "loop_branch_predictor_lockstep_checked_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_LOCKSTEP_CHECKED_B86B384C791FF528",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

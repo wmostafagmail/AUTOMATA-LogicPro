@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gpio_controller_fault_tolerant",
+  "wrapper_entity": "gpio_controller_fault_tolerant_det_cfg",
+  "configuration_id": "GPIO_CONTROLLER_FAULT_TOLERANT_AD483D43E8E2EB19",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

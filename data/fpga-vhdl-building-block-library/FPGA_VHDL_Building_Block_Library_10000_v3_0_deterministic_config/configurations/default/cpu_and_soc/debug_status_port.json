@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "debug_status_port",
+  "wrapper_entity": "debug_status_port_det_cfg",
+  "configuration_id": "DEBUG_STATUS_PORT_FE19BB287D6015B9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

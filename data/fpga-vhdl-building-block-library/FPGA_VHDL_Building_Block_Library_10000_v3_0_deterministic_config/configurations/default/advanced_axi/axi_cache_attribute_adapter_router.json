@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_cache_attribute_adapter_router",
+  "wrapper_entity": "axi_cache_attribute_adapter_router_det_cfg",
+  "configuration_id": "AXI_CACHE_ATTRIBUTE_ADAPTER_ROUTER_3C4C84FF98B4D8F0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

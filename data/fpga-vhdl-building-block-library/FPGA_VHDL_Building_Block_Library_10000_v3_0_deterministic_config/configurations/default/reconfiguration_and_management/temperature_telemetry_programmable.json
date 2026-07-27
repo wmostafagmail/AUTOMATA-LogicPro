@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "temperature_telemetry_programmable",
+  "wrapper_entity": "temperature_telemetry_programmable_det_cfg",
+  "configuration_id": "TEMPERATURE_TELEMETRY_PROGRAMMABLE_5CDCDBF0DFB1315B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

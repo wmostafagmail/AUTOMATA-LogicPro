@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "compressed_weight_decoder_multi_engine",
+  "wrapper_entity": "compressed_weight_decoder_multi_engine_det_cfg",
+  "configuration_id": "COMPRESSED_WEIGHT_DECODER_MULTI_ENGINE_91D9E12E51AEC2B7",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

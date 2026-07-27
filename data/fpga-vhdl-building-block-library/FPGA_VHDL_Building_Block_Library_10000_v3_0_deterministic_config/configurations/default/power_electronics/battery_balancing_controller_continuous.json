@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_balancing_controller_continuous",
+  "wrapper_entity": "battery_balancing_controller_continuous_det_cfg",
+  "configuration_id": "BATTERY_BALANCING_CONTROLLER_CONTINUOUS_C33778B7ECADE73E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

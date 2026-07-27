@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_ycbcr_framebuffer",
+  "wrapper_entity": "rgb_to_ycbcr_framebuffer_det_cfg",
+  "configuration_id": "RGB_TO_YCBCR_FRAMEBUFFER_8F0D4C4618256EEB",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

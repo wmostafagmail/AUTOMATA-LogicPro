@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_assertion_based",
+  "wrapper_entity": "scoreboard_assertion_based_det_cfg",
+  "configuration_id": "SCOREBOARD_ASSERTION_BASED_ABE58EAC4F30F3DD",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

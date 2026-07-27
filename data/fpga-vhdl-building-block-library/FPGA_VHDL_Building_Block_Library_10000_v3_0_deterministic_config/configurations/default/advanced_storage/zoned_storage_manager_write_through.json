@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zoned_storage_manager_write_through",
+  "wrapper_entity": "zoned_storage_manager_write_through_det_cfg",
+  "configuration_id": "ZONED_STORAGE_MANAGER_WRITE_THROUGH_05744FA0A3FA564E",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

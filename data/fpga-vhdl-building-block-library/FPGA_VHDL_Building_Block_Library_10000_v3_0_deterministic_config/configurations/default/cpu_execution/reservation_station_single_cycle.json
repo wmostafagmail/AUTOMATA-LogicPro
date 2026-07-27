@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reservation_station_single_cycle",
+  "wrapper_entity": "reservation_station_single_cycle_det_cfg",
+  "configuration_id": "RESERVATION_STATION_SINGLE_CYCLE_693F993C936E519F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

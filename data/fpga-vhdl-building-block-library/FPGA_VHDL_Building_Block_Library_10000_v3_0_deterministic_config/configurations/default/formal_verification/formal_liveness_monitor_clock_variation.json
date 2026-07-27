@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_clock_variation",
+  "wrapper_entity": "formal_liveness_monitor_clock_variation_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_CLOCK_VARIATION_0C113F057264EBA1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

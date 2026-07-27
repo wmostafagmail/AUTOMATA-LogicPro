@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sar_adc_controller_redundant",
+  "wrapper_entity": "sar_adc_controller_redundant_det_cfg",
+  "configuration_id": "SAR_ADC_CONTROLLER_REDUNDANT_7088BE17DF68053A",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

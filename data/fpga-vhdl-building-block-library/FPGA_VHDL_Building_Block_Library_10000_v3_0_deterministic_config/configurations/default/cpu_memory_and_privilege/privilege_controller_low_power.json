@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_controller_low_power",
+  "wrapper_entity": "privilege_controller_low_power_det_cfg",
+  "configuration_id": "PRIVILEGE_CONTROLLER_LOW_POWER_93E5201D093FA158",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

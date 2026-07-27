@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "glyph_cache_controller_framebuffer",
+  "wrapper_entity": "glyph_cache_controller_framebuffer_det_cfg",
+  "configuration_id": "GLYPH_CACHE_CONTROLLER_FRAMEBUFFER_6161943C4C021185",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz_match_finder_single_cycle",
+  "wrapper_entity": "lz_match_finder_single_cycle_det_cfg",
+  "configuration_id": "LZ_MATCH_FINDER_SINGLE_CYCLE_E9AE52D3C4346847",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 133
+  }
+}

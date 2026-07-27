@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tile_binning_engine_pipelined",
+  "wrapper_entity": "tile_binning_engine_pipelined_det_cfg",
+  "configuration_id": "TILE_BINNING_ENGINE_PIPELINED_E4F88BB5AF4BE8BC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_endpoint",
+  "wrapper_entity": "sata_link_engine_endpoint_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_ENDPOINT_B6D72BF37FA41FD1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

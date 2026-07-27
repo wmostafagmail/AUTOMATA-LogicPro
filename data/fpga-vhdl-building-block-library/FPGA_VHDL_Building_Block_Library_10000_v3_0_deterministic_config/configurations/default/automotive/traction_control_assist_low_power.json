@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "traction_control_assist_low_power",
+  "wrapper_entity": "traction_control_assist_low_power_det_cfg",
+  "configuration_id": "TRACTION_CONTROL_ASSIST_LOW_POWER_CA5EE3406BE32857",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

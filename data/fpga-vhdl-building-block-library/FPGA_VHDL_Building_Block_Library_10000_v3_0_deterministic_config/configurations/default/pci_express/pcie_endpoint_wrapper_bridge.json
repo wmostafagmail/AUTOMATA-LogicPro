@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_endpoint_wrapper_bridge",
+  "wrapper_entity": "pcie_endpoint_wrapper_bridge_det_cfg",
+  "configuration_id": "PCIE_ENDPOINT_WRAPPER_BRIDGE_86FBA9C9FCA68FBF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_multi_plane",
+  "wrapper_entity": "motion_estimation_engine_multi_plane_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_MULTI_PLANE_3F5C88FEF17D8A94",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

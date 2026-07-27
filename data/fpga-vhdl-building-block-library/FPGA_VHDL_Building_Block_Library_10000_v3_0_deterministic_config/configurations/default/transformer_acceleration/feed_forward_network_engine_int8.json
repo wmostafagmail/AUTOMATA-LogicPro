@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "feed_forward_network_engine_int8",
+  "wrapper_entity": "feed_forward_network_engine_int8_det_cfg",
+  "configuration_id": "FEED_FORWARD_NETWORK_ENGINE_INT8_E68DE5484025CF8C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

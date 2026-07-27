@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "transaction_controller_multi_channel",
+  "wrapper_entity": "transaction_controller_multi_channel_det_cfg",
+  "configuration_id": "TRANSACTION_CONTROLLER_MULTI_CHANNEL_A69C6BE66ECDE604",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

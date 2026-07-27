@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_mii_adapter_single_cycle",
+  "wrapper_entity": "ethernet_mii_adapter_single_cycle_det_cfg",
+  "configuration_id": "ETHERNET_MII_ADAPTER_SINGLE_CYCLE_91267FB0CAD42E36",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

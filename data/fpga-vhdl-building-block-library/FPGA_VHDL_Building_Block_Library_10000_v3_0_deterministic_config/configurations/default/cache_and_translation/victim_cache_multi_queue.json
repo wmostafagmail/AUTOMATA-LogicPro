@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "victim_cache_multi_queue",
+  "wrapper_entity": "victim_cache_multi_queue_det_cfg",
+  "configuration_id": "VICTIM_CACHE_MULTI_QUEUE_97359934FDB30AA6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

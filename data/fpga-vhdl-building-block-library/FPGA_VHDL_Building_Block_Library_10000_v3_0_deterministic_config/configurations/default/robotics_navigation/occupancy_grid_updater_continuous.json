@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "occupancy_grid_updater_continuous",
+  "wrapper_entity": "occupancy_grid_updater_continuous_det_cfg",
+  "configuration_id": "OCCUPANCY_GRID_UPDATER_CONTINUOUS_543D1E3A92BEEE84",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

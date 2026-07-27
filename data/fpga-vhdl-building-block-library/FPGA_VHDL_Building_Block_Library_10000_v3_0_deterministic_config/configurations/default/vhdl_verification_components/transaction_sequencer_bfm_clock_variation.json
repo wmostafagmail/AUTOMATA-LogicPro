@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_clock_variation",
+  "wrapper_entity": "transaction_sequencer_bfm_clock_variation_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_CLOCK_VARIATION_98BAD6E410D1144E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

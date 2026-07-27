@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavetable_synthesizer_combinational",
+  "wrapper_entity": "wavetable_synthesizer_combinational_det_cfg",
+  "configuration_id": "WAVETABLE_SYNTHESIZER_COMBINATIONAL_735EFAA70B9DBEF1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

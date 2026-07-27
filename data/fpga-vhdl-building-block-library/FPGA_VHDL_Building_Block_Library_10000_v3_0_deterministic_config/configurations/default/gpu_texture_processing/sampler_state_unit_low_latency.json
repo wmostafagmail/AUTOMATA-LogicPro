@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_low_latency",
+  "wrapper_entity": "sampler_state_unit_low_latency_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_LOW_LATENCY_0F42435C7E6C2514",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

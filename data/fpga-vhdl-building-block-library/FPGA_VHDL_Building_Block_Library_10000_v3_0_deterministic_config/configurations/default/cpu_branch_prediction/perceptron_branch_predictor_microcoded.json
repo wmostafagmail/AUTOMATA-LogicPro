@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_microcoded",
+  "wrapper_entity": "perceptron_branch_predictor_microcoded_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_MICROCODED_1070B358D41331AF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

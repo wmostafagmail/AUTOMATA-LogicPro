@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_execution_unit_resource_shared",
+  "wrapper_entity": "branch_execution_unit_resource_shared_det_cfg",
+  "configuration_id": "BRANCH_EXECUTION_UNIT_RESOURCE_SHARED_42D4E660CFA2E666",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

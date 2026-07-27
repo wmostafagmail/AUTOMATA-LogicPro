@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parity_reducer_resource_shared",
+  "wrapper_entity": "parity_reducer_resource_shared_det_cfg",
+  "configuration_id": "PARITY_REDUCER_RESOURCE_SHARED_F3021037288B0D0D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

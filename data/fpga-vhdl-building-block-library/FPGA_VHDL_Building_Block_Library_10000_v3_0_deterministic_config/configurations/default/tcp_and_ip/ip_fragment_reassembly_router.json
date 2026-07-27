@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_router",
+  "wrapper_entity": "ip_fragment_reassembly_router_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_ROUTER_FDDAA6C7E1DDC1BE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

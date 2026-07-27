@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_fail_safe",
+  "wrapper_entity": "guest_timer_virtualizer_fail_safe_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_FAIL_SAFE_A37977482245100B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

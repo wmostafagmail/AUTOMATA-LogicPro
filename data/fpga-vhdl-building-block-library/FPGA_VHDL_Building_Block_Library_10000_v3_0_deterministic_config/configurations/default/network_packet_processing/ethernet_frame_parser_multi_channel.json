@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_frame_parser_multi_channel",
+  "wrapper_entity": "ethernet_frame_parser_multi_channel_det_cfg",
+  "configuration_id": "ETHERNET_FRAME_PARSER_MULTI_CHANNEL_15FAD5435AECA65E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

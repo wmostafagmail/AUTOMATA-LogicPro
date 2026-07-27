@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fft_convolution_engine_saturating",
+  "wrapper_entity": "fft_convolution_engine_saturating_det_cfg",
+  "configuration_id": "FFT_CONVOLUTION_ENGINE_SATURATING_596B5BD0B041C1DF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

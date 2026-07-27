@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "indirect_branch_predictor_table_driven",
+  "wrapper_entity": "indirect_branch_predictor_table_driven_det_cfg",
+  "configuration_id": "INDIRECT_BRANCH_PREDICTOR_TABLE_DRIVEN_A931C9DEA5122687",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

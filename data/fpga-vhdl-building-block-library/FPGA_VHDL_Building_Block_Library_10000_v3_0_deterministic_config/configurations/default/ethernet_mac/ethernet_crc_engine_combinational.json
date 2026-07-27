@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_crc_engine_combinational",
+  "wrapper_entity": "ethernet_crc_engine_combinational_det_cfg",
+  "configuration_id": "ETHERNET_CRC_ENGINE_COMBINATIONAL_B7FB0510A77F6172",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

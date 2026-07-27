@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_filter_resource_shared",
+  "wrapper_entity": "halfband_filter_resource_shared_det_cfg",
+  "configuration_id": "HALFBAND_FILTER_RESOURCE_SHARED_4F5C9243E8359A23",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 213
+  }
+}

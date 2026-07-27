@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_sign_engine_dma_attached",
+  "wrapper_entity": "ecdsa_sign_engine_dma_attached_det_cfg",
+  "configuration_id": "ECDSA_SIGN_ENGINE_DMA_ATTACHED_24FC369168628628",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

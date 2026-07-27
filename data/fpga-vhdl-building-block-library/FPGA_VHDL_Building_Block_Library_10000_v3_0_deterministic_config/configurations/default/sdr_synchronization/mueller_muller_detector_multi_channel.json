@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_multi_channel",
+  "wrapper_entity": "mueller_muller_detector_multi_channel_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_MULTI_CHANNEL_C63AE20F8F166E15",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

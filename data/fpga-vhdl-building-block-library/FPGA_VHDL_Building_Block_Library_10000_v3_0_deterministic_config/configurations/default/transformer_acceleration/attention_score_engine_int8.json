@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_score_engine_int8",
+  "wrapper_entity": "attention_score_engine_int8_det_cfg",
+  "configuration_id": "ATTENTION_SCORE_ENGINE_INT8_C40F8AFEE7E5DC53",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

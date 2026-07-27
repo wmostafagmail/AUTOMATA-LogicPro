@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_low_power",
+  "wrapper_entity": "shader_special_function_unit_low_power_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_LOW_POWER_97AA80B6DEB97611",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reed_solomon_decoder_combinational",
+  "wrapper_entity": "reed_solomon_decoder_combinational_det_cfg",
+  "configuration_id": "REED_SOLOMON_DECODER_COMBINATIONAL_F064EE5D5B1924A2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 17
+  }
+}

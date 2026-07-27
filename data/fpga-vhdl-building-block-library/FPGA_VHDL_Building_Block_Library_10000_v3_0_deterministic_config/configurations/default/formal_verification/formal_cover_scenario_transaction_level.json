@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_transaction_level",
+  "wrapper_entity": "formal_cover_scenario_transaction_level_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_TRANSACTION_LEVEL_3E7B687DCA000B7E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

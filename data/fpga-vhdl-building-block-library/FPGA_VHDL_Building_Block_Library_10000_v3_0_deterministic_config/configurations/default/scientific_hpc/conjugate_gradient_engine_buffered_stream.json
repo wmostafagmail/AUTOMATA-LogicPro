@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conjugate_gradient_engine_buffered_stream",
+  "wrapper_entity": "conjugate_gradient_engine_buffered_stream_det_cfg",
+  "configuration_id": "CONJUGATE_GRADIENT_ENGINE_BUFFERED_STREAM_B18670B2A5F4B7E7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

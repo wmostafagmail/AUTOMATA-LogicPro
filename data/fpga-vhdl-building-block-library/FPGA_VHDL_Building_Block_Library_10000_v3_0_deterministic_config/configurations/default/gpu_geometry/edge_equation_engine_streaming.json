@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "edge_equation_engine_streaming",
+  "wrapper_entity": "edge_equation_engine_streaming_det_cfg",
+  "configuration_id": "EDGE_EQUATION_ENGINE_STREAMING_0279D83353D0C2CD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

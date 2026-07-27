@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_bist_controller_regression_ready",
+  "wrapper_entity": "logic_bist_controller_regression_ready_det_cfg",
+  "configuration_id": "LOGIC_BIST_CONTROLLER_REGRESSION_READY_FC6FD78A51FA7BC5",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

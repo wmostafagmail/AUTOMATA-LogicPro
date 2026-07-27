@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_mac_lite",
+  "wrapper_entity": "ethernet_mac_lite_det_cfg",
+  "configuration_id": "ETHERNET_MAC_LITE_F8D3104C13014914",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

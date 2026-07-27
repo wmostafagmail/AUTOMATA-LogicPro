@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "moesi_directory_engine_multi_channel",
+  "wrapper_entity": "moesi_directory_engine_multi_channel_det_cfg",
+  "configuration_id": "MOESI_DIRECTORY_ENGINE_MULTI_CHANNEL_E1FBE93B3F13C5CE",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

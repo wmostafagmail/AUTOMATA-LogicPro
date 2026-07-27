@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bus_functional_model_coverage_driven",
+  "wrapper_entity": "bus_functional_model_coverage_driven_det_cfg",
+  "configuration_id": "BUS_FUNCTIONAL_MODEL_COVERAGE_DRIVEN_A01B4A7763BCE41D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

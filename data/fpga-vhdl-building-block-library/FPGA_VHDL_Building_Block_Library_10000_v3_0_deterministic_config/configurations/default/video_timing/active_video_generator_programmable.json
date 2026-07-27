@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "active_video_generator_programmable",
+  "wrapper_entity": "active_video_generator_programmable_det_cfg",
+  "configuration_id": "ACTIVE_VIDEO_GENERATOR_PROGRAMMABLE_573FE27F3E3E53E7",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

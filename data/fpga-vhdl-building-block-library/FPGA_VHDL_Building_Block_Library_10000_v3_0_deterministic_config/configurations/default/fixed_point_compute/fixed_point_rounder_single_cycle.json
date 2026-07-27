@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_rounder_single_cycle",
+  "wrapper_entity": "fixed_point_rounder_single_cycle_det_cfg",
+  "configuration_id": "FIXED_POINT_ROUNDER_SINGLE_CYCLE_92FC5E2E745F9ABB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

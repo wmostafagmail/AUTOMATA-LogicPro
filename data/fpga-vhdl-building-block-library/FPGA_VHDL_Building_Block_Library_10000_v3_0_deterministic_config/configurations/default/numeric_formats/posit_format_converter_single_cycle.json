@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_single_cycle",
+  "wrapper_entity": "posit_format_converter_single_cycle_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_SINGLE_CYCLE_2CD5DEAA5DEB59FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

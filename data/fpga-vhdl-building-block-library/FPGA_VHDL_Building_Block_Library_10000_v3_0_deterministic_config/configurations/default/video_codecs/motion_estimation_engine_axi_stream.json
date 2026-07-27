@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_axi_stream",
+  "wrapper_entity": "motion_estimation_engine_axi_stream_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_AXI_STREAM_26AF560500F4630A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

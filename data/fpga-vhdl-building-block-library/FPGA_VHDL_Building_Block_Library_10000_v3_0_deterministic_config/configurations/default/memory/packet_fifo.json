@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_fifo",
+  "wrapper_entity": "packet_fifo_det_cfg",
+  "configuration_id": "PACKET_FIFO_CAAB7F7BDCAE3E74",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

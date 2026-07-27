@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_saturating",
+  "wrapper_entity": "loss_scaling_controller_saturating_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_SATURATING_248ECDF9FD4EAD4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

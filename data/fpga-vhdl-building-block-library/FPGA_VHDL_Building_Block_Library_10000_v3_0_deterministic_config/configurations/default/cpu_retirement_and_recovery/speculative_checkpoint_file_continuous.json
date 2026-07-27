@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_continuous",
+  "wrapper_entity": "speculative_checkpoint_file_continuous_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_CONTINUOUS_5852B10447A49DF3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

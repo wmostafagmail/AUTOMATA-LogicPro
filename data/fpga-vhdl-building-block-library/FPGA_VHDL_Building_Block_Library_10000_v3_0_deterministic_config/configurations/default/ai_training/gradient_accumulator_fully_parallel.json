@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gradient_accumulator_fully_parallel",
+  "wrapper_entity": "gradient_accumulator_fully_parallel_det_cfg",
+  "configuration_id": "GRADIENT_ACCUMULATOR_FULLY_PARALLEL_B9E2DBFCFAADA065",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

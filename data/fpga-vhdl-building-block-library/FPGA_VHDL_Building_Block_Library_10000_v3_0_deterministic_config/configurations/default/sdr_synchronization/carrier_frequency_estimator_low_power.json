@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_low_power",
+  "wrapper_entity": "carrier_frequency_estimator_low_power_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_LOW_POWER_817A73874B8ABFF8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

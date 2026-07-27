@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "database_sort_engine_buffered",
+  "wrapper_entity": "database_sort_engine_buffered_det_cfg",
+  "configuration_id": "DATABASE_SORT_ENGINE_BUFFERED_F1EA6AD7BE865410",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

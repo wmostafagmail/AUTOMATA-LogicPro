@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_modexp_engine_constant_time",
+  "wrapper_entity": "rsa_modexp_engine_constant_time_det_cfg",
+  "configuration_id": "RSA_MODEXP_ENGINE_CONSTANT_TIME_00C87CCD8D2B7472",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

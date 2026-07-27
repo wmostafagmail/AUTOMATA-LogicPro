@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavelet_transform_engine_streaming",
+  "wrapper_entity": "wavelet_transform_engine_streaming_det_cfg",
+  "configuration_id": "WAVELET_TRANSFORM_ENGINE_STREAMING_E976A5BB070F650C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 5
+  }
+}

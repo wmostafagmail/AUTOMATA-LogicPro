@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_dfi_adapter_packetized",
+  "wrapper_entity": "ddr_dfi_adapter_packetized_det_cfg",
+  "configuration_id": "DDR_DFI_ADAPTER_PACKETIZED_E71EAC863731C853",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

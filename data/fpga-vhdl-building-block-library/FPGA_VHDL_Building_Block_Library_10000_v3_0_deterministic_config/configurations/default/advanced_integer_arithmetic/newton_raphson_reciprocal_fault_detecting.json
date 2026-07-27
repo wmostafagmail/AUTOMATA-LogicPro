@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_fault_detecting",
+  "wrapper_entity": "newton_raphson_reciprocal_fault_detecting_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_FAULT_DETECTING_9655F1CA4885F63F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

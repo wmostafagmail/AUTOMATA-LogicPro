@@ -60,6 +60,12 @@ export function createAiJobSecurityContext(params: {
       architectureStageTotal?: number;
       architectureStageComponent?: string;
       architectureStageStatus?: string;
+      architectureClarificationStatus?: string;
+      architectureClarificationQuestions?: string[];
+      architectureClarificationUnknowns?: string[];
+      architectureClarificationSubtype?: string;
+      architectureParameterQuestions?: string[];
+      architectureParameterRequirements?: string[];
       telemetryAttemptCount?: number;
       latestAttemptInputTokens?: number | null;
       latestAttemptOutputTokens?: number | null;
@@ -119,6 +125,12 @@ export function createAiJobSecurityContext(params: {
         architectureStageTotal: job.progress.architectureStageTotal,
         architectureStageComponent: job.progress.architectureStageComponent,
         architectureStageStatus: job.progress.architectureStageStatus,
+        architectureClarificationStatus: job.progress.architectureClarificationStatus,
+        architectureClarificationQuestions: job.progress.architectureClarificationQuestions,
+        architectureClarificationUnknowns: job.progress.architectureClarificationUnknowns,
+        architectureClarificationSubtype: job.progress.architectureClarificationSubtype,
+        architectureParameterQuestions: job.progress.architectureParameterQuestions,
+        architectureParameterRequirements: job.progress.architectureParameterRequirements,
         telemetryAttemptCount: job.progress.telemetryAttemptCount,
         latestAttemptInputTokens: job.progress.latestAttemptInputTokens,
         latestAttemptOutputTokens: job.progress.latestAttemptOutputTokens,

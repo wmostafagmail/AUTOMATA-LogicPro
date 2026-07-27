@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_spatial_redundancy",
+  "wrapper_entity": "secure_boot_root_spatial_redundancy_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_SPATIAL_REDUNDANCY_96BF8D77413B84C4",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

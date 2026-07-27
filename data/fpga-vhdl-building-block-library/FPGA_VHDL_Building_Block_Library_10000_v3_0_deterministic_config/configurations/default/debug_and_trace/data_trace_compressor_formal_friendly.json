@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_formal_friendly",
+  "wrapper_entity": "data_trace_compressor_formal_friendly_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_FORMAL_FRIENDLY_63AA1B1FB7D224A4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

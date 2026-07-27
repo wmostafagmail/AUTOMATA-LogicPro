@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_queued",
+  "wrapper_entity": "store_commit_queue_queued_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_QUEUED_E76454406C2ACB2C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

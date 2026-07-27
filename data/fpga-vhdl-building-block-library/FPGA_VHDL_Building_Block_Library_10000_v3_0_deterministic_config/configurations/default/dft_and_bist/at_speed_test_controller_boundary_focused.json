@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "at_speed_test_controller_boundary_focused",
+  "wrapper_entity": "at_speed_test_controller_boundary_focused_det_cfg",
+  "configuration_id": "AT_SPEED_TEST_CONTROLLER_BOUNDARY_FOCUSED_D721D0B25A8C165D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

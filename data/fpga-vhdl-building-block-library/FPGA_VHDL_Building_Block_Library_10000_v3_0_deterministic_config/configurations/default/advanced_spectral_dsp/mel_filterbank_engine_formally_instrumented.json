@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mel_filterbank_engine_formally_instrumented",
+  "wrapper_entity": "mel_filterbank_engine_formally_instrumented_det_cfg",
+  "configuration_id": "MEL_FILTERBANK_ENGINE_FORMALLY_INSTRUMENTED_1902CD4F654223F4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

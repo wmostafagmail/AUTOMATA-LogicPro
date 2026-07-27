@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_reset_robustness",
+  "wrapper_entity": "performance_monitoring_unit_reset_robustness_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_RESET_ROBUSTNESS_D436F29A071917A5",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

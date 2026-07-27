@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_combinational",
+  "wrapper_entity": "riscv_bitmanip_unit_combinational_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_COMBINATIONAL_2E27A84140ABA55D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_software_configurable",
+  "wrapper_entity": "chi_snoop_filter_software_configurable_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_SOFTWARE_CONFIGURABLE_D35D8C658E28A97C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

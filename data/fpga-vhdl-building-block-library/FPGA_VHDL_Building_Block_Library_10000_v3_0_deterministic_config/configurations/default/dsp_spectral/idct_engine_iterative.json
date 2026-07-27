@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "idct_engine_iterative",
+  "wrapper_entity": "idct_engine_iterative_det_cfg",
+  "configuration_id": "IDCT_ENGINE_ITERATIVE_8E65FBFCCCBF5D53",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 109
+  }
+}

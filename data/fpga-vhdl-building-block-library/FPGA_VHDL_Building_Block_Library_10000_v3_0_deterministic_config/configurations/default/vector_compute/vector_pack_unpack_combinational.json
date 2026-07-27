@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_pack_unpack_combinational",
+  "wrapper_entity": "vector_pack_unpack_combinational_det_cfg",
+  "configuration_id": "VECTOR_PACK_UNPACK_COMBINATIONAL_CA8247E4C7C8B7F0",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iq_calibration_engine_event_driven",
+  "wrapper_entity": "iq_calibration_engine_event_driven_det_cfg",
+  "configuration_id": "IQ_CALIBRATION_ENGINE_EVENT_DRIVEN_D3D5AC7E92BD295D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

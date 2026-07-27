@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_deadline_aware",
+  "wrapper_entity": "sensorless_back_emf_observer_deadline_aware_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_DEADLINE_AWARE_06662893FF024AC9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

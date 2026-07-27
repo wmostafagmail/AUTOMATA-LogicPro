@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_clock_generator_controller",
+  "wrapper_entity": "audio_clock_generator_controller_det_cfg",
+  "configuration_id": "AUDIO_CLOCK_GENERATOR_CONTROLLER_31354089D8ED3429",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

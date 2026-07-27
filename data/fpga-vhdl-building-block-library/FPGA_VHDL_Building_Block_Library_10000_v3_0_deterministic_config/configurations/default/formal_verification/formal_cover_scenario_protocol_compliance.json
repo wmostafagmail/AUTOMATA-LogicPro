@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_protocol_compliance",
+  "wrapper_entity": "formal_cover_scenario_protocol_compliance_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_PROTOCOL_COMPLIANCE_1AECF89B949DB26A",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

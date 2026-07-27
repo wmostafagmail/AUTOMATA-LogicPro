@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_packetized",
+  "wrapper_entity": "powerslink_cycle_manager_packetized_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_PACKETIZED_CE2DAEA6A354E080",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

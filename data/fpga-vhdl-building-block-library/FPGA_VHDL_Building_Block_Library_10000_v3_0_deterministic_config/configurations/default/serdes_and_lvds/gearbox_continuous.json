@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gearbox_continuous",
+  "wrapper_entity": "gearbox_continuous_det_cfg",
+  "configuration_id": "GEARBOX_CONTINUOUS_92F08823BAE9D762",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

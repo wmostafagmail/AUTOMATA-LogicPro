@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_controller_continuous",
+  "wrapper_entity": "privilege_controller_continuous_det_cfg",
+  "configuration_id": "PRIVILEGE_CONTROLLER_CONTINUOUS_8A158EE97DE810E2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

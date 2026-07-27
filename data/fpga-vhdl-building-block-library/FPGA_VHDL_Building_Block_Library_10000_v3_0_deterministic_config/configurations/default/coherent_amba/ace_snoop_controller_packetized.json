@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_packetized",
+  "wrapper_entity": "ace_snoop_controller_packetized_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_PACKETIZED_7FBF6E73FDB9A021",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

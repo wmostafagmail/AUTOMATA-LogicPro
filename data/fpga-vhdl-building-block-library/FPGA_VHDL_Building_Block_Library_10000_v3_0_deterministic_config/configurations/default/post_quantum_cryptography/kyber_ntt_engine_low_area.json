@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_low_area",
+  "wrapper_entity": "kyber_ntt_engine_low_area_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_LOW_AREA_0EA5B40678CD1244",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

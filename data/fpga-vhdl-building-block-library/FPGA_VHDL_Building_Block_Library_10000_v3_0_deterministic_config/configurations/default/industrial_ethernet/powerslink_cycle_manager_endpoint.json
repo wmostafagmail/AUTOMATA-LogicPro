@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_endpoint",
+  "wrapper_entity": "powerslink_cycle_manager_endpoint_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_ENDPOINT_FD3C971BCC4E6099",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

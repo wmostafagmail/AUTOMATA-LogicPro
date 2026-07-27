@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_low_power",
+  "wrapper_entity": "guest_timer_virtualizer_low_power_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_LOW_POWER_650A5C98EDF90D28",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

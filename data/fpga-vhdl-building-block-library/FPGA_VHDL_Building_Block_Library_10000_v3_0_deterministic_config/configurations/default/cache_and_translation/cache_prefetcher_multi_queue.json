@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cache_prefetcher_multi_queue",
+  "wrapper_entity": "cache_prefetcher_multi_queue_det_cfg",
+  "configuration_id": "CACHE_PREFETCHER_MULTI_QUEUE_266CD9E49161E5C0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

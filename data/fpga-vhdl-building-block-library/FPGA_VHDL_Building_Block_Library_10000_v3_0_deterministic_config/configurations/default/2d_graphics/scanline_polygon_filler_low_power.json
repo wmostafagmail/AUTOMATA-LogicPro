@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scanline_polygon_filler_low_power",
+  "wrapper_entity": "scanline_polygon_filler_low_power_det_cfg",
+  "configuration_id": "SCANLINE_POLYGON_FILLER_LOW_POWER_87DA5C753D0F01FE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

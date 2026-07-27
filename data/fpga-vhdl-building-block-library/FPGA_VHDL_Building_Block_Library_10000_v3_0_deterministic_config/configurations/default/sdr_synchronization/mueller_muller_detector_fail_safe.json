@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_fail_safe",
+  "wrapper_entity": "mueller_muller_detector_fail_safe_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_FAIL_SAFE_89099A97242C18C5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_gate_training_controller_packetized",
+  "wrapper_entity": "read_gate_training_controller_packetized_det_cfg",
+  "configuration_id": "READ_GATE_TRAINING_CONTROLLER_PACKETIZED_55C47728CB4BA11B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_microcoded",
+  "wrapper_entity": "exception_replay_controller_microcoded_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_MICROCODED_A62B7A710130979F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_congestion_window_endpoint",
+  "wrapper_entity": "tcp_congestion_window_endpoint_det_cfg",
+  "configuration_id": "TCP_CONGESTION_WINDOW_ENDPOINT_019C692B00EB28FB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

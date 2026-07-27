@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "retry_controller_continuous",
+  "wrapper_entity": "retry_controller_continuous_det_cfg",
+  "configuration_id": "RETRY_CONTROLLER_CONTINUOUS_9395EADDCA845377",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

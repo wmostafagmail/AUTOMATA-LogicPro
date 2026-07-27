@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "attitude_estimator_programmable",
+  "wrapper_entity": "attitude_estimator_programmable_det_cfg",
+  "configuration_id": "ATTITUDE_ESTIMATOR_PROGRAMMABLE_F3B834BB35B8A15E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

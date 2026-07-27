@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_fully_parallel",
+  "wrapper_entity": "multioperand_compressor_tree_fully_parallel_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_FULLY_PARALLEL_A735A915292F8522",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

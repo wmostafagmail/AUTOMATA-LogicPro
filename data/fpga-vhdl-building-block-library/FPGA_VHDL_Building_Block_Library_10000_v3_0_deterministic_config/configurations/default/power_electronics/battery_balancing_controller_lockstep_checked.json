@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_balancing_controller_lockstep_checked",
+  "wrapper_entity": "battery_balancing_controller_lockstep_checked_det_cfg",
+  "configuration_id": "BATTERY_BALANCING_CONTROLLER_LOCKSTEP_CHECKED_D42CF431273ECB80",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

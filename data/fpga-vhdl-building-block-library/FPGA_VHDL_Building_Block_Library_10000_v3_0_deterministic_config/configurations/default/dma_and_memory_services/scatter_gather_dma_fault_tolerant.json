@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scatter_gather_dma_fault_tolerant",
+  "wrapper_entity": "scatter_gather_dma_fault_tolerant_det_cfg",
+  "configuration_id": "SCATTER_GATHER_DMA_FAULT_TOLERANT_63A540208C6D828B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

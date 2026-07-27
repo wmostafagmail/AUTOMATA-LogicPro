@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_streaming",
+  "wrapper_entity": "posit_format_converter_streaming_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_STREAMING_3A6DC7B96FDF1CD9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "triangle_setup_engine_single_cycle",
+  "wrapper_entity": "triangle_setup_engine_single_cycle_det_cfg",
+  "configuration_id": "TRIANGLE_SETUP_ENGINE_SINGLE_CYCLE_00204406A837694D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

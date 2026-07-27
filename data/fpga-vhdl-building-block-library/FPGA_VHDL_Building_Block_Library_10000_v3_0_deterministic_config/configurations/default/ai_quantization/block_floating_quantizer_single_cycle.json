@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_single_cycle",
+  "wrapper_entity": "block_floating_quantizer_single_cycle_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_SINGLE_CYCLE_2768849A4D063D21",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

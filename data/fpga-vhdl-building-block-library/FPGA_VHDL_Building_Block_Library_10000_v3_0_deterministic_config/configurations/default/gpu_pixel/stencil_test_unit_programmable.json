@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "stencil_test_unit_programmable",
+  "wrapper_entity": "stencil_test_unit_programmable_det_cfg",
+  "configuration_id": "STENCIL_TEST_UNIT_PROGRAMMABLE_FB0A123A529B70B3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_programmable",
+  "wrapper_entity": "bezier_curve_rasterizer_programmable_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_PROGRAMMABLE_A5F8B6656B89385C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

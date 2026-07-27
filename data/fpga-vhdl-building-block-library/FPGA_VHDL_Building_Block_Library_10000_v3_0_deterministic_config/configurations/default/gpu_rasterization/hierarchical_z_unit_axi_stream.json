@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_axi_stream",
+  "wrapper_entity": "hierarchical_z_unit_axi_stream_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_AXI_STREAM_A9C660767F8A48A7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

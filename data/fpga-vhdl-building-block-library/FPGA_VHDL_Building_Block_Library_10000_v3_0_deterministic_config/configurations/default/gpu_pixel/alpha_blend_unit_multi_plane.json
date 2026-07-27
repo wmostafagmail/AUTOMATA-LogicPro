@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "alpha_blend_unit_multi_plane",
+  "wrapper_entity": "alpha_blend_unit_multi_plane_det_cfg",
+  "configuration_id": "ALPHA_BLEND_UNIT_MULTI_PLANE_AF44252010872D57",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

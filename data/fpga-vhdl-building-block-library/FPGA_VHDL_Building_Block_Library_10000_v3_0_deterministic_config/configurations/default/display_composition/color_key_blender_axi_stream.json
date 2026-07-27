@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_axi_stream",
+  "wrapper_entity": "color_key_blender_axi_stream_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_AXI_STREAM_ABEB1073852E97D2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_reciprocal_combinational",
+  "wrapper_entity": "fixed_point_reciprocal_combinational_det_cfg",
+  "configuration_id": "FIXED_POINT_RECIPROCAL_COMBINATIONAL_B3FB6883D98C506C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

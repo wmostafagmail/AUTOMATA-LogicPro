@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_rate_adaptive",
+  "wrapper_entity": "display_gamma_lut_rate_adaptive_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_RATE_ADAPTIVE_5B3D03791DF04E8E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

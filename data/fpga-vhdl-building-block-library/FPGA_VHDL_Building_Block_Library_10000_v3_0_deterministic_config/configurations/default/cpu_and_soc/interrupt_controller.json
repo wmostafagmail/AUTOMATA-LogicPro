@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "interrupt_controller",
+  "wrapper_entity": "interrupt_controller_det_cfg",
+  "configuration_id": "INTERRUPT_CONTROLLER_953137EB92CED5FF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

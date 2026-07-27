@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_fully_parallel",
+  "wrapper_entity": "sliding_window_attention_fully_parallel_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_FULLY_PARALLEL_C5B7F54F7674219F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

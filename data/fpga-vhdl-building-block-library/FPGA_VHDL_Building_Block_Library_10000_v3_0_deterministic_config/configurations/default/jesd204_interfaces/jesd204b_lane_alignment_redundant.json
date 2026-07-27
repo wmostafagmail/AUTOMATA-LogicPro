@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_lane_alignment_redundant",
+  "wrapper_entity": "jesd204b_lane_alignment_redundant_det_cfg",
+  "configuration_id": "JESD204B_LANE_ALIGNMENT_REDUNDANT_A063BC1EC9C831FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

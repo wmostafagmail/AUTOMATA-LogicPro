@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_fma_resource_shared",
+  "wrapper_entity": "floating_point_fma_resource_shared_det_cfg",
+  "configuration_id": "FLOATING_POINT_FMA_RESOURCE_SHARED_33FB9829516D3B8E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

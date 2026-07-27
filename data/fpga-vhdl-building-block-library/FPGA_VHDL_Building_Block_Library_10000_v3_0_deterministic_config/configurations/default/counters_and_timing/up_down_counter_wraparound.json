@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "up_down_counter_wraparound",
+  "wrapper_entity": "up_down_counter_wraparound_det_cfg",
+  "configuration_id": "UP_DOWN_COUNTER_WRAPAROUND_5A3B18BD041F4F21",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_lockstep_checked",
+  "wrapper_entity": "particle_filter_localizer_lockstep_checked_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_LOCKSTEP_CHECKED_FCA122CE42A6A745",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

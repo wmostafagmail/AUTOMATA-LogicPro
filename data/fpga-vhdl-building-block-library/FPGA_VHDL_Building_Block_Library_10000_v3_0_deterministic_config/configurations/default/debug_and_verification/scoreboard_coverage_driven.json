@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_coverage_driven",
+  "wrapper_entity": "scoreboard_coverage_driven_det_cfg",
+  "configuration_id": "SCOREBOARD_COVERAGE_DRIVEN_2F11A4C40DE9901D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

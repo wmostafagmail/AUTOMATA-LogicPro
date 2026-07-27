@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "skid_buffer_single_clock",
+  "wrapper_entity": "skid_buffer_single_clock_det_cfg",
+  "configuration_id": "SKID_BUFFER_SINGLE_CLOCK_4D0E8531F6170D37",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

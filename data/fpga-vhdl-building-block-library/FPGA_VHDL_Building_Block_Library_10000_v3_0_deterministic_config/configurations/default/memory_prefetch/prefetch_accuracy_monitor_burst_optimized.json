@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prefetch_accuracy_monitor_burst_optimized",
+  "wrapper_entity": "prefetch_accuracy_monitor_burst_optimized_det_cfg",
+  "configuration_id": "PREFETCH_ACCURACY_MONITOR_BURST_OPTIMIZED_18CFB43D798ED830",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

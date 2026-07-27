@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tdm_audio_interface",
+  "wrapper_entity": "tdm_audio_interface_det_cfg",
+  "configuration_id": "TDM_AUDIO_INTERFACE_D5122B630439F860",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

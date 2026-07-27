@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_software_configurable",
+  "wrapper_entity": "free_list_allocator_software_configurable_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_SOFTWARE_CONFIGURABLE_E2146F0EBE1B3375",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

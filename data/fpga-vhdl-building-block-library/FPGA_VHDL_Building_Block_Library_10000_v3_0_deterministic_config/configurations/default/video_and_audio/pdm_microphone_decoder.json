@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pdm_microphone_decoder",
+  "wrapper_entity": "pdm_microphone_decoder_det_cfg",
+  "configuration_id": "PDM_MICROPHONE_DECODER_3A6239C03FA94B46",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

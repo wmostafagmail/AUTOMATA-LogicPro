@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rasterizer_low_latency",
+  "wrapper_entity": "rasterizer_low_latency_det_cfg",
+  "configuration_id": "RASTERIZER_LOW_LATENCY_CFC9E7279E1F3238",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cursor_plane_engine_multi_channel",
+  "wrapper_entity": "cursor_plane_engine_multi_channel_det_cfg",
+  "configuration_id": "CURSOR_PLANE_ENGINE_MULTI_CHANNEL_DE6FF0CAF2D84129",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

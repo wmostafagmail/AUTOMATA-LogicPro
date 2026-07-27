@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "maximum_torque_per_ampere_low_power",
+  "wrapper_entity": "maximum_torque_per_ampere_low_power_det_cfg",
+  "configuration_id": "MAXIMUM_TORQUE_PER_AMPERE_LOW_POWER_FC1D42133A3D3631",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

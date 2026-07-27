@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "irig_b_decoder_single_shot",
+  "wrapper_entity": "irig_b_decoder_single_shot_det_cfg",
+  "configuration_id": "IRIG_B_DECODER_SINGLE_SHOT_150DD1E67FBA212E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

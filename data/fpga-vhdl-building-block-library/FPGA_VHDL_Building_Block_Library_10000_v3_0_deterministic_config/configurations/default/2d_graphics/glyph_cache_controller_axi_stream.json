@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "glyph_cache_controller_axi_stream",
+  "wrapper_entity": "glyph_cache_controller_axi_stream_det_cfg",
+  "configuration_id": "GLYPH_CACHE_CONTROLLER_AXI_STREAM_4B7F207BD83A7B1D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

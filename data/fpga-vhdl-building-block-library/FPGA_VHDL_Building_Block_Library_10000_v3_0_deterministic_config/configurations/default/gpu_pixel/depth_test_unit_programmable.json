@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "depth_test_unit_programmable",
+  "wrapper_entity": "depth_test_unit_programmable_det_cfg",
+  "configuration_id": "DEPTH_TEST_UNIT_PROGRAMMABLE_B1A330FE9A07BFA4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

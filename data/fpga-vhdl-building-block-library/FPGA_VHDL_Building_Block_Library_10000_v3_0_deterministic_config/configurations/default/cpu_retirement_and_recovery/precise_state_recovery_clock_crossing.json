@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_clock_crossing",
+  "wrapper_entity": "precise_state_recovery_clock_crossing_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_CLOCK_CROSSING_B799F612E9F43D7C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_event_driven",
+  "wrapper_entity": "exception_replay_controller_event_driven_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_EVENT_DRIVEN_99E2C4D6FCE4BDB0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

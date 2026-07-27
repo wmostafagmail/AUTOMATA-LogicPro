@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kv_cache_allocator_formally_instrumented",
+  "wrapper_entity": "kv_cache_allocator_formally_instrumented_det_cfg",
+  "configuration_id": "KV_CACHE_ALLOCATOR_FORMALLY_INSTRUMENTED_0572FECEC07D76FF",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

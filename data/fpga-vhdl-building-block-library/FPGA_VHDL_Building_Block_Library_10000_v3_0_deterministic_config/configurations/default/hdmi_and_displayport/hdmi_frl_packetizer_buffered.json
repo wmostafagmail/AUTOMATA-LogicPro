@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_buffered",
+  "wrapper_entity": "hdmi_frl_packetizer_buffered_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_BUFFERED_9967B98F04FD4A3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

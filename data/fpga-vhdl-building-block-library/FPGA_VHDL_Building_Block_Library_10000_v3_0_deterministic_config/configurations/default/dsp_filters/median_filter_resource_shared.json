@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "median_filter_resource_shared",
+  "wrapper_entity": "median_filter_resource_shared_det_cfg",
+  "configuration_id": "MEDIAN_FILTER_RESOURCE_SHARED_A106C69B1A067502",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 229
+  }
+}

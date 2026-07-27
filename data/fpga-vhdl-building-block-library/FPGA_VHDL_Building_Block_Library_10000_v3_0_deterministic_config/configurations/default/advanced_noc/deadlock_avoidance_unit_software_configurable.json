@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deadlock_avoidance_unit_software_configurable",
+  "wrapper_entity": "deadlock_avoidance_unit_software_configurable_det_cfg",
+  "configuration_id": "DEADLOCK_AVOIDANCE_UNIT_SOFTWARE_CONFIGURABLE_DFDCEEA7780B957B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

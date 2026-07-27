@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iq_calibration_engine_deadline_aware",
+  "wrapper_entity": "iq_calibration_engine_deadline_aware_det_cfg",
+  "configuration_id": "IQ_CALIBRATION_ENGINE_DEADLINE_AWARE_850063C5CAD26D8D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

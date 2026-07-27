@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz_token_decoder_single_cycle",
+  "wrapper_entity": "lz_token_decoder_single_cycle_det_cfg",
+  "configuration_id": "LZ_TOKEN_DECODER_SINGLE_CYCLE_DF548BA7C4A9919F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 205
+  }
+}

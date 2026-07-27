@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_low_power",
+  "wrapper_entity": "obstacle_avoidance_controller_low_power_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_LOW_POWER_546E1645C99B9B0A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

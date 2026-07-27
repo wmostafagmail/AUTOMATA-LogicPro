@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hbm_pseudochannel_router_timestamped",
+  "wrapper_entity": "hbm_pseudochannel_router_timestamped_det_cfg",
+  "configuration_id": "HBM_PSEUDOCHANNEL_ROUTER_TIMESTAMPED_65849A16A449325F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

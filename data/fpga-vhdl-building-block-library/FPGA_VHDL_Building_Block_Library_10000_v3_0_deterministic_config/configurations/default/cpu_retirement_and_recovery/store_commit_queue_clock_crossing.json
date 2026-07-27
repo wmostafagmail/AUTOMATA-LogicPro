@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_clock_crossing",
+  "wrapper_entity": "store_commit_queue_clock_crossing_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_CLOCK_CROSSING_61B83B19BC3F2D3E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

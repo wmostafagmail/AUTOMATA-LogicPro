@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_fault_injectable",
+  "wrapper_entity": "safety_island_controller_fault_injectable_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_FAULT_INJECTABLE_F344E8323B58FD6B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_queued",
+  "wrapper_entity": "loop_branch_predictor_queued_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_QUEUED_01BEC4DF8CC7DBBA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

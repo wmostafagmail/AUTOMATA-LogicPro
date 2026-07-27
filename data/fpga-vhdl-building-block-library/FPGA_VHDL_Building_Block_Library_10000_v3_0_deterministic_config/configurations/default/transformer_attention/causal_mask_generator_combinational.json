@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "causal_mask_generator_combinational",
+  "wrapper_entity": "causal_mask_generator_combinational_det_cfg",
+  "configuration_id": "CAUSAL_MASK_GENERATOR_COMBINATIONAL_0FFF7605D70A74FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

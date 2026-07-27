@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cfar_detector_streaming",
+  "wrapper_entity": "cfar_detector_streaming_det_cfg",
+  "configuration_id": "CFAR_DETECTOR_STREAMING_EC9A5178B87611C6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 97
+  }
+}

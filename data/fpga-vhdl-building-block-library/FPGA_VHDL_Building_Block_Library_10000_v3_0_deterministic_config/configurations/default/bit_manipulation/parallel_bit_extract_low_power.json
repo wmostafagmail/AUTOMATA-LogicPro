@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_low_power",
+  "wrapper_entity": "parallel_bit_extract_low_power_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_LOW_POWER_FB03550122DEAD40",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

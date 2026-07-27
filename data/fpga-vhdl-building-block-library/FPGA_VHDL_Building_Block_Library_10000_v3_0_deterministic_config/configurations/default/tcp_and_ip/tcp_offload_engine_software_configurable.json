@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_offload_engine_software_configurable",
+  "wrapper_entity": "tcp_offload_engine_software_configurable_det_cfg",
+  "configuration_id": "TCP_OFFLOAD_ENGINE_SOFTWARE_CONFIGURABLE_904575F37BD0FEAF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_clock_crossing",
+  "wrapper_entity": "chi_snoop_filter_clock_crossing_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_CLOCK_CROSSING_341B0A5C3F99F308",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

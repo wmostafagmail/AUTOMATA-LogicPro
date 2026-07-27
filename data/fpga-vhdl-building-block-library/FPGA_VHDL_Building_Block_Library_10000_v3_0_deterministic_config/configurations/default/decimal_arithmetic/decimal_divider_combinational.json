@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_combinational",
+  "wrapper_entity": "decimal_divider_combinational_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_COMBINATIONAL_B812B897A7C2631F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

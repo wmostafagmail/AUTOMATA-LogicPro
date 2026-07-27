@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hmac_engine_resource_optimized",
+  "wrapper_entity": "hmac_engine_resource_optimized_det_cfg",
+  "configuration_id": "HMAC_ENGINE_RESOURCE_OPTIMIZED_8108E6B4A51410ED",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_deposit_single_cycle",
+  "wrapper_entity": "parallel_bit_deposit_single_cycle_det_cfg",
+  "configuration_id": "PARALLEL_BIT_DEPOSIT_SINGLE_CYCLE_4085E6FE46472C4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

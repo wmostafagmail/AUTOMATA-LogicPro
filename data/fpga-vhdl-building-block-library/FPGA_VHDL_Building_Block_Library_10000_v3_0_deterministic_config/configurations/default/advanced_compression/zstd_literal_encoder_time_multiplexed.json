@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zstd_literal_encoder_time_multiplexed",
+  "wrapper_entity": "zstd_literal_encoder_time_multiplexed_det_cfg",
+  "configuration_id": "ZSTD_LITERAL_ENCODER_TIME_MULTIPLEXED_E2DEE0A1F4E26DE9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

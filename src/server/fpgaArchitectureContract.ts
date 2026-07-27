@@ -20,6 +20,20 @@ import {
   formatMissingBlockDiscoveryPromptSection,
   type FpgaMissingBlockDiscoveryResult,
 } from './fpgaMissingBlockDiscovery';
+import {
+  buildDeterministicFpgaArchitectureIntent,
+  buildFpgaArchitectureIntentClarificationIssues,
+  extractFpgaArchitectureIntentSource,
+  mergeFpgaArchitectureIntentIntoPrompt,
+  validateFpgaArchitectureIntentCompleteness,
+  type FpgaArchitectureClarificationRequest,
+  type FpgaArchitectureIntent,
+} from './fpgaArchitectureIntent';
+import {
+  applyResolvedFpgaArchitectureParameters,
+  buildFpgaArchitectureParameterClarificationIssues,
+  validateFpgaArchitectureParameterCompleteness,
+} from './fpgaArchitectureParameterIntent';
 import { VHDL_RESERVED_IDENTIFIERS } from './ghdlStrictVhdlRules';
 import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
 import { parseVhdlSemanticModel } from './vhdlSemanticFrontend';
@@ -49,6 +63,7 @@ export type FpgaArchitectureComponentContract = {
   ports: FpgaArchitecturePortContract[];
   exports: string[];
   packageSymbols?: FpgaArchitecturePackageSymbolContract[];
+  implementationSourcePreference?: 'verified_library' | 'golden_leaf' | 'deterministic_template' | 'missing_verified_source';
 };
 
 export type FpgaArchitecturePackageSymbolContract = {
@@ -190,6 +205,44 @@ export type FpgaArchitectureSourceGroundedRequirement = {
   sourceSnapshotId?: string;
 };
 
+export type FpgaArchitectureOutputOwnershipRule = {
+  ruleId: string;
+  signal: string;
+  ownerComponentId: string;
+  evidence: string;
+};
+
+export type FpgaArchitectureSignalTimelineRule = {
+  ruleId: string;
+  signal: string;
+  ownerComponentId: string;
+  events: Array<{
+    at: string;
+    value: string;
+    evidence: string;
+  }>;
+};
+
+export type FpgaArchitectureTruthTableRule = {
+  ruleId: string;
+  ownerComponentId: string;
+  input: string;
+  rows: Array<Record<string, string>>;
+};
+
+export type FpgaArchitectureFsmContractRule = {
+  ruleId: string;
+  componentId: string;
+  stateType: string;
+  resetState: string;
+  states: string[];
+};
+
+export type FpgaArchitectureVerificationDerivationRule = {
+  verificationId: string;
+  derivesFromRuleIds: string[];
+};
+
 export type FpgaArchitectureContract = {
   schemaVersion: '1.0' | '2.0';
   designName: string;
@@ -210,6 +263,13 @@ export type FpgaArchitectureContract = {
   stateMachines?: FpgaArchitectureStateMachineContract[];
   architectureSynthesis?: FpgaArchitectureSynthesisMetadata;
   sourceGroundedRequirements?: FpgaArchitectureSourceGroundedRequirement[];
+  outputOwnership?: FpgaArchitectureOutputOwnershipRule[];
+  signalTimelines?: FpgaArchitectureSignalTimelineRule[];
+  truthTables?: FpgaArchitectureTruthTableRule[];
+  fsmContracts?: FpgaArchitectureFsmContractRule[];
+  verificationDerivation?: FpgaArchitectureVerificationDerivationRule[];
+  intent?: FpgaArchitectureIntent;
+  clarification?: FpgaArchitectureClarificationRequest;
 };
 
 export type FpgaArchitectureContractIssue = {
@@ -236,6 +296,7 @@ export class FpgaArchitectureContractError extends Error {
 const VHDL_IDENTIFIER = /^[a-zA-Z](?:[a-zA-Z0-9]|_(?=[a-zA-Z0-9]))*$/;
 const VHDL_RESERVED_IDENTIFIER_SET = new Set(VHDL_RESERVED_IDENTIFIERS.map((entry) => entry.toLowerCase()));
 const PLACEHOLDER_PATTERN = /(?:<[^>]+>|\b(?:tbd|todo|placeholder|fill\s+this|not\s+specified)\b)/i;
+const AMBIGUOUS_CONTRACT_TEXT_PATTERN = /\b(?:eventually|as\s+needed|as\s+appropriate|where\s+possible|if\s+necessary|implementation[- ]defined|unspecified|model\s+decides|best\s+effort|some\s+time|later)\b/i;
 const CONTRACT_MAX_REPAIR_ATTEMPTS = 2;
 
 function stableId(value: string, fallback: string) {
@@ -281,6 +342,10 @@ function isConstrainedPublicType(value: string) {
       && /\b(?:downto|to)\b/.test(normalized);
   }
   return true;
+}
+
+function isAmbiguousContractText(value: string) {
+  return AMBIGUOUS_CONTRACT_TEXT_PATTERN.test(value || '');
 }
 
 function pushIssue(
@@ -381,6 +446,7 @@ export function buildFpgaArchitectureContractDraft(params: {
   userRequest: string;
   evidenceFacts?: FpgaArchitectureEvidenceFact[];
   retrievalMode?: FpgaArchitectureRetrievalMode;
+  intent?: FpgaArchitectureIntent;
 }): FpgaArchitectureContract {
   const synthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
   const blueprint = synthesis.blueprint;
@@ -417,6 +483,7 @@ export function buildFpgaArchitectureContractDraft(params: {
           { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Contracted input sample or command byte.' },
         ],
         exports: [],
+        implementationSourcePreference: 'deterministic_template' as const,
       },
     };
   });
@@ -549,6 +616,44 @@ export function buildFpgaArchitectureContractDraft(params: {
     ...(fact.snapshotId ? { sourceSnapshotId: fact.snapshotId } : {}),
   })));
 
+  const outputOwnership: FpgaArchitectureOutputOwnershipRule[] = ['done_o', 'error_o', 'status_o'].map((signal) => ({
+    ruleId: `own_${signal}`,
+    signal,
+    ownerComponentId: topId,
+    evidence: 'App-owned top/status contract owns generic completion, error, and status outputs unless refined by a child-output connection.',
+  }));
+  const signalTimelines: FpgaArchitectureSignalTimelineRule[] = [
+    {
+      ruleId: 'timeline_reset_status_outputs',
+      signal: 'done_o,error_o,status_o',
+      ownerComponentId: topId,
+      events: [
+        { at: 'while rst = 1', value: 'done_o = 0, error_o = 0, status_o = x"00"', evidence: contractedResetBehavior },
+        { at: 'after start_i pulse within the bounded verification window', value: isUartSpiProtocolBridge ? 'done_o = 1, error_o = 0, status_o = x"01"' : 'done_o = 1, error_o = 0, status_o remains deterministic', evidence: contractedBehaviorTiming },
+      ],
+    },
+  ];
+  const truthTables: FpgaArchitectureTruthTableRule[] = [
+    {
+      ruleId: 'truth_table_nominal_status',
+      ownerComponentId: topId,
+      input: 'rst,start_i',
+      rows: [
+        { rst: '1', start_i: '0', done_o: '0', error_o: '0', status_o: 'x"00"' },
+        { rst: '0', start_i: '1', done_o: '0 initially, then 1 inside latency window', error_o: '0', status_o: isUartSpiProtocolBridge ? 'x"01" at nominal completion' : 'deterministic nominal status' },
+      ],
+    },
+  ];
+  const verificationDerivation: FpgaArchitectureVerificationDerivationRule[] = [{
+    verificationId: `verify_${designName}_contract`,
+    derivesFromRuleIds: [
+      ...outputOwnership.map((entry) => entry.ruleId),
+      ...signalTimelines.map((entry) => entry.ruleId),
+      ...truthTables.map((entry) => entry.ruleId),
+      ...behaviorIds,
+    ],
+  }];
+
   return {
     schemaVersion: '2.0',
     designName,
@@ -652,6 +757,12 @@ export function buildFpgaArchitectureContractDraft(params: {
       confidence: synthesis.confidence,
     },
     sourceGroundedRequirements,
+    outputOwnership,
+    signalTimelines,
+    truthTables,
+    fsmContracts: [],
+    verificationDerivation,
+    ...(params.intent ? { intent: params.intent } : {}),
   };
 }
 
@@ -721,6 +832,45 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
         { kind: 'finish', message: 'TEST PASSED' },
       ],
     }],
+    outputOwnership: [{
+      ruleId: '<ownership rule id>',
+      signal: '<top output signal>',
+      ownerComponentId: '<component that owns the value>',
+      evidence: '<user intent, pattern, catalog, or methodology evidence>',
+    }],
+    signalTimelines: [{
+      ruleId: '<timeline rule id>',
+      signal: '<signal name>',
+      ownerComponentId: '<component id>',
+      events: [{ at: '<exact cycle/state/condition>', value: '<exact value/range>', evidence: '<source evidence>' }],
+    }],
+    truthTables: [{
+      ruleId: '<truth table rule id>',
+      ownerComponentId: '<component id>',
+      input: '<input set>',
+      rows: [{ '<input>': '<value>', '<output>': '<value>' }],
+    }],
+    fsmContracts: [{
+      ruleId: '<fsm rule id>',
+      componentId: '<component id>',
+      stateType: '<state type>',
+      resetState: '<reset state>',
+      states: ['<state literal>'],
+    }],
+    verificationDerivation: [{
+      verificationId: '<verification id>',
+      derivesFromRuleIds: ['<behavior or rule id>'],
+    }],
+    intent: {
+      schemaVersion: '1.0',
+      explicitRequirements: {},
+      inferredRequirements: {},
+      unknownRequirements: [],
+      designClassCandidates: [],
+      confidenceByField: {},
+      clarificationQuestions: [],
+      acceptedAppDefaults: [],
+    },
     numericFormats: [{
       id: '<numeric format id>',
       type: '<unsigned | signed | sfixed | ufixed>',
@@ -786,6 +936,7 @@ function contractScaffold(blueprint: FpgaArchitectureBlueprint) {
 
 export function buildFpgaArchitectureContractProposalPrompt(params: {
   userRequest: string;
+  intent?: FpgaArchitectureIntent;
   evidenceFacts?: FpgaArchitectureEvidenceFact[];
   retrievalMode?: FpgaArchitectureRetrievalMode;
   retrievalWarnings?: string[];
@@ -801,6 +952,7 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
     userRequest: params.userRequest,
     evidenceFacts,
     retrievalMode: params.retrievalMode,
+    intent: params.intent,
   });
   const liveEvidencePrompt = formatFpgaArchitectureEvidenceFactsForPrompt(evidenceFacts);
   return [
@@ -814,6 +966,18 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
     `- Secondary composed patterns: ${synthesis.secondaryPatterns.map((pattern) => pattern.patternId).join(', ') || 'none'}`,
     `- Pattern confidence: ${Math.round(synthesis.confidence * 100)}%`,
     '- The curated design pattern owns high-level building-block architecture. The model fills bounded details inside that architecture and must not invent a replacement architecture from scratch.',
+    '',
+    'Strict no-assumption intent gate:',
+    params.intent
+      ? JSON.stringify({
+        explicitRequirements: params.intent.explicitRequirements,
+        inferredRequirements: params.intent.inferredRequirements,
+        acceptedAppDefaults: params.intent.acceptedAppDefaults || [],
+        designClassCandidates: params.intent.designClassCandidates,
+      }, null, 2)
+      : 'No explicit intent packet was supplied. Do not infer fields without evidence from the original request.',
+    '- Treat unknown or absent intent as unknown, not as permission to guess.',
+    '- Do not silently expand acronyms or add unrequested external interfaces, timing, widths, or verification expectations.',
     '',
     `Design class: ${blueprint.designClass}`,
     `System role: ${blueprint.systemRole}`,
@@ -853,6 +1017,8 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
     'Architecture rules:',
     '- Fill or refine bounded design details: component responsibilities, leaf component ports/generics, instances, named maps, connections, behaviors, verification actions, state machines, and numeric formats.',
     '- Do not replace the contract with prose and do not remove app-owned IDs or required sections.',
+    '- Every model-filled field must be grounded in the strict intent packet, app-owned pattern/template, catalog spec, or official methodology/reference evidence.',
+    '- If a required design choice is still unclear, keep the contract invalid rather than guessing; the app should ask for clarification before VHDL generation.',
     '- Use legal basic VHDL identifiers and exact constrained VHDL subtype indications for public vector ports.',
     '- Include exactly one top component and one testbench component.',
     '- Every component dependency must name another component and sourceOrder must place dependencies first and the testbench last.',
@@ -861,6 +1027,7 @@ export function buildFpgaArchitectureContractProposalPrompt(params: {
     '- Every required capability must be implemented by a component and covered by at least one verification item.',
     '- schemaVersion must be "2.0". Define exact package symbols, direct instances, named generic/port maps, typed connections, state-machine transitions, numeric formats, reset behavior, cycle latency, and executable verification actions.',
     '- Every behavior must be covered by at least one verification item through coversBehaviors.',
+    '- Fill outputOwnership, signalTimelines, truthTables, fsmContracts, and verificationDerivation when applicable. They must be exact and source-grounded, not vague.',
     '- Every hierarchy edge must have one exact instances entry whose named maps match the child interface.',
     '- Every internal connection must have one driver, typed sinks, an explicit clock domain, and an explicit CDC policy.',
     '- Every clock-domain clockPort/resetPort must be a declared top-entity port and every member must be a synchronous RTL/top component.',
@@ -891,6 +1058,7 @@ export function buildFpgaArchitectureContractRepairPrompt(params: {
   userRequest: string;
   invalidResponse: string;
   issues: FpgaArchitectureContractIssue[];
+  intent?: FpgaArchitectureIntent;
   evidenceFacts?: FpgaArchitectureEvidenceFact[];
   retrievalMode?: FpgaArchitectureRetrievalMode;
   retrievalWarnings?: string[];
@@ -919,6 +1087,7 @@ export function buildFpgaArchitectureContractRepairPrompt(params: {
   return [
     buildFpgaArchitectureContractProposalPrompt({
       userRequest: params.userRequest,
+      intent: params.intent,
       evidenceFacts: params.evidenceFacts,
       retrievalMode: params.retrievalMode,
       retrievalWarnings: params.retrievalWarnings,
@@ -975,6 +1144,47 @@ function asString(value: unknown) {
 
 function asStringArray(value: unknown) {
   return Array.isArray(value) ? value.map(asString).filter(Boolean) : [];
+}
+
+function asRecordOfStringArrays(value: unknown): Record<string, string[]> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
+    key,
+    Array.isArray(entry) ? entry.map(asString).filter(Boolean) : asString(entry) ? [asString(entry)] : [],
+  ]));
+}
+
+function parseIntentObject(value: any): FpgaArchitectureIntent | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  return {
+    schemaVersion: '1.0',
+    explicitRequirements: asRecordOfStringArrays(value.explicitRequirements),
+    inferredRequirements: value.inferredRequirements && typeof value.inferredRequirements === 'object'
+      ? Object.fromEntries(Object.entries(value.inferredRequirements as Record<string, unknown>).map(([key, entries]) => [
+        key,
+        Array.isArray(entries)
+          ? entries.map((entry: any) => ({
+            value: asString(entry?.value),
+            evidence: asString(entry?.evidence),
+            confidence: clamp01(asNumber(entry?.confidence, 0)),
+          })).filter((entry) => entry.value && entry.evidence)
+          : [],
+      ]))
+      : {},
+    unknownRequirements: asStringArray(value.unknownRequirements),
+    designClassCandidates: Array.isArray(value.designClassCandidates)
+      ? value.designClassCandidates.map((candidate: any) => ({
+        designClass: asString(candidate?.designClass),
+        confidence: clamp01(asNumber(candidate?.confidence, 0)),
+        evidence: asString(candidate?.evidence),
+      })).filter((candidate: any) => candidate.designClass && candidate.evidence)
+      : [],
+    confidenceByField: value.confidenceByField && typeof value.confidenceByField === 'object'
+      ? Object.fromEntries(Object.entries(value.confidenceByField as Record<string, unknown>).map(([field, confidence]) => [field, clamp01(asNumber(confidence, 0))]))
+      : {},
+    clarificationQuestions: asStringArray(value.clarificationQuestions),
+    acceptedAppDefaults: asStringArray(value.acceptedAppDefaults),
+  };
 }
 
 function asNumber(value: unknown, fallback = 0) {
@@ -1147,6 +1357,9 @@ export function parseFpgaArchitectureContract(text: string): FpgaArchitectureCon
       purpose: asString(port?.purpose),
     })) : [],
     exports: asStringArray(component?.exports),
+    ...(typeof component?.implementationSourcePreference === 'string' ? {
+      implementationSourcePreference: asString(component.implementationSourcePreference) as FpgaArchitectureComponentContract['implementationSourcePreference'],
+    } : {}),
     ...(Array.isArray(component?.packageSymbols) ? {
       packageSymbols: component.packageSymbols.map((symbol: any) => ({
         name: asString(symbol?.name),
@@ -1298,6 +1511,55 @@ export function parseFpgaArchitectureContract(text: string): FpgaArchitectureCon
       ...(asString(requirement?.sourceSnapshotId) ? { sourceSnapshotId: asString(requirement.sourceSnapshotId) } : {}),
     }));
   }
+  if (Array.isArray(parsed?.outputOwnership)) {
+    contract.outputOwnership = parsed.outputOwnership.map((entry: any) => ({
+      ruleId: asString(entry?.ruleId),
+      signal: asString(entry?.signal),
+      ownerComponentId: asString(entry?.ownerComponentId),
+      evidence: asString(entry?.evidence),
+    }));
+  }
+  if (Array.isArray(parsed?.signalTimelines)) {
+    contract.signalTimelines = parsed.signalTimelines.map((entry: any) => ({
+      ruleId: asString(entry?.ruleId),
+      signal: asString(entry?.signal),
+      ownerComponentId: asString(entry?.ownerComponentId),
+      events: Array.isArray(entry?.events)
+        ? entry.events.map((event: any) => ({
+          at: asString(event?.at),
+          value: asString(event?.value),
+          evidence: asString(event?.evidence),
+        }))
+        : [],
+    }));
+  }
+  if (Array.isArray(parsed?.truthTables)) {
+    contract.truthTables = parsed.truthTables.map((entry: any) => ({
+      ruleId: asString(entry?.ruleId),
+      ownerComponentId: asString(entry?.ownerComponentId),
+      input: asString(entry?.input),
+      rows: Array.isArray(entry?.rows)
+        ? entry.rows.map((row: any) => (row && typeof row === 'object' ? Object.fromEntries(Object.entries(row).map(([key, value]) => [key, asString(value)])) : {}))
+        : [],
+    }));
+  }
+  if (Array.isArray(parsed?.fsmContracts)) {
+    contract.fsmContracts = parsed.fsmContracts.map((entry: any) => ({
+      ruleId: asString(entry?.ruleId),
+      componentId: asString(entry?.componentId),
+      stateType: asString(entry?.stateType),
+      resetState: asString(entry?.resetState),
+      states: asStringArray(entry?.states),
+    }));
+  }
+  if (Array.isArray(parsed?.verificationDerivation)) {
+    contract.verificationDerivation = parsed.verificationDerivation.map((entry: any) => ({
+      verificationId: asString(entry?.verificationId),
+      derivesFromRuleIds: asStringArray(entry?.derivesFromRuleIds),
+    }));
+  }
+  const parsedIntent = parseIntentObject(parsed?.intent);
+  if (parsedIntent) contract.intent = parsedIntent;
   return normalizeFpgaArchitectureContract(contract);
 }
 
@@ -1318,6 +1580,7 @@ export function normalizeFpgaArchitectureContract(contract: FpgaArchitectureCont
       })),
       ports: component.ports || [],
       exports: component.exports || [],
+      ...(component.implementationSourcePreference ? { implementationSourcePreference: component.implementationSourcePreference } : {}),
       ...(component.kind === 'package' ? { packageSymbols: component.packageSymbols || [] } : {}),
     })),
     clockDomains: contract.clockDomains || [],
@@ -1343,6 +1606,13 @@ export function normalizeFpgaArchitectureContract(contract: FpgaArchitectureCont
       },
     } : {}),
     ...(contract.sourceGroundedRequirements ? { sourceGroundedRequirements: contract.sourceGroundedRequirements || [] } : {}),
+    ...(contract.outputOwnership ? { outputOwnership: contract.outputOwnership || [] } : {}),
+    ...(contract.signalTimelines ? { signalTimelines: contract.signalTimelines || [] } : {}),
+    ...(contract.truthTables ? { truthTables: contract.truthTables || [] } : {}),
+    ...(contract.fsmContracts ? { fsmContracts: contract.fsmContracts || [] } : {}),
+    ...(contract.verificationDerivation ? { verificationDerivation: contract.verificationDerivation || [] } : {}),
+    ...(contract.intent ? { intent: contract.intent } : {}),
+    ...(contract.clarification ? { clarification: contract.clarification } : {}),
     sourceOrder: (contract.sourceOrder || []).map(normalizePath),
   };
 
@@ -2205,9 +2475,15 @@ export function validateFpgaArchitectureContract(params: {
 
     for (const [index, behavior] of contract.behaviors.entries()) {
       if (!behavior.resetBehavior || !Number.isInteger(behavior.latencyCycles) || Number(behavior.latencyCycles) < 0) pushIssue(issues, 'architecture_contract_behavior_timing_incomplete', `$.behaviors[${index}]`, 'Contract V2 behaviors require exact resetBehavior and non-negative integer latencyCycles.');
+      if (isAmbiguousContractText([behavior.requirement, behavior.timing, behavior.resetBehavior || '', ...(behavior.preconditions || [])].join(' '))) {
+        pushIssue(issues, 'architecture_contract_timeline_ambiguous', `$.behaviors[${index}]`, 'Behavior timing/reset/preconditions must be exact and bounded; do not use vague wording such as eventually, as needed, or implementation-defined.');
+      }
     }
     for (const [index, verification] of contract.verification.entries()) {
       if (!verification.actions || verification.actions.length === 0) pushIssue(issues, 'architecture_contract_scenario_actions_missing', `$.verification[${index}].actions`, 'Contract V2 verification requires executable scenario actions.');
+      if (isAmbiguousContractText([verification.requirement, verification.stimulus, verification.expected].join(' '))) {
+        pushIssue(issues, 'architecture_contract_verification_not_derived', `$.verification[${index}]`, 'Verification must be derived from exact contract rules and must not use vague timing or expected behavior.');
+      }
       for (const behaviorId of verification.coversBehaviors || []) {
         if (!behaviorIds.has(behaviorId)) pushIssue(issues, 'architecture_contract_behavior_coverage_unknown', `$.verification[${index}].coversBehaviors`, `Unknown behavior id "${behaviorId}".`);
       }
@@ -2222,6 +2498,54 @@ export function validateFpgaArchitectureContract(params: {
     }
     for (const behavior of contract.behaviors) {
       if (!contract.verification.some((verification) => verification.coversBehaviors?.includes(behavior.id))) pushIssue(issues, 'architecture_contract_behavior_unverified', '$.verification', `No verification scenario covers behavior "${behavior.id}".`);
+    }
+
+    const topOutputNames = new Set((top?.ports || [])
+      .filter((port) => ['out', 'buffer', 'inout'].includes(port.mode))
+      .map((port) => port.name.toLowerCase()));
+    const outputOwnershipSignals = new Set((contract.outputOwnership || []).map((entry) => entry.signal.toLowerCase()));
+    for (const entry of contract.outputOwnership || []) {
+      if (!entry.ruleId || !isLegalVhdlIdentifier(entry.ruleId)) pushIssue(issues, 'architecture_contract_output_owner_missing', '$.outputOwnership', 'Output ownership entries require legal ruleId values.');
+      if (!entry.signal || !topOutputNames.has(entry.signal.toLowerCase())) pushIssue(issues, 'architecture_contract_output_owner_missing', '$.outputOwnership', `Output ownership signal "${entry.signal}" must name a declared top output.`);
+      if (!componentById.has(entry.ownerComponentId)) pushIssue(issues, 'architecture_contract_output_owner_missing', '$.outputOwnership', `Output ownership owner "${entry.ownerComponentId}" must name a declared component.`);
+      if (!entry.evidence || isAmbiguousContractText(entry.evidence)) pushIssue(issues, 'architecture_contract_output_owner_missing', '$.outputOwnership', 'Output ownership evidence must be precise and source-grounded.');
+    }
+    for (const outputName of topOutputNames) {
+      const behaviorOwnsOutput = contract.behaviors.some((behavior) => behavior.outputs.map((entry) => entry.toLowerCase()).includes(outputName));
+      if (!outputOwnershipSignals.has(outputName) && !behaviorOwnsOutput) {
+        pushIssue(issues, 'architecture_contract_output_owner_missing', '$.outputOwnership', `Top output "${outputName}" requires outputOwnership or a behavior output rule before VHDL generation.`);
+      }
+    }
+    const knownRuleIds = new Set([
+      ...contract.behaviors.map((behavior) => behavior.id),
+      ...(contract.outputOwnership || []).map((entry) => entry.ruleId),
+      ...(contract.signalTimelines || []).map((entry) => entry.ruleId),
+      ...(contract.truthTables || []).map((entry) => entry.ruleId),
+      ...(contract.fsmContracts || []).map((entry) => entry.ruleId),
+    ].filter(Boolean));
+    for (const [index, timeline] of (contract.signalTimelines || []).entries()) {
+      if (!timeline.ruleId || !timeline.signal || !componentById.has(timeline.ownerComponentId) || timeline.events.length === 0) {
+        pushIssue(issues, 'architecture_contract_timeline_ambiguous', `$.signalTimelines[${index}]`, 'Signal timeline rules require ruleId, signal, ownerComponentId, and at least one exact event.');
+      }
+      for (const [eventIndex, event] of timeline.events.entries()) {
+        if (!event.at || !event.value || !event.evidence || isAmbiguousContractText(`${event.at} ${event.value} ${event.evidence}`)) {
+          pushIssue(issues, 'architecture_contract_timeline_ambiguous', `$.signalTimelines[${index}].events[${eventIndex}]`, 'Signal timeline events require exact time/condition, value, and evidence.');
+        }
+      }
+    }
+    const verificationIds = new Set(contract.verification.map((verification) => verification.id));
+    for (const [index, derivation] of (contract.verificationDerivation || []).entries()) {
+      if (!verificationIds.has(derivation.verificationId)) {
+        pushIssue(issues, 'architecture_contract_verification_not_derived', `$.verificationDerivation[${index}].verificationId`, `Verification derivation references unknown verification "${derivation.verificationId}".`);
+      }
+      if (derivation.derivesFromRuleIds.length === 0) {
+        pushIssue(issues, 'architecture_contract_verification_not_derived', `$.verificationDerivation[${index}].derivesFromRuleIds`, 'Verification derivation must reference at least one behavior or behavior-rule id.');
+      }
+      for (const ruleId of derivation.derivesFromRuleIds) {
+        if (!knownRuleIds.has(ruleId)) {
+          pushIssue(issues, 'architecture_contract_verification_not_derived', `$.verificationDerivation[${index}].derivesFromRuleIds`, `Verification derives from unknown rule "${ruleId}".`);
+        }
+      }
     }
   }
 
@@ -2319,18 +2643,31 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
     generationProfile?: ModelGenerationProfile;
   }) => Promise<{ text: string; telemetry: TTelemetry }>;
 }) {
-  const baseSynthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(params.userRequest);
+  const intentSourceRequest = extractFpgaArchitectureIntentSource(params.userRequest);
+  const intent = buildDeterministicFpgaArchitectureIntent(intentSourceRequest);
+  const intentValidation = validateFpgaArchitectureIntentCompleteness(intent, intentSourceRequest);
+  if (!intentValidation.ok && intentValidation.clarificationRequest) {
+    throw new FpgaArchitectureContractError(
+      `Architecture intent needs clarification before VHDL generation. ${intentValidation.clarificationRequest.questions.join(' ')}`,
+      buildFpgaArchitectureIntentClarificationIssues(intentValidation.clarificationRequest),
+    );
+  }
+  const intentGroundedUserRequest = mergeFpgaArchitectureIntentIntoPrompt({
+    userRequest: params.userRequest,
+    intent,
+  });
+  const baseSynthesis = synthesizeFpgaArchitectureBlueprintFromPrompt(intentGroundedUserRequest);
   const reviewResult = await params.runModelAnalysis({
     ai: params.ai,
     provider: params.provider,
     model: params.model,
     prompt: buildFpgaArchitectureSelectionReviewPrompt({
-      userRequest: params.userRequest,
+      userRequest: intentGroundedUserRequest,
     }),
     signal: params.signal,
     generationProfile: buildModelGenerationProfile({
       id: 'contract_json',
-      scope: `${params.userRequest}\u0000architecture-selection-review`,
+      scope: `${intentGroundedUserRequest}\u0000architecture-selection-review`,
     }),
   });
   let architectureSelectionReview: FpgaArchitectureSelectionReview;
@@ -2362,7 +2699,7 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
   }
   const missingBlockDiscovery = await discoverMissingFpgaBlocks({
     missingBlocks: architectureSelectionReview.missingBlocks,
-    userRequest: params.userRequest,
+    userRequest: intentGroundedUserRequest,
     signal: params.signal,
     fetchText: params.missingBlockFetchText,
   });
@@ -2392,13 +2729,13 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
       provider: params.provider,
       model: params.model,
       prompt: buildMissingBlockFitReviewPrompt({
-        userRequest: params.userRequest,
+        userRequest: intentGroundedUserRequest,
         discovery: missingBlockDiscovery,
       }),
       signal: params.signal,
       generationProfile: buildModelGenerationProfile({
         id: 'contract_json',
-        scope: `${params.userRequest}\u0000missing-block-fit-review`,
+        scope: `${intentGroundedUserRequest}\u0000missing-block-fit-review`,
       }),
     });
     try {
@@ -2417,14 +2754,15 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
     }
   }
   const evidence = await collectFpgaArchitectureEvidence({
-    promptText: params.userRequest,
+    promptText: intentGroundedUserRequest,
     synthesis: baseSynthesis,
     retrievalMode: params.architectureRetrievalMode || 'off',
     projectPath: params.projectPath,
     signal: params.signal,
   });
   let prompt = buildFpgaArchitectureContractProposalPrompt({
-    userRequest: params.userRequest,
+    userRequest: intentGroundedUserRequest,
+    intent,
     evidenceFacts: evidence.facts,
     retrievalMode: evidence.retrievalMode,
     retrievalWarnings: evidence.warnings,
@@ -2445,17 +2783,34 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
       signal: params.signal,
       generationProfile: buildModelGenerationProfile({
         id: 'contract_json',
-        scope: `${params.userRequest}\u0000contract-attempt-${attempt + 1}`,
+        scope: `${intentGroundedUserRequest}\u0000contract-attempt-${attempt + 1}`,
       }),
     });
     attempts.push(result);
     latestResponse = result.text;
     try {
+      const approvedContract = parseAndValidateFpgaArchitectureContract({
+        text: latestResponse,
+        userRequest: intentGroundedUserRequest,
+      });
+      if (!approvedContract.intent) approvedContract.intent = intent;
+      const parameterValidation = validateFpgaArchitectureParameterCompleteness({
+        contract: approvedContract,
+        userRequest: intentGroundedUserRequest,
+        intent,
+      });
+      if (!parameterValidation.ok) {
+        throw new FpgaArchitectureContractError(
+          `Architecture parameters need clarification before VHDL generation. ${parameterValidation.clarificationRequest.questions.join(' ')}`,
+          buildFpgaArchitectureParameterClarificationIssues(parameterValidation.clarificationRequest),
+        );
+      }
+      const parameterizedContract = applyResolvedFpgaArchitectureParameters({
+        contract: approvedContract,
+        resolved: parameterValidation.resolved,
+      });
       return {
-        contract: parseAndValidateFpgaArchitectureContract({
-          text: latestResponse,
-          userRequest: params.userRequest,
-        }),
+        contract: parameterizedContract,
         attempts,
         repaired: attempt > 0,
         evidence,
@@ -2469,9 +2824,13 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
       latestError = error instanceof FpgaArchitectureContractError
         ? error
         : new FpgaArchitectureContractError(error?.message || String(error));
+      if (latestError.issues.some((issue) => issue.code.startsWith('architecture_parameter_'))) {
+        throw latestError;
+      }
       if (attempt >= CONTRACT_MAX_REPAIR_ATTEMPTS) break;
       prompt = buildFpgaArchitectureContractRepairPrompt({
-        userRequest: params.userRequest,
+        userRequest: intentGroundedUserRequest,
+        intent,
         invalidResponse: latestResponse,
         issues: latestError.issues.length > 0 ? latestError.issues : [{
           code: 'architecture_contract_invalid',
@@ -2494,9 +2853,10 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
   if (onlyMalformedJson) {
     return {
       contract: buildFpgaArchitectureContractDraft({
-        userRequest: params.userRequest,
+        userRequest: intentGroundedUserRequest,
         evidenceFacts: evidence.facts,
         retrievalMode: evidence.retrievalMode,
+        intent,
       }),
       attempts,
       repaired: true,

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_clock_crossing",
+  "wrapper_entity": "running_variance_engine_clock_crossing_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_CLOCK_CROSSING_95E8C540C53D43FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

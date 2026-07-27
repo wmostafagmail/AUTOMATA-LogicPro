@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_lookup_interpolator_iterative",
+  "wrapper_entity": "activation_lookup_interpolator_iterative_det_cfg",
+  "configuration_id": "ACTIVATION_LOOKUP_INTERPOLATOR_ITERATIVE_9B738581FA92CC28",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

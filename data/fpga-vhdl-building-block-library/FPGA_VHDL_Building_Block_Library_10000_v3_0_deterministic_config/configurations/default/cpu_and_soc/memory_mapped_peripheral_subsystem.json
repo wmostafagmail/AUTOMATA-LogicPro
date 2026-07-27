@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "memory_mapped_peripheral_subsystem",
+  "wrapper_entity": "memory_mapped_peripheral_subsystem_det_cfg",
+  "configuration_id": "MEMORY_MAPPED_PERIPHERAL_SUBSYSTEM_0A0B3B2D8BDE9DE8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

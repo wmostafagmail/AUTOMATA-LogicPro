@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_formally_instrumented",
+  "wrapper_entity": "gardner_timing_detector_formally_instrumented_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_FORMALLY_INSTRUMENTED_9587D7BB0DE39736",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

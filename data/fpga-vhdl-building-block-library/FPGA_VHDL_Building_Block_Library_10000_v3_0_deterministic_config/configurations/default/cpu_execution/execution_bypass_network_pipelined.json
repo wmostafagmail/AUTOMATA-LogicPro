@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "execution_bypass_network_pipelined",
+  "wrapper_entity": "execution_bypass_network_pipelined_det_cfg",
+  "configuration_id": "EXECUTION_BYPASS_NETWORK_PIPELINED_241ABAF369B9B657",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

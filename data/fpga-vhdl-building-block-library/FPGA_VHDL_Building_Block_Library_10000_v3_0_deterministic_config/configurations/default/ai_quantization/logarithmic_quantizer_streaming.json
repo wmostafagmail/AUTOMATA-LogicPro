@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_streaming",
+  "wrapper_entity": "logarithmic_quantizer_streaming_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_STREAMING_9DBA8F28E52A6FCB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

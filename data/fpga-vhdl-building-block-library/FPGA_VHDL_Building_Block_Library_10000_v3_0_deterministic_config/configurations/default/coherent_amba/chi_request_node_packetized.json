@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_request_node_packetized",
+  "wrapper_entity": "chi_request_node_packetized_det_cfg",
+  "configuration_id": "CHI_REQUEST_NODE_PACKETIZED_7EBF02A41B165418",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

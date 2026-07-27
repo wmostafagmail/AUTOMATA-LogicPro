@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_initiator",
+  "wrapper_entity": "cxl_cache_agent_initiator_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_INITIATOR_44CCEDADF3BCB626",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

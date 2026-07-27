@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_address_generator_streaming",
+  "wrapper_entity": "pixel_address_generator_streaming_det_cfg",
+  "configuration_id": "PIXEL_ADDRESS_GENERATOR_STREAMING_03D83B519114EAF9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

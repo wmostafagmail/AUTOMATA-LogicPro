@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_security_filtered",
+  "wrapper_entity": "display_stream_compression_engine_security_filtered_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_SECURITY_FILTERED_7F4FBBA9148DA2D2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

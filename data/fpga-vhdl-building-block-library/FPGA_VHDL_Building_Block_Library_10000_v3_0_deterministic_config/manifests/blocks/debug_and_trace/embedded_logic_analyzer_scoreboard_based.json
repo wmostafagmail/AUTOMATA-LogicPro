@@ -1,0 +1,117 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "embedded_logic_analyzer_scoreboard_based",
+    "entity": "embedded_logic_analyzer_scoreboard_based",
+    "version": "3.0.0",
+    "category": "debug_and_trace",
+    "source": "rtl/blocks/debug_and_trace/embedded_logic_analyzer_scoreboard_based.vhd",
+    "wrapper_entity": "embedded_logic_analyzer_scoreboard_based_det_cfg"
+  },
+  "configuration": {
+    "id": "EMBEDDED_LOGIC_ANALYZER_SCOREBOARD_BASED_56A96419EFB3EA25",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "OBS_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "COUNT_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "OBS_WIDTH": 32,
+      "COUNT_WIDTH": 32
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "observed",
+        "direction": "in",
+        "type": "std_logic_vector(OBS_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "expected",
+        "direction": "in",
+        "type": "std_logic_vector(OBS_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "sample_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "clear",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "match",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "error_count",
+        "direction": "out",
+        "type": "std_logic_vector(COUNT_WIDTH-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "shared-core surrogate only; block-specific golden model and numerical qualification required."
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "interface-wrapper smoke-test scaffold; named algorithm/architecture not yet qualified.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/debug_and_trace/embedded_logic_analyzer_scoreboard_based_det_cfg.vhd",
+    "configuration_file": "configurations/default/embedded_logic_analyzer_scoreboard_based.json"
+  }
+}

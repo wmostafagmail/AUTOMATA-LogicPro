@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "servo_pulse_controller",
+  "wrapper_entity": "servo_pulse_controller_det_cfg",
+  "configuration_id": "SERVO_PULSE_CONTROLLER_5E8DC403E8CFFA63",
+  "generics": {
+    "WIDTH": 16
+  }
+}

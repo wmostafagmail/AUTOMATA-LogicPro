@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_fully_parallel",
+  "wrapper_entity": "sparse_cholesky_engine_fully_parallel_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_FULLY_PARALLEL_850113AEBF5EE93E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

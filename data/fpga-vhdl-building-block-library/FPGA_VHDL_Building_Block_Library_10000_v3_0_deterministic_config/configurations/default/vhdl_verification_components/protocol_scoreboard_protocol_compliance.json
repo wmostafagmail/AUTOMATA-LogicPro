@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_scoreboard_protocol_compliance",
+  "wrapper_entity": "protocol_scoreboard_protocol_compliance_det_cfg",
+  "configuration_id": "PROTOCOL_SCOREBOARD_PROTOCOL_COMPLIANCE_56BBAB1BE20B254B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

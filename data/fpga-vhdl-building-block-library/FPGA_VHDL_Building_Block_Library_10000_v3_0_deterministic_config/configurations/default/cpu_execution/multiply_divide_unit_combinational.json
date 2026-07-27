@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "multiply_divide_unit_combinational",
+  "wrapper_entity": "multiply_divide_unit_combinational_det_cfg",
+  "configuration_id": "MULTIPLY_DIVIDE_UNIT_COMBINATIONAL_D2FB366529F701B4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

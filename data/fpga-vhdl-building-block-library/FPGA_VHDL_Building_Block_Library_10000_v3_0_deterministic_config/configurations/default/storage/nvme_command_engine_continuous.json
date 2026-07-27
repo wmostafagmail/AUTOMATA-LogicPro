@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nvme_command_engine_continuous",
+  "wrapper_entity": "nvme_command_engine_continuous_det_cfg",
+  "configuration_id": "NVME_COMMAND_ENGINE_CONTINUOUS_C6B8E125216E02E1",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cache_way_predictor_write_back",
+  "wrapper_entity": "cache_way_predictor_write_back_det_cfg",
+  "configuration_id": "CACHE_WAY_PREDICTOR_WRITE_BACK_2B69A7EF94B5A36D",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

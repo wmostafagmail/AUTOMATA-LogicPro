@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_redundant",
+  "wrapper_entity": "costas_loop_redundant_det_cfg",
+  "configuration_id": "COSTAS_LOOP_REDUNDANT_E2C5EEB250CD2AC6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

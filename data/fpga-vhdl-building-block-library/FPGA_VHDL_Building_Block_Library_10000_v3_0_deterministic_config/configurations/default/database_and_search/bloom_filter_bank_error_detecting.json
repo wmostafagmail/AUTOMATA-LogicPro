@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bloom_filter_bank_error_detecting",
+  "wrapper_entity": "bloom_filter_bank_error_detecting_det_cfg",
+  "configuration_id": "BLOOM_FILTER_BANK_ERROR_DETECTING_451066E5052CAF72",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

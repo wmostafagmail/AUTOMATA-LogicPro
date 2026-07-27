@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_lpi_controller_target",
+  "wrapper_entity": "ethernet_lpi_controller_target_det_cfg",
+  "configuration_id": "ETHERNET_LPI_CONTROLLER_TARGET_B82AA9AFA0E3AEC4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

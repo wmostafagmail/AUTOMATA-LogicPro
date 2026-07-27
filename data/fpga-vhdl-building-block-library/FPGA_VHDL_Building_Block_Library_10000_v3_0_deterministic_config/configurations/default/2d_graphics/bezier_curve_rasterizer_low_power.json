@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_low_power",
+  "wrapper_entity": "bezier_curve_rasterizer_low_power_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_LOW_POWER_7A1B970A1CF7017F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

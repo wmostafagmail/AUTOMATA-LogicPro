@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "time_to_digital_converter_multi_channel",
+  "wrapper_entity": "time_to_digital_converter_multi_channel_det_cfg",
+  "configuration_id": "TIME_TO_DIGITAL_CONVERTER_MULTI_CHANNEL_31FF321DBE61E2B2",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

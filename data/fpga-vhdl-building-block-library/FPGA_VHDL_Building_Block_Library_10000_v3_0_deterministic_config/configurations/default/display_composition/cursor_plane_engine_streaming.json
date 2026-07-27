@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cursor_plane_engine_streaming",
+  "wrapper_entity": "cursor_plane_engine_streaming_det_cfg",
+  "configuration_id": "CURSOR_PLANE_ENGINE_STREAMING_5981B8A114CB4E4D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

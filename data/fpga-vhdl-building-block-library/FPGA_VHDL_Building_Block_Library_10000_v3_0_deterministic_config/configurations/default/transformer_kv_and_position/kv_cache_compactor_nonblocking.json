@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kv_cache_compactor_nonblocking",
+  "wrapper_entity": "kv_cache_compactor_nonblocking_det_cfg",
+  "configuration_id": "KV_CACHE_COMPACTOR_NONBLOCKING_E40D566507D8DC6B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

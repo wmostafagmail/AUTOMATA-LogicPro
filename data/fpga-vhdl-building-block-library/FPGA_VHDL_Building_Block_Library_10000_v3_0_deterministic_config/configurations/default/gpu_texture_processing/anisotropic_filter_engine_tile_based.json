@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_tile_based",
+  "wrapper_entity": "anisotropic_filter_engine_tile_based_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_TILE_BASED_13E0871D54BA22DC",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

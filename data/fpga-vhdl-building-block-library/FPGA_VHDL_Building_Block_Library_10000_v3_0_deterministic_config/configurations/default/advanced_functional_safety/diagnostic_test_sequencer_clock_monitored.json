@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_clock_monitored",
+  "wrapper_entity": "diagnostic_test_sequencer_clock_monitored_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_CLOCK_MONITORED_B06D3E351B4EAFC4",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

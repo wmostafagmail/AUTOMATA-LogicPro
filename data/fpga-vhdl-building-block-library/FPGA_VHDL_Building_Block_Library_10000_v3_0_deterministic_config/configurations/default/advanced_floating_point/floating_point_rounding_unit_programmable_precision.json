@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_rounding_unit_programmable_precision",
+  "wrapper_entity": "floating_point_rounding_unit_programmable_precision_det_cfg",
+  "configuration_id": "FLOATING_POINT_ROUNDING_UNIT_PROGRAMMABLE_PRECISION_C1DDF901FE1BAB75",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

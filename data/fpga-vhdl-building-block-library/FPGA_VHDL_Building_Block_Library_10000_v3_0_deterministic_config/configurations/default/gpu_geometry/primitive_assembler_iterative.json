@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "primitive_assembler_iterative",
+  "wrapper_entity": "primitive_assembler_iterative_det_cfg",
+  "configuration_id": "PRIMITIVE_ASSEMBLER_ITERATIVE_749C2AB669544673",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

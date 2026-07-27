@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "command_queue_single_clock",
+  "wrapper_entity": "command_queue_single_clock_det_cfg",
+  "configuration_id": "COMMAND_QUEUE_SINGLE_CLOCK_BD0426B747ED4F58",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

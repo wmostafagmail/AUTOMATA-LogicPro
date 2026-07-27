@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_engine_key_agile",
+  "wrapper_entity": "aes_engine_key_agile_det_cfg",
+  "configuration_id": "AES_ENGINE_KEY_AGILE_36E9AE430216A5BF",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

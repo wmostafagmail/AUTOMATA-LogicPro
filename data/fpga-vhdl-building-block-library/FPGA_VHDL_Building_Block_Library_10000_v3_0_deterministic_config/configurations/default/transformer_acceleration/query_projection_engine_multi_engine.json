@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "query_projection_engine_multi_engine",
+  "wrapper_entity": "query_projection_engine_multi_engine_det_cfg",
+  "configuration_id": "QUERY_PROJECTION_ENGINE_MULTI_ENGINE_8C366657A17EAB24",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

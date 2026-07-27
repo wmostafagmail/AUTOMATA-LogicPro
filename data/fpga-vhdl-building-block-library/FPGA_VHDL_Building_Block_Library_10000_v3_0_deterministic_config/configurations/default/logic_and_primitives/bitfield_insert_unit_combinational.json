@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bitfield_insert_unit_combinational",
+  "wrapper_entity": "bitfield_insert_unit_combinational_det_cfg",
+  "configuration_id": "BITFIELD_INSERT_UNIT_COMBINATIONAL_2E0EBEF4E5D9503E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

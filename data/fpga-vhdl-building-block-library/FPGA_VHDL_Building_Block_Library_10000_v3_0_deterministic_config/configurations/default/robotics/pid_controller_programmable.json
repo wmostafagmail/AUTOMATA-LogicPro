@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pid_controller_programmable",
+  "wrapper_entity": "pid_controller_programmable_det_cfg",
+  "configuration_id": "PID_CONTROLLER_PROGRAMMABLE_CACDCE1E0BCDB20C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_fail_safe",
+  "wrapper_entity": "feedback_latency_controller_fail_safe_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_FAIL_SAFE_DCF20080FF5C5C23",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

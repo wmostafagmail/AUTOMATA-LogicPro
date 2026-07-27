@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_adder_streaming",
+  "wrapper_entity": "integer_adder_streaming_det_cfg",
+  "configuration_id": "INTEGER_ADDER_STREAMING_D7A2CAA062D6FE3D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

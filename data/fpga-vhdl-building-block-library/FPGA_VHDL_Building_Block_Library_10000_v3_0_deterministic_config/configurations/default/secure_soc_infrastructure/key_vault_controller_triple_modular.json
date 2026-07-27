@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_triple_modular",
+  "wrapper_entity": "key_vault_controller_triple_modular_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_TRIPLE_MODULAR_8DF4A3F7FF775A9B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

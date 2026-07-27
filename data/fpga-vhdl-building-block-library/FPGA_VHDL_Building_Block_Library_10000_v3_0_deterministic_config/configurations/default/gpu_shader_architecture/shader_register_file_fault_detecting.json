@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_fault_detecting",
+  "wrapper_entity": "shader_register_file_fault_detecting_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_FAULT_DETECTING_000D419C761F392A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

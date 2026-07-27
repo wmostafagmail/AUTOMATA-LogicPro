@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_lane_alignment_router",
+  "wrapper_entity": "jesd204b_lane_alignment_router_det_cfg",
+  "configuration_id": "JESD204B_LANE_ALIGNMENT_ROUTER_32652282C934B676",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

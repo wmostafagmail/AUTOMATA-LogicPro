@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_programmable_precision",
+  "wrapper_entity": "newton_raphson_reciprocal_programmable_precision_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_PROGRAMMABLE_PRECISION_04BA7010AFE3CB38",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

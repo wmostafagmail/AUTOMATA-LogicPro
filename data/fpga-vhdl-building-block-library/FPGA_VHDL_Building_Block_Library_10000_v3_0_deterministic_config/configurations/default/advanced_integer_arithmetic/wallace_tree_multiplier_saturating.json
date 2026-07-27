@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wallace_tree_multiplier_saturating",
+  "wrapper_entity": "wallace_tree_multiplier_saturating_det_cfg",
+  "configuration_id": "WALLACE_TREE_MULTIPLIER_SATURATING_3D97E8C0954340DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

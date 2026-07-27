@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_replay_buffer_controller",
+  "wrapper_entity": "pcie_replay_buffer_controller_det_cfg",
+  "configuration_id": "PCIE_REPLAY_BUFFER_CONTROLLER_E92B6FFC5861448A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

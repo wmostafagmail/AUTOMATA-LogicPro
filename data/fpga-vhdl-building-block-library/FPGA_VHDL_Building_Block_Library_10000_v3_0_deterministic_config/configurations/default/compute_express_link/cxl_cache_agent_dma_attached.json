@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_dma_attached",
+  "wrapper_entity": "cxl_cache_agent_dma_attached_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_DMA_ATTACHED_DAE0688788538EBD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

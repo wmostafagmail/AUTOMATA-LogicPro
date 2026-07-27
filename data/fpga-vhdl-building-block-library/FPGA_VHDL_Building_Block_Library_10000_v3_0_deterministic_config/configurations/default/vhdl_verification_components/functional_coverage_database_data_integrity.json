@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "functional_coverage_database_data_integrity",
+  "wrapper_entity": "functional_coverage_database_data_integrity_det_cfg",
+  "configuration_id": "FUNCTIONAL_COVERAGE_DATABASE_DATA_INTEGRITY_633AD00E1B587220",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_telemetry_framer_programmable",
+  "wrapper_entity": "command_telemetry_framer_programmable_det_cfg",
+  "configuration_id": "COMMAND_TELEMETRY_FRAMER_PROGRAMMABLE_B31D1B5FC0A96D2D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

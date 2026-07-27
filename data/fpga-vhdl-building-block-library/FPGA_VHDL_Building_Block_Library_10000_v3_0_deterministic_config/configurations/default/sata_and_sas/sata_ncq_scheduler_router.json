@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_ncq_scheduler_router",
+  "wrapper_entity": "sata_ncq_scheduler_router_det_cfg",
+  "configuration_id": "SATA_NCQ_SCHEDULER_ROUTER_BFE6078203A64C3E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

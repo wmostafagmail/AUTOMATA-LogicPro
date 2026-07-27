@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_self_testing",
+  "wrapper_entity": "diagnostic_test_sequencer_self_testing_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_SELF_TESTING_68A635887652E936",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

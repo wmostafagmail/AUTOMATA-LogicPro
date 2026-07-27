@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_memory_device_controller_dma_attached",
+  "wrapper_entity": "cxl_memory_device_controller_dma_attached_det_cfg",
+  "configuration_id": "CXL_MEMORY_DEVICE_CONTROLLER_DMA_ATTACHED_9A7AF1C29CC3CC5A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

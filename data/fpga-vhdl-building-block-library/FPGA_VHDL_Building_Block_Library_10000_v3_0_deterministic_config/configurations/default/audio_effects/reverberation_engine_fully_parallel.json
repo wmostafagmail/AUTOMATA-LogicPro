@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_fully_parallel",
+  "wrapper_entity": "reverberation_engine_fully_parallel_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_FULLY_PARALLEL_BDCEFDCB988D000B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

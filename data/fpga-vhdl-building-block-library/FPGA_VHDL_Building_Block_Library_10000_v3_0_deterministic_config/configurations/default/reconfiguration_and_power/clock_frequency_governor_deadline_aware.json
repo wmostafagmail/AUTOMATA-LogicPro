@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clock_frequency_governor_deadline_aware",
+  "wrapper_entity": "clock_frequency_governor_deadline_aware_det_cfg",
+  "configuration_id": "CLOCK_FREQUENCY_GOVERNOR_DEADLINE_AWARE_D3FA21EA6C1ACA38",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

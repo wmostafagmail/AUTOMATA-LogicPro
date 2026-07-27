@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "transaction_controller_programmable",
+  "wrapper_entity": "transaction_controller_programmable_det_cfg",
+  "configuration_id": "TRANSACTION_CONTROLLER_PROGRAMMABLE_18965A39EBED57F2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

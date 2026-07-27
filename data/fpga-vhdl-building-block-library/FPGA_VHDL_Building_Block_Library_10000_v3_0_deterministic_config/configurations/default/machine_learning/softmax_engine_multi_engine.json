@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "softmax_engine_multi_engine",
+  "wrapper_entity": "softmax_engine_multi_engine_det_cfg",
+  "configuration_id": "SOFTMAX_ENGINE_MULTI_ENGINE_C8DBD84602E8C06F",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

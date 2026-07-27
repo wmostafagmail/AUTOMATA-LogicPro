@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_fail_safe",
+  "wrapper_entity": "particle_filter_localizer_fail_safe_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_FAIL_SAFE_7312FD0CF6DFB4D7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

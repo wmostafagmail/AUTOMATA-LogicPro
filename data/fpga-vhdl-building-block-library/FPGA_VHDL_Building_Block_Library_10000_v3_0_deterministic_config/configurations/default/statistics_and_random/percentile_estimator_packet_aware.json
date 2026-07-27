@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "percentile_estimator_packet_aware",
+  "wrapper_entity": "percentile_estimator_packet_aware_det_cfg",
+  "configuration_id": "PERCENTILE_ESTIMATOR_PACKET_AWARE_243318D5917F76B1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_deadline_aware",
+  "wrapper_entity": "perceptron_branch_predictor_deadline_aware_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_DEADLINE_AWARE_6E1E4BB706AD8421",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

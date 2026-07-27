@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_continuous",
+  "wrapper_entity": "exception_replay_controller_continuous_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_CONTINUOUS_33133CF160A42505",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

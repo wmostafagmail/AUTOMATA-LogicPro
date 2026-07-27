@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stencil_compute_array_iterative",
+  "wrapper_entity": "stencil_compute_array_iterative_det_cfg",
+  "configuration_id": "STENCIL_COMPUTE_ARRAY_ITERATIVE_365A87D0FCC23DE3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

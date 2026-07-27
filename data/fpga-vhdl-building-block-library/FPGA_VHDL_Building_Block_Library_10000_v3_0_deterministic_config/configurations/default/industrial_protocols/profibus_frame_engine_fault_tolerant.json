@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profibus_frame_engine_fault_tolerant",
+  "wrapper_entity": "profibus_frame_engine_fault_tolerant_det_cfg",
+  "configuration_id": "PROFIBUS_FRAME_ENGINE_FAULT_TOLERANT_CE08610CB4A89FF4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

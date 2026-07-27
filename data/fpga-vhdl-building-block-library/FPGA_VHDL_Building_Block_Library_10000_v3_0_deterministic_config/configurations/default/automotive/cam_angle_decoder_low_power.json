@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "cam_angle_decoder_low_power",
+  "wrapper_entity": "cam_angle_decoder_low_power_det_cfg",
+  "configuration_id": "CAM_ANGLE_DECODER_LOW_POWER_51FCFD4180D8AD8D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

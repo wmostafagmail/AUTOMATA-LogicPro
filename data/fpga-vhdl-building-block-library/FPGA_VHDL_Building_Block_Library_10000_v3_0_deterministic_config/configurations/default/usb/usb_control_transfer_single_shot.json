@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_control_transfer_single_shot",
+  "wrapper_entity": "usb_control_transfer_single_shot_det_cfg",
+  "configuration_id": "USB_CONTROL_TRANSFER_SINGLE_SHOT_6F7153868AC80904",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

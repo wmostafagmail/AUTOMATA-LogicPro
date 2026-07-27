@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_iterative",
+  "wrapper_entity": "delay_and_sum_beamformer_iterative_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_ITERATIVE_56B4E69CB39B86A6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

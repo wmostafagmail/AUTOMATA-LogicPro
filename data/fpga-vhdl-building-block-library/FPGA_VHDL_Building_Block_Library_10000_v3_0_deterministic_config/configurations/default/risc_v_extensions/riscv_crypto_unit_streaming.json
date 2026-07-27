@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_streaming",
+  "wrapper_entity": "riscv_crypto_unit_streaming_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_STREAMING_1AA28226AFD4026F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

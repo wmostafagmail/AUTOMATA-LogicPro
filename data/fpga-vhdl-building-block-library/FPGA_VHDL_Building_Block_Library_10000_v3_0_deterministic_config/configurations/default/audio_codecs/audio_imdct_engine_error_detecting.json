@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_imdct_engine_error_detecting",
+  "wrapper_entity": "audio_imdct_engine_error_detecting_det_cfg",
+  "configuration_id": "AUDIO_IMDCT_ENGINE_ERROR_DETECTING_61AE555970D5CB2B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

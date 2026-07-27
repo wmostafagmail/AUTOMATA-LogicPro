@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triangle_edge_walker_fixed_latency",
+  "wrapper_entity": "triangle_edge_walker_fixed_latency_det_cfg",
+  "configuration_id": "TRIANGLE_EDGE_WALKER_FIXED_LATENCY_7451FAC397B04A15",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

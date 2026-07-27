@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_ncq_scheduler_timestamped",
+  "wrapper_entity": "sata_ncq_scheduler_timestamped_det_cfg",
+  "configuration_id": "SATA_NCQ_SCHEDULER_TIMESTAMPED_D092961C58D8DC14",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

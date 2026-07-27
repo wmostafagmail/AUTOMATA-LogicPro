@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "backpropagation_datapath_buffered_stream",
+  "wrapper_entity": "backpropagation_datapath_buffered_stream_det_cfg",
+  "configuration_id": "BACKPROPAGATION_DATAPATH_BUFFERED_STREAM_1F7AB91960E58B5F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

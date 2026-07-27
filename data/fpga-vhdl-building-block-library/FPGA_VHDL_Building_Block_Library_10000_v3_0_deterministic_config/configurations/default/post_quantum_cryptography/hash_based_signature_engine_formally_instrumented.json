@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_formally_instrumented",
+  "wrapper_entity": "hash_based_signature_engine_formally_instrumented_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_FORMALLY_INSTRUMENTED_10B04BB1BA723D81",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

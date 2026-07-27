@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_multi_channel",
+  "wrapper_entity": "torus_router_multi_channel_det_cfg",
+  "configuration_id": "TORUS_ROUTER_MULTI_CHANNEL_D8BC1E6C03C2234A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

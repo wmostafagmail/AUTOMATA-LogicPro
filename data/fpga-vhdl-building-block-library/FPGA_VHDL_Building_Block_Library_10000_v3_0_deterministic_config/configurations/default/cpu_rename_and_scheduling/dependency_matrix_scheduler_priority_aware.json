@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_priority_aware",
+  "wrapper_entity": "dependency_matrix_scheduler_priority_aware_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_PRIORITY_AWARE_3D61D93BE6BEC3F8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

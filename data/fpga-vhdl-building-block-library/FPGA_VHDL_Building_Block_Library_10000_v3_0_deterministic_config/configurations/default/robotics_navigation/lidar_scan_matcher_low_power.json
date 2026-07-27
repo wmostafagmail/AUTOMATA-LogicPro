@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_low_power",
+  "wrapper_entity": "lidar_scan_matcher_low_power_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_LOW_POWER_BDF025E6E3942812",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

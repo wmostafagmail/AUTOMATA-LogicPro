@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "per_bit_deskew_controller_clock_crossing",
+  "wrapper_entity": "per_bit_deskew_controller_clock_crossing_det_cfg",
+  "configuration_id": "PER_BIT_DESKEW_CONTROLLER_CLOCK_CROSSING_552D9704932143E1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

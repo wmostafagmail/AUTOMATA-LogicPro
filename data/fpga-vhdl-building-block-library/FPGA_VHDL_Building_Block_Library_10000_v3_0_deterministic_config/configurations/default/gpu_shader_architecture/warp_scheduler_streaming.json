@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "warp_scheduler_streaming",
+  "wrapper_entity": "warp_scheduler_streaming_det_cfg",
+  "configuration_id": "WARP_SCHEDULER_STREAMING_A35C70287C24AF72",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

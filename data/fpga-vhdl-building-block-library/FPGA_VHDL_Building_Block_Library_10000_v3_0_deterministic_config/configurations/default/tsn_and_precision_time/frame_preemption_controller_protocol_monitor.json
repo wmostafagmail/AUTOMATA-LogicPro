@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_protocol_monitor",
+  "wrapper_entity": "frame_preemption_controller_protocol_monitor_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_PROTOCOL_MONITOR_A48542488C57DF33",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

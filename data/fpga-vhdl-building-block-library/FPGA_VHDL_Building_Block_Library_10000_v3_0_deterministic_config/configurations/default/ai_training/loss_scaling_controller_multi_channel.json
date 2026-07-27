@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_multi_channel",
+  "wrapper_entity": "loss_scaling_controller_multi_channel_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_MULTI_CHANNEL_B0A3C5D4949DAD8B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

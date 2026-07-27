@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "return_address_stack_single_shot",
+  "wrapper_entity": "return_address_stack_single_shot_det_cfg",
+  "configuration_id": "RETURN_ADDRESS_STACK_SINGLE_SHOT_FD34BA3900C63C9C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

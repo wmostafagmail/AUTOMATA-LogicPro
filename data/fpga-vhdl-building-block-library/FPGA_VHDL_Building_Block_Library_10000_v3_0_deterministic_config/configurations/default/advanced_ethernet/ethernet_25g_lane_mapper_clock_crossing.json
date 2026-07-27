@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_clock_crossing",
+  "wrapper_entity": "ethernet_25g_lane_mapper_clock_crossing_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_CLOCK_CROSSING_5A242EC92F53B018",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

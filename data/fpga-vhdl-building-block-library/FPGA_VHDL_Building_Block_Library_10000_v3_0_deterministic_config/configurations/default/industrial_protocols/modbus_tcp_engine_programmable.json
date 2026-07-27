@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_tcp_engine_programmable",
+  "wrapper_entity": "modbus_tcp_engine_programmable_det_cfg",
+  "configuration_id": "MODBUS_TCP_ENGINE_PROGRAMMABLE_20E0B040ED04AFB7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

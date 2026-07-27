@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_sequencer_low_power",
+  "wrapper_entity": "command_sequencer_low_power_det_cfg",
+  "configuration_id": "COMMAND_SEQUENCER_LOW_POWER_DF3F043ED9CD10BB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

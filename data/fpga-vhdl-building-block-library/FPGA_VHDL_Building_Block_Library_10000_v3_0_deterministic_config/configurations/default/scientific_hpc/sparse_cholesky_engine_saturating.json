@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_saturating",
+  "wrapper_entity": "sparse_cholesky_engine_saturating_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_SATURATING_B04673882709C5CF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

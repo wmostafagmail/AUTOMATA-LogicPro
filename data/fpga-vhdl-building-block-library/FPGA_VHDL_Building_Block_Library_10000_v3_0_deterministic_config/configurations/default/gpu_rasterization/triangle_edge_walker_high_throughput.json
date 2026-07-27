@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triangle_edge_walker_high_throughput",
+  "wrapper_entity": "triangle_edge_walker_high_throughput_det_cfg",
+  "configuration_id": "TRIANGLE_EDGE_WALKER_HIGH_THROUGHPUT_59F382CBECCD2461",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

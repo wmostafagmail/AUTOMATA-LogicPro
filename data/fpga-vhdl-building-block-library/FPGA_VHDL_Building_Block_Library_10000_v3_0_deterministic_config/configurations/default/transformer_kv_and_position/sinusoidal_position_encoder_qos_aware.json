@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sinusoidal_position_encoder_qos_aware",
+  "wrapper_entity": "sinusoidal_position_encoder_qos_aware_det_cfg",
+  "configuration_id": "SINUSOIDAL_POSITION_ENCODER_QOS_AWARE_7D84B4C89FE0640A",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

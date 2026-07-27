@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_redundant",
+  "wrapper_entity": "pcie_sriov_vf_manager_redundant_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_REDUNDANT_859388E8385FB03A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

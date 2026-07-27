@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_constrained_random",
+  "wrapper_entity": "performance_monitoring_unit_constrained_random_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_CONSTRAINED_RANDOM_E2F7EC80F64F7DA1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

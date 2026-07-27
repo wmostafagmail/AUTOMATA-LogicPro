@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gamma_corrector_streaming",
+  "wrapper_entity": "gamma_corrector_streaming_det_cfg",
+  "configuration_id": "GAMMA_CORRECTOR_STREAMING_CEAD2D8661764B31",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

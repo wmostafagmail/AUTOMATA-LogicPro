@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_single_cycle",
+  "wrapper_entity": "mixed_precision_dispatcher_single_cycle_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_SINGLE_CYCLE_D907D4BBBA0B2655",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

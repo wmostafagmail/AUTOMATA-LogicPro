@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_tile_based",
+  "wrapper_entity": "h264_intra_predictor_tile_based_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_TILE_BASED_FF32FDC5572E4C0F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

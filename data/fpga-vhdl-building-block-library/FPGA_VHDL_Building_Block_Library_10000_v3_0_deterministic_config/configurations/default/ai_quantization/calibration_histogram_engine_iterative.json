@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "calibration_histogram_engine_iterative",
+  "wrapper_entity": "calibration_histogram_engine_iterative_det_cfg",
+  "configuration_id": "CALIBRATION_HISTOGRAM_ENGINE_ITERATIVE_9CF94AE574688C6A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

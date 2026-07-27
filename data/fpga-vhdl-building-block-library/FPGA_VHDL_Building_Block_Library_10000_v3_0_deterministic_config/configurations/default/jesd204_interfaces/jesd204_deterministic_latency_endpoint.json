@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_endpoint",
+  "wrapper_entity": "jesd204_deterministic_latency_endpoint_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_ENDPOINT_082AD11F3199198A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

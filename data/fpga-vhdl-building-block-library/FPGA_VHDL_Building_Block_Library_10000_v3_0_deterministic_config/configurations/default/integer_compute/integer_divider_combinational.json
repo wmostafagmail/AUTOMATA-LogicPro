@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_divider_combinational",
+  "wrapper_entity": "integer_divider_combinational_det_cfg",
+  "configuration_id": "INTEGER_DIVIDER_COMBINATIONAL_CF694F02C3496762",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

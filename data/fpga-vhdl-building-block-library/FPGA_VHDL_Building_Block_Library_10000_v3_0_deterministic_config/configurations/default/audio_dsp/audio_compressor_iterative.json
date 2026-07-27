@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_compressor_iterative",
+  "wrapper_entity": "audio_compressor_iterative_det_cfg",
+  "configuration_id": "AUDIO_COMPRESSOR_ITERATIVE_05F2BD3099A81D5C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

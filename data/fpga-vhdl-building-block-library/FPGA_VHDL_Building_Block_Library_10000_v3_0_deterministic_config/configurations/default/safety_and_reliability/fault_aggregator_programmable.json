@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fault_aggregator_programmable",
+  "wrapper_entity": "fault_aggregator_programmable_det_cfg",
+  "configuration_id": "FAULT_AGGREGATOR_PROGRAMMABLE_231857B918A43574",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

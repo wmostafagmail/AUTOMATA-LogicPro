@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_shallow_pipeline",
+  "wrapper_entity": "carry_skip_adder_shallow_pipeline_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_SHALLOW_PIPELINE_5084B561F401BFBE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_software_configurable",
+  "wrapper_entity": "privilege_trap_router_software_configurable_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_SOFTWARE_CONFIGURABLE_6CB9A59528B07314",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_exception_unit_programmable_precision",
+  "wrapper_entity": "floating_point_exception_unit_programmable_precision_det_cfg",
+  "configuration_id": "FLOATING_POINT_EXCEPTION_UNIT_PROGRAMMABLE_PRECISION_89295915312E91C6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

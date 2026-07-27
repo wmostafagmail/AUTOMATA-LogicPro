@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scanline_polygon_filler_streaming",
+  "wrapper_entity": "scanline_polygon_filler_streaming_det_cfg",
+  "configuration_id": "SCANLINE_POLYGON_FILLER_STREAMING_4FFA194A14EFD40A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

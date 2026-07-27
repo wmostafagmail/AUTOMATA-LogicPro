@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_programmable",
+  "wrapper_entity": "hierarchical_z_unit_programmable_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_PROGRAMMABLE_DD7ECB1473151851",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

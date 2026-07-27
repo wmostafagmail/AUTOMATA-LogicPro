@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcm_packetizer_buffered",
+  "wrapper_entity": "pcm_packetizer_buffered_det_cfg",
+  "configuration_id": "PCM_PACKETIZER_BUFFERED_57691FBEC43D3CFE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

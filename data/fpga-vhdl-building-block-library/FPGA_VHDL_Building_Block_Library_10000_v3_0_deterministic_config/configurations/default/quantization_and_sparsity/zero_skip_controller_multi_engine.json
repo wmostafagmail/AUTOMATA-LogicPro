@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_skip_controller_multi_engine",
+  "wrapper_entity": "zero_skip_controller_multi_engine_det_cfg",
+  "configuration_id": "ZERO_SKIP_CONTROLLER_MULTI_ENGINE_61422267BBB6EE58",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

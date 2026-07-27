@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "functional_coverage_database_boundary_focused",
+  "wrapper_entity": "functional_coverage_database_boundary_focused_det_cfg",
+  "configuration_id": "FUNCTIONAL_COVERAGE_DATABASE_BOUNDARY_FOCUSED_76FF8180B0577BC0",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

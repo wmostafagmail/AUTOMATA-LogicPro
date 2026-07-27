@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_framebuffer",
+  "wrapper_entity": "h264_deblocking_filter_framebuffer_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_FRAMEBUFFER_8CFE66DF4ED4163F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

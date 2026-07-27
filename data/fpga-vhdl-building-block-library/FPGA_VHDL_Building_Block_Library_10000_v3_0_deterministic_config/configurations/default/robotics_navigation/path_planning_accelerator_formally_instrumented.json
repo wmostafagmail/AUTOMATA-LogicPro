@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_formally_instrumented",
+  "wrapper_entity": "path_planning_accelerator_formally_instrumented_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_FORMALLY_INSTRUMENTED_50B15B98C71FAEE3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_single_cycle",
+  "wrapper_entity": "floating_point_matrix_fma_single_cycle_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_SINGLE_CYCLE_8F954AD4FA8ABA2C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

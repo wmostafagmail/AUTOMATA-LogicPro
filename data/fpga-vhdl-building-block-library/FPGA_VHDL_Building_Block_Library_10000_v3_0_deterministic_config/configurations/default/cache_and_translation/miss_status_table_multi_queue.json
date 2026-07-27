@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "miss_status_table_multi_queue",
+  "wrapper_entity": "miss_status_table_multi_queue_det_cfg",
+  "configuration_id": "MISS_STATUS_TABLE_MULTI_QUEUE_269C6E6D6D02127E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

@@ -5,6 +5,7 @@ import type { AiMacroId, TbGenerationMode } from '../aiMacros';
 import type { LogicProSession, createSessionManager } from './sessionManager';
 import type { PreparedAiAnalyzeRequest } from './aiAnalyzePreparation';
 import type { FpgaArchitectProject } from './fpgaArchitect';
+import { FpgaArchitectureContractError } from './fpgaArchitectureContract';
 import { FPGA_ARCHITECT_SWEEP_TOTAL_ATTEMPTS } from '../fpgaArchitectSweepConfig';
 import {
   buildVhdlOrchestratorTaskPrompt,
@@ -42,6 +43,12 @@ type BeginTrackedJobResult = {
     architectureStageTotal?: number;
     architectureStageComponent?: string;
     architectureStageStatus?: string;
+    architectureClarificationStatus?: string;
+    architectureClarificationQuestions?: string[];
+    architectureClarificationUnknowns?: string[];
+    architectureClarificationSubtype?: string;
+    architectureParameterQuestions?: string[];
+    architectureParameterRequirements?: string[];
     telemetryAttemptCount?: number;
     latestAttemptInputTokens?: number | null;
     latestAttemptOutputTokens?: number | null;
@@ -296,6 +303,7 @@ export function createAiAnalyzeRouteContext(params: {
     let telemetryAttemptCount = 0;
     let liveJobInputTokens = 0;
     let liveJobOutputTokens = 0;
+    let keepTrackedJobForClarification = false;
     const runTrackedSweepModelAnalysis = async (...args: Parameters<typeof runModelAnalysis>) => {
       const result = await runModelAnalysis(...args);
       const telemetry = result?.telemetry || {};
@@ -493,13 +501,53 @@ export function createAiAnalyzeRouteContext(params: {
           cancelled: true,
         });
       }
+      const architectureClarificationIssues = error instanceof FpgaArchitectureContractError
+        ? error.issues.filter((issue) => issue.code.startsWith('architecture_intent_') || issue.code.startsWith('architecture_parameter_'))
+        : [];
+      if (architectureClarificationIssues.length > 0) {
+        const isParameterClarification = architectureClarificationIssues.some((issue) => issue.code.startsWith('architecture_parameter_'));
+        const questions = architectureClarificationIssues
+          .filter((issue) => issue.code !== 'architecture_intent_clarification_required' && issue.code !== 'architecture_parameter_clarification_required')
+          .map((issue) => issue.message)
+          .filter(Boolean)
+          .slice(0, 4);
+        const unknowns = architectureClarificationIssues
+          .map((issue) => issue.path.replace(/^\$\.intent\./, ''))
+          .filter((entry) => entry && entry !== '$.intent')
+          .slice(0, 12);
+        updateTrackedJobProgress({
+          architectureClarificationStatus: 'awaiting_architecture_clarification',
+          architectureClarificationQuestions: questions,
+          architectureClarificationUnknowns: unknowns,
+          architectureClarificationSubtype: isParameterClarification ? 'parameter_clarification' : 'intent_clarification',
+          architectureParameterQuestions: isParameterClarification ? questions : [],
+          architectureParameterRequirements: isParameterClarification ? unknowns : [],
+          architectureStage: isParameterClarification ? 'parameter_clarification' : 'intent_clarification',
+          architectureStageIndex: 1,
+          architectureStageTotal: 6,
+          architectureStageComponent: '',
+          architectureStageStatus: isParameterClarification ? 'awaiting architecture parameter choices' : 'awaiting architecture clarification',
+        });
+        keepTrackedJobForClarification = true;
+        return res.status(409).json({
+          error: `${isParameterClarification ? 'Architecture parameters need clarification' : 'Architecture intent needs clarification'} before VHDL generation: ${questions.join(' ') || error.message}`,
+          macroId,
+          jobId,
+          status: 'awaiting_architecture_clarification',
+          architectureClarificationQuestions: questions,
+          architectureClarificationUnknowns: unknowns,
+          architectureClarificationSubtype: isParameterClarification ? 'parameter_clarification' : 'intent_clarification',
+          architectureParameterQuestions: isParameterClarification ? questions : [],
+          architectureParameterRequirements: isParameterClarification ? unknowns : [],
+        });
+      }
       console.error('Gemini API call error:', error);
       return res.status(error?.statusCode || 500).json({
         error: `Core logic simulation analysis failed: ${error.message || error}`,
         macroId,
       });
     } finally {
-      deleteTrackedJob(jobId);
+      if (!keepTrackedJobForClarification) deleteTrackedJob(jobId);
     }
   };
 

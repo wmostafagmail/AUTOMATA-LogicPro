@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "odometry_integrator_single_shot",
+  "wrapper_entity": "odometry_integrator_single_shot_det_cfg",
+  "configuration_id": "ODOMETRY_INTEGRATOR_SINGLE_SHOT_AEB2032D7876F2A0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

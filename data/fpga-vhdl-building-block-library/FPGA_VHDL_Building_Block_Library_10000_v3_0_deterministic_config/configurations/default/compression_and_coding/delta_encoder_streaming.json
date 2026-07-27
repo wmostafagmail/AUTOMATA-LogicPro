@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delta_encoder_streaming",
+  "wrapper_entity": "delta_encoder_streaming_det_cfg",
+  "configuration_id": "DELTA_ENCODER_STREAMING_5E94675EE0D13B2B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

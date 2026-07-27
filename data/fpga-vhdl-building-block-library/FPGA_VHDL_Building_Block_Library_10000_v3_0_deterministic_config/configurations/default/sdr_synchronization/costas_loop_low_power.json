@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_low_power",
+  "wrapper_entity": "costas_loop_low_power_det_cfg",
+  "configuration_id": "COSTAS_LOOP_LOW_POWER_FD8397A93AADFEA0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

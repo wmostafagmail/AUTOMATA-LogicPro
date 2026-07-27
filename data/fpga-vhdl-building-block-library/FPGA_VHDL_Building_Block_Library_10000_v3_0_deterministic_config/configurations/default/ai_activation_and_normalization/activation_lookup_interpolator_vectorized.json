@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_lookup_interpolator_vectorized",
+  "wrapper_entity": "activation_lookup_interpolator_vectorized_det_cfg",
+  "configuration_id": "ACTIVATION_LOOKUP_INTERPOLATOR_VECTORIZED_A0D7178F985E37AA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

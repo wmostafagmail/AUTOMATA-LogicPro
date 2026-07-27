@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quantizer_int8",
+  "wrapper_entity": "quantizer_int8_det_cfg",
+  "configuration_id": "QUANTIZER_INT8_43E6DC3B7B8AA3B4",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

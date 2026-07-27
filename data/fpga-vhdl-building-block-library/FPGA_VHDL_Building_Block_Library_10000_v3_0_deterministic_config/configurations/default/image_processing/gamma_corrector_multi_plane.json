@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gamma_corrector_multi_plane",
+  "wrapper_entity": "gamma_corrector_multi_plane_det_cfg",
+  "configuration_id": "GAMMA_CORRECTOR_MULTI_PLANE_04091FFD661C54E1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

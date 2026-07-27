@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_imdct_engine_clock_crossing",
+  "wrapper_entity": "audio_imdct_engine_clock_crossing_det_cfg",
+  "configuration_id": "AUDIO_IMDCT_ENGINE_CLOCK_CROSSING_7ECBC68A4D3C83D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

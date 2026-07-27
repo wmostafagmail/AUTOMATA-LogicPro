@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chromatic_aberration_corrector_fixed_latency",
+  "wrapper_entity": "chromatic_aberration_corrector_fixed_latency_det_cfg",
+  "configuration_id": "CHROMATIC_ABERRATION_CORRECTOR_FIXED_LATENCY_F4918652050ADFE3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

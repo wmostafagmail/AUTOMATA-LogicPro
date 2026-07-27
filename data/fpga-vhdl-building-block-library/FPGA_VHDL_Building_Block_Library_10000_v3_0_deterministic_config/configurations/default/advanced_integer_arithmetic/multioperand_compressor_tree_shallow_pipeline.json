@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_shallow_pipeline",
+  "wrapper_entity": "multioperand_compressor_tree_shallow_pipeline_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_SHALLOW_PIPELINE_A8707A34C165BC9F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

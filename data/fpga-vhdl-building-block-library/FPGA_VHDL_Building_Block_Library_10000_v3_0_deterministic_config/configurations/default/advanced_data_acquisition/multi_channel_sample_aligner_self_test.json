@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multi_channel_sample_aligner_self_test",
+  "wrapper_entity": "multi_channel_sample_aligner_self_test_det_cfg",
+  "configuration_id": "MULTI_CHANNEL_SAMPLE_ALIGNER_SELF_TEST_692A0C123E670A1B",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chorus_effect_engine_backpressure_capable",
+  "wrapper_entity": "chorus_effect_engine_backpressure_capable_det_cfg",
+  "configuration_id": "CHORUS_EFFECT_ENGINE_BACKPRESSURE_CAPABLE_C0653FD446837BC8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_pri_controller_target",
+  "wrapper_entity": "pcie_pri_controller_target_det_cfg",
+  "configuration_id": "PCIE_PRI_CONTROLLER_TARGET_D99FF71311AB3705",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

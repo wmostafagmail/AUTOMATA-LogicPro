@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_congestion_window_router",
+  "wrapper_entity": "tcp_congestion_window_router_det_cfg",
+  "configuration_id": "TCP_CONGESTION_WINDOW_ROUTER_F87316D1EF66F892",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

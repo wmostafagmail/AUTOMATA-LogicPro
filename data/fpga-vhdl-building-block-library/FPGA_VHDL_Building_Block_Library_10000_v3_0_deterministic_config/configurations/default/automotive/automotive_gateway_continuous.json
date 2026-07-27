@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "automotive_gateway_continuous",
+  "wrapper_entity": "automotive_gateway_continuous_det_cfg",
+  "configuration_id": "AUTOMOTIVE_GATEWAY_CONTINUOUS_C62A09EA33129E54",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

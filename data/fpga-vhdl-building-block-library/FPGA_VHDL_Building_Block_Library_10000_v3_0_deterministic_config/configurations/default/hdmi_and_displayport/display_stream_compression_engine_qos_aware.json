@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_qos_aware",
+  "wrapper_entity": "display_stream_compression_engine_qos_aware_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_QOS_AWARE_A8B1DA0165E20AF2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

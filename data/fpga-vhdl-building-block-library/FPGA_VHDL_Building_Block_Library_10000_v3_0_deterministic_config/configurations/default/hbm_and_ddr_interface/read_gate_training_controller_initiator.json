@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_gate_training_controller_initiator",
+  "wrapper_entity": "read_gate_training_controller_initiator_det_cfg",
+  "configuration_id": "READ_GATE_TRAINING_CONTROLLER_INITIATOR_F9D824ABC8044A90",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

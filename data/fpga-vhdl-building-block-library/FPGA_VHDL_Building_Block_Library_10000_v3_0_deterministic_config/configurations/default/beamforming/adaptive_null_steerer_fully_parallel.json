@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_fully_parallel",
+  "wrapper_entity": "adaptive_null_steerer_fully_parallel_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_FULLY_PARALLEL_E9995ED8611F0E4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

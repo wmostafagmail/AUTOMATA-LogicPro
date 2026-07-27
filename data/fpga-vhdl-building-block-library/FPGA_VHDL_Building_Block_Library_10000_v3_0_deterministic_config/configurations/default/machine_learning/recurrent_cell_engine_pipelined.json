@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "recurrent_cell_engine_pipelined",
+  "wrapper_entity": "recurrent_cell_engine_pipelined_det_cfg",
+  "configuration_id": "RECURRENT_CELL_ENGINE_PIPELINED_A81DACC87736F13A",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "uart_receiver_controller",
+  "wrapper_entity": "uart_receiver_controller_det_cfg",
+  "configuration_id": "UART_RECEIVER_CONTROLLER_F204FA920EA8D180",
+  "generics": {
+    "CLOCK_HZ": 50000000,
+    "BAUD_RATE": 115200,
+    "DATA_BITS": 8
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "regex_dfa_engine_frame_aware",
+  "wrapper_entity": "regex_dfa_engine_frame_aware_det_cfg",
+  "configuration_id": "REGEX_DFA_ENGINE_FRAME_AWARE_793F122AC6FB29AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

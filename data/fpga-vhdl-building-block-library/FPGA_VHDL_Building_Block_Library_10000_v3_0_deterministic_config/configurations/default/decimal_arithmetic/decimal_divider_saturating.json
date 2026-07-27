@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_saturating",
+  "wrapper_entity": "decimal_divider_saturating_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_SATURATING_E38B5ACABB729E9C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

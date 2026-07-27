@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_counter_synchronizer_continuous",
+  "wrapper_entity": "gray_counter_synchronizer_continuous_det_cfg",
+  "configuration_id": "GRAY_COUNTER_SYNCHRONIZER_CONTINUOUS_0D6973E9C7321D9A",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

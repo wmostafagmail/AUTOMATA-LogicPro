@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batch_normalization_engine_sparse",
+  "wrapper_entity": "batch_normalization_engine_sparse_det_cfg",
+  "configuration_id": "BATCH_NORMALIZATION_ENGINE_SPARSE_1159C5ADE6AA38CC",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

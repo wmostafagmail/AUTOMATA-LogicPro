@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "srt_divider_resource_shared",
+  "wrapper_entity": "srt_divider_resource_shared_det_cfg",
+  "configuration_id": "SRT_DIVIDER_RESOURCE_SHARED_DBDAD641A5AA93B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

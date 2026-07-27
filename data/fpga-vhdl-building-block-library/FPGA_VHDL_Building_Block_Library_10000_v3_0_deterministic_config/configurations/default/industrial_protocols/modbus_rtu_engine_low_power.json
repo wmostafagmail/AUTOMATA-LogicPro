@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_rtu_engine_low_power",
+  "wrapper_entity": "modbus_rtu_engine_low_power_det_cfg",
+  "configuration_id": "MODBUS_RTU_ENGINE_LOW_POWER_EE278EF38687D3C8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

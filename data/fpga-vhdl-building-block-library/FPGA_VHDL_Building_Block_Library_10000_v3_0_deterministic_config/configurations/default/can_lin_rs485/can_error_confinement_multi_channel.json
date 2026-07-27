@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_error_confinement_multi_channel",
+  "wrapper_entity": "can_error_confinement_multi_channel_det_cfg",
+  "configuration_id": "CAN_ERROR_CONFINEMENT_MULTI_CHANNEL_EEBF6C3E87E480C5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fault_aggregator_continuous",
+  "wrapper_entity": "fault_aggregator_continuous_det_cfg",
+  "configuration_id": "FAULT_AGGREGATOR_CONTINUOUS_202346B37F03B58F",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

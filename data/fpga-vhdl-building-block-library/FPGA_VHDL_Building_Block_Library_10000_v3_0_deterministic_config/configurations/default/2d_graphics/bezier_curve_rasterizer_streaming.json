@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_streaming",
+  "wrapper_entity": "bezier_curve_rasterizer_streaming_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_STREAMING_DE4A06486604EE6E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

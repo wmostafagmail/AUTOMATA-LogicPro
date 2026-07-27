@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_tcp_engine_low_power",
+  "wrapper_entity": "modbus_tcp_engine_low_power_det_cfg",
+  "configuration_id": "MODBUS_TCP_ENGINE_LOW_POWER_A75C4F030A98F781",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

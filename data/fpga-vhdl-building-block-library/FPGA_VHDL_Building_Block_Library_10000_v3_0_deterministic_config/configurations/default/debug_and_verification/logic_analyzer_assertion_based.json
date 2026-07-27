@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_analyzer_assertion_based",
+  "wrapper_entity": "logic_analyzer_assertion_based_det_cfg",
+  "configuration_id": "LOGIC_ANALYZER_ASSERTION_BASED_3F1B0E440CB92A49",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_oversampled",
+  "wrapper_entity": "oscilloscope_trigger_engine_oversampled_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_OVERSAMPLED_9840252EC6B29575",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_counter_synchronizer_low_power",
+  "wrapper_entity": "gray_counter_synchronizer_low_power_det_cfg",
+  "configuration_id": "GRAY_COUNTER_SYNCHRONIZER_LOW_POWER_ABB35C7E99936DD7",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

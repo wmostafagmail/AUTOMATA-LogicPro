@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_digit_serial",
+  "wrapper_entity": "dadda_tree_multiplier_digit_serial_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_DIGIT_SERIAL_92DA19F4432EFBBF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "causal_mask_generator_low_power",
+  "wrapper_entity": "causal_mask_generator_low_power_det_cfg",
+  "configuration_id": "CAUSAL_MASK_GENERATOR_LOW_POWER_61DEC35D2D0A4F43",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

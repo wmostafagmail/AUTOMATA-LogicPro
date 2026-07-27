@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_pri_controller_router",
+  "wrapper_entity": "pcie_pri_controller_router_det_cfg",
+  "configuration_id": "PCIE_PRI_CONTROLLER_ROUTER_00BE537994A68210",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

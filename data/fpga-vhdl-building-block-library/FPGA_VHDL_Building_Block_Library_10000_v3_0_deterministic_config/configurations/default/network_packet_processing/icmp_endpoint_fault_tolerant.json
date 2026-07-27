@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "icmp_endpoint_fault_tolerant",
+  "wrapper_entity": "icmp_endpoint_fault_tolerant_det_cfg",
+  "configuration_id": "ICMP_ENDPOINT_FAULT_TOLERANT_533C9DB23B0A6FB4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

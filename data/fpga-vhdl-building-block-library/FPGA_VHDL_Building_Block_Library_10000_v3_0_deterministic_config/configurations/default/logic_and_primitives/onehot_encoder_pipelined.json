@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "onehot_encoder_pipelined",
+  "wrapper_entity": "onehot_encoder_pipelined_det_cfg",
+  "configuration_id": "ONEHOT_ENCODER_PIPELINED_C06A1714FA2C668D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

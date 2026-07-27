@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz_match_finder_iterative",
+  "wrapper_entity": "lz_match_finder_iterative_det_cfg",
+  "configuration_id": "LZ_MATCH_FINDER_ITERATIVE_FF3741F8CB5F9EB5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 44
+  }
+}

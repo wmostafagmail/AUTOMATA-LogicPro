@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_convert_iterative",
+  "wrapper_entity": "floating_point_convert_iterative_det_cfg",
+  "configuration_id": "FLOATING_POINT_CONVERT_ITERATIVE_181A623477D30DB8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

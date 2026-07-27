@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_deep_pipeline",
+  "wrapper_entity": "block_floating_quantizer_deep_pipeline_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_DEEP_PIPELINE_10AD3C7C81DD6E9D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "layer_norm_engine_multi_engine",
+  "wrapper_entity": "layer_norm_engine_multi_engine_det_cfg",
+  "configuration_id": "LAYER_NORM_ENGINE_MULTI_ENGINE_3F231AF1FEC59B65",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

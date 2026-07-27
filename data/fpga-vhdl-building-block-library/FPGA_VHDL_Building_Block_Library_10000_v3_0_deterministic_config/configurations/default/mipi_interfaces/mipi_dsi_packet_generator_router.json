@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dsi_packet_generator_router",
+  "wrapper_entity": "mipi_dsi_packet_generator_router_det_cfg",
+  "configuration_id": "MIPI_DSI_PACKET_GENERATOR_ROUTER_385F1AB82FBCE559",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "rtc_controller_programmable",
+  "wrapper_entity": "rtc_controller_programmable_det_cfg",
+  "configuration_id": "RTC_CONTROLLER_PROGRAMMABLE_BE5F4EA52CFE2D86",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

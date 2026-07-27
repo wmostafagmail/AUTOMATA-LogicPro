@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_clock_crossing",
+  "wrapper_entity": "hevc_transform_unit_clock_crossing_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_CLOCK_CROSSING_2F64782C5C7F87F8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microcoded_controller",
+  "wrapper_entity": "microcoded_controller_det_cfg",
+  "configuration_id": "MICROCODED_CONTROLLER_42DDEFFCE501F395",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

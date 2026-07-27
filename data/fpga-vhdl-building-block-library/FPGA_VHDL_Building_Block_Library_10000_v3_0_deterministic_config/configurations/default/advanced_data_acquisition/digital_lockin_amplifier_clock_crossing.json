@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_clock_crossing",
+  "wrapper_entity": "digital_lockin_amplifier_clock_crossing_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_CLOCK_CROSSING_87994C2E63251B8B",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

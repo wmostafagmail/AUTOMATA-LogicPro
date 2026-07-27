@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_schedule_table_programmable",
+  "wrapper_entity": "lin_schedule_table_programmable_det_cfg",
+  "configuration_id": "LIN_SCHEDULE_TABLE_PROGRAMMABLE_C8C907D29F825C2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

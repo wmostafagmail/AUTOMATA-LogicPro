@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_endpoint_scheduler_protocol_monitor",
+  "wrapper_entity": "usb3_endpoint_scheduler_protocol_monitor_det_cfg",
+  "configuration_id": "USB3_ENDPOINT_SCHEDULER_PROTOCOL_MONITOR_8160BE80F6BF1390",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

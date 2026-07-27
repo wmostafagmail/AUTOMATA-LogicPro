@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_aux_channel_bridge",
+  "wrapper_entity": "displayport_aux_channel_bridge_det_cfg",
+  "configuration_id": "DISPLAYPORT_AUX_CHANNEL_BRIDGE_8D67DCC683453296",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

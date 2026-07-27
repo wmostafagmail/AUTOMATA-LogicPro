@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_vlan_strip_iterative",
+  "wrapper_entity": "ethernet_vlan_strip_iterative_det_cfg",
+  "configuration_id": "ETHERNET_VLAN_STRIP_ITERATIVE_B4BF5AF59791E105",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

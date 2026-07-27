@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chorus_effect_engine_pipelined",
+  "wrapper_entity": "chorus_effect_engine_pipelined_det_cfg",
+  "configuration_id": "CHORUS_EFFECT_ENGINE_PIPELINED_2535DF7C24B6907A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

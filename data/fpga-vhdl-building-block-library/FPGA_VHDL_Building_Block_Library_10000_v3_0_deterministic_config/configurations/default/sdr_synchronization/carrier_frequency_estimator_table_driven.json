@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_table_driven",
+  "wrapper_entity": "carrier_frequency_estimator_table_driven_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_TABLE_DRIVEN_7ADED6C5D12F73B3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

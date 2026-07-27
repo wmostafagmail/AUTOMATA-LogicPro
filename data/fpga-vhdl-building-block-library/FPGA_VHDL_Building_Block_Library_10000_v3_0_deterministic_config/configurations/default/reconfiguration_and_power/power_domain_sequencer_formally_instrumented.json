@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_domain_sequencer_formally_instrumented",
+  "wrapper_entity": "power_domain_sequencer_formally_instrumented_det_cfg",
+  "configuration_id": "POWER_DOMAIN_SEQUENCER_FORMALLY_INSTRUMENTED_EF17E3F4FD927C21",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

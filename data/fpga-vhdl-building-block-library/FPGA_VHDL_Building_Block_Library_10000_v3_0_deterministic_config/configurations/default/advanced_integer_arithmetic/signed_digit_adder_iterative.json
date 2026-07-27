@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_iterative",
+  "wrapper_entity": "signed_digit_adder_iterative_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_ITERATIVE_2F49CCF9C74B6EFB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

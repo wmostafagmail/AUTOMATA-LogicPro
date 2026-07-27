@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "temperature_telemetry_low_power",
+  "wrapper_entity": "temperature_telemetry_low_power_det_cfg",
+  "configuration_id": "TEMPERATURE_TELEMETRY_LOW_POWER_93381B210C62E703",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

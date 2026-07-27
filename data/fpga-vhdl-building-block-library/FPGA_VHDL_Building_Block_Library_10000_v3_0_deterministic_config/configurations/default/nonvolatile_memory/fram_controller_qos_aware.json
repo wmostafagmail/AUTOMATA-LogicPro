@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fram_controller_qos_aware",
+  "wrapper_entity": "fram_controller_qos_aware_det_cfg",
+  "configuration_id": "FRAM_CONTROLLER_QOS_AWARE_CD6D7AF4BEBB9FA2",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

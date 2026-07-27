@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "systolic_array_int8",
+  "wrapper_entity": "systolic_array_int8_det_cfg",
+  "configuration_id": "SYSTOLIC_ARRAY_INT8_8BBF6479831D9511",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

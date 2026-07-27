@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_clock_crossing",
+  "wrapper_entity": "mppt_controller_clock_crossing_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_CLOCK_CROSSING_5F4E48D52D0F07F4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_filter_unit_low_latency",
+  "wrapper_entity": "texture_filter_unit_low_latency_det_cfg",
+  "configuration_id": "TEXTURE_FILTER_UNIT_LOW_LATENCY_9A81004B26FF2F49",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecc_controller_fault_tolerant",
+  "wrapper_entity": "ecc_controller_fault_tolerant_det_cfg",
+  "configuration_id": "ECC_CONTROLLER_FAULT_TOLERANT_63395C3E783FEAFD",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

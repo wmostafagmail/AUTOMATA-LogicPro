@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_single_shot",
+  "wrapper_entity": "sliding_mode_observer_single_shot_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_SINGLE_SHOT_2911A0E19E1D4752",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

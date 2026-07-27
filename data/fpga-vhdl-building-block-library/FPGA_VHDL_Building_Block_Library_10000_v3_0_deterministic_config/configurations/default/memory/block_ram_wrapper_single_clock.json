@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_ram_wrapper_single_clock",
+  "wrapper_entity": "block_ram_wrapper_single_clock_det_cfg",
+  "configuration_id": "BLOCK_RAM_WRAPPER_SINGLE_CLOCK_A2220940155C0EF6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

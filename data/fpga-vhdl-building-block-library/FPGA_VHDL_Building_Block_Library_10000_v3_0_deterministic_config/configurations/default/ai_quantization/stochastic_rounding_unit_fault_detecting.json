@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stochastic_rounding_unit_fault_detecting",
+  "wrapper_entity": "stochastic_rounding_unit_fault_detecting_det_cfg",
+  "configuration_id": "STOCHASTIC_ROUNDING_UNIT_FAULT_DETECTING_AD5D7B59995BC850",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

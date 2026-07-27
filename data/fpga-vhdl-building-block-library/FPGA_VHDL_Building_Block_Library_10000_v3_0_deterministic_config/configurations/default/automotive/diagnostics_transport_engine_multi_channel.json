@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "diagnostics_transport_engine_multi_channel",
+  "wrapper_entity": "diagnostics_transport_engine_multi_channel_det_cfg",
+  "configuration_id": "DIAGNOSTICS_TRANSPORT_ENGINE_MULTI_CHANNEL_89F5CED2B89812E6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

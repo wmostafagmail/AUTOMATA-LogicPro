@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "regex_dfa_engine_fully_parallel",
+  "wrapper_entity": "regex_dfa_engine_fully_parallel_det_cfg",
+  "configuration_id": "REGEX_DFA_ENGINE_FULLY_PARALLEL_873462321E69C640",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

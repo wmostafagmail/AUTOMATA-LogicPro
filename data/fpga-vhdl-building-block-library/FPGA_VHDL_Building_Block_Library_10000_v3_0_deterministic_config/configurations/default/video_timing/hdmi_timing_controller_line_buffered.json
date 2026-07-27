@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_timing_controller_line_buffered",
+  "wrapper_entity": "hdmi_timing_controller_line_buffered_det_cfg",
+  "configuration_id": "HDMI_TIMING_CONTROLLER_LINE_BUFFERED_9BEE02A0639781EE",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

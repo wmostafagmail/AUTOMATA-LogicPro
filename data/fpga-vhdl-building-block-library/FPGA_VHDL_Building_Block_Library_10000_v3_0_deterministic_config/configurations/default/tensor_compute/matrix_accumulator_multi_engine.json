@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_accumulator_multi_engine",
+  "wrapper_entity": "matrix_accumulator_multi_engine_det_cfg",
+  "configuration_id": "MATRIX_ACCUMULATOR_MULTI_ENGINE_3A4F7CCEB7E3CDCB",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "image_fallback_controller_fault_tolerant",
+  "wrapper_entity": "image_fallback_controller_fault_tolerant_det_cfg",
+  "configuration_id": "IMAGE_FALLBACK_CONTROLLER_FAULT_TOLERANT_C293103BF81643D2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

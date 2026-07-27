@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "complex_mixer",
+  "wrapper_entity": "complex_mixer_det_cfg",
+  "configuration_id": "COMPLEX_MIXER_04DDCCEE21FADC41",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 40
+  }
+}

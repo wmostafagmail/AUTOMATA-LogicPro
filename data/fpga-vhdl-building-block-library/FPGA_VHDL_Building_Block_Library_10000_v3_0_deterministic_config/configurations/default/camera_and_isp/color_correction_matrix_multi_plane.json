@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_correction_matrix_multi_plane",
+  "wrapper_entity": "color_correction_matrix_multi_plane_det_cfg",
+  "configuration_id": "COLOR_CORRECTION_MATRIX_MULTI_PLANE_4ED3CB31BA7C75BA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

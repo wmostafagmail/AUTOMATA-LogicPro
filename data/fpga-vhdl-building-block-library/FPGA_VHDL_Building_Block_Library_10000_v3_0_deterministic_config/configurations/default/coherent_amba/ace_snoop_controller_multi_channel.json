@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_multi_channel",
+  "wrapper_entity": "ace_snoop_controller_multi_channel_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_MULTI_CHANNEL_4736DABC70910CE4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

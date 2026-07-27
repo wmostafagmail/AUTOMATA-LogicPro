@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "finite_difference_stencil_iterative",
+  "wrapper_entity": "finite_difference_stencil_iterative_det_cfg",
+  "configuration_id": "FINITE_DIFFERENCE_STENCIL_ITERATIVE_B994DAD196A99402",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 182
+  }
+}

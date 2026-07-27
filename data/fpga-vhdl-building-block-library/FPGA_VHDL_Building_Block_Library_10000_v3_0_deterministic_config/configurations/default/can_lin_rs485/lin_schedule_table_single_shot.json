@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_schedule_table_single_shot",
+  "wrapper_entity": "lin_schedule_table_single_shot_det_cfg",
+  "configuration_id": "LIN_SCHEDULE_TABLE_SINGLE_SHOT_FF553E3A973847CF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

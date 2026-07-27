@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_multi_channel",
+  "wrapper_entity": "block_floating_quantizer_multi_channel_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_MULTI_CHANNEL_5744C2A71E079270",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "microphone_array_calibrator_saturating",
+  "wrapper_entity": "microphone_array_calibrator_saturating_det_cfg",
+  "configuration_id": "MICROPHONE_ARRAY_CALIBRATOR_SATURATING_C68132886831D1EA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chromatic_aberration_corrector_rate_adaptive",
+  "wrapper_entity": "chromatic_aberration_corrector_rate_adaptive_det_cfg",
+  "configuration_id": "CHROMATIC_ABERRATION_CORRECTOR_RATE_ADAPTIVE_58975FA82EA94016",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_software_configurable",
+  "wrapper_entity": "ip_fragment_reassembly_software_configurable_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_SOFTWARE_CONFIGURABLE_B9CE607CE2673417",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "priority_queue_single_clock",
+  "wrapper_entity": "priority_queue_single_clock_det_cfg",
+  "configuration_id": "PRIORITY_QUEUE_SINGLE_CLOCK_427E8CAA3D46B04C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_extension_parser_buffered",
+  "wrapper_entity": "ipv6_extension_parser_buffered_det_cfg",
+  "configuration_id": "IPV6_EXTENSION_PARSER_BUFFERED_18FAA3640C61FD1B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

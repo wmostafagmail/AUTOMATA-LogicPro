@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_event_driven",
+  "wrapper_entity": "gardner_timing_detector_event_driven_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_EVENT_DRIVEN_834E25135488A5B4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

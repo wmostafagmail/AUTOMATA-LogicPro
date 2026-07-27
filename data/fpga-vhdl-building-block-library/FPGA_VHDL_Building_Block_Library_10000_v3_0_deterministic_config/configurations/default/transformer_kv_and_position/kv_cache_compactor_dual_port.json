@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kv_cache_compactor_dual_port",
+  "wrapper_entity": "kv_cache_compactor_dual_port_det_cfg",
+  "configuration_id": "KV_CACHE_COMPACTOR_DUAL_PORT_676F4F3AAF66021E",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

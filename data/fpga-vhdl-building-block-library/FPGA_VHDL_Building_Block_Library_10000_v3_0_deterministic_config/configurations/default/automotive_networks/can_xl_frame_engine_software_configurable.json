@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_xl_frame_engine_software_configurable",
+  "wrapper_entity": "can_xl_frame_engine_software_configurable_det_cfg",
+  "configuration_id": "CAN_XL_FRAME_ENGINE_SOFTWARE_CONFIGURABLE_535003A888B8A0B5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

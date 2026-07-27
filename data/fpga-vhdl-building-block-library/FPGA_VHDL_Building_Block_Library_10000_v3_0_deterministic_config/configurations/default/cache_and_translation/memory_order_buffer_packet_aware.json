@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_order_buffer_packet_aware",
+  "wrapper_entity": "memory_order_buffer_packet_aware_det_cfg",
+  "configuration_id": "MEMORY_ORDER_BUFFER_PACKET_AWARE_385AE84AF6E07754",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

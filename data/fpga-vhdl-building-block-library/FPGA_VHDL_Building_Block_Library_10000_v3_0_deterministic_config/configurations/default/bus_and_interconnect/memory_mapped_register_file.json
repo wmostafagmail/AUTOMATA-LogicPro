@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "memory_mapped_register_file",
+  "wrapper_entity": "memory_mapped_register_file_det_cfg",
+  "configuration_id": "MEMORY_MAPPED_REGISTER_FILE_F8123146F6A1AB27",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

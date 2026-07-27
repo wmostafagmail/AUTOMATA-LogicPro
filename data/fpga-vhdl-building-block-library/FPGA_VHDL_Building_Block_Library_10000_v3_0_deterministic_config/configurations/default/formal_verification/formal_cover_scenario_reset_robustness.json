@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_reset_robustness",
+  "wrapper_entity": "formal_cover_scenario_reset_robustness_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_RESET_ROBUSTNESS_FDB4733B956B149A",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

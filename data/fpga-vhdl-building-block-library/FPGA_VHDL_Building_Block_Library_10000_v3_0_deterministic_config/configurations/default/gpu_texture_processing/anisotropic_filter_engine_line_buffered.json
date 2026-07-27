@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_line_buffered",
+  "wrapper_entity": "anisotropic_filter_engine_line_buffered_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_LINE_BUFFERED_B21EB8653D5F7E13",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_offload_engine_qos_aware",
+  "wrapper_entity": "tcp_offload_engine_qos_aware_det_cfg",
+  "configuration_id": "TCP_OFFLOAD_ENGINE_QOS_AWARE_6B20384AC7DC6519",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

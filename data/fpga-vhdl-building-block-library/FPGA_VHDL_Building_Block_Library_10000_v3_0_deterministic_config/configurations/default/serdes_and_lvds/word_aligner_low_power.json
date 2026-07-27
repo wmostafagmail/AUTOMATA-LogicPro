@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "word_aligner_low_power",
+  "wrapper_entity": "word_aligner_low_power_det_cfg",
+  "configuration_id": "WORD_ALIGNER_LOW_POWER_E843F8C124726243",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

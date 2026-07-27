@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_rx_mac_resource_shared",
+  "wrapper_entity": "ethernet_rx_mac_resource_shared_det_cfg",
+  "configuration_id": "ETHERNET_RX_MAC_RESOURCE_SHARED_F0128C573AE0C3F0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

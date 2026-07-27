@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "temporal_noise_reduction_tile_based",
+  "wrapper_entity": "temporal_noise_reduction_tile_based_det_cfg",
+  "configuration_id": "TEMPORAL_NOISE_REDUCTION_TILE_BASED_C5F3D4D6EB1CDA70",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

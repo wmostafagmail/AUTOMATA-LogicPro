@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "primitive_assembler_combinational",
+  "wrapper_entity": "primitive_assembler_combinational_det_cfg",
+  "configuration_id": "PRIMITIVE_ASSEMBLER_COMBINATIONAL_AEF525C003AE1049",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

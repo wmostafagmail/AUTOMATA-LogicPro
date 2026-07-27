@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "voltage_alarm_interface_low_power",
+  "wrapper_entity": "voltage_alarm_interface_low_power_det_cfg",
+  "configuration_id": "VOLTAGE_ALARM_INTERFACE_LOW_POWER_AC220AF0820B06FE",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

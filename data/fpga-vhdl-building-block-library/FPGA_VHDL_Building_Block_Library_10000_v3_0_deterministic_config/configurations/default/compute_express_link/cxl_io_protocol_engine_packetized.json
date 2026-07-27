@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_io_protocol_engine_packetized",
+  "wrapper_entity": "cxl_io_protocol_engine_packetized_det_cfg",
+  "configuration_id": "CXL_IO_PROTOCOL_ENGINE_PACKETIZED_2A42EDE8A9483258",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

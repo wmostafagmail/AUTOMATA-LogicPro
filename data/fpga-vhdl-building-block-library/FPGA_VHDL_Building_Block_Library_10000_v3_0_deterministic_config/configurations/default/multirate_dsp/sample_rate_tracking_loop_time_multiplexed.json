@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_rate_tracking_loop_time_multiplexed",
+  "wrapper_entity": "sample_rate_tracking_loop_time_multiplexed_det_cfg",
+  "configuration_id": "SAMPLE_RATE_TRACKING_LOOP_TIME_MULTIPLEXED_B33480474518A1B6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

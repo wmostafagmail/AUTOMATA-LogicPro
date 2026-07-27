@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "vertex_fetch_engine_pipelined",
+  "wrapper_entity": "vertex_fetch_engine_pipelined_det_cfg",
+  "configuration_id": "VERTEX_FETCH_ENGINE_PIPELINED_3C2BD2A0E92919B8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

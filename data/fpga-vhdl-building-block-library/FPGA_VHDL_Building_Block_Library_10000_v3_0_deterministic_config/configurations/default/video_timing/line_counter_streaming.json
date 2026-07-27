@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "line_counter_streaming",
+  "wrapper_entity": "line_counter_streaming_det_cfg",
+  "configuration_id": "LINE_COUNTER_STREAMING_904503648DBA56A6",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

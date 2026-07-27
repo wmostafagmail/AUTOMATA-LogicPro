@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "line_counter_line_buffered",
+  "wrapper_entity": "line_counter_line_buffered_det_cfg",
+  "configuration_id": "LINE_COUNTER_LINE_BUFFERED_05663C4A48DDFCBD",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

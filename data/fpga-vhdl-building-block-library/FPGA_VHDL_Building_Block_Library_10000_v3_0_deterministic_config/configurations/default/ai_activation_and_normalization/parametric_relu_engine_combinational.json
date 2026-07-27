@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parametric_relu_engine_combinational",
+  "wrapper_entity": "parametric_relu_engine_combinational_det_cfg",
+  "configuration_id": "PARAMETRIC_RELU_ENGINE_COMBINATIONAL_EF556CCFE5B79915",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

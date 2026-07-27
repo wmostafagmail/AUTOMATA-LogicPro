@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_motor_controller",
+  "wrapper_entity": "pwm_motor_controller_det_cfg",
+  "configuration_id": "PWM_MOTOR_CONTROLLER_81E529ED48022D4A",
+  "generics": {
+    "WIDTH": 16
+  }
+}

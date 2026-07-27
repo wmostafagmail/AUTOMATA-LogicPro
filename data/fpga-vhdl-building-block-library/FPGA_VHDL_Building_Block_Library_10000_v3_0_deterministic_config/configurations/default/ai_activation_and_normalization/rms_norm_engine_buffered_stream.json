@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rms_norm_engine_buffered_stream",
+  "wrapper_entity": "rms_norm_engine_buffered_stream_det_cfg",
+  "configuration_id": "RMS_NORM_ENGINE_BUFFERED_STREAM_5D6EACC849FCE3B8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

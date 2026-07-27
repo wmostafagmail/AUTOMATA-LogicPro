@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "atomic_operation_unit_multi_channel",
+  "wrapper_entity": "atomic_operation_unit_multi_channel_det_cfg",
+  "configuration_id": "ATOMIC_OPERATION_UNIT_MULTI_CHANNEL_D0DB62903618418B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

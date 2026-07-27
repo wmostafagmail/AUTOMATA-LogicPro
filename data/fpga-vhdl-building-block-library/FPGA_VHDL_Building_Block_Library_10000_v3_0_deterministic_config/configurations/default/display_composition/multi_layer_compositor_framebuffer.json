@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_framebuffer",
+  "wrapper_entity": "multi_layer_compositor_framebuffer_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_FRAMEBUFFER_5F4A384FEEA693EF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

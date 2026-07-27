@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_fixed_latency",
+  "wrapper_entity": "affine_blit_engine_fixed_latency_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_FIXED_LATENCY_9353AC9161AEC5B4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

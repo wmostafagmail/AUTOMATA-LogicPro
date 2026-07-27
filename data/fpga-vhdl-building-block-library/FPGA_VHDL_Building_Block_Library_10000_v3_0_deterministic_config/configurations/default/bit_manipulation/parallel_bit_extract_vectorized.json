@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_vectorized",
+  "wrapper_entity": "parallel_bit_extract_vectorized_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_VECTORIZED_2C8AAE2804FB133D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

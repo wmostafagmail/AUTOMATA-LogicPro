@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_error_resilient",
+  "wrapper_entity": "hdr_merge_engine_error_resilient_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_ERROR_RESILIENT_6B96F7A9DD61AA1E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

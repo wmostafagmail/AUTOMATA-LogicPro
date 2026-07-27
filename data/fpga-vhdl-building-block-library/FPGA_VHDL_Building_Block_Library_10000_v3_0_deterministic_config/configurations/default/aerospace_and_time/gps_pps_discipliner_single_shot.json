@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gps_pps_discipliner_single_shot",
+  "wrapper_entity": "gps_pps_discipliner_single_shot_det_cfg",
+  "configuration_id": "GPS_PPS_DISCIPLINER_SINGLE_SHOT_5F89C7A7A459A87B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_border_unit_low_latency",
+  "wrapper_entity": "texture_border_unit_low_latency_det_cfg",
+  "configuration_id": "TEXTURE_BORDER_UNIT_LOW_LATENCY_2E0EB027D8D19CF6",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

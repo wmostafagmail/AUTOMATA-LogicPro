@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_regression_ready",
+  "wrapper_entity": "embedded_logic_analyzer_regression_ready_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_REGRESSION_READY_CC3EBDED2387F6FA",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

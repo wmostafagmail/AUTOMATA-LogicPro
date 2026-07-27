@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multisample_pattern_generator_high_throughput",
+  "wrapper_entity": "multisample_pattern_generator_high_throughput_det_cfg",
+  "configuration_id": "MULTISAMPLE_PATTERN_GENERATOR_HIGH_THROUGHPUT_28B8DC66D7228AB8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

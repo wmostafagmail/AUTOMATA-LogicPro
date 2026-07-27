@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "recursive_least_squares_filter_buffered",
+  "wrapper_entity": "recursive_least_squares_filter_buffered_det_cfg",
+  "configuration_id": "RECURSIVE_LEAST_SQUARES_FILTER_BUFFERED_04A6B298B67F7EF8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

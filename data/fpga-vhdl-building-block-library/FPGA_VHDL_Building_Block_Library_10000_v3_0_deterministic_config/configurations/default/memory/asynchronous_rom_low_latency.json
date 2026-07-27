@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "asynchronous_rom_low_latency",
+  "wrapper_entity": "asynchronous_rom_low_latency_det_cfg",
+  "configuration_id": "ASYNCHRONOUS_ROM_LOW_LATENCY_820611066C6B69C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

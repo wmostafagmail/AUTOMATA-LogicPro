@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_multi_channel",
+  "wrapper_entity": "adaptive_null_steerer_multi_channel_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_MULTI_CHANNEL_33DF0060F4E6AE29",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

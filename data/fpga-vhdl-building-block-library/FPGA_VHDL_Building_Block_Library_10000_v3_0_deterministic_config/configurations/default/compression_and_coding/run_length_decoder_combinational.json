@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "run_length_decoder_combinational",
+  "wrapper_entity": "run_length_decoder_combinational_det_cfg",
+  "configuration_id": "RUN_LENGTH_DECODER_COMBINATIONAL_4655AD403EF2A8C4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 144
+  }
+}

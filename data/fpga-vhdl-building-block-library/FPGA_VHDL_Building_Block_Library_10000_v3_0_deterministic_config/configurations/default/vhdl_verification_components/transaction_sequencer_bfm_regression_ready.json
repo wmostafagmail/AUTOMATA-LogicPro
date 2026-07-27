@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_regression_ready",
+  "wrapper_entity": "transaction_sequencer_bfm_regression_ready_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_REGRESSION_READY_F5FE84833C15FAD7",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

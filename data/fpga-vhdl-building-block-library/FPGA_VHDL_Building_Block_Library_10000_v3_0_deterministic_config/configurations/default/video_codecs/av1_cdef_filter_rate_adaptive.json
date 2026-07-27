@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "av1_cdef_filter_rate_adaptive",
+  "wrapper_entity": "av1_cdef_filter_rate_adaptive_det_cfg",
+  "configuration_id": "AV1_CDEF_FILTER_RATE_ADAPTIVE_2A025AB0112B9425",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

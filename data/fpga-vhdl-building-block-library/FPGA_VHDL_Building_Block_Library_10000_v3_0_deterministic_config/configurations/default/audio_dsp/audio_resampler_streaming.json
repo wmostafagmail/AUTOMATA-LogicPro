@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_resampler_streaming",
+  "wrapper_entity": "audio_resampler_streaming_det_cfg",
+  "configuration_id": "AUDIO_RESAMPLER_STREAMING_0BECAED0DB6606F1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

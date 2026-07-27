@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_framer_deframer",
+  "wrapper_entity": "packet_framer_deframer_det_cfg",
+  "configuration_id": "PACKET_FRAMER_DEFRAMER_A7365C430B127E3A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

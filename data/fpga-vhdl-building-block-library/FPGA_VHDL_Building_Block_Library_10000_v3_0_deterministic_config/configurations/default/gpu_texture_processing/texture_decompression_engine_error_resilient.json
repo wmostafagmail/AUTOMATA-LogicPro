@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_decompression_engine_error_resilient",
+  "wrapper_entity": "texture_decompression_engine_error_resilient_det_cfg",
+  "configuration_id": "TEXTURE_DECOMPRESSION_ENGINE_ERROR_RESILIENT_290B9FDD263EDC47",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "motor_parameter_identifier_software_configurable",
+  "wrapper_entity": "motor_parameter_identifier_software_configurable_det_cfg",
+  "configuration_id": "MOTOR_PARAMETER_IDENTIFIER_SOFTWARE_CONFIGURABLE_F320813A670C0F0E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

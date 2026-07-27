@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "single_port_ram_low_latency",
+  "wrapper_entity": "single_port_ram_low_latency_det_cfg",
+  "configuration_id": "SINGLE_PORT_RAM_LOW_LATENCY_D772359B264A9E25",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

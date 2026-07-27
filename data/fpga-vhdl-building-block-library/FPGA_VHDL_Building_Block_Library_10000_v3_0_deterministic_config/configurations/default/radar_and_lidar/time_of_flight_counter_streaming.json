@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "time_of_flight_counter_streaming",
+  "wrapper_entity": "time_of_flight_counter_streaming_det_cfg",
+  "configuration_id": "TIME_OF_FLIGHT_COUNTER_STREAMING_C2E3F987D2C39622",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

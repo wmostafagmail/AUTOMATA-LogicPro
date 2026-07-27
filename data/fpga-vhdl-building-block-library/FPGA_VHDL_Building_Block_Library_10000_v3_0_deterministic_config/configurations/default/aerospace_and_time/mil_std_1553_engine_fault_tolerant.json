@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mil_std_1553_engine_fault_tolerant",
+  "wrapper_entity": "mil_std_1553_engine_fault_tolerant_det_cfg",
+  "configuration_id": "MIL_STD_1553_ENGINE_FAULT_TOLERANT_872D27F88A9B1B56",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

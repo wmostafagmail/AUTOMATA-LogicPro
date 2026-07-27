@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_compare_combinational",
+  "wrapper_entity": "vector_compare_combinational_det_cfg",
+  "configuration_id": "VECTOR_COMPARE_COMBINATIONAL_30EA4E4BDA1AC6A1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

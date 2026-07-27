@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_packet_engine_bridge",
+  "wrapper_entity": "uart_packet_engine_bridge_det_cfg",
+  "configuration_id": "UART_PACKET_ENGINE_BRIDGE_78E3F4E2FD891538",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

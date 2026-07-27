@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_programmable_precision",
+  "wrapper_entity": "mixed_precision_dispatcher_programmable_precision_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_PROGRAMMABLE_PRECISION_1988F09E69220636",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

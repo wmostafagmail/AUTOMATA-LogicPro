@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "run_length_encoder_single_cycle",
+  "wrapper_entity": "run_length_encoder_single_cycle_det_cfg",
+  "configuration_id": "RUN_LENGTH_ENCODER_SINGLE_CYCLE_5E52442428350173",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

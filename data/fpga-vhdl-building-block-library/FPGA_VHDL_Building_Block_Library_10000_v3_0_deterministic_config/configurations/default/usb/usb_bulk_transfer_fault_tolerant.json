@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_bulk_transfer_fault_tolerant",
+  "wrapper_entity": "usb_bulk_transfer_fault_tolerant_det_cfg",
+  "configuration_id": "USB_BULK_TRANSFER_FAULT_TOLERANT_F48422F9727102DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

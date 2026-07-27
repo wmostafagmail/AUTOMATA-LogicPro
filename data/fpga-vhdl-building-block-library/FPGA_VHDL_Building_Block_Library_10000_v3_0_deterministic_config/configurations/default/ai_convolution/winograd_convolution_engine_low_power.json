@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "winograd_convolution_engine_low_power",
+  "wrapper_entity": "winograd_convolution_engine_low_power_det_cfg",
+  "configuration_id": "WINOGRAD_CONVOLUTION_ENGINE_LOW_POWER_A170CB045E8FB93A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

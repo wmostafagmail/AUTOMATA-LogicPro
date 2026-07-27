@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "arbitration_controller_multi_channel",
+  "wrapper_entity": "arbitration_controller_multi_channel_det_cfg",
+  "configuration_id": "ARBITRATION_CONTROLLER_MULTI_CHANNEL_669B0AF19B7CFE96",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

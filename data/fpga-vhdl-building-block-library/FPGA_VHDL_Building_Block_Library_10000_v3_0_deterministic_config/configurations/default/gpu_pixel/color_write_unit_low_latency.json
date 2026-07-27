@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_write_unit_low_latency",
+  "wrapper_entity": "color_write_unit_low_latency_det_cfg",
+  "configuration_id": "COLOR_WRITE_UNIT_LOW_LATENCY_783CB2E339133274",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

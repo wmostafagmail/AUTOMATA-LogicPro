@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bounding_box_decoder_formally_instrumented",
+  "wrapper_entity": "bounding_box_decoder_formally_instrumented_det_cfg",
+  "configuration_id": "BOUNDING_BOX_DECODER_FORMALLY_INSTRUMENTED_6A4D621EA85B65BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

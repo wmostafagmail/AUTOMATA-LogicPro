@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_divider_combinational",
+  "wrapper_entity": "floating_point_divider_combinational_det_cfg",
+  "configuration_id": "FLOATING_POINT_DIVIDER_COMBINATIONAL_D9C35AD12540B590",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

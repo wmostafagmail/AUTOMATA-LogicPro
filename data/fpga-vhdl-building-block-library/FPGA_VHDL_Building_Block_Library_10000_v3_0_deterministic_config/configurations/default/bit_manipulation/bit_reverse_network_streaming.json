@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_streaming",
+  "wrapper_entity": "bit_reverse_network_streaming_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_STREAMING_86041B5675A0C6BE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

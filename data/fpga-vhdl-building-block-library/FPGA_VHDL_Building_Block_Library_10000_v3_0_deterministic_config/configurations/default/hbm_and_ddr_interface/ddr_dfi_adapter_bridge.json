@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_dfi_adapter_bridge",
+  "wrapper_entity": "ddr_dfi_adapter_bridge_det_cfg",
+  "configuration_id": "DDR_DFI_ADAPTER_BRIDGE_E8BA07FC1B3DA41C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

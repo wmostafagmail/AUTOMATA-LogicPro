@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_software_configurable",
+  "wrapper_entity": "latent_fault_monitor_software_configurable_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_SOFTWARE_CONFIGURABLE_4CBE522C6C4CE33A",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

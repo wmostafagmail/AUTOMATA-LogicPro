@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_dma_attached",
+  "wrapper_entity": "ascon_aead_engine_dma_attached_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_DMA_ATTACHED_DB4A38C2F20D3FF8",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

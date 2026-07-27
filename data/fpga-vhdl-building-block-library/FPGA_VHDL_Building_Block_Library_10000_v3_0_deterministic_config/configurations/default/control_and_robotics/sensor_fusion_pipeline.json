@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_fusion_pipeline",
+  "wrapper_entity": "sensor_fusion_pipeline_det_cfg",
+  "configuration_id": "SENSOR_FUSION_PIPELINE_22D65C8854CDD34A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

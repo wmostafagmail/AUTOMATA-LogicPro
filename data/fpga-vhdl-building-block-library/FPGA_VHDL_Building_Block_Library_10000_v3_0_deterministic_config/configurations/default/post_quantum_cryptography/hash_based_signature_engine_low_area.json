@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_low_area",
+  "wrapper_entity": "hash_based_signature_engine_low_area_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_LOW_AREA_DE784B580B28C05B",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

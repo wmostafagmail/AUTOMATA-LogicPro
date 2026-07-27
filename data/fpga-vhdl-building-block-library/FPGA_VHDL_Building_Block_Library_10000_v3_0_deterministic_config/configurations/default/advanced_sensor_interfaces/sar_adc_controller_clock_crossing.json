@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sar_adc_controller_clock_crossing",
+  "wrapper_entity": "sar_adc_controller_clock_crossing_det_cfg",
+  "configuration_id": "SAR_ADC_CONTROLLER_CLOCK_CROSSING_E05BDE01F609A561",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

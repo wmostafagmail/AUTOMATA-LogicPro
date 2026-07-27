@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "delta_correlation_prefetcher_low_power",
+  "wrapper_entity": "delta_correlation_prefetcher_low_power_det_cfg",
+  "configuration_id": "DELTA_CORRELATION_PREFETCHER_LOW_POWER_6C524BB6EE9BD452",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

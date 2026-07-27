@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "topk_selection_engine_packet_aware",
+  "wrapper_entity": "topk_selection_engine_packet_aware_det_cfg",
+  "configuration_id": "TOPK_SELECTION_ENGINE_PACKET_AWARE_271A550AB1640F55",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

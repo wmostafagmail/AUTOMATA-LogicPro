@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "write_leveling_controller_initiator",
+  "wrapper_entity": "write_leveling_controller_initiator_det_cfg",
+  "configuration_id": "WRITE_LEVELING_CONTROLLER_INITIATOR_975CD383E3B9F369",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

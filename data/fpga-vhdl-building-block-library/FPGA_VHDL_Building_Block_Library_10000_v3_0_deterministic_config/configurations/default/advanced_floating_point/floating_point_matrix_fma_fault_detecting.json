@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_fault_detecting",
+  "wrapper_entity": "floating_point_matrix_fma_fault_detecting_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_FAULT_DETECTING_039A76011444F94F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

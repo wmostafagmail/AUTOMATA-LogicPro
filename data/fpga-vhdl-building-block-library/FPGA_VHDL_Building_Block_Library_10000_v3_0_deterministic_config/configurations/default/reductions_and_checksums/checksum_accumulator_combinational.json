@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "checksum_accumulator_combinational",
+  "wrapper_entity": "checksum_accumulator_combinational_det_cfg",
+  "configuration_id": "CHECKSUM_ACCUMULATOR_COMBINATIONAL_F492F76B5511C63F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

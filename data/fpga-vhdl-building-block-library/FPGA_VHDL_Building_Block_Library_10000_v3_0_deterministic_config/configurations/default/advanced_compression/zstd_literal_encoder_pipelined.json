@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zstd_literal_encoder_pipelined",
+  "wrapper_entity": "zstd_literal_encoder_pipelined_det_cfg",
+  "configuration_id": "ZSTD_LITERAL_ENCODER_PIPELINED_AD5EFEE0D909C1F8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

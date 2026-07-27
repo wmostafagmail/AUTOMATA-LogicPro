@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_multi_context",
+  "wrapper_entity": "kyber_ntt_engine_multi_context_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_MULTI_CONTEXT_2317B53C32781778",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "particle_interaction_engine_saturating",
+  "wrapper_entity": "particle_interaction_engine_saturating_det_cfg",
+  "configuration_id": "PARTICLE_INTERACTION_ENGINE_SATURATING_7ADA442D50A30BE7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

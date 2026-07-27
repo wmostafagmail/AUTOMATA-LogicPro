@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_fail_operational",
+  "wrapper_entity": "trusted_mailbox_fail_operational_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_FAIL_OPERATIONAL_C3DED1FAB76BD62B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

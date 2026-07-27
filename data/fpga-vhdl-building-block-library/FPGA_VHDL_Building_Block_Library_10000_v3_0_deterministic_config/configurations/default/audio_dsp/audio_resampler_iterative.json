@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_resampler_iterative",
+  "wrapper_entity": "audio_resampler_iterative_det_cfg",
+  "configuration_id": "AUDIO_RESAMPLER_ITERATIVE_CB9E8EA2D44BE8D2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

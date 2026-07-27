@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mvdr_beamformer_combinational",
+  "wrapper_entity": "mvdr_beamformer_combinational_det_cfg",
+  "configuration_id": "MVDR_BEAMFORMER_COMBINATIONAL_0BE6FB3586AA2AA8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nvme_submission_queue_write_through",
+  "wrapper_entity": "nvme_submission_queue_write_through_det_cfg",
+  "configuration_id": "NVME_SUBMISSION_QUEUE_WRITE_THROUGH_C3CE0129A94F9AE1",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

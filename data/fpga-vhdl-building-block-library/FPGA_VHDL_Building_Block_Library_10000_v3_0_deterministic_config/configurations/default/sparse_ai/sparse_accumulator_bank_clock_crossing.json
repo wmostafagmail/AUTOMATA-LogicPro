@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sparse_accumulator_bank_clock_crossing",
+  "wrapper_entity": "sparse_accumulator_bank_clock_crossing_det_cfg",
+  "configuration_id": "SPARSE_ACCUMULATOR_BANK_CLOCK_CROSSING_634E81A0627C5218",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

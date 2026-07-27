@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "up_counter_multi_channel",
+  "wrapper_entity": "up_counter_multi_channel_det_cfg",
+  "configuration_id": "UP_COUNTER_MULTI_CHANNEL_069076D6B5C04BC5",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

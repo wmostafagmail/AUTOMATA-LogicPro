@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_event_driven",
+  "wrapper_entity": "grid_sync_pll_event_driven_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_EVENT_DRIVEN_D02794EA07381E94",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

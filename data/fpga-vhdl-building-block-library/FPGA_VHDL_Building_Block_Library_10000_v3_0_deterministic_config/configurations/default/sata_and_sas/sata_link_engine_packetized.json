@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_packetized",
+  "wrapper_entity": "sata_link_engine_packetized_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_PACKETIZED_7D5C13DB7F198C9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

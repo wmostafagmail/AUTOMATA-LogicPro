@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz_token_decoder_pipelined",
+  "wrapper_entity": "lz_token_decoder_pipelined_det_cfg",
+  "configuration_id": "LZ_TOKEN_DECODER_PIPELINED_D224C7BBFB3719D2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 165
+  }
+}

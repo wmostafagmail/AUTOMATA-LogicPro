@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_filter_streaming",
+  "wrapper_entity": "polyphase_filter_streaming_det_cfg",
+  "configuration_id": "POLYPHASE_FILTER_STREAMING_E9D87F799F4584E4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 159
+  }
+}

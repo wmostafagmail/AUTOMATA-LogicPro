@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bitstream_loader_single_shot",
+  "wrapper_entity": "bitstream_loader_single_shot_det_cfg",
+  "configuration_id": "BITSTREAM_LOADER_SINGLE_SHOT_692A2B03FE4136F3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

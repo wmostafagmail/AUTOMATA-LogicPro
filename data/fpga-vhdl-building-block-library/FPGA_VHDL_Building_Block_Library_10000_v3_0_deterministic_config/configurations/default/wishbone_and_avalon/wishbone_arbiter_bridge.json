@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_arbiter_bridge",
+  "wrapper_entity": "wishbone_arbiter_bridge_det_cfg",
+  "configuration_id": "WISHBONE_ARBITER_BRIDGE_86234A284CDBCDFE",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

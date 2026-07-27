@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_priority_aware",
+  "wrapper_entity": "grid_sync_pll_priority_aware_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_PRIORITY_AWARE_C63E00F05C1A811E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

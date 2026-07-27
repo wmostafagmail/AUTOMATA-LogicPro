@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "elastic_buffer_multi_queue",
+  "wrapper_entity": "elastic_buffer_multi_queue_det_cfg",
+  "configuration_id": "ELASTIC_BUFFER_MULTI_QUEUE_E4381238A8742B4F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

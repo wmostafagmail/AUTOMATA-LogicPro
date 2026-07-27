@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hart_modem_interface_programmable",
+  "wrapper_entity": "hart_modem_interface_programmable_det_cfg",
+  "configuration_id": "HART_MODEM_INTERFACE_PROGRAMMABLE_F38883856DB224B5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

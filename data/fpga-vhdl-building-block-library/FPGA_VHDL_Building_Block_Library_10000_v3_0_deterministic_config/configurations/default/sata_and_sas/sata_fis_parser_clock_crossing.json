@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_clock_crossing",
+  "wrapper_entity": "sata_fis_parser_clock_crossing_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_CLOCK_CROSSING_55345FDA3D59FB12",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

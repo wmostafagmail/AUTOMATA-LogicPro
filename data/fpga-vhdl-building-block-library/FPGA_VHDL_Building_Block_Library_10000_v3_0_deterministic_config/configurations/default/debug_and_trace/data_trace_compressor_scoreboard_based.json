@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_scoreboard_based",
+  "wrapper_entity": "data_trace_compressor_scoreboard_based_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_SCOREBOARD_BASED_755833E9E58B49AA",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

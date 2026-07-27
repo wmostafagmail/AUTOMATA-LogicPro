@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_round_unrolled",
+  "wrapper_entity": "aes_gcm_engine_round_unrolled_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_ROUND_UNROLLED_CE286F3B0FD0D704",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

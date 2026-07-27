@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "crest_factor_reducer_iterative",
+  "wrapper_entity": "crest_factor_reducer_iterative_det_cfg",
+  "configuration_id": "CREST_FACTOR_REDUCER_ITERATIVE_9E330E7EBA3E7EC7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 225
+  }
+}

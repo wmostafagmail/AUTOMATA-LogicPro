@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_bridge",
+  "wrapper_entity": "powerslink_cycle_manager_bridge_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_BRIDGE_CF22DBCD4949BC28",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

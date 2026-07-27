@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_ats_controller_router",
+  "wrapper_entity": "pcie_ats_controller_router_det_cfg",
+  "configuration_id": "PCIE_ATS_CONTROLLER_ROUTER_01CD4981D3219A1E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

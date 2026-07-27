@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_priority_aware",
+  "wrapper_entity": "power_factor_correction_controller_priority_aware_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_PRIORITY_AWARE_2082F6F0A36C9DC7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

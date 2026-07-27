@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_poly1305_engine_formally_instrumented",
+  "wrapper_entity": "chacha20_poly1305_engine_formally_instrumented_det_cfg",
+  "configuration_id": "CHACHA20_POLY1305_ENGINE_FORMALLY_INSTRUMENTED_1FF77B3210DF11DF",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

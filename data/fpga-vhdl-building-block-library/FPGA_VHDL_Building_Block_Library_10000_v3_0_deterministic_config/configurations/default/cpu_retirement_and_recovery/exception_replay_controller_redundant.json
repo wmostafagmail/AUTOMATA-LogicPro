@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_redundant",
+  "wrapper_entity": "exception_replay_controller_redundant_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_REDUNDANT_B055373B1583A541",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

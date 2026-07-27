@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_xl_frame_engine_router",
+  "wrapper_entity": "can_xl_frame_engine_router_det_cfg",
+  "configuration_id": "CAN_XL_FRAME_ENGINE_ROUTER_4A7D8F69D3D5AEC7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

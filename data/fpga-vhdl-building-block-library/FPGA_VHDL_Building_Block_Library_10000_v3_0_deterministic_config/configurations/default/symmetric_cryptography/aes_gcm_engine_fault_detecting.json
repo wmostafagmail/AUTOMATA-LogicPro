@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_fault_detecting",
+  "wrapper_entity": "aes_gcm_engine_fault_detecting_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_FAULT_DETECTING_A278D80FC2A93008",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

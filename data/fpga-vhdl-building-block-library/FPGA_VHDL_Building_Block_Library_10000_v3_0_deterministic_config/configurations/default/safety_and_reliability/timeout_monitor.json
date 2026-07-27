@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "timeout_monitor",
+  "wrapper_entity": "timeout_monitor_det_cfg",
+  "configuration_id": "TIMEOUT_MONITOR_E5154FCF39EBB60A",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

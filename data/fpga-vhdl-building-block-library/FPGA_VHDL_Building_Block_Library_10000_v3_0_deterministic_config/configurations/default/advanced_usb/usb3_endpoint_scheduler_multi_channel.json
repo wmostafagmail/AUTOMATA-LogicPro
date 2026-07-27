@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_endpoint_scheduler_multi_channel",
+  "wrapper_entity": "usb3_endpoint_scheduler_multi_channel_det_cfg",
+  "configuration_id": "USB3_ENDPOINT_SCHEDULER_MULTI_CHANNEL_16ED5BB61844D5B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

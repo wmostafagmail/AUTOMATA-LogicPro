@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_sequencer_single_shot",
+  "wrapper_entity": "command_sequencer_single_shot_det_cfg",
+  "configuration_id": "COMMAND_SEQUENCER_SINGLE_SHOT_1C9FF24058C31A1A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_multi_channel",
+  "wrapper_entity": "precise_state_recovery_multi_channel_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_MULTI_CHANNEL_1FE1A6A4845E07EC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

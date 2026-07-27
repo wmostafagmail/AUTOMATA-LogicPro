@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "row_hammer_monitor_nonblocking",
+  "wrapper_entity": "row_hammer_monitor_nonblocking_det_cfg",
+  "configuration_id": "ROW_HAMMER_MONITOR_NONBLOCKING_7D5652F732222020",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

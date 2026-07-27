@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_weakening_controller_clock_crossing",
+  "wrapper_entity": "field_weakening_controller_clock_crossing_det_cfg",
+  "configuration_id": "FIELD_WEAKENING_CONTROLLER_CLOCK_CROSSING_D82C5FD6A8005884",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

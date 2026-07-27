@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "viewport_transform_engine_pipelined",
+  "wrapper_entity": "viewport_transform_engine_pipelined_det_cfg",
+  "configuration_id": "VIEWPORT_TRANSFORM_ENGINE_PIPELINED_9C7D449B7A267DD6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

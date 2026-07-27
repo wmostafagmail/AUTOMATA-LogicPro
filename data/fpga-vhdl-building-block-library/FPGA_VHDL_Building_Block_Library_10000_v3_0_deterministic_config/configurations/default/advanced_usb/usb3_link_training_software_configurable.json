@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_link_training_software_configurable",
+  "wrapper_entity": "usb3_link_training_software_configurable_det_cfg",
+  "configuration_id": "USB3_LINK_TRAINING_SOFTWARE_CONFIGURABLE_B2707CE630062AEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

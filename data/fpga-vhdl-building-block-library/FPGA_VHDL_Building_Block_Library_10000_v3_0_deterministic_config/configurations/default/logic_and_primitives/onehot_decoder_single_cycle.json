@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "onehot_decoder_single_cycle",
+  "wrapper_entity": "onehot_decoder_single_cycle_det_cfg",
+  "configuration_id": "ONEHOT_DECODER_SINGLE_CYCLE_777B3E63CA33FADE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

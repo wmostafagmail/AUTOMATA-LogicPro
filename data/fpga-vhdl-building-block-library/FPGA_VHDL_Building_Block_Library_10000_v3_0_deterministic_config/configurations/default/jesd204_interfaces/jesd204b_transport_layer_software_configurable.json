@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_transport_layer_software_configurable",
+  "wrapper_entity": "jesd204b_transport_layer_software_configurable_det_cfg",
+  "configuration_id": "JESD204B_TRANSPORT_LAYER_SOFTWARE_CONFIGURABLE_81898C51EC6A4DC7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "packed_bcd_alu_iterative",
+  "wrapper_entity": "packed_bcd_alu_iterative_det_cfg",
+  "configuration_id": "PACKED_BCD_ALU_ITERATIVE_257AC26EB10CD35D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

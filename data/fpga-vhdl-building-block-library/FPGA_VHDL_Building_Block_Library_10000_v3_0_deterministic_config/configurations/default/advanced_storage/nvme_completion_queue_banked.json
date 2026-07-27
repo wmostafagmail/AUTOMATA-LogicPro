@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nvme_completion_queue_banked",
+  "wrapper_entity": "nvme_completion_queue_banked_det_cfg",
+  "configuration_id": "NVME_COMPLETION_QUEUE_BANKED_53F44644CA8BE12E",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

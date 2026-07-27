@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_single_channel",
+  "wrapper_entity": "safety_island_controller_single_channel_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_SINGLE_CHANNEL_97293A493368E293",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

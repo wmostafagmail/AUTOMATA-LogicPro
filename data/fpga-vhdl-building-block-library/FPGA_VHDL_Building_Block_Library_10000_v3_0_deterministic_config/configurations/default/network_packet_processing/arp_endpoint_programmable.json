@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arp_endpoint_programmable",
+  "wrapper_entity": "arp_endpoint_programmable_det_cfg",
+  "configuration_id": "ARP_ENDPOINT_PROGRAMMABLE_BD75FAB0EDA9A141",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "non_max_suppression_engine_time_multiplexed",
+  "wrapper_entity": "non_max_suppression_engine_time_multiplexed_det_cfg",
+  "configuration_id": "NON_MAX_SUPPRESSION_ENGINE_TIME_MULTIPLEXED_BE8264B8162B6AE9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "abs_timing_controller_single_shot",
+  "wrapper_entity": "abs_timing_controller_single_shot_det_cfg",
+  "configuration_id": "ABS_TIMING_CONTROLLER_SINGLE_SHOT_E2AB71371FBE6A34",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

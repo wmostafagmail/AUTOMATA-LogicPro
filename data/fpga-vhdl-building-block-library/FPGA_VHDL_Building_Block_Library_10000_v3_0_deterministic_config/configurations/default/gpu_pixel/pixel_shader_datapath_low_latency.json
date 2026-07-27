@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_shader_datapath_low_latency",
+  "wrapper_entity": "pixel_shader_datapath_low_latency_det_cfg",
+  "configuration_id": "PIXEL_SHADER_DATAPATH_LOW_LATENCY_ED0111FB223BA990",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

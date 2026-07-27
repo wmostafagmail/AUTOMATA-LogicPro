@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spatial_noise_reduction_streaming",
+  "wrapper_entity": "spatial_noise_reduction_streaming_det_cfg",
+  "configuration_id": "SPATIAL_NOISE_REDUCTION_STREAMING_70652B977F39E684",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

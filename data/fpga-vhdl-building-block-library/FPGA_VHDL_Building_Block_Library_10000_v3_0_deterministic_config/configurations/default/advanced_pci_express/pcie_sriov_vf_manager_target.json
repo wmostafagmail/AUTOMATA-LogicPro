@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_target",
+  "wrapper_entity": "pcie_sriov_vf_manager_target_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_TARGET_CB14AB9B70BE9DF1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

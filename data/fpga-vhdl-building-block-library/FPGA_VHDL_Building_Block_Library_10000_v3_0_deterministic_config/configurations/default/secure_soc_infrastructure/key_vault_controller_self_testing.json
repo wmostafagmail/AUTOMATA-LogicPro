@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_self_testing",
+  "wrapper_entity": "key_vault_controller_self_testing_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_SELF_TESTING_A1019A69FCD4182C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

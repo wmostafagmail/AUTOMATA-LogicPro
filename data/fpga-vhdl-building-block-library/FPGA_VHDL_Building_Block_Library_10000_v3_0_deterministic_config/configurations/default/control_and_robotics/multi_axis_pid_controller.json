@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "multi_axis_pid_controller",
+  "wrapper_entity": "multi_axis_pid_controller_det_cfg",
+  "configuration_id": "MULTI_AXIS_PID_CONTROLLER_3AA4E2FB5C4589AB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

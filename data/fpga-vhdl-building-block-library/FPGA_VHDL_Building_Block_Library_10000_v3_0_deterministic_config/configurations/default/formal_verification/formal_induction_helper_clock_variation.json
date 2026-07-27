@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_induction_helper_clock_variation",
+  "wrapper_entity": "formal_induction_helper_clock_variation_det_cfg",
+  "configuration_id": "FORMAL_INDUCTION_HELPER_CLOCK_VARIATION_DEA2443519F8BE40",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

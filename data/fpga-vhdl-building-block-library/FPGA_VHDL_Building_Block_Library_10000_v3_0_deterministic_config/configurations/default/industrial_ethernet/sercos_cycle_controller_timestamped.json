@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sercos_cycle_controller_timestamped",
+  "wrapper_entity": "sercos_cycle_controller_timestamped_det_cfg",
+  "configuration_id": "SERCOS_CYCLE_CONTROLLER_TIMESTAMPED_41E4A27C64ED62AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

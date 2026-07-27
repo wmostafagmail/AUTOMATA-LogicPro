@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "current_loop_controller_low_power",
+  "wrapper_entity": "current_loop_controller_low_power_det_cfg",
+  "configuration_id": "CURRENT_LOOP_CONTROLLER_LOW_POWER_E9087605274AFC0C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

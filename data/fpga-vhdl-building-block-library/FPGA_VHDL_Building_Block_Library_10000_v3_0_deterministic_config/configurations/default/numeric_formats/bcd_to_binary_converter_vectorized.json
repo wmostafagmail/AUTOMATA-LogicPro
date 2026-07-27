@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bcd_to_binary_converter_vectorized",
+  "wrapper_entity": "bcd_to_binary_converter_vectorized_det_cfg",
+  "configuration_id": "BCD_TO_BINARY_CONVERTER_VECTORIZED_4BFE3461A1973E0C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

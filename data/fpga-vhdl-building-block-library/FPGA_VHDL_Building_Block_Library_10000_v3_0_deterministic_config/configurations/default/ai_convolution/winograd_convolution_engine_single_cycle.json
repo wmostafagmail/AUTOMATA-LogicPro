@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "winograd_convolution_engine_single_cycle",
+  "wrapper_entity": "winograd_convolution_engine_single_cycle_det_cfg",
+  "configuration_id": "WINOGRAD_CONVOLUTION_ENGINE_SINGLE_CYCLE_8EBD3F3911CAF43A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

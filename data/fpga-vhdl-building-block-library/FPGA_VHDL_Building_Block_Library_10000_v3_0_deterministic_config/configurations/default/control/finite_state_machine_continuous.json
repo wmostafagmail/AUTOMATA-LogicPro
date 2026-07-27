@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "finite_state_machine_continuous",
+  "wrapper_entity": "finite_state_machine_continuous_det_cfg",
+  "configuration_id": "FINITE_STATE_MACHINE_CONTINUOUS_CDB011EEF27AFD8F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

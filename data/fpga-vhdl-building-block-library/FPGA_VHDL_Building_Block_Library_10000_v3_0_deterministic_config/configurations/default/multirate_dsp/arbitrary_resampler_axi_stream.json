@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arbitrary_resampler_axi_stream",
+  "wrapper_entity": "arbitrary_resampler_axi_stream_det_cfg",
+  "configuration_id": "ARBITRARY_RESAMPLER_AXI_STREAM_2D32F2097B5FE997",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "event_trigger_formal_friendly",
+  "wrapper_entity": "event_trigger_formal_friendly_det_cfg",
+  "configuration_id": "EVENT_TRIGGER_FORMAL_FRIENDLY_9E84BA9FAC52BF6D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

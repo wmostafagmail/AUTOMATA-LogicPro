@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "synchronous_rom_ecc_protected",
+  "wrapper_entity": "synchronous_rom_ecc_protected_det_cfg",
+  "configuration_id": "SYNCHRONOUS_ROM_ECC_PROTECTED_335251BF29403CA2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

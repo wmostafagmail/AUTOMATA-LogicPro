@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "axi4_lite_peripheral",
+  "wrapper_entity": "axi4_lite_peripheral_det_cfg",
+  "configuration_id": "AXI4_LITE_PERIPHERAL_10948F360111200E",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "encoder_capture_continuous",
+  "wrapper_entity": "encoder_capture_continuous_det_cfg",
+  "configuration_id": "ENCODER_CAPTURE_CONTINUOUS_87809C8B7B16AF6F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

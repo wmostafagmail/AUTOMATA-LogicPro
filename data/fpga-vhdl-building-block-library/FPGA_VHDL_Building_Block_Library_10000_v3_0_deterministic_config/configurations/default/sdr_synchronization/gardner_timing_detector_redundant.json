@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_redundant",
+  "wrapper_entity": "gardner_timing_detector_redundant_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_REDUNDANT_21B76C9E49B42F20",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

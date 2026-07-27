@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_single_cycle",
+  "wrapper_entity": "nonrestoring_divider_single_cycle_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_SINGLE_CYCLE_1C83D491332C439B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

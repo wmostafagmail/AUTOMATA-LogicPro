@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_mode_controller_single_shot",
+  "wrapper_entity": "boot_mode_controller_single_shot_det_cfg",
+  "configuration_id": "BOOT_MODE_CONTROLLER_SINGLE_SHOT_828080811F94595F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

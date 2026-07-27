@@ -1,0 +1,162 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "vga_timing_controller_framebuffer",
+    "entity": "vga_timing_controller_framebuffer",
+    "version": "3.0.0",
+    "category": "video_timing",
+    "source": "rtl/blocks/video_timing/vga_timing_controller_framebuffer.vhd",
+    "wrapper_entity": "vga_timing_controller_framebuffer_det_cfg"
+  },
+  "configuration": {
+    "id": "VGA_TIMING_CONTROLLER_FRAMEBUFFER_1617D6196DECC601",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "H_WIDTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      },
+      {
+        "name": "V_WIDTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "H_WIDTH": 16,
+      "V_WIDTH": 16
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "pixel_clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "enable",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "h_active",
+        "direction": "in",
+        "type": "std_logic_vector(H_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "h_front",
+        "direction": "in",
+        "type": "std_logic_vector(H_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "h_sync",
+        "direction": "in",
+        "type": "std_logic_vector(H_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "h_back",
+        "direction": "in",
+        "type": "std_logic_vector(H_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "v_active",
+        "direction": "in",
+        "type": "std_logic_vector(V_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "v_front",
+        "direction": "in",
+        "type": "std_logic_vector(V_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "v_sync",
+        "direction": "in",
+        "type": "std_logic_vector(V_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "v_back",
+        "direction": "in",
+        "type": "std_logic_vector(V_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "x",
+        "direction": "out",
+        "type": "std_logic_vector(H_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "y",
+        "direction": "out",
+        "type": "std_logic_vector(V_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "hsync_out",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "vsync_out",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "data_enable",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "frame_start",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "pixel_clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/video_timing/vga_timing_controller_framebuffer_det_cfg.vhd",
+    "configuration_file": "configurations/default/vga_timing_controller_framebuffer.json"
+  }
+}

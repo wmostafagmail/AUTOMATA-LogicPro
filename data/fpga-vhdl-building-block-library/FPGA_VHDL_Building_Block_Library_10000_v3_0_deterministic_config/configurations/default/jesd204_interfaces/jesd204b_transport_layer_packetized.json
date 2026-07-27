@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_transport_layer_packetized",
+  "wrapper_entity": "jesd204b_transport_layer_packetized_det_cfg",
+  "configuration_id": "JESD204B_TRANSPORT_LAYER_PACKETIZED_86E540C1AD11F21B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

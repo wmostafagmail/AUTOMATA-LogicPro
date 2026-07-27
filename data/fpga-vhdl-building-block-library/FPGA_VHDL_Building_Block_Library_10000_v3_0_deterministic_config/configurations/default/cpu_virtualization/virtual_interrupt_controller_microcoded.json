@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "virtual_interrupt_controller_microcoded",
+  "wrapper_entity": "virtual_interrupt_controller_microcoded_det_cfg",
+  "configuration_id": "VIRTUAL_INTERRUPT_CONTROLLER_MICROCODED_F03A0AEA7A4140A1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

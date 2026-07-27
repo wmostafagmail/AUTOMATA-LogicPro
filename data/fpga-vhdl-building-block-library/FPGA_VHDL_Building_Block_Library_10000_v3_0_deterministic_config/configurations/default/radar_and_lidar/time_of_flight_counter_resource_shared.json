@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "time_of_flight_counter_resource_shared",
+  "wrapper_entity": "time_of_flight_counter_resource_shared_det_cfg",
+  "configuration_id": "TIME_OF_FLIGHT_COUNTER_RESOURCE_SHARED_BA36A24C1724EFFB",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

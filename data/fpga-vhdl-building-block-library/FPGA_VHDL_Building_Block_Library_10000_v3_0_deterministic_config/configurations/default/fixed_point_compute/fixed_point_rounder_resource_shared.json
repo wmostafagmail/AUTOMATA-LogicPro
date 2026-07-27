@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_rounder_resource_shared",
+  "wrapper_entity": "fixed_point_rounder_resource_shared_det_cfg",
+  "configuration_id": "FIXED_POINT_ROUNDER_RESOURCE_SHARED_B419E1051B75A9BB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

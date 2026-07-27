@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "measurement_discriminator_single_shot",
+  "wrapper_entity": "measurement_discriminator_single_shot_det_cfg",
+  "configuration_id": "MEASUREMENT_DISCRIMINATOR_SINGLE_SHOT_0522FD13ABE363A8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

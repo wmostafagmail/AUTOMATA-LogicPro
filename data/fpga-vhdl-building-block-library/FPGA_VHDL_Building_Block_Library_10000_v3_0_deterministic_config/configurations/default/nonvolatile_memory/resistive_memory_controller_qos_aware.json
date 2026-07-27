@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "resistive_memory_controller_qos_aware",
+  "wrapper_entity": "resistive_memory_controller_qos_aware_det_cfg",
+  "configuration_id": "RESISTIVE_MEMORY_CONTROLLER_QOS_AWARE_A151FCBA67E29BD4",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

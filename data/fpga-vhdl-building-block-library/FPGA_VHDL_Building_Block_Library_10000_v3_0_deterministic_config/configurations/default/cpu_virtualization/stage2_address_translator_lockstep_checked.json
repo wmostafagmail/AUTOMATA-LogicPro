@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_lockstep_checked",
+  "wrapper_entity": "stage2_address_translator_lockstep_checked_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_LOCKSTEP_CHECKED_512D32E44FF6286A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

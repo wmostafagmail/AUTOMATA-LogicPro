@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_packetized",
+  "wrapper_entity": "can_fd_controller_packetized_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_PACKETIZED_A1E6690F6196A6BA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reservation_station_pipelined",
+  "wrapper_entity": "reservation_station_pipelined_det_cfg",
+  "configuration_id": "RESERVATION_STATION_PIPELINED_673FA1D145E211DD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

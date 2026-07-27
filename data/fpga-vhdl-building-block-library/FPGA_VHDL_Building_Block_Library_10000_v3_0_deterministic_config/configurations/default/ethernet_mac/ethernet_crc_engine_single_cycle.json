@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_crc_engine_single_cycle",
+  "wrapper_entity": "ethernet_crc_engine_single_cycle_det_cfg",
+  "configuration_id": "ETHERNET_CRC_ENGINE_SINGLE_CYCLE_EF7E16B4963B3B77",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

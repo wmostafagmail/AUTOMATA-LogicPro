@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "deformable_convolution_engine_buffered_stream",
+  "wrapper_entity": "deformable_convolution_engine_buffered_stream_det_cfg",
+  "configuration_id": "DEFORMABLE_CONVOLUTION_ENGINE_BUFFERED_STREAM_CDEDCB909D10047C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

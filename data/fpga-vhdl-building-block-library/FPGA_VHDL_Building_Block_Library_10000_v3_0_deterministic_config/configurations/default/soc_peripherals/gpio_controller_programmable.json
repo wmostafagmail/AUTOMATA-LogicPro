@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gpio_controller_programmable",
+  "wrapper_entity": "gpio_controller_programmable_det_cfg",
+  "configuration_id": "GPIO_CONTROLLER_PROGRAMMABLE_FCF95D8E85739A09",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

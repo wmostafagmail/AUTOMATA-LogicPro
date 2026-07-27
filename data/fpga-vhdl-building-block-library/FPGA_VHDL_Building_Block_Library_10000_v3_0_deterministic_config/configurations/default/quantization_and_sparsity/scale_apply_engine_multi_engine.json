@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "scale_apply_engine_multi_engine",
+  "wrapper_entity": "scale_apply_engine_multi_engine_det_cfg",
+  "configuration_id": "SCALE_APPLY_ENGINE_MULTI_ENGINE_BC92C234AE07915C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

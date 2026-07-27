@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_dma_engine_monitor",
+  "wrapper_entity": "pcie_dma_engine_monitor_det_cfg",
+  "configuration_id": "PCIE_DMA_ENGINE_MONITOR_C21AABFEA3B564F7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

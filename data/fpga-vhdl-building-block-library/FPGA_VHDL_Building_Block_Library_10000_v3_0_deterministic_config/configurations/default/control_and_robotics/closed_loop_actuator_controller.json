@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "closed_loop_actuator_controller",
+  "wrapper_entity": "closed_loop_actuator_controller_det_cfg",
+  "configuration_id": "CLOSED_LOOP_ACTUATOR_CONTROLLER_CF3CC35DC29FFA9D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -359,7 +359,7 @@ function buildSeedContract(blockId: string, displayName: string, userRequest: st
     };
   }
 
-  if (/(saturating|alu|mac|multiply|accumulate|fixed_point|arithmetic|shifter|datapath)/.test(lower)) {
+  if (/(saturating|\balu\b|\bmac\b|multiply|accumulate|fixed_point|arithmetic|shifter|datapath)/.test(lower)) {
     return {
       blockId,
       name: displayName,

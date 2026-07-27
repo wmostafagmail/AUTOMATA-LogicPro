@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_resampler_pipelined",
+  "wrapper_entity": "audio_resampler_pipelined_det_cfg",
+  "configuration_id": "AUDIO_RESAMPLER_PIPELINED_734BCF5092A6BF46",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

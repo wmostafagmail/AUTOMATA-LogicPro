@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_aux_channel_protocol_monitor",
+  "wrapper_entity": "displayport_aux_channel_protocol_monitor_det_cfg",
+  "configuration_id": "DISPLAYPORT_AUX_CHANNEL_PROTOCOL_MONITOR_799AACBB856CA5DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

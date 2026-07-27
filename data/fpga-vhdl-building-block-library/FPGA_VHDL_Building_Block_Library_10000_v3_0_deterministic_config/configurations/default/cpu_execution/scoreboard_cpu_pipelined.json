@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_cpu_pipelined",
+  "wrapper_entity": "scoreboard_cpu_pipelined_det_cfg",
+  "configuration_id": "SCOREBOARD_CPU_PIPELINED_7FCF958601C8DA6E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

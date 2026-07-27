@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parametric_relu_engine_saturating",
+  "wrapper_entity": "parametric_relu_engine_saturating_det_cfg",
+  "configuration_id": "PARAMETRIC_RELU_ENGINE_SATURATING_AE6DD97AC9509EAC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

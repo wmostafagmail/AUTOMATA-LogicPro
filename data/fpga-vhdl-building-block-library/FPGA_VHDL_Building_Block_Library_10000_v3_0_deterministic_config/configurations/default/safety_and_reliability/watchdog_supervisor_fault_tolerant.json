@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_supervisor_fault_tolerant",
+  "wrapper_entity": "watchdog_supervisor_fault_tolerant_det_cfg",
+  "configuration_id": "WATCHDOG_SUPERVISOR_FAULT_TOLERANT_453C6809B1879EC5",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

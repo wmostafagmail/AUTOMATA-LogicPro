@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_redundancy_voter_single_shot",
+  "wrapper_entity": "sensor_redundancy_voter_single_shot_det_cfg",
+  "configuration_id": "SENSOR_REDUNDANCY_VOTER_SINGLE_SHOT_303CEA5546A0B3BE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

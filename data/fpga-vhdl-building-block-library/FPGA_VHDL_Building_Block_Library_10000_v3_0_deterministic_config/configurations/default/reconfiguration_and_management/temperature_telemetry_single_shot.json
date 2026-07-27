@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "temperature_telemetry_single_shot",
+  "wrapper_entity": "temperature_telemetry_single_shot_det_cfg",
+  "configuration_id": "TEMPERATURE_TELEMETRY_SINGLE_SHOT_D368F0D1DD4CB2A0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

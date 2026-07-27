@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "direction_of_arrival_estimator_resource_shared",
+  "wrapper_entity": "direction_of_arrival_estimator_resource_shared_det_cfg",
+  "configuration_id": "DIRECTION_OF_ARRIVAL_ESTIMATOR_RESOURCE_SHARED_05AEB13B67978986",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

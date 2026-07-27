@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adc_sample_capture",
+  "wrapper_entity": "adc_sample_capture_det_cfg",
+  "configuration_id": "ADC_SAMPLE_CAPTURE_A2829DEE8F14279B",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

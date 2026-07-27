@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_formally_instrumented",
+  "wrapper_entity": "feedback_latency_controller_formally_instrumented_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_FORMALLY_INSTRUMENTED_1F689F77FFA50872",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

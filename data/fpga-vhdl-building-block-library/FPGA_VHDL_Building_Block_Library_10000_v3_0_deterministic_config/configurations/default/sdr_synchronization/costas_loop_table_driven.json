@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_table_driven",
+  "wrapper_entity": "costas_loop_table_driven_det_cfg",
+  "configuration_id": "COSTAS_LOOP_TABLE_DRIVEN_1C04BF5A78E35189",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

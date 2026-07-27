@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "cache_coherence_controller_low_power",
+  "wrapper_entity": "cache_coherence_controller_low_power_det_cfg",
+  "configuration_id": "CACHE_COHERENCE_CONTROLLER_LOW_POWER_8F92C8312F729D5A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

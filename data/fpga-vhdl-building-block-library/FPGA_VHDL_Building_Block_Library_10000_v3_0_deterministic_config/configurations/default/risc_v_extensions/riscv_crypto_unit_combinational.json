@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_combinational",
+  "wrapper_entity": "riscv_crypto_unit_combinational_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_COMBINATIONAL_FCCF05CEC724AD6C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

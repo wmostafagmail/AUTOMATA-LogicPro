@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_event_driven",
+  "wrapper_entity": "physical_register_renamer_event_driven_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_EVENT_DRIVEN_5C5AC11A31296102",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

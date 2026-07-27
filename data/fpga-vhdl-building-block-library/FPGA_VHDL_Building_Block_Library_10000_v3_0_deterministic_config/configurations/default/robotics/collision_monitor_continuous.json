@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "collision_monitor_continuous",
+  "wrapper_entity": "collision_monitor_continuous_det_cfg",
+  "configuration_id": "COLLISION_MONITOR_CONTINUOUS_F70253C2A452BD84",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

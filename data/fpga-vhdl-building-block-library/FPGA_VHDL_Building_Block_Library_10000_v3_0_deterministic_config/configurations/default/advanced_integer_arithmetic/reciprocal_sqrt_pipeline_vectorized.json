@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reciprocal_sqrt_pipeline_vectorized",
+  "wrapper_entity": "reciprocal_sqrt_pipeline_vectorized_det_cfg",
+  "configuration_id": "RECIPROCAL_SQRT_PIPELINE_VECTORIZED_4B647332D8DBBAF2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

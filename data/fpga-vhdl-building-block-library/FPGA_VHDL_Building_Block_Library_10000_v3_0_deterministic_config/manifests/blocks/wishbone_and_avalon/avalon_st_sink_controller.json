@@ -1,0 +1,127 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "avalon_st_sink_controller",
+    "entity": "avalon_st_sink_controller",
+    "version": "3.0.0",
+    "category": "wishbone_and_avalon",
+    "source": "rtl/blocks/wishbone_and_avalon/avalon_st_sink_controller.vhd",
+    "wrapper_entity": "avalon_st_sink_controller_det_cfg"
+  },
+  "configuration": {
+    "id": "AVALON_ST_SINK_CONTROLLER_F20CD519990AB490",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "XOR_MASK",
+        "type": "natural",
+        "default": "239",
+        "minimum": 0
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "XOR_MASK": 239
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "s_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_last",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "m_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_last",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "subset_contract; run official or commercial protocol VIP before release"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/wishbone_and_avalon/avalon_st_sink_controller_det_cfg.vhd",
+    "configuration_file": "configurations/default/avalon_st_sink_controller.json"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_rom_controller_low_power",
+  "wrapper_entity": "boot_rom_controller_low_power_det_cfg",
+  "configuration_id": "BOOT_ROM_CONTROLLER_LOW_POWER_5817267C5E3DEFF0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

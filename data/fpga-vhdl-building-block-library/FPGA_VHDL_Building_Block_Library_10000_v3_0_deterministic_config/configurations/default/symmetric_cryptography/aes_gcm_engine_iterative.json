@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_iterative",
+  "wrapper_entity": "aes_gcm_engine_iterative_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_ITERATIVE_274746038EB2054C",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

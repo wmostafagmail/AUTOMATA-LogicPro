@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_equalizer_resource_shared",
+  "wrapper_entity": "audio_equalizer_resource_shared_det_cfg",
+  "configuration_id": "AUDIO_EQUALIZER_RESOURCE_SHARED_25BBF188A6383BC6",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

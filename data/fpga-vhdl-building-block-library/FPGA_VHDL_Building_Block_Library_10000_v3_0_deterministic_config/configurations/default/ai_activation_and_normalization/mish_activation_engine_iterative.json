@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mish_activation_engine_iterative",
+  "wrapper_entity": "mish_activation_engine_iterative_det_cfg",
+  "configuration_id": "MISH_ACTIVATION_ENGINE_ITERATIVE_F3D31F117E836A1F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

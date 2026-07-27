@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "temporal_noise_reduction_rate_adaptive",
+  "wrapper_entity": "temporal_noise_reduction_rate_adaptive_det_cfg",
+  "configuration_id": "TEMPORAL_NOISE_REDUCTION_RATE_ADAPTIVE_5F99C999BF0A808D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

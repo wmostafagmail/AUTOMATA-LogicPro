@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "run_length_decoder_iterative",
+  "wrapper_entity": "run_length_decoder_iterative_det_cfg",
+  "configuration_id": "RUN_LENGTH_DECODER_ITERATIVE_246C7DEAA29DF2CB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 108
+  }
+}

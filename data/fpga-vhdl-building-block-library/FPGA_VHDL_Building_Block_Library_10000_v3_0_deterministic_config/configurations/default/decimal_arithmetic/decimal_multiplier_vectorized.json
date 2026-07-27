@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_multiplier_vectorized",
+  "wrapper_entity": "decimal_multiplier_vectorized_det_cfg",
+  "configuration_id": "DECIMAL_MULTIPLIER_VECTORIZED_D16B0330327E540B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

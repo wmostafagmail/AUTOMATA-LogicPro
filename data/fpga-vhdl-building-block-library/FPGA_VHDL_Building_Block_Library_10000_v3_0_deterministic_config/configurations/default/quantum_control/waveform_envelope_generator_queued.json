@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_queued",
+  "wrapper_entity": "waveform_envelope_generator_queued_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_QUEUED_94F4BF6A5C06E133",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

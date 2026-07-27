@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "white_balance_engine_multi_plane",
+  "wrapper_entity": "white_balance_engine_multi_plane_det_cfg",
+  "configuration_id": "WHITE_BALANCE_ENGINE_MULTI_PLANE_BBC7F790F7EE7626",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

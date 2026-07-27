@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_link_training_timestamped",
+  "wrapper_entity": "usb3_link_training_timestamped_det_cfg",
+  "configuration_id": "USB3_LINK_TRAINING_TIMESTAMPED_DE686051EB171640",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

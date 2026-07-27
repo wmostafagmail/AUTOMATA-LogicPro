@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_fully_parallel",
+  "wrapper_entity": "dadda_tree_multiplier_fully_parallel_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_FULLY_PARALLEL_70F104A814FBF795",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frame_counter_line_buffered",
+  "wrapper_entity": "frame_counter_line_buffered_det_cfg",
+  "configuration_id": "FRAME_COUNTER_LINE_BUFFERED_CC99218A5FE58E18",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

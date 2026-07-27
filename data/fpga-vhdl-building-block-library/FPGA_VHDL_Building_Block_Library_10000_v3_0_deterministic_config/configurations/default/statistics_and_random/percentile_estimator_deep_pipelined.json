@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "percentile_estimator_deep_pipelined",
+  "wrapper_entity": "percentile_estimator_deep_pipelined_det_cfg",
+  "configuration_id": "PERCENTILE_ESTIMATOR_DEEP_PIPELINED_407C33206C9DAF1D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

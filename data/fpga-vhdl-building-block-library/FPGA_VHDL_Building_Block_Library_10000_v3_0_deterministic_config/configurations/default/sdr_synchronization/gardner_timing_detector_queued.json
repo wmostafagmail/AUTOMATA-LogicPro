@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_queued",
+  "wrapper_entity": "gardner_timing_detector_queued_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_QUEUED_AF3CC2D955687EF3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

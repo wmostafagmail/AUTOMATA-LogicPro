@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_dma_attached",
+  "wrapper_entity": "can_fd_controller_dma_attached_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_DMA_ATTACHED_DD8425349DBF0627",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_boundary_focused",
+  "wrapper_entity": "performance_monitoring_unit_boundary_focused_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_BOUNDARY_FOCUSED_EA4373979E1F35C3",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

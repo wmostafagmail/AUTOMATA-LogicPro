@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_hypervisor_unit_iterative",
+  "wrapper_entity": "riscv_hypervisor_unit_iterative_det_cfg",
+  "configuration_id": "RISCV_HYPERVISOR_UNIT_ITERATIVE_07CF35691F62B1DC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

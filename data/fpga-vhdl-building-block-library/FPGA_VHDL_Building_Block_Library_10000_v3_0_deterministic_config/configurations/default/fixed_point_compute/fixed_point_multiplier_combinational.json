@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_multiplier_combinational",
+  "wrapper_entity": "fixed_point_multiplier_combinational_det_cfg",
+  "configuration_id": "FIXED_POINT_MULTIPLIER_COMBINATIONAL_97AC59503AAA6C8C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

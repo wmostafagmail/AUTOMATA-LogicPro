@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_fully_parallel",
+  "wrapper_entity": "block_floating_quantizer_fully_parallel_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_FULLY_PARALLEL_0213C096E4A782C3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

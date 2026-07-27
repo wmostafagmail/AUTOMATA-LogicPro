@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_divider_single_shot",
+  "wrapper_entity": "clock_divider_single_shot_det_cfg",
+  "configuration_id": "CLOCK_DIVIDER_SINGLE_SHOT_DCFDAB0D054926C1",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

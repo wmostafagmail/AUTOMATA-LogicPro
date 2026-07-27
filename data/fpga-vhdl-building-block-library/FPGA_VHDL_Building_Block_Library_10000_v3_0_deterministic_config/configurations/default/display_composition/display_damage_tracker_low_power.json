@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_low_power",
+  "wrapper_entity": "display_damage_tracker_low_power_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_LOW_POWER_9B5D83027E9D86F2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

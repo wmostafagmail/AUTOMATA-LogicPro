@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_clock_crossing",
+  "wrapper_entity": "costas_loop_clock_crossing_det_cfg",
+  "configuration_id": "COSTAS_LOOP_CLOCK_CROSSING_05CF02542BFB5948",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

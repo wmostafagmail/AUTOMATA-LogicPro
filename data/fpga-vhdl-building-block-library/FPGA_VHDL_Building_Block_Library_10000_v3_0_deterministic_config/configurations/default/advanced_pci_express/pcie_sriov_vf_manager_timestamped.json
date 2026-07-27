@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_timestamped",
+  "wrapper_entity": "pcie_sriov_vf_manager_timestamped_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_TIMESTAMPED_4C2409C860535EB7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

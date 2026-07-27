@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_high_throughput",
+  "wrapper_entity": "multi_layer_compositor_high_throughput_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_HIGH_THROUGHPUT_D9BC4C599718FC0C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

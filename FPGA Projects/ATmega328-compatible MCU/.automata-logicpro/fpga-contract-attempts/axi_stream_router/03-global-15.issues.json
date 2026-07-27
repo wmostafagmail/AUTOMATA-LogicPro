@@ -5,16 +5,33 @@
   "designLabel": "AXI-Stream Packet Router / Network Switch",
   "attempt": 15,
   "designAttempt": 3,
-  "issueCount": 1,
+  "issueCount": 4,
   "topIssueCodes": [
-    "architecture_contract_json_invalid"
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required",
+    "architecture_intent_unknown_required_field"
   ],
-  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract JSON was invalid: Expected ',' or ']' after array element in JSON at position 6192 (line 219 column 6)",
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What data width and numeric format should the design use?",
   "issues": [
     {
-      "code": "architecture_contract_json_invalid",
-      "path": "$",
-      "message": "Expected ',' or ']' after array element in JSON at position 6192 (line 219 column 6)"
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_unknown_required_field",
+      "path": "$.intent.widthOrFormat",
+      "message": "What data width and numeric format should the design use?"
+    },
+    {
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
     }
   ]
 }

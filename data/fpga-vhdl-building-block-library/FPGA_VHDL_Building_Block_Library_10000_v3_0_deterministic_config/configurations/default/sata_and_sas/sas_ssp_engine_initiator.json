@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_initiator",
+  "wrapper_entity": "sas_ssp_engine_initiator_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_INITIATOR_F356995BEA99DBB8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

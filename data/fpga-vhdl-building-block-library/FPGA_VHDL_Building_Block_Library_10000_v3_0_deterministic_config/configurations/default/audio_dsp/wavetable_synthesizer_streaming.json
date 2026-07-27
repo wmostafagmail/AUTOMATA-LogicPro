@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavetable_synthesizer_streaming",
+  "wrapper_entity": "wavetable_synthesizer_streaming_det_cfg",
+  "configuration_id": "WAVETABLE_SYNTHESIZER_STREAMING_4770F8FEEE3ABA64",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

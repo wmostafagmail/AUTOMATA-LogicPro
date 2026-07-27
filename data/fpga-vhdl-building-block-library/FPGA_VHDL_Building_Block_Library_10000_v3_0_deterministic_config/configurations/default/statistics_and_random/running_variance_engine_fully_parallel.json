@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_fully_parallel",
+  "wrapper_entity": "running_variance_engine_fully_parallel_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_FULLY_PARALLEL_873842226AF1947F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

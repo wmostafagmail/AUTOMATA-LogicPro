@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_core_lockstep_monitor_fault_injectable",
+  "wrapper_entity": "dual_core_lockstep_monitor_fault_injectable_det_cfg",
+  "configuration_id": "DUAL_CORE_LOCKSTEP_MONITOR_FAULT_INJECTABLE_874D43FEC78C0C21",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

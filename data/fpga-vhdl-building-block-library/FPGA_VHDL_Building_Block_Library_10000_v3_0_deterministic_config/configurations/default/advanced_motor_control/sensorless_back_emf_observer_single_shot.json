@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_single_shot",
+  "wrapper_entity": "sensorless_back_emf_observer_single_shot_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_SINGLE_SHOT_B0E2A88B40A68C56",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

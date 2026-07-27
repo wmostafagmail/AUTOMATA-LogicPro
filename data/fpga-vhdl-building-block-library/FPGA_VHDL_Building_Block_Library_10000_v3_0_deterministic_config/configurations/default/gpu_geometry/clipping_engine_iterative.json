@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clipping_engine_iterative",
+  "wrapper_entity": "clipping_engine_iterative_det_cfg",
+  "configuration_id": "CLIPPING_ENGINE_ITERATIVE_8C71B0C67F918041",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

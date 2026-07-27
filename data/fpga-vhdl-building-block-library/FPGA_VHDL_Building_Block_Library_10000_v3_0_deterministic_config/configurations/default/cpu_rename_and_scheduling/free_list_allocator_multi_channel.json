@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_multi_channel",
+  "wrapper_entity": "free_list_allocator_multi_channel_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_MULTI_CHANNEL_C96FCEEED142E9EE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

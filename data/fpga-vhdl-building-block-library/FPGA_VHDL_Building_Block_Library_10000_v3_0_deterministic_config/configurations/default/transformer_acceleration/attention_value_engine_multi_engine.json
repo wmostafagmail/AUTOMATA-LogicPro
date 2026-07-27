@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_value_engine_multi_engine",
+  "wrapper_entity": "attention_value_engine_multi_engine_det_cfg",
+  "configuration_id": "ATTENTION_VALUE_ENGINE_MULTI_ENGINE_F3685221490457FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

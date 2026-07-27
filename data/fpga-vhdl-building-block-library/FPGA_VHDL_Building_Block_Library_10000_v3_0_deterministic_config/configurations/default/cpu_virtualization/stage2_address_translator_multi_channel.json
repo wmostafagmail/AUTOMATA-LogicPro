@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_multi_channel",
+  "wrapper_entity": "stage2_address_translator_multi_channel_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_MULTI_CHANNEL_D1335E2D6E7853F8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "spectrum_analyzer_frontend_fault_detecting",
+  "wrapper_entity": "spectrum_analyzer_frontend_fault_detecting_det_cfg",
+  "configuration_id": "SPECTRUM_ANALYZER_FRONTEND_FAULT_DETECTING_ADB455B82F0EEC23",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

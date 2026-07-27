@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_compare_iterative",
+  "wrapper_entity": "vector_compare_iterative_det_cfg",
+  "configuration_id": "VECTOR_COMPARE_ITERATIVE_422489C1663A132B",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

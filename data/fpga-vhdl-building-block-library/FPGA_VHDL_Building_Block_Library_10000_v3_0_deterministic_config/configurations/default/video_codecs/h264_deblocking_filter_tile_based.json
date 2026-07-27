@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_tile_based",
+  "wrapper_entity": "h264_deblocking_filter_tile_based_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_TILE_BASED_BAF9B073F0C5E725",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

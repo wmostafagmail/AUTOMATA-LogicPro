@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_multi_channel",
+  "wrapper_entity": "ethernet_25g_lane_mapper_multi_channel_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_MULTI_CHANNEL_957FA8650D149231",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

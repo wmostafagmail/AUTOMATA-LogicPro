@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_index_decoder_bf16",
+  "wrapper_entity": "sparse_index_decoder_bf16_det_cfg",
+  "configuration_id": "SPARSE_INDEX_DECODER_BF16_666C642FE685A36A",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "antialiased_line_engine_rate_adaptive",
+  "wrapper_entity": "antialiased_line_engine_rate_adaptive_det_cfg",
+  "configuration_id": "ANTIALIASED_LINE_ENGINE_RATE_ADAPTIVE_3BDD82BDF9D14C75",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

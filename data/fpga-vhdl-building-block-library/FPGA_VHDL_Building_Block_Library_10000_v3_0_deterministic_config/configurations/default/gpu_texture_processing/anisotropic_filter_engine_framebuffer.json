@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_framebuffer",
+  "wrapper_entity": "anisotropic_filter_engine_framebuffer_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_FRAMEBUFFER_6A4F5737A6B4107E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

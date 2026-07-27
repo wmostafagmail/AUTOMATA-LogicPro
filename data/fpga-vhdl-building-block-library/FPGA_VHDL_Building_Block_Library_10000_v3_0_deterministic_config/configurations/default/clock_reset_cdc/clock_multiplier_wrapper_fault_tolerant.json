@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_multiplier_wrapper_fault_tolerant",
+  "wrapper_entity": "clock_multiplier_wrapper_fault_tolerant_det_cfg",
+  "configuration_id": "CLOCK_MULTIPLIER_WRAPPER_FAULT_TOLERANT_8DCF595AD150183E",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mel_filterbank_engine_backpressure_capable",
+  "wrapper_entity": "mel_filterbank_engine_backpressure_capable_det_cfg",
+  "configuration_id": "MEL_FILTERBANK_ENGINE_BACKPRESSURE_CAPABLE_FCDF8106E62B4A84",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

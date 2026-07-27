@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_temporal_redundancy",
+  "wrapper_entity": "safety_island_controller_temporal_redundancy_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_TEMPORAL_REDUNDANCY_8A3E6740D0B6E11D",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

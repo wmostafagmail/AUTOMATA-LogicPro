@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_dropout_engine_multi_channel",
+  "wrapper_entity": "attention_dropout_engine_multi_channel_det_cfg",
+  "configuration_id": "ATTENTION_DROPOUT_ENGINE_MULTI_CHANNEL_E029BD85071ECD4B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

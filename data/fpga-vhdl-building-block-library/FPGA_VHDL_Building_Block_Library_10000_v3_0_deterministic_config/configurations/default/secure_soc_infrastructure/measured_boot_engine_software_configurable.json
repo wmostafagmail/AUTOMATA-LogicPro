@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_software_configurable",
+  "wrapper_entity": "measured_boot_engine_software_configurable_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_SOFTWARE_CONFIGURABLE_37CF475F05F3BA50",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

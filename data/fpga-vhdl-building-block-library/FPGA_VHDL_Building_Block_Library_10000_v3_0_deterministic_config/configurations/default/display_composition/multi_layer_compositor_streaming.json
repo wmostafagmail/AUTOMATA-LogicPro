@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_streaming",
+  "wrapper_entity": "multi_layer_compositor_streaming_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_STREAMING_DEE4F30CC5F02F9C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

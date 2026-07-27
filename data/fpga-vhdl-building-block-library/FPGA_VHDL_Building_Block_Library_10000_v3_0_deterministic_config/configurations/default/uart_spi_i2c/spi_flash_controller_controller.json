@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_flash_controller_controller",
+  "wrapper_entity": "spi_flash_controller_controller_det_cfg",
+  "configuration_id": "SPI_FLASH_CONTROLLER_CONTROLLER_3F686211E94C1458",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

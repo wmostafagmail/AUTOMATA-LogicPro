@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "csr_tensor_decoder_clock_crossing",
+  "wrapper_entity": "csr_tensor_decoder_clock_crossing_det_cfg",
+  "configuration_id": "CSR_TENSOR_DECODER_CLOCK_CROSSING_A3C6817516E272D2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

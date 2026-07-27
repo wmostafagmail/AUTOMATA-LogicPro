@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_to_float_converter_buffered_stream",
+  "wrapper_entity": "fixed_to_float_converter_buffered_stream_det_cfg",
+  "configuration_id": "FIXED_TO_FLOAT_CONVERTER_BUFFERED_STREAM_BD2542BA5B9BD36F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

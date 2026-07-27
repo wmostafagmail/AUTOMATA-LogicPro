@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "atomic_operation_unit_single_shot",
+  "wrapper_entity": "atomic_operation_unit_single_shot_det_cfg",
+  "configuration_id": "ATOMIC_OPERATION_UNIT_SINGLE_SHOT_D00A74E5E35A62F3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

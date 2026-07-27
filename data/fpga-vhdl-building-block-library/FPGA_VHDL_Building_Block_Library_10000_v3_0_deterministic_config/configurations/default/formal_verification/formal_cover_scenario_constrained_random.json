@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_constrained_random",
+  "wrapper_entity": "formal_cover_scenario_constrained_random_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_CONSTRAINED_RANDOM_ABB4107F9EBE905D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mixer_resource_shared",
+  "wrapper_entity": "audio_mixer_resource_shared_det_cfg",
+  "configuration_id": "AUDIO_MIXER_RESOURCE_SHARED_D7AB44E688026897",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

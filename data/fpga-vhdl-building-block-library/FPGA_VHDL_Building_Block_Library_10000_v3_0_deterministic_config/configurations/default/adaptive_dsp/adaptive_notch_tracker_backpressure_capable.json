@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_notch_tracker_backpressure_capable",
+  "wrapper_entity": "adaptive_notch_tracker_backpressure_capable_det_cfg",
+  "configuration_id": "ADAPTIVE_NOTCH_TRACKER_BACKPRESSURE_CAPABLE_E88688F2B44E1818",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

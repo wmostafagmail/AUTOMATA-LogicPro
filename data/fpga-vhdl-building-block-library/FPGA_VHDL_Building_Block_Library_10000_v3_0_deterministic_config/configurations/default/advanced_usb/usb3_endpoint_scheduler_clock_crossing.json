@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_endpoint_scheduler_clock_crossing",
+  "wrapper_entity": "usb3_endpoint_scheduler_clock_crossing_det_cfg",
+  "configuration_id": "USB3_ENDPOINT_SCHEDULER_CLOCK_CROSSING_40EBD45D8950EC7F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

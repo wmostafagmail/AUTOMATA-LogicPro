@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_scoreboard_data_integrity",
+  "wrapper_entity": "protocol_scoreboard_data_integrity_det_cfg",
+  "configuration_id": "PROTOCOL_SCOREBOARD_DATA_INTEGRITY_13C754F1D7EE9FD0",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

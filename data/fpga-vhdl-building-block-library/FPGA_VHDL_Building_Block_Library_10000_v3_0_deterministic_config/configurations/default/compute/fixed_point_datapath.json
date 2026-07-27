@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_datapath",
+  "wrapper_entity": "fixed_point_datapath_det_cfg",
+  "configuration_id": "FIXED_POINT_DATAPATH_C54253A8C5F2C91E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_clock_crossing",
+  "wrapper_entity": "speculative_checkpoint_file_clock_crossing_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_CLOCK_CROSSING_274BB9536B70DA97",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

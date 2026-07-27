@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "register_file_cpu",
+  "wrapper_entity": "register_file_cpu_det_cfg",
+  "configuration_id": "REGISTER_FILE_CPU_D0E11087D6EA60D6",
+  "generics": {
+    "XLEN": 32,
+    "REG_COUNT": 32,
+    "ZERO_REGISTER": true
+  }
+}

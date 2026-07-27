@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_rom_controller_programmable",
+  "wrapper_entity": "boot_rom_controller_programmable_det_cfg",
+  "configuration_id": "BOOT_ROM_CONTROLLER_PROGRAMMABLE_172237414C14A248",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

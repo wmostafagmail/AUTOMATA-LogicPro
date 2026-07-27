@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_fail_operational",
+  "wrapper_entity": "secure_boot_root_fail_operational_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_FAIL_OPERATIONAL_4B040FD854D38A91",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

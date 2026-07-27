@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_multiplier_resource_shared",
+  "wrapper_entity": "vector_multiplier_resource_shared_det_cfg",
+  "configuration_id": "VECTOR_MULTIPLIER_RESOURCE_SHARED_546B38FCB9D4B28B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

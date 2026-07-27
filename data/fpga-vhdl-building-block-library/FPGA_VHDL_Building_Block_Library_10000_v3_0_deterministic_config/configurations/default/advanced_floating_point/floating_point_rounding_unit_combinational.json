@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_rounding_unit_combinational",
+  "wrapper_entity": "floating_point_rounding_unit_combinational_det_cfg",
+  "configuration_id": "FLOATING_POINT_ROUNDING_UNIT_COMBINATIONAL_5CE69941334BCD68",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

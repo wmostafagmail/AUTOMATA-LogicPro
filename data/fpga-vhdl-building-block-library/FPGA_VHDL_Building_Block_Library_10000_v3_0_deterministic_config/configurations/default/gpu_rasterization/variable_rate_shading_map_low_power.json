@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "variable_rate_shading_map_low_power",
+  "wrapper_entity": "variable_rate_shading_map_low_power_det_cfg",
+  "configuration_id": "VARIABLE_RATE_SHADING_MAP_LOW_POWER_6F9AC28B856E9C09",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

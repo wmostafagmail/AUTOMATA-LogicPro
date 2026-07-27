@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "timestamp_unit_continuous",
+  "wrapper_entity": "timestamp_unit_continuous_det_cfg",
+  "configuration_id": "TIMESTAMP_UNIT_CONTINUOUS_FC3FFA5B6028E789",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

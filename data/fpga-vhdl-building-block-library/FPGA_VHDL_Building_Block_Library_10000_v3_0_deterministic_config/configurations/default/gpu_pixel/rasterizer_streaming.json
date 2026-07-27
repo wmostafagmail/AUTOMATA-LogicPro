@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rasterizer_streaming",
+  "wrapper_entity": "rasterizer_streaming_det_cfg",
+  "configuration_id": "RASTERIZER_STREAMING_EA715A060122482D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

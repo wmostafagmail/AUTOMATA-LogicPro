@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_low_power",
+  "wrapper_entity": "posit_format_converter_low_power_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_LOW_POWER_9BA7A750BE4C723A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

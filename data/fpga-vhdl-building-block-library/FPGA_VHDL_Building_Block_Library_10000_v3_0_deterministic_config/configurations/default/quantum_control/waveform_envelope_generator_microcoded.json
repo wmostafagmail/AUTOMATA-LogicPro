@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_microcoded",
+  "wrapper_entity": "waveform_envelope_generator_microcoded_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_MICROCODED_3541A1C88A5DCF77",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

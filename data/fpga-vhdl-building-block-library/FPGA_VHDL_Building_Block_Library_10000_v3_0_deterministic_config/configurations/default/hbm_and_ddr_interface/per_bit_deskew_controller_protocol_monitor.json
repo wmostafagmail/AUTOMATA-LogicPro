@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "per_bit_deskew_controller_protocol_monitor",
+  "wrapper_entity": "per_bit_deskew_controller_protocol_monitor_det_cfg",
+  "configuration_id": "PER_BIT_DESKEW_CONTROLLER_PROTOCOL_MONITOR_51C7E7AC624AEAC3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

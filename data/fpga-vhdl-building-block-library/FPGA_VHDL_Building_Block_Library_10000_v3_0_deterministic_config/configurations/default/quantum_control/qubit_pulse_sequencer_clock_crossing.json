@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_clock_crossing",
+  "wrapper_entity": "qubit_pulse_sequencer_clock_crossing_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_CLOCK_CROSSING_236FCC9BD8A9CEC4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

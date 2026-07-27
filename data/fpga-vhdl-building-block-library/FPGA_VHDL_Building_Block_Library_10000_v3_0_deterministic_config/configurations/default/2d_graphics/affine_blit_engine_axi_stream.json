@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_axi_stream",
+  "wrapper_entity": "affine_blit_engine_axi_stream_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_AXI_STREAM_F93335EA817EA602",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

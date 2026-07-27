@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_frame_parser_programmable",
+  "wrapper_entity": "ethernet_frame_parser_programmable_det_cfg",
+  "configuration_id": "ETHERNET_FRAME_PARSER_PROGRAMMABLE_D340D17FEE9E306D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

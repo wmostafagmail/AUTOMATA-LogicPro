@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_multi_channel",
+  "wrapper_entity": "carrier_frequency_estimator_multi_channel_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_MULTI_CHANNEL_8B6F1B23395BF783",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

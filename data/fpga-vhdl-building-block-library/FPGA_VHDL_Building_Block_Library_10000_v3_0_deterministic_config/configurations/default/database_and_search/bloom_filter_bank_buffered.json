@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bloom_filter_bank_buffered",
+  "wrapper_entity": "bloom_filter_bank_buffered_det_cfg",
+  "configuration_id": "BLOOM_FILTER_BANK_BUFFERED_8BAB04DBB5CF84D0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

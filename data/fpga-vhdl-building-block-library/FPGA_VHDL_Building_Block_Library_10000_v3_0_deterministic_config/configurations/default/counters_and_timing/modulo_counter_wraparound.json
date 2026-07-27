@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "modulo_counter_wraparound",
+  "wrapper_entity": "modulo_counter_wraparound_det_cfg",
+  "configuration_id": "MODULO_COUNTER_WRAPAROUND_5585A390F6A8D784",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

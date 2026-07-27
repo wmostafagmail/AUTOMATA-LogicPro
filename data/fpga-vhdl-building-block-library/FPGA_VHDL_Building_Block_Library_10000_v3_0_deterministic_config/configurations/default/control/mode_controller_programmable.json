@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mode_controller_programmable",
+  "wrapper_entity": "mode_controller_programmable_det_cfg",
+  "configuration_id": "MODE_CONTROLLER_PROGRAMMABLE_2393BBD56E99BBD4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

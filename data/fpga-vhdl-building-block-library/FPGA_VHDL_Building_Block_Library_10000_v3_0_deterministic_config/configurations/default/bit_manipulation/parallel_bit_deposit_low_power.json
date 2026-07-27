@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_deposit_low_power",
+  "wrapper_entity": "parallel_bit_deposit_low_power_det_cfg",
+  "configuration_id": "PARALLEL_BIT_DEPOSIT_LOW_POWER_551B7203B47403D9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

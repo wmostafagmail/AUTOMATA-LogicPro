@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "active_video_generator_low_latency",
+  "wrapper_entity": "active_video_generator_low_latency_det_cfg",
+  "configuration_id": "ACTIVE_VIDEO_GENERATOR_LOW_LATENCY_56F68B6996DAC6F2",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

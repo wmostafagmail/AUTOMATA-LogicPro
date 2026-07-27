@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_cache_single_clock",
+  "wrapper_entity": "instruction_cache_single_clock_det_cfg",
+  "configuration_id": "INSTRUCTION_CACHE_SINGLE_CLOCK_5E219343E8AFB3E6",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sercos_cycle_controller_protocol_monitor",
+  "wrapper_entity": "sercos_cycle_controller_protocol_monitor_det_cfg",
+  "configuration_id": "SERCOS_CYCLE_CONTROLLER_PROTOCOL_MONITOR_4B4D6427C7E21636",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

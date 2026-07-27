@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_endpoint",
+  "wrapper_entity": "hierarchical_noc_gateway_endpoint_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_ENDPOINT_E3C74FA400DD9BE1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "run_length_decoder_single_cycle",
+  "wrapper_entity": "run_length_decoder_single_cycle_det_cfg",
+  "configuration_id": "RUN_LENGTH_DECODER_SINGLE_CYCLE_75670E57DE5706C7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 201
+  }
+}

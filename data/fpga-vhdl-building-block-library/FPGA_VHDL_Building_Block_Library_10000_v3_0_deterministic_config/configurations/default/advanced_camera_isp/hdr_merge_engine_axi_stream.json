@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_axi_stream",
+  "wrapper_entity": "hdr_merge_engine_axi_stream_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_AXI_STREAM_786018B0BE36E3E1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

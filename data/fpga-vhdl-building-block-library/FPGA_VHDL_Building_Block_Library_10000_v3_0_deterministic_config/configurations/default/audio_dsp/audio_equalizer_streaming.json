@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_equalizer_streaming",
+  "wrapper_entity": "audio_equalizer_streaming_det_cfg",
+  "configuration_id": "AUDIO_EQUALIZER_STREAMING_8F7C11128E914B56",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_peripheral_fault_tolerant",
+  "wrapper_entity": "pwm_peripheral_fault_tolerant_det_cfg",
+  "configuration_id": "PWM_PERIPHERAL_FAULT_TOLERANT_EEE7A258069D405D",
+  "generics": {
+    "WIDTH": 16
+  }
+}

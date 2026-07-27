@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "actuator_command_mixer_continuous",
+  "wrapper_entity": "actuator_command_mixer_continuous_det_cfg",
+  "configuration_id": "ACTUATOR_COMMAND_MIXER_CONTINUOUS_DD33F5C73D58A246",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

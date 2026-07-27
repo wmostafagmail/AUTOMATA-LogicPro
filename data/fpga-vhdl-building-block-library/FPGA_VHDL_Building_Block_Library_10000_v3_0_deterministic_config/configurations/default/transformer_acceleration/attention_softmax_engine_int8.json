@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_softmax_engine_int8",
+  "wrapper_entity": "attention_softmax_engine_int8_det_cfg",
+  "configuration_id": "ATTENTION_SOFTMAX_ENGINE_INT8_C8ECA43ED0E5F187",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

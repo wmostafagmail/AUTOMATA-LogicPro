@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frequency_offset_estimator_multi_channel",
+  "wrapper_entity": "frequency_offset_estimator_multi_channel_det_cfg",
+  "configuration_id": "FREQUENCY_OFFSET_ESTIMATOR_MULTI_CHANNEL_02979D6A7D8AAD6F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 61
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "edge_equation_engine_pipelined",
+  "wrapper_entity": "edge_equation_engine_pipelined_det_cfg",
+  "configuration_id": "EDGE_EQUATION_ENGINE_PIPELINED_A85BE2AB6ED5DBC6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

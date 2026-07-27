@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_streaming",
+  "wrapper_entity": "newton_raphson_reciprocal_streaming_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_STREAMING_41AD7C9A34416C1D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

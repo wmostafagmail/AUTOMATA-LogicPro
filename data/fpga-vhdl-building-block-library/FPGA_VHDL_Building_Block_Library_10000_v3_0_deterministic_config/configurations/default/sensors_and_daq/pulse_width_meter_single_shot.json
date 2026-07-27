@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "pulse_width_meter_single_shot",
+  "wrapper_entity": "pulse_width_meter_single_shot_det_cfg",
+  "configuration_id": "PULSE_WIDTH_METER_SINGLE_SHOT_71D27BC2C1E6A19D",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

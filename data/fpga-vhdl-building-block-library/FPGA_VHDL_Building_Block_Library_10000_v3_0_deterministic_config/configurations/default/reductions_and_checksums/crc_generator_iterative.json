@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_generator_iterative",
+  "wrapper_entity": "crc_generator_iterative_det_cfg",
+  "configuration_id": "CRC_GENERATOR_ITERATIVE_24C3E6747BFE82C4",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

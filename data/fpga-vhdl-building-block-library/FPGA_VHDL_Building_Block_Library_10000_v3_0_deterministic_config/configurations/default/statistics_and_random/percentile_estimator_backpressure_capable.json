@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "percentile_estimator_backpressure_capable",
+  "wrapper_entity": "percentile_estimator_backpressure_capable_det_cfg",
+  "configuration_id": "PERCENTILE_ESTIMATOR_BACKPRESSURE_CAPABLE_C5E4A8DF9AE0CD87",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

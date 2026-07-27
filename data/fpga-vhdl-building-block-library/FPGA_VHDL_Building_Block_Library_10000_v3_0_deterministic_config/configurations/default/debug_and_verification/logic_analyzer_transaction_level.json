@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_analyzer_transaction_level",
+  "wrapper_entity": "logic_analyzer_transaction_level_det_cfg",
+  "configuration_id": "LOGIC_ANALYZER_TRANSACTION_LEVEL_28E170373C7D8994",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

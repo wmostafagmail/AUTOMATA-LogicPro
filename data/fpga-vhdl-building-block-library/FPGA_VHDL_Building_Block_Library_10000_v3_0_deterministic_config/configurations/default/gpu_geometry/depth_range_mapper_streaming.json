@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "depth_range_mapper_streaming",
+  "wrapper_entity": "depth_range_mapper_streaming_det_cfg",
+  "configuration_id": "DEPTH_RANGE_MAPPER_STREAMING_1DFF3276F6E4125C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ofdm_demodulator_resource_shared",
+  "wrapper_entity": "ofdm_demodulator_resource_shared_det_cfg",
+  "configuration_id": "OFDM_DEMODULATOR_RESOURCE_SHARED_DEE2C4EB654E1231",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 44
+  }
+}

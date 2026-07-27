@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_deep_pipeline",
+  "wrapper_entity": "riscv_bitmanip_unit_deep_pipeline_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_DEEP_PIPELINE_34330361FE02B640",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

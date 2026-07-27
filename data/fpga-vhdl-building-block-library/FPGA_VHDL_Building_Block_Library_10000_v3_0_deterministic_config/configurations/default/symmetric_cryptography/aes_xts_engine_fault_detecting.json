@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_fault_detecting",
+  "wrapper_entity": "aes_xts_engine_fault_detecting_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_FAULT_DETECTING_0D27A00BC74B7DCD",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

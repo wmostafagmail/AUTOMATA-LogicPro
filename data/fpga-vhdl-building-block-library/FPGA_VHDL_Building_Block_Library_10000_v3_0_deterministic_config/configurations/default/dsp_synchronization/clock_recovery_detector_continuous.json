@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_recovery_detector_continuous",
+  "wrapper_entity": "clock_recovery_detector_continuous_det_cfg",
+  "configuration_id": "CLOCK_RECOVERY_DETECTOR_CONTINUOUS_D3580A5C7ACFBD78",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 133
+  }
+}

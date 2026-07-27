@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_dma_interface_controller",
+  "wrapper_entity": "audio_dma_interface_controller_det_cfg",
+  "configuration_id": "AUDIO_DMA_INTERFACE_CONTROLLER_43DC08F770FC52F6",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_combinational",
+  "wrapper_entity": "carry_skip_adder_combinational_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_COMBINATIONAL_8E16680879F4BACE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

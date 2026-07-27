@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix4_multiplier_shallow_pipeline",
+  "wrapper_entity": "booth_radix4_multiplier_shallow_pipeline_det_cfg",
+  "configuration_id": "BOOTH_RADIX4_MULTIPLIER_SHALLOW_PIPELINE_F53B9A861B612A0A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

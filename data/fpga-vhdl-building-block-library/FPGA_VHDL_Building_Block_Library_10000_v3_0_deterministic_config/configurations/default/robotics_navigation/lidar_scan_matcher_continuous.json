@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_continuous",
+  "wrapper_entity": "lidar_scan_matcher_continuous_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_CONTINUOUS_6A814BC5FC369491",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

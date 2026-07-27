@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_triple_modular",
+  "wrapper_entity": "latent_fault_monitor_triple_modular_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_TRIPLE_MODULAR_803AAA45F65155B2",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

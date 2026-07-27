@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_decompressor_buffered",
+  "wrapper_entity": "lz4_decompressor_buffered_det_cfg",
+  "configuration_id": "LZ4_DECOMPRESSOR_BUFFERED_CA373E0AA224BF85",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

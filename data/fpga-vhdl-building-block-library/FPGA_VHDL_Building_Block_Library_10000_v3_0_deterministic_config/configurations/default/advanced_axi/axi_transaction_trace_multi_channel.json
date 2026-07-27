@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_transaction_trace_multi_channel",
+  "wrapper_entity": "axi_transaction_trace_multi_channel_det_cfg",
+  "configuration_id": "AXI_TRANSACTION_TRACE_MULTI_CHANNEL_6FA9F59F435B4B24",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_aux_channel_software_configurable",
+  "wrapper_entity": "displayport_aux_channel_software_configurable_det_cfg",
+  "configuration_id": "DISPLAYPORT_AUX_CHANNEL_SOFTWARE_CONFIGURABLE_EDFDCF0CA47B80C4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

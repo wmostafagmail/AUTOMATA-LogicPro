@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_latent_fault_detecting",
+  "wrapper_entity": "trusted_mailbox_latent_fault_detecting_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_LATENT_FAULT_DETECTING_E0BC8E002843165C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

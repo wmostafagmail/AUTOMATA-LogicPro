@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_high_throughput",
+  "wrapper_entity": "motion_estimation_engine_high_throughput_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_HIGH_THROUGHPUT_A9FAB18578DE9CB9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_classifier_fault_tolerant",
+  "wrapper_entity": "packet_classifier_fault_tolerant_det_cfg",
+  "configuration_id": "PACKET_CLASSIFIER_FAULT_TOLERANT_85DFB0CDE6CB6F7F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

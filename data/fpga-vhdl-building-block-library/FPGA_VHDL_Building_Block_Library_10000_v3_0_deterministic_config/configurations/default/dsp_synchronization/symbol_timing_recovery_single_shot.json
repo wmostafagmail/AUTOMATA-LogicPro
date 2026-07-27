@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "symbol_timing_recovery_single_shot",
+  "wrapper_entity": "symbol_timing_recovery_single_shot_det_cfg",
+  "configuration_id": "SYMBOL_TIMING_RECOVERY_SINGLE_SHOT_1C3DF8ECA64D7AA3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 68
+  }
+}

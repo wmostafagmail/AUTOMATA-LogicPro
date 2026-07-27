@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_command_scheduler_ecc_protected",
+  "wrapper_entity": "ddr_command_scheduler_ecc_protected_det_cfg",
+  "configuration_id": "DDR_COMMAND_SCHEDULER_ECC_PROTECTED_72187F3A978C7941",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

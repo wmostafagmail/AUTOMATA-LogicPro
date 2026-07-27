@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "psk_mapper_resource_shared",
+  "wrapper_entity": "psk_mapper_resource_shared_det_cfg",
+  "configuration_id": "PSK_MAPPER_RESOURCE_SHARED_AC0F70F4E59DBA09",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 14
+  }
+}

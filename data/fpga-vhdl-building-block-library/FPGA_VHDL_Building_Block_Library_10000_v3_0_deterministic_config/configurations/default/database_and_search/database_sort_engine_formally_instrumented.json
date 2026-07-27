@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "database_sort_engine_formally_instrumented",
+  "wrapper_entity": "database_sort_engine_formally_instrumented_det_cfg",
+  "configuration_id": "DATABASE_SORT_ENGINE_FORMALLY_INSTRUMENTED_E9674B37196B45E0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

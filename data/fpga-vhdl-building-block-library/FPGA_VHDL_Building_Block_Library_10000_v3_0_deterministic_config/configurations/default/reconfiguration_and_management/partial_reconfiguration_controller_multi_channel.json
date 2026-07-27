@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_reconfiguration_controller_multi_channel",
+  "wrapper_entity": "partial_reconfiguration_controller_multi_channel_det_cfg",
+  "configuration_id": "PARTIAL_RECONFIGURATION_CONTROLLER_MULTI_CHANNEL_3535DD654D6B5E62",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

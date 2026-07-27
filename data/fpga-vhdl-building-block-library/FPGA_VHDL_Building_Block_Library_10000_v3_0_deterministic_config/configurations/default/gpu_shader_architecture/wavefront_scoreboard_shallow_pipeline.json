@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wavefront_scoreboard_shallow_pipeline",
+  "wrapper_entity": "wavefront_scoreboard_shallow_pipeline_det_cfg",
+  "configuration_id": "WAVEFRONT_SCOREBOARD_SHALLOW_PIPELINE_CF64A7CCA1D3D4FB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

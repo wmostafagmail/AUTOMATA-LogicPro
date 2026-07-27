@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_encoder_buffered",
+  "wrapper_entity": "polar_encoder_buffered_det_cfg",
+  "configuration_id": "POLAR_ENCODER_BUFFERED_EF28F266136D4365",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

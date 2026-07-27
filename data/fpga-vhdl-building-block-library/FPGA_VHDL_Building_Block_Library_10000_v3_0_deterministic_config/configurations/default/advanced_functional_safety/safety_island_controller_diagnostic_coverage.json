@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_diagnostic_coverage",
+  "wrapper_entity": "safety_island_controller_diagnostic_coverage_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_DIAGNOSTIC_COVERAGE_16E05D77D5679CB5",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_coherency_bridge_qos_aware",
+  "wrapper_entity": "cxl_coherency_bridge_qos_aware_det_cfg",
+  "configuration_id": "CXL_COHERENCY_BRIDGE_QOS_AWARE_FC056FF2EBBA64BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

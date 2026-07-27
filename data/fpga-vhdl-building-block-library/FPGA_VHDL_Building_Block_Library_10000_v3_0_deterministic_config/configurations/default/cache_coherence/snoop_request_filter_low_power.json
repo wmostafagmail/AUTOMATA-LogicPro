@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "snoop_request_filter_low_power",
+  "wrapper_entity": "snoop_request_filter_low_power_det_cfg",
+  "configuration_id": "SNOOP_REQUEST_FILTER_LOW_POWER_819F50FE6360FD18",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

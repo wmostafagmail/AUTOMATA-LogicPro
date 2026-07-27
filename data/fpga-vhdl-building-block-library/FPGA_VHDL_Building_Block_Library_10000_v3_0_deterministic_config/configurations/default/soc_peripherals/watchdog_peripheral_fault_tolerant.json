@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_peripheral_fault_tolerant",
+  "wrapper_entity": "watchdog_peripheral_fault_tolerant_det_cfg",
+  "configuration_id": "WATCHDOG_PERIPHERAL_FAULT_TOLERANT_E9C1A168B0BADDDF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

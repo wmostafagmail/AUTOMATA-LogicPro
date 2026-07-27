@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "alu_cpu_datapath",
+  "wrapper_entity": "alu_cpu_datapath_det_cfg",
+  "configuration_id": "ALU_CPU_DATAPATH_A890DE36C1C60747",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "OP_WIDTH": 4,
+    "SIGNED_MODE": false
+  }
+}

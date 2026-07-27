@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "load_store_unit_pipelined",
+  "wrapper_entity": "load_store_unit_pipelined_det_cfg",
+  "configuration_id": "LOAD_STORE_UNIT_PIPELINED_AE5454CE4C433B89",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

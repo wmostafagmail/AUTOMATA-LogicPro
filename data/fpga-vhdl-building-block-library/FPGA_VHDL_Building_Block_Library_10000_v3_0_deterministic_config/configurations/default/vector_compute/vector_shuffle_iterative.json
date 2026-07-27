@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_shuffle_iterative",
+  "wrapper_entity": "vector_shuffle_iterative_det_cfg",
+  "configuration_id": "VECTOR_SHUFFLE_ITERATIVE_F5BAE40CEABD8776",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

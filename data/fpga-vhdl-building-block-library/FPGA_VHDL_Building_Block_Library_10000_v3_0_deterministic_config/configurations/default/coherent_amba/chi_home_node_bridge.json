@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_home_node_bridge",
+  "wrapper_entity": "chi_home_node_bridge_det_cfg",
+  "configuration_id": "CHI_HOME_NODE_BRIDGE_17D43B16363E3140",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

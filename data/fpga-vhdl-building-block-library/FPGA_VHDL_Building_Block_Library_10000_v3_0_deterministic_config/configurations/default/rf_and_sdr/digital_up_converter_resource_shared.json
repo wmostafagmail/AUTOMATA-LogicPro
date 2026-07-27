@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "digital_up_converter_resource_shared",
+  "wrapper_entity": "digital_up_converter_resource_shared_det_cfg",
+  "configuration_id": "DIGITAL_UP_CONVERTER_RESOURCE_SHARED_B5BF22786534A48F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 251
+  }
+}

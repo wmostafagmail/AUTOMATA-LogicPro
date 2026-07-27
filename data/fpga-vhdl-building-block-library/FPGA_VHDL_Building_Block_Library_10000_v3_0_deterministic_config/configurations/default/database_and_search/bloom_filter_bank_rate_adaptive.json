@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bloom_filter_bank_rate_adaptive",
+  "wrapper_entity": "bloom_filter_bank_rate_adaptive_det_cfg",
+  "configuration_id": "BLOOM_FILTER_BANK_RATE_ADAPTIVE_E2F2882C42AD6143",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

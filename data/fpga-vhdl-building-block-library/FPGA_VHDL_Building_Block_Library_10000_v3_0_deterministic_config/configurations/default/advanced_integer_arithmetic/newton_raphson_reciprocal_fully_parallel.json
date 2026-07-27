@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_fully_parallel",
+  "wrapper_entity": "newton_raphson_reciprocal_fully_parallel_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_FULLY_PARALLEL_9053CCBB681F39C7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

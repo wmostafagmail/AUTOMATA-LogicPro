@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_phy_adapter_programmable",
+  "wrapper_entity": "usb_phy_adapter_programmable_det_cfg",
+  "configuration_id": "USB_PHY_ADAPTER_PROGRAMMABLE_835E023244632CE1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_confidence_estimator_lockstep_checked",
+  "wrapper_entity": "branch_confidence_estimator_lockstep_checked_det_cfg",
+  "configuration_id": "BRANCH_CONFIDENCE_ESTIMATOR_LOCKSTEP_CHECKED_C9562D0111A8676C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

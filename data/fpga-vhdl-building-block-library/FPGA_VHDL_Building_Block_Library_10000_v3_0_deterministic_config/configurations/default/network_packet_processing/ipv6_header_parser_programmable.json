@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_header_parser_programmable",
+  "wrapper_entity": "ipv6_header_parser_programmable_det_cfg",
+  "configuration_id": "IPV6_HEADER_PARSER_PROGRAMMABLE_EFC4B83D74392C83",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

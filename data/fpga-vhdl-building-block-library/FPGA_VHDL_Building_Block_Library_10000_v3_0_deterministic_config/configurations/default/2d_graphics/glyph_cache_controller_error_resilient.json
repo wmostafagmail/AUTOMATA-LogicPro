@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "glyph_cache_controller_error_resilient",
+  "wrapper_entity": "glyph_cache_controller_error_resilient_det_cfg",
+  "configuration_id": "GLYPH_CACHE_CONTROLLER_ERROR_RESILIENT_DFC73AD13D92D1BE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

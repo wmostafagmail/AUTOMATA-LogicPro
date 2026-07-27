@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wavefront_scoreboard_streaming",
+  "wrapper_entity": "wavefront_scoreboard_streaming_det_cfg",
+  "configuration_id": "WAVEFRONT_SCOREBOARD_STREAMING_EF07B9DF94741790",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

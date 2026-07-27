@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dynamic_function_exchange_manager_multi_channel",
+  "wrapper_entity": "dynamic_function_exchange_manager_multi_channel_det_cfg",
+  "configuration_id": "DYNAMIC_FUNCTION_EXCHANGE_MANAGER_MULTI_CHANNEL_90B07CA82081BBDA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

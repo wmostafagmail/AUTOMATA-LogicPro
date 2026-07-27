@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reservation_station_iterative",
+  "wrapper_entity": "reservation_station_iterative_det_cfg",
+  "configuration_id": "RESERVATION_STATION_ITERATIVE_E0EB33023A826951",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

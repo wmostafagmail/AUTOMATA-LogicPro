@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "notch_filter_combinational",
+  "wrapper_entity": "notch_filter_combinational_det_cfg",
+  "configuration_id": "NOTCH_FILTER_COMBINATIONAL_313876FE8CD909B2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 148
+  }
+}

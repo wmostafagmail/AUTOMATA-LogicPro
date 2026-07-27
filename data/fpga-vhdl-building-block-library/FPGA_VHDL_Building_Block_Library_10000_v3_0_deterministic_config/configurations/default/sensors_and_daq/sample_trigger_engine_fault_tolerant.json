@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sample_trigger_engine_fault_tolerant",
+  "wrapper_entity": "sample_trigger_engine_fault_tolerant_det_cfg",
+  "configuration_id": "SAMPLE_TRIGGER_ENGINE_FAULT_TOLERANT_A5F87071ACF26D46",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

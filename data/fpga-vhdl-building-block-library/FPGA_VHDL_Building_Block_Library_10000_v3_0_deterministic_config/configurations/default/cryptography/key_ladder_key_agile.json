@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "key_ladder_key_agile",
+  "wrapper_entity": "key_ladder_key_agile_det_cfg",
+  "configuration_id": "KEY_LADDER_KEY_AGILE_1C4361BFF1AAC02C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

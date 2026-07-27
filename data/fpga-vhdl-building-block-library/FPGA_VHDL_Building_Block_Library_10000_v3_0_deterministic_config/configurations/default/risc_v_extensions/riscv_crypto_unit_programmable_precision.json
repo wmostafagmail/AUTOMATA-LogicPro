@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_programmable_precision",
+  "wrapper_entity": "riscv_crypto_unit_programmable_precision_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_PROGRAMMABLE_PRECISION_27F29A61A13434DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

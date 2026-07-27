@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_buffered",
+  "wrapper_entity": "ace_snoop_controller_buffered_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_BUFFERED_CFDF5840D4D61FC0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

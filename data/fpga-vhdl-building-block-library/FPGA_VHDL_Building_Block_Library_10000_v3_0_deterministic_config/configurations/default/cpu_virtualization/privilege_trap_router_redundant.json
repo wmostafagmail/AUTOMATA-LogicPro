@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_redundant",
+  "wrapper_entity": "privilege_trap_router_redundant_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_REDUNDANT_F4D7D34CCDFF8294",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

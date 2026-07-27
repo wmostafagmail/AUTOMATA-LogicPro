@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "depth_test_unit_framebuffer",
+  "wrapper_entity": "depth_test_unit_framebuffer_det_cfg",
+  "configuration_id": "DEPTH_TEST_UNIT_FRAMEBUFFER_1A3BDAC5D727A7A0",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

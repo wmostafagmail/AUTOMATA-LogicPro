@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_shuffle_streaming",
+  "wrapper_entity": "vector_shuffle_streaming_det_cfg",
+  "configuration_id": "VECTOR_SHUFFLE_STREAMING_4A39024C918B03CE",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

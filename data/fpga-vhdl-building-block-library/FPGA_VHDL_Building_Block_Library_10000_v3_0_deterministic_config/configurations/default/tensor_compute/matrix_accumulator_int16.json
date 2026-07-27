@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_accumulator_int16",
+  "wrapper_entity": "matrix_accumulator_int16_det_cfg",
+  "configuration_id": "MATRIX_ACCUMULATOR_INT16_EF935532EF877BA6",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

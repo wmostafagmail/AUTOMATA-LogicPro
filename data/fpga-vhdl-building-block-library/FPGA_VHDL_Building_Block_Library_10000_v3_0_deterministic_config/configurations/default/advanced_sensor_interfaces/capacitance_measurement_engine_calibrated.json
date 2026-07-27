@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_calibrated",
+  "wrapper_entity": "capacitance_measurement_engine_calibrated_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_CALIBRATED_EA25A2A50275B4AA",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

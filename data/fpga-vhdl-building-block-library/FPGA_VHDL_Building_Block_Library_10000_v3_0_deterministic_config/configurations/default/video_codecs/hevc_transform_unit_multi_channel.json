@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_multi_channel",
+  "wrapper_entity": "hevc_transform_unit_multi_channel_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_MULTI_CHANNEL_A02D270FB18EB680",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

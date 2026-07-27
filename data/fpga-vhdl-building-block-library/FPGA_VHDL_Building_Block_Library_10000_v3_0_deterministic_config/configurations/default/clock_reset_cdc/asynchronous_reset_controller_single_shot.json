@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "asynchronous_reset_controller_single_shot",
+  "wrapper_entity": "asynchronous_reset_controller_single_shot_det_cfg",
+  "configuration_id": "ASYNCHRONOUS_RESET_CONTROLLER_SINGLE_SHOT_5F108BDF43ACB6E8",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

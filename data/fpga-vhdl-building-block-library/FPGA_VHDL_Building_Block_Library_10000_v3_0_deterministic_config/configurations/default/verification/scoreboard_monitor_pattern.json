@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_monitor_pattern",
+  "wrapper_entity": "scoreboard_monitor_pattern_det_cfg",
+  "configuration_id": "SCOREBOARD_MONITOR_PATTERN_72310CB79C6B5F91",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

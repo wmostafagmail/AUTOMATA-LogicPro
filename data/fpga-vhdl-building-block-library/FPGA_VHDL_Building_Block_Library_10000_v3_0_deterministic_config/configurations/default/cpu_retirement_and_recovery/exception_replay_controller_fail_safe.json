@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_fail_safe",
+  "wrapper_entity": "exception_replay_controller_fail_safe_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_FAIL_SAFE_F3E857B649D814F5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

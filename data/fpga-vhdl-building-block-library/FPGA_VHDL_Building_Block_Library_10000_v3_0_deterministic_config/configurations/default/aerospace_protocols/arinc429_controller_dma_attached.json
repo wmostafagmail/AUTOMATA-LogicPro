@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arinc429_controller_dma_attached",
+  "wrapper_entity": "arinc429_controller_dma_attached_det_cfg",
+  "configuration_id": "ARINC429_CONTROLLER_DMA_ATTACHED_139B91ACA96C2603",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

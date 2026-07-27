@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_error_confinement_programmable",
+  "wrapper_entity": "can_error_confinement_programmable_det_cfg",
+  "configuration_id": "CAN_ERROR_CONFINEMENT_PROGRAMMABLE_46F8FE1D57783B81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

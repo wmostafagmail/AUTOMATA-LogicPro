@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_ras_manager_initiator",
+  "wrapper_entity": "cxl_ras_manager_initiator_det_cfg",
+  "configuration_id": "CXL_RAS_MANAGER_INITIATOR_8929E1CCDDECAA3B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

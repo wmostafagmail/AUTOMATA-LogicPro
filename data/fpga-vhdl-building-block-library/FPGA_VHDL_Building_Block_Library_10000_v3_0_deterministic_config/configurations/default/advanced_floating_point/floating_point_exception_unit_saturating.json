@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_exception_unit_saturating",
+  "wrapper_entity": "floating_point_exception_unit_saturating_det_cfg",
+  "configuration_id": "FLOATING_POINT_EXCEPTION_UNIT_SATURATING_1D8CE08DD66506EC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

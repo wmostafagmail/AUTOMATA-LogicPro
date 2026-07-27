@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "karatsuba_multiplier_buffered_stream",
+  "wrapper_entity": "karatsuba_multiplier_buffered_stream_det_cfg",
+  "configuration_id": "KARATSUBA_MULTIPLIER_BUFFERED_STREAM_07057C0A836DF26F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

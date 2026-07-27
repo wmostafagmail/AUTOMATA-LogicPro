@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_packetized",
+  "wrapper_entity": "hdmi_audio_packet_generator_packetized_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_PACKETIZED_2FD6CB9F3D43B0E8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

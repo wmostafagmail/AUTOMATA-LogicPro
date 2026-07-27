@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "automotive_gateway_fault_tolerant",
+  "wrapper_entity": "automotive_gateway_fault_tolerant_det_cfg",
+  "configuration_id": "AUTOMOTIVE_GATEWAY_FAULT_TOLERANT_53616CFAC092A095",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

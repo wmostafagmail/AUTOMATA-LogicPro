@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_streaming",
+  "wrapper_entity": "display_gamma_lut_streaming_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_STREAMING_D99A2237DE06F687",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

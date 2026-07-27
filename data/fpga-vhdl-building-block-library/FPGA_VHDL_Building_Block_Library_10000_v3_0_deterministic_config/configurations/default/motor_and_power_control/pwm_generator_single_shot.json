@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_generator_single_shot",
+  "wrapper_entity": "pwm_generator_single_shot_det_cfg",
+  "configuration_id": "PWM_GENERATOR_SINGLE_SHOT_8625667F5F0E4F9D",
+  "generics": {
+    "WIDTH": 16
+  }
+}

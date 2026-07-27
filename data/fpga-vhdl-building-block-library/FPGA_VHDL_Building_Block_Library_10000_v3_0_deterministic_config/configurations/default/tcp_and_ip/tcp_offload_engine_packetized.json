@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_offload_engine_packetized",
+  "wrapper_entity": "tcp_offload_engine_packetized_det_cfg",
+  "configuration_id": "TCP_OFFLOAD_ENGINE_PACKETIZED_A5D49E6C17752466",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_qos_regulator_endpoint",
+  "wrapper_entity": "axi_qos_regulator_endpoint_det_cfg",
+  "configuration_id": "AXI_QOS_REGULATOR_ENDPOINT_D68CA7C52F71B76A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

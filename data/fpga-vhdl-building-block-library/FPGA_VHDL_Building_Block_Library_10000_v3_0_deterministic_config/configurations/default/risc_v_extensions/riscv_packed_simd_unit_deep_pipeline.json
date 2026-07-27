@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_packed_simd_unit_deep_pipeline",
+  "wrapper_entity": "riscv_packed_simd_unit_deep_pipeline_det_cfg",
+  "configuration_id": "RISCV_PACKED_SIMD_UNIT_DEEP_PIPELINE_CB1B2E28528C1F76",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

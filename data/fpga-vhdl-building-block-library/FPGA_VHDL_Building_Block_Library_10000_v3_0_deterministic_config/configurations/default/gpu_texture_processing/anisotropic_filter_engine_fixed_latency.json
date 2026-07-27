@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_fixed_latency",
+  "wrapper_entity": "anisotropic_filter_engine_fixed_latency_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_FIXED_LATENCY_F3586E5C4051EB4C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

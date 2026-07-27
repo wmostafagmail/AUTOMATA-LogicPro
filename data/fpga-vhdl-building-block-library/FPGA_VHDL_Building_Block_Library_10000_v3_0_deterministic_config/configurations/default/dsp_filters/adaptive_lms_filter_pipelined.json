@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_lms_filter_pipelined",
+  "wrapper_entity": "adaptive_lms_filter_pipelined_det_cfg",
+  "configuration_id": "ADAPTIVE_LMS_FILTER_PIPELINED_F2CF20B0134E51B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 106
+  }
+}

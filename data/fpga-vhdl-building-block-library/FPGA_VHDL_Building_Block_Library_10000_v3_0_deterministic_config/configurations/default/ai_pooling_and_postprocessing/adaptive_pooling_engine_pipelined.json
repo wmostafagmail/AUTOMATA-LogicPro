@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_pooling_engine_pipelined",
+  "wrapper_entity": "adaptive_pooling_engine_pipelined_det_cfg",
+  "configuration_id": "ADAPTIVE_POOLING_ENGINE_PIPELINED_E2E4C523EE3409E0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

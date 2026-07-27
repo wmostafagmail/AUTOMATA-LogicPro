@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "serial_collision_detector_programmable",
+  "wrapper_entity": "serial_collision_detector_programmable_det_cfg",
+  "configuration_id": "SERIAL_COLLISION_DETECTOR_PROGRAMMABLE_51A93BB846AE54B2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

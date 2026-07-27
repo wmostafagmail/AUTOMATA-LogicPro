@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_low_power",
+  "wrapper_entity": "pilot_tracking_loop_low_power_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_LOW_POWER_E0F5A996B2D46EEA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dynamic_range_tracker_multi_engine",
+  "wrapper_entity": "dynamic_range_tracker_multi_engine_det_cfg",
+  "configuration_id": "DYNAMIC_RANGE_TRACKER_MULTI_ENGINE_D3106527CB403A2D",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

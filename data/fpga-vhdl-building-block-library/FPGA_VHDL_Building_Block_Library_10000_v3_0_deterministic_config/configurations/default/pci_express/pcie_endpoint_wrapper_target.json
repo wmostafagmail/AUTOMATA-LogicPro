@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_endpoint_wrapper_target",
+  "wrapper_entity": "pcie_endpoint_wrapper_target_det_cfg",
+  "configuration_id": "PCIE_ENDPOINT_WRAPPER_TARGET_C8A636A64BEB7A71",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

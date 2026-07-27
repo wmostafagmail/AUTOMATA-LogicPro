@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "johnson_counter_windowed",
+  "wrapper_entity": "johnson_counter_windowed_det_cfg",
+  "configuration_id": "JOHNSON_COUNTER_WINDOWED_E2DE6F23357AEDE3",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

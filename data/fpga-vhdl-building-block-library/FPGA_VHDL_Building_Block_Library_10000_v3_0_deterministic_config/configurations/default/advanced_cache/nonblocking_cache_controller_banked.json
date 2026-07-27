@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nonblocking_cache_controller_banked",
+  "wrapper_entity": "nonblocking_cache_controller_banked_det_cfg",
+  "configuration_id": "NONBLOCKING_CACHE_CONTROLLER_BANKED_6DB1D0A51B08C4E2",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

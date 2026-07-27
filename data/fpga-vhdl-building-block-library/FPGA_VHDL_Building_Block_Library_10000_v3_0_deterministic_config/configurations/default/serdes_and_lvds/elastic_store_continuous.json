@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "elastic_store_continuous",
+  "wrapper_entity": "elastic_store_continuous_det_cfg",
+  "configuration_id": "ELASTIC_STORE_CONTINUOUS_3FC80D4221B124A6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

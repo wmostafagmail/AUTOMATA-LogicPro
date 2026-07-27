@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "non_max_suppression_engine_packet_aware",
+  "wrapper_entity": "non_max_suppression_engine_packet_aware_det_cfg",
+  "configuration_id": "NON_MAX_SUPPRESSION_ENGINE_PACKET_AWARE_574513AB9554E9C6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

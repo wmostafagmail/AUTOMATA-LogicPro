@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "particle_interaction_engine_fully_parallel",
+  "wrapper_entity": "particle_interaction_engine_fully_parallel_det_cfg",
+  "configuration_id": "PARTICLE_INTERACTION_ENGINE_FULLY_PARALLEL_E385096C2C006749",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

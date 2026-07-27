@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "srt_divider_programmable_precision",
+  "wrapper_entity": "srt_divider_programmable_precision_det_cfg",
+  "configuration_id": "SRT_DIVIDER_PROGRAMMABLE_PRECISION_9768A8761957A61F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

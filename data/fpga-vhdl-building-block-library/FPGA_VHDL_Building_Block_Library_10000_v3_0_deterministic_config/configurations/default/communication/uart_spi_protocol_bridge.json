@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_spi_protocol_bridge",
+  "wrapper_entity": "uart_spi_protocol_bridge_det_cfg",
+  "configuration_id": "UART_SPI_PROTOCOL_BRIDGE_B03578C584EF7AD0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

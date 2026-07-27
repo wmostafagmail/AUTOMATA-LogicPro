@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_crossbar_target",
+  "wrapper_entity": "wishbone_crossbar_target_det_cfg",
+  "configuration_id": "WISHBONE_CROSSBAR_TARGET_E27D2314CB2D0F6D",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

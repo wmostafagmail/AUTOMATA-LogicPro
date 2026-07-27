@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_st_sink_monitor",
+  "wrapper_entity": "avalon_st_sink_monitor_det_cfg",
+  "configuration_id": "AVALON_ST_SINK_MONITOR_DDD50B4CFFBB6D59",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 15
+  }
+}

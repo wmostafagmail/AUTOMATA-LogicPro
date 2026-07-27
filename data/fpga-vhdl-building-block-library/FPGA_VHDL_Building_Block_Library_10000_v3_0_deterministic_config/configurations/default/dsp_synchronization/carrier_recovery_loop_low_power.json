@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "carrier_recovery_loop_low_power",
+  "wrapper_entity": "carrier_recovery_loop_low_power_det_cfg",
+  "configuration_id": "CARRIER_RECOVERY_LOOP_LOW_POWER_E684168D0685CAE5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 2
+  }
+}

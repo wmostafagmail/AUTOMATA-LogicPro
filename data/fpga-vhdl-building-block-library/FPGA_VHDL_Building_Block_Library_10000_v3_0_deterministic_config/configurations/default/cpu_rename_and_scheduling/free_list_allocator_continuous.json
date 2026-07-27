@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_continuous",
+  "wrapper_entity": "free_list_allocator_continuous_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_CONTINUOUS_43FFE113BC33C1C1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

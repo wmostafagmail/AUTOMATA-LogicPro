@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_fixed_latency",
+  "wrapper_entity": "hierarchical_z_unit_fixed_latency_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_FIXED_LATENCY_2E2A956954DC7D9F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

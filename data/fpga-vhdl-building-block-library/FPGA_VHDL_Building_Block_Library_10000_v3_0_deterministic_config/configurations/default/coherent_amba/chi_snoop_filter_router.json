@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_router",
+  "wrapper_entity": "chi_snoop_filter_router_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_ROUTER_EB0E7339902225E9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

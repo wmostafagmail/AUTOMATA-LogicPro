@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_packetized",
+  "wrapper_entity": "flexray_controller_packetized_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_PACKETIZED_DCF76FE5B1375F76",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

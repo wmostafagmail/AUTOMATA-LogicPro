@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_monitor_transaction_level",
+  "wrapper_entity": "protocol_monitor_transaction_level_det_cfg",
+  "configuration_id": "PROTOCOL_MONITOR_TRANSACTION_LEVEL_F9F5FC4705DEF65C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

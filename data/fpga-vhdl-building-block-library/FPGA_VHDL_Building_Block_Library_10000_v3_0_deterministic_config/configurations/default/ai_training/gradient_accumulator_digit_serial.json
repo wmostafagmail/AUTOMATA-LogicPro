@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gradient_accumulator_digit_serial",
+  "wrapper_entity": "gradient_accumulator_digit_serial_det_cfg",
+  "configuration_id": "GRADIENT_ACCUMULATOR_DIGIT_SERIAL_12DC7840E6CFCE8D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

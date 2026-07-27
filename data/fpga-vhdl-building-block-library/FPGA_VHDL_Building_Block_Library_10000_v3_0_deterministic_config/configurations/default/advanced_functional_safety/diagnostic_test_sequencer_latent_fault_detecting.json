@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_latent_fault_detecting",
+  "wrapper_entity": "diagnostic_test_sequencer_latent_fault_detecting_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_LATENT_FAULT_DETECTING_CBD98D851B10AE6B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

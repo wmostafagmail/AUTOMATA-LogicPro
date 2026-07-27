@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_100g_pcs_lane_redundant",
+  "wrapper_entity": "ethernet_100g_pcs_lane_redundant_det_cfg",
+  "configuration_id": "ETHERNET_100G_PCS_LANE_REDUNDANT_F3AF25A726B354C3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

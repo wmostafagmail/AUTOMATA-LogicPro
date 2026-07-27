@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rms_norm_engine_programmable_precision",
+  "wrapper_entity": "rms_norm_engine_programmable_precision_det_cfg",
+  "configuration_id": "RMS_NORM_ENGINE_PROGRAMMABLE_PRECISION_99A58AA2F0840E4D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

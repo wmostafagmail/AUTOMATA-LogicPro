@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "particle_interaction_engine_low_power",
+  "wrapper_entity": "particle_interaction_engine_low_power_det_cfg",
+  "configuration_id": "PARTICLE_INTERACTION_ENGINE_LOW_POWER_6F6A4B53BB784E4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

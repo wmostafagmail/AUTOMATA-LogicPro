@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nvme_submission_queue_nonblocking",
+  "wrapper_entity": "nvme_submission_queue_nonblocking_det_cfg",
+  "configuration_id": "NVME_SUBMISSION_QUEUE_NONBLOCKING_6FCB79427A1702D6",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_layout_converter_burst_optimized",
+  "wrapper_entity": "tensor_layout_converter_burst_optimized_det_cfg",
+  "configuration_id": "TENSOR_LAYOUT_CONVERTER_BURST_OPTIMIZED_A3D3B4B1498B9BC5",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

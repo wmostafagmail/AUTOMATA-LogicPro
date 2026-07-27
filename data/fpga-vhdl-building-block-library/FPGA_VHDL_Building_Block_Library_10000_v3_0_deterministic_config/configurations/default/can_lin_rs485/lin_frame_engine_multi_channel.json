@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_frame_engine_multi_channel",
+  "wrapper_entity": "lin_frame_engine_multi_channel_det_cfg",
+  "configuration_id": "LIN_FRAME_ENGINE_MULTI_CHANNEL_17126B6010F37B16",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

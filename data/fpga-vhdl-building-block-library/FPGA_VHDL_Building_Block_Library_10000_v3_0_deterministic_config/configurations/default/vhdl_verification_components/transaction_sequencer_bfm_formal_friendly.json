@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_formal_friendly",
+  "wrapper_entity": "transaction_sequencer_bfm_formal_friendly_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_FORMAL_FRIENDLY_9FD751502AE355AA",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

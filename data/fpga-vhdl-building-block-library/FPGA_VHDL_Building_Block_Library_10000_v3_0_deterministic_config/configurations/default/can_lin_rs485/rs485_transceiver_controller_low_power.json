@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rs485_transceiver_controller_low_power",
+  "wrapper_entity": "rs485_transceiver_controller_low_power_det_cfg",
+  "configuration_id": "RS485_TRANSCEIVER_CONTROLLER_LOW_POWER_6FF676F401796406",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

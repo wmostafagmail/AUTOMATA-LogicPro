@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "srt_divider_iterative",
+  "wrapper_entity": "srt_divider_iterative_det_cfg",
+  "configuration_id": "SRT_DIVIDER_ITERATIVE_2D14B9D2250CB46E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

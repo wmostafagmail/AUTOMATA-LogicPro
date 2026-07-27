@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "primitive_assembler_resource_shared",
+  "wrapper_entity": "primitive_assembler_resource_shared_det_cfg",
+  "configuration_id": "PRIMITIVE_ASSEMBLER_RESOURCE_SHARED_7F1C9CCC9F1419FA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

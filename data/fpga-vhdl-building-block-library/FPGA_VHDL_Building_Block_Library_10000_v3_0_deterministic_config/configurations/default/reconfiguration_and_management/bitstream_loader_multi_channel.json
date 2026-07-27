@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bitstream_loader_multi_channel",
+  "wrapper_entity": "bitstream_loader_multi_channel_det_cfg",
+  "configuration_id": "BITSTREAM_LOADER_MULTI_CHANNEL_F3A56BAA92C22B38",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

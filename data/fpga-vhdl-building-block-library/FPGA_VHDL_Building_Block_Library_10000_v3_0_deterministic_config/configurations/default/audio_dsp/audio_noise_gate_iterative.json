@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_noise_gate_iterative",
+  "wrapper_entity": "audio_noise_gate_iterative_det_cfg",
+  "configuration_id": "AUDIO_NOISE_GATE_ITERATIVE_C8E31AF58DBE621A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

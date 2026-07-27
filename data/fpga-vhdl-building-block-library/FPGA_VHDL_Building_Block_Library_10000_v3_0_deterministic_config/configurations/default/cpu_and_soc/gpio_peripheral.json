@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gpio_peripheral",
+  "wrapper_entity": "gpio_peripheral_det_cfg",
+  "configuration_id": "GPIO_PERIPHERAL_E80821079960011B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

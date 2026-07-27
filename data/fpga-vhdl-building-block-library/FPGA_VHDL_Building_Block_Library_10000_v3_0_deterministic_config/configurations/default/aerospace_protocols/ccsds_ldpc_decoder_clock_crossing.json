@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ccsds_ldpc_decoder_clock_crossing",
+  "wrapper_entity": "ccsds_ldpc_decoder_clock_crossing_det_cfg",
+  "configuration_id": "CCSDS_LDPC_DECODER_CLOCK_CROSSING_C5F1DBC5DEBB66B7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

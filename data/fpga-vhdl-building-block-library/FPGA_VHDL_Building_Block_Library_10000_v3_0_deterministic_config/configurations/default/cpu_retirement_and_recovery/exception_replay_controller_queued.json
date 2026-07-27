@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_queued",
+  "wrapper_entity": "exception_replay_controller_queued_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_QUEUED_ED29F481E6CE4764",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

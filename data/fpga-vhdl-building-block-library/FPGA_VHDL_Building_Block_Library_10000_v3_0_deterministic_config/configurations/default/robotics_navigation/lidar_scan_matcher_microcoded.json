@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_microcoded",
+  "wrapper_entity": "lidar_scan_matcher_microcoded_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_MICROCODED_46ABD788A0984CF9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

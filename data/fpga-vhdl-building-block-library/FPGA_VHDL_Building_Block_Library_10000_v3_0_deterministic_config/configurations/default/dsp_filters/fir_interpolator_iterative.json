@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fir_interpolator_iterative",
+  "wrapper_entity": "fir_interpolator_iterative_det_cfg",
+  "configuration_id": "FIR_INTERPOLATOR_ITERATIVE_BBB4F059D828630B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 113
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_rtu_engine_single_shot",
+  "wrapper_entity": "modbus_rtu_engine_single_shot_det_cfg",
+  "configuration_id": "MODBUS_RTU_ENGINE_SINGLE_SHOT_A8E88740F663873D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

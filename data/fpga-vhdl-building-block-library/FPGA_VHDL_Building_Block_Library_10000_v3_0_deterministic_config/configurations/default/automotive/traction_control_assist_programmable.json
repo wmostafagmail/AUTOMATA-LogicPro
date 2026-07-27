@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "traction_control_assist_programmable",
+  "wrapper_entity": "traction_control_assist_programmable_det_cfg",
+  "configuration_id": "TRACTION_CONTROL_ASSIST_PROGRAMMABLE_9CE8D315A0B51471",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "load_store_unit_single_cycle",
+  "wrapper_entity": "load_store_unit_single_cycle_det_cfg",
+  "configuration_id": "LOAD_STORE_UNIT_SINGLE_CYCLE_B0DAB90C84399D32",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

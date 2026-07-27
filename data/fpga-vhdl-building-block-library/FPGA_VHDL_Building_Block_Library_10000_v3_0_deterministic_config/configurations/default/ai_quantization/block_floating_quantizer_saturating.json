@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_saturating",
+  "wrapper_entity": "block_floating_quantizer_saturating_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_SATURATING_4E23CD1BB14C6306",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

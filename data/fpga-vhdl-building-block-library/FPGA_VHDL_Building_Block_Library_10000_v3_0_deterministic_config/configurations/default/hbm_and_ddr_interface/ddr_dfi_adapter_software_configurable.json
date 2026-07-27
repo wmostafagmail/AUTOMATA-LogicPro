@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_dfi_adapter_software_configurable",
+  "wrapper_entity": "ddr_dfi_adapter_software_configurable_det_cfg",
+  "configuration_id": "DDR_DFI_ADAPTER_SOFTWARE_CONFIGURABLE_4960124F5E25371B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

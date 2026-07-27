@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_multi_plane",
+  "wrapper_entity": "hdr_merge_engine_multi_plane_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_MULTI_PLANE_2251BE9691ED38A3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

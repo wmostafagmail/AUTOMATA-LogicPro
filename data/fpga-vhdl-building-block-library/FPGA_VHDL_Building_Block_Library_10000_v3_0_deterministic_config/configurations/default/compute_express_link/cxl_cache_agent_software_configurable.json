@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_software_configurable",
+  "wrapper_entity": "cxl_cache_agent_software_configurable_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_SOFTWARE_CONFIGURABLE_EEB19A876CEB9FDF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_transport_layer_qos_aware",
+  "wrapper_entity": "jesd204b_transport_layer_qos_aware_det_cfg",
+  "configuration_id": "JESD204B_TRANSPORT_LAYER_QOS_AWARE_955CD47F82A4D8E3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

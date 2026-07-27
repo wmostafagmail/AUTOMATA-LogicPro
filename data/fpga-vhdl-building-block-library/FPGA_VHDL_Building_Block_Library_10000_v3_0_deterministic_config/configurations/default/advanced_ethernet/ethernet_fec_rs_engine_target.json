@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_fec_rs_engine_target",
+  "wrapper_entity": "ethernet_fec_rs_engine_target_det_cfg",
+  "configuration_id": "ETHERNET_FEC_RS_ENGINE_TARGET_9930D43FBAA839BF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_supervisor_low_power",
+  "wrapper_entity": "watchdog_supervisor_low_power_det_cfg",
+  "configuration_id": "WATCHDOG_SUPERVISOR_LOW_POWER_5F1A226DB13FEECE",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

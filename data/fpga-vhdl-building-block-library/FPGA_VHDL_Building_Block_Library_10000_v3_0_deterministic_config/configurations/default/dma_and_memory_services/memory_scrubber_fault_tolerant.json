@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_scrubber_fault_tolerant",
+  "wrapper_entity": "memory_scrubber_fault_tolerant_det_cfg",
+  "configuration_id": "MEMORY_SCRUBBER_FAULT_TOLERANT_336150B37E537441",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

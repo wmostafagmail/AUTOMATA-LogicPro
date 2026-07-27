@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_wrap_engine_masked",
+  "wrapper_entity": "key_wrap_engine_masked_det_cfg",
+  "configuration_id": "KEY_WRAP_ENGINE_MASKED_CAAC7B7B89917D1B",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

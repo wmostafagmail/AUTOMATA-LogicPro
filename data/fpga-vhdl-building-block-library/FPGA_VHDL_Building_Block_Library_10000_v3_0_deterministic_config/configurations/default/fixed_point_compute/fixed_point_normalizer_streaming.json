@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_normalizer_streaming",
+  "wrapper_entity": "fixed_point_normalizer_streaming_det_cfg",
+  "configuration_id": "FIXED_POINT_NORMALIZER_STREAMING_15052678CD5AF3BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

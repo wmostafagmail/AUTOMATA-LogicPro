@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_shuffle_single_cycle",
+  "wrapper_entity": "vector_shuffle_single_cycle_det_cfg",
+  "configuration_id": "VECTOR_SHUFFLE_SINGLE_CYCLE_0A746B0C001C5B7E",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

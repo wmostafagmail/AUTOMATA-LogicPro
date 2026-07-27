@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kv_cache_compactor_formally_instrumented",
+  "wrapper_entity": "kv_cache_compactor_formally_instrumented_det_cfg",
+  "configuration_id": "KV_CACHE_COMPACTOR_FORMALLY_INSTRUMENTED_A86E1BDA2FA03576",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_programmable",
+  "wrapper_entity": "capacitance_measurement_engine_programmable_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_PROGRAMMABLE_C114D258B77D6C50",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

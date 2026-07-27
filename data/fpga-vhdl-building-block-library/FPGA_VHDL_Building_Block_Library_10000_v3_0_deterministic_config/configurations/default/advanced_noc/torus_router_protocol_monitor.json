@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_protocol_monitor",
+  "wrapper_entity": "torus_router_protocol_monitor_det_cfg",
+  "configuration_id": "TORUS_ROUTER_PROTOCOL_MONITOR_B5542C32F79C3FC4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

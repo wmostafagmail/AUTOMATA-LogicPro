@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_redundant",
+  "wrapper_entity": "wakeup_select_unit_redundant_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_REDUNDANT_EA685284613AAB17",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

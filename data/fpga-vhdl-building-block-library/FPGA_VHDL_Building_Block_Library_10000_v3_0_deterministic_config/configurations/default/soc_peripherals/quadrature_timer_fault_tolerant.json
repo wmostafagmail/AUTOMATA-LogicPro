@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_timer_fault_tolerant",
+  "wrapper_entity": "quadrature_timer_fault_tolerant_det_cfg",
+  "configuration_id": "QUADRATURE_TIMER_FAULT_TOLERANT_7691C3075AE9E214",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

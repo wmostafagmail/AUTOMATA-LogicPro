@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "roi_align_engine_axi_stream",
+  "wrapper_entity": "roi_align_engine_axi_stream_det_cfg",
+  "configuration_id": "ROI_ALIGN_ENGINE_AXI_STREAM_A52BFCA1173C37A9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

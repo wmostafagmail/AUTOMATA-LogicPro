@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_deadline_aware",
+  "wrapper_entity": "exception_replay_controller_deadline_aware_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_DEADLINE_AWARE_DFAB0F5E0FA8038F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

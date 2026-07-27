@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "configuration_crc_checker_single_shot",
+  "wrapper_entity": "configuration_crc_checker_single_shot_det_cfg",
+  "configuration_id": "CONFIGURATION_CRC_CHECKER_SINGLE_SHOT_EB076D7ABBFB186D",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

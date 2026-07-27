@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_qos_aware",
+  "wrapper_entity": "hdmi_frl_packetizer_qos_aware_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_QOS_AWARE_951C7A1DAAD68B6C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

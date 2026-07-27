@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "structured_sparsity_pruner_backpressure_capable",
+  "wrapper_entity": "structured_sparsity_pruner_backpressure_capable_det_cfg",
+  "configuration_id": "STRUCTURED_SPARSITY_PRUNER_BACKPRESSURE_CAPABLE_6AB68E1DDCF551A3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_formally_instrumented",
+  "wrapper_entity": "reverberation_engine_formally_instrumented_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_FORMALLY_INSTRUMENTED_C850FD97DC1C6CAF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

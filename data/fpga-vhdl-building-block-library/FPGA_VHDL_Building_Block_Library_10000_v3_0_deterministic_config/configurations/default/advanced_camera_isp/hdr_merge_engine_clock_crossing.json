@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_clock_crossing",
+  "wrapper_entity": "hdr_merge_engine_clock_crossing_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_CLOCK_CROSSING_F4F985423042B8D2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

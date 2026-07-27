@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "primitive_assembler_single_cycle",
+  "wrapper_entity": "primitive_assembler_single_cycle_det_cfg",
+  "configuration_id": "PRIMITIVE_ASSEMBLER_SINGLE_CYCLE_170F44F23D8DC588",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

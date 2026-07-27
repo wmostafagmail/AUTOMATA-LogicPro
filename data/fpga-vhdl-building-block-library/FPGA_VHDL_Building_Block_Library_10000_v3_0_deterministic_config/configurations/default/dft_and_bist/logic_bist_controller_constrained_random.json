@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_bist_controller_constrained_random",
+  "wrapper_entity": "logic_bist_controller_constrained_random_det_cfg",
+  "configuration_id": "LOGIC_BIST_CONTROLLER_CONSTRAINED_RANDOM_D25250A764D1AEF5",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

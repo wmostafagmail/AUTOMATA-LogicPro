@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_multi_channel",
+  "wrapper_entity": "decimal_divider_multi_channel_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_MULTI_CHANNEL_8C3EDF7420DBA68B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

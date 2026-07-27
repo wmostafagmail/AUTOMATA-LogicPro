@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "weight_update_engine_streaming",
+  "wrapper_entity": "weight_update_engine_streaming_det_cfg",
+  "configuration_id": "WEIGHT_UPDATE_ENGINE_STREAMING_D18F72F247F63E3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

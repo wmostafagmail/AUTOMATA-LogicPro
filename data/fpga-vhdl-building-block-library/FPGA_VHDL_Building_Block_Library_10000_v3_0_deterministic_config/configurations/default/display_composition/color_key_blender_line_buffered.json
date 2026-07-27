@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_line_buffered",
+  "wrapper_entity": "color_key_blender_line_buffered_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_LINE_BUFFERED_30469FAF650B67E9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

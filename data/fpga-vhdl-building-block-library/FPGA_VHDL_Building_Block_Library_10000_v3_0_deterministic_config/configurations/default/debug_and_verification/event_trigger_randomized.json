@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "event_trigger_randomized",
+  "wrapper_entity": "event_trigger_randomized_det_cfg",
+  "configuration_id": "EVENT_TRIGGER_RANDOMIZED_26A80461FD435163",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

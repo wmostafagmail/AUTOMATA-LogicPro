@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_error_resilient",
+  "wrapper_entity": "display_damage_tracker_error_resilient_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_ERROR_RESILIENT_C18A633C4775F00F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

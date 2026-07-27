@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_continuous",
+  "wrapper_entity": "perceptron_branch_predictor_continuous_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_CONTINUOUS_0B5872090FCCD8E3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

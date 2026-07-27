@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_gate_fault_tolerant",
+  "wrapper_entity": "clock_gate_fault_tolerant_det_cfg",
+  "configuration_id": "CLOCK_GATE_FAULT_TOLERANT_DE105A1C0DB9CE4D",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

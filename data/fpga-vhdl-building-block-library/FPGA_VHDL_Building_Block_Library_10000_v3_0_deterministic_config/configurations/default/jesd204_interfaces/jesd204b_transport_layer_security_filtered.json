@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_transport_layer_security_filtered",
+  "wrapper_entity": "jesd204b_transport_layer_security_filtered_det_cfg",
+  "configuration_id": "JESD204B_TRANSPORT_LAYER_SECURITY_FILTERED_272F376B677982F4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

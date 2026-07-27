@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_time_multiplexed",
+  "wrapper_entity": "running_variance_engine_time_multiplexed_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_TIME_MULTIPLEXED_B0B677516BD3F43F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "windowing_stage",
+  "wrapper_entity": "windowing_stage_det_cfg",
+  "configuration_id": "WINDOWING_STAGE_47D81DDF97E9373D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 199
+  }
+}

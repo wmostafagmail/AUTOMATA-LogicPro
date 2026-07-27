@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_query_attention_fault_detecting",
+  "wrapper_entity": "grouped_query_attention_fault_detecting_det_cfg",
+  "configuration_id": "GROUPED_QUERY_ATTENTION_FAULT_DETECTING_D269F0FA2B62399F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

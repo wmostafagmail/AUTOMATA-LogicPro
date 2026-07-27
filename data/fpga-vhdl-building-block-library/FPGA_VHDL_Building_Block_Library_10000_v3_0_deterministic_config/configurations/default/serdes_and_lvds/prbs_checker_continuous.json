@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prbs_checker_continuous",
+  "wrapper_entity": "prbs_checker_continuous_det_cfg",
+  "configuration_id": "PRBS_CHECKER_CONTINUOUS_86E31E1006E1BAD0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

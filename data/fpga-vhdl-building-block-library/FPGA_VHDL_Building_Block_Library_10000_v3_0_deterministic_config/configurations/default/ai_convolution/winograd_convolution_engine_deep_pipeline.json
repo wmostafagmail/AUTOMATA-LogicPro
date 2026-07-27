@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "winograd_convolution_engine_deep_pipeline",
+  "wrapper_entity": "winograd_convolution_engine_deep_pipeline_det_cfg",
+  "configuration_id": "WINOGRAD_CONVOLUTION_ENGINE_DEEP_PIPELINE_A2CE593DC7498088",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

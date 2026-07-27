@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavetable_synthesizer_resource_shared",
+  "wrapper_entity": "wavetable_synthesizer_resource_shared_det_cfg",
+  "configuration_id": "WAVETABLE_SYNTHESIZER_RESOURCE_SHARED_1259924288642B67",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

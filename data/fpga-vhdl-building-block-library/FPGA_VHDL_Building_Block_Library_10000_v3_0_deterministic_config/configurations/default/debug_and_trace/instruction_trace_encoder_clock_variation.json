@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_trace_encoder_clock_variation",
+  "wrapper_entity": "instruction_trace_encoder_clock_variation_det_cfg",
+  "configuration_id": "INSTRUCTION_TRACE_ENCODER_CLOCK_VARIATION_1B03F483D1E1E5A7",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_backpressure_capable",
+  "wrapper_entity": "normalized_lms_filter_backpressure_capable_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_BACKPRESSURE_CAPABLE_ED32E667D605AA84",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

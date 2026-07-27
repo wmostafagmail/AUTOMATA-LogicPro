@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dac_streamer_continuous",
+  "wrapper_entity": "dac_streamer_continuous_det_cfg",
+  "configuration_id": "DAC_STREAMER_CONTINUOUS_F35620921853DFBE",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

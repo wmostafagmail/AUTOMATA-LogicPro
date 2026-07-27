@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_dfi_adapter_endpoint",
+  "wrapper_entity": "ddr_dfi_adapter_endpoint_det_cfg",
+  "configuration_id": "DDR_DFI_ADAPTER_ENDPOINT_DE7DC5366C30B12C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_gate_continuous",
+  "wrapper_entity": "clock_gate_continuous_det_cfg",
+  "configuration_id": "CLOCK_GATE_CONTINUOUS_6262EA05A05FDD3A",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dct_engine_combinational",
+  "wrapper_entity": "dct_engine_combinational_det_cfg",
+  "configuration_id": "DCT_ENGINE_COMBINATIONAL_4D506311DE69F01D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 156
+  }
+}

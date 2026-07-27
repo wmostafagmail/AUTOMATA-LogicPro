@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecc_memory_wrapper_lite",
+  "wrapper_entity": "ecc_memory_wrapper_lite_det_cfg",
+  "configuration_id": "ECC_MEMORY_WRAPPER_LITE_A6CAD51CB593CFDA",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

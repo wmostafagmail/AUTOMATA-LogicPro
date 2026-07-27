@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_scoreboard_based",
+  "wrapper_entity": "transaction_sequencer_bfm_scoreboard_based_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_SCOREBOARD_BASED_3CC5AD1CDC66CB93",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

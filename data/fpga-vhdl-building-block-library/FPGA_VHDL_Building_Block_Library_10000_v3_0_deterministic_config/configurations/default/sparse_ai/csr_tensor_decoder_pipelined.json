@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "csr_tensor_decoder_pipelined",
+  "wrapper_entity": "csr_tensor_decoder_pipelined_det_cfg",
+  "configuration_id": "CSR_TENSOR_DECODER_PIPELINED_B85ED5FABFCC4F4E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

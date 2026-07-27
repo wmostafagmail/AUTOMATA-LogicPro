@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "collision_monitor_single_shot",
+  "wrapper_entity": "collision_monitor_single_shot_det_cfg",
+  "configuration_id": "COLLISION_MONITOR_SINGLE_SHOT_EEC35C6D8994D408",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

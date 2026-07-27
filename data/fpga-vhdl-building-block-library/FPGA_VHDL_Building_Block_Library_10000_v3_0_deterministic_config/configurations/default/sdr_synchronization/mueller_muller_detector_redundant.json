@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_redundant",
+  "wrapper_entity": "mueller_muller_detector_redundant_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_REDUNDANT_78AF4E060BE49167",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

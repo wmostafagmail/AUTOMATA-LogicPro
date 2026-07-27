@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_hypervisor_unit_multi_channel",
+  "wrapper_entity": "riscv_hypervisor_unit_multi_channel_det_cfg",
+  "configuration_id": "RISCV_HYPERVISOR_UNIT_MULTI_CHANNEL_387B8A026D87264E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

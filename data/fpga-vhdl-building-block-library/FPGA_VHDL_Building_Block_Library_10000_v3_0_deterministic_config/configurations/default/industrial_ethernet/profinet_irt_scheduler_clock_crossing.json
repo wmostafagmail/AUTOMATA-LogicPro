@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_clock_crossing",
+  "wrapper_entity": "profinet_irt_scheduler_clock_crossing_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_CLOCK_CROSSING_A93B3F7FE7A0F0B0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_gain_unit_combinational",
+  "wrapper_entity": "audio_gain_unit_combinational_det_cfg",
+  "configuration_id": "AUDIO_GAIN_UNIT_COMBINATIONAL_BC014D5352C7969D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

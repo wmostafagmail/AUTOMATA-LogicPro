@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_st_source_clock_crossing",
+  "wrapper_entity": "avalon_st_source_clock_crossing_det_cfg",
+  "configuration_id": "AVALON_ST_SOURCE_CLOCK_CROSSING_30DAF77A77A3232B",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

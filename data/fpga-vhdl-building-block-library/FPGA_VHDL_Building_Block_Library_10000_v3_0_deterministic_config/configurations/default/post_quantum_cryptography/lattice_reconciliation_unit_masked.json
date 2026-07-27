@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lattice_reconciliation_unit_masked",
+  "wrapper_entity": "lattice_reconciliation_unit_masked_det_cfg",
+  "configuration_id": "LATTICE_RECONCILIATION_UNIT_MASKED_73C3EAA4865D5820",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

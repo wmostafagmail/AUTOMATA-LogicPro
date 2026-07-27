@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_score_engine_sparse",
+  "wrapper_entity": "attention_score_engine_sparse_det_cfg",
+  "configuration_id": "ATTENTION_SCORE_ENGINE_SPARSE_B7816C142647FFA1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

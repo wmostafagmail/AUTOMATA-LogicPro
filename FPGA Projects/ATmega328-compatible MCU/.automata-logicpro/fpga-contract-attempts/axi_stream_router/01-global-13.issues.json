@@ -5,22 +5,33 @@
   "designLabel": "AXI-Stream Packet Router / Network Switch",
   "attempt": 13,
   "designAttempt": 1,
-  "issueCount": 2,
+  "issueCount": 4,
   "topIssueCodes": [
-    "architecture_contract_connection_sink_direction",
-    "architecture_contract_instance_actual_unknown"
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required",
+    "architecture_intent_unknown_required_field"
   ],
-  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 2 issue(s).",
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What data width and numeric format should the design use?",
   "issues": [
     {
-      "code": "architecture_contract_instance_actual_unknown",
-      "path": "$.instances[0].portMap.valid_i",
-      "message": "Port actual \"s_axis_valid_i\" must be a parent port, declared connection id, testbench DUT signal, literal, aggregate, or open."
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
     },
     {
-      "code": "architecture_contract_connection_sink_direction",
-      "path": "$.connections[1].sinks",
-      "message": "Connection sink port \"ready_o\" must be in or inout."
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_unknown_required_field",
+      "path": "$.intent.widthOrFormat",
+      "message": "What data width and numeric format should the design use?"
+    },
+    {
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
     }
   ]
 }

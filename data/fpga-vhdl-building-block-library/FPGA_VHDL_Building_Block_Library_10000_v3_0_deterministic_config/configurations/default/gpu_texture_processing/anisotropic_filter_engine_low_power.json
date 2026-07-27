@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_low_power",
+  "wrapper_entity": "anisotropic_filter_engine_low_power_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_LOW_POWER_20396236E70FCFE0",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

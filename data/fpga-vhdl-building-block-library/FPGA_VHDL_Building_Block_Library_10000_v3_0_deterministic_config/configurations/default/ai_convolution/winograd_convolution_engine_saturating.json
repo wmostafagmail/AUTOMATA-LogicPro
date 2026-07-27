@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "winograd_convolution_engine_saturating",
+  "wrapper_entity": "winograd_convolution_engine_saturating_det_cfg",
+  "configuration_id": "WINOGRAD_CONVOLUTION_ENGINE_SATURATING_8C43EDC2B2A98B9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

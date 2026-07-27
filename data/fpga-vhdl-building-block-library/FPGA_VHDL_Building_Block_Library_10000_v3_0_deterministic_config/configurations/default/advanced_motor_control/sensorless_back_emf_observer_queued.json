@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_queued",
+  "wrapper_entity": "sensorless_back_emf_observer_queued_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_QUEUED_2B0A99D031B0A94B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_microcoded",
+  "wrapper_entity": "reorder_commit_engine_microcoded_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_MICROCODED_28B4ADDAED50177C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

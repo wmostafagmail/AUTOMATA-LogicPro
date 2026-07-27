@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_microcoded",
+  "wrapper_entity": "sensorless_back_emf_observer_microcoded_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_MICROCODED_936AEB7F74422B52",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "boundary_scan_tap_assertion_based",
+  "wrapper_entity": "boundary_scan_tap_assertion_based_det_cfg",
+  "configuration_id": "BOUNDARY_SCAN_TAP_ASSERTION_BASED_D55D6D81048FEE16",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

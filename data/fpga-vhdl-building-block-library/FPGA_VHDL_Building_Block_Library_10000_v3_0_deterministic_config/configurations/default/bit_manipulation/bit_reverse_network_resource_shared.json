@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_resource_shared",
+  "wrapper_entity": "bit_reverse_network_resource_shared_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_RESOURCE_SHARED_E3D8D92B2AAFE9A8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

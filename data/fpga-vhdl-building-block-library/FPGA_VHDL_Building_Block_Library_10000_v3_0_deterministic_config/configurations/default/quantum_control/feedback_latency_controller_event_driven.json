@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_event_driven",
+  "wrapper_entity": "feedback_latency_controller_event_driven_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_EVENT_DRIVEN_7BE5008E187BCF26",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

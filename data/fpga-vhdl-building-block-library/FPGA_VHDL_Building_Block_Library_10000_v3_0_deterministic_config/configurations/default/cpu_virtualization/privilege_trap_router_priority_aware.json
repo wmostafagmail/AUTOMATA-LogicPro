@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_priority_aware",
+  "wrapper_entity": "privilege_trap_router_priority_aware_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_PRIORITY_AWARE_EF9C5614E841407F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

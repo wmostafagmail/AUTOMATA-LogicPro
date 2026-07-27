@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dc_offset_remover_single_cycle",
+  "wrapper_entity": "dc_offset_remover_single_cycle_det_cfg",
+  "configuration_id": "DC_OFFSET_REMOVER_SINGLE_CYCLE_F8F4D8AF9367BB92",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 245
+  }
+}

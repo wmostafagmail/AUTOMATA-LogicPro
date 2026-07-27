@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix8_multiplier_single_cycle",
+  "wrapper_entity": "booth_radix8_multiplier_single_cycle_det_cfg",
+  "configuration_id": "BOOTH_RADIX8_MULTIPLIER_SINGLE_CYCLE_177B6BB8803A183E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

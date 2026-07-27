@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hilbert_transform_filter_iterative",
+  "wrapper_entity": "hilbert_transform_filter_iterative_det_cfg",
+  "configuration_id": "HILBERT_TRANSFORM_FILTER_ITERATIVE_31E7574642B60207",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 24
+  }
+}

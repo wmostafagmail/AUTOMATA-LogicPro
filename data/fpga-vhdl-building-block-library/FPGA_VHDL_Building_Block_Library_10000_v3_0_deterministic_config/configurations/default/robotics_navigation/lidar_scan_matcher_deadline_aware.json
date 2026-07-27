@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_deadline_aware",
+  "wrapper_entity": "lidar_scan_matcher_deadline_aware_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_DEADLINE_AWARE_133F42E515B1AB9C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

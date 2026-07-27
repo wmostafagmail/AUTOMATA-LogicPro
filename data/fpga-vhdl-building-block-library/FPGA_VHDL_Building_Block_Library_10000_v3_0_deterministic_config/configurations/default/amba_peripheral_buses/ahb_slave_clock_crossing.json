@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ahb_slave_clock_crossing",
+  "wrapper_entity": "ahb_slave_clock_crossing_det_cfg",
+  "configuration_id": "AHB_SLAVE_CLOCK_CROSSING_CBFA9D823BECFC57",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

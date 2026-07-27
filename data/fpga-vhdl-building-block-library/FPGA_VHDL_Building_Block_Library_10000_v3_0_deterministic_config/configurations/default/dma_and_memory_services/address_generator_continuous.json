@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "address_generator_continuous",
+  "wrapper_entity": "address_generator_continuous_det_cfg",
+  "configuration_id": "ADDRESS_GENERATOR_CONTINUOUS_0D3861C4F59FE4B0",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

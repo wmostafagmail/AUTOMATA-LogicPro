@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_protocol_monitor",
+  "wrapper_entity": "adaptive_mesh_router_protocol_monitor_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_PROTOCOL_MONITOR_DD5586DF288606C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

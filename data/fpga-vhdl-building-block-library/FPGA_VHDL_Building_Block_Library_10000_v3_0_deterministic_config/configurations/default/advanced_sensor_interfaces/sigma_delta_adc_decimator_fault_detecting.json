@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_fault_detecting",
+  "wrapper_entity": "sigma_delta_adc_decimator_fault_detecting_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_FAULT_DETECTING_01C447A5C7CA7C14",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_deposit_programmable_precision",
+  "wrapper_entity": "parallel_bit_deposit_programmable_precision_det_cfg",
+  "configuration_id": "PARALLEL_BIT_DEPOSIT_PROGRAMMABLE_PRECISION_4F9389544EABCC9F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

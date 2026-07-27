@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dmx512_controller_continuous",
+  "wrapper_entity": "dmx512_controller_continuous_det_cfg",
+  "configuration_id": "DMX512_CONTROLLER_CONTINUOUS_39D857A318F7115E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

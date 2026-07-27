@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_classifier_low_power",
+  "wrapper_entity": "packet_classifier_low_power_det_cfg",
+  "configuration_id": "PACKET_CLASSIFIER_LOW_POWER_555336B6D45A547E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

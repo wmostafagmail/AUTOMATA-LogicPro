@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_pack_unpack_resource_shared",
+  "wrapper_entity": "vector_pack_unpack_resource_shared_det_cfg",
+  "configuration_id": "VECTOR_PACK_UNPACK_RESOURCE_SHARED_17C3206B9518B015",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

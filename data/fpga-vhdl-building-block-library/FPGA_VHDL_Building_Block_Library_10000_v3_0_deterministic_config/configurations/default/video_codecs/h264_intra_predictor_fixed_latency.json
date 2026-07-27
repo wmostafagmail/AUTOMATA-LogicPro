@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_fixed_latency",
+  "wrapper_entity": "h264_intra_predictor_fixed_latency_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_FIXED_LATENCY_6742F9BBF577E274",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

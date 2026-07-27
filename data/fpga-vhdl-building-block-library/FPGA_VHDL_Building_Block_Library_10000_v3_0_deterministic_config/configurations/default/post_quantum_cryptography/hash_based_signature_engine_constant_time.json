@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_constant_time",
+  "wrapper_entity": "hash_based_signature_engine_constant_time_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_CONSTANT_TIME_C3EDAA855915D0AB",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

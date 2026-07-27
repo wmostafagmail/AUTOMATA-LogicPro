@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_ecc_protected",
+  "wrapper_entity": "reorder_buffer_ecc_protected_det_cfg",
+  "configuration_id": "REORDER_BUFFER_ECC_PROTECTED_F7EE692FE092217C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

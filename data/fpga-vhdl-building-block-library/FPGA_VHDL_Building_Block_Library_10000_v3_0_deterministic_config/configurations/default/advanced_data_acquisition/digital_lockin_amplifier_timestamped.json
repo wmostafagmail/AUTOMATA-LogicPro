@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_timestamped",
+  "wrapper_entity": "digital_lockin_amplifier_timestamped_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_TIMESTAMPED_2E6DEA931082DB79",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

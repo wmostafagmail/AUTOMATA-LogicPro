@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_error_detecting",
+  "wrapper_entity": "normalized_lms_filter_error_detecting_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_ERROR_DETECTING_531366D54888E13F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

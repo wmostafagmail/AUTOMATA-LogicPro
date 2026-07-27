@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_multi_channel",
+  "wrapper_entity": "microop_replay_queue_multi_channel_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_MULTI_CHANNEL_A1D95EB7851A1AE4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_lockstep",
+  "wrapper_entity": "anti_rollback_counter_lockstep_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_LOCKSTEP_4D7885837F298C9A",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

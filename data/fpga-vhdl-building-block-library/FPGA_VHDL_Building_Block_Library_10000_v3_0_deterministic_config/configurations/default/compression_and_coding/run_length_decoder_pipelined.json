@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "run_length_decoder_pipelined",
+  "wrapper_entity": "run_length_decoder_pipelined_det_cfg",
+  "configuration_id": "RUN_LENGTH_DECODER_PIPELINED_9F94975E384B0583",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 83
+  }
+}

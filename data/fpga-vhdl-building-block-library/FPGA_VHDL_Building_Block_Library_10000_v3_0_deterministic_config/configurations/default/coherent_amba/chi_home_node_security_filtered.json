@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_home_node_security_filtered",
+  "wrapper_entity": "chi_home_node_security_filtered_det_cfg",
+  "configuration_id": "CHI_HOME_NODE_SECURITY_FILTERED_18BEF51DBE7BEBCF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

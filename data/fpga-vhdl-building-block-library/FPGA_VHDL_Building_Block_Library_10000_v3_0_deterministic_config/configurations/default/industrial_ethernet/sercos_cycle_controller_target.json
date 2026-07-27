@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sercos_cycle_controller_target",
+  "wrapper_entity": "sercos_cycle_controller_target_det_cfg",
+  "configuration_id": "SERCOS_CYCLE_CONTROLLER_TARGET_464BF0D70578D38C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

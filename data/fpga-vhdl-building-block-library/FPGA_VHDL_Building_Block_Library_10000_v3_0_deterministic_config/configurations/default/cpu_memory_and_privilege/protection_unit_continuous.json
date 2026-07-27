@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "protection_unit_continuous",
+  "wrapper_entity": "protection_unit_continuous_det_cfg",
+  "configuration_id": "PROTECTION_UNIT_CONTINUOUS_585464842B618AC5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

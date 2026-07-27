@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_dot_product_digit_serial",
+  "wrapper_entity": "floating_point_dot_product_digit_serial_det_cfg",
+  "configuration_id": "FLOATING_POINT_DOT_PRODUCT_DIGIT_SERIAL_479AD870F03645CE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

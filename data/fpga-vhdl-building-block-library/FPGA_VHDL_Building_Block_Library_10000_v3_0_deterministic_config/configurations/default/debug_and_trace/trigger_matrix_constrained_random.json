@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_constrained_random",
+  "wrapper_entity": "trigger_matrix_constrained_random_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_CONSTRAINED_RANDOM_F726D0568840D85C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

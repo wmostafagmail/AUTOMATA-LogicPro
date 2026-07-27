@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "particle_interaction_engine_iterative",
+  "wrapper_entity": "particle_interaction_engine_iterative_det_cfg",
+  "configuration_id": "PARTICLE_INTERACTION_ENGINE_ITERATIVE_3718EA4A35E9B58E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

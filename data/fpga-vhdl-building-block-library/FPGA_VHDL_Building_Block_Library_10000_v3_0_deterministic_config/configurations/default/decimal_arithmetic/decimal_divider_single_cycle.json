@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_single_cycle",
+  "wrapper_entity": "decimal_divider_single_cycle_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_SINGLE_CYCLE_8F987573D32CFBA5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

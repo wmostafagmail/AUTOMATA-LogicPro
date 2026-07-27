@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "motor_parameter_identifier_formally_instrumented",
+  "wrapper_entity": "motor_parameter_identifier_formally_instrumented_det_cfg",
+  "configuration_id": "MOTOR_PARAMETER_IDENTIFIER_FORMALLY_INSTRUMENTED_05FC2D0C90992010",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

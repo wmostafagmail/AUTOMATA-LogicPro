@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_home_node_redundant",
+  "wrapper_entity": "chi_home_node_redundant_det_cfg",
+  "configuration_id": "CHI_HOME_NODE_REDUNDANT_48320DA9880C1A2A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

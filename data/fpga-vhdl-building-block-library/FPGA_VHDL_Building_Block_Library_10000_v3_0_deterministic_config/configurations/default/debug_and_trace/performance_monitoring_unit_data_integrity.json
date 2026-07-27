@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_data_integrity",
+  "wrapper_entity": "performance_monitoring_unit_data_integrity_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_DATA_INTEGRITY_8EEDBF6141526928",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

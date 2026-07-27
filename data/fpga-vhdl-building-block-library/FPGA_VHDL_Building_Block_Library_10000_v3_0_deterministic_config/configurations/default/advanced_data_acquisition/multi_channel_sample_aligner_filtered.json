@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multi_channel_sample_aligner_filtered",
+  "wrapper_entity": "multi_channel_sample_aligner_filtered_det_cfg",
+  "configuration_id": "MULTI_CHANNEL_SAMPLE_ALIGNER_FILTERED_859B6C986572B746",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

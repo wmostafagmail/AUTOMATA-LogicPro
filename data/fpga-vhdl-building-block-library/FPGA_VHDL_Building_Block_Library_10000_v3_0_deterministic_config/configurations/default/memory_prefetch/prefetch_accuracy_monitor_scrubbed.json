@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prefetch_accuracy_monitor_scrubbed",
+  "wrapper_entity": "prefetch_accuracy_monitor_scrubbed_det_cfg",
+  "configuration_id": "PREFETCH_ACCURACY_MONITOR_SCRUBBED_36844174797F411E",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "up_counter_loadable",
+  "wrapper_entity": "up_counter_loadable_det_cfg",
+  "configuration_id": "UP_COUNTER_LOADABLE_F4477C60C29F59BC",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

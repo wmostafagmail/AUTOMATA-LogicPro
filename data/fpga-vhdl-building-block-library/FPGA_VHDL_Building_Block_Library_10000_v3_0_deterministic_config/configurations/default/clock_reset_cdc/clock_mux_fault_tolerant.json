@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_mux_fault_tolerant",
+  "wrapper_entity": "clock_mux_fault_tolerant_det_cfg",
+  "configuration_id": "CLOCK_MUX_FAULT_TOLERANT_656E87C5C295D58C",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

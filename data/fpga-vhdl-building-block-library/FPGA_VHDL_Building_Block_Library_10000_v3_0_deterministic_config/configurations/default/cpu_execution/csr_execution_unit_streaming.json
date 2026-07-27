@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "csr_execution_unit_streaming",
+  "wrapper_entity": "csr_execution_unit_streaming_det_cfg",
+  "configuration_id": "CSR_EXECUTION_UNIT_STREAMING_61E4CD16679784B6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

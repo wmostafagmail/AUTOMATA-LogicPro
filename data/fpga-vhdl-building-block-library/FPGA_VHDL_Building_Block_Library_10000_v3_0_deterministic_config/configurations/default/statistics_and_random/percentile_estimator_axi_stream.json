@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "percentile_estimator_axi_stream",
+  "wrapper_entity": "percentile_estimator_axi_stream_det_cfg",
+  "configuration_id": "PERCENTILE_ESTIMATOR_AXI_STREAM_3EA23339600D3EB4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

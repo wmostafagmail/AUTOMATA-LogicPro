@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "demosaic_engine_framebuffer",
+  "wrapper_entity": "demosaic_engine_framebuffer_det_cfg",
+  "configuration_id": "DEMOSAIC_ENGINE_FRAMEBUFFER_B45DB91A51CDEEF1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

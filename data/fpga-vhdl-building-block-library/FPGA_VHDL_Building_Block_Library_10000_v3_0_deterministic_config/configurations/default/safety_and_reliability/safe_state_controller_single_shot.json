@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safe_state_controller_single_shot",
+  "wrapper_entity": "safe_state_controller_single_shot_det_cfg",
+  "configuration_id": "SAFE_STATE_CONTROLLER_SINGLE_SHOT_699E97CD6BBD83F6",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

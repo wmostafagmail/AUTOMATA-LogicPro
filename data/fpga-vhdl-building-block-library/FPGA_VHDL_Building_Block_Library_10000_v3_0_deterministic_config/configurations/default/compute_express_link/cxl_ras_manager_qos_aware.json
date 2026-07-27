@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_ras_manager_qos_aware",
+  "wrapper_entity": "cxl_ras_manager_qos_aware_det_cfg",
+  "configuration_id": "CXL_RAS_MANAGER_QOS_AWARE_7E2A0DD86626C7D6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

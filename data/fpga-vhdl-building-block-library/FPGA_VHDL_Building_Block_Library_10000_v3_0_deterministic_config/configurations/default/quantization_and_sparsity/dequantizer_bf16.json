@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dequantizer_bf16",
+  "wrapper_entity": "dequantizer_bf16_det_cfg",
+  "configuration_id": "DEQUANTIZER_BF16_F4DAB91814DE8E53",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

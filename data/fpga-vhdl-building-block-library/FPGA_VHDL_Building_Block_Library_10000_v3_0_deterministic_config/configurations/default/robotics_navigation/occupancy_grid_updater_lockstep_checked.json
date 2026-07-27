@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "occupancy_grid_updater_lockstep_checked",
+  "wrapper_entity": "occupancy_grid_updater_lockstep_checked_det_cfg",
+  "configuration_id": "OCCUPANCY_GRID_UPDATER_LOCKSTEP_CHECKED_E9759A94254CC270",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

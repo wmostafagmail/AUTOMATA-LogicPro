@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "space_vector_pwm_multi_channel",
+  "wrapper_entity": "space_vector_pwm_multi_channel_det_cfg",
+  "configuration_id": "SPACE_VECTOR_PWM_MULTI_CHANNEL_ACCE013180932FA1",
+  "generics": {
+    "WIDTH": 16
+  }
+}

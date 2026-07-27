@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_diagnostic_coverage",
+  "wrapper_entity": "diagnostic_test_sequencer_diagnostic_coverage_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_DIAGNOSTIC_COVERAGE_248907436624CCE3",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

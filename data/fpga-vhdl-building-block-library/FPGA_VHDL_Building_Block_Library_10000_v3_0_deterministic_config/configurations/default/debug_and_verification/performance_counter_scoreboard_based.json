@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "performance_counter_scoreboard_based",
+  "wrapper_entity": "performance_counter_scoreboard_based_det_cfg",
+  "configuration_id": "PERFORMANCE_COUNTER_SCOREBOARD_BASED_19CE7097852CB6A4",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "testbench_configuration_manager_stress_test",
+  "wrapper_entity": "testbench_configuration_manager_stress_test_det_cfg",
+  "configuration_id": "TESTBENCH_CONFIGURATION_MANAGER_STRESS_TEST_09E4D62440058A80",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

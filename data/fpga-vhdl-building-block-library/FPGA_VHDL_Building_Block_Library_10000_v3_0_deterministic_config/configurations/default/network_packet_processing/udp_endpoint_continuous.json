@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "udp_endpoint_continuous",
+  "wrapper_entity": "udp_endpoint_continuous_det_cfg",
+  "configuration_id": "UDP_ENDPOINT_CONTINUOUS_E9EBA9A9DC90F437",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

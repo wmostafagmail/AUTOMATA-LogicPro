@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_vectorized",
+  "wrapper_entity": "loss_scaling_controller_vectorized_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_VECTORIZED_7D512898A9E3153A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

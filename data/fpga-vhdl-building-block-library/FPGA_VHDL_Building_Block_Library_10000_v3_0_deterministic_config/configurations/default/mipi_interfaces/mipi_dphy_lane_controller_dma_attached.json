@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dphy_lane_controller_dma_attached",
+  "wrapper_entity": "mipi_dphy_lane_controller_dma_attached_det_cfg",
+  "configuration_id": "MIPI_DPHY_LANE_CONTROLLER_DMA_ATTACHED_562F6AA2DE148723",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

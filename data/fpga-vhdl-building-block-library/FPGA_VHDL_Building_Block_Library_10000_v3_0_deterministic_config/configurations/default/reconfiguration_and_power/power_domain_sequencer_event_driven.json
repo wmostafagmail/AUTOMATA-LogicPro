@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_domain_sequencer_event_driven",
+  "wrapper_entity": "power_domain_sequencer_event_driven_det_cfg",
+  "configuration_id": "POWER_DOMAIN_SEQUENCER_EVENT_DRIVEN_B37E141CB65F695B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

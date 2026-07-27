@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_voltage_controller_clock_crossing",
+  "wrapper_entity": "adaptive_voltage_controller_clock_crossing_det_cfg",
+  "configuration_id": "ADAPTIVE_VOLTAGE_CONTROLLER_CLOCK_CROSSING_E58ACA05EE651ABB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

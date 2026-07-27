@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "time_triggered_scheduler_continuous",
+  "wrapper_entity": "time_triggered_scheduler_continuous_det_cfg",
+  "configuration_id": "TIME_TRIGGERED_SCHEDULER_CONTINUOUS_CE35F64824FD1425",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

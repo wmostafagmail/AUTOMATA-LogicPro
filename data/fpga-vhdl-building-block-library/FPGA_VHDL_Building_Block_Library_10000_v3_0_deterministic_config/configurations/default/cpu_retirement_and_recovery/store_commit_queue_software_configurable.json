@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_software_configurable",
+  "wrapper_entity": "store_commit_queue_software_configurable_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_SOFTWARE_CONFIGURABLE_BB9BA943FFC875EE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

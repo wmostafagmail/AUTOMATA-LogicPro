@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_encoder_multi_lane",
+  "wrapper_entity": "adpcm_encoder_multi_lane_det_cfg",
+  "configuration_id": "ADPCM_ENCODER_MULTI_LANE_827FB6CA19764345",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

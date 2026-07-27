@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sent_sensor_decoder_endpoint",
+  "wrapper_entity": "sent_sensor_decoder_endpoint_det_cfg",
+  "configuration_id": "SENT_SENSOR_DECODER_ENDPOINT_348947E235667387",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

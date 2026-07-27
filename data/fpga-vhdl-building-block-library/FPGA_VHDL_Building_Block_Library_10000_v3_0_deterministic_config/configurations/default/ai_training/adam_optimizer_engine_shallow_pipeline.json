@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_shallow_pipeline",
+  "wrapper_entity": "adam_optimizer_engine_shallow_pipeline_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_SHALLOW_PIPELINE_D3B862C9A082B9E6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

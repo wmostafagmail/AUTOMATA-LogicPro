@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_buffered",
+  "wrapper_entity": "ip_fragment_reassembly_buffered_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_BUFFERED_8E2BF22C8D379569",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

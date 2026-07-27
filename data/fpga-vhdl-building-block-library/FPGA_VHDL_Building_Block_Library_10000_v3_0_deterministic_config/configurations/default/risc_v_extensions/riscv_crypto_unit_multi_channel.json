@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_multi_channel",
+  "wrapper_entity": "riscv_crypto_unit_multi_channel_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_MULTI_CHANNEL_E402C0CDDE001F47",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

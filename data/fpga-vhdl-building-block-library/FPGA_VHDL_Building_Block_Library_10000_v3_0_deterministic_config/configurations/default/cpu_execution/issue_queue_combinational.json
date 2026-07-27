@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "issue_queue_combinational",
+  "wrapper_entity": "issue_queue_combinational_det_cfg",
+  "configuration_id": "ISSUE_QUEUE_COMBINATIONAL_CB3CDFB07A00516F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

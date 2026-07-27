@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nonblocking_cache_controller_scrubbed",
+  "wrapper_entity": "nonblocking_cache_controller_scrubbed_det_cfg",
+  "configuration_id": "NONBLOCKING_CACHE_CONTROLLER_SCRUBBED_5FF26BD3A797B7E5",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

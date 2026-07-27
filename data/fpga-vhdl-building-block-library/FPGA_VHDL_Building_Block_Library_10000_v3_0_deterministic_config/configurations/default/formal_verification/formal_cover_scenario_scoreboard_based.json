@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_scoreboard_based",
+  "wrapper_entity": "formal_cover_scenario_scoreboard_based_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_SCOREBOARD_BASED_EE185E2F181ED214",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

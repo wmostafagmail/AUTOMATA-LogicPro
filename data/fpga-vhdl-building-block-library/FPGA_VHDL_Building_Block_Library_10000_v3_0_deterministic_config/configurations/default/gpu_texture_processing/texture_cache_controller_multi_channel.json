@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_cache_controller_multi_channel",
+  "wrapper_entity": "texture_cache_controller_multi_channel_det_cfg",
+  "configuration_id": "TEXTURE_CACHE_CONTROLLER_MULTI_CHANNEL_243264B5D0D8F397",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arbitrary_resampler_time_multiplexed",
+  "wrapper_entity": "arbitrary_resampler_time_multiplexed_det_cfg",
+  "configuration_id": "ARBITRARY_RESAMPLER_TIME_MULTIPLEXED_87BA87CA931558B5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

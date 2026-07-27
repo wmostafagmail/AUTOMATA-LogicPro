@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_formally_instrumented",
+  "wrapper_entity": "grid_sync_pll_formally_instrumented_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_FORMALLY_INSTRUMENTED_D762D3ED2CD3DC29",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

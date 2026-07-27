@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sinusoidal_position_encoder_single_port",
+  "wrapper_entity": "sinusoidal_position_encoder_single_port_det_cfg",
+  "configuration_id": "SINUSOIDAL_POSITION_ENCODER_SINGLE_PORT_F2C66E73C836B68C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

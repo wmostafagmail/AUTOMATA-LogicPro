@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_shallow_pipeline",
+  "wrapper_entity": "posit_format_converter_shallow_pipeline_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_SHALLOW_PIPELINE_2360ECBF0F060EEA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

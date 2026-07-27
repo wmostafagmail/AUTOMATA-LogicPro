@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_clock_crossing",
+  "wrapper_entity": "pilot_tracking_loop_clock_crossing_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_CLOCK_CROSSING_9AC94D3BC3B2EA76",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_redundant",
+  "wrapper_entity": "display_stream_compression_engine_redundant_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_REDUNDANT_B67C7E457F7384DE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

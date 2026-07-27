@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_qos_aware",
+  "wrapper_entity": "storage_phy_oob_controller_qos_aware_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_QOS_AWARE_909C0D200E2905D3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

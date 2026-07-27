@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multi_head_attention_engine_pipelined",
+  "wrapper_entity": "multi_head_attention_engine_pipelined_det_cfg",
+  "configuration_id": "MULTI_HEAD_ATTENTION_ENGINE_PIPELINED_3E746444FD1B6457",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

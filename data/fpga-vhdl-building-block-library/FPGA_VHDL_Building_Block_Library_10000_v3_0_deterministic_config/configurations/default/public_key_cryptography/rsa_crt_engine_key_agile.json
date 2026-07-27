@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_key_agile",
+  "wrapper_entity": "rsa_crt_engine_key_agile_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_KEY_AGILE_4BD01F55C09120A7",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

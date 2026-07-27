@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sent_sensor_decoder_buffered",
+  "wrapper_entity": "sent_sensor_decoder_buffered_det_cfg",
+  "configuration_id": "SENT_SENSOR_DECODER_BUFFERED_913A3D3A1EE39E3A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ahb_arbiter_clock_crossing",
+  "wrapper_entity": "ahb_arbiter_clock_crossing_det_cfg",
+  "configuration_id": "AHB_ARBITER_CLOCK_CROSSING_04A4165CDDC1DB6D",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

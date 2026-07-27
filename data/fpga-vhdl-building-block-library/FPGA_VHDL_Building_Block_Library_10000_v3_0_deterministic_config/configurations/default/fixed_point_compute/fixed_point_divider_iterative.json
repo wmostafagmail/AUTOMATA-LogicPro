@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_divider_iterative",
+  "wrapper_entity": "fixed_point_divider_iterative_det_cfg",
+  "configuration_id": "FIXED_POINT_DIVIDER_ITERATIVE_0C3B1BC4461B02DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

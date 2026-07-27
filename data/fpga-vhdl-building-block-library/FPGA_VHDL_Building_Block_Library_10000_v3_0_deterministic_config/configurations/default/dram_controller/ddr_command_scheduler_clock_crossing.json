@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_command_scheduler_clock_crossing",
+  "wrapper_entity": "ddr_command_scheduler_clock_crossing_det_cfg",
+  "configuration_id": "DDR_COMMAND_SCHEDULER_CLOCK_CROSSING_277239C4E9E2BE96",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

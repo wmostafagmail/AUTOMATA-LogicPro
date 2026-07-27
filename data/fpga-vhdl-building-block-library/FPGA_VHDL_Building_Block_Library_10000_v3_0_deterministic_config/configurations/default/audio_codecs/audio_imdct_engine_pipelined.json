@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_imdct_engine_pipelined",
+  "wrapper_entity": "audio_imdct_engine_pipelined_det_cfg",
+  "configuration_id": "AUDIO_IMDCT_ENGINE_PIPELINED_446DA2196B9F0F64",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

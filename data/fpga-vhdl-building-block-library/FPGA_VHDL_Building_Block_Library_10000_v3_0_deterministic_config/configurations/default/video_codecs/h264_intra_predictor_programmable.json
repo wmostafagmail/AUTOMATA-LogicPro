@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_programmable",
+  "wrapper_entity": "h264_intra_predictor_programmable_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_PROGRAMMABLE_D5CD0A785CC6A5CC",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

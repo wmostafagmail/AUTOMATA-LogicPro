@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_dma_streaming",
+  "wrapper_entity": "capacitance_measurement_engine_dma_streaming_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_DMA_STREAMING_7B65CD2F0CA9FE21",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

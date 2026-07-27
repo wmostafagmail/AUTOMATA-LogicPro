@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "defective_pixel_correction_multi_plane",
+  "wrapper_entity": "defective_pixel_correction_multi_plane_det_cfg",
+  "configuration_id": "DEFECTIVE_PIXEL_CORRECTION_MULTI_PLANE_7779079DB305CA58",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

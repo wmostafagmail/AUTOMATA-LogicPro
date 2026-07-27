@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_software_configurable",
+  "wrapper_entity": "pilot_tracking_loop_software_configurable_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_SOFTWARE_CONFIGURABLE_F2D261E89C7B2833",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

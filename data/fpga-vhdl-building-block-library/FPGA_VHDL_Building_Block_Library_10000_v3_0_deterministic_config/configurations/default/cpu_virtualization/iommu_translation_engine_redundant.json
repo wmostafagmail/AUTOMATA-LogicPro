@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iommu_translation_engine_redundant",
+  "wrapper_entity": "iommu_translation_engine_redundant_det_cfg",
+  "configuration_id": "IOMMU_TRANSLATION_ENGINE_REDUNDANT_5852BD475A1091DD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

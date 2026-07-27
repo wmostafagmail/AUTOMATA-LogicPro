@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_accumulator_pipelined",
+  "wrapper_entity": "matrix_accumulator_pipelined_det_cfg",
+  "configuration_id": "MATRIX_ACCUMULATOR_PIPELINED_18BDE484D1ABDE14",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

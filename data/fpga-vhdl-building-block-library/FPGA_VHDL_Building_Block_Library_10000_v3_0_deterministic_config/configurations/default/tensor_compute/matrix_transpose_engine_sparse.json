@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_transpose_engine_sparse",
+  "wrapper_entity": "matrix_transpose_engine_sparse_det_cfg",
+  "configuration_id": "MATRIX_TRANSPOSE_ENGINE_SPARSE_29528F5F52CC172C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

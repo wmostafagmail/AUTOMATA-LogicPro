@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_lite_bridge_endpoint",
+  "wrapper_entity": "ace_lite_bridge_endpoint_det_cfg",
+  "configuration_id": "ACE_LITE_BRIDGE_ENDPOINT_53CCFFC44E36DEFD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

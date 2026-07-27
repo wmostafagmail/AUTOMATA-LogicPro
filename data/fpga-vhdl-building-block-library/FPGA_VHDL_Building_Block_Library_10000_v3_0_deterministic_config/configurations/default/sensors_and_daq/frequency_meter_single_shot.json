@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_meter_single_shot",
+  "wrapper_entity": "frequency_meter_single_shot_det_cfg",
+  "configuration_id": "FREQUENCY_METER_SINGLE_SHOT_D3446F53043D6310",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

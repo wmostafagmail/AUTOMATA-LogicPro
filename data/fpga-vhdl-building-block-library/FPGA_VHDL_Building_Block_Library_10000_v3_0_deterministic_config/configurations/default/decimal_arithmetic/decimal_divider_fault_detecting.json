@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_fault_detecting",
+  "wrapper_entity": "decimal_divider_fault_detecting_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_FAULT_DETECTING_0E96CC44ADE5E048",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

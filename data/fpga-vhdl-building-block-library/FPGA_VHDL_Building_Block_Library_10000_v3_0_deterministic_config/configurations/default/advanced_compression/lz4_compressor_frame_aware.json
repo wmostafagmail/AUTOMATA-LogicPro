@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_compressor_frame_aware",
+  "wrapper_entity": "lz4_compressor_frame_aware_det_cfg",
+  "configuration_id": "LZ4_COMPRESSOR_FRAME_AWARE_C2FF6455E51F5E24",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "timeout_controller_single_shot",
+  "wrapper_entity": "timeout_controller_single_shot_det_cfg",
+  "configuration_id": "TIMEOUT_CONTROLLER_SINGLE_SHOT_B78EF87CE463B633",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "biquad_filter_single_cycle",
+  "wrapper_entity": "biquad_filter_single_cycle_det_cfg",
+  "configuration_id": "BIQUAD_FILTER_SINGLE_CYCLE_50E46044B50A2256",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 222
+  }
+}

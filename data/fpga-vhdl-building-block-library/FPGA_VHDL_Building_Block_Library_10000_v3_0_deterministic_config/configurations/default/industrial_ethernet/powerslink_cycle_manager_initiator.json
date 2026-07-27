@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_initiator",
+  "wrapper_entity": "powerslink_cycle_manager_initiator_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_INITIATOR_06F9CBBCD129EFB8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

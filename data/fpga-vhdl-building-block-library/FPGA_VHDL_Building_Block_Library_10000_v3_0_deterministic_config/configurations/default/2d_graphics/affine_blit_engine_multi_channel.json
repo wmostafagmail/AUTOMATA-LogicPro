@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_multi_channel",
+  "wrapper_entity": "affine_blit_engine_multi_channel_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_MULTI_CHANNEL_0CDF20FEA9D30CCE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

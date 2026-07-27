@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_fifo_controller",
+  "wrapper_entity": "axi_stream_fifo_controller_det_cfg",
+  "configuration_id": "AXI_STREAM_FIFO_CONTROLLER_9C9A0BE127A47C0A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

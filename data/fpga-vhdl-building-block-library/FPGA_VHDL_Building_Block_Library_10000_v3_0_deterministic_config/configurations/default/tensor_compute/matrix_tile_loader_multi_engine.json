@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_tile_loader_multi_engine",
+  "wrapper_entity": "matrix_tile_loader_multi_engine_det_cfg",
+  "configuration_id": "MATRIX_TILE_LOADER_MULTI_ENGINE_2CF2EF5DE58F66F1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

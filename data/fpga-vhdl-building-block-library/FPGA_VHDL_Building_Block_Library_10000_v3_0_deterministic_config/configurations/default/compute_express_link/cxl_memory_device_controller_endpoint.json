@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_memory_device_controller_endpoint",
+  "wrapper_entity": "cxl_memory_device_controller_endpoint_det_cfg",
+  "configuration_id": "CXL_MEMORY_DEVICE_CONTROLLER_ENDPOINT_CC98F1CBC51B3482",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

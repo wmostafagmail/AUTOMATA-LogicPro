@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_counter_synchronizer_programmable",
+  "wrapper_entity": "gray_counter_synchronizer_programmable_det_cfg",
+  "configuration_id": "GRAY_COUNTER_SYNCHRONIZER_PROGRAMMABLE_9C3A0AE4FC7D28C4",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

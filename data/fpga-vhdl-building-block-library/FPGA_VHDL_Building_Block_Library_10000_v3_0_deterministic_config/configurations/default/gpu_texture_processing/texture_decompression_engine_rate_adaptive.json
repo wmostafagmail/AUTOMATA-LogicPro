@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_decompression_engine_rate_adaptive",
+  "wrapper_entity": "texture_decompression_engine_rate_adaptive_det_cfg",
+  "configuration_id": "TEXTURE_DECOMPRESSION_ENGINE_RATE_ADAPTIVE_960B79489AA6712B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

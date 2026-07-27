@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_combinational",
+  "wrapper_entity": "multioperand_compressor_tree_combinational_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_COMBINATIONAL_E397CE7C83D6B975",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

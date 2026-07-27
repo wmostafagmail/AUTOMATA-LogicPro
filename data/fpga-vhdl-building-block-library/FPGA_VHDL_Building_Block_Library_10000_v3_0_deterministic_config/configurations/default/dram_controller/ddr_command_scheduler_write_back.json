@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_command_scheduler_write_back",
+  "wrapper_entity": "ddr_command_scheduler_write_back_det_cfg",
+  "configuration_id": "DDR_COMMAND_SCHEDULER_WRITE_BACK_07AEFEB9EAA2F994",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

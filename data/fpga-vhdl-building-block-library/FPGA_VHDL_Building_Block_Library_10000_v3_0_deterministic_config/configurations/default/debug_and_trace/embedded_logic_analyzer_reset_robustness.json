@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_reset_robustness",
+  "wrapper_entity": "embedded_logic_analyzer_reset_robustness_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_RESET_ROBUSTNESS_916D933DA7E02441",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

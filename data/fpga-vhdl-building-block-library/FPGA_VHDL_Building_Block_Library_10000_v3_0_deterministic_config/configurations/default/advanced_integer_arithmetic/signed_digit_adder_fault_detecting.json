@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_fault_detecting",
+  "wrapper_entity": "signed_digit_adder_fault_detecting_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_FAULT_DETECTING_1FC203090BA0C36A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

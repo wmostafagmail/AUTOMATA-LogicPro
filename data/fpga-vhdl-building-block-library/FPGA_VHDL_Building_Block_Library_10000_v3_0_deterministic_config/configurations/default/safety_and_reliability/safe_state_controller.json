@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safe_state_controller",
+  "wrapper_entity": "safe_state_controller_det_cfg",
+  "configuration_id": "SAFE_STATE_CONTROLLER_C412582F56AFBBF2",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

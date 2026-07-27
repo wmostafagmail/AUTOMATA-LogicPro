@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reciprocal_approximator_iterative",
+  "wrapper_entity": "reciprocal_approximator_iterative_det_cfg",
+  "configuration_id": "RECIPROCAL_APPROXIMATOR_ITERATIVE_B9282086422A94CD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

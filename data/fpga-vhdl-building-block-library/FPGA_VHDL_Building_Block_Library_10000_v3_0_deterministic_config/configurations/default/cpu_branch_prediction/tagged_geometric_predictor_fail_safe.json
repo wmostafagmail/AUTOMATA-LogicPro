@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_fail_safe",
+  "wrapper_entity": "tagged_geometric_predictor_fail_safe_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_FAIL_SAFE_0C9EB2D6E04422EA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

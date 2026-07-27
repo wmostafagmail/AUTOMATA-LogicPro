@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "ring_counter_wraparound",
+  "wrapper_entity": "ring_counter_wraparound_det_cfg",
+  "configuration_id": "RING_COUNTER_WRAPAROUND_0318C83069C7B67A",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

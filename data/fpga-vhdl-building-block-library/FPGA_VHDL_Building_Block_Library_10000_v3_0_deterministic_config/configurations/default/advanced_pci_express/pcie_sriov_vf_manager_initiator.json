@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_initiator",
+  "wrapper_entity": "pcie_sriov_vf_manager_initiator_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_INITIATOR_D14CC12D2C60AF35",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

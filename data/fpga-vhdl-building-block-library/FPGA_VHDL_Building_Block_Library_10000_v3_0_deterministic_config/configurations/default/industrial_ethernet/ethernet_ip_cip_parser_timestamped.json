@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_ip_cip_parser_timestamped",
+  "wrapper_entity": "ethernet_ip_cip_parser_timestamped_det_cfg",
+  "configuration_id": "ETHERNET_IP_CIP_PARSER_TIMESTAMPED_15AD8897888EED21",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

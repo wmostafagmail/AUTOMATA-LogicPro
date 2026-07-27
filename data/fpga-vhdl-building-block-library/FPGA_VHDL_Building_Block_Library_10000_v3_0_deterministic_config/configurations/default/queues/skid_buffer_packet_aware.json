@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "skid_buffer_packet_aware",
+  "wrapper_entity": "skid_buffer_packet_aware_det_cfg",
+  "configuration_id": "SKID_BUFFER_PACKET_AWARE_5F7A89FFC79F1B64",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

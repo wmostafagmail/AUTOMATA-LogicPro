@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_clock_crossing",
+  "wrapper_entity": "frame_preemption_controller_clock_crossing_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_CLOCK_CROSSING_ECAA1975B9CEC928",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

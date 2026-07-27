@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_digit_serial",
+  "wrapper_entity": "mixed_precision_dispatcher_digit_serial_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_DIGIT_SERIAL_F66CC37C997A47A8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

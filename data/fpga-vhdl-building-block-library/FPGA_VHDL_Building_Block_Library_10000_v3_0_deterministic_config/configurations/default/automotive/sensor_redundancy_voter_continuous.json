@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_redundancy_voter_continuous",
+  "wrapper_entity": "sensor_redundancy_voter_continuous_det_cfg",
+  "configuration_id": "SENSOR_REDUNDANCY_VOTER_CONTINUOUS_26A15592DFE7690C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

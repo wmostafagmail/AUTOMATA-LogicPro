@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deflate_engine_low_power",
+  "wrapper_entity": "deflate_engine_low_power_det_cfg",
+  "configuration_id": "DEFLATE_ENGINE_LOW_POWER_8B76FB2E07203B1E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

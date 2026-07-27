@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "antialiased_line_engine_low_power",
+  "wrapper_entity": "antialiased_line_engine_low_power_det_cfg",
+  "configuration_id": "ANTIALIASED_LINE_ENGINE_LOW_POWER_454F39E6DE691E67",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

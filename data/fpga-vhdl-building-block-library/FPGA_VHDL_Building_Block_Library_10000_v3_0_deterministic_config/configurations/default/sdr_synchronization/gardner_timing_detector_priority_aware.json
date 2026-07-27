@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_priority_aware",
+  "wrapper_entity": "gardner_timing_detector_priority_aware_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_PRIORITY_AWARE_B516C0347201447F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

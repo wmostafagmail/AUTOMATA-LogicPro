@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_fixed_latency",
+  "wrapper_entity": "bezier_curve_rasterizer_fixed_latency_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_FIXED_LATENCY_D910D5BF55E88803",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

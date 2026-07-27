@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_qos_regulator_software_configurable",
+  "wrapper_entity": "axi_qos_regulator_software_configurable_det_cfg",
+  "configuration_id": "AXI_QOS_REGULATOR_SOFTWARE_CONFIGURABLE_FE9A114CD17C3A05",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

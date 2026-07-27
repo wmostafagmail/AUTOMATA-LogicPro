@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "raw_bayer_unpacker_framebuffer",
+  "wrapper_entity": "raw_bayer_unpacker_framebuffer_det_cfg",
+  "configuration_id": "RAW_BAYER_UNPACKER_FRAMEBUFFER_9C78860061CA12A6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

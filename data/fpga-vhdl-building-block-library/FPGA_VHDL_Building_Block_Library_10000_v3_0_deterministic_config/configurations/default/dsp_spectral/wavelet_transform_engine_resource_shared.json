@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavelet_transform_engine_resource_shared",
+  "wrapper_entity": "wavelet_transform_engine_resource_shared_det_cfg",
+  "configuration_id": "WAVELET_TRANSFORM_ENGINE_RESOURCE_SHARED_3AFCD90E372750D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 243
+  }
+}

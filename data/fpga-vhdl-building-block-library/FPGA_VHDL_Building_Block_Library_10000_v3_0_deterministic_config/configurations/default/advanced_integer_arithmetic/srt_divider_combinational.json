@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "srt_divider_combinational",
+  "wrapper_entity": "srt_divider_combinational_det_cfg",
+  "configuration_id": "SRT_DIVIDER_COMBINATIONAL_CC1C120F3DBDD994",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

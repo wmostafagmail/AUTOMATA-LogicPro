@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_query_attention_buffered_stream",
+  "wrapper_entity": "grouped_query_attention_buffered_stream_det_cfg",
+  "configuration_id": "GROUPED_QUERY_ATTENTION_BUFFERED_STREAM_92C9E3B8C3183621",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

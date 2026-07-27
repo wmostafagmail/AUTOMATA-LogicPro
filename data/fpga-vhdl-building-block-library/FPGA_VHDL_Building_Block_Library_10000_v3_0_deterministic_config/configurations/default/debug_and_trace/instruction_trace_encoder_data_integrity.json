@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_trace_encoder_data_integrity",
+  "wrapper_entity": "instruction_trace_encoder_data_integrity_det_cfg",
+  "configuration_id": "INSTRUCTION_TRACE_ENCODER_DATA_INTEGRITY_DAAF183CF50EE88E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

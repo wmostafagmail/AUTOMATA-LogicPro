@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_timing_controller_streaming",
+  "wrapper_entity": "hdmi_timing_controller_streaming_det_cfg",
+  "configuration_id": "HDMI_TIMING_CONTROLLER_STREAMING_D0AE31D625075453",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

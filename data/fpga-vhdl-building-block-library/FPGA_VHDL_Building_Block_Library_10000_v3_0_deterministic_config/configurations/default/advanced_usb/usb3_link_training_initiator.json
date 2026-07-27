@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_link_training_initiator",
+  "wrapper_entity": "usb3_link_training_initiator_det_cfg",
+  "configuration_id": "USB3_LINK_TRAINING_INITIATOR_0A0640A6CF83514D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

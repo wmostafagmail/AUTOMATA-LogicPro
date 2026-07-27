@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "finite_state_machine_single_shot",
+  "wrapper_entity": "finite_state_machine_single_shot_det_cfg",
+  "configuration_id": "FINITE_STATE_MACHINE_SINGLE_SHOT_2E078305B534B35F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

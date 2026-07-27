@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_layout_converter_qos_aware",
+  "wrapper_entity": "tensor_layout_converter_qos_aware_det_cfg",
+  "configuration_id": "TENSOR_LAYOUT_CONVERTER_QOS_AWARE_BAD5FC85F7CE60E6",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

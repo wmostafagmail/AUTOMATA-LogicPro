@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dynamic_function_exchange_manager_priority_aware",
+  "wrapper_entity": "dynamic_function_exchange_manager_priority_aware_det_cfg",
+  "configuration_id": "DYNAMIC_FUNCTION_EXCHANGE_MANAGER_PRIORITY_AWARE_915E00F7B28E2D97",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

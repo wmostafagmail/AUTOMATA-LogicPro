@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "radiation_event_counter_multi_channel",
+  "wrapper_entity": "radiation_event_counter_multi_channel_det_cfg",
+  "configuration_id": "RADIATION_EVENT_COUNTER_MULTI_CHANNEL_0A9BB92174BDAC9D",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

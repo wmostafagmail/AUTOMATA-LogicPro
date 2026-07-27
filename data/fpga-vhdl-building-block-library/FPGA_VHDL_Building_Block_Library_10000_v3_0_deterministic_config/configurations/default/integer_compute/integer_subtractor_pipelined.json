@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_subtractor_pipelined",
+  "wrapper_entity": "integer_subtractor_pipelined_det_cfg",
+  "configuration_id": "INTEGER_SUBTRACTOR_PIPELINED_9D896E8BA6879710",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

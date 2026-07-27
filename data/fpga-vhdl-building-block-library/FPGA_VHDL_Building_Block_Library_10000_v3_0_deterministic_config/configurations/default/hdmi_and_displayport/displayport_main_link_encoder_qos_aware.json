@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_main_link_encoder_qos_aware",
+  "wrapper_entity": "displayport_main_link_encoder_qos_aware_det_cfg",
+  "configuration_id": "DISPLAYPORT_MAIN_LINK_ENCODER_QOS_AWARE_F67F776C4DFC2B6C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

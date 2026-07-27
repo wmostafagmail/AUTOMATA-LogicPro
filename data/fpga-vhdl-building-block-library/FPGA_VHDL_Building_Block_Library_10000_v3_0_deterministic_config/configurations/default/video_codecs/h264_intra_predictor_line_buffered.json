@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_line_buffered",
+  "wrapper_entity": "h264_intra_predictor_line_buffered_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_LINE_BUFFERED_047927424CC961BD",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

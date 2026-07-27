@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_multi_channel",
+  "wrapper_entity": "binary_to_bcd_converter_multi_channel_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_MULTI_CHANNEL_7C6C75ED5291488C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

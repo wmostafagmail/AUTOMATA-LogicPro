@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "interrupt_controller_programmable",
+  "wrapper_entity": "interrupt_controller_programmable_det_cfg",
+  "configuration_id": "INTERRUPT_CONTROLLER_PROGRAMMABLE_6E930F9042FB0030",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

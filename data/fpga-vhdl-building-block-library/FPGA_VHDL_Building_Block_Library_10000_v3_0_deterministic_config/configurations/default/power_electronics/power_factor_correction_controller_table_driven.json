@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_table_driven",
+  "wrapper_entity": "power_factor_correction_controller_table_driven_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_TABLE_DRIVEN_A7B7DFC8273B7D51",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

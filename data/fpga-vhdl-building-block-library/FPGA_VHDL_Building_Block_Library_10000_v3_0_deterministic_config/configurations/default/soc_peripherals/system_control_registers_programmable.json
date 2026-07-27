@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "system_control_registers_programmable",
+  "wrapper_entity": "system_control_registers_programmable_det_cfg",
+  "configuration_id": "SYSTEM_CONTROL_REGISTERS_PROGRAMMABLE_04856932A5716A24",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

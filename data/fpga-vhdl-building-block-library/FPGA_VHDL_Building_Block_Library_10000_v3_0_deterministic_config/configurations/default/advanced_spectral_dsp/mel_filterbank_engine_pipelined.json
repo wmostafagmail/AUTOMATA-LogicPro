@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mel_filterbank_engine_pipelined",
+  "wrapper_entity": "mel_filterbank_engine_pipelined_det_cfg",
+  "configuration_id": "MEL_FILTERBANK_ENGINE_PIPELINED_08AF4B4F90C9525F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

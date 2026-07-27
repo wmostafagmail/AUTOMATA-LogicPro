@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_power_monitored",
+  "wrapper_entity": "diagnostic_test_sequencer_power_monitored_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_POWER_MONITORED_0FA0BF39D9F891CD",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

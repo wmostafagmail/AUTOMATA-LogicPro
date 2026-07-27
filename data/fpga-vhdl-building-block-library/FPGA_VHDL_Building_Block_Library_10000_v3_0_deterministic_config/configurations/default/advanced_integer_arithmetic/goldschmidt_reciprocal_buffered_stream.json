@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "goldschmidt_reciprocal_buffered_stream",
+  "wrapper_entity": "goldschmidt_reciprocal_buffered_stream_det_cfg",
+  "configuration_id": "GOLDSCHMIDT_RECIPROCAL_BUFFERED_STREAM_1D134AEF8D9F880C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

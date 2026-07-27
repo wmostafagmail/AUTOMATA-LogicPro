@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "moesi_directory_engine_clock_crossing",
+  "wrapper_entity": "moesi_directory_engine_clock_crossing_det_cfg",
+  "configuration_id": "MOESI_DIRECTORY_ENGINE_CLOCK_CROSSING_6B24C259F531BD2B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

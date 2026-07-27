@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_filter_unit_multi_plane",
+  "wrapper_entity": "texture_filter_unit_multi_plane_det_cfg",
+  "configuration_id": "TEXTURE_FILTER_UNIT_MULTI_PLANE_7FA31275116F0948",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

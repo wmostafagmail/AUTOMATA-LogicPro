@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "configuration_crc_checker_programmable",
+  "wrapper_entity": "configuration_crc_checker_programmable_det_cfg",
+  "configuration_id": "CONFIGURATION_CRC_CHECKER_PROGRAMMABLE_75A7F1DED74186FA",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

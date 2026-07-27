@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "motor_parameter_identifier_redundant",
+  "wrapper_entity": "motor_parameter_identifier_redundant_det_cfg",
+  "configuration_id": "MOTOR_PARAMETER_IDENTIFIER_REDUNDANT_EA9017FD699D101B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

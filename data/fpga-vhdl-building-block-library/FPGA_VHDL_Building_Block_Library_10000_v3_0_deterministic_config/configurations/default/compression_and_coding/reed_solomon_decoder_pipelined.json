@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reed_solomon_decoder_pipelined",
+  "wrapper_entity": "reed_solomon_decoder_pipelined_det_cfg",
+  "configuration_id": "REED_SOLOMON_DECODER_PIPELINED_41C35C56B281E82C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 114
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "onehot_decoder_resource_shared",
+  "wrapper_entity": "onehot_decoder_resource_shared_det_cfg",
+  "configuration_id": "ONEHOT_DECODER_RESOURCE_SHARED_2E9799536CA70892",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

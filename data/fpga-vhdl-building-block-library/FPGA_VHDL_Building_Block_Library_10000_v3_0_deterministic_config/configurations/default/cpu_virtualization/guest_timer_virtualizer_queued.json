@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_queued",
+  "wrapper_entity": "guest_timer_virtualizer_queued_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_QUEUED_F7B4A886DD3AF03F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

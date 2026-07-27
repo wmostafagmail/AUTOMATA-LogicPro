@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_rate_tracking_loop_low_power",
+  "wrapper_entity": "sample_rate_tracking_loop_low_power_det_cfg",
+  "configuration_id": "SAMPLE_RATE_TRACKING_LOOP_LOW_POWER_BC5AFA1DB98663AB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

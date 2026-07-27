@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "relative_position_bias_scrubbed",
+  "wrapper_entity": "relative_position_bias_scrubbed_det_cfg",
+  "configuration_id": "RELATIVE_POSITION_BIAS_SCRUBBED_8D8B4DF4E671D48D",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

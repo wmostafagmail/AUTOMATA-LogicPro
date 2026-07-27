@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_qos_aware",
+  "wrapper_entity": "ace_snoop_controller_qos_aware_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_QOS_AWARE_54D0F81E17486978",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

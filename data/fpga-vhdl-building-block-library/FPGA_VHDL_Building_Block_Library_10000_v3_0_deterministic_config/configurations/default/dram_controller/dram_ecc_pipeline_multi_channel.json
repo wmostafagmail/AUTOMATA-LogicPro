@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_ecc_pipeline_multi_channel",
+  "wrapper_entity": "dram_ecc_pipeline_multi_channel_det_cfg",
+  "configuration_id": "DRAM_ECC_PIPELINE_MULTI_CHANNEL_FABF4C8C4E24651A",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

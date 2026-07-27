@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "pooling_engine_multi_engine",
+  "wrapper_entity": "pooling_engine_multi_engine_det_cfg",
+  "configuration_id": "POOLING_ENGINE_MULTI_ENGINE_BA0EC37CF46D4755",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

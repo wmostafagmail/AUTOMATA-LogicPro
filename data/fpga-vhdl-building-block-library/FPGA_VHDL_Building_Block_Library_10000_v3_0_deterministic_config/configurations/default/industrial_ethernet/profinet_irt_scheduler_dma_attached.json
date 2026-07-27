@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_dma_attached",
+  "wrapper_entity": "profinet_irt_scheduler_dma_attached_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_DMA_ATTACHED_8E4A4C9005549843",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

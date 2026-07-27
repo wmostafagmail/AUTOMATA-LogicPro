@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "turbo_decoder_axi_stream",
+  "wrapper_entity": "turbo_decoder_axi_stream_det_cfg",
+  "configuration_id": "TURBO_DECODER_AXI_STREAM_B8047E2F553E92B1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

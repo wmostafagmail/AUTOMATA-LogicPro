@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "black_level_correction_framebuffer",
+  "wrapper_entity": "black_level_correction_framebuffer_det_cfg",
+  "configuration_id": "BLACK_LEVEL_CORRECTION_FRAMEBUFFER_CC294E93BF6C947A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

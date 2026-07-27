@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chirp_generator_single_cycle",
+  "wrapper_entity": "chirp_generator_single_cycle_det_cfg",
+  "configuration_id": "CHIRP_GENERATOR_SINGLE_CYCLE_8D1BA059EA146D2E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 170
+  }
+}

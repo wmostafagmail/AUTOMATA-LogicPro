@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "spectrum_analyzer_frontend_triggered",
+  "wrapper_entity": "spectrum_analyzer_frontend_triggered_det_cfg",
+  "configuration_id": "SPECTRUM_ANALYZER_FRONTEND_TRIGGERED_D4A1593D28C61E5D",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

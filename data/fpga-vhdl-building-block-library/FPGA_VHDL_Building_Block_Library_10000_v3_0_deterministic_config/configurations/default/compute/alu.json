@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "alu",
+  "wrapper_entity": "alu_det_cfg",
+  "configuration_id": "ALU_DDDD39B0603133E7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "OP_WIDTH": 4,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_rate_tracking_loop_backpressure_capable",
+  "wrapper_entity": "sample_rate_tracking_loop_backpressure_capable_det_cfg",
+  "configuration_id": "SAMPLE_RATE_TRACKING_LOOP_BACKPRESSURE_CAPABLE_383B1BB63447E3BE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

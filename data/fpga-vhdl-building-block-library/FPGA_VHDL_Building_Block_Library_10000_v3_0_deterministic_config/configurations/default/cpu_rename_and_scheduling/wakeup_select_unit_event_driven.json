@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_event_driven",
+  "wrapper_entity": "wakeup_select_unit_event_driven_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_EVENT_DRIVEN_F101228703AD58F8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

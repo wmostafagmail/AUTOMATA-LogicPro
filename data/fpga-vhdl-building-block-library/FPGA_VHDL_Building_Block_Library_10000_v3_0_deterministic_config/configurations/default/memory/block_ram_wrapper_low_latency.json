@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_ram_wrapper_low_latency",
+  "wrapper_entity": "block_ram_wrapper_low_latency_det_cfg",
+  "configuration_id": "BLOCK_RAM_WRAPPER_LOW_LATENCY_931EBB5210278108",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

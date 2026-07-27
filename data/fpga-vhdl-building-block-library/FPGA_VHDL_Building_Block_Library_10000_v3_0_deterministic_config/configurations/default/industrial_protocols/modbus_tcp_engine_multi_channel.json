@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_tcp_engine_multi_channel",
+  "wrapper_entity": "modbus_tcp_engine_multi_channel_det_cfg",
+  "configuration_id": "MODBUS_TCP_ENGINE_MULTI_CHANNEL_AACEE93E0DC31706",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

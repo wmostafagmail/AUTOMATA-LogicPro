@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_lockstep_checked",
+  "wrapper_entity": "obstacle_avoidance_controller_lockstep_checked_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_LOCKSTEP_CHECKED_008547A147ADBA63",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

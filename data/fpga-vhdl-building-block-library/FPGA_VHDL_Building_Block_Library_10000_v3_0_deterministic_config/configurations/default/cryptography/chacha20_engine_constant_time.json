@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_engine_constant_time",
+  "wrapper_entity": "chacha20_engine_constant_time_det_cfg",
+  "configuration_id": "CHACHA20_ENGINE_CONSTANT_TIME_EF2D8190E9A4E7D6",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

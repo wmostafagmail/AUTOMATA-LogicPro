@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_typec_policy_engine_redundant",
+  "wrapper_entity": "usb_typec_policy_engine_redundant_det_cfg",
+  "configuration_id": "USB_TYPEC_POLICY_ENGINE_REDUNDANT_EA3E56C2DF21DDCE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "commutation_controller_multi_channel",
+  "wrapper_entity": "commutation_controller_multi_channel_det_cfg",
+  "configuration_id": "COMMUTATION_CONTROLLER_MULTI_CHANNEL_DAA84726415B6A22",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

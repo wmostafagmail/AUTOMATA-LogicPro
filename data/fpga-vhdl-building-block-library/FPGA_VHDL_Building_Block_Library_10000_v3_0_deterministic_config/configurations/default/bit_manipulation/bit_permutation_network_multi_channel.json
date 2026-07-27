@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_permutation_network_multi_channel",
+  "wrapper_entity": "bit_permutation_network_multi_channel_det_cfg",
+  "configuration_id": "BIT_PERMUTATION_NETWORK_MULTI_CHANNEL_37A49A28B7213497",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

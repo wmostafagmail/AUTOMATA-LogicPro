@@ -1,0 +1,13 @@
+-- Auto-generated from FPGA Building Block Catalog BB-8266
+-- Block: resonant_converter_controller_lockstep_checked
+-- Category: Power Electronics / Power conversion control
+-- Implementation tier: B
+-- Verification status: interface-wrapper smoke-test scaffold; named algorithm/architecture not yet qualified.
+-- Functional status: generated interface/reference wrapper; implement and verify the named block semantics before production use.
+-- Protocol status: not_applicable_or_internal_contract
+-- Timing status: requires synthesis, place-and-route, and constraints for the selected FPGA/clock
+-- CDC status: single_clock_default; integration CDC review required
+-- Numerical status: shared-core surrogate only; block-specific golden model and numerical qualification required.
+library ieee; use ieee.std_logic_1164.all;
+entity resonant_converter_controller_lockstep_checked is generic(CMD_WIDTH:positive:=8;CFG_WIDTH:positive:=32;STATUS_WIDTH:positive:=32;LATENCY_CYCLES:positive:=4);port(clk,rst_n,start,abort:in std_logic;command:in std_logic_vector(CMD_WIDTH-1 downto 0);cfg:in std_logic_vector(CFG_WIDTH-1 downto 0);busy,done,error:out std_logic;status:out std_logic_vector(STATUS_WIDTH-1 downto 0));end entity;
+architecture rtl of resonant_converter_controller_lockstep_checked is begin u_core:entity work.bb_control_core generic map(CMD_WIDTH=>CMD_WIDTH,CFG_WIDTH=>CFG_WIDTH,STATUS_WIDTH=>STATUS_WIDTH,LATENCY_CYCLES=>LATENCY_CYCLES) port map(clk=>clk,rst_n=>rst_n,start=>start,abort=>abort,command=>command,cfg=>cfg,busy=>busy,done=>done,error=>error,status=>status);end architecture;

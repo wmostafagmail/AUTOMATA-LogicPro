@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dilated_convolution_engine_fully_parallel",
+  "wrapper_entity": "dilated_convolution_engine_fully_parallel_det_cfg",
+  "configuration_id": "DILATED_CONVOLUTION_ENGINE_FULLY_PARALLEL_EB5FB9F40A76CAFA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dsi_packet_generator_buffered",
+  "wrapper_entity": "mipi_dsi_packet_generator_buffered_det_cfg",
+  "configuration_id": "MIPI_DSI_PACKET_GENERATOR_BUFFERED_44371F55A742F818",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

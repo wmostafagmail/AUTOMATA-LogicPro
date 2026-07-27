@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_lockstep_checked",
+  "wrapper_entity": "feedback_latency_controller_lockstep_checked_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_LOCKSTEP_CHECKED_944C314316071C19",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

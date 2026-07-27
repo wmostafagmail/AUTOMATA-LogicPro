@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_fault_detecting",
+  "wrapper_entity": "dadda_tree_multiplier_fault_detecting_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_FAULT_DETECTING_B523FE6B4AD100CD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

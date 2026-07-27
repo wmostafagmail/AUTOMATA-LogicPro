@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_aux_channel_packetized",
+  "wrapper_entity": "displayport_aux_channel_packetized_det_cfg",
+  "configuration_id": "DISPLAYPORT_AUX_CHANNEL_PACKETIZED_E2F7E1BB5C3784CE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

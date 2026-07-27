@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "x25519_engine_low_area",
+  "wrapper_entity": "x25519_engine_low_area_det_cfg",
+  "configuration_id": "X25519_ENGINE_LOW_AREA_0B151F2DE8EF5CE9",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

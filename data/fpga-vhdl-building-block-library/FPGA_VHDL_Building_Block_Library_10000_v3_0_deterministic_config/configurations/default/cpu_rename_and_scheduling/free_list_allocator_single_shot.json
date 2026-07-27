@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_single_shot",
+  "wrapper_entity": "free_list_allocator_single_shot_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_SINGLE_SHOT_F646D42F9F131842",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

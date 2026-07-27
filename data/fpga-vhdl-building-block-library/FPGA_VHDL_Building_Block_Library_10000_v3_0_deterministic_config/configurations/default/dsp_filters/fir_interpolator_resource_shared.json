@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fir_interpolator_resource_shared",
+  "wrapper_entity": "fir_interpolator_resource_shared_det_cfg",
+  "configuration_id": "FIR_INTERPOLATOR_RESOURCE_SHARED_9352D352D02D970F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 250
+  }
+}

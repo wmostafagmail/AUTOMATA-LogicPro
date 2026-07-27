@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "apb_decoder_width_adapted",
+  "wrapper_entity": "apb_decoder_width_adapted_det_cfg",
+  "configuration_id": "APB_DECODER_WIDTH_ADAPTED_12ABF00823D0A16F",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

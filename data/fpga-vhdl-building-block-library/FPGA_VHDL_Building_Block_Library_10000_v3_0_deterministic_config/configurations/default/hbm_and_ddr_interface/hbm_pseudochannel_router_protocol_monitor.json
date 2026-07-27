@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hbm_pseudochannel_router_protocol_monitor",
+  "wrapper_entity": "hbm_pseudochannel_router_protocol_monitor_det_cfg",
+  "configuration_id": "HBM_PSEUDOCHANNEL_ROUTER_PROTOCOL_MONITOR_84A7AE68ED463AE7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

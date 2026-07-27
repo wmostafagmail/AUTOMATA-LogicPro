@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_latent_fault_detecting",
+  "wrapper_entity": "measured_boot_engine_latent_fault_detecting_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_LATENT_FAULT_DETECTING_92C2B30AC241B6F3",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_multiplier_resource_shared",
+  "wrapper_entity": "floating_point_multiplier_resource_shared_det_cfg",
+  "configuration_id": "FLOATING_POINT_MULTIPLIER_RESOURCE_SHARED_2E04078CAFCB7313",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

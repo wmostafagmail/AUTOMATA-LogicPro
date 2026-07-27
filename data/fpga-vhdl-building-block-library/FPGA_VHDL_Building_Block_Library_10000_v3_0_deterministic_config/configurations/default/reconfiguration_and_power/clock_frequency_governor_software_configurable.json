@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clock_frequency_governor_software_configurable",
+  "wrapper_entity": "clock_frequency_governor_software_configurable_det_cfg",
+  "configuration_id": "CLOCK_FREQUENCY_GOVERNOR_SOFTWARE_CONFIGURABLE_D1DEC09B843E8F97",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

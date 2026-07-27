@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_cpu_single_cycle",
+  "wrapper_entity": "reorder_buffer_cpu_single_cycle_det_cfg",
+  "configuration_id": "REORDER_BUFFER_CPU_SINGLE_CYCLE_E88AE2A5518F8C81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

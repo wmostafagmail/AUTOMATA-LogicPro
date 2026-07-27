@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_queued",
+  "wrapper_entity": "carrier_frequency_estimator_queued_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_QUEUED_D080531AE8242FCD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

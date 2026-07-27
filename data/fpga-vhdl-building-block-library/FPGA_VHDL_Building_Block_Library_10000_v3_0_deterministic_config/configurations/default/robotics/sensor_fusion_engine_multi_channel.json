@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_fusion_engine_multi_channel",
+  "wrapper_entity": "sensor_fusion_engine_multi_channel_det_cfg",
+  "configuration_id": "SENSOR_FUSION_ENGINE_MULTI_CHANNEL_3A7D4DCDB15D5E03",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

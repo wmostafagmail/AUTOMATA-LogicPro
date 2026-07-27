@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_hsv_programmable",
+  "wrapper_entity": "rgb_to_hsv_programmable_det_cfg",
+  "configuration_id": "RGB_TO_HSV_PROGRAMMABLE_9C6F8210D0182B04",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

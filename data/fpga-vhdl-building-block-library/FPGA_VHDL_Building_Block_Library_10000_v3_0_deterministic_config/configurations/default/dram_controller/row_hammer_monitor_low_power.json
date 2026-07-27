@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "row_hammer_monitor_low_power",
+  "wrapper_entity": "row_hammer_monitor_low_power_det_cfg",
+  "configuration_id": "ROW_HAMMER_MONITOR_LOW_POWER_71E3EF2FC8FD39FC",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

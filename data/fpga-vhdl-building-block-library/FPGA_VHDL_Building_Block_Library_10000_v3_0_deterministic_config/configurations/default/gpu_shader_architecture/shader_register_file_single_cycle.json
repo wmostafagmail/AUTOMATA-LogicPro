@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_single_cycle",
+  "wrapper_entity": "shader_register_file_single_cycle_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_SINGLE_CYCLE_6A8B27AD1602A63C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_flow_table_low_power",
+  "wrapper_entity": "packet_flow_table_low_power_det_cfg",
+  "configuration_id": "PACKET_FLOW_TABLE_LOW_POWER_7F6565BE959DEED8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

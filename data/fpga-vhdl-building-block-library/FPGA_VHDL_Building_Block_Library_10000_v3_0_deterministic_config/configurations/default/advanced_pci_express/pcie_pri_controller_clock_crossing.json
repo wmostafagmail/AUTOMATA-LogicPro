@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_pri_controller_clock_crossing",
+  "wrapper_entity": "pcie_pri_controller_clock_crossing_det_cfg",
+  "configuration_id": "PCIE_PRI_CONTROLLER_CLOCK_CROSSING_AD79CDF7572CF2CA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

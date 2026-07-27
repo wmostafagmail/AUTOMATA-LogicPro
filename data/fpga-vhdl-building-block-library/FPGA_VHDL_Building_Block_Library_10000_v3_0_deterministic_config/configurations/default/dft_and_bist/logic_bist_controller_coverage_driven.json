@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_bist_controller_coverage_driven",
+  "wrapper_entity": "logic_bist_controller_coverage_driven_det_cfg",
+  "configuration_id": "LOGIC_BIST_CONTROLLER_COVERAGE_DRIVEN_E6BD05BFF56E64E9",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

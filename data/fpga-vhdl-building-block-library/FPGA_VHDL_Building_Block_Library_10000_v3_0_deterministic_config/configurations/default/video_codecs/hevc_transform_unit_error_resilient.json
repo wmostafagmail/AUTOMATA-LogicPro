@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_error_resilient",
+  "wrapper_entity": "hevc_transform_unit_error_resilient_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_ERROR_RESILIENT_4D423395E40ED673",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

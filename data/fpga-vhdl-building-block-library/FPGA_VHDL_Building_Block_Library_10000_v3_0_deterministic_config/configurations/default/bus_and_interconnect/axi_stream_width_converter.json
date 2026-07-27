@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_width_converter",
+  "wrapper_entity": "axi_stream_width_converter_det_cfg",
+  "configuration_id": "AXI_STREAM_WIDTH_CONVERTER_C41365BDA064C80F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 53
+  }
+}

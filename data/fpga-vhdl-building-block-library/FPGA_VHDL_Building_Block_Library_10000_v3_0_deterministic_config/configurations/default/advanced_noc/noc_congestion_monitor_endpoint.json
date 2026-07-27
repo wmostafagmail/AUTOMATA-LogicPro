@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "noc_congestion_monitor_endpoint",
+  "wrapper_entity": "noc_congestion_monitor_endpoint_det_cfg",
+  "configuration_id": "NOC_CONGESTION_MONITOR_ENDPOINT_91CAF085B39FC34F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

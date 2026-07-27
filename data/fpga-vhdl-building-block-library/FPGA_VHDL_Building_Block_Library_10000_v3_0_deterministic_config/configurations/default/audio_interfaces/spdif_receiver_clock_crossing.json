@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spdif_receiver_clock_crossing",
+  "wrapper_entity": "spdif_receiver_clock_crossing_det_cfg",
+  "configuration_id": "SPDIF_RECEIVER_CLOCK_CROSSING_6C10BC5698BC488B",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

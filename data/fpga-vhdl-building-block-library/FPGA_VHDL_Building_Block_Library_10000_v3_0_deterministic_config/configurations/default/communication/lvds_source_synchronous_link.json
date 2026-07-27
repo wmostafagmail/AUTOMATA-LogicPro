@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lvds_source_synchronous_link",
+  "wrapper_entity": "lvds_source_synchronous_link_det_cfg",
+  "configuration_id": "LVDS_SOURCE_SYNCHRONOUS_LINK_9EF65B9A9D14CA35",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_copy_engine_low_power",
+  "wrapper_entity": "memory_copy_engine_low_power_det_cfg",
+  "configuration_id": "MEMORY_COPY_ENGINE_LOW_POWER_DAC02B274084A8C9",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

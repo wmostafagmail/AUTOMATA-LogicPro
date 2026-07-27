@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_aer_manager_software_configurable",
+  "wrapper_entity": "pcie_aer_manager_software_configurable_det_cfg",
+  "configuration_id": "PCIE_AER_MANAGER_SOFTWARE_CONFIGURABLE_F5A161CB62648C6C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

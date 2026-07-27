@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ddr_dfi_adapter_security_filtered",
+  "wrapper_entity": "ddr_dfi_adapter_security_filtered_det_cfg",
+  "configuration_id": "DDR_DFI_ADAPTER_SECURITY_FILTERED_C776FA94E439E0D9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

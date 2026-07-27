@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wallace_tree_multiplier_multi_channel",
+  "wrapper_entity": "wallace_tree_multiplier_multi_channel_det_cfg",
+  "configuration_id": "WALLACE_TREE_MULTIPLIER_MULTI_CHANNEL_B9204C9BF0E55A8C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

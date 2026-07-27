@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reciprocal_approximator_single_cycle",
+  "wrapper_entity": "reciprocal_approximator_single_cycle_det_cfg",
+  "configuration_id": "RECIPROCAL_APPROXIMATOR_SINGLE_CYCLE_E7A691762F187025",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

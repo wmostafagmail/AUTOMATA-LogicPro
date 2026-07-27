@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_telemetry_framer_multi_channel",
+  "wrapper_entity": "command_telemetry_framer_multi_channel_det_cfg",
+  "configuration_id": "COMMAND_TELEMETRY_FRAMER_MULTI_CHANNEL_3BBA7799CB070564",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

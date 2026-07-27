@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mask_merge_unit_iterative",
+  "wrapper_entity": "mask_merge_unit_iterative_det_cfg",
+  "configuration_id": "MASK_MERGE_UNIT_ITERATIVE_B4228E153ECBD23F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

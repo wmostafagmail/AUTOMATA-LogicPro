@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_fault_detecting",
+  "wrapper_entity": "rsa_crt_engine_fault_detecting_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_FAULT_DETECTING_A0875DB6485A0004",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

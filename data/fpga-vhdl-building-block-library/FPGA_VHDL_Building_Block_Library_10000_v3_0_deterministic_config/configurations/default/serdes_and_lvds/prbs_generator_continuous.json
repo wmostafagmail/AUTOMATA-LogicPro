@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prbs_generator_continuous",
+  "wrapper_entity": "prbs_generator_continuous_det_cfg",
+  "configuration_id": "PRBS_GENERATOR_CONTINUOUS_2CF3160E3C62AF72",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

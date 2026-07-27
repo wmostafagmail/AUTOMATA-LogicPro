@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_encoder_fully_parallel",
+  "wrapper_entity": "polar_encoder_fully_parallel_det_cfg",
+  "configuration_id": "POLAR_ENCODER_FULLY_PARALLEL_5862C83188251844",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_timing_controller_framebuffer",
+  "wrapper_entity": "hdmi_timing_controller_framebuffer_det_cfg",
+  "configuration_id": "HDMI_TIMING_CONTROLLER_FRAMEBUFFER_0791D3439A2792D2",
+  "generics": {
+    "H_WIDTH": 16,
+    "V_WIDTH": 16
+  }
+}

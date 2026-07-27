@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "demosaic_engine_programmable",
+  "wrapper_entity": "demosaic_engine_programmable_det_cfg",
+  "configuration_id": "DEMOSAIC_ENGINE_PROGRAMMABLE_CFE8337C419F6D95",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

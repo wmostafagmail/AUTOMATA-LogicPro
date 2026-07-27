@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_write_unit_multi_plane",
+  "wrapper_entity": "color_write_unit_multi_plane_det_cfg",
+  "configuration_id": "COLOR_WRITE_UNIT_MULTI_PLANE_D612D4589C42B40F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

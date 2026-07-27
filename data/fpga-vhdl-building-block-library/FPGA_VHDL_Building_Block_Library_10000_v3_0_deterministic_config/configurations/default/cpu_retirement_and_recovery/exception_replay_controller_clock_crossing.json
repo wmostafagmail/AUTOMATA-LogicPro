@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_clock_crossing",
+  "wrapper_entity": "exception_replay_controller_clock_crossing_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_CLOCK_CROSSING_80D0070013478F90",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

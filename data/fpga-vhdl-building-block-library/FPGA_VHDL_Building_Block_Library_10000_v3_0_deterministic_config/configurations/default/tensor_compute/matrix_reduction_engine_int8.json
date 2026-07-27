@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_reduction_engine_int8",
+  "wrapper_entity": "matrix_reduction_engine_int8_det_cfg",
+  "configuration_id": "MATRIX_REDUCTION_ENGINE_INT8_F8647C514A98A72F",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

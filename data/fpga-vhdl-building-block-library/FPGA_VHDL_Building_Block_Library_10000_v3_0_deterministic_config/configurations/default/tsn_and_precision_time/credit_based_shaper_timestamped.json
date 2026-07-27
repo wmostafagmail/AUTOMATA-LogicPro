@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_timestamped",
+  "wrapper_entity": "credit_based_shaper_timestamped_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_TIMESTAMPED_E2AEFABC5BE8BC32",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

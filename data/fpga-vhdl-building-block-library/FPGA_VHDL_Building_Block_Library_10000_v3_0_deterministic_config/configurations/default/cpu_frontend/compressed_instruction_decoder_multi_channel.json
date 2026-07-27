@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "compressed_instruction_decoder_multi_channel",
+  "wrapper_entity": "compressed_instruction_decoder_multi_channel_det_cfg",
+  "configuration_id": "COMPRESSED_INSTRUCTION_DECODER_MULTI_CHANNEL_F3BDF3FB89D151DE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

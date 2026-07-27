@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_windowed",
+  "wrapper_entity": "sigma_delta_adc_decimator_windowed_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_WINDOWED_627901ED534853D7",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

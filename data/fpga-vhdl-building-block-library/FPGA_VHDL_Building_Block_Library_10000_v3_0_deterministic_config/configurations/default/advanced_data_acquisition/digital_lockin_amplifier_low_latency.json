@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_low_latency",
+  "wrapper_entity": "digital_lockin_amplifier_low_latency_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_LOW_LATENCY_5FDCFCAC5F303E25",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

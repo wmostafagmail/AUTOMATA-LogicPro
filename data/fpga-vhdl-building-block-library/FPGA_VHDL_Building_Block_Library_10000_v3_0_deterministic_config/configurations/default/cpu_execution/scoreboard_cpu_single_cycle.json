@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_cpu_single_cycle",
+  "wrapper_entity": "scoreboard_cpu_single_cycle_det_cfg",
+  "configuration_id": "SCOREBOARD_CPU_SINGLE_CYCLE_257823EA2ECB9318",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

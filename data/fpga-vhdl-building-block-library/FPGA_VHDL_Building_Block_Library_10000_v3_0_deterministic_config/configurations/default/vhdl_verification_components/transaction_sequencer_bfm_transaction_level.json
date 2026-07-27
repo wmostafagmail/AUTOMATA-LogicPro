@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_transaction_level",
+  "wrapper_entity": "transaction_sequencer_bfm_transaction_level_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_TRANSACTION_LEVEL_DB420247F8D1C4E5",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

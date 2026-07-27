@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "motor_parameter_identifier_lockstep_checked",
+  "wrapper_entity": "motor_parameter_identifier_lockstep_checked_det_cfg",
+  "configuration_id": "MOTOR_PARAMETER_IDENTIFIER_LOCKSTEP_CHECKED_9C89D564EDA4B7CD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

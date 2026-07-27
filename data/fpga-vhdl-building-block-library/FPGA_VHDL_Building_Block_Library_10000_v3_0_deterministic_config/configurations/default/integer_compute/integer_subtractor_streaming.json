@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_subtractor_streaming",
+  "wrapper_entity": "integer_subtractor_streaming_det_cfg",
+  "configuration_id": "INTEGER_SUBTRACTOR_STREAMING_52E2B3FCBF6AC37C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

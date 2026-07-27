@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_framebuffer",
+  "wrapper_entity": "bezier_curve_rasterizer_framebuffer_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_FRAMEBUFFER_F9442D7A0ABE52EC",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

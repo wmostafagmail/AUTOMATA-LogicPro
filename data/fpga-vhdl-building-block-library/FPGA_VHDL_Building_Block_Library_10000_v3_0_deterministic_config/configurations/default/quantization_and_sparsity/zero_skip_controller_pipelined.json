@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_skip_controller_pipelined",
+  "wrapper_entity": "zero_skip_controller_pipelined_det_cfg",
+  "configuration_id": "ZERO_SKIP_CONTROLLER_PIPELINED_44DCE7ABD0D5D752",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

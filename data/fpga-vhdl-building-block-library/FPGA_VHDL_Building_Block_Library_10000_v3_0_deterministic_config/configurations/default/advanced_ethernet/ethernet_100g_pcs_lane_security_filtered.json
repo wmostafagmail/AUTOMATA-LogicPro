@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_100g_pcs_lane_security_filtered",
+  "wrapper_entity": "ethernet_100g_pcs_lane_security_filtered_det_cfg",
+  "configuration_id": "ETHERNET_100G_PCS_LANE_SECURITY_FILTERED_5D6FDE2955917C0A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

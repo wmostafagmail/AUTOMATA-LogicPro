@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_layer_engine_pipelined",
+  "wrapper_entity": "convolution_layer_engine_pipelined_det_cfg",
+  "configuration_id": "CONVOLUTION_LAYER_ENGINE_PIPELINED_3BE8CF4EA86D3D01",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

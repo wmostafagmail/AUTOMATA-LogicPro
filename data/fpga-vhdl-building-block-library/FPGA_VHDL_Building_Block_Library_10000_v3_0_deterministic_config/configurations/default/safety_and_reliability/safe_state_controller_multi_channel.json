@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safe_state_controller_multi_channel",
+  "wrapper_entity": "safe_state_controller_multi_channel_det_cfg",
+  "configuration_id": "SAFE_STATE_CONTROLLER_MULTI_CHANNEL_D18CDEFE93A83705",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

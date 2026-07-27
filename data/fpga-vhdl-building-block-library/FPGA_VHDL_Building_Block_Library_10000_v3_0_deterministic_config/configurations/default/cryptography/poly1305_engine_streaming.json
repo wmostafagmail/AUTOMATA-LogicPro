@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "poly1305_engine_streaming",
+  "wrapper_entity": "poly1305_engine_streaming_det_cfg",
+  "configuration_id": "POLY1305_ENGINE_STREAMING_CE18D57C494B562D",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

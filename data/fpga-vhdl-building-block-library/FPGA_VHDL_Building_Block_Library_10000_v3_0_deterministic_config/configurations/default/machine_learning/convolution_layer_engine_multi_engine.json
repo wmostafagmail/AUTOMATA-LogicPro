@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_layer_engine_multi_engine",
+  "wrapper_entity": "convolution_layer_engine_multi_engine_det_cfg",
+  "configuration_id": "CONVOLUTION_LAYER_ENGINE_MULTI_ENGINE_3A009696E9B8BCB0",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

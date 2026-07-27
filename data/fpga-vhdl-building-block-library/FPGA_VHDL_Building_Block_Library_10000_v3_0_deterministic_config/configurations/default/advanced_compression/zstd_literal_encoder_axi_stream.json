@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zstd_literal_encoder_axi_stream",
+  "wrapper_entity": "zstd_literal_encoder_axi_stream_det_cfg",
+  "configuration_id": "ZSTD_LITERAL_ENCODER_AXI_STREAM_9A90BFD3B9DA9194",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

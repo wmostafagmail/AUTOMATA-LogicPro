@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_shallow_pipeline",
+  "wrapper_entity": "grouped_convolution_engine_shallow_pipeline_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_SHALLOW_PIPELINE_BC9162866E2E772D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

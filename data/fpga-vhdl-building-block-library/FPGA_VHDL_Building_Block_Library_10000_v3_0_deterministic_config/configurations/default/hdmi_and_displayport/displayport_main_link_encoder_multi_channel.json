@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_main_link_encoder_multi_channel",
+  "wrapper_entity": "displayport_main_link_encoder_multi_channel_det_cfg",
+  "configuration_id": "DISPLAYPORT_MAIN_LINK_ENCODER_MULTI_CHANNEL_8F266DCADBECD238",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

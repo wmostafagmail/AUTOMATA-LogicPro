@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_monitor_multi_channel",
+  "wrapper_entity": "clock_monitor_multi_channel_det_cfg",
+  "configuration_id": "CLOCK_MONITOR_MULTI_CHANNEL_7FCAE167E5C150BD",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

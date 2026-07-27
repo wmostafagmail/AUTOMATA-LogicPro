@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_event_driven",
+  "wrapper_entity": "mppt_controller_event_driven_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_EVENT_DRIVEN_5A2952C8F04E0A8E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

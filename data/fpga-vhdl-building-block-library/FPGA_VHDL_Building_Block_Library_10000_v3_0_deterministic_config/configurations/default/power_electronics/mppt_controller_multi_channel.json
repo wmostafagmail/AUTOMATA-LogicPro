@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_multi_channel",
+  "wrapper_entity": "mppt_controller_multi_channel_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_MULTI_CHANNEL_5D248A8D8706D526",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

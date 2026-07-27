@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "word_fifo_single_clock",
+  "wrapper_entity": "word_fifo_single_clock_det_cfg",
+  "configuration_id": "WORD_FIFO_SINGLE_CLOCK_64D177863E7A00A6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

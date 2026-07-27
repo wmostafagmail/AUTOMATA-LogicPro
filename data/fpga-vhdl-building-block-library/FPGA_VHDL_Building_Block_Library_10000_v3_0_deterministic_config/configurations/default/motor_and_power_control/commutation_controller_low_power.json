@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "commutation_controller_low_power",
+  "wrapper_entity": "commutation_controller_low_power_det_cfg",
+  "configuration_id": "COMMUTATION_CONTROLLER_LOW_POWER_096CFF0B9515064C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

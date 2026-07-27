@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "psk_demapper_iterative",
+  "wrapper_entity": "psk_demapper_iterative_det_cfg",
+  "configuration_id": "PSK_DEMAPPER_ITERATIVE_8B086D1F24754887",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 76
+  }
+}

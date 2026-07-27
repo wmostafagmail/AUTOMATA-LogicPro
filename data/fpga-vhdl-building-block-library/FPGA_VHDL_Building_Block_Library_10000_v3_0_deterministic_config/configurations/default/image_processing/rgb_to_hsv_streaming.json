@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_hsv_streaming",
+  "wrapper_entity": "rgb_to_hsv_streaming_det_cfg",
+  "configuration_id": "RGB_TO_HSV_STREAMING_91EF2395A478A249",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

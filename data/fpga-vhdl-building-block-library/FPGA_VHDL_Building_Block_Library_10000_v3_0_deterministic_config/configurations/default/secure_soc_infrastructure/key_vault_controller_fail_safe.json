@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_fail_safe",
+  "wrapper_entity": "key_vault_controller_fail_safe_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_FAIL_SAFE_832632012C69DEC7",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

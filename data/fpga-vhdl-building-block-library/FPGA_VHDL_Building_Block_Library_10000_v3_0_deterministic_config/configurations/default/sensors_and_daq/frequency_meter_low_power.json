@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_meter_low_power",
+  "wrapper_entity": "frequency_meter_low_power_det_cfg",
+  "configuration_id": "FREQUENCY_METER_LOW_POWER_3F0B8064DE8850DF",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_digit_serial",
+  "wrapper_entity": "bit_reverse_network_digit_serial_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_DIGIT_SERIAL_5B83856005CEB47E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

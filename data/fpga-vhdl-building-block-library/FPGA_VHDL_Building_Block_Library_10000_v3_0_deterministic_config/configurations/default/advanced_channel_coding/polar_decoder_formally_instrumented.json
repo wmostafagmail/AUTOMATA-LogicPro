@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_decoder_formally_instrumented",
+  "wrapper_entity": "polar_decoder_formally_instrumented_det_cfg",
+  "configuration_id": "POLAR_DECODER_FORMALLY_INSTRUMENTED_BC8AD83795808A3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

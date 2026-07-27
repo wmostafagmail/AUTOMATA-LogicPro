@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "device_identity_block_programmable",
+  "wrapper_entity": "device_identity_block_programmable_det_cfg",
+  "configuration_id": "DEVICE_IDENTITY_BLOCK_PROGRAMMABLE_2C7937B9B7F30379",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

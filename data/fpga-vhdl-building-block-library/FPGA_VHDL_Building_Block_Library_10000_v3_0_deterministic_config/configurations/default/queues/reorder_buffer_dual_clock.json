@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_dual_clock",
+  "wrapper_entity": "reorder_buffer_dual_clock_det_cfg",
+  "configuration_id": "REORDER_BUFFER_DUAL_CLOCK_F2E0FCD7BD8B19FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

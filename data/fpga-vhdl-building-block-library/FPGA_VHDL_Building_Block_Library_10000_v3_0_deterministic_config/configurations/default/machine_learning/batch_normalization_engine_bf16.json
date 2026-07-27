@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batch_normalization_engine_bf16",
+  "wrapper_entity": "batch_normalization_engine_bf16_det_cfg",
+  "configuration_id": "BATCH_NORMALIZATION_ENGINE_BF16_7E10C98B4F65C910",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

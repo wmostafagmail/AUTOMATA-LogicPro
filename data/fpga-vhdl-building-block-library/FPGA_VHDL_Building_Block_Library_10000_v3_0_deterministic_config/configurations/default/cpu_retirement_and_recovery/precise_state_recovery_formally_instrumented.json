@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_formally_instrumented",
+  "wrapper_entity": "precise_state_recovery_formally_instrumented_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_FORMALLY_INSTRUMENTED_C8ECC9A4559060B5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

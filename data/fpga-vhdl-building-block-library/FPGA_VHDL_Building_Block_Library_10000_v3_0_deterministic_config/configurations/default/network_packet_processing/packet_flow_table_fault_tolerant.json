@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_flow_table_fault_tolerant",
+  "wrapper_entity": "packet_flow_table_fault_tolerant_det_cfg",
+  "configuration_id": "PACKET_FLOW_TABLE_FAULT_TOLERANT_F962A246F81731D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

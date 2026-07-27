@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "lookup_table_datapath",
+  "wrapper_entity": "lookup_table_datapath_det_cfg",
+  "configuration_id": "LOOKUP_TABLE_DATAPATH_478E44DC21ED5259",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

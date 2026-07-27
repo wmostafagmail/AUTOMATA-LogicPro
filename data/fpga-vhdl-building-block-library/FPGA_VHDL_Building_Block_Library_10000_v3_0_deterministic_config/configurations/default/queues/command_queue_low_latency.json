@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "command_queue_low_latency",
+  "wrapper_entity": "command_queue_low_latency_det_cfg",
+  "configuration_id": "COMMAND_QUEUE_LOW_LATENCY_7DACBCA4673C5852",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

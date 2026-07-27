@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_low_power",
+  "wrapper_entity": "decimal_divider_low_power_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_LOW_POWER_2AB7E4B3397DBFDF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

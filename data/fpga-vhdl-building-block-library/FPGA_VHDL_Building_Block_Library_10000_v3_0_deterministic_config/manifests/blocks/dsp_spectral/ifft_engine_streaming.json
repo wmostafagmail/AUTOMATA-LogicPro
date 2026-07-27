@@ -1,0 +1,127 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "ifft_engine_streaming",
+    "entity": "ifft_engine_streaming",
+    "version": "3.0.0",
+    "category": "dsp_spectral",
+    "source": "rtl/blocks/dsp_spectral/ifft_engine_streaming.vhd",
+    "wrapper_entity": "ifft_engine_streaming_det_cfg"
+  },
+  "configuration": {
+    "id": "IFFT_ENGINE_STREAMING_0C4DB0CC732DA389",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "XOR_MASK",
+        "type": "natural",
+        "default": "163",
+        "minimum": 0
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "XOR_MASK": 163
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "s_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_last",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "m_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_last",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "parameterized_integer/fixed-point reference behavior; quantify error against system model"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/dsp_spectral/ifft_engine_streaming_det_cfg.vhd",
+    "configuration_file": "configurations/default/ifft_engine_streaming.json"
+  }
+}

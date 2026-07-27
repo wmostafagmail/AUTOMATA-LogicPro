@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_packet_aware",
+  "wrapper_entity": "reorder_buffer_packet_aware_det_cfg",
+  "configuration_id": "REORDER_BUFFER_PACKET_AWARE_9EC615E2A44EBD84",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

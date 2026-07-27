@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "ecc_scalar_multiplier_fault_detecting",
+  "wrapper_entity": "ecc_scalar_multiplier_fault_detecting_det_cfg",
+  "configuration_id": "ECC_SCALAR_MULTIPLIER_FAULT_DETECTING_864EB4CD4C9F2A1A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

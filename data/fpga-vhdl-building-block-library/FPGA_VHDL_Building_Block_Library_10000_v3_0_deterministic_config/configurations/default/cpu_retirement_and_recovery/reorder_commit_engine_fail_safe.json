@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_fail_safe",
+  "wrapper_entity": "reorder_commit_engine_fail_safe_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_FAIL_SAFE_BBBAFF6481327D2A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

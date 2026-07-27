@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_software_configurable",
+  "wrapper_entity": "wakeup_select_unit_software_configurable_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_SOFTWARE_CONFIGURABLE_FC9D24FD833AC3D0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

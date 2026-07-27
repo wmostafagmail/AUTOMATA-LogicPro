@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_lms_filter_resource_shared",
+  "wrapper_entity": "adaptive_lms_filter_resource_shared_det_cfg",
+  "configuration_id": "ADAPTIVE_LMS_FILTER_RESOURCE_SHARED_E72599A7CA7C5F4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 62
+  }
+}

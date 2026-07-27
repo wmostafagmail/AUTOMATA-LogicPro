@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_unpacker_programmable",
+  "wrapper_entity": "mipi_csi2_unpacker_programmable_det_cfg",
+  "configuration_id": "MIPI_CSI2_UNPACKER_PROGRAMMABLE_3D94A8B89578AD4D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

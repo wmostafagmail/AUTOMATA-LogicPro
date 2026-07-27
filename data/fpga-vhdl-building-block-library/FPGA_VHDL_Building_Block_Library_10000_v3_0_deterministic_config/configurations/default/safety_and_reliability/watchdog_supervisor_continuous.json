@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_supervisor_continuous",
+  "wrapper_entity": "watchdog_supervisor_continuous_det_cfg",
+  "configuration_id": "WATCHDOG_SUPERVISOR_CONTINUOUS_B6490FA44B584F2A",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

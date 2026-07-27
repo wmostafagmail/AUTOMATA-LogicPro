@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chromatic_aberration_corrector_streaming",
+  "wrapper_entity": "chromatic_aberration_corrector_streaming_det_cfg",
+  "configuration_id": "CHROMATIC_ABERRATION_CORRECTOR_STREAMING_8F9D5CAEFF7392DF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

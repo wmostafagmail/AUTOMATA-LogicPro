@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adc_capture_low_power",
+  "wrapper_entity": "adc_capture_low_power_det_cfg",
+  "configuration_id": "ADC_CAPTURE_LOW_POWER_C2A1FECF8C5F4670",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

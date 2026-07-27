@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mish_activation_engine_shallow_pipeline",
+  "wrapper_entity": "mish_activation_engine_shallow_pipeline_det_cfg",
+  "configuration_id": "MISH_ACTIVATION_ENGINE_SHALLOW_PIPELINE_090F85744A9E744A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

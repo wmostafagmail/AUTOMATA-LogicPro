@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microsequencer_programmable",
+  "wrapper_entity": "microsequencer_programmable_det_cfg",
+  "configuration_id": "MICROSEQUENCER_PROGRAMMABLE_C1EE849705325886",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

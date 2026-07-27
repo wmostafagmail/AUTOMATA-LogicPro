@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_masked",
+  "wrapper_entity": "ascon_aead_engine_masked_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_MASKED_C326FA30E69337DD",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

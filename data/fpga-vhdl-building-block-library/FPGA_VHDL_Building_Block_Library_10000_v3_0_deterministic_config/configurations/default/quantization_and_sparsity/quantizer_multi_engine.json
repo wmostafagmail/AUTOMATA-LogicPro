@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quantizer_multi_engine",
+  "wrapper_entity": "quantizer_multi_engine_det_cfg",
+  "configuration_id": "QUANTIZER_MULTI_ENGINE_F5D5BAB5E5A27609",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_event_driven",
+  "wrapper_entity": "lidar_scan_matcher_event_driven_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_EVENT_DRIVEN_BDB8F410B6E02B6D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

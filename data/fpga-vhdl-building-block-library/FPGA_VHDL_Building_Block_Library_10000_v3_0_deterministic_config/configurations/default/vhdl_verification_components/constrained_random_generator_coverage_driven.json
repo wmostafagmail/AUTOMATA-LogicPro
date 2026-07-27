@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_coverage_driven",
+  "wrapper_entity": "constrained_random_generator_coverage_driven_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_COVERAGE_DRIVEN_C299E29E93E9AEAA",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

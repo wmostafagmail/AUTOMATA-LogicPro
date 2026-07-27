@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waypoint_sequencer_single_shot",
+  "wrapper_entity": "waypoint_sequencer_single_shot_det_cfg",
+  "configuration_id": "WAYPOINT_SEQUENCER_SINGLE_SHOT_120408D7F32B44C8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

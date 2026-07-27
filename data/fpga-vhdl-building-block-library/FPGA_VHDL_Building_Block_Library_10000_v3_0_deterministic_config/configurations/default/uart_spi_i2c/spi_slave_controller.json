@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_slave_controller",
+  "wrapper_entity": "spi_slave_controller_det_cfg",
+  "configuration_id": "SPI_SLAVE_CONTROLLER_B53819A30183CEE8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

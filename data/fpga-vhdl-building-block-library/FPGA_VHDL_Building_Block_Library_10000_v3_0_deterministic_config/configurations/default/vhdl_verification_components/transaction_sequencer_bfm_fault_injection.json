@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_fault_injection",
+  "wrapper_entity": "transaction_sequencer_bfm_fault_injection_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_FAULT_INJECTION_B1C5CBBB723108FA",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

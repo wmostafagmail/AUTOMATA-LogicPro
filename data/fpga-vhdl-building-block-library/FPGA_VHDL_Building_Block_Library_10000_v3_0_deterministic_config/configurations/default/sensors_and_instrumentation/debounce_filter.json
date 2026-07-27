@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "debounce_filter",
+  "wrapper_entity": "debounce_filter_det_cfg",
+  "configuration_id": "DEBOUNCE_FILTER_DD0D461B92F5EFCF",
+  "generics": {
+    "STABLE_CYCLES": 16
+  }
+}

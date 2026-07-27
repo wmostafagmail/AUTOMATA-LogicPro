@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "apb_peripheral",
+  "wrapper_entity": "apb_peripheral_det_cfg",
+  "configuration_id": "APB_PERIPHERAL_72F4324ED41F45DA",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

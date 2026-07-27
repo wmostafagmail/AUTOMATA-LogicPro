@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "softmax_engine_int8",
+  "wrapper_entity": "softmax_engine_int8_det_cfg",
+  "configuration_id": "SOFTMAX_ENGINE_INT8_35D00BAEE7EB5C17",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

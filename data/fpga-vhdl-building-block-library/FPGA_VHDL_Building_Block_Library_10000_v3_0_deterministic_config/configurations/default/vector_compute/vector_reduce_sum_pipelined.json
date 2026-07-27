@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_sum_pipelined",
+  "wrapper_entity": "vector_reduce_sum_pipelined_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_SUM_PIPELINED_3E91E7C408B243E1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

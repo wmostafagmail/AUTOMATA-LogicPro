@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_router",
+  "wrapper_entity": "profinet_irt_scheduler_router_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_ROUTER_DE6A163AC36631D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

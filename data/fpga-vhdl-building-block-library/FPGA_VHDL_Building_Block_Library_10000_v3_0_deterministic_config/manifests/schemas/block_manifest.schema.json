@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/fpga/block_manifest.schema.json",
+  "title": "Deterministic FPGA Building Block Manifest",
+  "type": "object",
+  "required": ["schema_version", "block", "configuration", "interface", "contracts", "maturity", "generation"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "block": {
+      "type": "object",
+      "required": ["name", "entity", "version", "category", "source", "wrapper_entity"],
+      "properties": {
+        "name": {"type": "string"}, "entity": {"type": "string"},
+        "version": {"type": "string"}, "category": {"type": "string"},
+        "source": {"type": "string"}, "wrapper_entity": {"type": "string"}
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "required": ["id", "hash_algorithm", "locked", "generics", "resolved_defaults"],
+      "properties": {
+        "id": {"type": "string"}, "hash_algorithm": {"const": "sha256-64"},
+        "locked": {"type": "boolean"}, "generics": {"type": "array"},
+        "resolved_defaults": {"type": "object"}
+      }
+    },
+    "interface": {"type": "object"},
+    "contracts": {"type": "object"},
+    "maturity": {"type": "object"},
+    "generation": {"type": "object"}
+  }
+}

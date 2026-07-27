@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_latency_checking",
+  "wrapper_entity": "formal_liveness_monitor_latency_checking_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_LATENCY_CHECKING_0A12D4A57944B411",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

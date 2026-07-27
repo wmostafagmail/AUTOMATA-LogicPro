@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_assume_guarantee_wrapper_latency_checking",
+  "wrapper_entity": "formal_assume_guarantee_wrapper_latency_checking_det_cfg",
+  "configuration_id": "FORMAL_ASSUME_GUARANTEE_WRAPPER_LATENCY_CHECKING_AA7892BEA95AA29D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

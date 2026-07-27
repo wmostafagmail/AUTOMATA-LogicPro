@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_deposit_iterative",
+  "wrapper_entity": "parallel_bit_deposit_iterative_det_cfg",
+  "configuration_id": "PARALLEL_BIT_DEPOSIT_ITERATIVE_F1890193F1608BBC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

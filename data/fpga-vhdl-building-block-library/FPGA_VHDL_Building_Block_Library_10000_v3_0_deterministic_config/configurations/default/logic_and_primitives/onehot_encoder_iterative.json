@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "onehot_encoder_iterative",
+  "wrapper_entity": "onehot_encoder_iterative_det_cfg",
+  "configuration_id": "ONEHOT_ENCODER_ITERATIVE_B8D2416EE3C7326B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

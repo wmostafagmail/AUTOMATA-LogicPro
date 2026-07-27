@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_crc_engine_pipelined",
+  "wrapper_entity": "ethernet_crc_engine_pipelined_det_cfg",
+  "configuration_id": "ETHERNET_CRC_ENGINE_PIPELINED_14EC7AE7333909B3",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

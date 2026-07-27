@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parity_checker_fault_tolerant",
+  "wrapper_entity": "parity_checker_fault_tolerant_det_cfg",
+  "configuration_id": "PARITY_CHECKER_FAULT_TOLERANT_2F4EA0F8954F498B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

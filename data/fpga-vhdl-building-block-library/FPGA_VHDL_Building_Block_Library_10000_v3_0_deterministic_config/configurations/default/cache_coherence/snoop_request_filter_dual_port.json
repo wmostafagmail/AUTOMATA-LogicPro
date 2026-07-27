@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "snoop_request_filter_dual_port",
+  "wrapper_entity": "snoop_request_filter_dual_port_det_cfg",
+  "configuration_id": "SNOOP_REQUEST_FILTER_DUAL_PORT_113406CD559E0FAD",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

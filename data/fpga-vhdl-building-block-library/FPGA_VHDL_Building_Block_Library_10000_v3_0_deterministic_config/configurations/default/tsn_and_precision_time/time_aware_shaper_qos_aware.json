@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_aware_shaper_qos_aware",
+  "wrapper_entity": "time_aware_shaper_qos_aware_det_cfg",
+  "configuration_id": "TIME_AWARE_SHAPER_QOS_AWARE_F741A0175EC10C66",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

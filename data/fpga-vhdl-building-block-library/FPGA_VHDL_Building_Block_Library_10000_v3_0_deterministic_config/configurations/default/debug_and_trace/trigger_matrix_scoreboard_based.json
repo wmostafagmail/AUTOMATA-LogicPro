@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_scoreboard_based",
+  "wrapper_entity": "trigger_matrix_scoreboard_based_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_SCOREBOARD_BASED_7794B453F9B5AEC4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

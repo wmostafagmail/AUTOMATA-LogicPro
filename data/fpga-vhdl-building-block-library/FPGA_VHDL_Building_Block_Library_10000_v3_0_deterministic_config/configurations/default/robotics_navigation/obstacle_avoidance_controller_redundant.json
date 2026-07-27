@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_redundant",
+  "wrapper_entity": "obstacle_avoidance_controller_redundant_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_REDUNDANT_68DDCA56316C0906",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

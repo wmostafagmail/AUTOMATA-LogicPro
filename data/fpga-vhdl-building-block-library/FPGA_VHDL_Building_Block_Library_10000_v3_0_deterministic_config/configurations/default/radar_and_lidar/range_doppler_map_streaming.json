@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "range_doppler_map_streaming",
+  "wrapper_entity": "range_doppler_map_streaming_det_cfg",
+  "configuration_id": "RANGE_DOPPLER_MAP_STREAMING_263547F91D5D3A9B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 113
+  }
+}

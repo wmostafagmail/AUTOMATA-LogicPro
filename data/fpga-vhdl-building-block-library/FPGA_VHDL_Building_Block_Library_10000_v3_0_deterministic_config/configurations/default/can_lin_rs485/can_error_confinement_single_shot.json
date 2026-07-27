@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_error_confinement_single_shot",
+  "wrapper_entity": "can_error_confinement_single_shot_det_cfg",
+  "configuration_id": "CAN_ERROR_CONFINEMENT_SINGLE_SHOT_45B4D0C7A1F3E1E4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

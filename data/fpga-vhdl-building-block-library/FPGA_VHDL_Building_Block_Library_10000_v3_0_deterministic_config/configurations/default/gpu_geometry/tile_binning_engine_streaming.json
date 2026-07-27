@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tile_binning_engine_streaming",
+  "wrapper_entity": "tile_binning_engine_streaming_det_cfg",
+  "configuration_id": "TILE_BINNING_ENGINE_STREAMING_65F13A5FB9FF9A98",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

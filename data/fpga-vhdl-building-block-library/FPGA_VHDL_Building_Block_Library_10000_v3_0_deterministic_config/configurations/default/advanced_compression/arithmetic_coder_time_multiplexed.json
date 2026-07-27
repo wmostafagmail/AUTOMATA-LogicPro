@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arithmetic_coder_time_multiplexed",
+  "wrapper_entity": "arithmetic_coder_time_multiplexed_det_cfg",
+  "configuration_id": "ARITHMETIC_CODER_TIME_MULTIPLEXED_5985CF1030D4AD9D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

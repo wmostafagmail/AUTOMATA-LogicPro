@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_multiplier_streaming",
+  "wrapper_entity": "floating_point_multiplier_streaming_det_cfg",
+  "configuration_id": "FLOATING_POINT_MULTIPLIER_STREAMING_DAA5B4EB06CF892E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

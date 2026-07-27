@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_security_filtered",
+  "wrapper_entity": "chi_snoop_filter_security_filtered_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_SECURITY_FILTERED_1E05284AA6F70593",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

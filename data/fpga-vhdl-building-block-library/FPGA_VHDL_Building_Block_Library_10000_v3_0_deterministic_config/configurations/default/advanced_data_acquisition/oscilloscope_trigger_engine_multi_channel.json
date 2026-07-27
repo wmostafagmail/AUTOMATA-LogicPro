@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_multi_channel",
+  "wrapper_entity": "oscilloscope_trigger_engine_multi_channel_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_MULTI_CHANNEL_EC965024AC136A26",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

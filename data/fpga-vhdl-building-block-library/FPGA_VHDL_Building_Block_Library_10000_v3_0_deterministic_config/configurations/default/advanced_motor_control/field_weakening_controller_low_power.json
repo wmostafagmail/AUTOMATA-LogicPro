@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_weakening_controller_low_power",
+  "wrapper_entity": "field_weakening_controller_low_power_det_cfg",
+  "configuration_id": "FIELD_WEAKENING_CONTROLLER_LOW_POWER_66E820B392FAC09A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

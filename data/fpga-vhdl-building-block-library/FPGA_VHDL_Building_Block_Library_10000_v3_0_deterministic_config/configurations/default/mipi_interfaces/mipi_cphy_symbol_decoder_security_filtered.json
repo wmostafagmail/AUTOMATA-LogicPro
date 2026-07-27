@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_security_filtered",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_security_filtered_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_SECURITY_FILTERED_093C552B3A67395E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

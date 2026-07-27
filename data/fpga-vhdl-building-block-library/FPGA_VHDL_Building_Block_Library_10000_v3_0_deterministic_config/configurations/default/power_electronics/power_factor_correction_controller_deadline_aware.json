@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_deadline_aware",
+  "wrapper_entity": "power_factor_correction_controller_deadline_aware_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_DEADLINE_AWARE_827F90A6FD16412D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

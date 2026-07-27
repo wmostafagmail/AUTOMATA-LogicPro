@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_redundant",
+  "wrapper_entity": "mppt_controller_redundant_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_REDUNDANT_43F8F5F36D40BC46",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

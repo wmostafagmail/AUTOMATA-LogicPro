@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "load_store_unit_iterative",
+  "wrapper_entity": "load_store_unit_iterative_det_cfg",
+  "configuration_id": "LOAD_STORE_UNIT_ITERATIVE_D378640FD471B40E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

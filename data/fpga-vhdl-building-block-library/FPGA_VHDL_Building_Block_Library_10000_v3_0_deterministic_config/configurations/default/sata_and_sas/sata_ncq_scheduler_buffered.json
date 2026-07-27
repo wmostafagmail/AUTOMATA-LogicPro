@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_ncq_scheduler_buffered",
+  "wrapper_entity": "sata_ncq_scheduler_buffered_det_cfg",
+  "configuration_id": "SATA_NCQ_SCHEDULER_BUFFERED_534CEFD287CA05E5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

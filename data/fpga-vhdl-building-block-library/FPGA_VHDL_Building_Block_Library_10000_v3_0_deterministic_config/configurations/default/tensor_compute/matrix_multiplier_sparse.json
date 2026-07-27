@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_multiplier_sparse",
+  "wrapper_entity": "matrix_multiplier_sparse_det_cfg",
+  "configuration_id": "MATRIX_MULTIPLIER_SPARSE_A1A5FEF6CE17AE56",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

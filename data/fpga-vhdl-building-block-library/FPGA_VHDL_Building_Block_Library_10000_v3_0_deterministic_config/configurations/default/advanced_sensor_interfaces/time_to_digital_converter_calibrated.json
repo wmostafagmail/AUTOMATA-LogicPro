@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "time_to_digital_converter_calibrated",
+  "wrapper_entity": "time_to_digital_converter_calibrated_det_cfg",
+  "configuration_id": "TIME_TO_DIGITAL_CONVERTER_CALIBRATED_BB98736D4860CC93",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

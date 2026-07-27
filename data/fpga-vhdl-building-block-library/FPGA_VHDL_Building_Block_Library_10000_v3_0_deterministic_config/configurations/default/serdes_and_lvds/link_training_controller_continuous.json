@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "link_training_controller_continuous",
+  "wrapper_entity": "link_training_controller_continuous_det_cfg",
+  "configuration_id": "LINK_TRAINING_CONTROLLER_CONTINUOUS_92FFCDDD04D32CFC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

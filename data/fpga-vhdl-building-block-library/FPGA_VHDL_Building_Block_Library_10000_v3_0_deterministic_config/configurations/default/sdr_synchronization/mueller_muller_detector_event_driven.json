@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_event_driven",
+  "wrapper_entity": "mueller_muller_detector_event_driven_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_EVENT_DRIVEN_8618EFA786C53C0C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

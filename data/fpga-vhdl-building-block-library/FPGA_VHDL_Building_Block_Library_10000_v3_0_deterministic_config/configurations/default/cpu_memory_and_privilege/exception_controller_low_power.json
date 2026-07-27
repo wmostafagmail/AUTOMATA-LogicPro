@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_controller_low_power",
+  "wrapper_entity": "exception_controller_low_power_det_cfg",
+  "configuration_id": "EXCEPTION_CONTROLLER_LOW_POWER_00778D23AC893268",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

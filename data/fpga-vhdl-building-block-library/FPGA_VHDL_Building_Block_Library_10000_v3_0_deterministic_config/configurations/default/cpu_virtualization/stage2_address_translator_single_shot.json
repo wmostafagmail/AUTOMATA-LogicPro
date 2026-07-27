@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_single_shot",
+  "wrapper_entity": "stage2_address_translator_single_shot_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_SINGLE_SHOT_54BC8C731652BA97",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

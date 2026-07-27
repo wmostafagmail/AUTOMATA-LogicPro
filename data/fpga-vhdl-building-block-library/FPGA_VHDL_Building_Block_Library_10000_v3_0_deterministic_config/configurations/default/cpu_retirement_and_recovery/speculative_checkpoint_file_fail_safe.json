@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_fail_safe",
+  "wrapper_entity": "speculative_checkpoint_file_fail_safe_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_FAIL_SAFE_B5097D6354C0D22D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

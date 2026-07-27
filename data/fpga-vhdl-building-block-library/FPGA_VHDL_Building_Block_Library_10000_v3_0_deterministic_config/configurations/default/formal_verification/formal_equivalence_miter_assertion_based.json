@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_assertion_based",
+  "wrapper_entity": "formal_equivalence_miter_assertion_based_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_ASSERTION_BASED_5870550F6A3A621E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

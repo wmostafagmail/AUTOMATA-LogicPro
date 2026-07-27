@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mdct_engine_time_multiplexed",
+  "wrapper_entity": "audio_mdct_engine_time_multiplexed_det_cfg",
+  "configuration_id": "AUDIO_MDCT_ENGINE_TIME_MULTIPLEXED_8F7728399A9F4103",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nor_execute_in_place_cache_scrubbed",
+  "wrapper_entity": "nor_execute_in_place_cache_scrubbed_det_cfg",
+  "configuration_id": "NOR_EXECUTE_IN_PLACE_CACHE_SCRUBBED_6D140C2903EEA0E3",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

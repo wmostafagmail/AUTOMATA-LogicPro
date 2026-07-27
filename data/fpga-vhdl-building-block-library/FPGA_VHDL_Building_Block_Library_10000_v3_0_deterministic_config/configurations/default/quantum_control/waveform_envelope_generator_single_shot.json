@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_single_shot",
+  "wrapper_entity": "waveform_envelope_generator_single_shot_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_SINGLE_SHOT_25C73D38F53889E6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

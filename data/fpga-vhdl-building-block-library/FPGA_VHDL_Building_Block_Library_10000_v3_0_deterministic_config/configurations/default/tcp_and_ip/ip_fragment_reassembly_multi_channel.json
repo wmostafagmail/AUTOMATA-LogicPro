@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_multi_channel",
+  "wrapper_entity": "ip_fragment_reassembly_multi_channel_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_MULTI_CHANNEL_54C202D34B084D59",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

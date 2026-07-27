@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_trace_encoder_protocol_compliance",
+  "wrapper_entity": "instruction_trace_encoder_protocol_compliance_det_cfg",
+  "configuration_id": "INSTRUCTION_TRACE_ENCODER_PROTOCOL_COMPLIANCE_ED733E8151D64BE3",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

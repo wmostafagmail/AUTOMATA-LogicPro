@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_software_configurable",
+  "wrapper_entity": "sensorless_back_emf_observer_software_configurable_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_SOFTWARE_CONFIGURABLE_C9F786A9FC32AFEC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

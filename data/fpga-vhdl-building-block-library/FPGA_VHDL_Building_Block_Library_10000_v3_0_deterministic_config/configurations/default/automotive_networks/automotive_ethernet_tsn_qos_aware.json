@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_qos_aware",
+  "wrapper_entity": "automotive_ethernet_tsn_qos_aware_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_QOS_AWARE_A251D608D9FD0766",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

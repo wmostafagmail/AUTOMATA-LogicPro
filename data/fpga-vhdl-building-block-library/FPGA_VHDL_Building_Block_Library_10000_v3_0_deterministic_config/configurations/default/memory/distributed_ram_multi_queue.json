@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "distributed_ram_multi_queue",
+  "wrapper_entity": "distributed_ram_multi_queue_det_cfg",
+  "configuration_id": "DISTRIBUTED_RAM_MULTI_QUEUE_734420D03908121E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

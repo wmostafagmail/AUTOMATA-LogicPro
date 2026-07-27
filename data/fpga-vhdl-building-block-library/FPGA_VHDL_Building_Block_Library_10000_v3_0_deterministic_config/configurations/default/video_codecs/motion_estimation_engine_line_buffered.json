@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_line_buffered",
+  "wrapper_entity": "motion_estimation_engine_line_buffered_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_LINE_BUFFERED_92114BAC21EFCDC9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

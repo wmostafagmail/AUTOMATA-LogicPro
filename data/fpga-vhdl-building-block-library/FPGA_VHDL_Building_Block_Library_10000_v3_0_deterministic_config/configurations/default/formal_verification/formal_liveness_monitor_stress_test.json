@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_stress_test",
+  "wrapper_entity": "formal_liveness_monitor_stress_test_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_STRESS_TEST_5BF468776A7D7C37",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

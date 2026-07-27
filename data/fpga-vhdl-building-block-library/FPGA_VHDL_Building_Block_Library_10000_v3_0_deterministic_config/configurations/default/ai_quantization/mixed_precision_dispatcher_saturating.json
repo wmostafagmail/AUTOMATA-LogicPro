@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_saturating",
+  "wrapper_entity": "mixed_precision_dispatcher_saturating_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_SATURATING_4236F9E4BBAB9A0D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

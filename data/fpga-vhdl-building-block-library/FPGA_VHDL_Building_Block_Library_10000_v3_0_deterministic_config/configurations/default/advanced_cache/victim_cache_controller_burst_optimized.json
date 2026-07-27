@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "victim_cache_controller_burst_optimized",
+  "wrapper_entity": "victim_cache_controller_burst_optimized_det_cfg",
+  "configuration_id": "VICTIM_CACHE_CONTROLLER_BURST_OPTIMIZED_BDAE300EA551D694",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

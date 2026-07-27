@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_vlan_strip_resource_shared",
+  "wrapper_entity": "ethernet_vlan_strip_resource_shared_det_cfg",
+  "configuration_id": "ETHERNET_VLAN_STRIP_RESOURCE_SHARED_8CA3693E81956445",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

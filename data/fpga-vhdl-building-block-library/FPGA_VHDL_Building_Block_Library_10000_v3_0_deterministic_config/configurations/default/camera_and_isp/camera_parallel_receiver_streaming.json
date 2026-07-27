@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "camera_parallel_receiver_streaming",
+  "wrapper_entity": "camera_parallel_receiver_streaming_det_cfg",
+  "configuration_id": "CAMERA_PARALLEL_RECEIVER_STREAMING_BEE2481FA59B2AAD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

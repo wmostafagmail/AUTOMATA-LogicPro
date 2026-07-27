@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "word_aligner_programmable",
+  "wrapper_entity": "word_aligner_programmable_det_cfg",
+  "configuration_id": "WORD_ALIGNER_PROGRAMMABLE_0CD15AE04E38D00A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

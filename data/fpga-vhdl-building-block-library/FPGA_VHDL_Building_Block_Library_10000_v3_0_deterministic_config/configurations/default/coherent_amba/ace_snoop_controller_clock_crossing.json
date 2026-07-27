@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_clock_crossing",
+  "wrapper_entity": "ace_snoop_controller_clock_crossing_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_CLOCK_CROSSING_856354776FD0407A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

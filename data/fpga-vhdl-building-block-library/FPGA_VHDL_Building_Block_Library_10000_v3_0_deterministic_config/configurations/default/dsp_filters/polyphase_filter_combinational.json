@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_filter_combinational",
+  "wrapper_entity": "polyphase_filter_combinational_det_cfg",
+  "configuration_id": "POLYPHASE_FILTER_COMBINATIONAL_212899C10C531DDD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 252
+  }
+}

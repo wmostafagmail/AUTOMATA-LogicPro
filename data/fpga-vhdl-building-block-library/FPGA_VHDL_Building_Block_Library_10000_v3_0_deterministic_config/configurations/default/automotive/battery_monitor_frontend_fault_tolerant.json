@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_monitor_frontend_fault_tolerant",
+  "wrapper_entity": "battery_monitor_frontend_fault_tolerant_det_cfg",
+  "configuration_id": "BATTERY_MONITOR_FRONTEND_FAULT_TOLERANT_DADE0A955206812D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "layer_norm_engine_bf16",
+  "wrapper_entity": "layer_norm_engine_bf16_det_cfg",
+  "configuration_id": "LAYER_NORM_ENGINE_BF16_DB9FB3026A3EFB31",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

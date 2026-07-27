@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "black_level_correction_low_latency",
+  "wrapper_entity": "black_level_correction_low_latency_det_cfg",
+  "configuration_id": "BLACK_LEVEL_CORRECTION_LOW_LATENCY_07ABA302B7F47560",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_border_unit_streaming",
+  "wrapper_entity": "texture_border_unit_streaming_det_cfg",
+  "configuration_id": "TEXTURE_BORDER_UNIT_STREAMING_09393DB2D46BAFB1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

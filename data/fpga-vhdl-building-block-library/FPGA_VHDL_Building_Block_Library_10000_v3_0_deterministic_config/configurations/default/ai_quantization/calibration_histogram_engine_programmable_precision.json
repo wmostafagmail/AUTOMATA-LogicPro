@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "calibration_histogram_engine_programmable_precision",
+  "wrapper_entity": "calibration_histogram_engine_programmable_precision_det_cfg",
+  "configuration_id": "CALIBRATION_HISTOGRAM_ENGINE_PROGRAMMABLE_PRECISION_E8A054B413603E75",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

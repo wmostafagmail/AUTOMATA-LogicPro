@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prbs_generator_multi_channel",
+  "wrapper_entity": "prbs_generator_multi_channel_det_cfg",
+  "configuration_id": "PRBS_GENERATOR_MULTI_CHANNEL_F6E7ED5C989BCDCB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

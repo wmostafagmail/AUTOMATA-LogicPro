@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_decompression_engine_fixed_latency",
+  "wrapper_entity": "texture_decompression_engine_fixed_latency_det_cfg",
+  "configuration_id": "TEXTURE_DECOMPRESSION_ENGINE_FIXED_LATENCY_DD0911232AB9AEA1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

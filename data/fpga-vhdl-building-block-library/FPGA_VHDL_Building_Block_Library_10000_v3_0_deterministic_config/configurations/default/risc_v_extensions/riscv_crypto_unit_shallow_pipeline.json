@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_shallow_pipeline",
+  "wrapper_entity": "riscv_crypto_unit_shallow_pipeline_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_SHALLOW_PIPELINE_B04EF4C869F9171F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

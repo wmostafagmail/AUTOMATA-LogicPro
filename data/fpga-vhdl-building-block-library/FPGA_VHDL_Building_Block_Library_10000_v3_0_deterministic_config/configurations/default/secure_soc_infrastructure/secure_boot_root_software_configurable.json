@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_software_configurable",
+  "wrapper_entity": "secure_boot_root_software_configurable_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_SOFTWARE_CONFIGURABLE_001C178765342506",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

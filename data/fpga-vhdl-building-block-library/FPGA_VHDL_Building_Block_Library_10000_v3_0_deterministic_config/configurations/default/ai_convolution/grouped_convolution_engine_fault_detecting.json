@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_fault_detecting",
+  "wrapper_entity": "grouped_convolution_engine_fault_detecting_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_FAULT_DETECTING_094DDAFE2795E788",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

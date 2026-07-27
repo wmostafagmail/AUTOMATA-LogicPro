@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_software_configurable",
+  "wrapper_entity": "hdmi_audio_packet_generator_software_configurable_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_SOFTWARE_CONFIGURABLE_72B3B12691C1816B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_multiplier_iterative",
+  "wrapper_entity": "decimal_multiplier_iterative_det_cfg",
+  "configuration_id": "DECIMAL_MULTIPLIER_ITERATIVE_3EB7F0D54AB47856",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

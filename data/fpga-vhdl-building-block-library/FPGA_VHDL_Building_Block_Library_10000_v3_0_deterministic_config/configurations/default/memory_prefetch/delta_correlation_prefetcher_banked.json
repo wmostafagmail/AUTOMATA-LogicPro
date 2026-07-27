@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "delta_correlation_prefetcher_banked",
+  "wrapper_entity": "delta_correlation_prefetcher_banked_det_cfg",
+  "configuration_id": "DELTA_CORRELATION_PREFETCHER_BANKED_107D1501929F5493",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

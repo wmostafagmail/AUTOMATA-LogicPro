@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_max_combinational",
+  "wrapper_entity": "vector_reduce_max_combinational_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_MAX_COMBINATIONAL_FA7486BC4A57F2AE",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

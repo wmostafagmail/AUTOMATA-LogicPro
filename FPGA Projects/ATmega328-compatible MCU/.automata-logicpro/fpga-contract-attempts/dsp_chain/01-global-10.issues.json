@@ -5,16 +5,43 @@
   "designLabel": "Digital Signal Processing Chain: FIR Filter + FFT-lite Analyzer",
   "attempt": 10,
   "designAttempt": 1,
-  "issueCount": 1,
+  "issueCount": 6,
   "topIssueCodes": [
-    "architecture_missing_block_discovery_poor_fit"
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required",
+    "architecture_intent_unknown_required_field"
   ],
-  "message": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does FIR mean in this FPGA design? What does FFT mean in this FPGA design?",
   "issues": [
     {
-      "code": "architecture_missing_block_discovery_poor_fit",
-      "path": "$.architectureSynthesis.buildingBlockCatalogIds",
-      "message": "Discovered blocks: fft_lite, spectral_analyzer, pipeline_latency_tracker, output_valid_stage. Missing blocks after review: fir_filter_datapath, multiplier_adder_unit, pipeline_register_stage, spectral_analyzer_math_core, top_level_integration_wrapper, tb_self_checking, constraints_generic, doc_overview, doc_arch_note, doc_unit_notes, doc_verification, ghdl_plan_json. Risks: Reset polarity mismatch: spec requires synchronous active-high, but blocks use active-low rst_ni; Missing arithmetic datapath: no FIR filter, multipliers, or adders discovered; All discovered blocks are identical control FSMs, lacking data path logic; Latency bookkeeping not implemented in discovered blocks; No testbench or constraints provided."
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FIR",
+      "message": "What does FIR mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FFT",
+      "message": "What does FFT mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_unknown_required_field",
+      "path": "$.intent.widthOrFormat",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
     }
   ]
 }

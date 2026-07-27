@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mish_activation_engine_fully_parallel",
+  "wrapper_entity": "mish_activation_engine_fully_parallel_det_cfg",
+  "configuration_id": "MISH_ACTIVATION_ENGINE_FULLY_PARALLEL_B560F8451E0FB8A5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

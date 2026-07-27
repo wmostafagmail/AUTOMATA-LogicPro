@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "diagnostics_transport_engine_fault_tolerant",
+  "wrapper_entity": "diagnostics_transport_engine_fault_tolerant_det_cfg",
+  "configuration_id": "DIAGNOSTICS_TRANSPORT_ENGINE_FAULT_TOLERANT_1EC9E9B12DEBCAD5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "program_counter_single_shot",
+  "wrapper_entity": "program_counter_single_shot_det_cfg",
+  "configuration_id": "PROGRAM_COUNTER_SINGLE_SHOT_985343EECA178E81",
+  "generics": {
+    "PC_WIDTH": 32,
+    "RESET_VECTOR": 0,
+    "INSTR_BYTES": 4
+  }
+}

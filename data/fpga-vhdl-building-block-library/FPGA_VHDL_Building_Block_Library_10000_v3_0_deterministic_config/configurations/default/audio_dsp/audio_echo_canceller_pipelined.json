@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_echo_canceller_pipelined",
+  "wrapper_entity": "audio_echo_canceller_pipelined_det_cfg",
+  "configuration_id": "AUDIO_ECHO_CANCELLER_PIPELINED_82E8A8F407EAF647",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

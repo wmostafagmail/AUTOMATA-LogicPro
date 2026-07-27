@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "time_of_flight_counter_pipelined",
+  "wrapper_entity": "time_of_flight_counter_pipelined_det_cfg",
+  "configuration_id": "TIME_OF_FLIGHT_COUNTER_PIPELINED_2B166D1E73AAE492",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

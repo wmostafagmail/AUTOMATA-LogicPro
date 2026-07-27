@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deadlock_avoidance_unit_redundant",
+  "wrapper_entity": "deadlock_avoidance_unit_redundant_det_cfg",
+  "configuration_id": "DEADLOCK_AVOIDANCE_UNIT_REDUNDANT_E17920414A31B6F8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

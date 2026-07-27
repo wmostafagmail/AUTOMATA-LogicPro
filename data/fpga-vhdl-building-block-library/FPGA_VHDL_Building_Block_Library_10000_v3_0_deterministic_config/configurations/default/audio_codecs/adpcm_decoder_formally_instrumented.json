@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_decoder_formally_instrumented",
+  "wrapper_entity": "adpcm_decoder_formally_instrumented_det_cfg",
+  "configuration_id": "ADPCM_DECODER_FORMALLY_INSTRUMENTED_BFC2C6FD0D1DEC8D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

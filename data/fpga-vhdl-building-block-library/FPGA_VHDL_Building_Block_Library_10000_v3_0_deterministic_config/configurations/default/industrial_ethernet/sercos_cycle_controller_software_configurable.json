@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sercos_cycle_controller_software_configurable",
+  "wrapper_entity": "sercos_cycle_controller_software_configurable_det_cfg",
+  "configuration_id": "SERCOS_CYCLE_CONTROLLER_SOFTWARE_CONFIGURABLE_6060372AD94AE2AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

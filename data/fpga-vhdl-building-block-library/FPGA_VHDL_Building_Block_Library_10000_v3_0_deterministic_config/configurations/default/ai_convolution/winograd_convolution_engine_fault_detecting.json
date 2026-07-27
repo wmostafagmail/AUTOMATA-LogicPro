@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "winograd_convolution_engine_fault_detecting",
+  "wrapper_entity": "winograd_convolution_engine_fault_detecting_det_cfg",
+  "configuration_id": "WINOGRAD_CONVOLUTION_ENGINE_FAULT_DETECTING_1049F6B5F4645C6C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

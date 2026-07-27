@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_axi_stream",
+  "wrapper_entity": "normalized_lms_filter_axi_stream_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_AXI_STREAM_CBE4ADE1B44A38F2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

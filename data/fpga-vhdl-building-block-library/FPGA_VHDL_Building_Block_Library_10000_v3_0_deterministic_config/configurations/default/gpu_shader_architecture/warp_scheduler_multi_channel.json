@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "warp_scheduler_multi_channel",
+  "wrapper_entity": "warp_scheduler_multi_channel_det_cfg",
+  "configuration_id": "WARP_SCHEDULER_MULTI_CHANNEL_2AD45E566E1FAADF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

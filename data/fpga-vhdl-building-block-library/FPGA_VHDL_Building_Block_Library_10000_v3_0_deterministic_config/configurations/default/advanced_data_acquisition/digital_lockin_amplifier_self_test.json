@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_self_test",
+  "wrapper_entity": "digital_lockin_amplifier_self_test_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_SELF_TEST_3ADD49F8792E4579",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

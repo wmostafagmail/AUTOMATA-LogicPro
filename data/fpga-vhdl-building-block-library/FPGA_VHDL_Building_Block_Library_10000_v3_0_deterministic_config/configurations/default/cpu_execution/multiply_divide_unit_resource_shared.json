@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "multiply_divide_unit_resource_shared",
+  "wrapper_entity": "multiply_divide_unit_resource_shared_det_cfg",
+  "configuration_id": "MULTIPLY_DIVIDE_UNIT_RESOURCE_SHARED_64B9FA80E38CE668",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

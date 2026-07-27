@@ -72,6 +72,15 @@ interface RetryableMacroRequest {
   tbMode: TbGenerationMode | null;
 }
 
+interface ArchitectureClarificationRequest {
+  originalPrompt: string;
+  macroId: AiMacroId;
+  tbMode: TbGenerationMode | null;
+  jobId: string;
+  questions: string[];
+  unknowns: string[];
+}
+
 export function useAIDrawerAnalysis(params: {
   providers: ProviderOption[];
   selectedProvider: string;
@@ -108,6 +117,8 @@ export function useAIDrawerAnalysis(params: {
   const [jobStartedAt, setJobStartedAt] = useState<number | null>(null);
   const [jobElapsedSeconds, setJobElapsedSeconds] = useState(0);
   const [jobTelemetry, setJobTelemetry] = useState<JobTelemetry | null>(null);
+  const [pendingArchitectureClarification, setPendingArchitectureClarification] = useState<ArchitectureClarificationRequest | null>(null);
+  const [architectureClarificationAnswer, setArchitectureClarificationAnswer] = useState('');
   const [sessionTokenTotals, setSessionTokenTotals] = useState<{ inputTokens: number; outputTokens: number }>({
     inputTokens: 0,
     outputTokens: 0,
@@ -228,6 +239,8 @@ export function useAIDrawerAnalysis(params: {
       macroId,
       tbMode,
     });
+    setPendingArchitectureClarification(null);
+    setArchitectureClarificationAnswer('');
     setPendingRemoteExportPreview(null);
 
     try {
@@ -261,6 +274,49 @@ export function useAIDrawerAnalysis(params: {
       const data = await response.json();
       setJobStatus('Receiving AI response...');
       if (!response.ok) {
+        if (
+          response.status === 409
+          && data?.status === 'awaiting_architecture_clarification'
+          && macroId === 'fpga_vhdl_architect'
+        ) {
+          const questions = Array.isArray(data?.architectureClarificationQuestions)
+            ? data.architectureClarificationQuestions.map((entry: unknown) => String(entry || '').trim()).filter(Boolean)
+            : [];
+          const unknowns = Array.isArray(data?.architectureClarificationUnknowns)
+            ? data.architectureClarificationUnknowns.map((entry: unknown) => String(entry || '').trim()).filter(Boolean)
+            : [];
+          setPendingArchitectureClarification({
+            originalPrompt: queryText,
+            macroId,
+            tbMode,
+            jobId: typeof data?.jobId === 'string' ? data.jobId : jobId,
+            questions,
+            unknowns,
+          });
+          setMessages((prev) => [...prev, {
+            role: 'assistant',
+            text: [
+              '### Architecture Clarification Needed',
+              '',
+              'I paused before VHDL generation because the architecture intent is not specific enough to build a safe contract without guessing.',
+              '',
+              questions.length > 0
+                ? `Questions:\n${questions.map((question: string, index: number) => `${index + 1}. ${question}`).join('\n')}`
+                : 'Please clarify the missing architecture intent before continuing.',
+              unknowns.length > 0
+                ? `\nUnknown fields: ${unknowns.join(', ')}`
+                : '',
+            ].filter(Boolean).join('\n'),
+            meta: {
+              macroId,
+              tbGenerationMode: tbMode,
+              validation: null,
+            },
+          }]);
+          resetFailedJobTelemetry();
+          setJobStatus('Architecture clarification needed.');
+          return;
+        }
         throw new Error(data.error || 'Server error running simulation analysis');
       }
 
@@ -435,6 +491,39 @@ export function useAIDrawerAnalysis(params: {
     });
   };
 
+  const handleSubmitArchitectureClarification = async () => {
+    const pending = pendingArchitectureClarification;
+    const answer = architectureClarificationAnswer.trim();
+    if (!pending || !answer || loading) {
+      return;
+    }
+
+    const clarifiedPrompt = [
+      pending.originalPrompt.trim(),
+      '',
+      'User clarification for FPGA Architecture intent gate:',
+      pending.questions.length > 0
+        ? pending.questions.map((question, index) => `Question ${index + 1}: ${question}`).join('\n')
+        : '',
+      `Clarification answer: ${answer}`,
+      '',
+      'Use this clarification as explicit user intent. Do not assume any remaining unclear architecture choice; pause again if anything architecture-critical is still unknown.',
+    ].filter(Boolean).join('\n');
+
+    setPendingArchitectureClarification(null);
+    setArchitectureClarificationAnswer('');
+    await handleMacroSendMessage(clarifiedPrompt, {
+      macroId: pending.macroId,
+      tbGenerationMode: pending.tbMode,
+    });
+  };
+
+  const handleDismissArchitectureClarification = () => {
+    setPendingArchitectureClarification(null);
+    setArchitectureClarificationAnswer('');
+    setJobStatus('Architecture clarification dismissed.');
+  };
+
   const handleApproveRemoteExportPreview = async () => {
     if (!pendingRemoteExportPreview || loading) {
       return;
@@ -575,10 +664,13 @@ export function useAIDrawerAnalysis(params: {
   const hasFinishedJobCard = Boolean(jobStatus);
   const jobCompletedSuccessfully = jobStatus === 'AI analysis finished.';
   const jobWasCancelled = jobStatus === 'AI job cancelled.';
+  const architectureClarificationRequired = Boolean(pendingArchitectureClarification);
   const jobFailed = Boolean(jobStatus?.startsWith('AI job failed'));
   const statusPanelText = jobStatus || 'AI Engine ready.';
   const statusPanelTone = loading
     ? 'border-brand-amber/20 bg-brand-surface-lowest text-slate-300'
+    : architectureClarificationRequired
+      ? 'border-amber-400/30 bg-amber-950/25 text-amber-100'
     : jobFailed
       ? 'border-rose-500/30 bg-rose-950/30 text-rose-100'
       : 'border-brand-secondary/20 bg-brand-surface-lowest text-slate-300';
@@ -586,6 +678,8 @@ export function useAIDrawerAnalysis(params: {
   const jobCardTitle = activeMacroLabel;
   const jobCardTitleTone = loading
     ? 'text-red-200'
+    : architectureClarificationRequired
+      ? 'text-amber-200'
     : jobFailed
       ? 'text-rose-200'
       : jobWasCancelled
@@ -593,6 +687,8 @@ export function useAIDrawerAnalysis(params: {
         : 'text-emerald-200';
   const jobCardSurface = loading
     ? 'border-red-400/35 bg-[#09111f]/95'
+    : architectureClarificationRequired
+      ? 'border-amber-400/35 bg-amber-950/20'
     : jobFailed
       ? 'border-rose-500/35 bg-rose-950/30'
       : jobWasCancelled
@@ -606,6 +702,8 @@ export function useAIDrawerAnalysis(params: {
     : statusPanelTelemetry.sessionOutputTokens;
   const jobCardBadge = loading
     ? 'Running'
+    : architectureClarificationRequired
+      ? 'Needs input'
     : jobFailed
       ? 'Failed'
       : jobWasCancelled
@@ -613,6 +711,8 @@ export function useAIDrawerAnalysis(params: {
         : 'Finished';
   const jobCardBadgeTone = loading
     ? 'border-red-400/45 bg-red-500/15 text-red-100'
+    : architectureClarificationRequired
+      ? 'border-amber-400/45 bg-amber-500/15 text-amber-100'
     : jobFailed
       ? 'border-rose-400/45 bg-rose-500/15 text-rose-100'
       : jobWasCancelled
@@ -629,6 +729,8 @@ export function useAIDrawerAnalysis(params: {
     jobStatus,
     jobElapsedSeconds,
     jobTelemetry,
+    pendingArchitectureClarification,
+    architectureClarificationAnswer,
     activeMacroId,
     testGenerating,
     testGenerateResult,
@@ -636,6 +738,8 @@ export function useAIDrawerAnalysis(params: {
     handleSendMessage,
     handleMacroSendMessage,
     handleRetryLastMacro,
+    handleSubmitArchitectureClarification,
+    handleDismissArchitectureClarification,
     handleApproveRemoteExportPreview,
     handleCancelRemoteExportPreview,
     handleStopJob,
@@ -662,6 +766,8 @@ export function useAIDrawerAnalysis(params: {
     sessionOutputDisplayValue,
     jobCardBadge,
     jobCardBadgeTone,
+    architectureClarificationRequired,
+    setArchitectureClarificationAnswer,
     setProviderError,
     setPendingRemoteExportPreview,
   };

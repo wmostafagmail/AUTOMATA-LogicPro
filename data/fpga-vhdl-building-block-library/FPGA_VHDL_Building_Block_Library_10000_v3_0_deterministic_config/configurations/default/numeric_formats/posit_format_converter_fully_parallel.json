@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_fully_parallel",
+  "wrapper_entity": "posit_format_converter_fully_parallel_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_FULLY_PARALLEL_5B84EB963ADB9FCD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

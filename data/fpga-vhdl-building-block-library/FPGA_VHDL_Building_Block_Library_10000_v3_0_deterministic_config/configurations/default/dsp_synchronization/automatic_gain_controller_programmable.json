@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automatic_gain_controller_programmable",
+  "wrapper_entity": "automatic_gain_controller_programmable_det_cfg",
+  "configuration_id": "AUTOMATIC_GAIN_CONTROLLER_PROGRAMMABLE_0947CA89C7556B64",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 72
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "alu_core",
+  "wrapper_entity": "alu_core_det_cfg",
+  "configuration_id": "ALU_CORE_8E3D7ED293DADD7C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "OP_WIDTH": 4,
+    "SIGNED_MODE": false
+  }
+}

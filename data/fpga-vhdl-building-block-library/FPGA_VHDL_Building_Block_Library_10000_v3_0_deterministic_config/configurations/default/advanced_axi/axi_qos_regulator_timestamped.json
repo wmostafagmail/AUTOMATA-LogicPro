@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_qos_regulator_timestamped",
+  "wrapper_entity": "axi_qos_regulator_timestamped_det_cfg",
+  "configuration_id": "AXI_QOS_REGULATOR_TIMESTAMPED_6210E63C5C42E7A3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

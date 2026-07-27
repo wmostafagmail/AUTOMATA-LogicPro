@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_fail_safe",
+  "wrapper_entity": "qubit_pulse_sequencer_fail_safe_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_FAIL_SAFE_8BCD4E8B4AA6500B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

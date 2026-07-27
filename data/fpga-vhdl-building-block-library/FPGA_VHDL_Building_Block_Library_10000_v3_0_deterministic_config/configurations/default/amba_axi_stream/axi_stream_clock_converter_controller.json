@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_clock_converter_controller",
+  "wrapper_entity": "axi_stream_clock_converter_controller_det_cfg",
+  "configuration_id": "AXI_STREAM_CLOCK_CONVERTER_CONTROLLER_74FBF2A07AAE2C83",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 23
+  }
+}

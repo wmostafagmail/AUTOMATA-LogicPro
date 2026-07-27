@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_lane_alignment_software_configurable",
+  "wrapper_entity": "jesd204b_lane_alignment_software_configurable_det_cfg",
+  "configuration_id": "JESD204B_LANE_ALIGNMENT_SOFTWARE_CONFIGURABLE_1697BC2FFFD15F0C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

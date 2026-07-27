@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_wrap_engine_high_throughput",
+  "wrapper_entity": "key_wrap_engine_high_throughput_det_cfg",
+  "configuration_id": "KEY_WRAP_ENGINE_HIGH_THROUGHPUT_802C64C4D635EA80",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "absolute_value_unit_iterative",
+  "wrapper_entity": "absolute_value_unit_iterative_det_cfg",
+  "configuration_id": "ABSOLUTE_VALUE_UNIT_ITERATIVE_4313138DF3A035D2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

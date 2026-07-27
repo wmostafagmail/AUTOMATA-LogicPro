@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reed_solomon_encoder_iterative",
+  "wrapper_entity": "reed_solomon_encoder_iterative_det_cfg",
+  "configuration_id": "REED_SOLOMON_ENCODER_ITERATIVE_0FA604FC64FA0AA3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

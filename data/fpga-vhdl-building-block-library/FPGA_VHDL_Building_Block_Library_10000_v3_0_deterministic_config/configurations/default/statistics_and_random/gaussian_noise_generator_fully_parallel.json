@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gaussian_noise_generator_fully_parallel",
+  "wrapper_entity": "gaussian_noise_generator_fully_parallel_det_cfg",
+  "configuration_id": "GAUSSIAN_NOISE_GENERATOR_FULLY_PARALLEL_BF0C23B1C9FD47E5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

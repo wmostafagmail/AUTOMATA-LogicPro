@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "vertex_transform_engine_resource_shared",
+  "wrapper_entity": "vertex_transform_engine_resource_shared_det_cfg",
+  "configuration_id": "VERTEX_TRANSFORM_ENGINE_RESOURCE_SHARED_1E4AC755977E451C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gearbox_fault_tolerant",
+  "wrapper_entity": "gearbox_fault_tolerant_det_cfg",
+  "configuration_id": "GEARBOX_FAULT_TOLERANT_8EF824E533090754",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

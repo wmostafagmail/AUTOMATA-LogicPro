@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "debug_module_low_power",
+  "wrapper_entity": "debug_module_low_power_det_cfg",
+  "configuration_id": "DEBUG_MODULE_LOW_POWER_0C0F52563641C85F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

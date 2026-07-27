@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_flow_table_programmable",
+  "wrapper_entity": "packet_flow_table_programmable_det_cfg",
+  "configuration_id": "PACKET_FLOW_TABLE_PROGRAMMABLE_3B5D72CD3003C610",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

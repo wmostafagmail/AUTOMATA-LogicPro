@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_peripheral_low_power",
+  "wrapper_entity": "pwm_peripheral_low_power_det_cfg",
+  "configuration_id": "PWM_PERIPHERAL_LOW_POWER_1441EF2997224A7A",
+  "generics": {
+    "WIDTH": 16
+  }
+}

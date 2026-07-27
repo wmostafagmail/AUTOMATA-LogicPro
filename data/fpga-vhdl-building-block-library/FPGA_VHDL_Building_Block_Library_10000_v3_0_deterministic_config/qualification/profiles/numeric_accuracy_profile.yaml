@@ -1,0 +1,18 @@
+block_name: replace_me
+input_formats: []
+output_formats: []
+signedness: replace_me
+rounding: truncate|nearest_even|nearest_away|floor|ceil
+overflow: wrap|saturate|flag|trap
+reference_model: replace_me
+error_metric: exact|absolute|relative|ULP|SNR
+maximum_error: null
+boundary_vectors: []
+random_seed: null
+random_vector_count: null
+required_reports:
+  - oracle_equivalence
+  - boundary_results
+  - randomized_results
+  - overflow_underflow
+  - latency_alignment

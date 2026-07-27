@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_multi_lane",
+  "wrapper_entity": "running_variance_engine_multi_lane_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_MULTI_LANE_66492409F1F59ED2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

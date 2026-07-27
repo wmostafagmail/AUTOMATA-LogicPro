@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "polynomial_evaluator_iterative",
+  "wrapper_entity": "polynomial_evaluator_iterative_det_cfg",
+  "configuration_id": "POLYNOMIAL_EVALUATOR_ITERATIVE_E430844AC4F415FB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

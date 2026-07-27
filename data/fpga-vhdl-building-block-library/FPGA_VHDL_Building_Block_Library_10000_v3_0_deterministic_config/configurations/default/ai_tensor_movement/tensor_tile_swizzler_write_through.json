@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_tile_swizzler_write_through",
+  "wrapper_entity": "tensor_tile_swizzler_write_through_det_cfg",
+  "configuration_id": "TENSOR_TILE_SWIZZLER_WRITE_THROUGH_E6302E92B9A36042",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reset_sequencer",
+  "wrapper_entity": "reset_sequencer_det_cfg",
+  "configuration_id": "RESET_SEQUENCER_8F75B729ED049B70",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

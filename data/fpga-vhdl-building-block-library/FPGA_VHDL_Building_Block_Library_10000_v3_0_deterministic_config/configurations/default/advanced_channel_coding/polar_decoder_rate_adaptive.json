@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_decoder_rate_adaptive",
+  "wrapper_entity": "polar_decoder_rate_adaptive_det_cfg",
+  "configuration_id": "POLAR_DECODER_RATE_ADAPTIVE_E6632B0CAAA6FD22",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

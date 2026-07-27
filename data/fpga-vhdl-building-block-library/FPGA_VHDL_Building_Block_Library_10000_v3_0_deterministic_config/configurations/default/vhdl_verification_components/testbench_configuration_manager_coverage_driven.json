@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "testbench_configuration_manager_coverage_driven",
+  "wrapper_entity": "testbench_configuration_manager_coverage_driven_det_cfg",
+  "configuration_id": "TESTBENCH_CONFIGURATION_MANAGER_COVERAGE_DRIVEN_05E01B1FA7E5117C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

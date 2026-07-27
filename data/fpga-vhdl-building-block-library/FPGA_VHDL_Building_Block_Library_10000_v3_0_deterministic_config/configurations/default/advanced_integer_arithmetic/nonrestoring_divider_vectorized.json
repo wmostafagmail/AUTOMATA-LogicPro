@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_vectorized",
+  "wrapper_entity": "nonrestoring_divider_vectorized_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_VECTORIZED_B53952F5A878F61F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_diagnostic_coverage",
+  "wrapper_entity": "anti_rollback_counter_diagnostic_coverage_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_DIAGNOSTIC_COVERAGE_47139A0F07B6E995",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

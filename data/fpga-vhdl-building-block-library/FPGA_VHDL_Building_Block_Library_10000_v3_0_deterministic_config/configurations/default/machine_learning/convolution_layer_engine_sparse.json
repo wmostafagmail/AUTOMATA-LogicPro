@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_layer_engine_sparse",
+  "wrapper_entity": "convolution_layer_engine_sparse_det_cfg",
+  "configuration_id": "CONVOLUTION_LAYER_ENGINE_SPARSE_E770EEF44725204D",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

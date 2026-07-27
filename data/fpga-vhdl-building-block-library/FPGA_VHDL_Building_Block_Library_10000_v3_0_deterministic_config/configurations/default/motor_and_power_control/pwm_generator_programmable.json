@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_generator_programmable",
+  "wrapper_entity": "pwm_generator_programmable_det_cfg",
+  "configuration_id": "PWM_GENERATOR_PROGRAMMABLE_7025BE13FEDE8FE3",
+  "generics": {
+    "WIDTH": 16
+  }
+}

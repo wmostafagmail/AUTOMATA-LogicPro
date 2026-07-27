@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_multi_channel",
+  "wrapper_entity": "nonrestoring_divider_multi_channel_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_MULTI_CHANNEL_9701780108E91E4B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

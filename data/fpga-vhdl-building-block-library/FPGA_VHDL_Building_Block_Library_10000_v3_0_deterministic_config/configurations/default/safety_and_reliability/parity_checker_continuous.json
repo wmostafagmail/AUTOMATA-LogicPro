@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parity_checker_continuous",
+  "wrapper_entity": "parity_checker_continuous_det_cfg",
+  "configuration_id": "PARITY_CHECKER_CONTINUOUS_136A6FB6FEC26367",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

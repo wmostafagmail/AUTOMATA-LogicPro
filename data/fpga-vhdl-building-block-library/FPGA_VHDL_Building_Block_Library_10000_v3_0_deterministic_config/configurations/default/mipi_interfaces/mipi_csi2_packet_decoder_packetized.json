@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_packet_decoder_packetized",
+  "wrapper_entity": "mipi_csi2_packet_decoder_packetized_det_cfg",
+  "configuration_id": "MIPI_CSI2_PACKET_DECODER_PACKETIZED_5AA5B99EA49E003F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_balancing_controller_multi_channel",
+  "wrapper_entity": "battery_balancing_controller_multi_channel_det_cfg",
+  "configuration_id": "BATTERY_BALANCING_CONTROLLER_MULTI_CHANNEL_98D26DB94E551C60",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

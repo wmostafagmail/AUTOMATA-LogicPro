@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deserializer_fault_tolerant",
+  "wrapper_entity": "deserializer_fault_tolerant_det_cfg",
+  "configuration_id": "DESERIALIZER_FAULT_TOLERANT_80D63FB6D2E8D855",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

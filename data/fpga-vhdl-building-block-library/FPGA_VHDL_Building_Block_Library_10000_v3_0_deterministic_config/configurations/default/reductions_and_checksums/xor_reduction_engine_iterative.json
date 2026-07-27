@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "xor_reduction_engine_iterative",
+  "wrapper_entity": "xor_reduction_engine_iterative_det_cfg",
+  "configuration_id": "XOR_REDUCTION_ENGINE_ITERATIVE_E3E8AE59A202038B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

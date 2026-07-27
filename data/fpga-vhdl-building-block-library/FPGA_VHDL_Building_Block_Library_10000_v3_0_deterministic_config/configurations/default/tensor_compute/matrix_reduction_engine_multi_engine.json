@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_reduction_engine_multi_engine",
+  "wrapper_entity": "matrix_reduction_engine_multi_engine_det_cfg",
+  "configuration_id": "MATRIX_REDUCTION_ENGINE_MULTI_ENGINE_2B386C1A70094BDE",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

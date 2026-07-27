@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_redundant",
+  "wrapper_entity": "lidar_scan_matcher_redundant_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_REDUNDANT_F5F75618BB971DAA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

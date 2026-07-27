@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mdct_engine_fully_parallel",
+  "wrapper_entity": "audio_mdct_engine_fully_parallel_det_cfg",
+  "configuration_id": "AUDIO_MDCT_ENGINE_FULLY_PARALLEL_44DE6A2225FEA02D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_register_slice_width_adapted",
+  "wrapper_entity": "axi_register_slice_width_adapted_det_cfg",
+  "configuration_id": "AXI_REGISTER_SLICE_WIDTH_ADAPTED_B47CB6BB2CE802FA",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

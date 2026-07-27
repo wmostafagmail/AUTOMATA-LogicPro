@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_digit_serial",
+  "wrapper_entity": "multioperand_compressor_tree_digit_serial_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_DIGIT_SERIAL_16CF43BD081754FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

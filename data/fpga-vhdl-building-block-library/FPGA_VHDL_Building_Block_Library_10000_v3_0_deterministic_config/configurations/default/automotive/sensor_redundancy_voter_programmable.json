@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_redundancy_voter_programmable",
+  "wrapper_entity": "sensor_redundancy_voter_programmable_det_cfg",
+  "configuration_id": "SENSOR_REDUNDANCY_VOTER_PROGRAMMABLE_8306C0951C7C40F3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

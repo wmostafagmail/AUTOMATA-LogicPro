@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_exception_unit_fully_parallel",
+  "wrapper_entity": "floating_point_exception_unit_fully_parallel_det_cfg",
+  "configuration_id": "FLOATING_POINT_EXCEPTION_UNIT_FULLY_PARALLEL_AABA07E0E40F818E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

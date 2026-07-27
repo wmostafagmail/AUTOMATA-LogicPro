@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "time_to_digital_converter_programmable",
+  "wrapper_entity": "time_to_digital_converter_programmable_det_cfg",
+  "configuration_id": "TIME_TO_DIGITAL_CONVERTER_PROGRAMMABLE_2E131B3F75774E33",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

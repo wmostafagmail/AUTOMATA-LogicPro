@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_queued",
+  "wrapper_entity": "mppt_controller_queued_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_QUEUED_CB615E88A970854B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

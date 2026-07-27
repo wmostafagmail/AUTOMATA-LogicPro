@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "temporal_noise_reduction_error_resilient",
+  "wrapper_entity": "temporal_noise_reduction_error_resilient_det_cfg",
+  "configuration_id": "TEMPORAL_NOISE_REDUCTION_ERROR_RESILIENT_FA92B999F0B26585",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

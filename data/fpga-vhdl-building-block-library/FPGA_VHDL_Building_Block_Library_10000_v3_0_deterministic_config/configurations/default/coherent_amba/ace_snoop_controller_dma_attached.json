@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_dma_attached",
+  "wrapper_entity": "ace_snoop_controller_dma_attached_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_DMA_ATTACHED_883F0BB7B06418DE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chorus_effect_engine_clock_crossing",
+  "wrapper_entity": "chorus_effect_engine_clock_crossing_det_cfg",
+  "configuration_id": "CHORUS_EFFECT_ENGINE_CLOCK_CROSSING_A2569782C0FDBB09",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

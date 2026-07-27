@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_clock_crossing",
+  "wrapper_entity": "partial_bitstream_authenticator_clock_crossing_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_CLOCK_CROSSING_0706C54B7D272AA0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

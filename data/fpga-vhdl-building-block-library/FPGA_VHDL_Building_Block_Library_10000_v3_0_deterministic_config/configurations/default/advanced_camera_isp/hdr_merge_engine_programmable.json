@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_programmable",
+  "wrapper_entity": "hdr_merge_engine_programmable_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_PROGRAMMABLE_3532F5B118846958",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

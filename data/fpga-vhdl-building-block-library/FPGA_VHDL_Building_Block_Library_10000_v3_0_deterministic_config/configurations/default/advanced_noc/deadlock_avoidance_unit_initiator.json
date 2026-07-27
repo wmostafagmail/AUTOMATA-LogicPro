@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deadlock_avoidance_unit_initiator",
+  "wrapper_entity": "deadlock_avoidance_unit_initiator_det_cfg",
+  "configuration_id": "DEADLOCK_AVOIDANCE_UNIT_INITIATOR_BB2CAA8225092A43",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

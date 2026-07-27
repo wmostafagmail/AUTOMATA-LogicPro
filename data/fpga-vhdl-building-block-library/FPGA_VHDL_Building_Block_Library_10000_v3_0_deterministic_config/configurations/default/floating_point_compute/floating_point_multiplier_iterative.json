@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_multiplier_iterative",
+  "wrapper_entity": "floating_point_multiplier_iterative_det_cfg",
+  "configuration_id": "FLOATING_POINT_MULTIPLIER_ITERATIVE_51D2C2C3217382CE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

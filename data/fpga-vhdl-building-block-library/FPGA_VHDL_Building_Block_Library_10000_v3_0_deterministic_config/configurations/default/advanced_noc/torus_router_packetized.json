@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_packetized",
+  "wrapper_entity": "torus_router_packetized_det_cfg",
+  "configuration_id": "TORUS_ROUTER_PACKETIZED_0E6CB387A1FF6B6F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

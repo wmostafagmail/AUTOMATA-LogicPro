@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_clock_crossing",
+  "wrapper_entity": "color_key_blender_clock_crossing_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_CLOCK_CROSSING_D881D3F675BD9BF2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

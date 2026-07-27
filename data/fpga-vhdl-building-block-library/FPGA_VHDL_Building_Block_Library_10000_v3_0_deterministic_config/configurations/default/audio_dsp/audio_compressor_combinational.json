@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_compressor_combinational",
+  "wrapper_entity": "audio_compressor_combinational_det_cfg",
+  "configuration_id": "AUDIO_COMPRESSOR_COMBINATIONAL_8A0756E6BB98A644",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

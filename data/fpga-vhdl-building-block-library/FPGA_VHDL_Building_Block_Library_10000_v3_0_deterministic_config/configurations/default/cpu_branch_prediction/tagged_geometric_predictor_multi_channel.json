@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_multi_channel",
+  "wrapper_entity": "tagged_geometric_predictor_multi_channel_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_MULTI_CHANNEL_FB1C1603F01E41AC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

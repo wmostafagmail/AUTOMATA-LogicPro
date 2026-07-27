@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "viewport_transform_engine_iterative",
+  "wrapper_entity": "viewport_transform_engine_iterative_det_cfg",
+  "configuration_id": "VIEWPORT_TRANSFORM_ENGINE_ITERATIVE_B0B50CE0374BA2CC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

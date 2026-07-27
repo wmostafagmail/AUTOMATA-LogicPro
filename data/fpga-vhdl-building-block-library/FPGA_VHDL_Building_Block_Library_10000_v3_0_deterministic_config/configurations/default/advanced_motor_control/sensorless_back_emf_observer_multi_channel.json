@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_multi_channel",
+  "wrapper_entity": "sensorless_back_emf_observer_multi_channel_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_MULTI_CHANNEL_93BA5B376A870E1F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

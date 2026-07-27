@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_tile_based",
+  "wrapper_entity": "multi_layer_compositor_tile_based_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_TILE_BASED_14F3EC4DF6A73FD3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

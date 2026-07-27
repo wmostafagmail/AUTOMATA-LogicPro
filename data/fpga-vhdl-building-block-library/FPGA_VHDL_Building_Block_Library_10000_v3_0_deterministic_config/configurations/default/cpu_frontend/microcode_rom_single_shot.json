@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microcode_rom_single_shot",
+  "wrapper_entity": "microcode_rom_single_shot_det_cfg",
+  "configuration_id": "MICROCODE_ROM_SINGLE_SHOT_D09926E53D8C94E9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

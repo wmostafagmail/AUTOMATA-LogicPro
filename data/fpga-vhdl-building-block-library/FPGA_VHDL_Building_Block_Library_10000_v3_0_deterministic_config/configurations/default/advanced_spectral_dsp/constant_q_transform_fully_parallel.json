@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constant_q_transform_fully_parallel",
+  "wrapper_entity": "constant_q_transform_fully_parallel_det_cfg",
+  "configuration_id": "CONSTANT_Q_TRANSFORM_FULLY_PARALLEL_A07D3E2CA17687F0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

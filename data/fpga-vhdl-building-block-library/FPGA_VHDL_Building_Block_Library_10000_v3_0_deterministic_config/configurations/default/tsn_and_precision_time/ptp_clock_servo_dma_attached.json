@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_dma_attached",
+  "wrapper_entity": "ptp_clock_servo_dma_attached_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_DMA_ATTACHED_428E2EBBDA5B4EF3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

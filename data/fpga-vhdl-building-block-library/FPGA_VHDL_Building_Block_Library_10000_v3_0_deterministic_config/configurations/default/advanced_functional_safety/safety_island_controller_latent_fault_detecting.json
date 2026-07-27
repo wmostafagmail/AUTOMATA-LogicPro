@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_latent_fault_detecting",
+  "wrapper_entity": "safety_island_controller_latent_fault_detecting_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_LATENT_FAULT_DETECTING_0B01832F5C2F3BF5",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

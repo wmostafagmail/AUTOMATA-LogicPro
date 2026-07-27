@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "transaction_controller_fault_tolerant",
+  "wrapper_entity": "transaction_controller_fault_tolerant_det_cfg",
+  "configuration_id": "TRANSACTION_CONTROLLER_FAULT_TOLERANT_30965D8A7BC36D98",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

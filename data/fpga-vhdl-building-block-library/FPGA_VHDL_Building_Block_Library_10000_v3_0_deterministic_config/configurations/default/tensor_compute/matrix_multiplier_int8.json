@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_multiplier_int8",
+  "wrapper_entity": "matrix_multiplier_int8_det_cfg",
+  "configuration_id": "MATRIX_MULTIPLIER_INT8_9056E3A390CC5545",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

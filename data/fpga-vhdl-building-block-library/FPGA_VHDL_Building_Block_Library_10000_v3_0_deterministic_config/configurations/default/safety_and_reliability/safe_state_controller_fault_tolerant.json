@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safe_state_controller_fault_tolerant",
+  "wrapper_entity": "safe_state_controller_fault_tolerant_det_cfg",
+  "configuration_id": "SAFE_STATE_CONTROLLER_FAULT_TOLERANT_6A5A7D4C655E9B58",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

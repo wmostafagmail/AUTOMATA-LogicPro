@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_encoder_rate_adaptive",
+  "wrapper_entity": "adpcm_encoder_rate_adaptive_det_cfg",
+  "configuration_id": "ADPCM_ENCODER_RATE_ADAPTIVE_523F23B0F51EA11C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

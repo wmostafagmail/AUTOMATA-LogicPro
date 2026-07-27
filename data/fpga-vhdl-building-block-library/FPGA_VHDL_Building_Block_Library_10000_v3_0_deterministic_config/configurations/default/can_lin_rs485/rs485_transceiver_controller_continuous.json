@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rs485_transceiver_controller_continuous",
+  "wrapper_entity": "rs485_transceiver_controller_continuous_det_cfg",
+  "configuration_id": "RS485_TRANSCEIVER_CONTROLLER_CONTINUOUS_7DCF96635D0EB184",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

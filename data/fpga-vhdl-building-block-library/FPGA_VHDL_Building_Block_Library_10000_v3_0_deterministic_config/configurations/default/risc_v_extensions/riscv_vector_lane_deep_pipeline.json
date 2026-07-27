@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_vector_lane_deep_pipeline",
+  "wrapper_entity": "riscv_vector_lane_deep_pipeline_det_cfg",
+  "configuration_id": "RISCV_VECTOR_LANE_DEEP_PIPELINE_F684099A6D85D7EE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

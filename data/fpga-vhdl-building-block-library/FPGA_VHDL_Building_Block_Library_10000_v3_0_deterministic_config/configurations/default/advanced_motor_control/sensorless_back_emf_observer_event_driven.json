@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_event_driven",
+  "wrapper_entity": "sensorless_back_emf_observer_event_driven_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_EVENT_DRIVEN_4C0AC9EF603D1A81",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

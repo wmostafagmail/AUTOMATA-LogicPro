@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_typec_policy_engine_clock_crossing",
+  "wrapper_entity": "usb_typec_policy_engine_clock_crossing_det_cfg",
+  "configuration_id": "USB_TYPEC_POLICY_ENGINE_CLOCK_CROSSING_52FB043AA2BC3B08",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

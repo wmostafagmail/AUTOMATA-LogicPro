@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "timestamp_unit_programmable",
+  "wrapper_entity": "timestamp_unit_programmable_det_cfg",
+  "configuration_id": "TIMESTAMP_UNIT_PROGRAMMABLE_12AB6412F16CE164",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

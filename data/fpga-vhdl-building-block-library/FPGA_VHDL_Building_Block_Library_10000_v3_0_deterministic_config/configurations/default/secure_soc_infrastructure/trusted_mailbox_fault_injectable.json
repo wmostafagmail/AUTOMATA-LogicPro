@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_fault_injectable",
+  "wrapper_entity": "trusted_mailbox_fault_injectable_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_FAULT_INJECTABLE_6B54DA151B6E7D7D",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

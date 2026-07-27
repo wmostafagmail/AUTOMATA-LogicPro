@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_redundant",
+  "wrapper_entity": "sata_fis_parser_redundant_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_REDUNDANT_31FE8273D89128D4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

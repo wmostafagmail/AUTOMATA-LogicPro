@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frame_counter_programmable",
+  "wrapper_entity": "frame_counter_programmable_det_cfg",
+  "configuration_id": "FRAME_COUNTER_PROGRAMMABLE_91443E37D262FF5D",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

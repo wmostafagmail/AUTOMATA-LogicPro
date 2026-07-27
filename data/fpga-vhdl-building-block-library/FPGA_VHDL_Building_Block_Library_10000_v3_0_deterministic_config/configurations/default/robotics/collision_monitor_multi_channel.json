@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "collision_monitor_multi_channel",
+  "wrapper_entity": "collision_monitor_multi_channel_det_cfg",
+  "configuration_id": "COLLISION_MONITOR_MULTI_CHANNEL_1925AAF553D14CA9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_rounding_unit_fully_parallel",
+  "wrapper_entity": "floating_point_rounding_unit_fully_parallel_det_cfg",
+  "configuration_id": "FLOATING_POINT_ROUNDING_UNIT_FULLY_PARALLEL_D45B9465A282E893",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

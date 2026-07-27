@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_transpose_engine_pipelined",
+  "wrapper_entity": "matrix_transpose_engine_pipelined_det_cfg",
+  "configuration_id": "MATRIX_TRANSPOSE_ENGINE_PIPELINED_6C809DB0B5A2EA50",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

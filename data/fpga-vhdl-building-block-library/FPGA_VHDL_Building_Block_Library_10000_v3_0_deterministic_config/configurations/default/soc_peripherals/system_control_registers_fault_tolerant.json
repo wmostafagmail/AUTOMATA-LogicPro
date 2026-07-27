@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "system_control_registers_fault_tolerant",
+  "wrapper_entity": "system_control_registers_fault_tolerant_det_cfg",
+  "configuration_id": "SYSTEM_CONTROL_REGISTERS_FAULT_TOLERANT_6524A21D228783A1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

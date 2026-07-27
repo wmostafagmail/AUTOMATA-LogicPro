@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_oversampled",
+  "wrapper_entity": "sigma_delta_adc_decimator_oversampled_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_OVERSAMPLED_05633205DFCCA66B",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

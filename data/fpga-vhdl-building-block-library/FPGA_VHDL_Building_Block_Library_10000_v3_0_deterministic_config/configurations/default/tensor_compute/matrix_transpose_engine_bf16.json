@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_transpose_engine_bf16",
+  "wrapper_entity": "matrix_transpose_engine_bf16_det_cfg",
+  "configuration_id": "MATRIX_TRANSPOSE_ENGINE_BF16_153223002CCD7CF9",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

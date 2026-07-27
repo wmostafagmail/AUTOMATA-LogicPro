@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_priority_aware",
+  "wrapper_entity": "resonant_converter_controller_priority_aware_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_PRIORITY_AWARE_A87D7C67CEB0239B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

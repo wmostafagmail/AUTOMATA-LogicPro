@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sector_cache_controller_dual_port",
+  "wrapper_entity": "sector_cache_controller_dual_port_det_cfg",
+  "configuration_id": "SECTOR_CACHE_CONTROLLER_DUAL_PORT_593038DD7216F530",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_initiator",
+  "wrapper_entity": "sata_fis_parser_initiator_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_INITIATOR_21FFA5BBC8025289",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

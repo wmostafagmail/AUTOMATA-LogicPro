@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pid_controller_single_shot",
+  "wrapper_entity": "pid_controller_single_shot_det_cfg",
+  "configuration_id": "PID_CONTROLLER_SINGLE_SHOT_3CEFAD8F3A31A36D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

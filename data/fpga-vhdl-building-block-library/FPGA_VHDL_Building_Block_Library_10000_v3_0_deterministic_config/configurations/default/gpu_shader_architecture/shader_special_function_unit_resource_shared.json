@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_resource_shared",
+  "wrapper_entity": "shader_special_function_unit_resource_shared_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_RESOURCE_SHARED_A625EA5171DA382C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

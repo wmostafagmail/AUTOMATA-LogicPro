@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_oriented_control_low_power",
+  "wrapper_entity": "field_oriented_control_low_power_det_cfg",
+  "configuration_id": "FIELD_ORIENTED_CONTROL_LOW_POWER_A426EFBC524A3A17",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

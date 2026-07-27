@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_typec_policy_engine_buffered",
+  "wrapper_entity": "usb_typec_policy_engine_buffered_det_cfg",
+  "configuration_id": "USB_TYPEC_POLICY_ENGINE_BUFFERED_9C73C59B27BFC10F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

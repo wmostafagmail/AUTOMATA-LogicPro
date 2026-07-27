@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_typec_policy_engine_router",
+  "wrapper_entity": "usb_typec_policy_engine_router_det_cfg",
+  "configuration_id": "USB_TYPEC_POLICY_ENGINE_ROUTER_15C7DA875A223DFC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

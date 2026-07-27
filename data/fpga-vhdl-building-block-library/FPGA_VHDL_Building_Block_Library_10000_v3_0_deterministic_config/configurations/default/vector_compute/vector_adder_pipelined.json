@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_adder_pipelined",
+  "wrapper_entity": "vector_adder_pipelined_det_cfg",
+  "configuration_id": "VECTOR_ADDER_PIPELINED_AD8F47A1C830DAED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

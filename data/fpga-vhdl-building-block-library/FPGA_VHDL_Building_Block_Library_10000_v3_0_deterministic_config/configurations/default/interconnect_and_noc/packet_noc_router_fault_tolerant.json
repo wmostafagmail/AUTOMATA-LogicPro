@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_noc_router_fault_tolerant",
+  "wrapper_entity": "packet_noc_router_fault_tolerant_det_cfg",
+  "configuration_id": "PACKET_NOC_ROUTER_FAULT_TOLERANT_8AFA679E52C3E969",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

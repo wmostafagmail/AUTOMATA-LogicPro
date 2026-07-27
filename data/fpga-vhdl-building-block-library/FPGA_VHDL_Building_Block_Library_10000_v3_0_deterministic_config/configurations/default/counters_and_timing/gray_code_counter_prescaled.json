@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_code_counter_prescaled",
+  "wrapper_entity": "gray_code_counter_prescaled_det_cfg",
+  "configuration_id": "GRAY_CODE_COUNTER_PRESCALED_2DB12A29EE27AD08",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

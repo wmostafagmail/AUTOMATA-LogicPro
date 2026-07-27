@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_rate_adaptive",
+  "wrapper_entity": "hierarchical_z_unit_rate_adaptive_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_RATE_ADAPTIVE_4D862B58EDF31AA8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

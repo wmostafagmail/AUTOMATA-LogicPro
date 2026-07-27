@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_single_shot",
+  "wrapper_entity": "tagged_geometric_predictor_single_shot_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_SINGLE_SHOT_C976DD414845357F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

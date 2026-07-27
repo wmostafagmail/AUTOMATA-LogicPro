@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_tx_mac_single_cycle",
+  "wrapper_entity": "ethernet_tx_mac_single_cycle_det_cfg",
+  "configuration_id": "ETHERNET_TX_MAC_SINGLE_CYCLE_8839B2B357F07357",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_classifier_programmable",
+  "wrapper_entity": "packet_classifier_programmable_det_cfg",
+  "configuration_id": "PACKET_CLASSIFIER_PROGRAMMABLE_874E30944E7D4AC2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

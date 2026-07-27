@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bus_error_handler_programmable",
+  "wrapper_entity": "bus_error_handler_programmable_det_cfg",
+  "configuration_id": "BUS_ERROR_HANDLER_PROGRAMMABLE_BCCCA377744846D3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

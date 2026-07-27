@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_firewall_endpoint",
+  "wrapper_entity": "axi_firewall_endpoint_det_cfg",
+  "configuration_id": "AXI_FIREWALL_ENDPOINT_DFF9C7A33623DE00",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

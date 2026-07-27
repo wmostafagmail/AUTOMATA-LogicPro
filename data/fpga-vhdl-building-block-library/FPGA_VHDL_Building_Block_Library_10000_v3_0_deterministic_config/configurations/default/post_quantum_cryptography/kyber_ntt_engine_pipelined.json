@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_pipelined",
+  "wrapper_entity": "kyber_ntt_engine_pipelined_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_PIPELINED_0A815481B9E89CC3",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

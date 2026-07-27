@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_confidence_estimator_single_shot",
+  "wrapper_entity": "branch_confidence_estimator_single_shot_det_cfg",
+  "configuration_id": "BRANCH_CONFIDENCE_ESTIMATOR_SINGLE_SHOT_B0737A259592B42E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

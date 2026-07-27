@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "instruction_prefetch_buffer_multi_channel",
+  "wrapper_entity": "instruction_prefetch_buffer_multi_channel_det_cfg",
+  "configuration_id": "INSTRUCTION_PREFETCH_BUFFER_MULTI_CHANNEL_7C9F5E17554A1937",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

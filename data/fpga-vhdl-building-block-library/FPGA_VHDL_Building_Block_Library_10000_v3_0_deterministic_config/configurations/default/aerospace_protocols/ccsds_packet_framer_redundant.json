@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ccsds_packet_framer_redundant",
+  "wrapper_entity": "ccsds_packet_framer_redundant_det_cfg",
+  "configuration_id": "CCSDS_PACKET_FRAMER_REDUNDANT_CB25A5B2D54EB0D6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

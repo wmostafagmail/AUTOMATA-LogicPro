@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_meter_multi_channel",
+  "wrapper_entity": "frequency_meter_multi_channel_det_cfg",
+  "configuration_id": "FREQUENCY_METER_MULTI_CHANNEL_B9341646861317B3",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

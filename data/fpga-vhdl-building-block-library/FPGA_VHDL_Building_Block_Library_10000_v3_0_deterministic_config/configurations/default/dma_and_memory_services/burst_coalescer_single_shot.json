@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "burst_coalescer_single_shot",
+  "wrapper_entity": "burst_coalescer_single_shot_det_cfg",
+  "configuration_id": "BURST_COALESCER_SINGLE_SHOT_CE1A29B0F9A51EB2",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

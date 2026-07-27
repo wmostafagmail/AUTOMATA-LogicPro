@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_tile_swizzler_qos_aware",
+  "wrapper_entity": "tensor_tile_swizzler_qos_aware_det_cfg",
+  "configuration_id": "TENSOR_TILE_SWIZZLER_QOS_AWARE_BFF004F28B0BC9B0",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gearbox_multi_channel",
+  "wrapper_entity": "gearbox_multi_channel_det_cfg",
+  "configuration_id": "GEARBOX_MULTI_CHANNEL_B21A7AE9BD8BC12E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

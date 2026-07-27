@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "local_response_norm_buffered_stream",
+  "wrapper_entity": "local_response_norm_buffered_stream_det_cfg",
+  "configuration_id": "LOCAL_RESPONSE_NORM_BUFFERED_STREAM_52C9ACA92A60142D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

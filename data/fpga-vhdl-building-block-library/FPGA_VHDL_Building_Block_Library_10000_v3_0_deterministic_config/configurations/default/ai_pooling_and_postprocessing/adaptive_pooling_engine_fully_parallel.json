@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_pooling_engine_fully_parallel",
+  "wrapper_entity": "adaptive_pooling_engine_fully_parallel_det_cfg",
+  "configuration_id": "ADAPTIVE_POOLING_ENGINE_FULLY_PARALLEL_89292B91E28715F5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

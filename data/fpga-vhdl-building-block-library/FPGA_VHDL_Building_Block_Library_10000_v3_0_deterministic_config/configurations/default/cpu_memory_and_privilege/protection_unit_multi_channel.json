@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "protection_unit_multi_channel",
+  "wrapper_entity": "protection_unit_multi_channel_det_cfg",
+  "configuration_id": "PROTECTION_UNIT_MULTI_CHANNEL_81C08084CC48040D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

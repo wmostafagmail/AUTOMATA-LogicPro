@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_sequencer_single_shot",
+  "wrapper_entity": "secure_boot_sequencer_single_shot_det_cfg",
+  "configuration_id": "SECURE_BOOT_SEQUENCER_SINGLE_SHOT_09418D52F27DD0AF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

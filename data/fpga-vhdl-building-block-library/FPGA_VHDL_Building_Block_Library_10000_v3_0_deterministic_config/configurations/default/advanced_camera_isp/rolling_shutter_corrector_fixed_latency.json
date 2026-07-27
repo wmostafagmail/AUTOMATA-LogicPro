@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rolling_shutter_corrector_fixed_latency",
+  "wrapper_entity": "rolling_shutter_corrector_fixed_latency_det_cfg",
+  "configuration_id": "ROLLING_SHUTTER_CORRECTOR_FIXED_LATENCY_4A8662C3D4214186",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

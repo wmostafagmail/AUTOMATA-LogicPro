@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multiband_compressor_low_power",
+  "wrapper_entity": "multiband_compressor_low_power_det_cfg",
+  "configuration_id": "MULTIBAND_COMPRESSOR_LOW_POWER_BE82EA3318433ED2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "async_fifo",
+    "entity": "async_fifo",
+    "version": "3.0.0",
+    "category": "memory",
+    "source": "rtl/blocks/memory/async_fifo.vhd",
+    "wrapper_entity": "async_fifo_det_cfg"
+  },
+  "configuration": {
+    "id": "ASYNC_FIFO_0A96F8A3C6DCA607",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "DEPTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "DEPTH": 16
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "wr_clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_en",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "full",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "almost_full",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_en",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "empty",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "almost_empty",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "wr_clk",
+      "rd_clk"
+    ],
+    "reset_ports": [
+      "wr_rst_n",
+      "rd_rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "recognized CDC structure with ASYNC_REG attributes; external CDC tool sign-off required",
+      "clock_domain_count": 2
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/memory/async_fifo_det_cfg.vhd",
+    "configuration_file": "configurations/default/async_fifo.json"
+  }
+}

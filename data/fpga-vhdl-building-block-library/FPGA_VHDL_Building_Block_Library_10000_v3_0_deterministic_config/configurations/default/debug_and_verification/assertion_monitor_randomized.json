@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "assertion_monitor_randomized",
+  "wrapper_entity": "assertion_monitor_randomized_det_cfg",
+  "configuration_id": "ASSERTION_MONITOR_RANDOMIZED_6A5D0D20A1DC6BDF",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

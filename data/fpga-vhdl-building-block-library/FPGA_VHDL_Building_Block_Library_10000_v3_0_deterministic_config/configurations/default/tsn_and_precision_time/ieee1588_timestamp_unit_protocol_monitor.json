@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ieee1588_timestamp_unit_protocol_monitor",
+  "wrapper_entity": "ieee1588_timestamp_unit_protocol_monitor_det_cfg",
+  "configuration_id": "IEEE1588_TIMESTAMP_UNIT_PROTOCOL_MONITOR_FAF146EC25137DB2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_fail_safe",
+  "wrapper_entity": "dependency_matrix_scheduler_fail_safe_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_FAIL_SAFE_444C52469D97EBEC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

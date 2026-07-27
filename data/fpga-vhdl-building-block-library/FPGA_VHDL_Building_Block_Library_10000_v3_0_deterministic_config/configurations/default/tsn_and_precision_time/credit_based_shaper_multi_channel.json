@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_multi_channel",
+  "wrapper_entity": "credit_based_shaper_multi_channel_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_MULTI_CHANNEL_92DD5BBC1CDEEDDB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

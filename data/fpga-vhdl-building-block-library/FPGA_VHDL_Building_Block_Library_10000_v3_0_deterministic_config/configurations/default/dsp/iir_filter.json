@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "iir_filter",
+  "wrapper_entity": "iir_filter_det_cfg",
+  "configuration_id": "IIR_FILTER_4F1DD99DBEE479F7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 73
+  }
+}

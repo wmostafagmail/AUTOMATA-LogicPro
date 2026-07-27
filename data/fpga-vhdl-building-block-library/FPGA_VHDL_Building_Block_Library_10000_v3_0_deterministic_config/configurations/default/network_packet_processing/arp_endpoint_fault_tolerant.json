@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arp_endpoint_fault_tolerant",
+  "wrapper_entity": "arp_endpoint_fault_tolerant_det_cfg",
+  "configuration_id": "ARP_ENDPOINT_FAULT_TOLERANT_8497A56249F1E45D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

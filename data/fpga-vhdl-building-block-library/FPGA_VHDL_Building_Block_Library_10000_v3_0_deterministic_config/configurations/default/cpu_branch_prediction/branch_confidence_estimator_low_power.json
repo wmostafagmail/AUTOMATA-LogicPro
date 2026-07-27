@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_confidence_estimator_low_power",
+  "wrapper_entity": "branch_confidence_estimator_low_power_det_cfg",
+  "configuration_id": "BRANCH_CONFIDENCE_ESTIMATOR_LOW_POWER_FAD9CDF9BA19E401",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

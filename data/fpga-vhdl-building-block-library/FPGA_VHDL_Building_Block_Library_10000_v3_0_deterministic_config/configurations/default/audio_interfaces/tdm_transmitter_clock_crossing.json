@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tdm_transmitter_clock_crossing",
+  "wrapper_entity": "tdm_transmitter_clock_crossing_det_cfg",
+  "configuration_id": "TDM_TRANSMITTER_CLOCK_CROSSING_968E37BE401DD7A7",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

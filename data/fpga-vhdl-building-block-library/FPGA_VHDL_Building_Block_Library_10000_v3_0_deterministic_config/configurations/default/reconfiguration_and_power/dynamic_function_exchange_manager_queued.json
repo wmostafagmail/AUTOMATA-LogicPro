@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dynamic_function_exchange_manager_queued",
+  "wrapper_entity": "dynamic_function_exchange_manager_queued_det_cfg",
+  "configuration_id": "DYNAMIC_FUNCTION_EXCHANGE_MANAGER_QUEUED_00B0A07571385735",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

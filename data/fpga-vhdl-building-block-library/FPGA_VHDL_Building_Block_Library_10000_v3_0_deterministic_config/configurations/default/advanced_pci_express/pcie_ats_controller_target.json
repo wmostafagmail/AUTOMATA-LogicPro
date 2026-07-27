@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_ats_controller_target",
+  "wrapper_entity": "pcie_ats_controller_target_det_cfg",
+  "configuration_id": "PCIE_ATS_CONTROLLER_TARGET_3C7FA3330FFFDA41",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "softmax_engine_bf16",
+  "wrapper_entity": "softmax_engine_bf16_det_cfg",
+  "configuration_id": "SOFTMAX_ENGINE_BF16_4D83C697F6D338E1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

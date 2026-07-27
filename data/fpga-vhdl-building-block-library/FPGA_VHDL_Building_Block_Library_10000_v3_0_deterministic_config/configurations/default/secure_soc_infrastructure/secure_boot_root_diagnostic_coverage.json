@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_diagnostic_coverage",
+  "wrapper_entity": "secure_boot_root_diagnostic_coverage_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_DIAGNOSTIC_COVERAGE_2D92DA48C5BB6E43",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

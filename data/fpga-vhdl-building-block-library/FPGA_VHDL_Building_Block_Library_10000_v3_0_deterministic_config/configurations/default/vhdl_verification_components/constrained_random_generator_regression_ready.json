@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_regression_ready",
+  "wrapper_entity": "constrained_random_generator_regression_ready_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_REGRESSION_READY_1629C3E8B89C355D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

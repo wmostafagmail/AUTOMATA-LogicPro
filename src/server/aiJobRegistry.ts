@@ -26,6 +26,12 @@ export interface RegisteredAiJob {
     architectureStageTotal: number;
     architectureStageComponent: string;
     architectureStageStatus: string;
+    architectureClarificationStatus: string;
+    architectureClarificationQuestions: string[];
+    architectureClarificationUnknowns: string[];
+    architectureClarificationSubtype: string;
+    architectureParameterQuestions: string[];
+    architectureParameterRequirements: string[];
     telemetryAttemptCount: number;
     latestAttemptInputTokens: number | null;
     latestAttemptOutputTokens: number | null;
@@ -69,6 +75,12 @@ export function createAiJobRegistry() {
           architectureStageTotal: 0,
           architectureStageComponent: '',
           architectureStageStatus: '',
+          architectureClarificationStatus: '',
+          architectureClarificationQuestions: [],
+          architectureClarificationUnknowns: [],
+          architectureClarificationSubtype: '',
+          architectureParameterQuestions: [],
+          architectureParameterRequirements: [],
           telemetryAttemptCount: 0,
           latestAttemptInputTokens: null,
           latestAttemptOutputTokens: null,

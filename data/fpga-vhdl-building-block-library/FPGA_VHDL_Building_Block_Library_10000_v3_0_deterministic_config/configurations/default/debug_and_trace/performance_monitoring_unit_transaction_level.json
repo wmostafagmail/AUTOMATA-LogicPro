@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_transaction_level",
+  "wrapper_entity": "performance_monitoring_unit_transaction_level_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_TRANSACTION_LEVEL_CA10EE4F1E942ED3",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

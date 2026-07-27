@@ -1,8 +1,8 @@
 {
-  "libraryVersion": "FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix",
-  "libraryRoot": "data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix",
+  "libraryVersion": "FPGA_VHDL_Building_Block_Library_10000_v3_0_deterministic_config",
+  "libraryRoot": "data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v3_0_deterministic_config",
   "ghdlVersion": "GHDL 6.0.0 (6.0.0.r0.ge589c698c) [Dunoon edition]",
-  "verifiedAt": "2026-07-26T13:08:13.000Z",
+  "verifiedAt": "2026-07-27T21:05:00.000Z",
   "blockCount": 10000,
   "testbenchCount": 10000,
   "coreCount": 27,
@@ -11,22 +11,23 @@
     "static": {
       "ok": true,
       "exitCode": 0,
-      "summary": "make static passed: 10000 block files, 10000 instantiated-DUT TBs, 27 cores, 10000 manifest rows."
+      "summary": "v3.0 deterministic layer reports 10000/10000 manifests and default wrappers mapped with 0 errors; inherited source static validation from v2.1 reports 10000 block files, 10000 instantiated-DUT TBs, 27 cores, 10000 manifest rows."
     },
     "core-regression": {
       "ok": true,
       "exitCode": 0,
-      "summary": "make core-regression passed. Core GHDL regression completed with non-fatal macOS linker-version warnings."
+      "summary": "Inherited local v2.1 core GHDL regression passed. v3.0 does not modify source entities; it adds deterministic locked wrappers and manifests."
     },
     "all-smokes": {
       "ok": true,
       "exitCode": 0,
-      "summary": "make all-smokes equivalent passed locally: 10000/10000 block smoke testbenches completed with GHDL --elab-run --std=08 --assert-level=error --stop-time=500ns.",
+      "summary": "Inherited local v2.1 all-smokes equivalent passed 10000/10000 block smoke testbenches. v3.0 deterministic wrapper mapping validation passed 10000/10000 with 0 errors.",
       "logPath": "data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix/build/ghdl_blocks/all-smokes-quiet.log"
     }
   },
   "warnings": [
-    "The imported archive's own generation summary says GHDL was not run in its generation environment; this manifest records local GHDL qualification performed after import.",
-    "Core regression and all-smokes emitted non-fatal macOS linker warnings about object files built for macOS 28.0 while linking on 27.0."
+    "The v3.0 archive reports GHDL_NOT_AVAILABLE in its generation environment; this qualification combines prior local GHDL qualification of unchanged source entities with v3.0 deterministic wrapper/manifests validation.",
+    "Automatic reuse remains gated by exact interface compatibility, deterministic parameter validation, safe wrapper planning, and focused configured GHDL smoke when resolved values differ from qualified defaults.",
+    "Protocol compliance, CDC/RDC, numerical equivalence, synthesis, and timing closure remain design-specific sign-off gates."
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_multi_channel",
+  "wrapper_entity": "sigma_delta_adc_decimator_multi_channel_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_MULTI_CHANNEL_1F7FA18A2697E352",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_bank_conflict_resolver_qos_aware",
+  "wrapper_entity": "tensor_bank_conflict_resolver_qos_aware_det_cfg",
+  "configuration_id": "TENSOR_BANK_CONFLICT_RESOLVER_QOS_AWARE_2B9AC14C958782BA",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

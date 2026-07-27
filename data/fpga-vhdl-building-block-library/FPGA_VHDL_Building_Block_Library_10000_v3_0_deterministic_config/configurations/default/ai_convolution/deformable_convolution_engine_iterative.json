@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "deformable_convolution_engine_iterative",
+  "wrapper_entity": "deformable_convolution_engine_iterative_det_cfg",
+  "configuration_id": "DEFORMABLE_CONVOLUTION_ENGINE_ITERATIVE_07113F4CC27B6AE8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

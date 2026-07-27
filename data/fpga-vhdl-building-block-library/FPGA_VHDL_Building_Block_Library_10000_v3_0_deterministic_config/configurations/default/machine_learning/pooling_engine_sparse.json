@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "pooling_engine_sparse",
+  "wrapper_entity": "pooling_engine_sparse_det_cfg",
+  "configuration_id": "POOLING_ENGINE_SPARSE_6ECE919FCA6BFCD5",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

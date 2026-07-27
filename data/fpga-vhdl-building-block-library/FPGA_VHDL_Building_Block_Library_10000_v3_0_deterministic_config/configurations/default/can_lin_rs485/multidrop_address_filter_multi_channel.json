@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multidrop_address_filter_multi_channel",
+  "wrapper_entity": "multidrop_address_filter_multi_channel_det_cfg",
+  "configuration_id": "MULTIDROP_ADDRESS_FILTER_MULTI_CHANNEL_A7C9116408E3DFFE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

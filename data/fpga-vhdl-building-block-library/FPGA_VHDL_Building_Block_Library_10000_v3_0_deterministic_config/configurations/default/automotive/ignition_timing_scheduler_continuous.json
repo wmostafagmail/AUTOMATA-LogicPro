@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "ignition_timing_scheduler_continuous",
+  "wrapper_entity": "ignition_timing_scheduler_continuous_det_cfg",
+  "configuration_id": "IGNITION_TIMING_SCHEDULER_CONTINUOUS_F3FC51101CEFB413",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

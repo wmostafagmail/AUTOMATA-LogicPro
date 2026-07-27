@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "defective_pixel_correction_framebuffer",
+  "wrapper_entity": "defective_pixel_correction_framebuffer_det_cfg",
+  "configuration_id": "DEFECTIVE_PIXEL_CORRECTION_FRAMEBUFFER_B27D4754AB420288",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

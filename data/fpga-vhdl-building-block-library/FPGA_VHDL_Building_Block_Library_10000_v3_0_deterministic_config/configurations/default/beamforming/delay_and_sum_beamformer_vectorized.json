@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_vectorized",
+  "wrapper_entity": "delay_and_sum_beamformer_vectorized_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_VECTORIZED_512F0AF59F52B7FF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

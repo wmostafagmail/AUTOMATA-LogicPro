@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_controller_fault_tolerant",
+  "wrapper_entity": "privilege_controller_fault_tolerant_det_cfg",
+  "configuration_id": "PRIVILEGE_CONTROLLER_FAULT_TOLERANT_57FEFFC43CDD91C3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

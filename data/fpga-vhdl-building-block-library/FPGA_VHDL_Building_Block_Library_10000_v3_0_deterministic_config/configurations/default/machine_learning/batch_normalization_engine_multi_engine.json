@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batch_normalization_engine_multi_engine",
+  "wrapper_entity": "batch_normalization_engine_multi_engine_det_cfg",
+  "configuration_id": "BATCH_NORMALIZATION_ENGINE_MULTI_ENGINE_C2EEFCF46A6502E0",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

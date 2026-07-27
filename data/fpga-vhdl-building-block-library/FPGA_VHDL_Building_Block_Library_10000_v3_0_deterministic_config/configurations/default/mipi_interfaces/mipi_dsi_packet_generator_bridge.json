@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dsi_packet_generator_bridge",
+  "wrapper_entity": "mipi_dsi_packet_generator_bridge_det_cfg",
+  "configuration_id": "MIPI_DSI_PACKET_GENERATOR_BRIDGE_C2FB55715925D38B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

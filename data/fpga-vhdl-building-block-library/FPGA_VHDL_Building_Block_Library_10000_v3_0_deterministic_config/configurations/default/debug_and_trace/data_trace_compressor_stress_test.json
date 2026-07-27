@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_stress_test",
+  "wrapper_entity": "data_trace_compressor_stress_test_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_STRESS_TEST_09C5D95567010822",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

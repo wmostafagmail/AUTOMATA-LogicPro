@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi4_lite_master_clock_crossing",
+  "wrapper_entity": "axi4_lite_master_clock_crossing_det_cfg",
+  "configuration_id": "AXI4_LITE_MASTER_CLOCK_CROSSING_0C3979CF7E04C9AB",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

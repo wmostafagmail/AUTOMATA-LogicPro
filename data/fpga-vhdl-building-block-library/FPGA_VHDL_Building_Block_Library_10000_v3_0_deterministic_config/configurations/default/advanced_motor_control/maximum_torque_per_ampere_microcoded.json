@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "maximum_torque_per_ampere_microcoded",
+  "wrapper_entity": "maximum_torque_per_ampere_microcoded_det_cfg",
+  "configuration_id": "MAXIMUM_TORQUE_PER_AMPERE_MICROCODED_BF8C99C3B8F23B23",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_saturating",
+  "wrapper_entity": "adaptive_null_steerer_saturating_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_SATURATING_47F06C700D6AF5D8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

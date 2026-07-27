@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2s_transmitter_clock_crossing",
+  "wrapper_entity": "i2s_transmitter_clock_crossing_det_cfg",
+  "configuration_id": "I2S_TRANSMITTER_CLOCK_CROSSING_21DCB7850BAF2E3F",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

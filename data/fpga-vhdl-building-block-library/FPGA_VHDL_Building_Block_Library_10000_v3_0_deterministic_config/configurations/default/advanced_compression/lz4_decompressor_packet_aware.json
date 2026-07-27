@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_decompressor_packet_aware",
+  "wrapper_entity": "lz4_decompressor_packet_aware_det_cfg",
+  "configuration_id": "LZ4_DECOMPRESSOR_PACKET_AWARE_8EFCB66C70F31D65",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mailbox_peripheral_programmable",
+  "wrapper_entity": "mailbox_peripheral_programmable_det_cfg",
+  "configuration_id": "MAILBOX_PERIPHERAL_PROGRAMMABLE_A1F2323E79211CE2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

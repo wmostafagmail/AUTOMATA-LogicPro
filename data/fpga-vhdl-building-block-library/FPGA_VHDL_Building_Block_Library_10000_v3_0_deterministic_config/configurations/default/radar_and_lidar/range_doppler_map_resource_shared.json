@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "range_doppler_map_resource_shared",
+  "wrapper_entity": "range_doppler_map_resource_shared_det_cfg",
+  "configuration_id": "RANGE_DOPPLER_MAP_RESOURCE_SHARED_CB643387AB73369C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 67
+  }
+}

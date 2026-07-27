@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_query_attention_digit_serial",
+  "wrapper_entity": "grouped_query_attention_digit_serial_det_cfg",
+  "configuration_id": "GROUPED_QUERY_ATTENTION_DIGIT_SERIAL_3B0E08FC16B475CC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_switch_width_adapted",
+  "wrapper_entity": "axi_stream_switch_width_adapted_det_cfg",
+  "configuration_id": "AXI_STREAM_SWITCH_WIDTH_ADAPTED_4BB69E54B3ADB370",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 137
+  }
+}

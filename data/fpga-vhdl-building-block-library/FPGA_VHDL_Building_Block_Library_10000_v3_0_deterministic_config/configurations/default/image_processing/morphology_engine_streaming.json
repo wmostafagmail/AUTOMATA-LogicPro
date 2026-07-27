@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "morphology_engine_streaming",
+  "wrapper_entity": "morphology_engine_streaming_det_cfg",
+  "configuration_id": "MORPHOLOGY_ENGINE_STREAMING_D9E92EB5777E60C9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

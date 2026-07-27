@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_initializer_programmable",
+  "wrapper_entity": "memory_initializer_programmable_det_cfg",
+  "configuration_id": "MEMORY_INITIALIZER_PROGRAMMABLE_102F7FCE006E7355",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

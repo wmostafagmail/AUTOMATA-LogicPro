@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_multi_channel",
+  "wrapper_entity": "posit_format_converter_multi_channel_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_MULTI_CHANNEL_5C5A7418E4351830",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

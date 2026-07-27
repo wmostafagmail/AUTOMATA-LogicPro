@@ -5,16 +5,47 @@
   "designLabel": "Mini RISC-V / Custom 8-bit CPU Core",
   "attempt": 5,
   "designAttempt": 2,
-  "issueCount": 1,
+  "issueCount": 7,
   "topIssueCodes": [
-    "architecture_missing_block_discovery_poor_fit"
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required"
   ],
-  "message": "Architecture block discovery paused before VHDL generation. The reviewer judged the auto-discovered block contracts as a poor fit.",
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does RISC mean in this FPGA design? What does ISA mean in this FPGA design?",
   "issues": [
     {
-      "code": "architecture_missing_block_discovery_poor_fit",
-      "path": "$.architectureSynthesis.buildingBlockCatalogIds",
-      "message": "Discovered blocks: branch_handler, instruction_fetch_unit. Missing blocks after review: instruction_decoder, alu, register_file, control_unit, program_memory_interface, data_memory_interface, cpu_top. Risks: Reset polarity mismatch: User request specifies synchronous active-high reset, but discovered blocks use rst_ni (active-low).; Discovered blocks lack data/address buses required for memory and register interfaces.; Critical CPU components (ALU, RegFile, Decoder) are missing from the discovered set.; Generic FSM wrappers may not provide necessary control signals for a complete CPU datapath.."
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:RISC",
+      "message": "What does RISC mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:ISA",
+      "message": "What does ISA mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FAIL",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:RESET",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
     }
   ]
 }

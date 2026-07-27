@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_peripheral_low_power",
+  "wrapper_entity": "watchdog_peripheral_low_power_det_cfg",
+  "configuration_id": "WATCHDOG_PERIPHERAL_LOW_POWER_1A58C06F303C62A8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

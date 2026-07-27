@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "assertion_monitor_formal_friendly",
+  "wrapper_entity": "assertion_monitor_formal_friendly_det_cfg",
+  "configuration_id": "ASSERTION_MONITOR_FORMAL_FRIENDLY_A004C0BD41AF6BCE",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

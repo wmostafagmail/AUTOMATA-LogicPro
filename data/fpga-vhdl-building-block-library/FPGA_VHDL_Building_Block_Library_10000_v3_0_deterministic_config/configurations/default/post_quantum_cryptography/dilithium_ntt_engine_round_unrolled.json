@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dilithium_ntt_engine_round_unrolled",
+  "wrapper_entity": "dilithium_ntt_engine_round_unrolled_det_cfg",
+  "configuration_id": "DILITHIUM_NTT_ENGINE_ROUND_UNROLLED_0A0927559A5F2248",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gamma_corrector_framebuffer",
+  "wrapper_entity": "gamma_corrector_framebuffer_det_cfg",
+  "configuration_id": "GAMMA_CORRECTOR_FRAMEBUFFER_642E6E34CEEC6656",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

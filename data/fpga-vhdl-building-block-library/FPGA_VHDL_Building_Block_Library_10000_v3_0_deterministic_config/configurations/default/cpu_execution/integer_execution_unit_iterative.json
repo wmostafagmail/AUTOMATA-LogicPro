@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "integer_execution_unit_iterative",
+  "wrapper_entity": "integer_execution_unit_iterative_det_cfg",
+  "configuration_id": "INTEGER_EXECUTION_UNIT_ITERATIVE_13EDA6D5617C38C7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

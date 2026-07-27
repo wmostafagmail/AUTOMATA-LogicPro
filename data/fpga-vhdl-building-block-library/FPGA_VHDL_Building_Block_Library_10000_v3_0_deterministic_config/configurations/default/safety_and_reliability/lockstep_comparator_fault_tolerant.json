@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lockstep_comparator_fault_tolerant",
+  "wrapper_entity": "lockstep_comparator_fault_tolerant_det_cfg",
+  "configuration_id": "LOCKSTEP_COMPARATOR_FAULT_TOLERANT_5A9A0DF7388D37F8",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

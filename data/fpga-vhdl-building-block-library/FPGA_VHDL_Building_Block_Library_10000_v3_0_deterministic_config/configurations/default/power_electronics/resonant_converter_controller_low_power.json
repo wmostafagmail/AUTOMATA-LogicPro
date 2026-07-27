@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_low_power",
+  "wrapper_entity": "resonant_converter_controller_low_power_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_LOW_POWER_1FCC10A55B8C6CC1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

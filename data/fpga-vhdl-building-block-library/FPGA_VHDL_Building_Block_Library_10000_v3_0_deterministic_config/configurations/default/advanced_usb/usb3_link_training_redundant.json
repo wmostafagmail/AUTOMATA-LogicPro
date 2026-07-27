@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_link_training_redundant",
+  "wrapper_entity": "usb3_link_training_redundant_det_cfg",
+  "configuration_id": "USB3_LINK_TRAINING_REDUNDANT_EE96394379804C7C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

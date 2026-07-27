@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_low_power",
+  "wrapper_entity": "particle_filter_localizer_low_power_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_LOW_POWER_55663CFE47E4C8FE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

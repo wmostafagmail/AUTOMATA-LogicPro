@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_deep_pipeline",
+  "wrapper_entity": "divergent_branch_stack_deep_pipeline_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_DEEP_PIPELINE_307EFCC3D0D3773F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

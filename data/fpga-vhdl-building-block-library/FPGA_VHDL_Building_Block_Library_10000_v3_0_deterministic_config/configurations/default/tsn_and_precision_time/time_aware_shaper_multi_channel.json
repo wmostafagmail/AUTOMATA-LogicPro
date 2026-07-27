@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_aware_shaper_multi_channel",
+  "wrapper_entity": "time_aware_shaper_multi_channel_det_cfg",
+  "configuration_id": "TIME_AWARE_SHAPER_MULTI_CHANNEL_BD5F9E7082C92F29",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

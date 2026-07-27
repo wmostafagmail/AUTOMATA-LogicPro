@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_windowed",
+  "wrapper_entity": "oscilloscope_trigger_engine_windowed_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_WINDOWED_E27938632C4259A4",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

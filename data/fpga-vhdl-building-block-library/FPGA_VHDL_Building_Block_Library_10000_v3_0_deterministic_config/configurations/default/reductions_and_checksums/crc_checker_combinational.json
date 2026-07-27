@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_checker_combinational",
+  "wrapper_entity": "crc_checker_combinational_det_cfg",
+  "configuration_id": "CRC_CHECKER_COMBINATIONAL_24210B52E31840FB",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_diagnostic_coverage",
+  "wrapper_entity": "key_vault_controller_diagnostic_coverage_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_DIAGNOSTIC_COVERAGE_1F679356988112A4",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

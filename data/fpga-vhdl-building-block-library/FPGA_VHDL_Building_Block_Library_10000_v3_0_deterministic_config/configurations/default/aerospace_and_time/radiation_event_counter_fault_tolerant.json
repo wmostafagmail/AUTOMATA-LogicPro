@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "radiation_event_counter_fault_tolerant",
+  "wrapper_entity": "radiation_event_counter_fault_tolerant_det_cfg",
+  "configuration_id": "RADIATION_EVENT_COUNTER_FAULT_TOLERANT_D19CA4876EFFC8C4",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

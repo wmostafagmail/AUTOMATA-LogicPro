@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mesi_directory_engine_banked",
+  "wrapper_entity": "mesi_directory_engine_banked_det_cfg",
+  "configuration_id": "MESI_DIRECTORY_ENGINE_BANKED_6DA0BACAAC0FBBFC",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

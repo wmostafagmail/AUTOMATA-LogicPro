@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "crank_angle_decoder_fault_tolerant",
+  "wrapper_entity": "crank_angle_decoder_fault_tolerant_det_cfg",
+  "configuration_id": "CRANK_ANGLE_DECODER_FAULT_TOLERANT_A4267DB2BE32E93D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sync_fifo",
+  "wrapper_entity": "sync_fifo_det_cfg",
+  "configuration_id": "SYNC_FIFO_CE1EA339B38B4CC2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_mux_low_power",
+  "wrapper_entity": "clock_mux_low_power_det_cfg",
+  "configuration_id": "CLOCK_MUX_LOW_POWER_99E9D971AF3EE3B6",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

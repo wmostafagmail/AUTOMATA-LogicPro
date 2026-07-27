@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cache_prefetcher_packet_aware",
+  "wrapper_entity": "cache_prefetcher_packet_aware_det_cfg",
+  "configuration_id": "CACHE_PREFETCHER_PACKET_AWARE_EA650EFA65600659",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

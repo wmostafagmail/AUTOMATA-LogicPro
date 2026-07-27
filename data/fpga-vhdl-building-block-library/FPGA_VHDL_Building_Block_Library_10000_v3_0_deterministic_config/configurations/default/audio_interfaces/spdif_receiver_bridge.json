@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spdif_receiver_bridge",
+  "wrapper_entity": "spdif_receiver_bridge_det_cfg",
+  "configuration_id": "SPDIF_RECEIVER_BRIDGE_061C3D817384CBF2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

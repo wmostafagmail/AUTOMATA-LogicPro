@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_streaming",
+  "wrapper_entity": "hdr_merge_engine_streaming_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_STREAMING_EFF0FDD5DBA5D0A7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

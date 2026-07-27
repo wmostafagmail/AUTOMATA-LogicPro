@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_redundant",
+  "wrapper_entity": "free_list_allocator_redundant_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_REDUNDANT_187F523997A802C7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

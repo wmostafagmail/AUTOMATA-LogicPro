@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_core_lockstep_monitor_software_configurable",
+  "wrapper_entity": "dual_core_lockstep_monitor_software_configurable_det_cfg",
+  "configuration_id": "DUAL_CORE_LOCKSTEP_MONITOR_SOFTWARE_CONFIGURABLE_764E4DFDB60DCA69",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

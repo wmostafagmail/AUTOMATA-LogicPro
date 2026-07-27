@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_deep_pipeline",
+  "wrapper_entity": "delay_and_sum_beamformer_deep_pipeline_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_DEEP_PIPELINE_DEE65E63F6C24415",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

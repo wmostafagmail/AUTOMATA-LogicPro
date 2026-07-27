@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "raid_rebuild_controller_dual_port",
+  "wrapper_entity": "raid_rebuild_controller_dual_port_det_cfg",
+  "configuration_id": "RAID_REBUILD_CONTROLLER_DUAL_PORT_F0AAC71C87715256",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

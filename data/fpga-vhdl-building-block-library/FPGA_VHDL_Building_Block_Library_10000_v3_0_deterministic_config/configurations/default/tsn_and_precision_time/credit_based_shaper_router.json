@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_router",
+  "wrapper_entity": "credit_based_shaper_router_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_ROUTER_BED5FFC3A7828AF7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

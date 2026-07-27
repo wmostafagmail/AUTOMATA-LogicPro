@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "channel_estimator_pipelined",
+  "wrapper_entity": "channel_estimator_pipelined_det_cfg",
+  "configuration_id": "CHANNEL_ESTIMATOR_PIPELINED_3FA461F4F4362B28",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 85
+  }
+}

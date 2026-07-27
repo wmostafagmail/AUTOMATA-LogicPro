@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_low_power",
+  "wrapper_entity": "gardner_timing_detector_low_power_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_LOW_POWER_7E037A122F96C156",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

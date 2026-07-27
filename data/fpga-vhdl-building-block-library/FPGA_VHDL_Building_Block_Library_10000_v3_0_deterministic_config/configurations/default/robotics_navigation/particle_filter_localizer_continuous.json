@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_continuous",
+  "wrapper_entity": "particle_filter_localizer_continuous_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_CONTINUOUS_5537D56D8B2A64F4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

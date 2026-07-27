@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_fully_parallel",
+  "wrapper_entity": "floating_point_matrix_fma_fully_parallel_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_FULLY_PARALLEL_878A35ED82995E83",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

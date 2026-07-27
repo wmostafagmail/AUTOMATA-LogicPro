@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "calibration_histogram_engine_fault_detecting",
+  "wrapper_entity": "calibration_histogram_engine_fault_detecting_det_cfg",
+  "configuration_id": "CALIBRATION_HISTOGRAM_ENGINE_FAULT_DETECTING_EF5B9A3BB0D86C39",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

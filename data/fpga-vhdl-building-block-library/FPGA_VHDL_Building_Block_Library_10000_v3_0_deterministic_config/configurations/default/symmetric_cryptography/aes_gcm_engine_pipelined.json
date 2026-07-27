@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_pipelined",
+  "wrapper_entity": "aes_gcm_engine_pipelined_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_PIPELINED_E43FE7E884B0A21E",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

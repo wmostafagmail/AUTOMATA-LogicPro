@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "barrel_shifter",
+  "wrapper_entity": "barrel_shifter_det_cfg",
+  "configuration_id": "BARREL_SHIFTER_EAFB07D412B6807C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

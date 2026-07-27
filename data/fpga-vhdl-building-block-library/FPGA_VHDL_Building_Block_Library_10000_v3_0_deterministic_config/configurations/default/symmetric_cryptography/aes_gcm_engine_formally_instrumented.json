@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_formally_instrumented",
+  "wrapper_entity": "aes_gcm_engine_formally_instrumented_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_FORMALLY_INSTRUMENTED_3DE11D79DFF01EBB",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

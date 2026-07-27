@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_event_driven",
+  "wrapper_entity": "reorder_commit_engine_event_driven_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_EVENT_DRIVEN_765ABBC02918C8A3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_streaming",
+  "wrapper_entity": "parallel_bit_extract_streaming_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_STREAMING_A64B56EFBFC89005",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

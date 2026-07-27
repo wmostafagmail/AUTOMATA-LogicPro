@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix4_multiplier_programmable_precision",
+  "wrapper_entity": "booth_radix4_multiplier_programmable_precision_det_cfg",
+  "configuration_id": "BOOTH_RADIX4_MULTIPLIER_PROGRAMMABLE_PRECISION_EE637A1408E5F565",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_iterative",
+  "wrapper_entity": "dadda_tree_multiplier_iterative_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_ITERATIVE_9E651365E537789E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

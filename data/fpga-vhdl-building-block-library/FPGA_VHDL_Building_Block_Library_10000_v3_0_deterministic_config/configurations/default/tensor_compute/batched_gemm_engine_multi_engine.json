@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batched_gemm_engine_multi_engine",
+  "wrapper_entity": "batched_gemm_engine_multi_engine_det_cfg",
+  "configuration_id": "BATCHED_GEMM_ENGINE_MULTI_ENGINE_2E9D26F7F63FD9AE",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

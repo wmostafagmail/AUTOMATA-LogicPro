@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_streaming",
+  "wrapper_entity": "block_floating_quantizer_streaming_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_STREAMING_EAA4951C3FD97871",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

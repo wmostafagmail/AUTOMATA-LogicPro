@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_shallow_pipeline",
+  "wrapper_entity": "floating_point_matrix_fma_shallow_pipeline_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_SHALLOW_PIPELINE_A6C9CD409462D91E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

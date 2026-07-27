@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_digit_serial",
+  "wrapper_entity": "nonrestoring_divider_digit_serial_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_DIGIT_SERIAL_B2CA03F5D48D9416",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

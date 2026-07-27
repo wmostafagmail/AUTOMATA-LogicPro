@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "apb_master_clock_crossing",
+  "wrapper_entity": "apb_master_clock_crossing_det_cfg",
+  "configuration_id": "APB_MASTER_CLOCK_CROSSING_3F0CDE7B11522F8D",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

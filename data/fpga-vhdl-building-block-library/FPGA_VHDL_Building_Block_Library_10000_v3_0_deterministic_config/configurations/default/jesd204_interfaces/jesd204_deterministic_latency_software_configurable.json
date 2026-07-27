@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_software_configurable",
+  "wrapper_entity": "jesd204_deterministic_latency_software_configurable_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_SOFTWARE_CONFIGURABLE_F3416A82734D59F8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

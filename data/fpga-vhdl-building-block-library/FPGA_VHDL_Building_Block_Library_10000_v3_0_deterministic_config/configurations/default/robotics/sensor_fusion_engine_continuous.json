@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_fusion_engine_continuous",
+  "wrapper_entity": "sensor_fusion_engine_continuous_det_cfg",
+  "configuration_id": "SENSOR_FUSION_ENGINE_CONTINUOUS_2DA28BF84C62EF13",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

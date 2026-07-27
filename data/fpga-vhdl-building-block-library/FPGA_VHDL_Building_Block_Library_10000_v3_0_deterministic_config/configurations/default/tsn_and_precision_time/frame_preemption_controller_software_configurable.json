@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_software_configurable",
+  "wrapper_entity": "frame_preemption_controller_software_configurable_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_SOFTWARE_CONFIGURABLE_D89DC8EFF6A0CB13",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

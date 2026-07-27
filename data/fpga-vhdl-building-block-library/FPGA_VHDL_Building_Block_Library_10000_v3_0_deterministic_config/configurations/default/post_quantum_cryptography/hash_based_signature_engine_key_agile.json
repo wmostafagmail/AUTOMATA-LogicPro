@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_key_agile",
+  "wrapper_entity": "hash_based_signature_engine_key_agile_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_KEY_AGILE_73D92A46E7CE2A27",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "csr_execution_unit_pipelined",
+  "wrapper_entity": "csr_execution_unit_pipelined_det_cfg",
+  "configuration_id": "CSR_EXECUTION_UNIT_PIPELINED_0E04C80398942F56",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

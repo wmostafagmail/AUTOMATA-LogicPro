@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_table_driven",
+  "wrapper_entity": "obstacle_avoidance_controller_table_driven_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_TABLE_DRIVEN_581640C5999486B9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

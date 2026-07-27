@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_confidence_estimator_deadline_aware",
+  "wrapper_entity": "branch_confidence_estimator_deadline_aware_det_cfg",
+  "configuration_id": "BRANCH_CONFIDENCE_ESTIMATOR_DEADLINE_AWARE_58839D45E25AABEC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

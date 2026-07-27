@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rotary_position_encoder_bf16",
+  "wrapper_entity": "rotary_position_encoder_bf16_det_cfg",
+  "configuration_id": "ROTARY_POSITION_ENCODER_BF16_BA206E2C0E656CBF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

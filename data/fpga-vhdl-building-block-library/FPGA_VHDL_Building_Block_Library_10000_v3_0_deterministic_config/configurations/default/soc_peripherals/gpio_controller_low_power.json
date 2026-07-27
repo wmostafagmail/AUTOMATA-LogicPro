@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gpio_controller_low_power",
+  "wrapper_entity": "gpio_controller_low_power_det_cfg",
+  "configuration_id": "GPIO_CONTROLLER_LOW_POWER_5E7FAB188EE121FA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

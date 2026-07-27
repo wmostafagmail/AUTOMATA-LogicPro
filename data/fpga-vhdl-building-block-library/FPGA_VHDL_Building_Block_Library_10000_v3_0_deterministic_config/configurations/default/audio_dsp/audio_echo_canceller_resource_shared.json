@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_echo_canceller_resource_shared",
+  "wrapper_entity": "audio_echo_canceller_resource_shared_det_cfg",
+  "configuration_id": "AUDIO_ECHO_CANCELLER_RESOURCE_SHARED_E624C580D0EB0E92",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

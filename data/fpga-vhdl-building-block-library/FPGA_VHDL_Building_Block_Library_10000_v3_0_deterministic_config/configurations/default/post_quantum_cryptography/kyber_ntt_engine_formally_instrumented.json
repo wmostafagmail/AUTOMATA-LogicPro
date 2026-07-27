@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_formally_instrumented",
+  "wrapper_entity": "kyber_ntt_engine_formally_instrumented_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_FORMALLY_INSTRUMENTED_CA4114552ABF5891",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

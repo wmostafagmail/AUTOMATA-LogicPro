@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_single_cycle",
+  "wrapper_entity": "dadda_tree_multiplier_single_cycle_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_SINGLE_CYCLE_B6B394054D2BD489",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

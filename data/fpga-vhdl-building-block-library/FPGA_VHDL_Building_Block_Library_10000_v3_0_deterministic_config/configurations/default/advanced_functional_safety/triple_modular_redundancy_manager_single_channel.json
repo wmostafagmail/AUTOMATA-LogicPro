@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triple_modular_redundancy_manager_single_channel",
+  "wrapper_entity": "triple_modular_redundancy_manager_single_channel_det_cfg",
+  "configuration_id": "TRIPLE_MODULAR_REDUNDANCY_MANAGER_SINGLE_CHANNEL_71E771B18CBCED71",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

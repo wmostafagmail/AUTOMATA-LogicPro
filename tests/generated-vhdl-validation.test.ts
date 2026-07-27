@@ -544,6 +544,16 @@ test('inferFailureDetailsFromGhdlMessage maps recurring analyze errors into cano
   assert.equal(reductionHelperDetails[0]?.code, 'missing_reduction_helper');
   assert.equal(reductionHelperDetails[0]?.category, 'package_type_definition');
   assert.match(reductionHelperDetails[0]?.legalReplacementPattern || '', /declare a local or_reduce/i);
+
+  const outputOwnershipDetails = inferFailureDetailsFromGhdlMessage([
+    'Staged GHDL checkpoint failed after leaf component spi_master while analyzing src/spi_master.vhd:',
+    'src/spi_master.vhd:78:3:error: no declaration for "done_o"',
+    "  done_o <= '1';",
+  ].join('\n'));
+  assert.equal(outputOwnershipDetails[0]?.code, 'component_output_ownership_violation');
+  assert.equal(outputOwnershipDetails[0]?.category, 'interface_generic_port_syntax');
+  assert.match(outputOwnershipDetails[0]?.forbiddenConstruct || '', /non-owned target "done_o"/);
+  assert.ok(!outputOwnershipDetails.some((detail) => detail.code === 'package_symbol_not_visible'));
 });
 
 test('inferFailureDetailsFromGhdlMessage recognizes reserved shift keywords and package/body misuse from raw analyze output', () => {

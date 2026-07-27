@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_fault_detecting",
+  "wrapper_entity": "sliding_window_attention_fault_detecting_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_FAULT_DETECTING_0C28A2B01B8992AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

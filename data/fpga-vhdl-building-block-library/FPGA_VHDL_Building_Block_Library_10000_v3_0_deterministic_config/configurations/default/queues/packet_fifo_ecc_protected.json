@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_fifo_ecc_protected",
+  "wrapper_entity": "packet_fifo_ecc_protected_det_cfg",
+  "configuration_id": "PACKET_FIFO_ECC_PROTECTED_23DCB0250C3AEFDB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

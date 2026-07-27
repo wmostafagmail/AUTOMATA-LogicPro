@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_tlp_parser_bridge",
+  "wrapper_entity": "pcie_tlp_parser_bridge_det_cfg",
+  "configuration_id": "PCIE_TLP_PARSER_BRIDGE_4D5EC373A22CD88D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

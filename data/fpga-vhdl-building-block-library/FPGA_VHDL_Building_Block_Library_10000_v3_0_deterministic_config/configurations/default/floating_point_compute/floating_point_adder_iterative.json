@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_adder_iterative",
+  "wrapper_entity": "floating_point_adder_iterative_det_cfg",
+  "configuration_id": "FLOATING_POINT_ADDER_ITERATIVE_DBA06A7A0B3629EB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

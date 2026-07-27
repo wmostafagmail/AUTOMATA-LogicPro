@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "write_leveling_controller_clock_crossing",
+  "wrapper_entity": "write_leveling_controller_clock_crossing_det_cfg",
+  "configuration_id": "WRITE_LEVELING_CONTROLLER_CLOCK_CROSSING_AF3AB4ED956B070A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

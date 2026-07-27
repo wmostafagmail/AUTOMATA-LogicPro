@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "min_max_reducer_combinational",
+  "wrapper_entity": "min_max_reducer_combinational_det_cfg",
+  "configuration_id": "MIN_MAX_REDUCER_COMBINATIONAL_D4C71CDF6D366284",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

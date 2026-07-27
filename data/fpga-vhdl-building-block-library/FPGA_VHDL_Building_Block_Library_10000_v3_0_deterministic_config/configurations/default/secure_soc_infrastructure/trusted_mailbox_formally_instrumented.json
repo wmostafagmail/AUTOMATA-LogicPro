@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_formally_instrumented",
+  "wrapper_entity": "trusted_mailbox_formally_instrumented_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_FORMALLY_INSTRUMENTED_5E49F8C2C894F59D",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

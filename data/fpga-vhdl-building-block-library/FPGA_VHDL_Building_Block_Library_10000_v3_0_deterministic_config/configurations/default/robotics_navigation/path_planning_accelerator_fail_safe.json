@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_fail_safe",
+  "wrapper_entity": "path_planning_accelerator_fail_safe_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_FAIL_SAFE_7BB630DADD1F311E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

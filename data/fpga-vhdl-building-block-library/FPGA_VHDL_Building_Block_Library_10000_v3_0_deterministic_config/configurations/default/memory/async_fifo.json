@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "async_fifo",
+  "wrapper_entity": "async_fifo_det_cfg",
+  "configuration_id": "ASYNC_FIFO_0A96F8A3C6DCA607",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

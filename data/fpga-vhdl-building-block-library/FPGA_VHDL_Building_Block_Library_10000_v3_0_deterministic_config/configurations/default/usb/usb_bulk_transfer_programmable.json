@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_bulk_transfer_programmable",
+  "wrapper_entity": "usb_bulk_transfer_programmable_det_cfg",
+  "configuration_id": "USB_BULK_TRANSFER_PROGRAMMABLE_B43667524179C957",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

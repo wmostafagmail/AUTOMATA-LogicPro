@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_multi_channel",
+  "wrapper_entity": "multioperand_compressor_tree_multi_channel_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_MULTI_CHANNEL_7E47173E9652DA93",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

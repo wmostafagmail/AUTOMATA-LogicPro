@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_metadata_aware",
+  "wrapper_entity": "hevc_transform_unit_metadata_aware_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_METADATA_AWARE_A59A45018D3A202D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

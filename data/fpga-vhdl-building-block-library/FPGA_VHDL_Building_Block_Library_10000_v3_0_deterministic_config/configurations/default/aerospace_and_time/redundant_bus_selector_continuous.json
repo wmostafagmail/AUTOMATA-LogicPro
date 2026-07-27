@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "redundant_bus_selector_continuous",
+  "wrapper_entity": "redundant_bus_selector_continuous_det_cfg",
+  "configuration_id": "REDUNDANT_BUS_SELECTOR_CONTINUOUS_AE89933686D830CA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

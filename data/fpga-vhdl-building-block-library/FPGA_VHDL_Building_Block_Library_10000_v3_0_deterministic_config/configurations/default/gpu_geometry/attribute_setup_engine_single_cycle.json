@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "attribute_setup_engine_single_cycle",
+  "wrapper_entity": "attribute_setup_engine_single_cycle_det_cfg",
+  "configuration_id": "ATTRIBUTE_SETUP_ENGINE_SINGLE_CYCLE_92110E2CAB7C3FBF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

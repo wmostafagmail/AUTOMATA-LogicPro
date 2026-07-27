@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "elastic_store_single_shot",
+  "wrapper_entity": "elastic_store_single_shot_det_cfg",
+  "configuration_id": "ELASTIC_STORE_SINGLE_SHOT_A100BCCF02EE0A0A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

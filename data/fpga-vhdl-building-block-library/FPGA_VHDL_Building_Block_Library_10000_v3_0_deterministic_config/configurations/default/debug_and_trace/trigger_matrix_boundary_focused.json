@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_boundary_focused",
+  "wrapper_entity": "trigger_matrix_boundary_focused_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_BOUNDARY_FOCUSED_EBC20BE3E2126EC3",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

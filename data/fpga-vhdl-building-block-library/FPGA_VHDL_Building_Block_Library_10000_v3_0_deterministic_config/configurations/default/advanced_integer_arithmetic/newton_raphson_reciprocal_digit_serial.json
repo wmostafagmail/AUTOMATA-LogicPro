@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_digit_serial",
+  "wrapper_entity": "newton_raphson_reciprocal_digit_serial_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_DIGIT_SERIAL_C917E8D22BC05F26",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

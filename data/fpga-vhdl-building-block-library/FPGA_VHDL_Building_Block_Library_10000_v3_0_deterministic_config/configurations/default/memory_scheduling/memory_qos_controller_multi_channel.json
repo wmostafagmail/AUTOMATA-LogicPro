@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_qos_controller_multi_channel",
+  "wrapper_entity": "memory_qos_controller_multi_channel_det_cfg",
+  "configuration_id": "MEMORY_QOS_CONTROLLER_MULTI_CHANNEL_647E2F8809201EB9",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

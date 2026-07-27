@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pitch_shift_engine_low_power",
+  "wrapper_entity": "pitch_shift_engine_low_power_det_cfg",
+  "configuration_id": "PITCH_SHIFT_ENGINE_LOW_POWER_462425A4312E805A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

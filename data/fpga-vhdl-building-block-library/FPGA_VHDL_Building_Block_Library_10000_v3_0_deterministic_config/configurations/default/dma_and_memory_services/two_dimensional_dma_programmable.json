@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "two_dimensional_dma_programmable",
+  "wrapper_entity": "two_dimensional_dma_programmable_det_cfg",
+  "configuration_id": "TWO_DIMENSIONAL_DMA_PROGRAMMABLE_BF93EC9730DA2BC0",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

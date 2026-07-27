@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_formally_instrumented",
+  "wrapper_entity": "partial_bitstream_authenticator_formally_instrumented_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_FORMALLY_INSTRUMENTED_43BFB048C2D1870A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

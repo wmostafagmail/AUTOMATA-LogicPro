@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_initiator",
+  "wrapper_entity": "flexray_controller_initiator_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_INITIATOR_ACBB07295486AF9D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

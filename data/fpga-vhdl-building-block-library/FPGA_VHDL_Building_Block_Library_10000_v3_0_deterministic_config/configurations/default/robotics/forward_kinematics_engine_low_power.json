@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "forward_kinematics_engine_low_power",
+  "wrapper_entity": "forward_kinematics_engine_low_power_det_cfg",
+  "configuration_id": "FORWARD_KINEMATICS_ENGINE_LOW_POWER_A95F4958E23A6734",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

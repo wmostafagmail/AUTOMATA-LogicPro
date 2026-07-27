@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "event_logger_single_shot",
+  "wrapper_entity": "event_logger_single_shot_det_cfg",
+  "configuration_id": "EVENT_LOGGER_SINGLE_SHOT_75E42EECF633EFFA",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

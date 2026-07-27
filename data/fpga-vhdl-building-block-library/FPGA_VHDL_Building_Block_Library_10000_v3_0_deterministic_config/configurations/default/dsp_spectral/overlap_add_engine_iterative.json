@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "overlap_add_engine_iterative",
+  "wrapper_entity": "overlap_add_engine_iterative_det_cfg",
+  "configuration_id": "OVERLAP_ADD_ENGINE_ITERATIVE_98136B3FE18CF309",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 214
+  }
+}

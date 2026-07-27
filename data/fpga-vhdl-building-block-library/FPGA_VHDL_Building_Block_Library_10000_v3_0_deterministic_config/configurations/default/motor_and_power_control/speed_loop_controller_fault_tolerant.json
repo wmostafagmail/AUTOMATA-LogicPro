@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speed_loop_controller_fault_tolerant",
+  "wrapper_entity": "speed_loop_controller_fault_tolerant_det_cfg",
+  "configuration_id": "SPEED_LOOP_CONTROLLER_FAULT_TOLERANT_78903AC195BA38B9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

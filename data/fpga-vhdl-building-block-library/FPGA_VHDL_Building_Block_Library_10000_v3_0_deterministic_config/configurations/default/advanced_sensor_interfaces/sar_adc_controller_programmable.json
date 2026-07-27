@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sar_adc_controller_programmable",
+  "wrapper_entity": "sar_adc_controller_programmable_det_cfg",
+  "configuration_id": "SAR_ADC_CONTROLLER_PROGRAMMABLE_3F88C102003ED535",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

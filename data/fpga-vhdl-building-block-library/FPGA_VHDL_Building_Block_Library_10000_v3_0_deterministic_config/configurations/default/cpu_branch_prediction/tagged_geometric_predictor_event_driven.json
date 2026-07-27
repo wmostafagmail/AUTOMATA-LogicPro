@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_event_driven",
+  "wrapper_entity": "tagged_geometric_predictor_event_driven_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_EVENT_DRIVEN_70EFA2470B49262E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

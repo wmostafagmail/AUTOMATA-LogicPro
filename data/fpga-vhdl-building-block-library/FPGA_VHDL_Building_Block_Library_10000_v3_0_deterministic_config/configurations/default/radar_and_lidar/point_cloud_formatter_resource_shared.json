@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "point_cloud_formatter_resource_shared",
+  "wrapper_entity": "point_cloud_formatter_resource_shared_det_cfg",
+  "configuration_id": "POINT_CLOUD_FORMATTER_RESOURCE_SHARED_4682B7F37FB6E8BE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 111
+  }
+}

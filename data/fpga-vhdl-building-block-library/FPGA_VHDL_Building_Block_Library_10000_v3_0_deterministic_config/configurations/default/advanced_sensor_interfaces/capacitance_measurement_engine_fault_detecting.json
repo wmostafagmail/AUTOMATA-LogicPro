@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_fault_detecting",
+  "wrapper_entity": "capacitance_measurement_engine_fault_detecting_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_FAULT_DETECTING_E0AF259239584EFB",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

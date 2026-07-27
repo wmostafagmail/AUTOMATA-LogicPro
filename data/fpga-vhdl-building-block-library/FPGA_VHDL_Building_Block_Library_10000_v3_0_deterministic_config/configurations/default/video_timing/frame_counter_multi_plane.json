@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frame_counter_multi_plane",
+  "wrapper_entity": "frame_counter_multi_plane_det_cfg",
+  "configuration_id": "FRAME_COUNTER_MULTI_PLANE_1A79BD1435B97143",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_join_accelerator_pipelined",
+  "wrapper_entity": "hash_join_accelerator_pipelined_det_cfg",
+  "configuration_id": "HASH_JOIN_ACCELERATOR_PIPELINED_1479C229AFB83A2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

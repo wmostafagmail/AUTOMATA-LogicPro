@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_exception_unit_fault_detecting",
+  "wrapper_entity": "floating_point_exception_unit_fault_detecting_det_cfg",
+  "configuration_id": "FLOATING_POINT_EXCEPTION_UNIT_FAULT_DETECTING_5112A2D3AFC5AA4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

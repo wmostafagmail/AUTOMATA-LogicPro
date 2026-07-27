@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "exponential_approximator_streaming",
+  "wrapper_entity": "exponential_approximator_streaming_det_cfg",
+  "configuration_id": "EXPONENTIAL_APPROXIMATOR_STREAMING_CA53DFA8E6FA1E9D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

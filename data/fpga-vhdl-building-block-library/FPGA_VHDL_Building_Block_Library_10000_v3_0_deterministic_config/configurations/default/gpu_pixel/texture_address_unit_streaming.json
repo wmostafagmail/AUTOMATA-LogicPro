@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_address_unit_streaming",
+  "wrapper_entity": "texture_address_unit_streaming_det_cfg",
+  "configuration_id": "TEXTURE_ADDRESS_UNIT_STREAMING_3E47B2378EE1A938",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

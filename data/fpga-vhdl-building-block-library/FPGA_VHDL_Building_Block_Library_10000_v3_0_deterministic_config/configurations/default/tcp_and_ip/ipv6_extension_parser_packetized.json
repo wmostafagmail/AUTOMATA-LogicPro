@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_extension_parser_packetized",
+  "wrapper_entity": "ipv6_extension_parser_packetized_det_cfg",
+  "configuration_id": "IPV6_EXTENSION_PARSER_PACKETIZED_9190593E6B7C653C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

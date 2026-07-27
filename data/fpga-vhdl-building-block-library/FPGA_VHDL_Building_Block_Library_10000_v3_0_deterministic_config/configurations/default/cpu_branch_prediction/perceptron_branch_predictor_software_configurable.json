@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_software_configurable",
+  "wrapper_entity": "perceptron_branch_predictor_software_configurable_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_SOFTWARE_CONFIGURABLE_5983CFF772ECA889",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

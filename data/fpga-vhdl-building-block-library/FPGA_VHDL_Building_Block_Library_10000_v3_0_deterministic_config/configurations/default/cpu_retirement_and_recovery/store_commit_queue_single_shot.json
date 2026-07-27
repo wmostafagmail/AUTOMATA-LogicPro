@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_single_shot",
+  "wrapper_entity": "store_commit_queue_single_shot_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_SINGLE_SHOT_F0531769903A04CC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

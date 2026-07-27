@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "ecc_scalar_multiplier_streaming",
+  "wrapper_entity": "ecc_scalar_multiplier_streaming_det_cfg",
+  "configuration_id": "ECC_SCALAR_MULTIPLIER_STREAMING_A27C8AC35D5A01AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

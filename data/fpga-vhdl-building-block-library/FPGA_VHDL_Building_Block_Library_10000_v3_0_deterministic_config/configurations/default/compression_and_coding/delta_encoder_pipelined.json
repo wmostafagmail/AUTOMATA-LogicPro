@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delta_encoder_pipelined",
+  "wrapper_entity": "delta_encoder_pipelined_det_cfg",
+  "configuration_id": "DELTA_ENCODER_PIPELINED_FDEEBE5BDBE1861B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

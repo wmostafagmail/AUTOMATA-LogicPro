@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mvdr_beamformer_fault_detecting",
+  "wrapper_entity": "mvdr_beamformer_fault_detecting_det_cfg",
+  "configuration_id": "MVDR_BEAMFORMER_FAULT_DETECTING_C3BE64E833FA32AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

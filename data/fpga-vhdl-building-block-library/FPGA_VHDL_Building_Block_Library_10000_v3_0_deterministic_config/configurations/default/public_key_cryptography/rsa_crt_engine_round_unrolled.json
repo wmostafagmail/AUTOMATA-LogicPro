@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_round_unrolled",
+  "wrapper_entity": "rsa_crt_engine_round_unrolled_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_ROUND_UNROLLED_082606A509B20360",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

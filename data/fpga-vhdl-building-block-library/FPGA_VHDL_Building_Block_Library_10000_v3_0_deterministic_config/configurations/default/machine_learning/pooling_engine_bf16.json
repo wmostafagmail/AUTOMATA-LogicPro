@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "pooling_engine_bf16",
+  "wrapper_entity": "pooling_engine_bf16_det_cfg",
+  "configuration_id": "POOLING_ENGINE_BF16_FD8BD550C467BC01",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

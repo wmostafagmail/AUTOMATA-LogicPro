@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_clock_crossing",
+  "wrapper_entity": "gardner_timing_detector_clock_crossing_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_CLOCK_CROSSING_BE426F09BB4E0E72",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

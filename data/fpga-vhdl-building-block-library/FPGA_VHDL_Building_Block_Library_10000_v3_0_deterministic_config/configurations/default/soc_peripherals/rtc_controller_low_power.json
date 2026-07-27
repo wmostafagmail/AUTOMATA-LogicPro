@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "rtc_controller_low_power",
+  "wrapper_entity": "rtc_controller_low_power_det_cfg",
+  "configuration_id": "RTC_CONTROLLER_LOW_POWER_1F8E843B0D4565D8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pid_controller",
+  "wrapper_entity": "pid_controller_det_cfg",
+  "configuration_id": "PID_CONTROLLER_62D5896E390E2BDF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

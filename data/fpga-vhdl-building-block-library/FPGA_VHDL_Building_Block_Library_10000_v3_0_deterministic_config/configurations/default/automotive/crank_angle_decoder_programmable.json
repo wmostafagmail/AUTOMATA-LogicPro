@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "crank_angle_decoder_programmable",
+  "wrapper_entity": "crank_angle_decoder_programmable_det_cfg",
+  "configuration_id": "CRANK_ANGLE_DECODER_PROGRAMMABLE_89A0AFD33AD9460C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

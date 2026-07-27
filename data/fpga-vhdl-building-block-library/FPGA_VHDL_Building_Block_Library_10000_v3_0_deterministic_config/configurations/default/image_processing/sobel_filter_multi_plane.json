@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sobel_filter_multi_plane",
+  "wrapper_entity": "sobel_filter_multi_plane_det_cfg",
+  "configuration_id": "SOBEL_FILTER_MULTI_PLANE_75663E539BD049CF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

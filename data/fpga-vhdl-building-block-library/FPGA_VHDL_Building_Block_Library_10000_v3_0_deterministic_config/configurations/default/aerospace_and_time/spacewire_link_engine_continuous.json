@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "spacewire_link_engine_continuous",
+  "wrapper_entity": "spacewire_link_engine_continuous_det_cfg",
+  "configuration_id": "SPACEWIRE_LINK_ENGINE_CONTINUOUS_042A2B99EA77C6FF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

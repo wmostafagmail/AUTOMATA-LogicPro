@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "camera_capture_pipeline",
+  "wrapper_entity": "camera_capture_pipeline_det_cfg",
+  "configuration_id": "CAMERA_CAPTURE_PIPELINE_BF6B362B79A35637",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

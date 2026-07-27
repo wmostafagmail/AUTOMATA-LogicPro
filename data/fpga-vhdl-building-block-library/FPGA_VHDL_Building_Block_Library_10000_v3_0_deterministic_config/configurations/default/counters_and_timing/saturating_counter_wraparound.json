@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "saturating_counter_wraparound",
+  "wrapper_entity": "saturating_counter_wraparound_det_cfg",
+  "configuration_id": "SATURATING_COUNTER_WRAPAROUND_82D4FF0DE6C0A41E",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": true,
+    "DOWN_COUNT": false
+  }
+}

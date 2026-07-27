@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_clock_crossing",
+  "wrapper_entity": "waveform_envelope_generator_clock_crossing_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_CLOCK_CROSSING_6A5A989F8760C38B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

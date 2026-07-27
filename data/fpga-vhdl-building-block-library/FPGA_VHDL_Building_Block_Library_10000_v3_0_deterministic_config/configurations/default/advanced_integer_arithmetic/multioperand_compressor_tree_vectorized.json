@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_vectorized",
+  "wrapper_entity": "multioperand_compressor_tree_vectorized_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_VECTORIZED_EA19CC0149774BC6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_hypervisor_unit_low_power",
+  "wrapper_entity": "riscv_hypervisor_unit_low_power_det_cfg",
+  "configuration_id": "RISCV_HYPERVISOR_UNIT_LOW_POWER_666F1CC4F7CFE20F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

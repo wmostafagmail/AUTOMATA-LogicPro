@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_predictor_fault_tolerant",
+  "wrapper_entity": "branch_predictor_fault_tolerant_det_cfg",
+  "configuration_id": "BRANCH_PREDICTOR_FAULT_TOLERANT_367B90272B3C64BD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

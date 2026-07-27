@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_dma_attached",
+  "wrapper_entity": "torus_router_dma_attached_det_cfg",
+  "configuration_id": "TORUS_ROUTER_DMA_ATTACHED_24F680701C3BF4DC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

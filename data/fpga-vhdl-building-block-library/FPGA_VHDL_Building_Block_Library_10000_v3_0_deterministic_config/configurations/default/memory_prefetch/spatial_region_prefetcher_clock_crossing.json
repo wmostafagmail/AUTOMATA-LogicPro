@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spatial_region_prefetcher_clock_crossing",
+  "wrapper_entity": "spatial_region_prefetcher_clock_crossing_det_cfg",
+  "configuration_id": "SPATIAL_REGION_PREFETCHER_CLOCK_CROSSING_9AD30400917CE445",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

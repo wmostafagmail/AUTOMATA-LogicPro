@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_fifo_low_latency",
+  "wrapper_entity": "packet_fifo_low_latency_det_cfg",
+  "configuration_id": "PACKET_FIFO_LOW_LATENCY_E9E7A3091E6D8BB5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

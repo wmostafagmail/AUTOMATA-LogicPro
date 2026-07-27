@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "startup_sequencer_fault_tolerant",
+  "wrapper_entity": "startup_sequencer_fault_tolerant_det_cfg",
+  "configuration_id": "STARTUP_SEQUENCER_FAULT_TOLERANT_2F96201186AFFAEF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

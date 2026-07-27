@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_filter_unit_line_buffered",
+  "wrapper_entity": "texture_filter_unit_line_buffered_det_cfg",
+  "configuration_id": "TEXTURE_FILTER_UNIT_LINE_BUFFERED_B6C376A648D2E0A2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

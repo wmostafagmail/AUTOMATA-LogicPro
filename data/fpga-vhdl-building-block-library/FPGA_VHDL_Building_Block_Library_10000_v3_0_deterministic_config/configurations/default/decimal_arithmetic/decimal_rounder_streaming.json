@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_rounder_streaming",
+  "wrapper_entity": "decimal_rounder_streaming_det_cfg",
+  "configuration_id": "DECIMAL_ROUNDER_STREAMING_DBF744396FEDD5DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

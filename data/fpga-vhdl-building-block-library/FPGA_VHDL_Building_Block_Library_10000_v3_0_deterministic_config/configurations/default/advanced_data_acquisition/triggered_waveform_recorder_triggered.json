@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "triggered_waveform_recorder_triggered",
+  "wrapper_entity": "triggered_waveform_recorder_triggered_det_cfg",
+  "configuration_id": "TRIGGERED_WAVEFORM_RECORDER_TRIGGERED_F1555E48DDC6D858",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

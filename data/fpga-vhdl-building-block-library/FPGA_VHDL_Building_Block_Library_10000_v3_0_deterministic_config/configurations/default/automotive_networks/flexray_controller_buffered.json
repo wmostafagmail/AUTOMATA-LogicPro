@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_buffered",
+  "wrapper_entity": "flexray_controller_buffered_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_BUFFERED_4812B45CE9769427",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

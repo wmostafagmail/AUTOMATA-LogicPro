@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profibus_frame_engine_multi_channel",
+  "wrapper_entity": "profibus_frame_engine_multi_channel_det_cfg",
+  "configuration_id": "PROFIBUS_FRAME_ENGINE_MULTI_CHANNEL_18B2B0F2CB8BC341",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

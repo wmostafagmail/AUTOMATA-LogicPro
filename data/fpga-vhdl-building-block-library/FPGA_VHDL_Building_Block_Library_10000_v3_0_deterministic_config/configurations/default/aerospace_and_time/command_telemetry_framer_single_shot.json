@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_telemetry_framer_single_shot",
+  "wrapper_entity": "command_telemetry_framer_single_shot_det_cfg",
+  "configuration_id": "COMMAND_TELEMETRY_FRAMER_SINGLE_SHOT_B0A70A6D88ACCA4E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

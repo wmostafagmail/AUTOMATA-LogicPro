@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_meter_continuous",
+  "wrapper_entity": "frequency_meter_continuous_det_cfg",
+  "configuration_id": "FREQUENCY_METER_CONTINUOUS_585A477EA78FF9C4",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

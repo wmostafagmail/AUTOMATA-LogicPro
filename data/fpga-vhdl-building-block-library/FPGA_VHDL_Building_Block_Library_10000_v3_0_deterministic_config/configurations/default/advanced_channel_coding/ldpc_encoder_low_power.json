@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ldpc_encoder_low_power",
+  "wrapper_entity": "ldpc_encoder_low_power_det_cfg",
+  "configuration_id": "LDPC_ENCODER_LOW_POWER_9720CA8D5D4F1DFF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

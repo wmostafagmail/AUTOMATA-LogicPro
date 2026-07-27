@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_software_configurable",
+  "wrapper_entity": "ptp_clock_servo_software_configurable_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_SOFTWARE_CONFIGURABLE_DB351915E1E2C6A8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

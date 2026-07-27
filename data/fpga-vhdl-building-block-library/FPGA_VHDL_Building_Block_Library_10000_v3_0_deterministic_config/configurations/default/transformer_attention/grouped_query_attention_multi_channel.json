@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_query_attention_multi_channel",
+  "wrapper_entity": "grouped_query_attention_multi_channel_det_cfg",
+  "configuration_id": "GROUPED_QUERY_ATTENTION_MULTI_CHANNEL_AF331EA6C2D8408A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

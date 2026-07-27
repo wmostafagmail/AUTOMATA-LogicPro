@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "maximum_torque_per_ampere_multi_channel",
+  "wrapper_entity": "maximum_torque_per_ampere_multi_channel_det_cfg",
+  "configuration_id": "MAXIMUM_TORQUE_PER_AMPERE_MULTI_CHANNEL_E474D64A750FD26A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

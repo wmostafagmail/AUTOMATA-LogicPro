@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_timestamped",
+  "wrapper_entity": "storage_phy_oob_controller_timestamped_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_TIMESTAMPED_8C502F535A39A94C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

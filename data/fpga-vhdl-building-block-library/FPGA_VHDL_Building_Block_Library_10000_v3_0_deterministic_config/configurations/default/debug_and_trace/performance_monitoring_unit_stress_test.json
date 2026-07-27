@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_stress_test",
+  "wrapper_entity": "performance_monitoring_unit_stress_test_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_STRESS_TEST_0E808F0A7527937C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

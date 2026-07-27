@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_masked",
+  "wrapper_entity": "aes_xts_engine_masked_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_MASKED_2B816F9351EF4B2A",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

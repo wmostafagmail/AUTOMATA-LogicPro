@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_event_driven",
+  "wrapper_entity": "obstacle_avoidance_controller_event_driven_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_EVENT_DRIVEN_3A4A17D312476A52",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_pri_controller_qos_aware",
+  "wrapper_entity": "pcie_pri_controller_qos_aware_det_cfg",
+  "configuration_id": "PCIE_PRI_CONTROLLER_QOS_AWARE_5A92DB6B19DAFA0D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

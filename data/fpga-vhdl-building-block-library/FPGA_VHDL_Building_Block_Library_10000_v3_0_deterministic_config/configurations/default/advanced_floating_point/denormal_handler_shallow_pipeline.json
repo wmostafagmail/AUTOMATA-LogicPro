@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "denormal_handler_shallow_pipeline",
+  "wrapper_entity": "denormal_handler_shallow_pipeline_det_cfg",
+  "configuration_id": "DENORMAL_HANDLER_SHALLOW_PIPELINE_BB234720D24D1D1B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

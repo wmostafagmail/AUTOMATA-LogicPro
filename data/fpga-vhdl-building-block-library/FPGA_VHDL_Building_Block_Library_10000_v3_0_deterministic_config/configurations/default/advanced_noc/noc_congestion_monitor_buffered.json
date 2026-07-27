@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "noc_congestion_monitor_buffered",
+  "wrapper_entity": "noc_congestion_monitor_buffered_det_cfg",
+  "configuration_id": "NOC_CONGESTION_MONITOR_BUFFERED_C4F3931590424A1E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

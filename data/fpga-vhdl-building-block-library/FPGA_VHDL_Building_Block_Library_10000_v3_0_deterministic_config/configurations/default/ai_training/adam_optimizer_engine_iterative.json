@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_iterative",
+  "wrapper_entity": "adam_optimizer_engine_iterative_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_ITERATIVE_2F8B375341D42D97",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_deep_pipeline",
+  "wrapper_entity": "decimal_divider_deep_pipeline_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_DEEP_PIPELINE_5535533DEAE2BFB4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

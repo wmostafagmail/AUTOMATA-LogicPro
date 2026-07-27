@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microcode_rom_programmable",
+  "wrapper_entity": "microcode_rom_programmable_det_cfg",
+  "configuration_id": "MICROCODE_ROM_PROGRAMMABLE_7364E05D7D421093",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

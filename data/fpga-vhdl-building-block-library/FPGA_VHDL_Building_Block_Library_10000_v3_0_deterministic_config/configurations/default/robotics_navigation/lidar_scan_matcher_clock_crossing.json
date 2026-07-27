@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_clock_crossing",
+  "wrapper_entity": "lidar_scan_matcher_clock_crossing_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_CLOCK_CROSSING_2A4A4CDDEDF08C42",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

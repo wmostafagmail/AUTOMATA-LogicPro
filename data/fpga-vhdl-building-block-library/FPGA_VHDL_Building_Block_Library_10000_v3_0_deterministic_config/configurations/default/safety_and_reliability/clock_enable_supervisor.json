@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_enable_supervisor",
+  "wrapper_entity": "clock_enable_supervisor_det_cfg",
+  "configuration_id": "CLOCK_ENABLE_SUPERVISOR_F6727623624B7A26",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

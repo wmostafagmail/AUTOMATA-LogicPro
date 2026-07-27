@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "qspi_flash_controller_programmable",
+  "wrapper_entity": "qspi_flash_controller_programmable_det_cfg",
+  "configuration_id": "QSPI_FLASH_CONTROLLER_PROGRAMMABLE_1D6DD60031A35E7A",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_congestion_window_dma_attached",
+  "wrapper_entity": "tcp_congestion_window_dma_attached_det_cfg",
+  "configuration_id": "TCP_CONGESTION_WINDOW_DMA_ATTACHED_19E129E2914EA064",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

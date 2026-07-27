@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_single_cycle",
+  "wrapper_entity": "conditional_sum_adder_single_cycle_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_SINGLE_CYCLE_CC6DF18AB5ED72EF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

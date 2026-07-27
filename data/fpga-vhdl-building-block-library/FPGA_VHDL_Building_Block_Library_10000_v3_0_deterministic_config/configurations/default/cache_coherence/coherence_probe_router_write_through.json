@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "coherence_probe_router_write_through",
+  "wrapper_entity": "coherence_probe_router_write_through_det_cfg",
+  "configuration_id": "COHERENCE_PROBE_ROUTER_WRITE_THROUGH_4A7707B0564E22BD",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

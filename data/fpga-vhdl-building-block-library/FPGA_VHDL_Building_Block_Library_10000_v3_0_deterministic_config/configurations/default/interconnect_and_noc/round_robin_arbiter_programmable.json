@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "round_robin_arbiter_programmable",
+  "wrapper_entity": "round_robin_arbiter_programmable_det_cfg",
+  "configuration_id": "ROUND_ROBIN_ARBITER_PROGRAMMABLE_829FEA8FA27940B9",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

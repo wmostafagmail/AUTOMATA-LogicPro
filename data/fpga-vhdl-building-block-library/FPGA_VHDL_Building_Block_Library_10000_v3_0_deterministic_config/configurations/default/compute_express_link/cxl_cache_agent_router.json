@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_router",
+  "wrapper_entity": "cxl_cache_agent_router_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_ROUTER_50D6C6035D885C12",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

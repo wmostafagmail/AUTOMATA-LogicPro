@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rms_norm_engine_fault_detecting",
+  "wrapper_entity": "rms_norm_engine_fault_detecting_det_cfg",
+  "configuration_id": "RMS_NORM_ENGINE_FAULT_DETECTING_980614D0A55F17C8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

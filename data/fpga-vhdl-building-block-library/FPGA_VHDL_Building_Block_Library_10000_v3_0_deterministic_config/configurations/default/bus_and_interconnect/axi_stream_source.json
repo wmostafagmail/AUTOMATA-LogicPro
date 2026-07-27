@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_source",
+  "wrapper_entity": "axi_stream_source_det_cfg",
+  "configuration_id": "AXI_STREAM_SOURCE_F293B1E1435A90E6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 53
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cache_line_ownership_tracker_qos_aware",
+  "wrapper_entity": "cache_line_ownership_tracker_qos_aware_det_cfg",
+  "configuration_id": "CACHE_LINE_OWNERSHIP_TRACKER_QOS_AWARE_461928054E226511",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

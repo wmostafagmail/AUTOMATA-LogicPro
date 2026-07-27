@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_formal_friendly",
+  "wrapper_entity": "formal_cover_scenario_formal_friendly_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_FORMAL_FRIENDLY_381B988FF8CFFA32",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

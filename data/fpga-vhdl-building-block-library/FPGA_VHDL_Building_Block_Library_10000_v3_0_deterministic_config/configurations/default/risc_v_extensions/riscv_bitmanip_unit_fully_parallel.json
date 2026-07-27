@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_fully_parallel",
+  "wrapper_entity": "riscv_bitmanip_unit_fully_parallel_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_FULLY_PARALLEL_831A98296BE40D55",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

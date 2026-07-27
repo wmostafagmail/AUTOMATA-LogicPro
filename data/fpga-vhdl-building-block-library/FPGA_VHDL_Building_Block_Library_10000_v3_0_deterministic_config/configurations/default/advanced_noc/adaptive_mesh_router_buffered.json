@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_buffered",
+  "wrapper_entity": "adaptive_mesh_router_buffered_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_BUFFERED_20D1D03B03CEE900",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

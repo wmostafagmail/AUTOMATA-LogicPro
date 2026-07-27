@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gearbox_low_power",
+  "wrapper_entity": "gearbox_low_power_det_cfg",
+  "configuration_id": "GEARBOX_LOW_POWER_108DF16658934071",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

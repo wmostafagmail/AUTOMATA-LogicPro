@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_timer",
+  "wrapper_entity": "watchdog_timer_det_cfg",
+  "configuration_id": "WATCHDOG_TIMER_8AB148F98F141FCF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

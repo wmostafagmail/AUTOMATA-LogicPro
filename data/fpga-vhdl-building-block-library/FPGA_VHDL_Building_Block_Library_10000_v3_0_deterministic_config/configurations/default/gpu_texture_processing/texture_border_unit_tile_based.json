@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_border_unit_tile_based",
+  "wrapper_entity": "texture_border_unit_tile_based_det_cfg",
+  "configuration_id": "TEXTURE_BORDER_UNIT_TILE_BASED_3D3F7DE5EB32C122",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

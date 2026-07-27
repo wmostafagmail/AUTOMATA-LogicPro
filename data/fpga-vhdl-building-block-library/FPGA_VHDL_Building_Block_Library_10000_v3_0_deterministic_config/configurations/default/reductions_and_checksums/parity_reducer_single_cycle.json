@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parity_reducer_single_cycle",
+  "wrapper_entity": "parity_reducer_single_cycle_det_cfg",
+  "configuration_id": "PARITY_REDUCER_SINGLE_CYCLE_CC65F903F760184E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

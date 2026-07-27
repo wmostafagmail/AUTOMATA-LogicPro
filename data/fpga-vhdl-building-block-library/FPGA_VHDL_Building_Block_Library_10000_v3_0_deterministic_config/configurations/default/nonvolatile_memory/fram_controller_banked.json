@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fram_controller_banked",
+  "wrapper_entity": "fram_controller_banked_det_cfg",
+  "configuration_id": "FRAM_CONTROLLER_BANKED_603760D397F6DDE9",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

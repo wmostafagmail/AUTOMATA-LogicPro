@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fsk_demodulator_resource_shared",
+  "wrapper_entity": "fsk_demodulator_resource_shared_det_cfg",
+  "configuration_id": "FSK_DEMODULATOR_RESOURCE_SHARED_7F365286FED335EA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 160
+  }
+}

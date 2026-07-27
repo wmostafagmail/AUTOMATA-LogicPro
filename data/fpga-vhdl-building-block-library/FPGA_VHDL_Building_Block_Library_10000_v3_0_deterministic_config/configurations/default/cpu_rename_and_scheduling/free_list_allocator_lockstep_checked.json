@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_lockstep_checked",
+  "wrapper_entity": "free_list_allocator_lockstep_checked_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_LOCKSTEP_CHECKED_AB65800874645E4A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sparse_accumulator_bank_low_power",
+  "wrapper_entity": "sparse_accumulator_bank_low_power_det_cfg",
+  "configuration_id": "SPARSE_ACCUMULATOR_BANK_LOW_POWER_8FBEBE3A9CE83D58",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

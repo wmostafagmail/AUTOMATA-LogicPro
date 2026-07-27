@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conjugate_gradient_engine_iterative",
+  "wrapper_entity": "conjugate_gradient_engine_iterative_det_cfg",
+  "configuration_id": "CONJUGATE_GRADIENT_ENGINE_ITERATIVE_5F218A2F18F599FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

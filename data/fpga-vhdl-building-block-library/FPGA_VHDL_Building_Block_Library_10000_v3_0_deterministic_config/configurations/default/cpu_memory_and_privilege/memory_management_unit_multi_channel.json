@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "memory_management_unit_multi_channel",
+  "wrapper_entity": "memory_management_unit_multi_channel_det_cfg",
+  "configuration_id": "MEMORY_MANAGEMENT_UNIT_MULTI_CHANNEL_2FD248F1A8D92F89",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

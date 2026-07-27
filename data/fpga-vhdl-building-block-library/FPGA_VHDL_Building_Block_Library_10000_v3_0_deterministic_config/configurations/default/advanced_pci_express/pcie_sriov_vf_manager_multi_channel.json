@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_multi_channel",
+  "wrapper_entity": "pcie_sriov_vf_manager_multi_channel_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_MULTI_CHANNEL_D69FBF2EED47247E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

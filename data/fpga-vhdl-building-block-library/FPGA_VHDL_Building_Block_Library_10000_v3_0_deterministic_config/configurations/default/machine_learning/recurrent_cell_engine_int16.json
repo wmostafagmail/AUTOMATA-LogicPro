@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "recurrent_cell_engine_int16",
+  "wrapper_entity": "recurrent_cell_engine_int16_det_cfg",
+  "configuration_id": "RECURRENT_CELL_ENGINE_INT16_2D5393E743D68E96",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

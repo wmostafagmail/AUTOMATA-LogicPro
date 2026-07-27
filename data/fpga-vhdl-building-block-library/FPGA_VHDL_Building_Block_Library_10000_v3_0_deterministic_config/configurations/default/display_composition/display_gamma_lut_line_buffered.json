@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_line_buffered",
+  "wrapper_entity": "display_gamma_lut_line_buffered_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_LINE_BUFFERED_B72045641B86CA2F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

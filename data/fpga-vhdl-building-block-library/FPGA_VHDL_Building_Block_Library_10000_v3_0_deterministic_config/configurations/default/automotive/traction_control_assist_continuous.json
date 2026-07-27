@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "traction_control_assist_continuous",
+  "wrapper_entity": "traction_control_assist_continuous_det_cfg",
+  "configuration_id": "TRACTION_CONTROL_ASSIST_CONTINUOUS_A430B041595A16CF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

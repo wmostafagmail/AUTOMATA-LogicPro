@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_sysref_monitor_qos_aware",
+  "wrapper_entity": "jesd204_sysref_monitor_qos_aware_det_cfg",
+  "configuration_id": "JESD204_SYSREF_MONITOR_QOS_AWARE_F712D6D1C758CF19",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

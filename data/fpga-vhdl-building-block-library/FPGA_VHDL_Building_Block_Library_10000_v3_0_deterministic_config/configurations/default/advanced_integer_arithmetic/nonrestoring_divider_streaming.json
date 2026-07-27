@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_streaming",
+  "wrapper_entity": "nonrestoring_divider_streaming_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_STREAMING_35FD4DD41CA16A8B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

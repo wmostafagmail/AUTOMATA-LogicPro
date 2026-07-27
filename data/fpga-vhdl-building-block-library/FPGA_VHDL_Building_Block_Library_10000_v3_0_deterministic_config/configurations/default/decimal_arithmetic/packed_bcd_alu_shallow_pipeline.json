@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "packed_bcd_alu_shallow_pipeline",
+  "wrapper_entity": "packed_bcd_alu_shallow_pipeline_det_cfg",
+  "configuration_id": "PACKED_BCD_ALU_SHALLOW_PIPELINE_4E5EEF4DA8E10749",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

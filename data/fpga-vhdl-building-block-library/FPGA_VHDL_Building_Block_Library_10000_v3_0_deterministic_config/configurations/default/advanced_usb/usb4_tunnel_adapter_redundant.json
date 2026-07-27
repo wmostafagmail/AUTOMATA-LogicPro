@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb4_tunnel_adapter_redundant",
+  "wrapper_entity": "usb4_tunnel_adapter_redundant_det_cfg",
+  "configuration_id": "USB4_TUNNEL_ADAPTER_REDUNDANT_34B14B0756C4DA93",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

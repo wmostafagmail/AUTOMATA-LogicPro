@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "conservative_rasterizer_rate_adaptive",
+  "wrapper_entity": "conservative_rasterizer_rate_adaptive_det_cfg",
+  "configuration_id": "CONSERVATIVE_RASTERIZER_RATE_ADAPTIVE_7A69E8BDA5DFF562",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_continuous",
+  "wrapper_entity": "carrier_frequency_estimator_continuous_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_CONTINUOUS_ECF7933EA663FEF1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

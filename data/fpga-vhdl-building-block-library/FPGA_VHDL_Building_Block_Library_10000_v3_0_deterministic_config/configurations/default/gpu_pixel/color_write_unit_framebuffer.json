@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_write_unit_framebuffer",
+  "wrapper_entity": "color_write_unit_framebuffer_det_cfg",
+  "configuration_id": "COLOR_WRITE_UNIT_FRAMEBUFFER_170F7719BA59E68C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

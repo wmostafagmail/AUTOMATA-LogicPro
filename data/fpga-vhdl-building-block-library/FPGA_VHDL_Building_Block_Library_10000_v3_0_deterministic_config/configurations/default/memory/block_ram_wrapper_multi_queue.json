@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_ram_wrapper_multi_queue",
+  "wrapper_entity": "block_ram_wrapper_multi_queue_det_cfg",
+  "configuration_id": "BLOCK_RAM_WRAPPER_MULTI_QUEUE_30BEF48C71422D23",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

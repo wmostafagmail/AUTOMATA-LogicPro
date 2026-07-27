@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_adder_single_cycle",
+  "wrapper_entity": "vector_adder_single_cycle_det_cfg",
+  "configuration_id": "VECTOR_ADDER_SINGLE_CYCLE_4DABF5419DFE89DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

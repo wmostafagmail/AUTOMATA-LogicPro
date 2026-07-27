@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_ecc_pipeline_formally_instrumented",
+  "wrapper_entity": "dram_ecc_pipeline_formally_instrumented_det_cfg",
+  "configuration_id": "DRAM_ECC_PIPELINE_FORMALLY_INSTRUMENTED_93E11BACFC9D58FE",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

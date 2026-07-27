@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "coherence_probe_router_single_port",
+  "wrapper_entity": "coherence_probe_router_single_port_det_cfg",
+  "configuration_id": "COHERENCE_PROBE_ROUTER_SINGLE_PORT_654580F7691A6FF8",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

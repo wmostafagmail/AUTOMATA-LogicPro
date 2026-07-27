@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_bridge",
+  "wrapper_entity": "jesd204_deterministic_latency_bridge_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_BRIDGE_F72E02930F121D30",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

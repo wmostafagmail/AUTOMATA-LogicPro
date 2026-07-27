@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "end_around_carry_adder_resource_shared",
+  "wrapper_entity": "end_around_carry_adder_resource_shared_det_cfg",
+  "configuration_id": "END_AROUND_CARRY_ADDER_RESOURCE_SHARED_1AC2678A9416A8C7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

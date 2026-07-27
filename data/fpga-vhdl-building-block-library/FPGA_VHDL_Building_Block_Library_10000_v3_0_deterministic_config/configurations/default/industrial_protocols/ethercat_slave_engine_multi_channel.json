@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_slave_engine_multi_channel",
+  "wrapper_entity": "ethercat_slave_engine_multi_channel_det_cfg",
+  "configuration_id": "ETHERCAT_SLAVE_ENGINE_MULTI_CHANNEL_4B255BDC993DD959",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

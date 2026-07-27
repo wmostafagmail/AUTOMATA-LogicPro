@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_qos_aware",
+  "wrapper_entity": "torus_router_qos_aware_det_cfg",
+  "configuration_id": "TORUS_ROUTER_QOS_AWARE_27D7641194F367D6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

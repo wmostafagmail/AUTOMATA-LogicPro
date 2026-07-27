@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "beamforming_engine_resource_shared",
+  "wrapper_entity": "beamforming_engine_resource_shared_det_cfg",
+  "configuration_id": "BEAMFORMING_ENGINE_RESOURCE_SHARED_DF9868099C93C150",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 96
+  }
+}

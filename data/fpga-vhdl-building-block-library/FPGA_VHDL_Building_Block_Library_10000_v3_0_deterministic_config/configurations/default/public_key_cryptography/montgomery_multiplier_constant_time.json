@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "montgomery_multiplier_constant_time",
+  "wrapper_entity": "montgomery_multiplier_constant_time_det_cfg",
+  "configuration_id": "MONTGOMERY_MULTIPLIER_CONSTANT_TIME_1CF93DDA98AAA382",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

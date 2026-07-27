@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_training_sequencer_low_power",
+  "wrapper_entity": "memory_training_sequencer_low_power_det_cfg",
+  "configuration_id": "MEMORY_TRAINING_SEQUENCER_LOW_POWER_414B609DE02ACE16",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

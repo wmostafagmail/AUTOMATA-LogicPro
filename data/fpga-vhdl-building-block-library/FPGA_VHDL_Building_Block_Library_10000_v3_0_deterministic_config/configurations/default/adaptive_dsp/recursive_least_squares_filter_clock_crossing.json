@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "recursive_least_squares_filter_clock_crossing",
+  "wrapper_entity": "recursive_least_squares_filter_clock_crossing_det_cfg",
+  "configuration_id": "RECURSIVE_LEAST_SQUARES_FILTER_CLOCK_CROSSING_273C1AFB616C46F7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

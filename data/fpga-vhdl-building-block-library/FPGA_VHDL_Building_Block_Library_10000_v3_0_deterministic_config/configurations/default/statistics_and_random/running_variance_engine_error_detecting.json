@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_error_detecting",
+  "wrapper_entity": "running_variance_engine_error_detecting_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_ERROR_DETECTING_0C090ADD2D497AF7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "write_buffer_multi_queue",
+  "wrapper_entity": "write_buffer_multi_queue_det_cfg",
+  "configuration_id": "WRITE_BUFFER_MULTI_QUEUE_F2DBA2970D5ACB50",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

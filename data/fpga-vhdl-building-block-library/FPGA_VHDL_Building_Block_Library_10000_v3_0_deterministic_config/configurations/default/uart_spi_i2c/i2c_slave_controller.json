@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2c_slave_controller",
+  "wrapper_entity": "i2c_slave_controller_det_cfg",
+  "configuration_id": "I2C_SLAVE_CONTROLLER_5E0C3142BCB9F411",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

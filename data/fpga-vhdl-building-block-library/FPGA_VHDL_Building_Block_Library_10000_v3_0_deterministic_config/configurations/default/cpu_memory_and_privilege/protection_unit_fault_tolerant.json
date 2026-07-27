@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "protection_unit_fault_tolerant",
+  "wrapper_entity": "protection_unit_fault_tolerant_det_cfg",
+  "configuration_id": "PROTECTION_UNIT_FAULT_TOLERANT_5583D08C25FD96A4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

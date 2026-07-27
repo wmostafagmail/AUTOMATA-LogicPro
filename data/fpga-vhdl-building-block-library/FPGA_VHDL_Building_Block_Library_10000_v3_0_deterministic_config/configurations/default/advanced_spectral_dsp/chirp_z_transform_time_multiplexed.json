@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chirp_z_transform_time_multiplexed",
+  "wrapper_entity": "chirp_z_transform_time_multiplexed_det_cfg",
+  "configuration_id": "CHIRP_Z_TRANSFORM_TIME_MULTIPLEXED_0C96EBC7FEFA918B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

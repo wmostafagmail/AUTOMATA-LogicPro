@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "assertion_monitor_coverage_driven",
+  "wrapper_entity": "assertion_monitor_coverage_driven_det_cfg",
+  "configuration_id": "ASSERTION_MONITOR_COVERAGE_DRIVEN_774EF5D70B7CE25B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

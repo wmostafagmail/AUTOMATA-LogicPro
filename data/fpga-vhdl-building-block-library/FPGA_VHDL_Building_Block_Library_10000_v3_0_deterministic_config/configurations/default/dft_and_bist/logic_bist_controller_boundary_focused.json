@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_bist_controller_boundary_focused",
+  "wrapper_entity": "logic_bist_controller_boundary_focused_det_cfg",
+  "configuration_id": "LOGIC_BIST_CONTROLLER_BOUNDARY_FOCUSED_4F756A060EAE8C9F",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

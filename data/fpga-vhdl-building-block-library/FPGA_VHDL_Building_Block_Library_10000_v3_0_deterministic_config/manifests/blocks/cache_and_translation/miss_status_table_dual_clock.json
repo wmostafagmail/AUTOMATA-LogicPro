@@ -1,0 +1,127 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "miss_status_table_dual_clock",
+    "entity": "miss_status_table_dual_clock",
+    "version": "3.0.0",
+    "category": "cache_and_translation",
+    "source": "rtl/blocks/cache_and_translation/miss_status_table_dual_clock.vhd",
+    "wrapper_entity": "miss_status_table_dual_clock_det_cfg"
+  },
+  "configuration": {
+    "id": "MISS_STATUS_TABLE_DUAL_CLOCK_89B667EB94BFE899",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "ADDR_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "ADDR_WIDTH": 32,
+      "DATA_WIDTH": 32
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "start",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "src_addr",
+        "direction": "in",
+        "type": "std_logic_vector(ADDR_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "dst_addr",
+        "direction": "in",
+        "type": "std_logic_vector(ADDR_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "data_in",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "data_out",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "busy",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "done",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "error",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "CDC-sensitive; implementation shell requires CDC replacement or analysis",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/cache_and_translation/miss_status_table_dual_clock_det_cfg.vhd",
+    "configuration_file": "configurations/default/miss_status_table_dual_clock.json"
+  }
+}

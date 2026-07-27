@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_rate_adaptive",
+  "wrapper_entity": "motion_estimation_engine_rate_adaptive_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_RATE_ADAPTIVE_03FD079A9A4D4405",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

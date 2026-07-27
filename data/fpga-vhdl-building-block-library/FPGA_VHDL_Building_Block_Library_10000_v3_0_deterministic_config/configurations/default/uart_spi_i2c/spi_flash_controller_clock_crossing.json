@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_flash_controller_clock_crossing",
+  "wrapper_entity": "spi_flash_controller_clock_crossing_det_cfg",
+  "configuration_id": "SPI_FLASH_CONTROLLER_CLOCK_CROSSING_4B7D4564EF8DE015",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

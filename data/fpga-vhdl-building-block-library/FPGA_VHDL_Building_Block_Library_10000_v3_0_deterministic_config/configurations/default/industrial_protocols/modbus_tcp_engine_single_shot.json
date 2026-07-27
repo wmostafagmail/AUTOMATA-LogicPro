@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_tcp_engine_single_shot",
+  "wrapper_entity": "modbus_tcp_engine_single_shot_det_cfg",
+  "configuration_id": "MODBUS_TCP_ENGINE_SINGLE_SHOT_1140C8E57EDCD6C6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

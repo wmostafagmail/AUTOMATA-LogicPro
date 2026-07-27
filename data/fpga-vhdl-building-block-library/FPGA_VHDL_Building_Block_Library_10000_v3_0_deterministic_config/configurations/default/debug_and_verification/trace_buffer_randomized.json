@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trace_buffer_randomized",
+  "wrapper_entity": "trace_buffer_randomized_det_cfg",
+  "configuration_id": "TRACE_BUFFER_RANDOMIZED_4A6E6343E3C1BE02",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

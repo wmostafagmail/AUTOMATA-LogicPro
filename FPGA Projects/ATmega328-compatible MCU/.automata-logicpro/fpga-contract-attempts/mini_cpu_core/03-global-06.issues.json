@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "stage": "architecture_contract",
+  "designKey": "mini_cpu_core",
+  "designLabel": "Mini RISC-V / Custom 8-bit CPU Core",
+  "attempt": 6,
+  "designAttempt": 3,
+  "issueCount": 7,
+  "topIssueCodes": [
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required"
+  ],
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does RISC mean in this FPGA design? What does ISA mean in this FPGA design?",
+  "issues": [
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:RISC",
+      "message": "What does RISC mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:ISA",
+      "message": "What does ISA mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FAIL",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:RESET",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    }
+  ]
+}

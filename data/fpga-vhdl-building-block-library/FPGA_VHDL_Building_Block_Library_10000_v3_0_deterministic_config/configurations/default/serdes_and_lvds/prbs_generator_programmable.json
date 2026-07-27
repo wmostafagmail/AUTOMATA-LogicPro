@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prbs_generator_programmable",
+  "wrapper_entity": "prbs_generator_programmable_det_cfg",
+  "configuration_id": "PRBS_GENERATOR_PROGRAMMABLE_1D6AF510BA3D1452",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

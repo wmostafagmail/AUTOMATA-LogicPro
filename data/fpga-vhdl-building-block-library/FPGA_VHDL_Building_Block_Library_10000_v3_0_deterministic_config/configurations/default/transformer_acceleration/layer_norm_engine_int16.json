@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "layer_norm_engine_int16",
+  "wrapper_entity": "layer_norm_engine_int16_det_cfg",
+  "configuration_id": "LAYER_NORM_ENGINE_INT16_0860537476F9DDF9",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

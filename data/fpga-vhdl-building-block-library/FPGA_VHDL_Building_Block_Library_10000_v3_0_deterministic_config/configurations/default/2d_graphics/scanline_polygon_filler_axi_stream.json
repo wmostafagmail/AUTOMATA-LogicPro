@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scanline_polygon_filler_axi_stream",
+  "wrapper_entity": "scanline_polygon_filler_axi_stream_det_cfg",
+  "configuration_id": "SCANLINE_POLYGON_FILLER_AXI_STREAM_A035DD6B7DC3A7D2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

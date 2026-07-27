@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_encoder_deep_pipelined",
+  "wrapper_entity": "adpcm_encoder_deep_pipelined_det_cfg",
+  "configuration_id": "ADPCM_ENCODER_DEEP_PIPELINED_82331A98496DA56A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

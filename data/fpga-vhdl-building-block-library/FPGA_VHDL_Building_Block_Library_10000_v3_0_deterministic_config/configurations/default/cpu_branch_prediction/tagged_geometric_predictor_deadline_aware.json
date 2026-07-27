@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_deadline_aware",
+  "wrapper_entity": "tagged_geometric_predictor_deadline_aware_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_DEADLINE_AWARE_128007BB75B9C6BE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

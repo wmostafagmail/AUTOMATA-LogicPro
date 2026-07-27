@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_buffered_stream",
+  "wrapper_entity": "riscv_bitmanip_unit_buffered_stream_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_BUFFERED_STREAM_082FACFC7CBB085A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

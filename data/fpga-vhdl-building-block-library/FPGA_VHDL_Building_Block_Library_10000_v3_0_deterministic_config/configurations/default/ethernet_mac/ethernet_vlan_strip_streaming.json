@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_vlan_strip_streaming",
+  "wrapper_entity": "ethernet_vlan_strip_streaming_det_cfg",
+  "configuration_id": "ETHERNET_VLAN_STRIP_STREAMING_F6933A2A0EE61F60",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

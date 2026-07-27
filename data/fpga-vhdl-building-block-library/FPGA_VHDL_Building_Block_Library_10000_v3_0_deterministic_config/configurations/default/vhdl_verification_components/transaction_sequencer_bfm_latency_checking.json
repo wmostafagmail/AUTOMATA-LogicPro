@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_latency_checking",
+  "wrapper_entity": "transaction_sequencer_bfm_latency_checking_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_LATENCY_CHECKING_9D30CA4F8086DC5A",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

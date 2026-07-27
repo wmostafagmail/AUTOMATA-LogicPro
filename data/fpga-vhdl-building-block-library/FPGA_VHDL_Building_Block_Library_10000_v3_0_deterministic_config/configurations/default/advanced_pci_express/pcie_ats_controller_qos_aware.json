@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_ats_controller_qos_aware",
+  "wrapper_entity": "pcie_ats_controller_qos_aware_det_cfg",
+  "configuration_id": "PCIE_ATS_CONTROLLER_QOS_AWARE_6805DFA03A12BCC6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_low_power",
+  "wrapper_entity": "sparse_cholesky_engine_low_power_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_LOW_POWER_41B55C48DF872032",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

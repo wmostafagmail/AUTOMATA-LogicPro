@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_dma_interface_target",
+  "wrapper_entity": "audio_dma_interface_target_det_cfg",
+  "configuration_id": "AUDIO_DMA_INTERFACE_TARGET_AD93AEF324DCDAD2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

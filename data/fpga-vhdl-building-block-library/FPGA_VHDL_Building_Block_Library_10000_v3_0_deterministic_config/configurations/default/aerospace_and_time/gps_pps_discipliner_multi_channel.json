@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gps_pps_discipliner_multi_channel",
+  "wrapper_entity": "gps_pps_discipliner_multi_channel_det_cfg",
+  "configuration_id": "GPS_PPS_DISCIPLINER_MULTI_CHANNEL_6C43C5C425C0145A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

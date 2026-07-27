@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_backpressure_capable",
+  "wrapper_entity": "running_variance_engine_backpressure_capable_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_BACKPRESSURE_CAPABLE_6E42045E67EDCD9F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

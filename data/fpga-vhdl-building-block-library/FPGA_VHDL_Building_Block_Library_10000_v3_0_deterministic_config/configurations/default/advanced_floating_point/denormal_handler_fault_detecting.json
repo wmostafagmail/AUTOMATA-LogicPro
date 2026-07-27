@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "denormal_handler_fault_detecting",
+  "wrapper_entity": "denormal_handler_fault_detecting_det_cfg",
+  "configuration_id": "DENORMAL_HANDLER_FAULT_DETECTING_287B8276072E3ECF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

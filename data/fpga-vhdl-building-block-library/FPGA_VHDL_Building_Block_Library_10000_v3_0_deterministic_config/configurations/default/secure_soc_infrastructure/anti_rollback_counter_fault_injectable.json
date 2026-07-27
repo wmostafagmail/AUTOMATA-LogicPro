@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_fault_injectable",
+  "wrapper_entity": "anti_rollback_counter_fault_injectable_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_FAULT_INJECTABLE_FCF614AD00288DF2",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

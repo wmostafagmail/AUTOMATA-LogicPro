@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dac_streamer_multi_channel",
+  "wrapper_entity": "dac_streamer_multi_channel_det_cfg",
+  "configuration_id": "DAC_STREAMER_MULTI_CHANNEL_825FD4C8B4BCA0B9",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

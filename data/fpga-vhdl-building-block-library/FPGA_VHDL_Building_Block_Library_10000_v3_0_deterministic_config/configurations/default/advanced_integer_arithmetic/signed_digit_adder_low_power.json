@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_low_power",
+  "wrapper_entity": "signed_digit_adder_low_power_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_LOW_POWER_A2C5CD55EC0638B5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

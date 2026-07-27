@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "handshake_synchronizer_fault_tolerant",
+  "wrapper_entity": "handshake_synchronizer_fault_tolerant_det_cfg",
+  "configuration_id": "HANDSHAKE_SYNCHRONIZER_FAULT_TOLERANT_89C3A520C2851714",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

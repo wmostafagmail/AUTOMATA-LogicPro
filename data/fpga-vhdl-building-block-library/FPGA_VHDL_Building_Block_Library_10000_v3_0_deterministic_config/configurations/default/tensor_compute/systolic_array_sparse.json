@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "systolic_array_sparse",
+  "wrapper_entity": "systolic_array_sparse_det_cfg",
+  "configuration_id": "SYSTOLIC_ARRAY_SPARSE_F5C7FCDFE1B769A5",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_priority_aware",
+  "wrapper_entity": "loop_branch_predictor_priority_aware_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_PRIORITY_AWARE_5B472A8A1774B4A8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

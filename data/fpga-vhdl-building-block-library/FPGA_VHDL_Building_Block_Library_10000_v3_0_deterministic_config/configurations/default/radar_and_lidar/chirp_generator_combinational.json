@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chirp_generator_combinational",
+  "wrapper_entity": "chirp_generator_combinational_det_cfg",
+  "configuration_id": "CHIRP_GENERATOR_COMBINATIONAL_F17DD74AFEB8F94F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 247
+  }
+}

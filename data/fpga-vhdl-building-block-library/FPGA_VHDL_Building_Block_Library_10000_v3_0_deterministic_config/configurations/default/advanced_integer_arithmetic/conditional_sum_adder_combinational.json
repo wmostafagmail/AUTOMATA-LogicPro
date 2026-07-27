@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_combinational",
+  "wrapper_entity": "conditional_sum_adder_combinational_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_COMBINATIONAL_BEB1BC234423EDDF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

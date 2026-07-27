@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2s_audio_interface",
+  "wrapper_entity": "i2s_audio_interface_det_cfg",
+  "configuration_id": "I2S_AUDIO_INTERFACE_24C42359EF9A10FF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

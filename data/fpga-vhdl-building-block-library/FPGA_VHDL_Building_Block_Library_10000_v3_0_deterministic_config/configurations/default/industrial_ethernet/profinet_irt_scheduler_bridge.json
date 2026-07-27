@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_bridge",
+  "wrapper_entity": "profinet_irt_scheduler_bridge_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_BRIDGE_CEA46328F9CD3340",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

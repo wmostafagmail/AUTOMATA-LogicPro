@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_dropout_engine_programmable_precision",
+  "wrapper_entity": "attention_dropout_engine_programmable_precision_det_cfg",
+  "configuration_id": "ATTENTION_DROPOUT_ENGINE_PROGRAMMABLE_PRECISION_A5915C9E0D28558A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

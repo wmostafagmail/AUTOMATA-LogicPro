@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "local_response_norm_saturating",
+  "wrapper_entity": "local_response_norm_saturating_det_cfg",
+  "configuration_id": "LOCAL_RESPONSE_NORM_SATURATING_03D47935C7D7D7BD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_fully_unrolled",
+  "wrapper_entity": "ascon_aead_engine_fully_unrolled_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_FULLY_UNROLLED_CE512F08343476F2",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

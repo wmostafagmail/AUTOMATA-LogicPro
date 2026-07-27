@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "spectrum_analyzer_frontend_low_latency",
+  "wrapper_entity": "spectrum_analyzer_frontend_low_latency_det_cfg",
+  "configuration_id": "SPECTRUM_ANALYZER_FRONTEND_LOW_LATENCY_3A91169721ECD2B9",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

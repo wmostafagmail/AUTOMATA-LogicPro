@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_software_configurable",
+  "wrapper_entity": "sas_ssp_engine_software_configurable_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_SOFTWARE_CONFIGURABLE_4F89F94E0CC32EBF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

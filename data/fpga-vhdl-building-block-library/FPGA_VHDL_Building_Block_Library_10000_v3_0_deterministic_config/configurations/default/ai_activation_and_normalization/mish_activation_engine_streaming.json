@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mish_activation_engine_streaming",
+  "wrapper_entity": "mish_activation_engine_streaming_det_cfg",
+  "configuration_id": "MISH_ACTIVATION_ENGINE_STREAMING_71254A1C17C30DEE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

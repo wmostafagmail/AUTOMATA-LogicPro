@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "weight_update_engine_vectorized",
+  "wrapper_entity": "weight_update_engine_vectorized_det_cfg",
+  "configuration_id": "WEIGHT_UPDATE_ENGINE_VECTORIZED_EA4E34909EE51AA1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

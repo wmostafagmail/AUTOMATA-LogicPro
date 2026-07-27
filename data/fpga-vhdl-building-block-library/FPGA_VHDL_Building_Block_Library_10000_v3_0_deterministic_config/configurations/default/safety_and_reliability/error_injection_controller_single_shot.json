@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "error_injection_controller_single_shot",
+  "wrapper_entity": "error_injection_controller_single_shot_det_cfg",
+  "configuration_id": "ERROR_INJECTION_CONTROLLER_SINGLE_SHOT_B4537D096049459E",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

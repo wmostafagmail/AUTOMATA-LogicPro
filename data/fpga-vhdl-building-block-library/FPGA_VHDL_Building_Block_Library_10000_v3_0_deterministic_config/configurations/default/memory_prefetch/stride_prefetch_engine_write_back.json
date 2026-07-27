@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "stride_prefetch_engine_write_back",
+  "wrapper_entity": "stride_prefetch_engine_write_back_det_cfg",
+  "configuration_id": "STRIDE_PREFETCH_ENGINE_WRITE_BACK_DD6D0D0DC04776A0",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

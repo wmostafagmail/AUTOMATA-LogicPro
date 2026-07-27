@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "float_to_fixed_converter_fault_detecting",
+  "wrapper_entity": "float_to_fixed_converter_fault_detecting_det_cfg",
+  "configuration_id": "FLOAT_TO_FIXED_CONVERTER_FAULT_DETECTING_F87D2BC725B48C9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

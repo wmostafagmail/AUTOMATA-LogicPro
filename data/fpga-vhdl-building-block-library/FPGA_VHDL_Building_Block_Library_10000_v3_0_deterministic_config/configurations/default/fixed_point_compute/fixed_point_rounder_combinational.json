@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_rounder_combinational",
+  "wrapper_entity": "fixed_point_rounder_combinational_det_cfg",
+  "configuration_id": "FIXED_POINT_ROUNDER_COMBINATIONAL_B13484CE281BB1E2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

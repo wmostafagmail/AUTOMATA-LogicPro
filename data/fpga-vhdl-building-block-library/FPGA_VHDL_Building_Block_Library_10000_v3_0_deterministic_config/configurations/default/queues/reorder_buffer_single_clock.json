@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_single_clock",
+  "wrapper_entity": "reorder_buffer_single_clock_det_cfg",
+  "configuration_id": "REORDER_BUFFER_SINGLE_CLOCK_005F8AA3D2DE81B6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

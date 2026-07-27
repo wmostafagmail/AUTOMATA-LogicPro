@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nor_execute_in_place_cache_clock_crossing",
+  "wrapper_entity": "nor_execute_in_place_cache_clock_crossing_det_cfg",
+  "configuration_id": "NOR_EXECUTE_IN_PLACE_CACHE_CLOCK_CROSSING_6DE0309A456F92D6",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

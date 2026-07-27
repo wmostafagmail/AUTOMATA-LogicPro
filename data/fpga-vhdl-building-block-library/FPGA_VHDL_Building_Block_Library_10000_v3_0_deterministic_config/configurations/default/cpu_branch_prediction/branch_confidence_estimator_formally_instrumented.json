@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_confidence_estimator_formally_instrumented",
+  "wrapper_entity": "branch_confidence_estimator_formally_instrumented_det_cfg",
+  "configuration_id": "BRANCH_CONFIDENCE_ESTIMATOR_FORMALLY_INSTRUMENTED_33401EFFF3FD1240",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

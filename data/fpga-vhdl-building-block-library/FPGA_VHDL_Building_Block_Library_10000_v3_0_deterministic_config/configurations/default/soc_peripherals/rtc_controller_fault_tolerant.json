@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "rtc_controller_fault_tolerant",
+  "wrapper_entity": "rtc_controller_fault_tolerant_det_cfg",
+  "configuration_id": "RTC_CONTROLLER_FAULT_TOLERANT_B3391DC7255B4B39",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

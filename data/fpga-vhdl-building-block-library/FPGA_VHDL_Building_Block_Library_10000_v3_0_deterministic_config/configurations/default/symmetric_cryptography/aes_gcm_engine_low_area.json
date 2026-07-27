@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_low_area",
+  "wrapper_entity": "aes_gcm_engine_low_area_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_LOW_AREA_7E798CD87E56A0A4",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

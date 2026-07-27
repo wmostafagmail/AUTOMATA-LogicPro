@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_triggered",
+  "wrapper_entity": "digital_lockin_amplifier_triggered_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_TRIGGERED_B552B09A3C6FEB57",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

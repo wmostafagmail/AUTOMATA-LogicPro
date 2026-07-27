@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_event_driven",
+  "wrapper_entity": "store_commit_queue_event_driven_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_EVENT_DRIVEN_3694E3DD1B7609CC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

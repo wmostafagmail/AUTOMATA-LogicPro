@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_formally_instrumented",
+  "wrapper_entity": "costas_loop_formally_instrumented_det_cfg",
+  "configuration_id": "COSTAS_LOOP_FORMALLY_INSTRUMENTED_97E95DF6266572AF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

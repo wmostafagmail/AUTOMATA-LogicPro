@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_fault_detecting",
+  "wrapper_entity": "posit_format_converter_fault_detecting_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_FAULT_DETECTING_084DEC783653F0FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

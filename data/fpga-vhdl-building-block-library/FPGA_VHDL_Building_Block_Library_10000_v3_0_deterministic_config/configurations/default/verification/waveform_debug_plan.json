@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "waveform_debug_plan",
+  "wrapper_entity": "waveform_debug_plan_det_cfg",
+  "configuration_id": "WAVEFORM_DEBUG_PLAN_A6E71BF78B2066DC",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

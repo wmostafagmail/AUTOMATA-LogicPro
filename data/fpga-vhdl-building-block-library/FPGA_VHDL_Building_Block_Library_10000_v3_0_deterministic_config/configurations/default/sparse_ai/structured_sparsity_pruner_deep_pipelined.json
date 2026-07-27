@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "structured_sparsity_pruner_deep_pipelined",
+  "wrapper_entity": "structured_sparsity_pruner_deep_pipelined_det_cfg",
+  "configuration_id": "STRUCTURED_SPARSITY_PRUNER_DEEP_PIPELINED_7BB7B24284A8C531",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

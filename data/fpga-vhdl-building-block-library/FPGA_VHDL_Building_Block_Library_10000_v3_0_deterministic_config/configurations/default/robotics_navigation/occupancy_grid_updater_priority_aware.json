@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "occupancy_grid_updater_priority_aware",
+  "wrapper_entity": "occupancy_grid_updater_priority_aware_det_cfg",
+  "configuration_id": "OCCUPANCY_GRID_UPDATER_PRIORITY_AWARE_754A03526F39646F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

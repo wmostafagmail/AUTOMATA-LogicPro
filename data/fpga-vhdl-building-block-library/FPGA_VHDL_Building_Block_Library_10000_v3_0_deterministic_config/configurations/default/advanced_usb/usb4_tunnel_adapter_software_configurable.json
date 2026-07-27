@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb4_tunnel_adapter_software_configurable",
+  "wrapper_entity": "usb4_tunnel_adapter_software_configurable_det_cfg",
+  "configuration_id": "USB4_TUNNEL_ADAPTER_SOFTWARE_CONFIGURABLE_3E8DB16122CA9315",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

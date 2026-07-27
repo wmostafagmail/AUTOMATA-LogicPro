@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_transaction_level",
+  "wrapper_entity": "constrained_random_generator_transaction_level_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_TRANSACTION_LEVEL_772537A60EC32F27",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

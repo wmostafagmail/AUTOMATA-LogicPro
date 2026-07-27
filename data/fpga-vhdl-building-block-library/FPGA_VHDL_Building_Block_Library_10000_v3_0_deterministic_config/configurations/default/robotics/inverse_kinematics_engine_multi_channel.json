@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "inverse_kinematics_engine_multi_channel",
+  "wrapper_entity": "inverse_kinematics_engine_multi_channel_det_cfg",
+  "configuration_id": "INVERSE_KINEMATICS_ENGINE_MULTI_CHANNEL_1CE9F7E1B767EAD7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

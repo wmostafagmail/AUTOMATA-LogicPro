@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_sysref_monitor_initiator",
+  "wrapper_entity": "jesd204_sysref_monitor_initiator_det_cfg",
+  "configuration_id": "JESD204_SYSREF_MONITOR_INITIATOR_BFB84405D6A03B2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

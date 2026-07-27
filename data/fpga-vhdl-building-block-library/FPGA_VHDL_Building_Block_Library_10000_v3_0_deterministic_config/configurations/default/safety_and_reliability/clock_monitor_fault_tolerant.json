@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_monitor_fault_tolerant",
+  "wrapper_entity": "clock_monitor_fault_tolerant_det_cfg",
+  "configuration_id": "CLOCK_MONITOR_FAULT_TOLERANT_332C4C0F9554B1FF",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

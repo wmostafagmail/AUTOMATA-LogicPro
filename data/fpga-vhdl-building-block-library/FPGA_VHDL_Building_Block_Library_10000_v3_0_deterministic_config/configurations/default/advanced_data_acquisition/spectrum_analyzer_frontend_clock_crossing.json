@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "spectrum_analyzer_frontend_clock_crossing",
+  "wrapper_entity": "spectrum_analyzer_frontend_clock_crossing_det_cfg",
+  "configuration_id": "SPECTRUM_ANALYZER_FRONTEND_CLOCK_CROSSING_8DF579D4C693452C",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

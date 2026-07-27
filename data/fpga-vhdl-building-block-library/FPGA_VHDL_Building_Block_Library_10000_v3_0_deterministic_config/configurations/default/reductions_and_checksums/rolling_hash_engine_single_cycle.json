@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rolling_hash_engine_single_cycle",
+  "wrapper_entity": "rolling_hash_engine_single_cycle_det_cfg",
+  "configuration_id": "ROLLING_HASH_ENGINE_SINGLE_CYCLE_DFCB5ACD31E6098C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

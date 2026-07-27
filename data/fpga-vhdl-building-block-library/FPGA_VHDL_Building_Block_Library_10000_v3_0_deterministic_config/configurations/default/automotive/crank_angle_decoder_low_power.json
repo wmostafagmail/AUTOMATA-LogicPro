@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "crank_angle_decoder_low_power",
+  "wrapper_entity": "crank_angle_decoder_low_power_det_cfg",
+  "configuration_id": "CRANK_ANGLE_DECODER_LOW_POWER_5F62C32915A11B6A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "odometry_integrator_fault_tolerant",
+  "wrapper_entity": "odometry_integrator_fault_tolerant_det_cfg",
+  "configuration_id": "ODOMETRY_INTEGRATOR_FAULT_TOLERANT_5FCD1FB92DF410F3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

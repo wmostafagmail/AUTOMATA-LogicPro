@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_queue_single_clock",
+  "wrapper_entity": "credit_queue_single_clock_det_cfg",
+  "configuration_id": "CREDIT_QUEUE_SINGLE_CLOCK_53CC80291C67FE08",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

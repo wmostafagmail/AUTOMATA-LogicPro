@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_multi_channel",
+  "wrapper_entity": "anisotropic_filter_engine_multi_channel_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_MULTI_CHANNEL_265A1A468C9141B7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

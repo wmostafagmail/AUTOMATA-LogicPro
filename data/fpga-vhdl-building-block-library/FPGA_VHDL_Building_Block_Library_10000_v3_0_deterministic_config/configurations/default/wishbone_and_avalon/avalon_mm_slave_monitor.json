@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_mm_slave_monitor",
+  "wrapper_entity": "avalon_mm_slave_monitor_det_cfg",
+  "configuration_id": "AVALON_MM_SLAVE_MONITOR_C597FCD47949F952",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

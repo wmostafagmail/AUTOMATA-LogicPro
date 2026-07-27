@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_queued",
+  "wrapper_entity": "free_list_allocator_queued_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_QUEUED_BBF1F99EE68B3CA8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

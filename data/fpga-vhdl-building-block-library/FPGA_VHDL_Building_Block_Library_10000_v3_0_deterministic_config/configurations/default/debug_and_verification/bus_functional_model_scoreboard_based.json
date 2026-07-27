@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bus_functional_model_scoreboard_based",
+  "wrapper_entity": "bus_functional_model_scoreboard_based_det_cfg",
+  "configuration_id": "BUS_FUNCTIONAL_MODEL_SCOREBOARD_BASED_D0BB60DDD4FA29B3",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

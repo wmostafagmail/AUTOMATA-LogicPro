@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "instruction_decoder_programmable",
+  "wrapper_entity": "instruction_decoder_programmable_det_cfg",
+  "configuration_id": "INSTRUCTION_DECODER_PROGRAMMABLE_0509B5315D9F04CC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

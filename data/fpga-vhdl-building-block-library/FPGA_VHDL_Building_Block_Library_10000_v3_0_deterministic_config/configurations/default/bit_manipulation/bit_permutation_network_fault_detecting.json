@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_permutation_network_fault_detecting",
+  "wrapper_entity": "bit_permutation_network_fault_detecting_det_cfg",
+  "configuration_id": "BIT_PERMUTATION_NETWORK_FAULT_DETECTING_D833B2FDC55100DC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

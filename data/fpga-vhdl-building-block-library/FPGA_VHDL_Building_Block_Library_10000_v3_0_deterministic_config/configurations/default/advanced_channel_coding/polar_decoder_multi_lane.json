@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_decoder_multi_lane",
+  "wrapper_entity": "polar_decoder_multi_lane_det_cfg",
+  "configuration_id": "POLAR_DECODER_MULTI_LANE_CB0EE0EE520F66CF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

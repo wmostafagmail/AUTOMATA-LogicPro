@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_bridge",
+  "wrapper_entity": "can_fd_controller_bridge_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_BRIDGE_C20F0B5BD11DCE81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

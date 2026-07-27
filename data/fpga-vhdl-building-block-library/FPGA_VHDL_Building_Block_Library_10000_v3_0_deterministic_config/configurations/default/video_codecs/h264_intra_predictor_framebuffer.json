@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_framebuffer",
+  "wrapper_entity": "h264_intra_predictor_framebuffer_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_FRAMEBUFFER_504FA94D37E4E30B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

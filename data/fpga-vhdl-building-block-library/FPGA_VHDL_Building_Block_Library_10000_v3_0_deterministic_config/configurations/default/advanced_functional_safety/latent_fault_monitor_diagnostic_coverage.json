@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_diagnostic_coverage",
+  "wrapper_entity": "latent_fault_monitor_diagnostic_coverage_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_DIAGNOSTIC_COVERAGE_F924E046C77D1704",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

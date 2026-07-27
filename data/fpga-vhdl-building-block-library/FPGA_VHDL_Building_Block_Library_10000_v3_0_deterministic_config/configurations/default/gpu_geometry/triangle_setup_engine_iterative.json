@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "triangle_setup_engine_iterative",
+  "wrapper_entity": "triangle_setup_engine_iterative_det_cfg",
+  "configuration_id": "TRIANGLE_SETUP_ENGINE_ITERATIVE_15464758B6B6045E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

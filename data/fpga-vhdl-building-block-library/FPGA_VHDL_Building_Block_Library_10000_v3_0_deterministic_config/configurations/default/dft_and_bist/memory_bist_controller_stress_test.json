@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_bist_controller_stress_test",
+  "wrapper_entity": "memory_bist_controller_stress_test_det_cfg",
+  "configuration_id": "MEMORY_BIST_CONTROLLER_STRESS_TEST_76D020485D84582D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

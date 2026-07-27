@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triangle_edge_walker_low_power",
+  "wrapper_entity": "triangle_edge_walker_low_power_det_cfg",
+  "configuration_id": "TRIANGLE_EDGE_WALKER_LOW_POWER_A2D73A56DD0465D4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

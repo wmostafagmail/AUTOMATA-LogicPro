@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_sign_engine_low_area",
+  "wrapper_entity": "ecdsa_sign_engine_low_area_det_cfg",
+  "configuration_id": "ECDSA_SIGN_ENGINE_LOW_AREA_76F68A9989D48A2D",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

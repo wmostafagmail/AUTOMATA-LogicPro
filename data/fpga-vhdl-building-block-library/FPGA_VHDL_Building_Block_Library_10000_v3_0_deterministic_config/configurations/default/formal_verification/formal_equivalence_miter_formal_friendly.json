@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_formal_friendly",
+  "wrapper_entity": "formal_equivalence_miter_formal_friendly_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_FORMAL_FRIENDLY_DCBE55FF23B9B141",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

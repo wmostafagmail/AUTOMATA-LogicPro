@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iommu_translation_engine_deadline_aware",
+  "wrapper_entity": "iommu_translation_engine_deadline_aware_det_cfg",
+  "configuration_id": "IOMMU_TRANSLATION_ENGINE_DEADLINE_AWARE_BDDB78C9D5ECB159",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_aware_shaper_software_configurable",
+  "wrapper_entity": "time_aware_shaper_software_configurable_det_cfg",
+  "configuration_id": "TIME_AWARE_SHAPER_SOFTWARE_CONFIGURABLE_0CE9A28766EF2D5F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_deadline_aware",
+  "wrapper_entity": "qubit_pulse_sequencer_deadline_aware_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_DEADLINE_AWARE_C331F1F83EFB5E50",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

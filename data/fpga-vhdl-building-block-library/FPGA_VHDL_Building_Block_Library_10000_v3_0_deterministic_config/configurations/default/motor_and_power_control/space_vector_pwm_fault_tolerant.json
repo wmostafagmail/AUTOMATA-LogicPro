@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "space_vector_pwm_fault_tolerant",
+  "wrapper_entity": "space_vector_pwm_fault_tolerant_det_cfg",
+  "configuration_id": "SPACE_VECTOR_PWM_FAULT_TOLERANT_18C0338097E30A71",
+  "generics": {
+    "WIDTH": 16
+  }
+}

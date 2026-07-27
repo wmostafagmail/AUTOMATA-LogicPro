@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_multi_channel",
+  "wrapper_entity": "jesd204_deterministic_latency_multi_channel_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_MULTI_CHANNEL_980B5FA1B8AB551C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_qos_aware",
+  "wrapper_entity": "cxl_cache_agent_qos_aware_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_QOS_AWARE_1C56D37A27E388AC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

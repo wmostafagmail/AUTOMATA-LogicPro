@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_timestamped",
+  "wrapper_entity": "adaptive_mesh_router_timestamped_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_TIMESTAMPED_ECF8E6664649F7D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

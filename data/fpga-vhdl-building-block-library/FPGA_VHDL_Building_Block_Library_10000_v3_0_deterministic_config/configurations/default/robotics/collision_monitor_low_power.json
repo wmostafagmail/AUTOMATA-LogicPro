@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "collision_monitor_low_power",
+  "wrapper_entity": "collision_monitor_low_power_det_cfg",
+  "configuration_id": "COLLISION_MONITOR_LOW_POWER_244DC8B0244021CA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

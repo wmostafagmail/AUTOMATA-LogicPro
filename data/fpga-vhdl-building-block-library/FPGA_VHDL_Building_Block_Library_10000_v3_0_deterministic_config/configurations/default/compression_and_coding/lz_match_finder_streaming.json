@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz_match_finder_streaming",
+  "wrapper_entity": "lz_match_finder_streaming_det_cfg",
+  "configuration_id": "LZ_MATCH_FINDER_STREAMING_09D7FED33CF16AFB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 97
+  }
+}

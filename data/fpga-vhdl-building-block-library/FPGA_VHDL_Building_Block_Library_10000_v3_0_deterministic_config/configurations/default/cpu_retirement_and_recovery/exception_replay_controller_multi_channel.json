@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_multi_channel",
+  "wrapper_entity": "exception_replay_controller_multi_channel_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_MULTI_CHANNEL_1CCD9A9FA11D75E1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

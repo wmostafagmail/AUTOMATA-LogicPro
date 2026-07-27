@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_weakening_controller_formally_instrumented",
+  "wrapper_entity": "field_weakening_controller_formally_instrumented_det_cfg",
+  "configuration_id": "FIELD_WEAKENING_CONTROLLER_FORMALLY_INSTRUMENTED_EE313B9E87CC9EC1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

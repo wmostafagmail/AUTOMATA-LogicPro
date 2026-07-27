@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_memory_device_controller_clock_crossing",
+  "wrapper_entity": "cxl_memory_device_controller_clock_crossing_det_cfg",
+  "configuration_id": "CXL_MEMORY_DEVICE_CONTROLLER_CLOCK_CROSSING_8EE7486BF8EBFEF9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_iterative",
+  "wrapper_entity": "carry_skip_adder_iterative_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_ITERATIVE_76F5FCE1B9B01F6F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sar_adc_controller_self_test",
+  "wrapper_entity": "sar_adc_controller_self_test_det_cfg",
+  "configuration_id": "SAR_ADC_CONTROLLER_SELF_TEST_30FC63E8D482B542",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

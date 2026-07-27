@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_programmable",
+  "wrapper_entity": "sampler_state_unit_programmable_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_PROGRAMMABLE_5D501B45B49D3EDF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

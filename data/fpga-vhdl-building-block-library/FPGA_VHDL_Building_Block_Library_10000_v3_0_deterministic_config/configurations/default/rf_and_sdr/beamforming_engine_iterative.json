@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "beamforming_engine_iterative",
+  "wrapper_entity": "beamforming_engine_iterative_det_cfg",
+  "configuration_id": "BEAMFORMING_ENGINE_ITERATIVE_F53492A24DC1EDEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 4
+  }
+}

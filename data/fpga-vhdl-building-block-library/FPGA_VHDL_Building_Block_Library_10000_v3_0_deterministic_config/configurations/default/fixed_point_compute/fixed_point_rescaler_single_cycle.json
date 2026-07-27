@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_rescaler_single_cycle",
+  "wrapper_entity": "fixed_point_rescaler_single_cycle_det_cfg",
+  "configuration_id": "FIXED_POINT_RESCALER_SINGLE_CYCLE_8F12111BA122546B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

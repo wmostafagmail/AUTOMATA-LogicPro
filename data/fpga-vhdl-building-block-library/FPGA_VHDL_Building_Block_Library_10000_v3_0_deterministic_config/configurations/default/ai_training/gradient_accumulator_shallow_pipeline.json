@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gradient_accumulator_shallow_pipeline",
+  "wrapper_entity": "gradient_accumulator_shallow_pipeline_det_cfg",
+  "configuration_id": "GRADIENT_ACCUMULATOR_SHALLOW_PIPELINE_734F7332BCC036E3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

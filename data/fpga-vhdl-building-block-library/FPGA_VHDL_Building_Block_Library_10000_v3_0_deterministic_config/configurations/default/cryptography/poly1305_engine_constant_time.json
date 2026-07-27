@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "poly1305_engine_constant_time",
+  "wrapper_entity": "poly1305_engine_constant_time_det_cfg",
+  "configuration_id": "POLY1305_ENGINE_CONSTANT_TIME_C53FB096794FA2E1",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "ring_counter_prescaled",
+  "wrapper_entity": "ring_counter_prescaled_det_cfg",
+  "configuration_id": "RING_COUNTER_PRESCALED_7102D8FB3901EED1",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

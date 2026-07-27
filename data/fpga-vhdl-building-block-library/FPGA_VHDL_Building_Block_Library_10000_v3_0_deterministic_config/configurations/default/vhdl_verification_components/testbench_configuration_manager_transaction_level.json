@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "testbench_configuration_manager_transaction_level",
+  "wrapper_entity": "testbench_configuration_manager_transaction_level_det_cfg",
+  "configuration_id": "TESTBENCH_CONFIGURATION_MANAGER_TRANSACTION_LEVEL_C40AFBDA89E62469",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

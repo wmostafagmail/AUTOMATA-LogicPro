@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_sequencer_continuous",
+  "wrapper_entity": "command_sequencer_continuous_det_cfg",
+  "configuration_id": "COMMAND_SEQUENCER_CONTINUOUS_B891D4E5826588D9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

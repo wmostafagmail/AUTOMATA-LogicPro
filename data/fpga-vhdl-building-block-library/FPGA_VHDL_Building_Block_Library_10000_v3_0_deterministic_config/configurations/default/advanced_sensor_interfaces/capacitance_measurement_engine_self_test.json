@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_self_test",
+  "wrapper_entity": "capacitance_measurement_engine_self_test_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_SELF_TEST_C00DAF42200B0306",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_lockstep_checked",
+  "wrapper_entity": "power_factor_correction_controller_lockstep_checked_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_LOCKSTEP_CHECKED_5A3C5DF24D508CEF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "thermometer_decoder_single_cycle",
+  "wrapper_entity": "thermometer_decoder_single_cycle_det_cfg",
+  "configuration_id": "THERMOMETER_DECODER_SINGLE_CYCLE_E65932730CE4BB76",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

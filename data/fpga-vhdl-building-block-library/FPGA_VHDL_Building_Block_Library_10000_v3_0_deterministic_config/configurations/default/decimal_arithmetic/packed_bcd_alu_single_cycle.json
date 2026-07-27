@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "packed_bcd_alu_single_cycle",
+  "wrapper_entity": "packed_bcd_alu_single_cycle_det_cfg",
+  "configuration_id": "PACKED_BCD_ALU_SINGLE_CYCLE_A4247974B362ECC4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

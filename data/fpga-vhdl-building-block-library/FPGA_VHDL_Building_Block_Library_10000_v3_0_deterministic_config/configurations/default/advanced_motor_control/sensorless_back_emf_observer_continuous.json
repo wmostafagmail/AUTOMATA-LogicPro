@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_continuous",
+  "wrapper_entity": "sensorless_back_emf_observer_continuous_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_CONTINUOUS_89E9AE76C0A7775B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

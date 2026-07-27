@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_fail_safe",
+  "wrapper_entity": "diagnostic_test_sequencer_fail_safe_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_FAIL_SAFE_508F1A833ABADC7C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

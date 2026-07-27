@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_packet_engine_clock_crossing",
+  "wrapper_entity": "uart_packet_engine_clock_crossing_det_cfg",
+  "configuration_id": "UART_PACKET_ENGINE_CLOCK_CROSSING_AD5C9EFB36918CD4",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

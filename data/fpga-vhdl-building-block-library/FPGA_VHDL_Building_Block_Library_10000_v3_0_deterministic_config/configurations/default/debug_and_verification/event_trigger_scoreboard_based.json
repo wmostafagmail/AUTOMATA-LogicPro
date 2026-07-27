@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "event_trigger_scoreboard_based",
+  "wrapper_entity": "event_trigger_scoreboard_based_det_cfg",
+  "configuration_id": "EVENT_TRIGGER_SCOREBOARD_BASED_778776EB97716F46",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

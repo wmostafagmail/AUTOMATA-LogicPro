@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multiply_accumulate_pipeline",
+  "wrapper_entity": "multiply_accumulate_pipeline_det_cfg",
+  "configuration_id": "MULTIPLY_ACCUMULATE_PIPELINE_BBA73B9C3BC24ADB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

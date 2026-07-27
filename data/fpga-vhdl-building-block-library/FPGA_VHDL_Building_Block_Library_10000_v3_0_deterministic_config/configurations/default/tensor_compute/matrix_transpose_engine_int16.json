@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_transpose_engine_int16",
+  "wrapper_entity": "matrix_transpose_engine_int16_det_cfg",
+  "configuration_id": "MATRIX_TRANSPOSE_ENGINE_INT16_817CC8C7CB455598",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

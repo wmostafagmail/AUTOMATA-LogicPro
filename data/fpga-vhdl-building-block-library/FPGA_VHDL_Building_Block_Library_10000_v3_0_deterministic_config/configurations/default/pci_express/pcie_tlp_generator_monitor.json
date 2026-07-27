@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_tlp_generator_monitor",
+  "wrapper_entity": "pcie_tlp_generator_monitor_det_cfg",
+  "configuration_id": "PCIE_TLP_GENERATOR_MONITOR_77E947CB4AE52643",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_multi_channel",
+  "wrapper_entity": "multi_layer_compositor_multi_channel_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_MULTI_CHANNEL_4E234801A1B867A4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

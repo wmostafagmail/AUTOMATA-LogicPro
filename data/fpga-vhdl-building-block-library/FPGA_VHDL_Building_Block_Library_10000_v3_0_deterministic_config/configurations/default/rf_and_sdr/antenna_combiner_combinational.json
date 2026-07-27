@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "antenna_combiner_combinational",
+  "wrapper_entity": "antenna_combiner_combinational_det_cfg",
+  "configuration_id": "ANTENNA_COMBINER_COMBINATIONAL_29313A294F1C4C05",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 40
+  }
+}

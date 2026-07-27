@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hart_modem_interface_continuous",
+  "wrapper_entity": "hart_modem_interface_continuous_det_cfg",
+  "configuration_id": "HART_MODEM_INTERFACE_CONTINUOUS_0B04C336F0562EC7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

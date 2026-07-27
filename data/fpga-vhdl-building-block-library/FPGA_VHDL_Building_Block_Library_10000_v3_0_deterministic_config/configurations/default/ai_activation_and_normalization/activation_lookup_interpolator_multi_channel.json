@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_lookup_interpolator_multi_channel",
+  "wrapper_entity": "activation_lookup_interpolator_multi_channel_det_cfg",
+  "configuration_id": "ACTIVATION_LOOKUP_INTERPOLATOR_MULTI_CHANNEL_1AF07D156F5868FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

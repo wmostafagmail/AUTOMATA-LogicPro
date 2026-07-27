@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "flight_controller",
+  "wrapper_entity": "flight_controller_det_cfg",
+  "configuration_id": "FLIGHT_CONTROLLER_6A75855312CEFDB8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deflate_engine_backpressure_capable",
+  "wrapper_entity": "deflate_engine_backpressure_capable_det_cfg",
+  "configuration_id": "DEFLATE_ENGINE_BACKPRESSURE_CAPABLE_B4815E34DC3498F1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

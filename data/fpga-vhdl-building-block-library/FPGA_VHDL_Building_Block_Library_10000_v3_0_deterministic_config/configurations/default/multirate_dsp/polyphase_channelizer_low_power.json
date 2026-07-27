@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_channelizer_low_power",
+  "wrapper_entity": "polyphase_channelizer_low_power_det_cfg",
+  "configuration_id": "POLYPHASE_CHANNELIZER_LOW_POWER_3464C1CDAE7CE7E1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

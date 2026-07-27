@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "run_length_encoder_iterative",
+  "wrapper_entity": "run_length_encoder_iterative_det_cfg",
+  "configuration_id": "RUN_LENGTH_ENCODER_ITERATIVE_ADFC703FDB894C76",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

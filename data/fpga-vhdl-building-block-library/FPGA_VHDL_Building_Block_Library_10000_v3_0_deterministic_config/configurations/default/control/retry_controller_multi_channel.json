@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "retry_controller_multi_channel",
+  "wrapper_entity": "retry_controller_multi_channel_det_cfg",
+  "configuration_id": "RETRY_CONTROLLER_MULTI_CHANNEL_B1E03212F82BFDB0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

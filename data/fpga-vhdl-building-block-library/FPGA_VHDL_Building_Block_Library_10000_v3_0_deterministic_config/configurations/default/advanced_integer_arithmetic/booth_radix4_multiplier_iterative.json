@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix4_multiplier_iterative",
+  "wrapper_entity": "booth_radix4_multiplier_iterative_det_cfg",
+  "configuration_id": "BOOTH_RADIX4_MULTIPLIER_ITERATIVE_00C3648A59E7A33A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,49 @@
+-- Deterministic generated wrapper. Do not edit manually.
+-- Source block: bus_functional_model_pattern
+-- Configuration ID: BUS_FUNCTIONAL_MODEL_PATTERN_D14688B454FD1CB0
+-- Source: rtl/blocks/verification/bus_functional_model_pattern.vhd
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity bus_functional_model_pattern_det_cfg is
+  generic (
+    OBS_WIDTH : positive := 32;
+    COUNT_WIDTH : positive := 32;
+    G_CONFIG_SCHEMA : natural := 1;
+    G_CONFIG_ID : string := "BUS_FUNCTIONAL_MODEL_PATTERN_D14688B454FD1CB0"
+  );
+  port (
+    clk : in std_logic;
+    rst_n : in std_logic;
+    observed : in std_logic_vector(OBS_WIDTH-1 downto 0);
+    expected : in std_logic_vector(OBS_WIDTH-1 downto 0);
+    sample_valid : in std_logic;
+    clear : in std_logic;
+    match : out std_logic;
+    error_count : out std_logic_vector(COUNT_WIDTH-1 downto 0)
+  );
+end entity;
+
+architecture deterministic_wrapper of bus_functional_model_pattern_det_cfg is
+begin
+  assert G_CONFIG_SCHEMA = 1 report "Unsupported deterministic configuration schema" severity failure;
+  assert OBS_WIDTH = 32 report "Locked deterministic configuration mismatch: OBS_WIDTH" severity failure;
+  assert COUNT_WIDTH = 32 report "Locked deterministic configuration mismatch: COUNT_WIDTH" severity failure;
+
+  u_block : entity work.bus_functional_model_pattern
+    generic map (
+      OBS_WIDTH => OBS_WIDTH,
+      COUNT_WIDTH => COUNT_WIDTH
+    )
+    port map (
+      clk => clk,
+      rst_n => rst_n,
+      observed => observed,
+      expected => expected,
+      sample_valid => sample_valid,
+      clear => clear,
+      match => match,
+      error_count => error_count
+    );
+end architecture;

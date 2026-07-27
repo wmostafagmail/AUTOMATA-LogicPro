@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_sensitive_io_scheduler_single_shot",
+  "wrapper_entity": "time_sensitive_io_scheduler_single_shot_det_cfg",
+  "configuration_id": "TIME_SENSITIVE_IO_SCHEDULER_SINGLE_SHOT_21C637FC5102A825",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

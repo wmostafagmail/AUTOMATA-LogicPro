@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "saturating_counter_multi_channel",
+  "wrapper_entity": "saturating_counter_multi_channel_det_cfg",
+  "configuration_id": "SATURATING_COUNTER_MULTI_CHANNEL_D985729B85E24FB2",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": true,
+    "DOWN_COUNT": false
+  }
+}

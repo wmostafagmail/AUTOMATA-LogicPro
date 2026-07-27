@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_multiplier_wrapper_single_shot",
+  "wrapper_entity": "clock_multiplier_wrapper_single_shot_det_cfg",
+  "configuration_id": "CLOCK_MULTIPLIER_WRAPPER_SINGLE_SHOT_4C5F086E635028A2",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

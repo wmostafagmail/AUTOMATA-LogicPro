@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_low_power",
+  "wrapper_entity": "bit_reverse_network_low_power_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_LOW_POWER_75FC784DA9859B4A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

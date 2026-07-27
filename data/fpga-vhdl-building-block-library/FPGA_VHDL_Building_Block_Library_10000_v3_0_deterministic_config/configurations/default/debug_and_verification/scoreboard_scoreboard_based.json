@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_scoreboard_based",
+  "wrapper_entity": "scoreboard_scoreboard_based_det_cfg",
+  "configuration_id": "SCOREBOARD_SCOREBOARD_BASED_81E5E0EA46CD8DDC",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

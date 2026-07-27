@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_counter_synchronizer_fault_tolerant",
+  "wrapper_entity": "gray_counter_synchronizer_fault_tolerant_det_cfg",
+  "configuration_id": "GRAY_COUNTER_SYNCHRONIZER_FAULT_TOLERANT_F91928F8A75FE5BF",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

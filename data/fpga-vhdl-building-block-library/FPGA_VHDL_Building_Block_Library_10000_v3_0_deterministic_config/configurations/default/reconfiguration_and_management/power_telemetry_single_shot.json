@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_telemetry_single_shot",
+  "wrapper_entity": "power_telemetry_single_shot_det_cfg",
+  "configuration_id": "POWER_TELEMETRY_SINGLE_SHOT_97346FAA8C90B4A1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

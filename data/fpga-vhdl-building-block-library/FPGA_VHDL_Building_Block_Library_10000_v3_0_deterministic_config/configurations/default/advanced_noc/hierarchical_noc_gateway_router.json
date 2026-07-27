@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_router",
+  "wrapper_entity": "hierarchical_noc_gateway_router_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_ROUTER_FA92B85841D30D9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

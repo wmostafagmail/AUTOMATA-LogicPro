@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "time_triggered_scheduler_programmable",
+  "wrapper_entity": "time_triggered_scheduler_programmable_det_cfg",
+  "configuration_id": "TIME_TRIGGERED_SCHEDULER_PROGRAMMABLE_0A35E18ADBB8E68F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

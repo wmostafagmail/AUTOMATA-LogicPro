@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "direction_of_arrival_estimator_saturating",
+  "wrapper_entity": "direction_of_arrival_estimator_saturating_det_cfg",
+  "configuration_id": "DIRECTION_OF_ARRIVAL_ESTIMATOR_SATURATING_459C2A4FAAA487ED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_clock_crossing",
+  "wrapper_entity": "feedback_latency_controller_clock_crossing_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_CLOCK_CROSSING_4788F14DCA0B1C46",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

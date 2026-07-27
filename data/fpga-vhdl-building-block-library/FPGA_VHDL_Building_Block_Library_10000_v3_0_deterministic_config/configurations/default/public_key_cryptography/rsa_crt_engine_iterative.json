@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_iterative",
+  "wrapper_entity": "rsa_crt_engine_iterative_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_ITERATIVE_C2993C7843F53759",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

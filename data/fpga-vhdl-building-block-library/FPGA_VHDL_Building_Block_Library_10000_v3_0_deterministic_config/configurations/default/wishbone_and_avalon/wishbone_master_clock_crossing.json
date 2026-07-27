@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_master_clock_crossing",
+  "wrapper_entity": "wishbone_master_clock_crossing_det_cfg",
+  "configuration_id": "WISHBONE_MASTER_CLOCK_CROSSING_490A3A4AAF82094F",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

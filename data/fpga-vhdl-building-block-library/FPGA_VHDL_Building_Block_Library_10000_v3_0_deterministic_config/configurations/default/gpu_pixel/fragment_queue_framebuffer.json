@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fragment_queue_framebuffer",
+  "wrapper_entity": "fragment_queue_framebuffer_det_cfg",
+  "configuration_id": "FRAGMENT_QUEUE_FRAMEBUFFER_841DC624D4A77166",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

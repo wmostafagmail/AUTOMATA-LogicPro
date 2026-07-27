@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_ras_manager_timestamped",
+  "wrapper_entity": "cxl_ras_manager_timestamped_det_cfg",
+  "configuration_id": "CXL_RAS_MANAGER_TIMESTAMPED_361CE902C1E70D8D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

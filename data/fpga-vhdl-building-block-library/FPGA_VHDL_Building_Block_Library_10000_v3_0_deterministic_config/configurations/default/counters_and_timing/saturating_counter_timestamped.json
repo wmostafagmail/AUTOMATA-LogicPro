@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "saturating_counter_timestamped",
+  "wrapper_entity": "saturating_counter_timestamped_det_cfg",
+  "configuration_id": "SATURATING_COUNTER_TIMESTAMPED_DB6C8D031EF882FB",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": true,
+    "DOWN_COUNT": false
+  }
+}

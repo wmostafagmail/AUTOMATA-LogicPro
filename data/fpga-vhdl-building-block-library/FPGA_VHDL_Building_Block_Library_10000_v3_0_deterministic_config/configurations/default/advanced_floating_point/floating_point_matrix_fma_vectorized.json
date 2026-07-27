@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_vectorized",
+  "wrapper_entity": "floating_point_matrix_fma_vectorized_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_VECTORIZED_544C944B5703E231",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

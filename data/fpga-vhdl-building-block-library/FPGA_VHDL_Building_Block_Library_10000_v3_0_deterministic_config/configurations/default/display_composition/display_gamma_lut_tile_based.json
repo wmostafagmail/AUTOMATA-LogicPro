@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_tile_based",
+  "wrapper_entity": "display_gamma_lut_tile_based_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_TILE_BASED_61372C21A0EBEFC5",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

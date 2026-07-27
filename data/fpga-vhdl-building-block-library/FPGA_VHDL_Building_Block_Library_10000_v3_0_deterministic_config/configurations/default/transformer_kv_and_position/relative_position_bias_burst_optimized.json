@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "relative_position_bias_burst_optimized",
+  "wrapper_entity": "relative_position_bias_burst_optimized_det_cfg",
+  "configuration_id": "RELATIVE_POSITION_BIAS_BURST_OPTIMIZED_31B1BD2486DBD903",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

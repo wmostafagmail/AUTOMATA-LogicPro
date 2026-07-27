@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_lockstep_checked",
+  "wrapper_entity": "guest_timer_virtualizer_lockstep_checked_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_LOCKSTEP_CHECKED_1672D60CA47CE0FB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

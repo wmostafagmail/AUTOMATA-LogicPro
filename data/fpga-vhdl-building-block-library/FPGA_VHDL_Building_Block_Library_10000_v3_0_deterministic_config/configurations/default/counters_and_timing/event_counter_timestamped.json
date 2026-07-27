@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "event_counter_timestamped",
+  "wrapper_entity": "event_counter_timestamped_det_cfg",
+  "configuration_id": "EVENT_COUNTER_TIMESTAMPED_D9006DE7F2CF4D0A",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

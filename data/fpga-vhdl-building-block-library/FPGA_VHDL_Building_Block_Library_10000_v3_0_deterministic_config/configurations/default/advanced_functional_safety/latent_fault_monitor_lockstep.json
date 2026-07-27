@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_lockstep",
+  "wrapper_entity": "latent_fault_monitor_lockstep_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_LOCKSTEP_223E6E46F5E1EA2A",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

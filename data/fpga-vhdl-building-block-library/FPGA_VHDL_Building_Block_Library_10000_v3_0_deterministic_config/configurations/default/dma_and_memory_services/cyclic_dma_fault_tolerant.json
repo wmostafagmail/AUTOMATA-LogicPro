@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cyclic_dma_fault_tolerant",
+  "wrapper_entity": "cyclic_dma_fault_tolerant_det_cfg",
+  "configuration_id": "CYCLIC_DMA_FAULT_TOLERANT_D38268C831CB3602",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

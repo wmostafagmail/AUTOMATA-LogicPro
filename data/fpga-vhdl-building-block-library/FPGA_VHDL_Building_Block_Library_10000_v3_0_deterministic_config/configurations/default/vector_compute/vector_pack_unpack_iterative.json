@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_pack_unpack_iterative",
+  "wrapper_entity": "vector_pack_unpack_iterative_det_cfg",
+  "configuration_id": "VECTOR_PACK_UNPACK_ITERATIVE_9FB258CB8D11FA91",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

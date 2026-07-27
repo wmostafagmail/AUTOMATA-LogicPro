@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_metadata_aware",
+  "wrapper_entity": "h264_intra_predictor_metadata_aware_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_METADATA_AWARE_CE22CC2C45BB0758",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

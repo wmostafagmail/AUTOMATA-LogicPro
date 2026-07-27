@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "particle_interaction_engine_multi_channel",
+  "wrapper_entity": "particle_interaction_engine_multi_channel_det_cfg",
+  "configuration_id": "PARTICLE_INTERACTION_ENGINE_MULTI_CHANNEL_0B932AE8E1383CEF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spacefibre_lane_engine_redundant",
+  "wrapper_entity": "spacefibre_lane_engine_redundant_det_cfg",
+  "configuration_id": "SPACEFIBRE_LANE_ENGINE_REDUNDANT_B5657E7E7E000C2C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "monte_carlo_engine_single_cycle",
+  "wrapper_entity": "monte_carlo_engine_single_cycle_det_cfg",
+  "configuration_id": "MONTE_CARLO_ENGINE_SINGLE_CYCLE_8CDF0AF8B8B39F9B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 49
+  }
+}

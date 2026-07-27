@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "viewport_transform_engine_streaming",
+  "wrapper_entity": "viewport_transform_engine_streaming_det_cfg",
+  "configuration_id": "VIEWPORT_TRANSFORM_ENGINE_STREAMING_D26AE245D6B86F7F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

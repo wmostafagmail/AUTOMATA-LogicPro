@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_clamp_engine_int8",
+  "wrapper_entity": "activation_clamp_engine_int8_det_cfg",
+  "configuration_id": "ACTIVATION_CLAMP_ENGINE_INT8_698BD656C3E10AE7",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_lockstep_checked",
+  "wrapper_entity": "path_planning_accelerator_lockstep_checked_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_LOCKSTEP_CHECKED_30AFE155BC7D98FC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

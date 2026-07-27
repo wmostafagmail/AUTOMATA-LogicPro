@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "shutdown_sequencer_low_power",
+  "wrapper_entity": "shutdown_sequencer_low_power_det_cfg",
+  "configuration_id": "SHUTDOWN_SEQUENCER_LOW_POWER_BAA80A9770F9B368",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

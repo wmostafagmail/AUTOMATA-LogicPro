@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_saturating",
+  "wrapper_entity": "adam_optimizer_engine_saturating_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_SATURATING_57E783FDE2C7EA8C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

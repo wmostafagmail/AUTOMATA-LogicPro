@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_credit_manager_controller",
+  "wrapper_entity": "pcie_credit_manager_controller_det_cfg",
+  "configuration_id": "PCIE_CREDIT_MANAGER_CONTROLLER_51E2253F223BF152",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

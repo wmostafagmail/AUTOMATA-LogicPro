@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "weight_update_engine_shallow_pipeline",
+  "wrapper_entity": "weight_update_engine_shallow_pipeline_det_cfg",
+  "configuration_id": "WEIGHT_UPDATE_ENGINE_SHALLOW_PIPELINE_73BFB3562CC971FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

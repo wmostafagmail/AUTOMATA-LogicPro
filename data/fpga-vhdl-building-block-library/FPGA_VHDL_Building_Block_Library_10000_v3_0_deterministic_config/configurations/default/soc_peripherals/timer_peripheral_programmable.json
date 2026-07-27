@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "timer_peripheral_programmable",
+  "wrapper_entity": "timer_peripheral_programmable_det_cfg",
+  "configuration_id": "TIMER_PERIPHERAL_PROGRAMMABLE_8AA8C58DC992DC62",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

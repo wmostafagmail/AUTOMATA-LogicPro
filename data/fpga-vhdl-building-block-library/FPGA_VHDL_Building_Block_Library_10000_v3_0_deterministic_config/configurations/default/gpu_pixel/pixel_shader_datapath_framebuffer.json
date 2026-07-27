@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_shader_datapath_framebuffer",
+  "wrapper_entity": "pixel_shader_datapath_framebuffer_det_cfg",
+  "configuration_id": "PIXEL_SHADER_DATAPATH_FRAMEBUFFER_DAF043CA3BB83862",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

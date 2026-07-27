@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_deep_pipeline",
+  "wrapper_entity": "parallel_bit_extract_deep_pipeline_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_DEEP_PIPELINE_CE7F9813E9E0A27A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

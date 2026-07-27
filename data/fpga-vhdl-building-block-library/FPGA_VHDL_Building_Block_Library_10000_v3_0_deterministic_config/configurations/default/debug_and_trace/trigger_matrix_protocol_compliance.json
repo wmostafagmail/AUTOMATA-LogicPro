@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_protocol_compliance",
+  "wrapper_entity": "trigger_matrix_protocol_compliance_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_PROTOCOL_COMPLIANCE_B626B37B067FF4A4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

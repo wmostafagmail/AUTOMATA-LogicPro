@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_crossbar_controller",
+  "wrapper_entity": "wishbone_crossbar_controller_det_cfg",
+  "configuration_id": "WISHBONE_CROSSBAR_CONTROLLER_5B94C029D471E620",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

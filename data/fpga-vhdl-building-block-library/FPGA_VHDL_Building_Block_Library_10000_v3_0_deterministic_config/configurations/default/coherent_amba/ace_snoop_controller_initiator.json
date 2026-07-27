@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_initiator",
+  "wrapper_entity": "ace_snoop_controller_initiator_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_INITIATOR_498EE4118C9493BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

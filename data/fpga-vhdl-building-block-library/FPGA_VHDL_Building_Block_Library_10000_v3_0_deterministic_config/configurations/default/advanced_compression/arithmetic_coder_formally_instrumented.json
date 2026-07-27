@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arithmetic_coder_formally_instrumented",
+  "wrapper_entity": "arithmetic_coder_formally_instrumented_det_cfg",
+  "configuration_id": "ARITHMETIC_CODER_FORMALLY_INSTRUMENTED_450F98727B68F25E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

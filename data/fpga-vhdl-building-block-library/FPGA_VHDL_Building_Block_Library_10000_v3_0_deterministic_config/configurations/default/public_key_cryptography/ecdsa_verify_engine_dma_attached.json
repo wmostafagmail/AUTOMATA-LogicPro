@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_verify_engine_dma_attached",
+  "wrapper_entity": "ecdsa_verify_engine_dma_attached_det_cfg",
+  "configuration_id": "ECDSA_VERIFY_ENGINE_DMA_ATTACHED_A893C1D0EDBC6344",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

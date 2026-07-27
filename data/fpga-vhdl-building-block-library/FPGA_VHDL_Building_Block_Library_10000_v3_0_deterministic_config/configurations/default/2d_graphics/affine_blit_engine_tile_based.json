@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_tile_based",
+  "wrapper_entity": "affine_blit_engine_tile_based_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_TILE_BASED_DC2E5603AF65D213",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

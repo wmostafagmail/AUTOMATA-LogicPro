@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chirp_z_transform_rate_adaptive",
+  "wrapper_entity": "chirp_z_transform_rate_adaptive_det_cfg",
+  "configuration_id": "CHIRP_Z_TRANSFORM_RATE_ADAPTIVE_C351F1F0B76172E5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

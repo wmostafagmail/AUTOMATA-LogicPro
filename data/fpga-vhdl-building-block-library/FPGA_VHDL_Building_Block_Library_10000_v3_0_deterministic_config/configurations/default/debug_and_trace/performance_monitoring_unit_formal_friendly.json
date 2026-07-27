@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_formal_friendly",
+  "wrapper_entity": "performance_monitoring_unit_formal_friendly_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_FORMAL_FRIENDLY_A10121607A3C48C4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

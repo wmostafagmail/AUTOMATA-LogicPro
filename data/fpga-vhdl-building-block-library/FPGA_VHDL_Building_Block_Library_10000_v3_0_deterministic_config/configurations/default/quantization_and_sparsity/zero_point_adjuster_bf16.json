@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_point_adjuster_bf16",
+  "wrapper_entity": "zero_point_adjuster_bf16_det_cfg",
+  "configuration_id": "ZERO_POINT_ADJUSTER_BF16_A440FA9A2B646D70",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

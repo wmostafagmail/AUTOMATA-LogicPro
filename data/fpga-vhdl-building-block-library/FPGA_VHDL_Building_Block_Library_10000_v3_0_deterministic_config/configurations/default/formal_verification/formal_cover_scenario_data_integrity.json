@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_data_integrity",
+  "wrapper_entity": "formal_cover_scenario_data_integrity_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_DATA_INTEGRITY_D2E61B4D65547FD9",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

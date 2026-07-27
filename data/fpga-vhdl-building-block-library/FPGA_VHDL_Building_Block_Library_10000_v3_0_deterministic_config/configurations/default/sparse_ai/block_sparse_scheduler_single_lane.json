@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_sparse_scheduler_single_lane",
+  "wrapper_entity": "block_sparse_scheduler_single_lane_det_cfg",
+  "configuration_id": "BLOCK_SPARSE_SCHEDULER_SINGLE_LANE_31D76F678BD59172",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

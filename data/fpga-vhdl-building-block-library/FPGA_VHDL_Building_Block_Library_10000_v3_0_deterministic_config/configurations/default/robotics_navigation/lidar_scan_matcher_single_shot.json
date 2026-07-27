@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "lidar_scan_matcher_single_shot",
+  "wrapper_entity": "lidar_scan_matcher_single_shot_det_cfg",
+  "configuration_id": "LIDAR_SCAN_MATCHER_SINGLE_SHOT_61DE34B6807268A3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

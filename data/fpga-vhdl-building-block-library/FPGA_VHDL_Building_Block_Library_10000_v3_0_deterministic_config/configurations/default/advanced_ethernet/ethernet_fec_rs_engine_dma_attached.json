@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_fec_rs_engine_dma_attached",
+  "wrapper_entity": "ethernet_fec_rs_engine_dma_attached_det_cfg",
+  "configuration_id": "ETHERNET_FEC_RS_ENGINE_DMA_ATTACHED_B66D7AA6A6D1588B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

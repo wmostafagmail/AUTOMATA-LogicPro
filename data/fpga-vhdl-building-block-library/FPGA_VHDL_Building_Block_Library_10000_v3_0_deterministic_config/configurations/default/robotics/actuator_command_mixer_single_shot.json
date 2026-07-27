@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "actuator_command_mixer_single_shot",
+  "wrapper_entity": "actuator_command_mixer_single_shot_det_cfg",
+  "configuration_id": "ACTUATOR_COMMAND_MIXER_SINGLE_SHOT_A294EA8CF6441598",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

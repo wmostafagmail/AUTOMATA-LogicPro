@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bus_functional_model_transaction_level",
+  "wrapper_entity": "bus_functional_model_transaction_level_det_cfg",
+  "configuration_id": "BUS_FUNCTIONAL_MODEL_TRANSACTION_LEVEL_387EA6DEAE22B495",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

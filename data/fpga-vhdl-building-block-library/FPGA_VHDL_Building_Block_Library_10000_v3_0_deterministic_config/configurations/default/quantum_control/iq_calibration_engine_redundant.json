@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iq_calibration_engine_redundant",
+  "wrapper_entity": "iq_calibration_engine_redundant_det_cfg",
+  "configuration_id": "IQ_CALIBRATION_ENGINE_REDUNDANT_1CB0851A3849196D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

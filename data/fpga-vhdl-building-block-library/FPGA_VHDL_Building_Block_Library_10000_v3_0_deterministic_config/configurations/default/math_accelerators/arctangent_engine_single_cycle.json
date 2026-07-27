@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "arctangent_engine_single_cycle",
+  "wrapper_entity": "arctangent_engine_single_cycle_det_cfg",
+  "configuration_id": "ARCTANGENT_ENGINE_SINGLE_CYCLE_014572D869DF2BAF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_table_driven",
+  "wrapper_entity": "qubit_pulse_sequencer_table_driven_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_TABLE_DRIVEN_4AC96B5F4ED9648A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

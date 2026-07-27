@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "event_counter_multi_channel",
+  "wrapper_entity": "event_counter_multi_channel_det_cfg",
+  "configuration_id": "EVENT_COUNTER_MULTI_CHANNEL_8419F71892993978",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

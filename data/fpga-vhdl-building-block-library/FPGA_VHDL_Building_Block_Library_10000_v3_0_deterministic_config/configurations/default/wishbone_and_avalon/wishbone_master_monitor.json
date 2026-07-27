@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_master_monitor",
+  "wrapper_entity": "wishbone_master_monitor_det_cfg",
+  "configuration_id": "WISHBONE_MASTER_MONITOR_A855B100C07A05F4",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

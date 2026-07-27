@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_reset_robustness",
+  "wrapper_entity": "formal_equivalence_miter_reset_robustness_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_RESET_ROBUSTNESS_4C496629EE79B6A8",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

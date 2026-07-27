@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multisample_pattern_generator_multi_plane",
+  "wrapper_entity": "multisample_pattern_generator_multi_plane_det_cfg",
+  "configuration_id": "MULTISAMPLE_PATTERN_GENERATOR_MULTI_PLANE_8A208C9A0233A940",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_100g_pcs_lane_protocol_monitor",
+  "wrapper_entity": "ethernet_100g_pcs_lane_protocol_monitor_det_cfg",
+  "configuration_id": "ETHERNET_100G_PCS_LANE_PROTOCOL_MONITOR_D7E1A88065D333D2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "avalon_mm_peripheral",
+  "wrapper_entity": "avalon_mm_peripheral_det_cfg",
+  "configuration_id": "AVALON_MM_PERIPHERAL_EFB205D91FFCE4FC",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

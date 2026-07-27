@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_decompression_engine_multi_plane",
+  "wrapper_entity": "texture_decompression_engine_multi_plane_det_cfg",
+  "configuration_id": "TEXTURE_DECOMPRESSION_ENGINE_MULTI_PLANE_1C72D875FBFF51BF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

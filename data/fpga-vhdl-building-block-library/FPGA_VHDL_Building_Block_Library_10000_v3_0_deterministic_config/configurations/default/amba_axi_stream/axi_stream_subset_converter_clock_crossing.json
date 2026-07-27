@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_subset_converter_clock_crossing",
+  "wrapper_entity": "axi_stream_subset_converter_clock_crossing_det_cfg",
+  "configuration_id": "AXI_STREAM_SUBSET_CONVERTER_CLOCK_CROSSING_FC5B539786B20818",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

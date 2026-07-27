@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "packed_bcd_alu_saturating",
+  "wrapper_entity": "packed_bcd_alu_saturating_det_cfg",
+  "configuration_id": "PACKED_BCD_ALU_SATURATING_3A52D560FF872B78",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

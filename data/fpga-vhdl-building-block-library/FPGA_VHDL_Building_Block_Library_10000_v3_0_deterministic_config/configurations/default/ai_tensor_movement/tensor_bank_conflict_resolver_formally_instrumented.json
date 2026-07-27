@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_bank_conflict_resolver_formally_instrumented",
+  "wrapper_entity": "tensor_bank_conflict_resolver_formally_instrumented_det_cfg",
+  "configuration_id": "TENSOR_BANK_CONFLICT_RESOLVER_FORMALLY_INSTRUMENTED_077BF47583E2751D",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

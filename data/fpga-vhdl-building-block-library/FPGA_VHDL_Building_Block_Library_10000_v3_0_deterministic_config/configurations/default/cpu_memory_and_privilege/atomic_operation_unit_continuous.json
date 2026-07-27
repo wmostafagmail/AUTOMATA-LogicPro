@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "atomic_operation_unit_continuous",
+  "wrapper_entity": "atomic_operation_unit_continuous_det_cfg",
+  "configuration_id": "ATOMIC_OPERATION_UNIT_CONTINUOUS_59A3B4055D9759BD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_tlp_generator_width_adapted",
+  "wrapper_entity": "pcie_tlp_generator_width_adapted_det_cfg",
+  "configuration_id": "PCIE_TLP_GENERATOR_WIDTH_ADAPTED_900B7D978E10C044",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

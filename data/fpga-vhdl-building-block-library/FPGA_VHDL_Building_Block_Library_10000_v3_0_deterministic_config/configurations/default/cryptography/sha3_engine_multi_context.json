@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sha3_engine_multi_context",
+  "wrapper_entity": "sha3_engine_multi_context_det_cfg",
+  "configuration_id": "SHA3_ENGINE_MULTI_CONTEXT_AF09D6A4D9F274B2",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_programmable_precision",
+  "wrapper_entity": "multioperand_compressor_tree_programmable_precision_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_PROGRAMMABLE_PRECISION_9831AED768FB3ECB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

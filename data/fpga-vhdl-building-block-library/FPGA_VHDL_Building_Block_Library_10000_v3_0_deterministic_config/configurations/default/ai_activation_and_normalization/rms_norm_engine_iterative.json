@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rms_norm_engine_iterative",
+  "wrapper_entity": "rms_norm_engine_iterative_det_cfg",
+  "configuration_id": "RMS_NORM_ENGINE_ITERATIVE_77932B425647E93B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

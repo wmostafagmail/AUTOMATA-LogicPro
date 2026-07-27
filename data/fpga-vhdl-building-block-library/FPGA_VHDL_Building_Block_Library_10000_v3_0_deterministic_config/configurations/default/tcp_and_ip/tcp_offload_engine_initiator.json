@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_offload_engine_initiator",
+  "wrapper_entity": "tcp_offload_engine_initiator_det_cfg",
+  "configuration_id": "TCP_OFFLOAD_ENGINE_INITIATOR_C4E3423BF8B1C7C2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

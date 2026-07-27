@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_iterative",
+  "wrapper_entity": "bit_reverse_network_iterative_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_ITERATIVE_4DEF709569E90AEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

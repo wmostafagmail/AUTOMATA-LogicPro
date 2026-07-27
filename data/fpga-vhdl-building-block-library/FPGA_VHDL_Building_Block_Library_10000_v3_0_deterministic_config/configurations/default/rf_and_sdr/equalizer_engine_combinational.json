@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "equalizer_engine_combinational",
+  "wrapper_entity": "equalizer_engine_combinational_det_cfg",
+  "configuration_id": "EQUALIZER_ENGINE_COMBINATIONAL_016556ECC3F86A3E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 126
+  }
+}

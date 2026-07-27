@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "threshold_detector",
+  "wrapper_entity": "threshold_detector_det_cfg",
+  "configuration_id": "THRESHOLD_DETECTOR_330E4865BAC947F8",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

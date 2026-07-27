@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "transaction_sequencer_bfm_boundary_focused",
+  "wrapper_entity": "transaction_sequencer_bfm_boundary_focused_det_cfg",
+  "configuration_id": "TRANSACTION_SEQUENCER_BFM_BOUNDARY_FOCUSED_5A1EA7CECAAB4BA8",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

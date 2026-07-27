@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_metadata_aware",
+  "wrapper_entity": "display_damage_tracker_metadata_aware_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_METADATA_AWARE_82F876C8E2A19A78",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

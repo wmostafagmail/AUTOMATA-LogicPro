@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_timestamped",
+  "wrapper_entity": "hierarchical_noc_gateway_timestamped_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_TIMESTAMPED_61E7998242E21986",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

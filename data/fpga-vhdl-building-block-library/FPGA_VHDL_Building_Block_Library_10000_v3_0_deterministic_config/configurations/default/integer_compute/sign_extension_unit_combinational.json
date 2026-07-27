@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sign_extension_unit_combinational",
+  "wrapper_entity": "sign_extension_unit_combinational_det_cfg",
+  "configuration_id": "SIGN_EXTENSION_UNIT_COMBINATIONAL_E2D8B14B0F93B91C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

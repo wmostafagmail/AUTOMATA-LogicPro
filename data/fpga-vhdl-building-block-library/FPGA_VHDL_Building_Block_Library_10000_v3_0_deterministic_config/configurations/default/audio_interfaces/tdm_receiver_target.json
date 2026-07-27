@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tdm_receiver_target",
+  "wrapper_entity": "tdm_receiver_target_det_cfg",
+  "configuration_id": "TDM_RECEIVER_TARGET_E0EE290747DCB7B1",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

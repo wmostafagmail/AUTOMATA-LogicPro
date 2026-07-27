@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "moesi_directory_engine_nonblocking",
+  "wrapper_entity": "moesi_directory_engine_nonblocking_det_cfg",
+  "configuration_id": "MOESI_DIRECTORY_ENGINE_NONBLOCKING_AECC2520AE11EF34",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

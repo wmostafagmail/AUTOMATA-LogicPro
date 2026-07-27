@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multisample_pattern_generator_tile_based",
+  "wrapper_entity": "multisample_pattern_generator_tile_based_det_cfg",
+  "configuration_id": "MULTISAMPLE_PATTERN_GENERATOR_TILE_BASED_27EC3E7D5D52E39B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

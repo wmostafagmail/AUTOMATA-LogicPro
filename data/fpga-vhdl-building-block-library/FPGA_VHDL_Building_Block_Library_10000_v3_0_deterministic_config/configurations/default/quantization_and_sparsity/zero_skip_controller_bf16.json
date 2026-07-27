@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_skip_controller_bf16",
+  "wrapper_entity": "zero_skip_controller_bf16_det_cfg",
+  "configuration_id": "ZERO_SKIP_CONTROLLER_BF16_166B3408966432B9",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

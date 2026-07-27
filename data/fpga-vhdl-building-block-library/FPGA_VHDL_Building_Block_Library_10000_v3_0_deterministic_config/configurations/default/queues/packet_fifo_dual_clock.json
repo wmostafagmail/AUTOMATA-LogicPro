@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_fifo_dual_clock",
+  "wrapper_entity": "packet_fifo_dual_clock_det_cfg",
+  "configuration_id": "PACKET_FIFO_DUAL_CLOCK_A5E02CC12A1860AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

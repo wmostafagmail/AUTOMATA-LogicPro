@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_multi_channel",
+  "wrapper_entity": "privilege_trap_router_multi_channel_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_MULTI_CHANNEL_6C99E2AF27D98AB6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

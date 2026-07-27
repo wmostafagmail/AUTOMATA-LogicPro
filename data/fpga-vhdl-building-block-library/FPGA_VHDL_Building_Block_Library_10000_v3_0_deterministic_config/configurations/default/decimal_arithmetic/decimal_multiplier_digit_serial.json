@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_multiplier_digit_serial",
+  "wrapper_entity": "decimal_multiplier_digit_serial_det_cfg",
+  "configuration_id": "DECIMAL_MULTIPLIER_DIGIT_SERIAL_3F340D654814619C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

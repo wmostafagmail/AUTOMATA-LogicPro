@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "precision_time_counter_fault_tolerant",
+  "wrapper_entity": "precision_time_counter_fault_tolerant_det_cfg",
+  "configuration_id": "PRECISION_TIME_COUNTER_FAULT_TOLERANT_BC1C533A357AFE43",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

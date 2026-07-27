@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_redundant",
+  "wrapper_entity": "dependency_matrix_scheduler_redundant_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_REDUNDANT_E08126C98D42166D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

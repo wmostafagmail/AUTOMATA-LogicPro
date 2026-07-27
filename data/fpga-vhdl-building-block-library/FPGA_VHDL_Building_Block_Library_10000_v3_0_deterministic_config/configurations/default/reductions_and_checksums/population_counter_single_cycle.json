@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "population_counter_single_cycle",
+  "wrapper_entity": "population_counter_single_cycle_det_cfg",
+  "configuration_id": "POPULATION_COUNTER_SINGLE_CYCLE_D922E05CCA34AF9D",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

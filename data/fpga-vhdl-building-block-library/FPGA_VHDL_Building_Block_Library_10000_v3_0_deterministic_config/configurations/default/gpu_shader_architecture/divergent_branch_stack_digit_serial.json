@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_digit_serial",
+  "wrapper_entity": "divergent_branch_stack_digit_serial_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_DIGIT_SERIAL_FFD705AACA18D41A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

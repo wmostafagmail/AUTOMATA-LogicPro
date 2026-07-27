@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_master_clock_crossing",
+  "wrapper_entity": "spi_master_clock_crossing_det_cfg",
+  "configuration_id": "SPI_MASTER_CLOCK_CROSSING_7BA71EDB4859F38E",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

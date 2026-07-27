@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_low_power",
+  "wrapper_entity": "waveform_envelope_generator_low_power_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_LOW_POWER_764FB56324E4A56B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_redundant",
+  "wrapper_entity": "sliding_mode_observer_redundant_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_REDUNDANT_344237BF3C1D55B2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_continuous",
+  "wrapper_entity": "mueller_muller_detector_continuous_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_CONTINUOUS_9441E0ED7630B414",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deserializer_continuous",
+  "wrapper_entity": "deserializer_continuous_det_cfg",
+  "configuration_id": "DESERIALIZER_CONTINUOUS_31B1508FDB6F2793",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "arbitration_controller_programmable",
+  "wrapper_entity": "arbitration_controller_programmable_det_cfg",
+  "configuration_id": "ARBITRATION_CONTROLLER_PROGRAMMABLE_CDC2921AFCDA994E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

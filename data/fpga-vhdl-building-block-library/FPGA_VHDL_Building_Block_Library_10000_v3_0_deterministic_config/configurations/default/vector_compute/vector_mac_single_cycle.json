@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_mac_single_cycle",
+  "wrapper_entity": "vector_mac_single_cycle_det_cfg",
+  "configuration_id": "VECTOR_MAC_SINGLE_CYCLE_0E8AEE9DA92467EE",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

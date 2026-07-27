@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_scrubber",
+  "wrapper_entity": "memory_scrubber_det_cfg",
+  "configuration_id": "MEMORY_SCRUBBER_401EE198F0011531",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

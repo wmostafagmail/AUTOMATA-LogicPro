@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_power_monitored",
+  "wrapper_entity": "anti_rollback_counter_power_monitored_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_POWER_MONITORED_18997D615FCE212F",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

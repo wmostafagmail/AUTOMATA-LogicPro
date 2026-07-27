@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_buffered",
+  "wrapper_entity": "profinet_irt_scheduler_buffered_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_BUFFERED_E6970D2D3D96B3E4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

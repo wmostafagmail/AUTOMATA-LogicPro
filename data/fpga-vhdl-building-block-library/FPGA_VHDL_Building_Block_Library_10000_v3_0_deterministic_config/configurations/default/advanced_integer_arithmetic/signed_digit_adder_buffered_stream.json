@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_buffered_stream",
+  "wrapper_entity": "signed_digit_adder_buffered_stream_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_BUFFERED_STREAM_AFD5D6039F30C48B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

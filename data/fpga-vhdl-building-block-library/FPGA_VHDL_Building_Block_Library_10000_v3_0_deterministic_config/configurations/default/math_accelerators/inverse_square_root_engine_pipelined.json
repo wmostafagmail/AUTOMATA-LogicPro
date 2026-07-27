@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "inverse_square_root_engine_pipelined",
+  "wrapper_entity": "inverse_square_root_engine_pipelined_det_cfg",
+  "configuration_id": "INVERSE_SQUARE_ROOT_ENGINE_PIPELINED_02413B0BE967CE5B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

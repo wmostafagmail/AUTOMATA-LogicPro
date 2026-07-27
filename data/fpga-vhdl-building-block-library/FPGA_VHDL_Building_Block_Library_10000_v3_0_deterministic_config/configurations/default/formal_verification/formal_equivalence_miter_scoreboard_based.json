@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_scoreboard_based",
+  "wrapper_entity": "formal_equivalence_miter_scoreboard_based_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_SCOREBOARD_BASED_4A6F31C691403837",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

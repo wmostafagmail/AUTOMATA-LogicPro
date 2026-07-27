@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_limiter_streaming",
+  "wrapper_entity": "audio_limiter_streaming_det_cfg",
+  "configuration_id": "AUDIO_LIMITER_STREAMING_1805BD625ACF6458",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

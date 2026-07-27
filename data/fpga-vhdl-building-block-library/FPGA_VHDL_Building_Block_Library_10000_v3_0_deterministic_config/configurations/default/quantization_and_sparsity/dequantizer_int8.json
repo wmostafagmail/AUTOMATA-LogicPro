@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dequantizer_int8",
+  "wrapper_entity": "dequantizer_int8_det_cfg",
+  "configuration_id": "DEQUANTIZER_INT8_6FA5F2011C15DF24",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

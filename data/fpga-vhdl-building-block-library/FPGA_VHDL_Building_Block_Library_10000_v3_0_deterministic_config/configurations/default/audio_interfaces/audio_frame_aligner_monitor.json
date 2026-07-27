@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_frame_aligner_monitor",
+  "wrapper_entity": "audio_frame_aligner_monitor_det_cfg",
+  "configuration_id": "AUDIO_FRAME_ALIGNER_MONITOR_10DE8D73DFAED4D0",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

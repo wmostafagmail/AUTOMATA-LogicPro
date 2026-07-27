@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_multi_channel",
+  "wrapper_entity": "automotive_ethernet_tsn_multi_channel_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_MULTI_CHANNEL_5306734480A294B6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

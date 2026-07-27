@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_acceptance_filter_single_shot",
+  "wrapper_entity": "can_acceptance_filter_single_shot_det_cfg",
+  "configuration_id": "CAN_ACCEPTANCE_FILTER_SINGLE_SHOT_4505AC510E075767",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

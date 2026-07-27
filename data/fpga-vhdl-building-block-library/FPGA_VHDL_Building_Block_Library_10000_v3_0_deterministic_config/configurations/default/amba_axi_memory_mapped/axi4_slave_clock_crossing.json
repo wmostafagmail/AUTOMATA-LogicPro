@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi4_slave_clock_crossing",
+  "wrapper_entity": "axi4_slave_clock_crossing_det_cfg",
+  "configuration_id": "AXI4_SLAVE_CLOCK_CROSSING_690A850A3A3551B0",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bounding_box_decoder_rate_adaptive",
+  "wrapper_entity": "bounding_box_decoder_rate_adaptive_det_cfg",
+  "configuration_id": "BOUNDING_BOX_DECODER_RATE_ADAPTIVE_C300919F67B4FB13",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

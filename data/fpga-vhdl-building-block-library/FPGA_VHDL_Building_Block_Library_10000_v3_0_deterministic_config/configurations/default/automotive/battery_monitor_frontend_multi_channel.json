@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_monitor_frontend_multi_channel",
+  "wrapper_entity": "battery_monitor_frontend_multi_channel_det_cfg",
+  "configuration_id": "BATTERY_MONITOR_FRONTEND_MULTI_CHANNEL_057F9F5BA4FBC528",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

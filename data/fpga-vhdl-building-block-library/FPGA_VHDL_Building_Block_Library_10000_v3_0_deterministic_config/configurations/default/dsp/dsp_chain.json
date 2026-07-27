@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dsp_chain",
+  "wrapper_entity": "dsp_chain_det_cfg",
+  "configuration_id": "DSP_CHAIN_01765A5EA55E4D22",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 123
+  }
+}

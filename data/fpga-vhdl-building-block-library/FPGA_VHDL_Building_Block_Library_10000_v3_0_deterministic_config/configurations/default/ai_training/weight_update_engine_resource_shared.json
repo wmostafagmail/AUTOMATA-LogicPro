@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "weight_update_engine_resource_shared",
+  "wrapper_entity": "weight_update_engine_resource_shared_det_cfg",
+  "configuration_id": "WEIGHT_UPDATE_ENGINE_RESOURCE_SHARED_318566AC4D190BAA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

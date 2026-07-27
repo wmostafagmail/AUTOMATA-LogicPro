@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_home_node_qos_aware",
+  "wrapper_entity": "chi_home_node_qos_aware_det_cfg",
+  "configuration_id": "CHI_HOME_NODE_QOS_AWARE_91DEA52B80A49443",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

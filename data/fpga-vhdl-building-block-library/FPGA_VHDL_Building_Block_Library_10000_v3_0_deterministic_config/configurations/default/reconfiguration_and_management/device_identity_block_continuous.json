@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "device_identity_block_continuous",
+  "wrapper_entity": "device_identity_block_continuous_det_cfg",
+  "configuration_id": "DEVICE_IDENTITY_BLOCK_CONTINUOUS_CDCDFC7A838DFDF8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

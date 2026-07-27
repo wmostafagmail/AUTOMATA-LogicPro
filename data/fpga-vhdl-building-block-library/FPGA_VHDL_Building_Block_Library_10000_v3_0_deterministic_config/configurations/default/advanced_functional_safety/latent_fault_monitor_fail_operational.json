@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_fail_operational",
+  "wrapper_entity": "latent_fault_monitor_fail_operational_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_FAIL_OPERATIONAL_A899697D2632B82D",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

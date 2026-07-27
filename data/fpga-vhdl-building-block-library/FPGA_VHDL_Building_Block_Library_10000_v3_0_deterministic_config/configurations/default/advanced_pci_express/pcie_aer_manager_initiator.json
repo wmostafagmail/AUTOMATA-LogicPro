@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_aer_manager_initiator",
+  "wrapper_entity": "pcie_aer_manager_initiator_det_cfg",
+  "configuration_id": "PCIE_AER_MANAGER_INITIATOR_987951ADB4870137",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

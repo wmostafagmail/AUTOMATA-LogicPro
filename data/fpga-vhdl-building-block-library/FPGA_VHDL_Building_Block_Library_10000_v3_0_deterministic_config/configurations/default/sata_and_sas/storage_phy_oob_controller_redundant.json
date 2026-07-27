@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_redundant",
+  "wrapper_entity": "storage_phy_oob_controller_redundant_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_REDUNDANT_464A52559CD4B29B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

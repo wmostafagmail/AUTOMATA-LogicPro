@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_axi_stream",
+  "wrapper_entity": "display_damage_tracker_axi_stream_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_AXI_STREAM_AC353B42619A7361",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

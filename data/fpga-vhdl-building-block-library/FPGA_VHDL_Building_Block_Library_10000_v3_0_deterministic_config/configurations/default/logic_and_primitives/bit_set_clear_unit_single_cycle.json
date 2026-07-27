@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_set_clear_unit_single_cycle",
+  "wrapper_entity": "bit_set_clear_unit_single_cycle_det_cfg",
+  "configuration_id": "BIT_SET_CLEAR_UNIT_SINGLE_CYCLE_62C81F327AFEF978",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

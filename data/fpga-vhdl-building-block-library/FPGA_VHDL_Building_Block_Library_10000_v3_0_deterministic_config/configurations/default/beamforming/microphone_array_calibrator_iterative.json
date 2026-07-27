@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "microphone_array_calibrator_iterative",
+  "wrapper_entity": "microphone_array_calibrator_iterative_det_cfg",
+  "configuration_id": "MICROPHONE_ARRAY_CALIBRATOR_ITERATIVE_85D3AA480F29F376",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

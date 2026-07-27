@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_mux_programmable",
+  "wrapper_entity": "clock_mux_programmable_det_cfg",
+  "configuration_id": "CLOCK_MUX_PROGRAMMABLE_008620C2FE5F07E5",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

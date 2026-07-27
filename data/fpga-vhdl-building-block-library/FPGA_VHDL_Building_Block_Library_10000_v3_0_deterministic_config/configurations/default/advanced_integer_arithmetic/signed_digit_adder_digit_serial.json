@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_digit_serial",
+  "wrapper_entity": "signed_digit_adder_digit_serial_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_DIGIT_SERIAL_9DE26EE3DC29AF2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

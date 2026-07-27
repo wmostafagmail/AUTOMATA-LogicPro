@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_mac_iterative",
+  "wrapper_entity": "vector_mac_iterative_det_cfg",
+  "configuration_id": "VECTOR_MAC_ITERATIVE_8AF0930A40A7A3DD",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

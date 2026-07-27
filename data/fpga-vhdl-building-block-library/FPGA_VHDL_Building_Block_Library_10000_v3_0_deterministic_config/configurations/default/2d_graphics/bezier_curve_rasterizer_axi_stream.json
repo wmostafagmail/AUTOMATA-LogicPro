@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_axi_stream",
+  "wrapper_entity": "bezier_curve_rasterizer_axi_stream_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_AXI_STREAM_0B4B08CAFC529002",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

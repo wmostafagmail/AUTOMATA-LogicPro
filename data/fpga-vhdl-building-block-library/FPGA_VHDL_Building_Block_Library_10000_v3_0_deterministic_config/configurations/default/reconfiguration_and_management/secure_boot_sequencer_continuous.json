@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_sequencer_continuous",
+  "wrapper_entity": "secure_boot_sequencer_continuous_det_cfg",
+  "configuration_id": "SECURE_BOOT_SEQUENCER_CONTINUOUS_C2A1440457D81560",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

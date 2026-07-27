@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_macsec_adapter_endpoint",
+  "wrapper_entity": "ethernet_macsec_adapter_endpoint_det_cfg",
+  "configuration_id": "ETHERNET_MACSEC_ADAPTER_ENDPOINT_C72690C9697D9092",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

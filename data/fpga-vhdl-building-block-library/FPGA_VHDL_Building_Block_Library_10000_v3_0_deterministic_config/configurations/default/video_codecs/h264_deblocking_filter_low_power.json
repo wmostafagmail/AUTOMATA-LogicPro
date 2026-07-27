@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_low_power",
+  "wrapper_entity": "h264_deblocking_filter_low_power_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_LOW_POWER_D2D1FE0FE8A10B9E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

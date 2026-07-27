@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "scoreboard_cpu_combinational",
+  "wrapper_entity": "scoreboard_cpu_combinational_det_cfg",
+  "configuration_id": "SCOREBOARD_CPU_COMBINATIONAL_AED8766A0B06B959",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

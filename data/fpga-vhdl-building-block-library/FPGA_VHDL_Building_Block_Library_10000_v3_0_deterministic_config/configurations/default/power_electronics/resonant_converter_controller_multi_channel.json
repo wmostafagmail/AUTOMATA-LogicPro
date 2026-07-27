@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_multi_channel",
+  "wrapper_entity": "resonant_converter_controller_multi_channel_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_MULTI_CHANNEL_17131F175F5FCCD3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

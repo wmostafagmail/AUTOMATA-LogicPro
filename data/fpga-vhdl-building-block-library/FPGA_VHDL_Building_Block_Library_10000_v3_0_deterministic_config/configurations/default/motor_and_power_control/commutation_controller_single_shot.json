@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "commutation_controller_single_shot",
+  "wrapper_entity": "commutation_controller_single_shot_det_cfg",
+  "configuration_id": "COMMUTATION_CONTROLLER_SINGLE_SHOT_568E72A830C7496D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

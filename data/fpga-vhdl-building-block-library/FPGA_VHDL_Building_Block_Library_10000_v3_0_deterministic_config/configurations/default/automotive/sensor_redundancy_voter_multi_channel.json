@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_redundancy_voter_multi_channel",
+  "wrapper_entity": "sensor_redundancy_voter_multi_channel_det_cfg",
+  "configuration_id": "SENSOR_REDUNDANCY_VOTER_MULTI_CHANNEL_1F16F0D116E8ACD0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

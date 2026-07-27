@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_key_blender_tile_based",
+  "wrapper_entity": "color_key_blender_tile_based_det_cfg",
+  "configuration_id": "COLOR_KEY_BLENDER_TILE_BASED_20268A15700EBFB7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

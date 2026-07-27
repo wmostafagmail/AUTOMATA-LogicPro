@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_formally_instrumented",
+  "wrapper_entity": "aes_xts_engine_formally_instrumented_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_FORMALLY_INSTRUMENTED_56B36D2E3C7F11AC",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_snoop_controller_bridge",
+  "wrapper_entity": "ace_snoop_controller_bridge_det_cfg",
+  "configuration_id": "ACE_SNOOP_CONTROLLER_BRIDGE_11C80B80F30B1611",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

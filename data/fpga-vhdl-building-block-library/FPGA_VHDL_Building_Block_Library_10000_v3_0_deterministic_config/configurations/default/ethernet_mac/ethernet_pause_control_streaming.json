@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_pause_control_streaming",
+  "wrapper_entity": "ethernet_pause_control_streaming_det_cfg",
+  "configuration_id": "ETHERNET_PAUSE_CONTROL_STREAMING_FC85C24B596FB538",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

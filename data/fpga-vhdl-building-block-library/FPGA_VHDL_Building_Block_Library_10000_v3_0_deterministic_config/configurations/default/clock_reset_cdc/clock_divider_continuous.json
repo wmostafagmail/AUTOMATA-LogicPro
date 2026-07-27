@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_divider_continuous",
+  "wrapper_entity": "clock_divider_continuous_det_cfg",
+  "configuration_id": "CLOCK_DIVIDER_CONTINUOUS_48B7E6178E8718A8",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

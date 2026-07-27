@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gru_cell_engine_sparse",
+  "wrapper_entity": "gru_cell_engine_sparse_det_cfg",
+  "configuration_id": "GRU_CELL_ENGINE_SPARSE_A21A724ABFA7479B",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

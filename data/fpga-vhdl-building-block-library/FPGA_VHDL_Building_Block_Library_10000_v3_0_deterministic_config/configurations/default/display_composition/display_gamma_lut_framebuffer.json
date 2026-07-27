@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_framebuffer",
+  "wrapper_entity": "display_gamma_lut_framebuffer_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_FRAMEBUFFER_A356F9DA7FBBF8A2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

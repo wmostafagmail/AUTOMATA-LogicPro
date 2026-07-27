@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_baud_generator_target",
+  "wrapper_entity": "uart_baud_generator_target_det_cfg",
+  "configuration_id": "UART_BAUD_GENERATOR_TARGET_2BD895F957ED14D0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

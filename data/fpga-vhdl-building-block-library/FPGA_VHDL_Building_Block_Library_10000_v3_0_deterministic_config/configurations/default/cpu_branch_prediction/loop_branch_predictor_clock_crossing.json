@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_clock_crossing",
+  "wrapper_entity": "loop_branch_predictor_clock_crossing_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_CLOCK_CROSSING_C167BE550AF1CE67",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

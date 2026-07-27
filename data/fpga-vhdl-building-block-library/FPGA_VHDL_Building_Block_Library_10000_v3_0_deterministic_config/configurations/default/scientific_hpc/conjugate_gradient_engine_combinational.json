@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conjugate_gradient_engine_combinational",
+  "wrapper_entity": "conjugate_gradient_engine_combinational_det_cfg",
+  "configuration_id": "CONJUGATE_GRADIENT_ENGINE_COMBINATIONAL_D712E3A53DBBF52C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

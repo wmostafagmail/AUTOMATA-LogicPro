@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "trajectory_generator_multi_channel",
+  "wrapper_entity": "trajectory_generator_multi_channel_det_cfg",
+  "configuration_id": "TRAJECTORY_GENERATOR_MULTI_CHANNEL_8F97FF52162DA46A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

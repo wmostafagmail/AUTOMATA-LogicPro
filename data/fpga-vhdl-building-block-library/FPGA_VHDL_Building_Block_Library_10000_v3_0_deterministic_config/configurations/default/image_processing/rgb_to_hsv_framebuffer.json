@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_hsv_framebuffer",
+  "wrapper_entity": "rgb_to_hsv_framebuffer_det_cfg",
+  "configuration_id": "RGB_TO_HSV_FRAMEBUFFER_9F63B17811E779A4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

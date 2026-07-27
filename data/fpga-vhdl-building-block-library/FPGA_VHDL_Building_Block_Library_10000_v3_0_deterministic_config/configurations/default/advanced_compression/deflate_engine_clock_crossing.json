@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deflate_engine_clock_crossing",
+  "wrapper_entity": "deflate_engine_clock_crossing_det_cfg",
+  "configuration_id": "DEFLATE_ENGINE_CLOCK_CROSSING_A5257D01531813C4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

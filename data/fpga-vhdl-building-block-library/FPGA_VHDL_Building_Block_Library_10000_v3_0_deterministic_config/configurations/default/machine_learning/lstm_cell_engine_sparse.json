@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "lstm_cell_engine_sparse",
+  "wrapper_entity": "lstm_cell_engine_sparse_det_cfg",
+  "configuration_id": "LSTM_CELL_ENGINE_SPARSE_BAE5B6A026133FA1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

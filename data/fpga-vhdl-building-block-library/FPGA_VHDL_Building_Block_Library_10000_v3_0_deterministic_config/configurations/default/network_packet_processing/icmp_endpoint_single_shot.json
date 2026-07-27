@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "icmp_endpoint_single_shot",
+  "wrapper_entity": "icmp_endpoint_single_shot_det_cfg",
+  "configuration_id": "ICMP_ENDPOINT_SINGLE_SHOT_5B1C0D21D2687BEA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

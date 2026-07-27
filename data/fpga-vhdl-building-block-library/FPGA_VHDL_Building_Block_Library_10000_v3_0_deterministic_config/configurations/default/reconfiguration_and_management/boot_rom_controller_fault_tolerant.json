@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_rom_controller_fault_tolerant",
+  "wrapper_entity": "boot_rom_controller_fault_tolerant_det_cfg",
+  "configuration_id": "BOOT_ROM_CONTROLLER_FAULT_TOLERANT_4E1837240DE9A5E2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

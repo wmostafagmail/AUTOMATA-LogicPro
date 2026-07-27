@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mixer_combinational",
+  "wrapper_entity": "audio_mixer_combinational_det_cfg",
+  "configuration_id": "AUDIO_MIXER_COMBINATIONAL_0434E8DB765C537B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

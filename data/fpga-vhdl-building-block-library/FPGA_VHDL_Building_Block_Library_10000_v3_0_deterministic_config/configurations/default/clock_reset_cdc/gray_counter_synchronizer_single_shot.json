@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_counter_synchronizer_single_shot",
+  "wrapper_entity": "gray_counter_synchronizer_single_shot_det_cfg",
+  "configuration_id": "GRAY_COUNTER_SYNCHRONIZER_SINGLE_SHOT_95C15D9CFD24E2F8",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

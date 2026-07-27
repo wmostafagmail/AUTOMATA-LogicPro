@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_deposit_multi_channel",
+  "wrapper_entity": "parallel_bit_deposit_multi_channel_det_cfg",
+  "configuration_id": "PARALLEL_BIT_DEPOSIT_MULTI_CHANNEL_9EEE7C8FFCA9196F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

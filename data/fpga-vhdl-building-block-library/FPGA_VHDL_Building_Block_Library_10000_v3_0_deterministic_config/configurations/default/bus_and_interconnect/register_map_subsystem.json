@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "register_map_subsystem",
+  "wrapper_entity": "register_map_subsystem_det_cfg",
+  "configuration_id": "REGISTER_MAP_SUBSYSTEM_CE8262E0174A1410",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

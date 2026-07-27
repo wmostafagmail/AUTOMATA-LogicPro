@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stencil_compute_array_saturating",
+  "wrapper_entity": "stencil_compute_array_saturating_det_cfg",
+  "configuration_id": "STENCIL_COMPUTE_ARRAY_SATURATING_31C136F45F7D6A8D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

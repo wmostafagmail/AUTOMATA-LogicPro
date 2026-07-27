@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_reduction_engine_sparse",
+  "wrapper_entity": "matrix_reduction_engine_sparse_det_cfg",
+  "configuration_id": "MATRIX_REDUCTION_ENGINE_SPARSE_5E215D32529805F6",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

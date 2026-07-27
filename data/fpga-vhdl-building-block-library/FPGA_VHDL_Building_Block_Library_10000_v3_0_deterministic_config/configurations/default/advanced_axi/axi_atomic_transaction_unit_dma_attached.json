@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_atomic_transaction_unit_dma_attached",
+  "wrapper_entity": "axi_atomic_transaction_unit_dma_attached_det_cfg",
+  "configuration_id": "AXI_ATOMIC_TRANSACTION_UNIT_DMA_ATTACHED_C4B5FE4D99CDC7D6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

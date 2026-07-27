@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trace_buffer_formal_friendly",
+  "wrapper_entity": "trace_buffer_formal_friendly_det_cfg",
+  "configuration_id": "TRACE_BUFFER_FORMAL_FRIENDLY_BA3863ECD80483A1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

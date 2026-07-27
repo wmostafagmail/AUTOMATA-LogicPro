@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_security_filtered",
+  "wrapper_entity": "powerslink_cycle_manager_security_filtered_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_SECURITY_FILTERED_CE0A3DD6E4231642",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_decoder_backpressure_capable",
+  "wrapper_entity": "adpcm_decoder_backpressure_capable_det_cfg",
+  "configuration_id": "ADPCM_DECODER_BACKPRESSURE_CAPABLE_4541D79C16C0E2F7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

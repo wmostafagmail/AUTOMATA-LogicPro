@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_point_adjuster_int8",
+  "wrapper_entity": "zero_point_adjuster_int8_det_cfg",
+  "configuration_id": "ZERO_POINT_ADJUSTER_INT8_85050C379AF7E02F",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

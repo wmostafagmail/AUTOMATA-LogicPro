@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gps_pps_discipliner_continuous",
+  "wrapper_entity": "gps_pps_discipliner_continuous_det_cfg",
+  "configuration_id": "GPS_PPS_DISCIPLINER_CONTINUOUS_6675928518C9C40F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

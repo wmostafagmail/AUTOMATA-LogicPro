@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_endpoint",
+  "wrapper_entity": "storage_phy_oob_controller_endpoint_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_ENDPOINT_074C31C3D0C7F396",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

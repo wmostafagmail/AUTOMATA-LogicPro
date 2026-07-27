@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "instruction_prefetch_buffer_low_power",
+  "wrapper_entity": "instruction_prefetch_buffer_low_power_det_cfg",
+  "configuration_id": "INSTRUCTION_PREFETCH_BUFFER_LOW_POWER_26D54055300CA39D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

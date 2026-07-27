@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_lockstep_checked",
+  "wrapper_entity": "mueller_muller_detector_lockstep_checked_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_LOCKSTEP_CHECKED_DCBB9B723294285B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

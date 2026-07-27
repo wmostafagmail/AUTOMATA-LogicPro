@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_vectorized",
+  "wrapper_entity": "newton_raphson_reciprocal_vectorized_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_VECTORIZED_2BEC49B158573C69",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

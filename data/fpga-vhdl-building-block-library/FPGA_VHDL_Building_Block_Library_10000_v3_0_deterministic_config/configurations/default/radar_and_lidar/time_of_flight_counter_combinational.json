@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "time_of_flight_counter_combinational",
+  "wrapper_entity": "time_of_flight_counter_combinational_det_cfg",
+  "configuration_id": "TIME_OF_FLIGHT_COUNTER_COMBINATIONAL_B2E3B9FC1C96D58A",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

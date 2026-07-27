@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "turbo_decoder_fully_parallel",
+  "wrapper_entity": "turbo_decoder_fully_parallel_det_cfg",
+  "configuration_id": "TURBO_DECODER_FULLY_PARALLEL_645618557979F027",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

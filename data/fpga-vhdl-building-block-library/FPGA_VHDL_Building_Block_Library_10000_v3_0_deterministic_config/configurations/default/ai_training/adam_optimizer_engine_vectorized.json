@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_vectorized",
+  "wrapper_entity": "adam_optimizer_engine_vectorized_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_VECTORIZED_F28171B9203A945E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

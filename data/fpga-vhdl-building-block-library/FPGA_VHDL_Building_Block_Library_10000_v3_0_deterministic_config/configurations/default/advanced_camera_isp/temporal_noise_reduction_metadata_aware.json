@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "temporal_noise_reduction_metadata_aware",
+  "wrapper_entity": "temporal_noise_reduction_metadata_aware_det_cfg",
+  "configuration_id": "TEMPORAL_NOISE_REDUCTION_METADATA_AWARE_F4D40B6404799785",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

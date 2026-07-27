@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "psk_demapper_pipelined",
+  "wrapper_entity": "psk_demapper_pipelined_det_cfg",
+  "configuration_id": "PSK_DEMAPPER_PIPELINED_5BC25B09BA70226E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 35
+  }
+}

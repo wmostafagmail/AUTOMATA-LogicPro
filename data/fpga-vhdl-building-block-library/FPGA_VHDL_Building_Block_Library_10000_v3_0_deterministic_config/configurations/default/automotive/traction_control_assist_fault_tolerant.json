@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "traction_control_assist_fault_tolerant",
+  "wrapper_entity": "traction_control_assist_fault_tolerant_det_cfg",
+  "configuration_id": "TRACTION_CONTROL_ASSIST_FAULT_TOLERANT_541152B450E6B837",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

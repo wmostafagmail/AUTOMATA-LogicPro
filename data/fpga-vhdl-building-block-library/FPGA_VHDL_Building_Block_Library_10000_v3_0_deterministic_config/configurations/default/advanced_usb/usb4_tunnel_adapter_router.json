@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb4_tunnel_adapter_router",
+  "wrapper_entity": "usb4_tunnel_adapter_router_det_cfg",
+  "configuration_id": "USB4_TUNNEL_ADAPTER_ROUTER_4290CF0DD40E0222",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

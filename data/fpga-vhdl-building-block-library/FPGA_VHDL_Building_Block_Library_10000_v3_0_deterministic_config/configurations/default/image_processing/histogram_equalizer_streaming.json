@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "histogram_equalizer_streaming",
+  "wrapper_entity": "histogram_equalizer_streaming_det_cfg",
+  "configuration_id": "HISTOGRAM_EQUALIZER_STREAMING_66287E86BA82D19F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

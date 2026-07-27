@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "key_projection_engine_int16",
+  "wrapper_entity": "key_projection_engine_int16_det_cfg",
+  "configuration_id": "KEY_PROJECTION_ENGINE_INT16_4A49F6FE6F54DBBC",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

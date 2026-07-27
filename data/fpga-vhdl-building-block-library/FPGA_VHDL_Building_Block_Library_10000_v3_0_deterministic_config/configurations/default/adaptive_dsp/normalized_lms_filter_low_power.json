@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_low_power",
+  "wrapper_entity": "normalized_lms_filter_low_power_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_LOW_POWER_D92ACD3DF3BD116C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

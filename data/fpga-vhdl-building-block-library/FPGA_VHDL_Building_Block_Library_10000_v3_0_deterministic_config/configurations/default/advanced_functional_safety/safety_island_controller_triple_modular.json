@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_triple_modular",
+  "wrapper_entity": "safety_island_controller_triple_modular_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_TRIPLE_MODULAR_EA2F1CDFD73E9FB4",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

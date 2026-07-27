@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_iterative",
+  "wrapper_entity": "sparse_cholesky_engine_iterative_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_ITERATIVE_7CA8F13367736D8C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_lockstep",
+  "wrapper_entity": "measured_boot_engine_lockstep_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_LOCKSTEP_12257D57CB30CA6B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

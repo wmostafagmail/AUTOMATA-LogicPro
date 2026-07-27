@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_dma_attached",
+  "wrapper_entity": "frame_preemption_controller_dma_attached_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_DMA_ATTACHED_8A13DBD53FED8648",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_deadline_aware",
+  "wrapper_entity": "costas_loop_deadline_aware_det_cfg",
+  "configuration_id": "COSTAS_LOOP_DEADLINE_AWARE_215E5D801124EE18",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

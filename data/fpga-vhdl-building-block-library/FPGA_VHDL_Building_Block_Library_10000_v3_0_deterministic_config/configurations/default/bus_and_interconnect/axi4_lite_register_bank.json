@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "axi4_lite_register_bank",
+  "wrapper_entity": "axi4_lite_register_bank_det_cfg",
+  "configuration_id": "AXI4_LITE_REGISTER_BANK_28104A8252C88CE8",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

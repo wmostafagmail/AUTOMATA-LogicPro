@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_write_turnaround_optimizer_write_back",
+  "wrapper_entity": "read_write_turnaround_optimizer_write_back_det_cfg",
+  "configuration_id": "READ_WRITE_TURNAROUND_OPTIMIZER_WRITE_BACK_867706F57F3BD4DE",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

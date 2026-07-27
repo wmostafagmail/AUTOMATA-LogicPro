@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multiband_compressor_single_lane",
+  "wrapper_entity": "multiband_compressor_single_lane_det_cfg",
+  "configuration_id": "MULTIBAND_COMPRESSOR_SINGLE_LANE_C0664960634C6C78",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

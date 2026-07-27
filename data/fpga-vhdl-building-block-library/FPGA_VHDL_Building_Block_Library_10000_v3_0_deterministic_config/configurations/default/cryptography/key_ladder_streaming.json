@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "key_ladder_streaming",
+  "wrapper_entity": "key_ladder_streaming_det_cfg",
+  "configuration_id": "KEY_LADDER_STREAMING_51F17E7CEDF45C1F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_notch_tracker_buffered",
+  "wrapper_entity": "adaptive_notch_tracker_buffered_det_cfg",
+  "configuration_id": "ADAPTIVE_NOTCH_TRACKER_BUFFERED_2B439ACD4A7AE25A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

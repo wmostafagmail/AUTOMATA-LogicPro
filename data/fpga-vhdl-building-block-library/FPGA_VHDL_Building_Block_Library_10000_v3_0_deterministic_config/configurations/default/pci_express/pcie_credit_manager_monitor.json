@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_credit_manager_monitor",
+  "wrapper_entity": "pcie_credit_manager_monitor_det_cfg",
+  "configuration_id": "PCIE_CREDIT_MANAGER_MONITOR_42F491802BDA7BCB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

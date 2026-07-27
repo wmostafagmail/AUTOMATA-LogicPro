@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_request_reorderer_formally_instrumented",
+  "wrapper_entity": "memory_request_reorderer_formally_instrumented_det_cfg",
+  "configuration_id": "MEMORY_REQUEST_REORDERER_FORMALLY_INSTRUMENTED_5179CA1DE94E4A3C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

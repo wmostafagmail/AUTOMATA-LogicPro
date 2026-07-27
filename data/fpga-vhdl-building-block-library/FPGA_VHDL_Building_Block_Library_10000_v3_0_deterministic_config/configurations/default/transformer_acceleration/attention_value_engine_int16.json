@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_value_engine_int16",
+  "wrapper_entity": "attention_value_engine_int16_det_cfg",
+  "configuration_id": "ATTENTION_VALUE_ENGINE_INT16_DFD9020094331642",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

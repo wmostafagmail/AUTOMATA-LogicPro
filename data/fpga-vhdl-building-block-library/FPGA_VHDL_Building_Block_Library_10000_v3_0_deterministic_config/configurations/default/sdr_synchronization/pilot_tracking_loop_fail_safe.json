@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_fail_safe",
+  "wrapper_entity": "pilot_tracking_loop_fail_safe_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_FAIL_SAFE_1440CF16BDEA9216",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

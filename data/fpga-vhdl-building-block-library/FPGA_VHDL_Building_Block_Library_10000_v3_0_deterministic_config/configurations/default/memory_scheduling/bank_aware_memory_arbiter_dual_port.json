@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bank_aware_memory_arbiter_dual_port",
+  "wrapper_entity": "bank_aware_memory_arbiter_dual_port_det_cfg",
+  "configuration_id": "BANK_AWARE_MEMORY_ARBITER_DUAL_PORT_07F4D3F2E6D35830",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

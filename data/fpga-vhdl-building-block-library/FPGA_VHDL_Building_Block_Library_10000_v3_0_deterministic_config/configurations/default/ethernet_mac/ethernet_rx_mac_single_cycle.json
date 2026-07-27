@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_rx_mac_single_cycle",
+  "wrapper_entity": "ethernet_rx_mac_single_cycle_det_cfg",
+  "configuration_id": "ETHERNET_RX_MAC_SINGLE_CYCLE_48CAD94C803BAC11",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

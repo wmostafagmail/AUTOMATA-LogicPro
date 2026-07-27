@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dequantizer_pipelined",
+  "wrapper_entity": "dequantizer_pipelined_det_cfg",
+  "configuration_id": "DEQUANTIZER_PIPELINED_DF330E9CA1AC3545",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

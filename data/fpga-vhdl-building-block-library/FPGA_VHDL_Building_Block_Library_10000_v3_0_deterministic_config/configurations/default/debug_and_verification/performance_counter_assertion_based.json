@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "performance_counter_assertion_based",
+  "wrapper_entity": "performance_counter_assertion_based_det_cfg",
+  "configuration_id": "PERFORMANCE_COUNTER_ASSERTION_BASED_46DC9DAF1A20E682",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

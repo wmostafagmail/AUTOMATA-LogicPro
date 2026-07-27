@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "calibration_histogram_engine_vectorized",
+  "wrapper_entity": "calibration_histogram_engine_vectorized_det_cfg",
+  "configuration_id": "CALIBRATION_HISTOGRAM_ENGINE_VECTORIZED_D076503C682CF02E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

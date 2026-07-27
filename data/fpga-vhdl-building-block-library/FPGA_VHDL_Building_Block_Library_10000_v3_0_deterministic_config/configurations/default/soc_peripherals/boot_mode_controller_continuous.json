@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_mode_controller_continuous",
+  "wrapper_entity": "boot_mode_controller_continuous_det_cfg",
+  "configuration_id": "BOOT_MODE_CONTROLLER_CONTINUOUS_34B3FB70939DB80B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

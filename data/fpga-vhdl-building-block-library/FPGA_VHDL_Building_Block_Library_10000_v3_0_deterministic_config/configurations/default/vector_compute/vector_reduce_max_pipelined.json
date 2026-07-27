@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_max_pipelined",
+  "wrapper_entity": "vector_reduce_max_pipelined_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_MAX_PIPELINED_C954A985D1E6E006",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

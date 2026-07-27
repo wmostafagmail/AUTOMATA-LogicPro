@@ -1,0 +1,2 @@
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all; library std; use std.env.all;
+entity tb_bbq_popcount_core is end;architecture sim of tb_bbq_popcount_core is signal d:std_logic_vector(7 downto 0);signal c:std_logic_vector(3 downto 0);begin dut:entity work.bbq_popcount_core generic map(WIDTH=>8)port map(d,c);process begin d<="10110100";wait for 1 ns;assert unsigned(c)=4 severity failure;report "PASS" severity note;stop;wait;end process;end;

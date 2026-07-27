@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_saturating",
+  "wrapper_entity": "parallel_bit_extract_saturating_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_SATURATING_9E8E9445B5F27BDF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

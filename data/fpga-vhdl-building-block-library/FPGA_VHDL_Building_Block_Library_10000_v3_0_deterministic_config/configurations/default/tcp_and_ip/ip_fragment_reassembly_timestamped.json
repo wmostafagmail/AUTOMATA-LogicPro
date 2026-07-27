@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_timestamped",
+  "wrapper_entity": "ip_fragment_reassembly_timestamped_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_TIMESTAMPED_44A0352BA667EE5B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

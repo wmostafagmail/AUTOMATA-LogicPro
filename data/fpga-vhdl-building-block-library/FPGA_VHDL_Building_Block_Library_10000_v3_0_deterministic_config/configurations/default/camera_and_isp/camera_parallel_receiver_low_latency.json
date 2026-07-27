@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "camera_parallel_receiver_low_latency",
+  "wrapper_entity": "camera_parallel_receiver_low_latency_det_cfg",
+  "configuration_id": "CAMERA_PARALLEL_RECEIVER_LOW_LATENCY_2FE86D1F4E3AB60E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

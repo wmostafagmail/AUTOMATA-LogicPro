@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_self_test",
+  "wrapper_entity": "sigma_delta_adc_decimator_self_test_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_SELF_TEST_0EC9B066856A8AE9",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

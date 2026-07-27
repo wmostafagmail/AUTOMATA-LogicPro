@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "simple_soc_top",
+  "wrapper_entity": "simple_soc_top_det_cfg",
+  "configuration_id": "SIMPLE_SOC_TOP_925452D47B411E7A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

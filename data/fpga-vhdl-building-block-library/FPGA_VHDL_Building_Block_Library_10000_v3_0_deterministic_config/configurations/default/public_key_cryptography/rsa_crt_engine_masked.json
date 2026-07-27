@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_masked",
+  "wrapper_entity": "rsa_crt_engine_masked_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_MASKED_01FFB232AAECD25B",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

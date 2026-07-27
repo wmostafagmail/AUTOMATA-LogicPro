@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "cordic_sine_cosine_iterative",
+  "wrapper_entity": "cordic_sine_cosine_iterative_det_cfg",
+  "configuration_id": "CORDIC_SINE_COSINE_ITERATIVE_0D46739799C7AF31",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

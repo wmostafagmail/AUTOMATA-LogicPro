@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bitstream_loader_programmable",
+  "wrapper_entity": "bitstream_loader_programmable_det_cfg",
+  "configuration_id": "BITSTREAM_LOADER_PROGRAMMABLE_147353AE723809C9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_stress_test",
+  "wrapper_entity": "formal_cover_scenario_stress_test_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_STRESS_TEST_48DB39B57B644F95",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_checker_iterative",
+  "wrapper_entity": "crc_checker_iterative_det_cfg",
+  "configuration_id": "CRC_CHECKER_ITERATIVE_66108B0A3D560BA5",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

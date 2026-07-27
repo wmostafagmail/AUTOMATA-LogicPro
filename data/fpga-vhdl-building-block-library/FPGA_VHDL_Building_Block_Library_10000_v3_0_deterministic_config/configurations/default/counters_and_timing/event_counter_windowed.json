@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "event_counter_windowed",
+  "wrapper_entity": "event_counter_windowed_det_cfg",
+  "configuration_id": "EVENT_COUNTER_WINDOWED_4C60FB95C12724E5",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

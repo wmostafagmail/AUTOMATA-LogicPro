@@ -21,11 +21,26 @@ import {
 import { repairMalformedVhdlKeywordTypos } from './vhdlKeywordTypos';
 import {
   findGoldenLeafCandidate,
+  buildLeafInterfaceSignature,
   type GoldenLeafCandidate,
 } from './fpgaGoldenLeafLibrary';
 import {
   findVerifiedVhdlBlockCandidate,
+  findVerifiedVhdlBlockNearMatch,
+  type VerifiedVhdlBlockNearMatch,
 } from './fpgaVerifiedVhdlBlockLibrary';
+import { planVerifiedVhdlWrapper, renderVerifiedVhdlWrapper, type VerifiedWrapperPlan } from './fpgaVerifiedVhdlWrapper';
+import {
+  evaluateVerifiedVhdlParameterCompatibility,
+  hasSamePublicInterfaceIgnoringGenericDefaults,
+  type VerifiedVhdlParameterCompatibilityResult,
+} from './fpgaVerifiedVhdlParameterGate';
+import {
+  applyVerifiedGenericPromotionToContract,
+  promoteVerifiedVhdlGenericsIntoComponent,
+} from './fpgaArchitectureParameterIntent';
+import { renderDeterministicLeafTemplate } from './fpgaDeterministicLeafTemplates';
+import type { FpgaVhdlImplementationPolicy } from './fpgaPipelineConfig';
 
 export type FpgaArchitectStage = 'packages' | 'leaf_rtl' | 'top_integration' | 'testbench' | 'collateral' | 'manifest';
 
@@ -112,6 +127,241 @@ export class StagedComponentEntityMissingError extends Error {
     this.expectedEntity = params.component.name;
     this.declaredEntities = params.declaredEntities;
     this.contentExcerpt = params.contentExcerpt;
+  }
+}
+
+export class StagedComponentOutputOwnershipError extends Error {
+  readonly failureCode = 'component_output_ownership_violation';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly assignedTarget: string;
+  readonly lineHint: number;
+  readonly excerpt: string;
+  readonly allowedOutputPorts: string[];
+  readonly localDeclarations: string[];
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    assignedTarget: string;
+    lineHint: number;
+    excerpt: string;
+    allowedOutputPorts: string[];
+    localDeclarations: string[];
+  }) {
+    super([
+      'component_output_ownership_violation',
+      `Staged VHDL for component "${params.component.id}" assigns "${params.assignedTarget}", but that name is not owned by this component.`,
+      `componentId=${params.component.id}`,
+      `entityName=${params.component.name}`,
+      `line=${params.lineHint}`,
+      `assignedTarget=${params.assignedTarget}`,
+      `allowedOutputPorts=${params.allowedOutputPorts.join(',') || '(none)'}`,
+      `localDeclarations=${params.localDeclarations.slice(0, 24).join(',') || '(none)'}`,
+      `excerpt=${params.excerpt}`,
+    ].join('\n'));
+    this.name = 'StagedComponentOutputOwnershipError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.assignedTarget = params.assignedTarget;
+    this.lineHint = params.lineHint;
+    this.excerpt = params.excerpt;
+    this.allowedOutputPorts = params.allowedOutputPorts;
+    this.localDeclarations = params.localDeclarations;
+  }
+}
+
+export class ModelVhdlGenerationBlockedByPolicyError extends Error {
+  readonly failureCode = 'model_vhdl_generation_blocked_by_policy';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly policy: FpgaVhdlImplementationPolicy;
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    policy: FpgaVhdlImplementationPolicy;
+  }) {
+    super([
+      'model_vhdl_generation_blocked_by_policy',
+      `Strict FPGA implementation policy blocked fresh model-authored VHDL for component "${params.component.id}".`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      `policy=${params.policy}`,
+      'Provide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.',
+    ].join('\n'));
+    this.name = 'ModelVhdlGenerationBlockedByPolicyError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.policy = params.policy;
+  }
+}
+
+export class VerifiedLeafImplementationMissingError extends Error {
+  readonly failureCode = 'verified_leaf_implementation_missing';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+  }) {
+    super([
+      'verified_leaf_implementation_missing',
+      `No verified/golden/template VHDL implementation is available for component "${params.component.id}".`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      'The app will not ask the model to invent fresh VHDL under the strict implementation policy.',
+    ].join('\n'));
+    this.name = 'VerifiedLeafImplementationMissingError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+  }
+}
+
+export class VerifiedWrapperUnsafeMismatchError extends Error {
+  readonly failureCode = 'verified_semantic_wrapper_unsafe_mismatch';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly verifiedBlockName: string;
+  readonly verifiedEntityName: string;
+  readonly unsafeReasons: string[];
+  readonly mismatches: string[];
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    candidate: VerifiedVhdlBlockNearMatch;
+    plan: VerifiedWrapperPlan;
+  }) {
+    super([
+      'verified_semantic_wrapper_unsafe_mismatch',
+      `Verified VHDL block "${params.candidate.blockName}" was found for component "${params.component.id}", but the interface mismatch is not safe to wrap deterministically.`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      `verifiedBlock=${params.candidate.blockName}`,
+      `verifiedEntity=${params.candidate.entityName}`,
+      `unsafeReasons=${params.plan.unsafeReasons.join(' | ') || '(none)'}`,
+      `mismatches=${params.plan.mismatches.map((mismatch) => mismatch.message).join(' | ') || '(none)'}`,
+    ].join('\n'));
+    this.name = 'VerifiedWrapperUnsafeMismatchError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.verifiedBlockName = params.candidate.blockName;
+    this.verifiedEntityName = params.candidate.entityName;
+    this.unsafeReasons = params.plan.unsafeReasons;
+    this.mismatches = params.plan.mismatches.map((mismatch) => mismatch.message);
+  }
+}
+
+export class HybridImplementationSourceUnresolvedError extends Error {
+  readonly failureCode = 'hybrid_implementation_source_unresolved';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly verifiedBlockName: string;
+  readonly verifiedEntityName: string;
+  readonly unsafeReasons: string[];
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    candidate: VerifiedVhdlBlockNearMatch;
+    plan: VerifiedWrapperPlan;
+  }) {
+    super([
+      'hybrid_implementation_source_unresolved',
+      `Curated verified-library wrapping is unsafe for component "${params.component.id}", so the app must switch to hybrid source discovery before generating this leaf.`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      `verifiedBlock=${params.candidate.blockName}`,
+      `verifiedEntity=${params.candidate.entityName}`,
+      `unsafeReasons=${params.plan.unsafeReasons.join(' | ') || '(none)'}`,
+      'Do not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.',
+    ].join('\n'));
+    this.name = 'HybridImplementationSourceUnresolvedError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.verifiedBlockName = params.candidate.blockName;
+    this.verifiedEntityName = params.candidate.entityName;
+    this.unsafeReasons = params.plan.unsafeReasons;
+  }
+}
+
+export class VerifiedParameterUnsafeMismatchError extends Error {
+  readonly failureCode = 'verified_parameter_unsafe_mismatch';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly verifiedBlockName: string;
+  readonly unsafeReasons: string[];
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    candidate: VerifiedVhdlBlockNearMatch;
+    parameterCompatibility: VerifiedVhdlParameterCompatibilityResult;
+  }) {
+    super([
+      'verified_parameter_unsafe_mismatch',
+      `Verified VHDL block "${params.candidate.blockName}" cannot be configured safely for component "${params.component.id}".`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      `verifiedBlock=${params.candidate.blockName}`,
+      `verifiedEntity=${params.candidate.entityName}`,
+      `unsafeReasons=${params.parameterCompatibility.unsafeReasons.join(' | ') || '(none)'}`,
+      `resolvedValues=${JSON.stringify(params.parameterCompatibility.resolvedValues)}`,
+    ].join('\n'));
+    this.name = 'VerifiedParameterUnsafeMismatchError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.verifiedBlockName = params.candidate.blockName;
+    this.unsafeReasons = params.parameterCompatibility.unsafeReasons;
+  }
+}
+
+export class VerifiedParameterSmokeFailedError extends Error {
+  readonly failureCode = 'verified_parameter_smoke_failed';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly verifiedBlockName: string;
+  readonly configurationHash: string;
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    candidate: VerifiedVhdlBlockNearMatch;
+    parameterCompatibility: VerifiedVhdlParameterCompatibilityResult;
+    cause: unknown;
+  }) {
+    super([
+      'verified_parameter_smoke_failed',
+      `Configured verified VHDL block "${params.candidate.blockName}" failed focused GHDL smoke for component "${params.component.id}".`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      `verifiedBlock=${params.candidate.blockName}`,
+      `verifiedEntity=${params.candidate.entityName}`,
+      `configurationHash=${params.parameterCompatibility.configurationHash}`,
+      `resolvedValues=${JSON.stringify(params.parameterCompatibility.resolvedValues)}`,
+      `cause=${params.cause instanceof Error ? params.cause.message : String(params.cause)}`,
+    ].join('\n'));
+    this.name = 'VerifiedParameterSmokeFailedError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.verifiedBlockName = params.candidate.blockName;
+    this.configurationHash = params.parameterCompatibility.configurationHash;
   }
 }
 
@@ -247,6 +497,183 @@ async function runGhdlStageCheckpoint(params: {
   throw new Error(`Staged GHDL checkpoint failed after ${params.label}: deterministic repair budget exhausted before validation passed.`);
 }
 
+function defaultSignalInitializerForType(type: string) {
+  const normalized = type.toLowerCase();
+  if (/\bstd_(?:u)?logic\b/.test(normalized) && !/vector/.test(normalized)) return " := '0'";
+  if (/\b(?:std_logic_vector|std_ulogic_vector|unsigned|signed)\b/.test(normalized)) return " := (others => '0')";
+  if (/\bboolean\b/.test(normalized)) return ' := false';
+  if (/\b(?:integer|natural|positive)\b/.test(normalized)) return ' := 0';
+  return '';
+}
+
+function substituteResolvedGenericValues(type: string, resolvedValues: Record<string, string>) {
+  let result = type;
+  for (const [name, value] of Object.entries(resolvedValues)) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(`\\b${escaped}\\b`, 'gi'), value);
+  }
+  return result;
+}
+
+function renderConfiguredVerifiedBlockSmoke(params: {
+  candidate: VerifiedVhdlBlockNearMatch;
+  parameterCompatibility: VerifiedVhdlParameterCompatibilityResult;
+}) {
+  const signalLines = params.candidate.actualSignature.ports.map((port) => {
+    const signalType = substituteResolvedGenericValues(port.type, params.parameterCompatibility.resolvedValues);
+    return `  signal s_${port.name.toLowerCase()} : ${signalType}${defaultSignalInitializerForType(signalType)};`;
+  });
+  const genericPairs = Object.entries(params.parameterCompatibility.resolvedValues);
+  const portMap = params.candidate.actualSignature.ports
+    .map((port, index) => `      ${port.name} => ${port.mode === 'out' || port.mode === 'buffer' ? 's_' : 's_'}${port.name.toLowerCase()}${index === params.candidate.actualSignature.ports.length - 1 ? '' : ','}`);
+  return [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'use ieee.numeric_std.all;',
+    '',
+    `entity tb_configured_${params.candidate.entityName} is`,
+    `end entity tb_configured_${params.candidate.entityName};`,
+    '',
+    `architecture sim of tb_configured_${params.candidate.entityName} is`,
+    ...signalLines,
+    'begin',
+    `  dut : entity work.${params.candidate.entityName}`,
+    ...(genericPairs.length > 0 ? [
+      '    generic map (',
+      ...genericPairs.map(([genericName, value], index) => `      ${genericName} => ${value}${index === genericPairs.length - 1 ? '' : ','}`),
+      '    )',
+    ] : []),
+    ...(portMap.length > 0 ? [
+      '    port map (',
+      ...portMap,
+      '    );',
+    ] : ['    ;']),
+    'end architecture sim;',
+    '',
+  ].join('\n');
+}
+
+function vhdlConfigLiteralToJsonValue(value: string) {
+  const normalized = String(value || '').trim().replace(/_/g, '');
+  if (/^(?:true|false)$/i.test(normalized)) return /^true$/i.test(normalized);
+  if (/^[+-]?\d+$/.test(normalized)) {
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isSafeInteger(parsed)) return parsed;
+  }
+  return value;
+}
+
+async function buildProjectLockedVerifiedWrapper(params: {
+  stage: FpgaArchitectStage;
+  component: FpgaArchitectureComponentContract;
+  candidate: VerifiedVhdlBlockNearMatch;
+  parameterCompatibility: VerifiedVhdlParameterCompatibilityResult;
+  libraryRoot: string;
+  signal?: AbortSignal;
+}): Promise<VerifiedVhdlBlockNearMatch> {
+  if (!params.candidate.manifestRelativePath) return params.candidate;
+  const scriptPath = path.join(params.libraryRoot, 'scripts', 'configuration', 'generate_locked_wrapper.py');
+  try {
+    await fs.stat(scriptPath);
+  } catch {
+    return params.candidate;
+  }
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-verified-wrapper-'));
+  try {
+    const configPath = path.join(tempDir, `${params.component.id}.json`);
+    const wrapperEntity = `${params.component.name}_det_cfg_${params.parameterCompatibility.configurationHash.slice(0, 12)}`.replace(/[^A-Za-z0-9_]/g, '_');
+    const outputPath = path.join(tempDir, `${wrapperEntity}.vhd`);
+    const generics: Record<string, boolean | number | string> = {};
+    for (const [name, value] of Object.entries(params.parameterCompatibility.resolvedValues)) {
+      generics[name] = vhdlConfigLiteralToJsonValue(value);
+    }
+    await fs.writeFile(configPath, `${JSON.stringify({ wrapper_entity: wrapperEntity, generics }, null, 2)}\n`, 'utf8');
+    await execFileAsync(
+      'python3',
+      [
+        scriptPath,
+        '--manifest',
+        path.join(params.libraryRoot, params.candidate.manifestRelativePath),
+        '--config',
+        configPath,
+        '--output',
+        outputPath,
+        '--entity-name',
+        wrapperEntity,
+      ],
+      { signal: params.signal, maxBuffer: 4 * 1024 * 1024 },
+    );
+    const rtlContent = await fs.readFile(outputPath, 'utf8');
+    const actualSignature = buildVhdlEntityInterfaceSignature(rtlContent, wrapperEntity);
+    if (!actualSignature) return params.candidate;
+    const generatedRtlPath = `lib/fpga_vhdl_blocks/generated/project_wrappers/${wrapperEntity}.vhd`;
+    return {
+      ...params.candidate,
+      entityName: wrapperEntity,
+      relativeRtlPath: `generated/project_wrappers/${wrapperEntity}.vhd`,
+      generatedRtlPath,
+      rtlContent,
+      rtlFile: {
+        path: generatedRtlPath,
+        fileType: 'vhdl_rtl',
+        purpose: `Deterministic configured VHDL wrapper for ${params.component.id}`,
+        content: rtlContent,
+      },
+      actualSignature,
+      configurationId: actualSignature.generics.find((generic) => generic.name === 'G_CONFIG_ID')?.defaultValue || params.candidate.configurationId,
+      deterministicWrapper: true,
+    };
+  } catch (error) {
+    throw new VerifiedParameterSmokeFailedError({
+      stage: params.stage,
+      component: params.component,
+      candidate: params.candidate,
+      parameterCompatibility: params.parameterCompatibility,
+      cause: error,
+    });
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function runConfiguredVerifiedBlockSmoke(params: {
+  stage: FpgaArchitectStage;
+  component: FpgaArchitectureComponentContract;
+  candidate: VerifiedVhdlBlockNearMatch;
+  parameterCompatibility: VerifiedVhdlParameterCompatibilityResult;
+  signal?: AbortSignal;
+}) {
+  const smokeFile: FpgaArchitectFile = {
+    path: `lib/fpga_vhdl_blocks/smoke/tb_configured_${params.candidate.entityName}_${params.parameterCompatibility.configurationHash.slice(0, 12)}.vhd`,
+    fileType: 'vhdl_testbench',
+    purpose: `Focused configured-parameter smoke for ${params.component.id}`,
+    content: renderConfiguredVerifiedBlockSmoke({
+      candidate: params.candidate,
+      parameterCompatibility: params.parameterCompatibility,
+    }),
+  };
+  try {
+    await runGhdlStageCheckpoint({
+      files: [...params.candidate.dependencyFiles, params.candidate.rtlFile, smokeFile],
+      sourceOrder: [
+        ...params.candidate.dependencyFiles.map((file) => file.path),
+        params.candidate.rtlFile.path,
+        smokeFile.path,
+      ],
+      label: `configured verified block ${params.component.id}`,
+      signal: params.signal,
+    });
+  } catch (error) {
+    throw new VerifiedParameterSmokeFailedError({
+      stage: params.stage,
+      component: params.component,
+      candidate: params.candidate,
+      parameterCompatibility: params.parameterCompatibility,
+      cause: error,
+    });
+  }
+}
+
 function stripVhdlResponse(text: string) {
   const trimmed = String(text || '').trim();
   const fence = trimmed.match(/^```(?:vhdl|vhd)?\s*\n([\s\S]*?)\n```$/i);
@@ -364,6 +791,89 @@ function extractContentExcerpt(content: string) {
   return content.split('\n').slice(0, 80).join('\n');
 }
 
+function lineTextAtLine(content: string, line: number) {
+  return content.split(/\r\n|\r|\n/)[Math.max(0, line - 1)]?.trim() || '';
+}
+
+function stripLineComments(content: string) {
+  return content.replace(/--.*$/gm, '');
+}
+
+function extractArchitectureRegion(content: string, entityName: string) {
+  const escapedEntity = entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const startMatch = content.match(new RegExp(`\\barchitecture\\s+[a-zA-Z][a-zA-Z0-9_]*\\s+of\\s+${escapedEntity}\\s+is\\b`, 'i'));
+  if (!startMatch || startMatch.index == null) return null;
+  const startIndex = startMatch.index;
+  const remainder = content.slice(startIndex);
+  const endMatch = remainder.match(/\bend\s+architecture(?:\s+[a-zA-Z][a-zA-Z0-9_]*)?\s*;/i);
+  const endIndex = endMatch?.index == null ? content.length : startIndex + endMatch.index + endMatch[0].length;
+  const full = content.slice(startIndex, endIndex);
+  const beginMatch = full.match(/\bbegin\b/i);
+  const declarative = beginMatch?.index == null ? full : full.slice(0, beginMatch.index);
+  return { full, declarative, startIndex };
+}
+
+function collectLocalArchitectureDeclarations(declarativeRegion: string) {
+  const names = new Set<string>();
+  const addList = (rawNames: string) => {
+    for (const rawName of rawNames.split(',')) {
+      const name = rawName.trim().match(/[a-zA-Z][a-zA-Z0-9_]*/)?.[0];
+      if (name) names.add(name.toLowerCase());
+    }
+  };
+  for (const match of declarativeRegion.matchAll(/\b(?:signal|constant|alias)\s+([a-zA-Z][a-zA-Z0-9_]*(?:\s*,\s*[a-zA-Z][a-zA-Z0-9_]*)*)\b\s*(?::|is\b)/gi)) {
+    addList(match[1]);
+  }
+  for (const match of declarativeRegion.matchAll(/\b(?:shared\s+)?variable\s+([a-zA-Z][a-zA-Z0-9_]*(?:\s*,\s*[a-zA-Z][a-zA-Z0-9_]*)*)\s*:/gi)) {
+    addList(match[1]);
+  }
+  return names;
+}
+
+function collectSignalAssignmentTargets(content: string) {
+  const targets: Array<{ name: string; line: number; excerpt: string }> = [];
+  const clean = stripLineComments(content);
+  for (const match of clean.matchAll(/(^|[;\n]|\bbegin\b)\s*([a-zA-Z][a-zA-Z0-9_]*)(?:\s*(?:\([^;\n]*?\)|\.[a-zA-Z][a-zA-Z0-9_]*))*\s*<=/gim)) {
+    if (match.index == null) continue;
+    const targetName = match[2];
+    const targetIndex = match.index + match[0].lastIndexOf(targetName);
+    const line = clean.slice(0, targetIndex).split(/\r\n|\r|\n/).length;
+    targets.push({ name: targetName, line, excerpt: lineTextAtLine(content, line) });
+  }
+  return targets;
+}
+
+function findComponentOutputOwnershipViolation(params: {
+  stage: FpgaArchitectStage;
+  component: FpgaArchitectureComponentContract;
+  content: string;
+}) {
+  const architecture = extractArchitectureRegion(params.content, params.component.name);
+  if (!architecture) return null;
+  const localDeclarations = collectLocalArchitectureDeclarations(architecture.declarative);
+  const writablePublicPorts = new Set(
+    params.component.ports
+      .filter((port) => port.mode === 'out' || port.mode === 'buffer' || port.mode === 'inout')
+      .map((port) => port.name.toLowerCase()),
+  );
+  const architectureStartLine = params.content.slice(0, architecture.startIndex).split(/\r\n|\r|\n/).length;
+  for (const assignment of collectSignalAssignmentTargets(architecture.full)) {
+    const normalizedTarget = assignment.name.toLowerCase();
+    if (localDeclarations.has(normalizedTarget)) continue;
+    if (writablePublicPorts.has(normalizedTarget)) continue;
+    return new StagedComponentOutputOwnershipError({
+      stage: params.stage,
+      component: params.component,
+      assignedTarget: assignment.name,
+      lineHint: architectureStartLine + assignment.line - 1,
+      excerpt: assignment.excerpt,
+      allowedOutputPorts: Array.from(writablePublicPorts),
+      localDeclarations: Array.from(localDeclarations),
+    });
+  }
+  return null;
+}
+
 function assertGeneratedComponentInterface(stage: FpgaArchitectStage, component: FpgaArchitectureComponentContract, content: string) {
   if (/\b(?:MODEL_IMPLEMENTATION|TODO|TBD|PLACEHOLDER)\b/i.test(content)) {
     throw new Error(`Staged VHDL for component "${component.id}" retained a placeholder instead of a complete implementation.`);
@@ -409,6 +919,8 @@ function assertGeneratedComponentInterface(stage: FpgaArchitectStage, component:
       interfaceKind: 'port',
     });
   }
+  const ownershipViolation = findComponentOutputOwnershipViolation({ stage, component, content });
+  if (ownershipViolation) throw ownershipViolation;
 }
 
 function buildComponentPrompt(params: {
@@ -440,15 +952,8 @@ function buildComponentPrompt(params: {
   const protocolStatusOwner = (
     contract.designClass === 'uart_spi_protocol_bridge'
     && (
-      component.kind === 'top'
-      || component.ports.some((port) => protocolStatusNames.has(port.name.toLowerCase()))
+      component.ports.some((port) => protocolStatusNames.has(port.name.toLowerCase()))
       || Array.from(ownedBehaviorOutputs).some((output) => protocolStatusNames.has(output))
-      || /\b(?:status|error|done|control)\b/i.test([
-        component.id,
-        component.name,
-        component.file,
-        component.responsibility,
-      ].join(' '))
     )
   );
   const fifoIndexRule = /\bfifo\b|rx_fifo|tx_fifo/.test(componentText)
@@ -463,6 +968,7 @@ function buildComponentPrompt(params: {
     'Preserve the entity declaration, generic order/defaults, port order/modes/types, package imports, and architecture name exactly.',
     'Replace only the two MODEL_IMPLEMENTATION regions with complete legal declarations and statements.',
     'Use ieee.numeric_std. Do not use reserved identifiers, implicit vector arithmetic, declarations after begin, output-port readback, generated clocks, or testbench-only constructs.',
+    'Component ownership rule: this file may assign only local signals/variables declared inside this architecture, or out/buffer/inout ports declared in the approved entity. Never assign parent/top outputs, sibling outputs, undeclared names, or input ports.',
     fifoIndexRule,
     protocolStatusRule,
     `Approved contract SHA-256: ${hashFpgaArchitectureContract(contract)}`,
@@ -472,6 +978,36 @@ function buildComponentPrompt(params: {
     'App-owned file skeleton:',
     '```vhdl',
     skeleton,
+    '```',
+  ].join('\n');
+}
+
+function buildOutputOwnershipRetryPrompt(params: {
+  contract: FpgaArchitectureContract;
+  component: FpgaArchitectureComponentContract;
+  skeleton: string;
+  ownership: StagedComponentOutputOwnershipError;
+}) {
+  return [
+    buildComponentPrompt({ contract: params.contract, component: params.component, skeleton: params.skeleton }),
+    '',
+    'The previous staged VHDL was rejected because it assigned a signal or output that this component does not own.',
+    'Retry this component only. Return one complete VHDL file only.',
+    'Remove assignments to undeclared parent/top/sibling outputs. If a status/result must leave the component, expose it only through an approved out/buffer/inout port already present in the skeleton.',
+    'Do not add ports to solve this. Preserve the approved public interface exactly and keep the fix inside implementation internals.',
+    '',
+    'Ownership failure evidence:',
+    `failureCode: ${params.ownership.failureCode}`,
+    `componentId: ${params.ownership.componentId}`,
+    `entityName: ${params.ownership.componentName}`,
+    `assignedTarget: ${params.ownership.assignedTarget}`,
+    `line: ${params.ownership.lineHint}`,
+    `allowedOutputPorts: ${params.ownership.allowedOutputPorts.join(', ') || '(none)'}`,
+    `localDeclarationsSeen: ${params.ownership.localDeclarations.slice(0, 24).join(', ') || '(none)'}`,
+    '',
+    'Rejected assignment line:',
+    '```vhdl',
+    params.ownership.excerpt,
     '```',
   ].join('\n');
 }
@@ -621,6 +1157,9 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
   goldenLeafLibraryPath?: string | null;
   verifiedVhdlBlockLibraryRoot?: string | null;
   verifiedVhdlBlockQualificationPath?: string | null;
+  vhdlImplementationPolicy?: FpgaVhdlImplementationPolicy;
+  hybridOnUnsafeWrapper?: boolean;
+  stageGhdlValidation?: boolean;
   runModelAnalysis: (params: {
     ai: any;
     provider: any;
@@ -650,7 +1189,11 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       assertGeneratedComponentInterface(params.stage, params.component, content);
       return content;
     } catch (error) {
-      if (!(error instanceof StagedPortInterfaceDriftError) && !(error instanceof StagedComponentEntityMissingError)) {
+      if (
+        !(error instanceof StagedPortInterfaceDriftError)
+        && !(error instanceof StagedComponentEntityMissingError)
+        && !(error instanceof StagedComponentOutputOwnershipError)
+      ) {
         throw error;
       }
       const rewrapped = rewrapModelImplementationIntoSkeleton({
@@ -680,6 +1223,157 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
         verifiedVhdlBlock: verifiedCandidate,
       };
     }
+    const nearMatch = findVerifiedVhdlBlockNearMatch({
+      component: params.component,
+      libraryRoot: params.verifiedVhdlBlockLibraryRoot || undefined,
+      qualificationPath: params.verifiedVhdlBlockQualificationPath || undefined,
+    });
+    if (nearMatch) {
+      const promotion = promoteVerifiedVhdlGenericsIntoComponent({
+        component: params.component,
+        verifiedGenerics: nearMatch.actualSignature.generics,
+        userRequest: [
+          params.contract.systemIntent,
+          ...(params.contract.assumptions || []),
+          JSON.stringify(params.contract.intent?.explicitRequirements || {}),
+          JSON.stringify(params.contract.sourceGroundedRequirements || []),
+        ].join('\n'),
+      });
+      if (promotion.unsafeReasons.length > 0) {
+        if (params.hybridOnUnsafeWrapper !== false) {
+          throw new HybridImplementationSourceUnresolvedError({
+            stage: params.stage,
+            component: params.component,
+            candidate: nearMatch,
+            plan: {
+              kind: 'wrapper_unsafe',
+              componentId: params.component.id,
+              approvedEntityName: params.component.name,
+              verifiedBlockName: nearMatch.blockName,
+              verifiedEntityName: nearMatch.entityName,
+              mismatches: promotion.unsafeReasons.map((reason) => ({ kind: 'generic_parameter_mismatch', message: reason })),
+              unsafeReasons: promotion.unsafeReasons,
+              portAssociations: {},
+              genericAssociations: {},
+              declarations: [],
+              preInstanceAssignments: [],
+              postInstanceAssignments: [],
+            },
+          });
+        }
+      }
+      const promotedComponent = promotion.component;
+      const promotedContract = applyVerifiedGenericPromotionToContract({
+        contract: params.contract,
+        component: params.component,
+        promotion,
+      });
+      const promotedNearMatch: VerifiedVhdlBlockNearMatch = {
+        ...nearMatch,
+        approvedSignature: buildLeafInterfaceSignature(promotedComponent),
+      };
+      const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({
+        component: promotedComponent,
+        candidate: promotedNearMatch,
+      });
+      if (parameterCompatibility.kind === 'parameter_unsafe') {
+        if (params.hybridOnUnsafeWrapper !== false) {
+          throw new HybridImplementationSourceUnresolvedError({
+            stage: params.stage,
+            component: promotedComponent,
+            candidate: promotedNearMatch,
+            plan: {
+              kind: 'wrapper_unsafe',
+              componentId: promotedComponent.id,
+              approvedEntityName: promotedComponent.name,
+              verifiedBlockName: promotedNearMatch.blockName,
+              verifiedEntityName: promotedNearMatch.entityName,
+              mismatches: parameterCompatibility.unsafeReasons.map((reason) => ({ kind: 'generic_parameter_mismatch', message: reason })),
+              unsafeReasons: parameterCompatibility.unsafeReasons,
+              portAssociations: {},
+              genericAssociations: parameterCompatibility.genericMap,
+              declarations: [],
+              preInstanceAssignments: [],
+              postInstanceAssignments: [],
+            },
+          });
+        }
+        throw new VerifiedParameterUnsafeMismatchError({
+          stage: params.stage,
+          component: promotedComponent,
+          candidate: promotedNearMatch,
+          parameterCompatibility,
+        });
+      }
+      let effectiveNearMatch = promotedNearMatch;
+      if (parameterCompatibility.requiresConfiguredSmoke && params.verifiedVhdlBlockLibraryRoot) {
+        effectiveNearMatch = await buildProjectLockedVerifiedWrapper({
+          stage: params.stage,
+          component: promotedComponent,
+          candidate: promotedNearMatch,
+          parameterCompatibility,
+          libraryRoot: params.verifiedVhdlBlockLibraryRoot,
+          signal: params.signal,
+        });
+      }
+      if (parameterCompatibility.requiresConfiguredSmoke && params.stageGhdlValidation) {
+        await runConfiguredVerifiedBlockSmoke({
+          stage: params.stage,
+          component: promotedComponent,
+          candidate: effectiveNearMatch,
+          parameterCompatibility,
+          signal: params.signal,
+        });
+      }
+      if (hasSamePublicInterfaceIgnoringGenericDefaults(effectiveNearMatch)) {
+        const content = normalizeStagedVhdlContent(effectiveNearMatch.rtlContent);
+        assertGeneratedComponentInterface(params.stage, promotedComponent, content);
+        return {
+          content,
+          attempts: stageAttempts,
+          dependencyFiles: effectiveNearMatch.dependencyFiles,
+          verifiedVhdlBlock: effectiveNearMatch,
+          verifiedParameterCompatibility: parameterCompatibility,
+          contract: promotedContract,
+        };
+      }
+      const wrapperPlan = planVerifiedVhdlWrapper({
+        component: promotedComponent,
+        candidate: effectiveNearMatch,
+        parameterCompatibility,
+      });
+      if (wrapperPlan.kind === 'wrapper_safe') {
+        const content = normalizeStagedVhdlContent(renderVerifiedVhdlWrapper({
+          contract: promotedContract,
+          component: promotedComponent,
+          plan: wrapperPlan,
+        }));
+        assertGeneratedComponentInterface(params.stage, promotedComponent, content);
+        return {
+          content,
+          attempts: stageAttempts,
+          dependencyFiles: [...effectiveNearMatch.dependencyFiles, effectiveNearMatch.rtlFile],
+          verifiedVhdlBlock: effectiveNearMatch,
+          verifiedWrapperPlan: wrapperPlan,
+          verifiedParameterCompatibility: parameterCompatibility,
+          contract: promotedContract,
+        };
+      }
+      if (params.hybridOnUnsafeWrapper !== false) {
+        throw new HybridImplementationSourceUnresolvedError({
+          stage: params.stage,
+          component: promotedComponent,
+          candidate: effectiveNearMatch,
+          plan: wrapperPlan,
+        });
+      }
+      throw new VerifiedWrapperUnsafeMismatchError({
+        stage: params.stage,
+        component: params.component,
+        candidate: effectiveNearMatch,
+        plan: wrapperPlan,
+      });
+    }
   }
 
   if (params.goldenLeafLibraryPath) {
@@ -699,22 +1393,58 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       };
     }
     if (candidate?.comparison.kind === 'safe_adaptation') {
-      try {
-        return {
-          content: await runOnce(buildGoldenLeafAdaptationPrompt({
-            contract: params.contract,
-            component: params.component,
-            skeleton: params.skeleton,
-            candidate,
-          }), 0),
-          attempts: stageAttempts,
-          dependencyFiles: [],
-        };
-      } catch (error: any) {
-        if (error?.name === 'AbortError' || /aborted|aborterror/i.test(String(error?.message || error))) throw error;
-        stageAttempts.length = 0;
+      if (params.vhdlImplementationPolicy === 'allow_model_vhdl_fallback') {
+        try {
+          return {
+            content: await runOnce(buildGoldenLeafAdaptationPrompt({
+              contract: params.contract,
+              component: params.component,
+              skeleton: params.skeleton,
+              candidate,
+            }), 0),
+            attempts: stageAttempts,
+            dependencyFiles: [],
+          };
+        } catch (error: any) {
+          if (error?.name === 'AbortError' || /aborted|aborterror/i.test(String(error?.message || error))) throw error;
+          stageAttempts.length = 0;
+        }
       }
     }
+  }
+
+  if ((params.vhdlImplementationPolicy || 'verified_or_template_only') !== 'allow_model_vhdl_fallback') {
+    const deterministicTemplate = renderDeterministicLeafTemplate({
+      contract: params.contract,
+      component: params.component,
+      skeleton: params.skeleton,
+    });
+    if (deterministicTemplate) {
+      const content = normalizeStagedVhdlContent(deterministicTemplate.content);
+      assertGeneratedComponentInterface(params.stage, params.component, content);
+      return {
+        content,
+        attempts: stageAttempts,
+        dependencyFiles: [],
+        deterministicTemplate,
+      };
+    }
+
+    if (isDeterministicFifoFallbackCandidate(params.component)) {
+      const fallbackContent = renderDeterministicFifoFallback(params.component, params.skeleton);
+      assertGeneratedComponentInterface(params.stage, params.component, fallbackContent);
+      return {
+        content: fallbackContent,
+        attempts: stageAttempts,
+        dependencyFiles: [],
+      };
+    }
+
+    throw new ModelVhdlGenerationBlockedByPolicyError({
+      stage: params.stage,
+      component: params.component,
+      policy: params.vhdlImplementationPolicy || 'verified_or_template_only',
+    });
   }
 
   try {
@@ -724,7 +1454,11 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       dependencyFiles: [],
     };
   } catch (error) {
-    if (!(error instanceof StagedPortInterfaceDriftError) && !(error instanceof StagedComponentEntityMissingError)) {
+    if (
+      !(error instanceof StagedPortInterfaceDriftError)
+      && !(error instanceof StagedComponentEntityMissingError)
+      && !(error instanceof StagedComponentOutputOwnershipError)
+    ) {
       throw error;
     }
     if (isDeterministicFifoFallbackCandidate(params.component)) {
@@ -743,12 +1477,19 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
         skeleton: params.skeleton,
         entityMissing: error,
       })
-      : buildInterfaceDriftRetryPrompt({
-        contract: params.contract,
-        component: params.component,
-        skeleton: params.skeleton,
-        drift: error,
-      });
+      : error instanceof StagedComponentOutputOwnershipError
+        ? buildOutputOwnershipRetryPrompt({
+          contract: params.contract,
+          component: params.component,
+          skeleton: params.skeleton,
+          ownership: error,
+        })
+        : buildInterfaceDriftRetryPrompt({
+          contract: params.contract,
+          component: params.component,
+          skeleton: params.skeleton,
+          drift: error,
+        });
     try {
       return {
         content: await runOnce(retryPrompt, 1),
@@ -758,7 +1499,11 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
     } catch (retryError) {
       if (
         isDeterministicFifoFallbackCandidate(params.component)
-        && (retryError instanceof StagedPortInterfaceDriftError || retryError instanceof StagedComponentEntityMissingError)
+        && (
+          retryError instanceof StagedPortInterfaceDriftError
+          || retryError instanceof StagedComponentEntityMissingError
+          || retryError instanceof StagedComponentOutputOwnershipError
+        )
       ) {
         const fallbackContent = renderDeterministicFifoFallback(params.component, params.skeleton, retryError);
         assertGeneratedComponentInterface(params.stage, params.component, fallbackContent);
@@ -837,6 +1582,8 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   goldenLeafLibraryPath?: string | null;
   verifiedVhdlBlockLibraryRoot?: string | null;
   verifiedVhdlBlockQualificationPath?: string | null;
+  vhdlImplementationPolicy?: FpgaVhdlImplementationPolicy;
+  hybridOnUnsafeWrapper?: boolean;
   runModelAnalysis: (params: {
     ai: any;
     provider: any;
@@ -850,7 +1597,8 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   if (params.contract.schemaVersion !== '2.0') throw new Error('Staged FPGA generation requires an approved Architecture Contract V2.');
   const files: FpgaArchitectFile[] = [];
   const attempts: Array<StagedAiResult<TTelemetry>> = [];
-  const generatedSourceOrder = [...params.contract.sourceOrder];
+  let workingContract = params.contract;
+  const generatedSourceOrder = [...workingContract.sourceOrder];
   const addGeneratedDependencyFile = (file: FpgaArchitectFile, beforePath: string) => {
     const normalizedPath = file.path.replace(/\\/g, '/');
     if (!files.some((candidate) => candidate.path.replace(/\\/g, '/') === normalizedPath)) {
@@ -871,25 +1619,27 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   };
 
   await notify('packages', 1, '', 'starting');
-  for (const component of params.contract.components.filter((candidate) => candidate.kind === 'package')) {
-    files.push({ path: component.file, fileType: fileTypeForComponent(component), purpose: component.responsibility, content: renderContractPackage(params.contract, component) });
+  for (const component of workingContract.components.filter((candidate) => candidate.kind === 'package')) {
+    files.push({ path: component.file, fileType: fileTypeForComponent(component), purpose: component.responsibility, content: renderContractPackage(workingContract, component) });
   }
   if (params.stageGhdlValidation) {
     await notify('packages', 1, '', 'validating');
-    await runGhdlStageCheckpoint({ files, sourceOrder: params.contract.sourceOrder, label: 'package generation', signal: params.signal });
+    await runGhdlStageCheckpoint({ files, sourceOrder: workingContract.sourceOrder, label: 'package generation', signal: params.signal });
   }
   await notify('packages', 1, '', 'completed');
 
   await notify('leaf_rtl', 2, '', 'starting');
-  const leafComponents = params.contract.components.filter((candidate) => candidate.kind === 'rtl');
-  for (const component of leafComponents) {
+  const leafComponentIds = workingContract.components.filter((candidate) => candidate.kind === 'rtl').map((component) => component.id);
+  for (const componentId of leafComponentIds) {
+    const component = workingContract.components.find((candidate) => candidate.id === componentId);
+    if (!component) continue;
     await notify('leaf_rtl', 2, component.id, 'starting');
-    const skeleton = renderLeafSkeleton(params.contract, component);
-    const { content, attempts: stageAttempts, dependencyFiles } = await generateComponentWithInterfaceRetry({
+    const skeleton = renderLeafSkeleton(workingContract, component);
+    const { content, attempts: stageAttempts, dependencyFiles, contract: nextContract } = await generateComponentWithInterfaceRetry({
       ai: params.ai,
       provider: params.provider,
       model: params.model,
-      contract: params.contract,
+      contract: workingContract,
       component,
       skeleton,
       stage: 'leaf_rtl',
@@ -898,8 +1648,12 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
       goldenLeafLibraryPath: params.goldenLeafLibraryPath,
       verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
       verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
+      vhdlImplementationPolicy: params.vhdlImplementationPolicy || 'verified_or_template_only',
+      hybridOnUnsafeWrapper: params.hybridOnUnsafeWrapper,
+      stageGhdlValidation: params.stageGhdlValidation,
       runModelAnalysis: params.runModelAnalysis,
     });
+    if (nextContract) workingContract = nextContract;
     attempts.push(...stageAttempts);
     for (const dependencyFile of dependencyFiles) {
       addGeneratedDependencyFile(dependencyFile, component.file);
@@ -914,18 +1668,18 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   await notify('leaf_rtl', 2, '', 'completed');
 
   await notify('top_integration', 3, '', 'starting');
-  const top = params.contract.components.find((candidate) => candidate.kind === 'top');
+  const top = workingContract.components.find((candidate) => candidate.kind === 'top');
   if (!top) throw new Error('Architecture Contract V2 has no top component.');
   let topContent: string;
   if (top.children.length > 0) {
-    topContent = renderIntegrationTop(params.contract, top);
+    topContent = renderIntegrationTop(workingContract, top);
   } else {
-    const skeleton = renderLeafSkeleton(params.contract, top);
+    const skeleton = renderLeafSkeleton(workingContract, top);
     const generated = await generateComponentWithInterfaceRetry({
       ai: params.ai,
       provider: params.provider,
       model: params.model,
-      contract: params.contract,
+      contract: workingContract,
       component: top,
       skeleton,
       stage: 'top_integration',
@@ -934,9 +1688,13 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
       goldenLeafLibraryPath: params.goldenLeafLibraryPath,
       verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
       verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
+      vhdlImplementationPolicy: params.vhdlImplementationPolicy || 'verified_or_template_only',
+      hybridOnUnsafeWrapper: params.hybridOnUnsafeWrapper,
+      stageGhdlValidation: params.stageGhdlValidation,
       runModelAnalysis: params.runModelAnalysis,
     });
     topContent = generated.content;
+    if (generated.contract) workingContract = generated.contract;
     attempts.push(...generated.attempts);
     for (const dependencyFile of generated.dependencyFiles) {
       addGeneratedDependencyFile(dependencyFile, top.file);
@@ -950,9 +1708,9 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   await notify('top_integration', 3, top.id, 'completed');
 
   await notify('testbench', 4, '', 'starting');
-  const testbench = params.contract.components.find((candidate) => candidate.kind === 'testbench');
+  const testbench = workingContract.components.find((candidate) => candidate.kind === 'testbench');
   if (!testbench) throw new Error('Architecture Contract V2 has no testbench component.');
-  files.push({ path: testbench.file, fileType: fileTypeForComponent(testbench), purpose: testbench.responsibility, content: renderAppOwnedTestbench(params.contract) });
+  files.push({ path: testbench.file, fileType: fileTypeForComponent(testbench), purpose: testbench.responsibility, content: renderAppOwnedTestbench(workingContract) });
   if (params.stageGhdlValidation) {
     await notify('testbench', 4, testbench.id, 'validating');
     await runGhdlStageCheckpoint({ files, sourceOrder: generatedSourceOrder, label: `testbench ${testbench.id}`, signal: params.signal });
@@ -960,24 +1718,24 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   await notify('testbench', 4, testbench.id, 'completed');
 
   await notify('collateral', 5, '', 'starting');
-  const runCommands = buildDeterministicArchitectGhdlRunCommands({ analysisOrder: generatedSourceOrder, topTestbench: params.contract.topTestbench, vhdlStandard: '08' });
-  files.push({ path: 'sim/ghdl_plan.json', fileType: 'json', purpose: 'App-owned deterministic GHDL command plan', content: `${JSON.stringify({ standard: '08', analysisOrder: generatedSourceOrder, topTestbench: params.contract.topTestbench, runCommands, expectedResult: 'TEST PASSED' }, null, 2)}\n` });
-  files.push({ path: 'architecture/contract-summary.md', fileType: 'markdown', purpose: 'Concise app-owned architecture summary', content: `# ${params.contract.designName}\n\n${params.contract.systemIntent}\n\nContract SHA-256: \`${hashFpgaArchitectureContract(params.contract)}\`\n` });
+  const runCommands = buildDeterministicArchitectGhdlRunCommands({ analysisOrder: generatedSourceOrder, topTestbench: workingContract.topTestbench, vhdlStandard: '08' });
+  files.push({ path: 'sim/ghdl_plan.json', fileType: 'json', purpose: 'App-owned deterministic GHDL command plan', content: `${JSON.stringify({ standard: '08', analysisOrder: generatedSourceOrder, topTestbench: workingContract.topTestbench, runCommands, expectedResult: 'TEST PASSED' }, null, 2)}\n` });
+  files.push({ path: 'architecture/contract-summary.md', fileType: 'markdown', purpose: 'Concise app-owned architecture summary', content: `# ${workingContract.designName}\n\n${workingContract.systemIntent}\n\nContract SHA-256: \`${hashFpgaArchitectureContract(workingContract)}\`\n\n${workingContract.assumptions.filter((entry) => /VERIFIED_GENERIC_PROMOTION/.test(entry)).join('\n')}\n` });
   await notify('collateral', 5, '', 'completed');
 
   await notify('manifest', 6, '', 'starting');
   const project: FpgaArchitectProject = {
-    projectName: params.contract.designName,
-    sanitizedProjectName: params.contract.designName,
-    topEntity: params.contract.topEntity,
+    projectName: workingContract.designName,
+    sanitizedProjectName: workingContract.designName,
+    topEntity: workingContract.topEntity,
     vhdlStandard: '08',
     targetFpga: null,
-    summary: params.contract.systemIntent,
-    assumptions: params.contract.assumptions,
+    summary: workingContract.systemIntent,
+    assumptions: workingContract.assumptions,
     warnings: [],
     folderTree: Array.from(new Set(files.map((file) => file.path.split('/')[0]))).map((folder) => `${folder}/`).join('\n'),
     files,
-    ghdl: { analysisOrder: generatedSourceOrder, topTestbench: params.contract.topTestbench, runCommands, expectedResult: 'TEST PASSED' },
+    ghdl: { analysisOrder: generatedSourceOrder, topTestbench: workingContract.topTestbench, runCommands, expectedResult: 'TEST PASSED' },
     qualityChecklist: [
       'Architecture Contract V2 approved and hashed before VHDL generation.',
       'Package, interface, integration, and testbench structure rendered by the app.',

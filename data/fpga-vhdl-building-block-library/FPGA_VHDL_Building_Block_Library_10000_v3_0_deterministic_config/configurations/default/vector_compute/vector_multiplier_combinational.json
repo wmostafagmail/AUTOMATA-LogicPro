@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_multiplier_combinational",
+  "wrapper_entity": "vector_multiplier_combinational_det_cfg",
+  "configuration_id": "VECTOR_MULTIPLIER_COMBINATIONAL_882FC58AECC9A60B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

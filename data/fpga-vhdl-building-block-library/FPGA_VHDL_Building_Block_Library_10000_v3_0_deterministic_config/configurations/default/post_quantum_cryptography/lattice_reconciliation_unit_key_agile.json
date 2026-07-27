@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lattice_reconciliation_unit_key_agile",
+  "wrapper_entity": "lattice_reconciliation_unit_key_agile_det_cfg",
+  "configuration_id": "LATTICE_RECONCILIATION_UNIT_KEY_AGILE_79352C204AF938BF",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

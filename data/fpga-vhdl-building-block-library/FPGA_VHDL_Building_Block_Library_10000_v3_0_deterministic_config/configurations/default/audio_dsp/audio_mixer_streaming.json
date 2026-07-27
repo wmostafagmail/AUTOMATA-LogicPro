@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mixer_streaming",
+  "wrapper_entity": "audio_mixer_streaming_det_cfg",
+  "configuration_id": "AUDIO_MIXER_STREAMING_4A45F7294BF15100",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

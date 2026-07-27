@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_projection_filter_rate_adaptive",
+  "wrapper_entity": "affine_projection_filter_rate_adaptive_det_cfg",
+  "configuration_id": "AFFINE_PROJECTION_FILTER_RATE_ADAPTIVE_FB82B99C5CDA1451",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

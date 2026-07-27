@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "coherence_probe_router_scrubbed",
+  "wrapper_entity": "coherence_probe_router_scrubbed_det_cfg",
+  "configuration_id": "COHERENCE_PROBE_ROUTER_SCRUBBED_51D427AF5950C99B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

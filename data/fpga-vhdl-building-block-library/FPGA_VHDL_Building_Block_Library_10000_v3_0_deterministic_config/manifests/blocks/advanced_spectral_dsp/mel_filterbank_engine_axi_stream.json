@@ -1,0 +1,127 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "mel_filterbank_engine_axi_stream",
+    "entity": "mel_filterbank_engine_axi_stream",
+    "version": "3.0.0",
+    "category": "advanced_spectral_dsp",
+    "source": "rtl/blocks/advanced_spectral_dsp/mel_filterbank_engine_axi_stream.vhd",
+    "wrapper_entity": "mel_filterbank_engine_axi_stream_det_cfg"
+  },
+  "configuration": {
+    "id": "MEL_FILTERBANK_ENGINE_AXI_STREAM_0D9C858B2955FE60",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "XOR_MASK",
+        "type": "natural",
+        "default": "3",
+        "minimum": 0
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "XOR_MASK": 3
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "s_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "s_last",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "m_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "m_last",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "shared-core surrogate only; block-specific golden model and numerical qualification required."
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "interface-wrapper smoke-test scaffold; named algorithm/architecture not yet qualified.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/advanced_spectral_dsp/mel_filterbank_engine_axi_stream_det_cfg.vhd",
+    "configuration_file": "configurations/default/mel_filterbank_engine_axi_stream.json"
+  }
+}

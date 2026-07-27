@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_dma_scheduler_dual_port",
+  "wrapper_entity": "tensor_dma_scheduler_dual_port_det_cfg",
+  "configuration_id": "TENSOR_DMA_SCHEDULER_DUAL_PORT_D64FC2255CAB12AF",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

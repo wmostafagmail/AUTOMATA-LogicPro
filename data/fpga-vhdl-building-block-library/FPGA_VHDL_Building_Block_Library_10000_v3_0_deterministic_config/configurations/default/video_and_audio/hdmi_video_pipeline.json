@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_video_pipeline",
+  "wrapper_entity": "hdmi_video_pipeline_det_cfg",
+  "configuration_id": "HDMI_VIDEO_PIPELINE_EDC1BFCD17A93AF9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_max_single_cycle",
+  "wrapper_entity": "vector_reduce_max_single_cycle_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_MAX_SINGLE_CYCLE_6F22A9B69B80796C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

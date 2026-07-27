@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sobel_edge_filter",
+  "wrapper_entity": "sobel_edge_filter_det_cfg",
+  "configuration_id": "SOBEL_EDGE_FILTER_65304D0B56838465",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_distributed_clock_dma_attached",
+  "wrapper_entity": "ethercat_distributed_clock_dma_attached_det_cfg",
+  "configuration_id": "ETHERCAT_DISTRIBUTED_CLOCK_DMA_ATTACHED_7BA55BDE4C4B03E7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_unpacker_low_latency",
+  "wrapper_entity": "mipi_csi2_unpacker_low_latency_det_cfg",
+  "configuration_id": "MIPI_CSI2_UNPACKER_LOW_LATENCY_E8FD79A8900D5BE7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

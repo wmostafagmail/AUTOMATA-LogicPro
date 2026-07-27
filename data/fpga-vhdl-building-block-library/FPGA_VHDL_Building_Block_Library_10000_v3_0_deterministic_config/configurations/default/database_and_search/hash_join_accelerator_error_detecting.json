@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_join_accelerator_error_detecting",
+  "wrapper_entity": "hash_join_accelerator_error_detecting_det_cfg",
+  "configuration_id": "HASH_JOIN_ACCELERATOR_ERROR_DETECTING_2621D18664223355",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

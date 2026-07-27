@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_value_engine_pipelined",
+  "wrapper_entity": "attention_value_engine_pipelined_det_cfg",
+  "configuration_id": "ATTENTION_VALUE_ENGINE_PIPELINED_0D6EE292AF2CF448",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

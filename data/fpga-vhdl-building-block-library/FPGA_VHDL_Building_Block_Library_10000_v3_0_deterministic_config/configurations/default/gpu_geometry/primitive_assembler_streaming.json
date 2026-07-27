@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "primitive_assembler_streaming",
+  "wrapper_entity": "primitive_assembler_streaming_det_cfg",
+  "configuration_id": "PRIMITIVE_ASSEMBLER_STREAMING_86B8C7E3E69BC430",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

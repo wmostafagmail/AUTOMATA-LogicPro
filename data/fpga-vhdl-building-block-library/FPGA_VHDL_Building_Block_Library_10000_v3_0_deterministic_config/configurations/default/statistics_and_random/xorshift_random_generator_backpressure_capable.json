@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "xorshift_random_generator_backpressure_capable",
+  "wrapper_entity": "xorshift_random_generator_backpressure_capable_det_cfg",
+  "configuration_id": "XORSHIFT_RANDOM_GENERATOR_BACKPRESSURE_CAPABLE_C081321AAA240DA3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

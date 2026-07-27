@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "iq_imbalance_corrector_resource_shared",
+  "wrapper_entity": "iq_imbalance_corrector_resource_shared_det_cfg",
+  "configuration_id": "IQ_IMBALANCE_CORRECTOR_RESOURCE_SHARED_0B956A6159807008",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 162
+  }
+}

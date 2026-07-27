@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "prefix_adder_single_cycle",
+  "wrapper_entity": "prefix_adder_single_cycle_det_cfg",
+  "configuration_id": "PREFIX_ADDER_SINGLE_CYCLE_B623E1E3A9A6B28A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

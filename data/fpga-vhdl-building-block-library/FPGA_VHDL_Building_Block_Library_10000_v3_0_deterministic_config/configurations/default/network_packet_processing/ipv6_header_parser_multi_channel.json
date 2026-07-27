@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_header_parser_multi_channel",
+  "wrapper_entity": "ipv6_header_parser_multi_channel_det_cfg",
+  "configuration_id": "IPV6_HEADER_PARSER_MULTI_CHANNEL_D7F567ED9B4D96C1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

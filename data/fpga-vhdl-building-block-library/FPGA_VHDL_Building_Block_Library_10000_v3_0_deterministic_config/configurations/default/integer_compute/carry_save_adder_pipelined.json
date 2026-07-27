@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_save_adder_pipelined",
+  "wrapper_entity": "carry_save_adder_pipelined_det_cfg",
+  "configuration_id": "CARRY_SAVE_ADDER_PIPELINED_40289916DE6C4588",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

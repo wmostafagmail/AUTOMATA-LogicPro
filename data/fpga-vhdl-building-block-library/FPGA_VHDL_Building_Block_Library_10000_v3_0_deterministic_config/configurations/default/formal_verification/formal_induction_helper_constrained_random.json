@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_induction_helper_constrained_random",
+  "wrapper_entity": "formal_induction_helper_constrained_random_det_cfg",
+  "configuration_id": "FORMAL_INDUCTION_HELPER_CONSTRAINED_RANDOM_3B1C4EE5492C5C07",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

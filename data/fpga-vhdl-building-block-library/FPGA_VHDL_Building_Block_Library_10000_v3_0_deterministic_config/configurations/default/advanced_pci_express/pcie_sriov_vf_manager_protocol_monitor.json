@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_protocol_monitor",
+  "wrapper_entity": "pcie_sriov_vf_manager_protocol_monitor_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_PROTOCOL_MONITOR_BB500F552BA51A86",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_tx_mac_iterative",
+  "wrapper_entity": "ethernet_tx_mac_iterative_det_cfg",
+  "configuration_id": "ETHERNET_TX_MAC_ITERATIVE_D6A8587DBDB0ED25",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

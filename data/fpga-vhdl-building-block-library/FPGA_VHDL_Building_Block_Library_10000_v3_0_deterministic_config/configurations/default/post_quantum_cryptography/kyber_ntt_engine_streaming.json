@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_streaming",
+  "wrapper_entity": "kyber_ntt_engine_streaming_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_STREAMING_81610A9746E6D67D",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

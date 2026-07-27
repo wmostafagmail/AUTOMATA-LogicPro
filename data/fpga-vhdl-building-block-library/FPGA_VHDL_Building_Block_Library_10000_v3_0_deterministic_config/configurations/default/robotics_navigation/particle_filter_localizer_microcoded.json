@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_microcoded",
+  "wrapper_entity": "particle_filter_localizer_microcoded_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_MICROCODED_C6C036BE06C39320",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

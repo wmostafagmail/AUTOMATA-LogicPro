@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dequantizer_multi_engine",
+  "wrapper_entity": "dequantizer_multi_engine_det_cfg",
+  "configuration_id": "DEQUANTIZER_MULTI_ENGINE_AB8D1558CF9A0506",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

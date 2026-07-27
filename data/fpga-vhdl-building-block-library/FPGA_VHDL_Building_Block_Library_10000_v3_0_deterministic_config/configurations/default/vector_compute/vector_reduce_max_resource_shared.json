@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_max_resource_shared",
+  "wrapper_entity": "vector_reduce_max_resource_shared_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_MAX_RESOURCE_SHARED_15E6F34053CDCF07",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

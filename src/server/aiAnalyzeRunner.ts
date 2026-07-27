@@ -743,6 +743,15 @@ export function buildFailureCodeSpecificRepairShaping(validation: GeneratedVhdlV
         '  Inspect the target entity/component legal formal port list and replace only the bad formal name; do not invent ports or rename the target entity interface unless every dependent instantiation is updated coherently.',
         '  Preserve actual signal intent and connect it to the correct existing formal port, or leave the port intentionally unconnected only when the target mode and design intent allow it.',
       ].join('\n'));
+    } else if (detail.code === 'component_output_ownership_violation') {
+      sections.push([
+        `- ${detail.code}`,
+        '  Repair the component implementation locally. A leaf/component may assign only objects it owns: local signals/variables declared in its architecture, or out/buffer/inout ports declared in its approved entity.',
+        '  Remove assignments to undeclared parent/top/sibling outputs such as done_o/error_o/status_o unless those names are declared as writable ports in this exact entity.',
+        '  Do not add ports, rename the entity, duplicate package symbols, or move ownership into unrelated files. Parent/top status outputs must be driven by the top integration contract, not by arbitrary leaves.',
+        detail.forbiddenConstruct ? `  Failing ownership evidence: ${detail.forbiddenConstruct}` : '',
+        detail.legalReplacementPattern ? `  Required replacement: ${detail.legalReplacementPattern}` : '',
+      ].filter(Boolean).join('\n'));
     } else if (detail.code === 'multiple_signal_driver_or_slice_assignment') {
       sections.push([
         `- ${detail.code}`,
@@ -1244,6 +1253,8 @@ export async function runAiAnalyzeJob(params: {
       signal,
       maxStageOutputChars: pipelineConfig.maxStageOutputChars,
       stageGhdlValidation: pipelineConfig.stageGhdlValidation,
+      vhdlImplementationPolicy: pipelineConfig.vhdlImplementationPolicy,
+      hybridOnUnsafeWrapper: pipelineConfig.hybridOnUnsafeWrapper,
       goldenLeafLibraryPath: buildGoldenLeafLibraryPath(normalizedProjectPath),
       runModelAnalysis,
       onStageProgress: onArchitectureStageProgress,

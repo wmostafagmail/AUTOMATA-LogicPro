@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gradient_accumulator_iterative",
+  "wrapper_entity": "gradient_accumulator_iterative_det_cfg",
+  "configuration_id": "GRADIENT_ACCUMULATOR_ITERATIVE_363E3838E9D168C3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

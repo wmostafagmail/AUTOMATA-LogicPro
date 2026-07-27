@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_pooling_engine_time_multiplexed",
+  "wrapper_entity": "adaptive_pooling_engine_time_multiplexed_det_cfg",
+  "configuration_id": "ADAPTIVE_POOLING_ENGINE_TIME_MULTIPLEXED_4220E3D4E5E746F4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

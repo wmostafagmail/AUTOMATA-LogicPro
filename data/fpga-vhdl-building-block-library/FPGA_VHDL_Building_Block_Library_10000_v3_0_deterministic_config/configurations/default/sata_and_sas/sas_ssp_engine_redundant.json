@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_redundant",
+  "wrapper_entity": "sas_ssp_engine_redundant_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_REDUNDANT_A9D93507E39F5A8B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

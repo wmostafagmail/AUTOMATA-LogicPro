@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_dual_channel",
+  "wrapper_entity": "secure_boot_root_dual_channel_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_DUAL_CHANNEL_9D461BD5A93C3560",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

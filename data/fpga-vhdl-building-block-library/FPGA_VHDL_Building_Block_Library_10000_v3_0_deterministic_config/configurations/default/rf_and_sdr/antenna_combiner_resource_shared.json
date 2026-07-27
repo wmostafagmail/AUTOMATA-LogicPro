@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "antenna_combiner_resource_shared",
+  "wrapper_entity": "antenna_combiner_resource_shared_det_cfg",
+  "configuration_id": "ANTENNA_COMBINER_RESOURCE_SHARED_507C2F9425C5BBB0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 74
+  }
+}

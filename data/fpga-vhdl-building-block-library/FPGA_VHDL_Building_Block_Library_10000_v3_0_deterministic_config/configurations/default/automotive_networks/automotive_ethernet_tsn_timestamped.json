@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_timestamped",
+  "wrapper_entity": "automotive_ethernet_tsn_timestamped_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_TIMESTAMPED_83CB9FAD3DBF533C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

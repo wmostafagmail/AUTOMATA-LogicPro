@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_low_power",
+  "wrapper_entity": "floating_point_matrix_fma_low_power_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_LOW_POWER_A58683553B244A8E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

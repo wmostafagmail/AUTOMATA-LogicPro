@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_lite_bridge_clock_crossing",
+  "wrapper_entity": "ace_lite_bridge_clock_crossing_det_cfg",
+  "configuration_id": "ACE_LITE_BRIDGE_CLOCK_CROSSING_A046A38AF3E371CB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_dma_attached",
+  "wrapper_entity": "sata_fis_parser_dma_attached_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_DMA_ATTACHED_B4BF75144D3D10B2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

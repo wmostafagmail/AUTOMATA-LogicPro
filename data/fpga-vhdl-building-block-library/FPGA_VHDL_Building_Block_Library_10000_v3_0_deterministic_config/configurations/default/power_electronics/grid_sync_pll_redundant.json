@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_redundant",
+  "wrapper_entity": "grid_sync_pll_redundant_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_REDUNDANT_C3006FAA9CB79DF5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

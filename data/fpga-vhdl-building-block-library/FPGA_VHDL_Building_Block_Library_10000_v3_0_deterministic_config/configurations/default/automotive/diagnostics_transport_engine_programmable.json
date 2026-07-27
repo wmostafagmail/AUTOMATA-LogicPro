@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "diagnostics_transport_engine_programmable",
+  "wrapper_entity": "diagnostics_transport_engine_programmable_det_cfg",
+  "configuration_id": "DIAGNOSTICS_TRANSPORT_ENGINE_PROGRAMMABLE_2BE11DF7D5FCA799",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

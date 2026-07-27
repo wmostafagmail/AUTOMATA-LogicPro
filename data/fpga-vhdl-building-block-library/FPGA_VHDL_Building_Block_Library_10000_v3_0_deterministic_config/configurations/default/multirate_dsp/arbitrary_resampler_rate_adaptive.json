@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arbitrary_resampler_rate_adaptive",
+  "wrapper_entity": "arbitrary_resampler_rate_adaptive_det_cfg",
+  "configuration_id": "ARBITRARY_RESAMPLER_RATE_ADAPTIVE_B1FCE6CA8417365F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

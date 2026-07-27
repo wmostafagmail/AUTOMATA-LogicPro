@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_divider_programmable_precision",
+  "wrapper_entity": "decimal_divider_programmable_precision_det_cfg",
+  "configuration_id": "DECIMAL_DIVIDER_PROGRAMMABLE_PRECISION_90AD29571358E2DC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

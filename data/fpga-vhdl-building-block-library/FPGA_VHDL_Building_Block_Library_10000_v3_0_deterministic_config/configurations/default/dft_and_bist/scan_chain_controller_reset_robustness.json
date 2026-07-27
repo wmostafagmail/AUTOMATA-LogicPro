@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_reset_robustness",
+  "wrapper_entity": "scan_chain_controller_reset_robustness_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_RESET_ROBUSTNESS_5BE542FEC096A83D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

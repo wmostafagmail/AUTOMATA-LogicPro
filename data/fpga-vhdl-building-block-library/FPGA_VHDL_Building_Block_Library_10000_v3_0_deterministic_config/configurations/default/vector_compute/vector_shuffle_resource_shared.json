@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_shuffle_resource_shared",
+  "wrapper_entity": "vector_shuffle_resource_shared_det_cfg",
+  "configuration_id": "VECTOR_SHUFFLE_RESOURCE_SHARED_3A042EB5AB8663CB",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

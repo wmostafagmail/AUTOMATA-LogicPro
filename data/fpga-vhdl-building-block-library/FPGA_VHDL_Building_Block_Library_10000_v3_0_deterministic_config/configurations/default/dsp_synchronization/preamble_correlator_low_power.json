@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "preamble_correlator_low_power",
+  "wrapper_entity": "preamble_correlator_low_power_det_cfg",
+  "configuration_id": "PREAMBLE_CORRELATOR_LOW_POWER_3F5A3729691CE424",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 153
+  }
+}

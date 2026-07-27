@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_write_turnaround_optimizer_single_port",
+  "wrapper_entity": "read_write_turnaround_optimizer_single_port_det_cfg",
+  "configuration_id": "READ_WRITE_TURNAROUND_OPTIMIZER_SINGLE_PORT_3BC691976AEDDC62",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

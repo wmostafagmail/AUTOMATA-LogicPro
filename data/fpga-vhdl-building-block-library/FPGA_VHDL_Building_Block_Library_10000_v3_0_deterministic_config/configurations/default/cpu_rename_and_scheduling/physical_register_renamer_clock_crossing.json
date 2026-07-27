@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_clock_crossing",
+  "wrapper_entity": "physical_register_renamer_clock_crossing_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_CLOCK_CROSSING_06D251240754D70E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

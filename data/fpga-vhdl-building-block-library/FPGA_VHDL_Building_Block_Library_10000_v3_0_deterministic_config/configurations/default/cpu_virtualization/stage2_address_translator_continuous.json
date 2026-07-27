@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_continuous",
+  "wrapper_entity": "stage2_address_translator_continuous_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_CONTINUOUS_96E63EA0663CAE56",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

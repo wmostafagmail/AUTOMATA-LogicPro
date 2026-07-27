@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aho_corasick_matcher_deep_pipelined",
+  "wrapper_entity": "aho_corasick_matcher_deep_pipelined_det_cfg",
+  "configuration_id": "AHO_CORASICK_MATCHER_DEEP_PIPELINED_835A5E74C1F9B70D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

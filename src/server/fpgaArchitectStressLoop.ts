@@ -322,6 +322,14 @@ function isArchitectureContractFailure(error: unknown, category: string) {
   return category === 'architecture_contract' || getContractIssuesFromError(error).length > 0;
 }
 
+function isArchitectureIntentIssueCode(code: string | null | undefined) {
+  return /^architecture_intent_/i.test(String(code || ''));
+}
+
+function isArchitectureIntentClarificationFailure(issues: FpgaArchitectureContractIssue[]) {
+  return issues.length > 0 && issues.every((issue) => isArchitectureIntentIssueCode(issue.code));
+}
+
 function summarizeContractIssueBuckets(issues: FpgaArchitectureContractIssue[]) {
   const buckets = new Map<string, { code: string; count: number; paths: Set<string>; examples: Set<string> }>();
   for (const issue of issues) {
@@ -945,10 +953,11 @@ function normalizeValidatorFeedbackItems(details: GeneratedVhdlFailureDetail[]) 
 
 function feedbackCategoryForFailureCode(code: string | null) {
   if (!code) return 'other';
+  if (/^architecture_intent_/.test(code)) return 'architecture_intent';
   if (/staged_|architecture_contract/.test(code)) return 'architecture_contract';
   if (/cpu_.*behavior|protocol_status_behavior|alu_.*behavior|ghdl_simulate_failure|simulation_/.test(code)) return 'simulation_success';
   if (/runtime_bound|range_membership/.test(code)) return 'runtime_bound_risk';
-  if (/undriven_top_output|unknown_port|unconnected_required_input|interface_|port_/.test(code)) return 'interface_generic_port_syntax';
+  if (/undriven_top_output|output_ownership|unknown_port|unconnected_required_input|interface_|port_/.test(code)) return 'interface_generic_port_syntax';
   if (/package|record|custom_type/.test(code)) return 'package_type_definition';
   if (/resize|typed_|unsigned|numeric|operator|to_integer|opcode/.test(code)) return 'numeric_std_type_discipline';
   if (/testbench|dut/.test(code)) return 'testbench_structure';
@@ -985,6 +994,8 @@ function normalizeDiagnosticFeedbackItem(message: string) {
       ? 'staged_port_interface_drift'
     : /staged_component_entity_missing|did not declare entity/i.test(message)
       ? 'staged_component_entity_missing'
+    : /component_output_ownership_violation|assigns "[a-zA-Z][a-zA-Z0-9_]*", but that name is not owned by this component/i.test(message)
+      ? 'component_output_ownership_violation'
       : /string length does not match that of anonymous integer subtype|value constraints don't match target ones/i.test(message)
         ? 'vector_literal_width_mismatch'
       : /only one type of logical operators may be used to combine relation/i.test(message)
@@ -1001,6 +1012,8 @@ function normalizeDiagnosticFeedbackItem(message: string) {
       ? 'staged component VHDL omitted or renamed the exact app-approved entity declaration'
       : failureCode === 'staged_port_interface_drift'
       ? 'staged component VHDL changed the app-approved entity generic/port interface'
+      : failureCode === 'component_output_ownership_violation'
+        ? 'staged component VHDL assigned an undeclared or non-owned parent/top/sibling output'
       : failureCode === 'vector_literal_width_mismatch'
         ? 'fixed-width bit/hex literal assigned to a vector object with a different declared width'
       : failureCode === 'mixed_logical_operator_precedence'
@@ -1010,6 +1023,8 @@ function normalizeDiagnosticFeedbackItem(message: string) {
       ? 'regenerate only the failing component with the exact app-owned entity name and interface from the skeleton; do not return package-only code, wrapper entities, JSON, Markdown, or prose'
       : failureCode === 'staged_port_interface_drift'
       ? 'regenerate only the failing component implementation while preserving the exact app-owned entity declaration, generic names/order/defaults, and port names/order/modes/types'
+      : failureCode === 'component_output_ownership_violation'
+        ? 'regenerate only the failing component implementation; assign only declared local objects or approved out/buffer/inout ports and do not invent parent/top status outputs in a leaf'
       : failureCode === 'vector_literal_width_mismatch'
         ? "use width-derived literals such as (others => '0'), std_logic_vector(to_unsigned(value, target'length)), to_unsigned(value, target'length), or to_signed(value, target'length)"
       : failureCode === 'mixed_logical_operator_precedence'
@@ -1020,7 +1035,10 @@ function normalizeDiagnosticFeedbackItem(message: string) {
 }
 
 function normalizeContractFeedbackItems(issues: FpgaArchitectureContractIssue[]) {
-  return summarizeContractIssueBuckets(issues).slice(0, 6).map((bucket) => ({
+  return summarizeContractIssueBuckets(issues)
+    .filter((bucket) => !isArchitectureIntentIssueCode(bucket.code))
+    .slice(0, 6)
+    .map((bucket) => ({
     failureCode: bucket.code,
     failureCategory: 'architecture_contract',
     ruleId: null,
@@ -1034,6 +1052,7 @@ function normalizeContractFeedbackItems(issues: FpgaArchitectureContractIssue[])
 }
 
 const NON_CODE_FEEDBACK_CATEGORIES = new Set([
+  'architecture_intent',
   'provider_runtime',
   'other',
   'manifest_structure',
@@ -1979,6 +1998,7 @@ export async function runFpgaArchitectStressLoop(params: {
         });
         const contractIssues = getContractIssuesFromError(error);
         const isContractFailure = isArchitectureContractFailure(error, diagnostic.category);
+        const isArchitectureIntentFailure = isArchitectureIntentClarificationFailure(contractIssues);
         let contractIssueArtifactPath: string | null = null;
         if (isContractFailure) {
           contractIssueArtifactPath = await writeContractIssueArtifact({
@@ -2259,26 +2279,28 @@ export async function runFpgaArchitectStressLoop(params: {
         currentGlobalAttempt = activeGlobalAttempt;
         results.push(resultEntry);
         designResults.push(resultEntry);
-        recordModelQualityAttempt(modelQualityScoreboard, {
-          provider: selectedProvider,
-          model: selectedModel,
-          macroId: 'fpga_vhdl_architect',
-          designKey: preset.key,
-          ok: false,
-          failure: {
-            category: diagnostic.category,
-            label: diagnostic.label,
-            failureCode: isContractFailure ? 'architecture_contract_validation_failed' : (feedbackItems[0]?.failureCode || null),
-            stage: isContractFailure ? 'architecture_contract' : (isContextBudgetFailure ? 'context_budget' : 'vhdl_generation'),
-            issueCodes: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.code))).slice(0, 20) : [],
-            issuePaths: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.path))).slice(0, 20) : [],
-            ruleIds: diagnostic.ruleIds,
-            message,
-            forbiddenConstruct: feedbackItems[0]?.forbiddenConstruct || null,
-            legalReplacementPattern: feedbackItems[0]?.legalReplacementPattern || null,
-          },
-        });
-        await writeModelQualityScoreboard(modelQualityScoreboardPath, modelQualityScoreboard);
+        if (!isArchitectureIntentFailure) {
+          recordModelQualityAttempt(modelQualityScoreboard, {
+            provider: selectedProvider,
+            model: selectedModel,
+            macroId: 'fpga_vhdl_architect',
+            designKey: preset.key,
+            ok: false,
+            failure: {
+              category: diagnostic.category,
+              label: diagnostic.label,
+              failureCode: isContractFailure ? 'architecture_contract_validation_failed' : (feedbackItems[0]?.failureCode || null),
+              stage: isContractFailure ? 'architecture_contract' : (isContextBudgetFailure ? 'context_budget' : 'vhdl_generation'),
+              issueCodes: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.code))).slice(0, 20) : [],
+              issuePaths: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.path))).slice(0, 20) : [],
+              ruleIds: diagnostic.ruleIds,
+              message,
+              forbiddenConstruct: feedbackItems[0]?.forbiddenConstruct || null,
+              legalReplacementPattern: feedbackItems[0]?.legalReplacementPattern || null,
+            },
+          });
+          await writeModelQualityScoreboard(modelQualityScoreboardPath, modelQualityScoreboard);
+        }
         onProgress?.({
           currentLoop: activeGlobalAttempt,
           totalLoops: totalAttempts,

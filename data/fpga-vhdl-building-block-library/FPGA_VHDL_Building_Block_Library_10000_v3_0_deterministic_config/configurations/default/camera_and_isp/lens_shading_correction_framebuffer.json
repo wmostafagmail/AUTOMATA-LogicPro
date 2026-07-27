@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lens_shading_correction_framebuffer",
+  "wrapper_entity": "lens_shading_correction_framebuffer_det_cfg",
+  "configuration_id": "LENS_SHADING_CORRECTION_FRAMEBUFFER_76886AEA71CEB190",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

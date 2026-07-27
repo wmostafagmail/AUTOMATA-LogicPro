@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_gmii_adapter_streaming",
+  "wrapper_entity": "ethernet_gmii_adapter_streaming_det_cfg",
+  "configuration_id": "ETHERNET_GMII_ADAPTER_STREAMING_C9DA9EA1739C21C0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_mac_streaming",
+  "wrapper_entity": "fixed_point_mac_streaming_det_cfg",
+  "configuration_id": "FIXED_POINT_MAC_STREAMING_C4A7EDFA5EEAC2B8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

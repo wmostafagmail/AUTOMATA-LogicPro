@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sector_cache_controller_ecc_protected",
+  "wrapper_entity": "sector_cache_controller_ecc_protected_det_cfg",
+  "configuration_id": "SECTOR_CACHE_CONTROLLER_ECC_PROTECTED_AC2E7F294777C5BF",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

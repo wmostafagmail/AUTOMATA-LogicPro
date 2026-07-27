@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_dma_engine_width_adapted",
+  "wrapper_entity": "pcie_dma_engine_width_adapted_det_cfg",
+  "configuration_id": "PCIE_DMA_ENGINE_WIDTH_ADAPTED_33460945AB2B935D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

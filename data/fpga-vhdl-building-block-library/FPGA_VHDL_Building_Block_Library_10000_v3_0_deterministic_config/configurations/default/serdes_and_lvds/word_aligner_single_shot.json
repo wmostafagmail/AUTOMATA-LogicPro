@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "word_aligner_single_shot",
+  "wrapper_entity": "word_aligner_single_shot_det_cfg",
+  "configuration_id": "WORD_ALIGNER_SINGLE_SHOT_09553F751427B5D7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

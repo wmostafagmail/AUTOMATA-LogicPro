@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_write_turnaround_optimizer_multi_channel",
+  "wrapper_entity": "read_write_turnaround_optimizer_multi_channel_det_cfg",
+  "configuration_id": "READ_WRITE_TURNAROUND_OPTIMIZER_MULTI_CHANNEL_2E7F26A6E2243238",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

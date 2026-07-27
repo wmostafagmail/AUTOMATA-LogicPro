@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_cascade_rate_adaptive",
+  "wrapper_entity": "halfband_cascade_rate_adaptive_det_cfg",
+  "configuration_id": "HALFBAND_CASCADE_RATE_ADAPTIVE_3E5E25EC5F8287B4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

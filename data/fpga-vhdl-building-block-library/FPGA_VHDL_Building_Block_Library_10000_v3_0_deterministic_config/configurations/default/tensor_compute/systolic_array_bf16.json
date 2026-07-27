@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "systolic_array_bf16",
+  "wrapper_entity": "systolic_array_bf16_det_cfg",
+  "configuration_id": "SYSTOLIC_ARRAY_BF16_8F132D4A977CE2B8",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

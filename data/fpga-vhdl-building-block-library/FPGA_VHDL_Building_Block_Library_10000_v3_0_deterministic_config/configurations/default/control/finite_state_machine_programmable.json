@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "finite_state_machine_programmable",
+  "wrapper_entity": "finite_state_machine_programmable_det_cfg",
+  "configuration_id": "FINITE_STATE_MACHINE_PROGRAMMABLE_A9299D244E4DEBC1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

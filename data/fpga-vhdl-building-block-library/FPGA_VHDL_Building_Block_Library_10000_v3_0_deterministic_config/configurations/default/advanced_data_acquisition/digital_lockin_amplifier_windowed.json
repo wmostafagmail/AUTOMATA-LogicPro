@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_windowed",
+  "wrapper_entity": "digital_lockin_amplifier_windowed_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_WINDOWED_EBC5BCCF67532A87",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

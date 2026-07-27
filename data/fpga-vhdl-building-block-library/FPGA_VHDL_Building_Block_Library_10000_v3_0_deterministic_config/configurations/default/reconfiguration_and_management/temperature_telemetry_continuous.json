@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "temperature_telemetry_continuous",
+  "wrapper_entity": "temperature_telemetry_continuous_det_cfg",
+  "configuration_id": "TEMPERATURE_TELEMETRY_CONTINUOUS_EFDC941D7342DA8D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

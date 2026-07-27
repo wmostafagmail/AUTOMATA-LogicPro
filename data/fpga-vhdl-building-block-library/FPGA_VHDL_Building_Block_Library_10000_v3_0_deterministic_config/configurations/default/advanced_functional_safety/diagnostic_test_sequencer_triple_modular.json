@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_triple_modular",
+  "wrapper_entity": "diagnostic_test_sequencer_triple_modular_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_TRIPLE_MODULAR_6C30FAA41021E5F4",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

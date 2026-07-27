@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_rounder_combinational",
+  "wrapper_entity": "decimal_rounder_combinational_det_cfg",
+  "configuration_id": "DECIMAL_ROUNDER_COMBINATIONAL_59250445BB16FE80",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

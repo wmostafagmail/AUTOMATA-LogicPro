@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rasterizer_framebuffer",
+  "wrapper_entity": "rasterizer_framebuffer_det_cfg",
+  "configuration_id": "RASTERIZER_FRAMEBUFFER_09F8A2A139363D6F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

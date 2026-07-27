@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_redundant",
+  "wrapper_entity": "carrier_frequency_estimator_redundant_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_REDUNDANT_91A94E79C51E20AC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

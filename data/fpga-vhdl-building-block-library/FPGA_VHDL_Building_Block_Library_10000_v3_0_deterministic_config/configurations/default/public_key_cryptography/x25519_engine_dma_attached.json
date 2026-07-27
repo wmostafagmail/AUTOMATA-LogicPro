@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "x25519_engine_dma_attached",
+  "wrapper_entity": "x25519_engine_dma_attached_det_cfg",
+  "configuration_id": "X25519_ENGINE_DMA_ATTACHED_4D4FC1E7E48690EC",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "line_buffer",
+  "wrapper_entity": "line_buffer_det_cfg",
+  "configuration_id": "LINE_BUFFER_AC82C1D4596AFCB8",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

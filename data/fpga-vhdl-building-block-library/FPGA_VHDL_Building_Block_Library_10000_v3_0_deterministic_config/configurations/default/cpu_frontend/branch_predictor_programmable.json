@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_predictor_programmable",
+  "wrapper_entity": "branch_predictor_programmable_det_cfg",
+  "configuration_id": "BRANCH_PREDICTOR_PROGRAMMABLE_A8D8DDB281EA1C02",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

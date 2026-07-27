@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_assertion_based",
+  "wrapper_entity": "scan_chain_controller_assertion_based_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_ASSERTION_BASED_DF956CF3D96A66E4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "structured_sparsity_pruner_fully_parallel",
+  "wrapper_entity": "structured_sparsity_pruner_fully_parallel_det_cfg",
+  "configuration_id": "STRUCTURED_SPARSITY_PRUNER_FULLY_PARALLEL_0FD0E6B7079C3680",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

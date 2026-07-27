@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_endpoint",
+  "wrapper_entity": "pcie_sriov_vf_manager_endpoint_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_ENDPOINT_DF5EF8C4B131974E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

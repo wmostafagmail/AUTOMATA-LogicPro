@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_gain_unit_streaming",
+  "wrapper_entity": "audio_gain_unit_streaming_det_cfg",
+  "configuration_id": "AUDIO_GAIN_UNIT_STREAMING_4B8ADA0B53076336",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

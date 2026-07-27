@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_cover_scenario_boundary_focused",
+  "wrapper_entity": "formal_cover_scenario_boundary_focused_det_cfg",
+  "configuration_id": "FORMAL_COVER_SCENARIO_BOUNDARY_FOCUSED_5FA114960C9FC34D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

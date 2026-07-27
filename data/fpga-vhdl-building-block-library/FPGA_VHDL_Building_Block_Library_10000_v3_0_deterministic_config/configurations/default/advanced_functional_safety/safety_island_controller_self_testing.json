@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "safety_island_controller_self_testing",
+  "wrapper_entity": "safety_island_controller_self_testing_det_cfg",
+  "configuration_id": "SAFETY_ISLAND_CONTROLLER_SELF_TESTING_90D5A098A11C8EAB",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

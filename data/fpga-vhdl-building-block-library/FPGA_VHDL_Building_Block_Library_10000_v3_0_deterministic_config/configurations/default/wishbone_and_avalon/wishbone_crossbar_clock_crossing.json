@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_crossbar_clock_crossing",
+  "wrapper_entity": "wishbone_crossbar_clock_crossing_det_cfg",
+  "configuration_id": "WISHBONE_CROSSBAR_CLOCK_CROSSING_F2A2FD945DD0589B",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

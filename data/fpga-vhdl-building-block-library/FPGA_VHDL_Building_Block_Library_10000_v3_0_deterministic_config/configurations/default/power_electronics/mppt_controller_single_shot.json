@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_single_shot",
+  "wrapper_entity": "mppt_controller_single_shot_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_SINGLE_SHOT_BA04EEB1D3A21FE3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

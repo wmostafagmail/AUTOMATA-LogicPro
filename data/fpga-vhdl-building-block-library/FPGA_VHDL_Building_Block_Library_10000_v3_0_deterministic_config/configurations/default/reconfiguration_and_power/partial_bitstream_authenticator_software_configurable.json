@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_software_configurable",
+  "wrapper_entity": "partial_bitstream_authenticator_software_configurable_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_SOFTWARE_CONFIGURABLE_CBB52AF3D21CE6F6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

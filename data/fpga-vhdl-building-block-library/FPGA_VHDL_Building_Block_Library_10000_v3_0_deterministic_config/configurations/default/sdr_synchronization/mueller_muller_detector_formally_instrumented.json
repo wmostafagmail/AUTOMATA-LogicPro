@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_formally_instrumented",
+  "wrapper_entity": "mueller_muller_detector_formally_instrumented_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_FORMALLY_INSTRUMENTED_E9512966790403A7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_save_adder_streaming",
+  "wrapper_entity": "carry_save_adder_streaming_det_cfg",
+  "configuration_id": "CARRY_SAVE_ADDER_STREAMING_B3FB218AD644F40C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

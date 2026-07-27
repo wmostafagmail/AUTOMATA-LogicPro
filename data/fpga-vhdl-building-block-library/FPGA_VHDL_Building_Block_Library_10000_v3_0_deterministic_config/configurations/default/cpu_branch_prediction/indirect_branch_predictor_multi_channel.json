@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "indirect_branch_predictor_multi_channel",
+  "wrapper_entity": "indirect_branch_predictor_multi_channel_det_cfg",
+  "configuration_id": "INDIRECT_BRANCH_PREDICTOR_MULTI_CHANNEL_ABF042607EAD9940",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

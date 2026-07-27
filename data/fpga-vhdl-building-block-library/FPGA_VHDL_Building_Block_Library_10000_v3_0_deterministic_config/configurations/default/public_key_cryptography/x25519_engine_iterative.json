@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "x25519_engine_iterative",
+  "wrapper_entity": "x25519_engine_iterative_det_cfg",
+  "configuration_id": "X25519_ENGINE_ITERATIVE_E0E0E4258C58F8EB",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

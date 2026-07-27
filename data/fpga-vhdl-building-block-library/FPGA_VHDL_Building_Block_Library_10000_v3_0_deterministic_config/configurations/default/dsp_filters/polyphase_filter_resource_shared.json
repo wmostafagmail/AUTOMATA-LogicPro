@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_filter_resource_shared",
+  "wrapper_entity": "polyphase_filter_resource_shared_det_cfg",
+  "configuration_id": "POLYPHASE_FILTER_RESOURCE_SHARED_F796D49FECDAE2EB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 154
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scanline_polygon_filler_framebuffer",
+  "wrapper_entity": "scanline_polygon_filler_framebuffer_det_cfg",
+  "configuration_id": "SCANLINE_POLYGON_FILLER_FRAMEBUFFER_631CEC1DF67A1A3A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

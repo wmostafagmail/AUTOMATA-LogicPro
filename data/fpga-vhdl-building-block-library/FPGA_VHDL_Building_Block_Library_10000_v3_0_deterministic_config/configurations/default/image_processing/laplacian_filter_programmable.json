@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "laplacian_filter_programmable",
+  "wrapper_entity": "laplacian_filter_programmable_det_cfg",
+  "configuration_id": "LAPLACIAN_FILTER_PROGRAMMABLE_D65ED22144D2028C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

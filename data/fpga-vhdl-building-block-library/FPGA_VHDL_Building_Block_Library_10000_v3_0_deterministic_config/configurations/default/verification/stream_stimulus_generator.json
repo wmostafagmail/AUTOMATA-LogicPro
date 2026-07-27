@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "stream_stimulus_generator",
+  "wrapper_entity": "stream_stimulus_generator_det_cfg",
+  "configuration_id": "STREAM_STIMULUS_GENERATOR_A0E18E33EAFDD896",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

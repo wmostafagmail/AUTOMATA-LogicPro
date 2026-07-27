@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_dma_attached",
+  "wrapper_entity": "ip_fragment_reassembly_dma_attached_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_DMA_ATTACHED_ADDDDC30E070AFDD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

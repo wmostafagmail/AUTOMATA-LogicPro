@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_power_monitored",
+  "wrapper_entity": "latent_fault_monitor_power_monitored_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_POWER_MONITORED_387FD12EE763DC62",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

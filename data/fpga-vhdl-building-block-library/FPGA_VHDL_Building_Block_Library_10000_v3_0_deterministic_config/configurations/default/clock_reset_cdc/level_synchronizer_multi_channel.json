@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "level_synchronizer_multi_channel",
+  "wrapper_entity": "level_synchronizer_multi_channel_det_cfg",
+  "configuration_id": "LEVEL_SYNCHRONIZER_MULTI_CHANNEL_35B521ED978D7590",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "gradient_accumulator_fault_detecting",
+  "wrapper_entity": "gradient_accumulator_fault_detecting_det_cfg",
+  "configuration_id": "GRADIENT_ACCUMULATOR_FAULT_DETECTING_68428E0D89417B81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

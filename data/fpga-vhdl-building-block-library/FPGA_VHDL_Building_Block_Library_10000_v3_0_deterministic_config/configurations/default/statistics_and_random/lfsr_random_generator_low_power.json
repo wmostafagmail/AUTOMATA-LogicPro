@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lfsr_random_generator_low_power",
+  "wrapper_entity": "lfsr_random_generator_low_power_det_cfg",
+  "configuration_id": "LFSR_RANDOM_GENERATOR_LOW_POWER_73D2CABFD01732C5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

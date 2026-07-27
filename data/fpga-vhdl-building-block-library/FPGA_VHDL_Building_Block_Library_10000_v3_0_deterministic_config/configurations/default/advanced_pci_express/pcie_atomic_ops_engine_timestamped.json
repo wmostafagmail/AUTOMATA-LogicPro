@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_atomic_ops_engine_timestamped",
+  "wrapper_entity": "pcie_atomic_ops_engine_timestamped_det_cfg",
+  "configuration_id": "PCIE_ATOMIC_OPS_ENGINE_TIMESTAMPED_7ADFF515849CBE44",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

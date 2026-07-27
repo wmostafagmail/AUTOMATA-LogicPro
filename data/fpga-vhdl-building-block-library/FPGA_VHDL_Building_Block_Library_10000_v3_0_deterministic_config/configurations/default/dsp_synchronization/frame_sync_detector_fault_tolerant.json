@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_sync_detector_fault_tolerant",
+  "wrapper_entity": "frame_sync_detector_fault_tolerant_det_cfg",
+  "configuration_id": "FRAME_SYNC_DETECTOR_FAULT_TOLERANT_F6DDCC1338939459",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 52
+  }
+}

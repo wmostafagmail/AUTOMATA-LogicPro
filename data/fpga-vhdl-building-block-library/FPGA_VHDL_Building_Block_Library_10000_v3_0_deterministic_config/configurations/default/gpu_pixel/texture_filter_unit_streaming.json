@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_filter_unit_streaming",
+  "wrapper_entity": "texture_filter_unit_streaming_det_cfg",
+  "configuration_id": "TEXTURE_FILTER_UNIT_STREAMING_8D815699FC4D3AE3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

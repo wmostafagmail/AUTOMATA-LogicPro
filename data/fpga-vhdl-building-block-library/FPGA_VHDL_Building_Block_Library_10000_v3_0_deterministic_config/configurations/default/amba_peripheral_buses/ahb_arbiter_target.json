@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ahb_arbiter_target",
+  "wrapper_entity": "ahb_arbiter_target_det_cfg",
+  "configuration_id": "AHB_ARBITER_TARGET_BDE3E19CED9A920C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

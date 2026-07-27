@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_generator_single_cycle",
+  "wrapper_entity": "crc_generator_single_cycle_det_cfg",
+  "configuration_id": "CRC_GENERATOR_SINGLE_CYCLE_70B6AED1239ED117",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

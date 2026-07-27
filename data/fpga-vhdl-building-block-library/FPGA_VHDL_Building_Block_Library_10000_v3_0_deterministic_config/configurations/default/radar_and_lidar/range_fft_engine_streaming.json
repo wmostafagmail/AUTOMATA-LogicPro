@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "range_fft_engine_streaming",
+  "wrapper_entity": "range_fft_engine_streaming_det_cfg",
+  "configuration_id": "RANGE_FFT_ENGINE_STREAMING_F57CB0E8EC8819A6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 120
+  }
+}

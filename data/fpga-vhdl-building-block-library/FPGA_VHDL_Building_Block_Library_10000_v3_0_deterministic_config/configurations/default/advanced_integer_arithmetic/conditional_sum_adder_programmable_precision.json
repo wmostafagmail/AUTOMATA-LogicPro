@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_programmable_precision",
+  "wrapper_entity": "conditional_sum_adder_programmable_precision_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_PROGRAMMABLE_PRECISION_C8461ACCA5350CAB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

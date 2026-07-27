@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "boundary_scan_tap_formal_friendly",
+  "wrapper_entity": "boundary_scan_tap_formal_friendly_det_cfg",
+  "configuration_id": "BOUNDARY_SCAN_TAP_FORMAL_FRIENDLY_2A657D7F7F86D239",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

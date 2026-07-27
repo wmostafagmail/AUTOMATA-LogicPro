@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spdif_transmitter_target",
+  "wrapper_entity": "spdif_transmitter_target_det_cfg",
+  "configuration_id": "SPDIF_TRANSMITTER_TARGET_8C111280E73D4F87",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batched_gemm_engine_bf16",
+  "wrapper_entity": "batched_gemm_engine_bf16_det_cfg",
+  "configuration_id": "BATCHED_GEMM_ENGINE_BF16_0E6A9AA2B31D1BDA",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

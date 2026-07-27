@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_queue_dual_clock",
+  "wrapper_entity": "credit_queue_dual_clock_det_cfg",
+  "configuration_id": "CREDIT_QUEUE_DUAL_CLOCK_0265E39E89498D77",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

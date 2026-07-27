@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "execution_bypass_network_single_cycle",
+  "wrapper_entity": "execution_bypass_network_single_cycle_det_cfg",
+  "configuration_id": "EXECUTION_BYPASS_NETWORK_SINGLE_CYCLE_2A6D330C3063D0C4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

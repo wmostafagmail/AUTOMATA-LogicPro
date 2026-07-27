@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_priority_aware",
+  "wrapper_entity": "pilot_tracking_loop_priority_aware_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_PRIORITY_AWARE_F663D2850307181E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

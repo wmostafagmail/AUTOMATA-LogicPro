@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wakeup_select_unit_multi_channel",
+  "wrapper_entity": "wakeup_select_unit_multi_channel_det_cfg",
+  "configuration_id": "WAKEUP_SELECT_UNIT_MULTI_CHANNEL_E179E215AF1D2FD5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

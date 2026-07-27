@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_streaming",
+  "wrapper_entity": "affine_blit_engine_streaming_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_STREAMING_F6DC455BFB509F82",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

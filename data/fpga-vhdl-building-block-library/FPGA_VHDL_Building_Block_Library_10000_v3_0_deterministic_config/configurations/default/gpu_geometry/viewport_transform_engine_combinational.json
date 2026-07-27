@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "viewport_transform_engine_combinational",
+  "wrapper_entity": "viewport_transform_engine_combinational_det_cfg",
+  "configuration_id": "VIEWPORT_TRANSFORM_ENGINE_COMBINATIONAL_FFEC09B792F9D28A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

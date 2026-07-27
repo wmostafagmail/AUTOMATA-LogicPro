@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_error_resilient",
+  "wrapper_entity": "affine_blit_engine_error_resilient_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_ERROR_RESILIENT_C66772CE19C9F824",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

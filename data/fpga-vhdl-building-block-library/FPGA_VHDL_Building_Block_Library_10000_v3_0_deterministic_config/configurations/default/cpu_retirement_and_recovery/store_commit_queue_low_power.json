@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_low_power",
+  "wrapper_entity": "store_commit_queue_low_power_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_LOW_POWER_2DD7DEAD0F7A4435",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

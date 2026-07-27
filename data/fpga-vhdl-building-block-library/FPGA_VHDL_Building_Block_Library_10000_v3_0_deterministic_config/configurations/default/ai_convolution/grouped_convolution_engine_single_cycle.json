@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_single_cycle",
+  "wrapper_entity": "grouped_convolution_engine_single_cycle_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_SINGLE_CYCLE_2396AF1D1EC34E0C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

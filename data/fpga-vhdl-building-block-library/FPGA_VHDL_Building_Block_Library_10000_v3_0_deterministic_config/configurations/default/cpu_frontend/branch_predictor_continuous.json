@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_predictor_continuous",
+  "wrapper_entity": "branch_predictor_continuous_det_cfg",
+  "configuration_id": "BRANCH_PREDICTOR_CONTINUOUS_01326A511C455BA4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

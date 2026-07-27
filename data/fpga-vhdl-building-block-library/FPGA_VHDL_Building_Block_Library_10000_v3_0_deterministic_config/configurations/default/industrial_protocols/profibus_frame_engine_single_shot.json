@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profibus_frame_engine_single_shot",
+  "wrapper_entity": "profibus_frame_engine_single_shot_det_cfg",
+  "configuration_id": "PROFIBUS_FRAME_ENGINE_SINGLE_SHOT_3F066193CFE69830",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "triple_modular_voter_programmable",
+  "wrapper_entity": "triple_modular_voter_programmable_det_cfg",
+  "configuration_id": "TRIPLE_MODULAR_VOTER_PROGRAMMABLE_97A85EB20F298883",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

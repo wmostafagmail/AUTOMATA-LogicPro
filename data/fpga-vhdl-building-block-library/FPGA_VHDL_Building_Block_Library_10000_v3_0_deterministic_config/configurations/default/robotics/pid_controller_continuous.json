@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pid_controller_continuous",
+  "wrapper_entity": "pid_controller_continuous_det_cfg",
+  "configuration_id": "PID_CONTROLLER_CONTINUOUS_F585C3ACF30AB9F5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

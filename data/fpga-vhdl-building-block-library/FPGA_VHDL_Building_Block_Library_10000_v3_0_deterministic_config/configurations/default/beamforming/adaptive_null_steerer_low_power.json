@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_low_power",
+  "wrapper_entity": "adaptive_null_steerer_low_power_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_LOW_POWER_9B531D1B790ED0FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

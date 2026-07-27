@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_atomic_ops_engine_target",
+  "wrapper_entity": "pcie_atomic_ops_engine_target_det_cfg",
+  "configuration_id": "PCIE_ATOMIC_OPS_ENGINE_TARGET_E7F9AE12F2192342",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

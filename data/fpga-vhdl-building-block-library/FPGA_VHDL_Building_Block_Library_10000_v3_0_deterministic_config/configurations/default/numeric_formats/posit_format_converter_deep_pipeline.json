@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "posit_format_converter_deep_pipeline",
+  "wrapper_entity": "posit_format_converter_deep_pipeline_det_cfg",
+  "configuration_id": "POSIT_FORMAT_CONVERTER_DEEP_PIPELINE_ECC330A6C13F67E6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

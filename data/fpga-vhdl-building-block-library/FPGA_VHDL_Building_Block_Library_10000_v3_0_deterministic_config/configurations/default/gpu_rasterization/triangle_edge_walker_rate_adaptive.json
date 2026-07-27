@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triangle_edge_walker_rate_adaptive",
+  "wrapper_entity": "triangle_edge_walker_rate_adaptive_det_cfg",
+  "configuration_id": "TRIANGLE_EDGE_WALKER_RATE_ADAPTIVE_7D488C258C994084",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

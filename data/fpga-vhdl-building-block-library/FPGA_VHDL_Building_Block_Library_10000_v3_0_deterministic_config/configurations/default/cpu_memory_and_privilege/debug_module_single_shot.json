@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "debug_module_single_shot",
+  "wrapper_entity": "debug_module_single_shot_det_cfg",
+  "configuration_id": "DEBUG_MODULE_SINGLE_SHOT_72E540D96D8E1A20",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

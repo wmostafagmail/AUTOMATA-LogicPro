@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "up_counter_wraparound",
+  "wrapper_entity": "up_counter_wraparound_det_cfg",
+  "configuration_id": "UP_COUNTER_WRAPAROUND_69DF4CD5085A46C2",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

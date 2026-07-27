@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_router",
+  "wrapper_entity": "jesd204_deterministic_latency_router_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_ROUTER_11CF2C31F86C79D6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

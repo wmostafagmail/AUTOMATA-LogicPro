@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_dma_attached",
+  "wrapper_entity": "chi_snoop_filter_dma_attached_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_DMA_ATTACHED_AA344F9C6809B185",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

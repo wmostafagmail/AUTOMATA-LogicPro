@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "hash_lite_engine",
+  "wrapper_entity": "hash_lite_engine_det_cfg",
+  "configuration_id": "HASH_LITE_ENGINE_1B7C13B8EB3013BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

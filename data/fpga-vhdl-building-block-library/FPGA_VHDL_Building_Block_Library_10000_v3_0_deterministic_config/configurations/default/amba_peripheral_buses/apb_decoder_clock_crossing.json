@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "apb_decoder_clock_crossing",
+  "wrapper_entity": "apb_decoder_clock_crossing_det_cfg",
+  "configuration_id": "APB_DECODER_CLOCK_CROSSING_9B45854534F8505D",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

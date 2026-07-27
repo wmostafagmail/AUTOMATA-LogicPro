@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_refresh_manager_scrubbed",
+  "wrapper_entity": "dram_refresh_manager_scrubbed_det_cfg",
+  "configuration_id": "DRAM_REFRESH_MANAGER_SCRUBBED_C236CD24162C74E8",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

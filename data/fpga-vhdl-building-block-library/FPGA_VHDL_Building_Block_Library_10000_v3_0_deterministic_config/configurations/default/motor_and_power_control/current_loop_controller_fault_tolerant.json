@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "current_loop_controller_fault_tolerant",
+  "wrapper_entity": "current_loop_controller_fault_tolerant_det_cfg",
+  "configuration_id": "CURRENT_LOOP_CONTROLLER_FAULT_TOLERANT_F85F32DB21FE959D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

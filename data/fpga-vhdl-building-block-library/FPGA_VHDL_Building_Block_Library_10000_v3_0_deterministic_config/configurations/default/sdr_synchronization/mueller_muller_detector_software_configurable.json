@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_software_configurable",
+  "wrapper_entity": "mueller_muller_detector_software_configurable_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_SOFTWARE_CONFIGURABLE_F93ED4376F9AA14C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

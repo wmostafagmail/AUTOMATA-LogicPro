@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_xts_engine_high_throughput",
+  "wrapper_entity": "aes_xts_engine_high_throughput_det_cfg",
+  "configuration_id": "AES_XTS_ENGINE_HIGH_THROUGHPUT_41E3F8F33F7922A4",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

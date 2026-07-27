@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_regression_ready",
+  "wrapper_entity": "formal_liveness_monitor_regression_ready_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_REGRESSION_READY_B45DA2E5E8D2566C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_timestamped",
+  "wrapper_entity": "sigma_delta_adc_decimator_timestamped_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_TIMESTAMPED_5248604275653552",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

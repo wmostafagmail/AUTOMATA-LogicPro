@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_channelizer_single_lane",
+  "wrapper_entity": "polyphase_channelizer_single_lane_det_cfg",
+  "configuration_id": "POLYPHASE_CHANNELIZER_SINGLE_LANE_D9FDAFD2DC260FEA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

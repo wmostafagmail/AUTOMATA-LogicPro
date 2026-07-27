@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_ecc_checker_clock_crossing",
+  "wrapper_entity": "mipi_csi2_ecc_checker_clock_crossing_det_cfg",
+  "configuration_id": "MIPI_CSI2_ECC_CHECKER_CLOCK_CROSSING_CF106F581F321A10",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

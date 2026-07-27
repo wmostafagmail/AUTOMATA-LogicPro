@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_subtractor_combinational",
+  "wrapper_entity": "integer_subtractor_combinational_det_cfg",
+  "configuration_id": "INTEGER_SUBTRACTOR_COMBINATIONAL_2475BE4281B555DF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

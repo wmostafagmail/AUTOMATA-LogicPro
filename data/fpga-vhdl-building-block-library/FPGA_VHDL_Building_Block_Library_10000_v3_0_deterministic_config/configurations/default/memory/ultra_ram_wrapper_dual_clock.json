@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ultra_ram_wrapper_dual_clock",
+  "wrapper_entity": "ultra_ram_wrapper_dual_clock_det_cfg",
+  "configuration_id": "ULTRA_RAM_WRAPPER_DUAL_CLOCK_4F7A5D8EDF4C9272",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

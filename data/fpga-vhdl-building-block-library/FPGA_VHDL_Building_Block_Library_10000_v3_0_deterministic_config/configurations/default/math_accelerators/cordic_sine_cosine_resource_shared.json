@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "cordic_sine_cosine_resource_shared",
+  "wrapper_entity": "cordic_sine_cosine_resource_shared_det_cfg",
+  "configuration_id": "CORDIC_SINE_COSINE_RESOURCE_SHARED_293BBBEF2DB2B84E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

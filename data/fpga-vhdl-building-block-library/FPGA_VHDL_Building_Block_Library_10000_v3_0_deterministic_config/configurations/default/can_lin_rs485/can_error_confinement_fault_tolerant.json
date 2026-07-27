@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_error_confinement_fault_tolerant",
+  "wrapper_entity": "can_error_confinement_fault_tolerant_det_cfg",
+  "configuration_id": "CAN_ERROR_CONFINEMENT_FAULT_TOLERANT_158DAFE3718F7184",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

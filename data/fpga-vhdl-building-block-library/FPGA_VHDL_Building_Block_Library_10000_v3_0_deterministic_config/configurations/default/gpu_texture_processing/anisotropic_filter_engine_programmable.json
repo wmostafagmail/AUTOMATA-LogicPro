@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_programmable",
+  "wrapper_entity": "anisotropic_filter_engine_programmable_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_PROGRAMMABLE_E326BDF4FD42602A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

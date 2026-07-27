@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_buffered",
+  "wrapper_entity": "frame_preemption_controller_buffered_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_BUFFERED_58AC56EB6559D0C1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

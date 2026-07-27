@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "commutation_controller_programmable",
+  "wrapper_entity": "commutation_controller_programmable_det_cfg",
+  "configuration_id": "COMMUTATION_CONTROLLER_PROGRAMMABLE_AC13765C816AA6F6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

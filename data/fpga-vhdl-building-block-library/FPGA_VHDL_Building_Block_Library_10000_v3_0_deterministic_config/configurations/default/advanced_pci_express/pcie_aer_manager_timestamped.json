@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_aer_manager_timestamped",
+  "wrapper_entity": "pcie_aer_manager_timestamped_det_cfg",
+  "configuration_id": "PCIE_AER_MANAGER_TIMESTAMPED_47541E3D2D1BDC6A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

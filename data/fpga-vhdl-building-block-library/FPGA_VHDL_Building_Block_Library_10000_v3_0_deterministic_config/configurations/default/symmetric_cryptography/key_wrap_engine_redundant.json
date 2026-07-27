@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_wrap_engine_redundant",
+  "wrapper_entity": "key_wrap_engine_redundant_det_cfg",
+  "configuration_id": "KEY_WRAP_ENGINE_REDUNDANT_59BB16187D4ABC81",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

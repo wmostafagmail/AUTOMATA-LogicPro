@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_sign_engine_side_channel_hardened",
+  "wrapper_entity": "ecdsa_sign_engine_side_channel_hardened_det_cfg",
+  "configuration_id": "ECDSA_SIGN_ENGINE_SIDE_CHANNEL_HARDENED_6887A1C8A02FE6EC",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

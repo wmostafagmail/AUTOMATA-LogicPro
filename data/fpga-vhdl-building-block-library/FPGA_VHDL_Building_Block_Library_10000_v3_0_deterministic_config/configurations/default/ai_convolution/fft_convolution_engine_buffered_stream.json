@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fft_convolution_engine_buffered_stream",
+  "wrapper_entity": "fft_convolution_engine_buffered_stream_det_cfg",
+  "configuration_id": "FFT_CONVOLUTION_ENGINE_BUFFERED_STREAM_E42F6B005830167D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

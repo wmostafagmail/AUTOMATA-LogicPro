@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_lane_alignment_endpoint",
+  "wrapper_entity": "jesd204b_lane_alignment_endpoint_det_cfg",
+  "configuration_id": "JESD204B_LANE_ALIGNMENT_ENDPOINT_D0E8E596B1B0950D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

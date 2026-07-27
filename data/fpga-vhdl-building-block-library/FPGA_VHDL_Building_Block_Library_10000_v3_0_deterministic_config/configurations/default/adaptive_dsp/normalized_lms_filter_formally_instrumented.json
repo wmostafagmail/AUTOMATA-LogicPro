@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_formally_instrumented",
+  "wrapper_entity": "normalized_lms_filter_formally_instrumented_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_FORMALLY_INSTRUMENTED_F9394C040BBAF525",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

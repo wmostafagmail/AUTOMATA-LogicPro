@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rolling_hash_engine_iterative",
+  "wrapper_entity": "rolling_hash_engine_iterative_det_cfg",
+  "configuration_id": "ROLLING_HASH_ENGINE_ITERATIVE_B27EE9A9FCA9354A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

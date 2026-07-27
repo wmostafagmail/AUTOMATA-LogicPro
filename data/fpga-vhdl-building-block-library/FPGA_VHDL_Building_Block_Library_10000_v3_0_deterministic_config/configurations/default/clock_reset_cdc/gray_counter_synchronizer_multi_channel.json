@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_counter_synchronizer_multi_channel",
+  "wrapper_entity": "gray_counter_synchronizer_multi_channel_det_cfg",
+  "configuration_id": "GRAY_COUNTER_SYNCHRONIZER_MULTI_CHANNEL_D9D12E555DA0B4F1",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

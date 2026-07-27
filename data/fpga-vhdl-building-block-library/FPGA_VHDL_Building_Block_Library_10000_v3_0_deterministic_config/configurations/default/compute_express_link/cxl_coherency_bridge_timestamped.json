@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_coherency_bridge_timestamped",
+  "wrapper_entity": "cxl_coherency_bridge_timestamped_det_cfg",
+  "configuration_id": "CXL_COHERENCY_BRIDGE_TIMESTAMPED_34D7F15BF945E087",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_single_cycle",
+  "wrapper_entity": "shader_special_function_unit_single_cycle_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_SINGLE_CYCLE_B5E683918075F03B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spatial_noise_reduction_line_buffered",
+  "wrapper_entity": "spatial_noise_reduction_line_buffered_det_cfg",
+  "configuration_id": "SPATIAL_NOISE_REDUCTION_LINE_BUFFERED_CE074CF67DBAB2DA",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

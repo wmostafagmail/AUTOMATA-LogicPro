@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_error_resilient",
+  "wrapper_entity": "sampler_state_unit_error_resilient_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_ERROR_RESILIENT_16957D0E653A9AF9",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

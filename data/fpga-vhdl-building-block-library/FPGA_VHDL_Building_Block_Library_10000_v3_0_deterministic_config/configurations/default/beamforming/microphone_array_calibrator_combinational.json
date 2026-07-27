@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "microphone_array_calibrator_combinational",
+  "wrapper_entity": "microphone_array_calibrator_combinational_det_cfg",
+  "configuration_id": "MICROPHONE_ARRAY_CALIBRATOR_COMBINATIONAL_CA2E39B448A8FA7E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

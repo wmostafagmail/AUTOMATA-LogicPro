@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "weight_update_engine_buffered_stream",
+  "wrapper_entity": "weight_update_engine_buffered_stream_det_cfg",
+  "configuration_id": "WEIGHT_UPDATE_ENGINE_BUFFERED_STREAM_697A956FE8B2F364",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

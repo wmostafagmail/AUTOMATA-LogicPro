@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "tensor_permutation_engine_bf16",
+  "wrapper_entity": "tensor_permutation_engine_bf16_det_cfg",
+  "configuration_id": "TENSOR_PERMUTATION_ENGINE_BF16_11B1F30A59566226",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

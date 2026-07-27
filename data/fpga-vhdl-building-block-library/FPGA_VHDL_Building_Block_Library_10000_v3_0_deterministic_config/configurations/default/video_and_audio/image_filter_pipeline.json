@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "image_filter_pipeline",
+  "wrapper_entity": "image_filter_pipeline_det_cfg",
+  "configuration_id": "IMAGE_FILTER_PIPELINE_23058DEBC790404A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_core_lockstep_monitor_spatial_redundancy",
+  "wrapper_entity": "dual_core_lockstep_monitor_spatial_redundancy_det_cfg",
+  "configuration_id": "DUAL_CORE_LOCKSTEP_MONITOR_SPATIAL_REDUNDANCY_A7508A03553BA19C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

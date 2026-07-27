@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_lite_bridge_timestamped",
+  "wrapper_entity": "ace_lite_bridge_timestamped_det_cfg",
+  "configuration_id": "ACE_LITE_BRIDGE_TIMESTAMPED_76DCC26003E8A67E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

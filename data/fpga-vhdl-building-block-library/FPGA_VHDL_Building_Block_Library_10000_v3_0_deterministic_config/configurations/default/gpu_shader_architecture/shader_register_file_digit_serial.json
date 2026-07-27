@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_digit_serial",
+  "wrapper_entity": "shader_register_file_digit_serial_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_DIGIT_SERIAL_4E87B7DF6FAB5726",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

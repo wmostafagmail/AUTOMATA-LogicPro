@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bus_bridge_generic",
+  "wrapper_entity": "bus_bridge_generic_det_cfg",
+  "configuration_id": "BUS_BRIDGE_GENERIC_9906C47160313BC4",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

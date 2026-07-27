@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "golden_model_comparator_formal_friendly",
+  "wrapper_entity": "golden_model_comparator_formal_friendly_det_cfg",
+  "configuration_id": "GOLDEN_MODEL_COMPARATOR_FORMAL_FRIENDLY_F60DB07CF072EAFB",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

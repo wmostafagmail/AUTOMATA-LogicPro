@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_high_throughput",
+  "wrapper_entity": "h264_intra_predictor_high_throughput_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_HIGH_THROUGHPUT_27B6A389898E91C4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

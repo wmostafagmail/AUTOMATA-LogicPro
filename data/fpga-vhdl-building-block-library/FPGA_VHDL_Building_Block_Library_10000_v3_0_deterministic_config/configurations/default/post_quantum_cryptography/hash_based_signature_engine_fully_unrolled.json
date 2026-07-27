@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_fully_unrolled",
+  "wrapper_entity": "hash_based_signature_engine_fully_unrolled_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_FULLY_UNROLLED_E91DFD5ED66F7E1A",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

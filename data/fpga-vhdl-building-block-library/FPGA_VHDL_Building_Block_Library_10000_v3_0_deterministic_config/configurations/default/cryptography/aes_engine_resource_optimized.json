@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_engine_resource_optimized",
+  "wrapper_entity": "aes_engine_resource_optimized_det_cfg",
+  "configuration_id": "AES_ENGINE_RESOURCE_OPTIMIZED_39E880740275AE15",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

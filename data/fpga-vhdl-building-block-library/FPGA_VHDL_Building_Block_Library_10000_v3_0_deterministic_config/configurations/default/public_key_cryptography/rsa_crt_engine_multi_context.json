@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_multi_context",
+  "wrapper_entity": "rsa_crt_engine_multi_context_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_MULTI_CONTEXT_A790FF8DC70B32A9",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

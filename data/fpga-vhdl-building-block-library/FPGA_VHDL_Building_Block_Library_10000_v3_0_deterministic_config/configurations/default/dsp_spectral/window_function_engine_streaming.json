@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "window_function_engine_streaming",
+  "wrapper_entity": "window_function_engine_streaming_det_cfg",
+  "configuration_id": "WINDOW_FUNCTION_ENGINE_STREAMING_2642D8203AC7FC48",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 79
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_microcoded",
+  "wrapper_entity": "resonant_converter_controller_microcoded_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_MICROCODED_8584DE190708ED45",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

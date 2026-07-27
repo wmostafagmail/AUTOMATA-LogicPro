@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_multi_plane",
+  "wrapper_entity": "hierarchical_z_unit_multi_plane_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_MULTI_PLANE_BECF44B99340C34C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

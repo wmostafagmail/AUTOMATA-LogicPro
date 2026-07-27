@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fir_decimator_combinational",
+  "wrapper_entity": "fir_decimator_combinational_det_cfg",
+  "configuration_id": "FIR_DECIMATOR_COMBINATIONAL_841C54E2DFFF987C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 228
+  }
+}

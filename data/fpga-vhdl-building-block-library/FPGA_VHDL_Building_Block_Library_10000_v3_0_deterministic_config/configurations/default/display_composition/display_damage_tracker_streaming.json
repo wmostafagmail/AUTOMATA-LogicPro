@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_damage_tracker_streaming",
+  "wrapper_entity": "display_damage_tracker_streaming_det_cfg",
+  "configuration_id": "DISPLAY_DAMAGE_TRACKER_STREAMING_6789D9D602D85413",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

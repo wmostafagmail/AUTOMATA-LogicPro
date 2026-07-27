@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "interrupt_router_low_power",
+  "wrapper_entity": "interrupt_router_low_power_det_cfg",
+  "configuration_id": "INTERRUPT_ROUTER_LOW_POWER_A7CA165A9C187A7C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

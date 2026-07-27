@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_distributed_clock_qos_aware",
+  "wrapper_entity": "ethercat_distributed_clock_qos_aware_det_cfg",
+  "configuration_id": "ETHERCAT_DISTRIBUTED_CLOCK_QOS_AWARE_0442C94A4F73A4EA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

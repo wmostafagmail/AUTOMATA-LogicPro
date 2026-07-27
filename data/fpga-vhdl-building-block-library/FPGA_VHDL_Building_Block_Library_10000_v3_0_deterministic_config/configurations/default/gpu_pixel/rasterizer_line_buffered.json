@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rasterizer_line_buffered",
+  "wrapper_entity": "rasterizer_line_buffered_det_cfg",
+  "configuration_id": "RASTERIZER_LINE_BUFFERED_6AFC6FFA2E9604F0",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

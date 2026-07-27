@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_buffered_stream",
+  "wrapper_entity": "grouped_convolution_engine_buffered_stream_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_BUFFERED_STREAM_D6218CC77490187B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_low_area",
+  "wrapper_entity": "ascon_aead_engine_low_area_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_LOW_AREA_CF629C688533F2CE",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

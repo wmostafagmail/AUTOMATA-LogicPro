@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microsequencer_continuous",
+  "wrapper_entity": "microsequencer_continuous_det_cfg",
+  "configuration_id": "MICROSEQUENCER_CONTINUOUS_3A238D1759EC8263",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

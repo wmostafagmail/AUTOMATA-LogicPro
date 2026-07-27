@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sensor_calibration_unit_low_power",
+  "wrapper_entity": "sensor_calibration_unit_low_power_det_cfg",
+  "configuration_id": "SENSOR_CALIBRATION_UNIT_LOW_POWER_019E3579D8FB34D2",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

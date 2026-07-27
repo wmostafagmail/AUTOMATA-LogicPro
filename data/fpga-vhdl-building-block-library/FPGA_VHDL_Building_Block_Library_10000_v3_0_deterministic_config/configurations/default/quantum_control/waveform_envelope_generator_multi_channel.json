@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_multi_channel",
+  "wrapper_entity": "waveform_envelope_generator_multi_channel_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_MULTI_CHANNEL_1DE5B38ABDDF7402",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

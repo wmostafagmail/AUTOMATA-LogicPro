@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_flow_table_continuous",
+  "wrapper_entity": "packet_flow_table_continuous_det_cfg",
+  "configuration_id": "PACKET_FLOW_TABLE_CONTINUOUS_077177A33D003231",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

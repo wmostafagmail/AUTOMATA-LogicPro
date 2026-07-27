@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_weakening_controller_deadline_aware",
+  "wrapper_entity": "field_weakening_controller_deadline_aware_det_cfg",
+  "configuration_id": "FIELD_WEAKENING_CONTROLLER_DEADLINE_AWARE_9C4A16D23524B624",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

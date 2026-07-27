@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deadlock_avoidance_unit_buffered",
+  "wrapper_entity": "deadlock_avoidance_unit_buffered_det_cfg",
+  "configuration_id": "DEADLOCK_AVOIDANCE_UNIT_BUFFERED_2849DCFBDD3BCE5D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

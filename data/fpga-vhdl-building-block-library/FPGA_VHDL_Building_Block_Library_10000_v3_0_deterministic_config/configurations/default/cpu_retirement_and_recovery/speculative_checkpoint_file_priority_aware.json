@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_priority_aware",
+  "wrapper_entity": "speculative_checkpoint_file_priority_aware_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_PRIORITY_AWARE_EFE3B613C43E6579",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

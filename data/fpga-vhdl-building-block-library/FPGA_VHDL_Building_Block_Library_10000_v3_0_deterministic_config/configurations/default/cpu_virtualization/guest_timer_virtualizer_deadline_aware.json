@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_deadline_aware",
+  "wrapper_entity": "guest_timer_virtualizer_deadline_aware_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_DEADLINE_AWARE_BB55728BD73CAA44",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

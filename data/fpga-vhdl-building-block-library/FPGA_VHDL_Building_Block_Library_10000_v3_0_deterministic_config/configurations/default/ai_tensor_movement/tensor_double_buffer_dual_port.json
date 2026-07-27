@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tensor_double_buffer_dual_port",
+  "wrapper_entity": "tensor_double_buffer_dual_port_det_cfg",
+  "configuration_id": "TENSOR_DOUBLE_BUFFER_DUAL_PORT_E78122D79575D776",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

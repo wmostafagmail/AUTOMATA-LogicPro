@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_clock_crossing",
+  "wrapper_entity": "free_list_allocator_clock_crossing_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_CLOCK_CROSSING_E39A87997AC68B1A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

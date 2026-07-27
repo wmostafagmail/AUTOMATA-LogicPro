@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_memory_device_controller_buffered",
+  "wrapper_entity": "cxl_memory_device_controller_buffered_det_cfg",
+  "configuration_id": "CXL_MEMORY_DEVICE_CONTROLLER_BUFFERED_E43EBE417D2EB380",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_low_power",
+  "wrapper_entity": "path_planning_accelerator_low_power_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_LOW_POWER_F22145ED032EC825",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

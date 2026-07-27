@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_poly1305_engine_key_agile",
+  "wrapper_entity": "chacha20_poly1305_engine_key_agile_det_cfg",
+  "configuration_id": "CHACHA20_POLY1305_ENGINE_KEY_AGILE_A7F92ED65443E2F3",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

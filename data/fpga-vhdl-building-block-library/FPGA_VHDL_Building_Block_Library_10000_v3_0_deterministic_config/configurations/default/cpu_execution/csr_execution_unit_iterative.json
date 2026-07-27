@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "csr_execution_unit_iterative",
+  "wrapper_entity": "csr_execution_unit_iterative_det_cfg",
+  "configuration_id": "CSR_EXECUTION_UNIT_ITERATIVE_6023ED210768C756",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

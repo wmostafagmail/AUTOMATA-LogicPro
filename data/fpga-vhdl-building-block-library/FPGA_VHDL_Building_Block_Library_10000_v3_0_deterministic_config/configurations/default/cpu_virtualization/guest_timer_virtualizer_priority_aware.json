@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_priority_aware",
+  "wrapper_entity": "guest_timer_virtualizer_priority_aware_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_PRIORITY_AWARE_0F57E0EE3578CE9B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

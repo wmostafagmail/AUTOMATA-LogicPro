@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_slave",
+  "wrapper_entity": "spi_slave_det_cfg",
+  "configuration_id": "SPI_SLAVE_57CF7E9492479932",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

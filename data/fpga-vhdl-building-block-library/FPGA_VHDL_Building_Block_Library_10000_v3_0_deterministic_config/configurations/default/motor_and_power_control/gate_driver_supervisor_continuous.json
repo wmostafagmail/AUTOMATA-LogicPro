@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gate_driver_supervisor_continuous",
+  "wrapper_entity": "gate_driver_supervisor_continuous_det_cfg",
+  "configuration_id": "GATE_DRIVER_SUPERVISOR_CONTINUOUS_AD942D7337421A46",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

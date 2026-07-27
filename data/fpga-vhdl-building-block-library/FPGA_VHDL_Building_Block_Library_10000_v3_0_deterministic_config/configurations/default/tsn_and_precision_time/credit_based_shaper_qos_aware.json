@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_qos_aware",
+  "wrapper_entity": "credit_based_shaper_qos_aware_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_QOS_AWARE_84DE0F915D593992",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

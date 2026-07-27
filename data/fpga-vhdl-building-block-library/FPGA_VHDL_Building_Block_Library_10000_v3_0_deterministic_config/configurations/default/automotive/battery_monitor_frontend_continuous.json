@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "battery_monitor_frontend_continuous",
+  "wrapper_entity": "battery_monitor_frontend_continuous_det_cfg",
+  "configuration_id": "BATTERY_MONITOR_FRONTEND_CONTINUOUS_F40FAD4FD30525B9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

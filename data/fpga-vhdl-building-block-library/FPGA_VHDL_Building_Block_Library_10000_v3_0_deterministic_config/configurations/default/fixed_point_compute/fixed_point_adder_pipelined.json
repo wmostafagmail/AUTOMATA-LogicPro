@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_adder_pipelined",
+  "wrapper_entity": "fixed_point_adder_pipelined_det_cfg",
+  "configuration_id": "FIXED_POINT_ADDER_PIPELINED_E4CB216D6F74EF9E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

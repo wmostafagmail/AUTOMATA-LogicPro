@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parity_checker_low_power",
+  "wrapper_entity": "parity_checker_low_power_det_cfg",
+  "configuration_id": "PARITY_CHECKER_LOW_POWER_ABD2D1EAFC6F751C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

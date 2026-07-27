@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_target_buffer_fault_tolerant",
+  "wrapper_entity": "branch_target_buffer_fault_tolerant_det_cfg",
+  "configuration_id": "BRANCH_TARGET_BUFFER_FAULT_TOLERANT_A072F568267B01C4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

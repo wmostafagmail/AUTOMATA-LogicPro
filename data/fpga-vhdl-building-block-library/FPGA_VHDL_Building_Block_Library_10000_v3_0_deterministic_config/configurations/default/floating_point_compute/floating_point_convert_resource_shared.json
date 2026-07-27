@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_convert_resource_shared",
+  "wrapper_entity": "floating_point_convert_resource_shared_det_cfg",
+  "configuration_id": "FLOATING_POINT_CONVERT_RESOURCE_SHARED_927A9D0C5AB856BA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

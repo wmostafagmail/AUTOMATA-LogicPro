@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sprite_overlay_engine",
+  "wrapper_entity": "sprite_overlay_engine_det_cfg",
+  "configuration_id": "SPRITE_OVERLAY_ENGINE_7A98E345D9A82CB8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

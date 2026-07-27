@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "collision_monitor_fault_tolerant",
+  "wrapper_entity": "collision_monitor_fault_tolerant_det_cfg",
+  "configuration_id": "COLLISION_MONITOR_FAULT_TOLERANT_8DD1259A0D70F5DB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "goldschmidt_reciprocal_programmable_precision",
+  "wrapper_entity": "goldschmidt_reciprocal_programmable_precision_det_cfg",
+  "configuration_id": "GOLDSCHMIDT_RECIPROCAL_PROGRAMMABLE_PRECISION_FFECE602B002B972",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

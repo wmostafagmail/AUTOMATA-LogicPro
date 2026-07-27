@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_hypervisor_unit_deep_pipeline",
+  "wrapper_entity": "riscv_hypervisor_unit_deep_pipeline_det_cfg",
+  "configuration_id": "RISCV_HYPERVISOR_UNIT_DEEP_PIPELINE_BB7CB13CBFF9047A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

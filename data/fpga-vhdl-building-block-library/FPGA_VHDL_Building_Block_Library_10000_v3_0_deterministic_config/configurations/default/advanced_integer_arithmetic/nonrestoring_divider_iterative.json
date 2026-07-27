@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "nonrestoring_divider_iterative",
+  "wrapper_entity": "nonrestoring_divider_iterative_det_cfg",
+  "configuration_id": "NONRESTORING_DIVIDER_ITERATIVE_16FB41B59A7F70BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

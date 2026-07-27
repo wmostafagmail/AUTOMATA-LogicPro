@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "weighted_arbiter_low_power",
+    "entity": "weighted_arbiter_low_power",
+    "version": "3.0.0",
+    "category": "interconnect_and_noc",
+    "source": "rtl/blocks/interconnect_and_noc/weighted_arbiter_low_power.vhd",
+    "wrapper_entity": "weighted_arbiter_low_power_det_cfg"
+  },
+  "configuration": {
+    "id": "WEIGHTED_ARBITER_LOW_POWER_DFA26E54C0F7BDA6",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "ADDR_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "ADDR_WIDTH": 32,
+      "DATA_WIDTH": 32
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_write",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_addr",
+        "direction": "in",
+        "type": "std_logic_vector(ADDR_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "req_wdata",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "rsp_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "rsp_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rsp_rdata",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "rsp_error",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/interconnect_and_noc/weighted_arbiter_low_power_det_cfg.vhd",
+    "configuration_file": "configurations/default/weighted_arbiter_low_power.json"
+  }
+}

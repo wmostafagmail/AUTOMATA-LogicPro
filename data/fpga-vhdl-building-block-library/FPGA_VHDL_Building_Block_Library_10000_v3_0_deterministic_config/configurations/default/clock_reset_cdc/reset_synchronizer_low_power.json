@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reset_synchronizer_low_power",
+  "wrapper_entity": "reset_synchronizer_low_power_det_cfg",
+  "configuration_id": "RESET_SYNCHRONIZER_LOW_POWER_7DEEADC76DE623C0",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

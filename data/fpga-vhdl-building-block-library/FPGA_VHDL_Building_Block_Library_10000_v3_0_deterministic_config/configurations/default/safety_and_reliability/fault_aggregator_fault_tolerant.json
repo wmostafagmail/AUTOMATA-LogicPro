@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fault_aggregator_fault_tolerant",
+  "wrapper_entity": "fault_aggregator_fault_tolerant_det_cfg",
+  "configuration_id": "FAULT_AGGREGATOR_FAULT_TOLERANT_D3B299C662407B82",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_decompression_engine_streaming",
+  "wrapper_entity": "texture_decompression_engine_streaming_det_cfg",
+  "configuration_id": "TEXTURE_DECOMPRESSION_ENGINE_STREAMING_3848A5342A873147",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

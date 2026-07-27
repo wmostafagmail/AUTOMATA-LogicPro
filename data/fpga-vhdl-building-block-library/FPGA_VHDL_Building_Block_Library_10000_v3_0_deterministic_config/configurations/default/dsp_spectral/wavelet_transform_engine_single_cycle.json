@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavelet_transform_engine_single_cycle",
+  "wrapper_entity": "wavelet_transform_engine_single_cycle_det_cfg",
+  "configuration_id": "WAVELET_TRANSFORM_ENGINE_SINGLE_CYCLE_308A5169340A8A74",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 21
+  }
+}

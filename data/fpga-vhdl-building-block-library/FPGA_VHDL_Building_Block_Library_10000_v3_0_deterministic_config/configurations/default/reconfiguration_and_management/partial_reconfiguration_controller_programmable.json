@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_reconfiguration_controller_programmable",
+  "wrapper_entity": "partial_reconfiguration_controller_programmable_det_cfg",
+  "configuration_id": "PARTIAL_RECONFIGURATION_CONTROLLER_PROGRAMMABLE_4E7BD9FBA9E6B598",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_transaction_level",
+  "wrapper_entity": "formal_liveness_monitor_transaction_level_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_TRANSACTION_LEVEL_CDB76BBC43EAB774",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

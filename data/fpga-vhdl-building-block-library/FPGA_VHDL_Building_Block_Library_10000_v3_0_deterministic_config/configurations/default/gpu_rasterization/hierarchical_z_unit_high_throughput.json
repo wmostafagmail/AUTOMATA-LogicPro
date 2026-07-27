@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_high_throughput",
+  "wrapper_entity": "hierarchical_z_unit_high_throughput_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_HIGH_THROUGHPUT_73EF19C5218B4EC6",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

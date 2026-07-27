@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triple_modular_redundancy_manager_power_monitored",
+  "wrapper_entity": "triple_modular_redundancy_manager_power_monitored_det_cfg",
+  "configuration_id": "TRIPLE_MODULAR_REDUNDANCY_MANAGER_POWER_MONITORED_6F83F75A4A774942",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

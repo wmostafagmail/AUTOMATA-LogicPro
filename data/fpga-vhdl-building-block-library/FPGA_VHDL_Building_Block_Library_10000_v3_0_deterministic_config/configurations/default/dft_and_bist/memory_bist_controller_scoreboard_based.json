@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_bist_controller_scoreboard_based",
+  "wrapper_entity": "memory_bist_controller_scoreboard_based_det_cfg",
+  "configuration_id": "MEMORY_BIST_CONTROLLER_SCOREBOARD_BASED_2F628FD6BB6B33DB",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

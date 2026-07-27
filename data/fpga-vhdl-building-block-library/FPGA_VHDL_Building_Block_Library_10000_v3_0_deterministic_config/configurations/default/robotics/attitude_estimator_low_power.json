@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "attitude_estimator_low_power",
+  "wrapper_entity": "attitude_estimator_low_power_det_cfg",
+  "configuration_id": "ATTITUDE_ESTIMATOR_LOW_POWER_8E3892CB7A940431",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

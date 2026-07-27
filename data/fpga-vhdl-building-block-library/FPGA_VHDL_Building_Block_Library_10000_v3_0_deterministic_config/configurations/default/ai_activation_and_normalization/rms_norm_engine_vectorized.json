@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "rms_norm_engine_vectorized",
+  "wrapper_entity": "rms_norm_engine_vectorized_det_cfg",
+  "configuration_id": "RMS_NORM_ENGINE_VECTORIZED_692051BA3414EDAC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

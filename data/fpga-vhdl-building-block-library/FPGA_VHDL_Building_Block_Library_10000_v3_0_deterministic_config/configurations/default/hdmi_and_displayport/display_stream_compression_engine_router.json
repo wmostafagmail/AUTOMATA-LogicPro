@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_router",
+  "wrapper_entity": "display_stream_compression_engine_router_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_ROUTER_E603CD69C63DFEF5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "blocks": 10000,
+  "total_generic_parameters": 25297,
+  "total_ports": 97783,
+  "manifests": 10000,
+  "default_configurations": 10000,
+  "default_wrappers": 10000,
+  "mapping_errors": 0,
+  "first_errors": []
+}

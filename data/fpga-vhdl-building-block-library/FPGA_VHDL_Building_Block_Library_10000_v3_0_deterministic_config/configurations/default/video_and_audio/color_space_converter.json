@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "color_space_converter",
+  "wrapper_entity": "color_space_converter_det_cfg",
+  "configuration_id": "COLOR_SPACE_CONVERTER_E4F657608395BD5C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "debug_module_multi_channel",
+  "wrapper_entity": "debug_module_multi_channel_det_cfg",
+  "configuration_id": "DEBUG_MODULE_MULTI_CHANNEL_F5E23C5066AFAF5E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

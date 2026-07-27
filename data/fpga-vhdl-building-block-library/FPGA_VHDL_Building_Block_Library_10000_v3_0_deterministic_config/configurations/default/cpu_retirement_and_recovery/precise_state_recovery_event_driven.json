@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_event_driven",
+  "wrapper_entity": "precise_state_recovery_event_driven_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_EVENT_DRIVEN_F14021139D10A051",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

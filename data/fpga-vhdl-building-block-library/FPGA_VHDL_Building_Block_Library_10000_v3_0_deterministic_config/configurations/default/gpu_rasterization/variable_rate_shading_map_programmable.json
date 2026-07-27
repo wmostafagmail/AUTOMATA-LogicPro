@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "variable_rate_shading_map_programmable",
+  "wrapper_entity": "variable_rate_shading_map_programmable_det_cfg",
+  "configuration_id": "VARIABLE_RATE_SHADING_MAP_PROGRAMMABLE_66CF18624756E4A8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

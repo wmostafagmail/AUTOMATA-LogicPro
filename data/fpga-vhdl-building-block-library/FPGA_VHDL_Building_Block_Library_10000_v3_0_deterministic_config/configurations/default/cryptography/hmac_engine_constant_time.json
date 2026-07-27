@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hmac_engine_constant_time",
+  "wrapper_entity": "hmac_engine_constant_time_det_cfg",
+  "configuration_id": "HMAC_ENGINE_CONSTANT_TIME_84C3AE9988238324",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_microcoded",
+  "wrapper_entity": "pilot_tracking_loop_microcoded_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_MICROCODED_D33BCCB97638D6B2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

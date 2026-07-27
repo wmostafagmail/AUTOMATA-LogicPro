@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_clock_crossing",
+  "wrapper_entity": "storage_phy_oob_controller_clock_crossing_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_CLOCK_CROSSING_6EB08C8C9691C4C7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

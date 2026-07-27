@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_lockstep_checked",
+  "wrapper_entity": "speculative_checkpoint_file_lockstep_checked_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_LOCKSTEP_CHECKED_257B9851E6EED32B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batched_gemm_engine_sparse",
+  "wrapper_entity": "batched_gemm_engine_sparse_det_cfg",
+  "configuration_id": "BATCHED_GEMM_ENGINE_SPARSE_074BFBAFA1FE1629",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

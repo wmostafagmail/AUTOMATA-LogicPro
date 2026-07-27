@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_multiplier_pipelined",
+  "wrapper_entity": "integer_multiplier_pipelined_det_cfg",
+  "configuration_id": "INTEGER_MULTIPLIER_PIPELINED_1306C9B417676E5A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

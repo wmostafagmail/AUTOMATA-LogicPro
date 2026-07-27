@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sample_trigger_engine_low_power",
+  "wrapper_entity": "sample_trigger_engine_low_power_det_cfg",
+  "configuration_id": "SAMPLE_TRIGGER_ENGINE_LOW_POWER_D1847A6B44D73AE7",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

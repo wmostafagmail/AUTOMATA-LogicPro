@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polar_decoder_frame_aware",
+  "wrapper_entity": "polar_decoder_frame_aware_det_cfg",
+  "configuration_id": "POLAR_DECODER_FRAME_AWARE_687ED8C4266DDFEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

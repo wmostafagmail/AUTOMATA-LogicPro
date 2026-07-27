@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_multi_channel",
+  "wrapper_entity": "sata_fis_parser_multi_channel_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_MULTI_CHANNEL_FCF07E46D975E49D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

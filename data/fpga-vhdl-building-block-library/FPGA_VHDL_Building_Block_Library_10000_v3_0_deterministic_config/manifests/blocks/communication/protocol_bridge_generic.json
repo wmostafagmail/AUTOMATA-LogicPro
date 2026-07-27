@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "protocol_bridge_generic",
+    "entity": "protocol_bridge_generic",
+    "version": "3.0.0",
+    "category": "communication",
+    "source": "rtl/blocks/communication/protocol_bridge_generic.vhd",
+    "wrapper_entity": "protocol_bridge_generic_det_cfg"
+  },
+  "configuration": {
+    "id": "PROTOCOL_BRIDGE_GENERIC_D6CB4439730C57D7",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "STATUS_WIDTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "STATUS_WIDTH": 16
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "phy_rx",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "phy_tx",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "phy_oe",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "tx_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "tx_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "tx_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "rx_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "rx_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "status",
+        "direction": "out",
+        "type": "std_logic_vector(STATUS_WIDTH-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "integration_shell_only; external compliant controller/PHY/VIP required"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "C",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/communication/protocol_bridge_generic_det_cfg.vhd",
+    "configuration_file": "configurations/default/protocol_bridge_generic.json"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "elastic_store_multi_channel",
+  "wrapper_entity": "elastic_store_multi_channel_det_cfg",
+  "configuration_id": "ELASTIC_STORE_MULTI_CHANNEL_7A59920BDD1C0467",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

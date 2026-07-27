@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_programmable_precision",
+  "wrapper_entity": "parallel_bit_extract_programmable_precision_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_PROGRAMMABLE_PRECISION_4D3718C2CD16E80C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

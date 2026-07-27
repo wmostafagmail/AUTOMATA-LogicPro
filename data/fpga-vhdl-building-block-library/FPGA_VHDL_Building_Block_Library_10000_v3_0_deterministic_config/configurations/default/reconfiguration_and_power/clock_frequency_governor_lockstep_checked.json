@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clock_frequency_governor_lockstep_checked",
+  "wrapper_entity": "clock_frequency_governor_lockstep_checked_det_cfg",
+  "configuration_id": "CLOCK_FREQUENCY_GOVERNOR_LOCKSTEP_CHECKED_0443979CE901D42D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

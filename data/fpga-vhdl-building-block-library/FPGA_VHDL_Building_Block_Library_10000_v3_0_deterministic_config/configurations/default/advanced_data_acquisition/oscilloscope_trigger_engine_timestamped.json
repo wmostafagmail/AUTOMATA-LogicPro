@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_timestamped",
+  "wrapper_entity": "oscilloscope_trigger_engine_timestamped_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_TIMESTAMPED_844A0C88E87471E1",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

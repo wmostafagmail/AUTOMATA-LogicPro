@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_scoreboard_throughput_checking",
+  "wrapper_entity": "protocol_scoreboard_throughput_checking_det_cfg",
+  "configuration_id": "PROTOCOL_SCOREBOARD_THROUGHPUT_CHECKING_76D5C0D106EA129F",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

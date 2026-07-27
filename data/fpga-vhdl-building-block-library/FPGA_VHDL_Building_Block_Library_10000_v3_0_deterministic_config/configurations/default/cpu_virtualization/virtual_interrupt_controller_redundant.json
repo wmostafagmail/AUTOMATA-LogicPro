@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "virtual_interrupt_controller_redundant",
+  "wrapper_entity": "virtual_interrupt_controller_redundant_det_cfg",
+  "configuration_id": "VIRTUAL_INTERRUPT_CONTROLLER_REDUNDANT_324A7BCFC18FA2B6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

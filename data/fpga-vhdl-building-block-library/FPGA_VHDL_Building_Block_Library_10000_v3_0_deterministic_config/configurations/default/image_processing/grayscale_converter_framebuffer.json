@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "grayscale_converter_framebuffer",
+  "wrapper_entity": "grayscale_converter_framebuffer_det_cfg",
+  "configuration_id": "GRAYSCALE_CONVERTER_FRAMEBUFFER_9CE0BFEDE923C368",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

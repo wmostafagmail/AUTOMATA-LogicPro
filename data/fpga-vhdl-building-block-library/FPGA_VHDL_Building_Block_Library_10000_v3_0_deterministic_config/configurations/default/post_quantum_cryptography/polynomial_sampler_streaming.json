@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polynomial_sampler_streaming",
+  "wrapper_entity": "polynomial_sampler_streaming_det_cfg",
+  "configuration_id": "POLYNOMIAL_SAMPLER_STREAMING_065B4BDF30507BFA",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

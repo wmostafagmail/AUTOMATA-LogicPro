@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "diagnostics_transport_engine_continuous",
+  "wrapper_entity": "diagnostics_transport_engine_continuous_det_cfg",
+  "configuration_id": "DIAGNOSTICS_TRANSPORT_ENGINE_CONTINUOUS_FAE19649E9BB3972",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

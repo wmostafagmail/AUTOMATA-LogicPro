@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_pack_unpack_pipelined",
+  "wrapper_entity": "vector_pack_unpack_pipelined_det_cfg",
+  "configuration_id": "VECTOR_PACK_UNPACK_PIPELINED_736A1BCD3CD064E9",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

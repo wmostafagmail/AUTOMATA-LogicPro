@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_redundant",
+  "wrapper_entity": "capacitance_measurement_engine_redundant_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_REDUNDANT_EDCC0AB8F1D18109",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

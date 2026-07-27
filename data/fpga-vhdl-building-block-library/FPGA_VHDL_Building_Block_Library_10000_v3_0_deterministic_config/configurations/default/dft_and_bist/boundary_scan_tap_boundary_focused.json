@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "boundary_scan_tap_boundary_focused",
+  "wrapper_entity": "boundary_scan_tap_boundary_focused_det_cfg",
+  "configuration_id": "BOUNDARY_SCAN_TAP_BOUNDARY_FOCUSED_F09794C8912E2B2F",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

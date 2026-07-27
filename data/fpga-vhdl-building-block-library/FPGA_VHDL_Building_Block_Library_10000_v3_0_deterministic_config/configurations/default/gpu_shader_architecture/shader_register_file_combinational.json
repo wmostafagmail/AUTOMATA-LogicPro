@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_combinational",
+  "wrapper_entity": "shader_register_file_combinational_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_COMBINATIONAL_36E697052BB48D4C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_projection_filter_pipelined",
+  "wrapper_entity": "affine_projection_filter_pipelined_det_cfg",
+  "configuration_id": "AFFINE_PROJECTION_FILTER_PIPELINED_7491C7D2E133A359",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_streaming",
+  "wrapper_entity": "sparse_cholesky_engine_streaming_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_STREAMING_59F12BD57D8468CD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

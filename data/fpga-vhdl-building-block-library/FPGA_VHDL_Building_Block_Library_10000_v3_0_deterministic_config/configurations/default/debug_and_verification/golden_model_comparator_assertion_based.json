@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "golden_model_comparator_assertion_based",
+  "wrapper_entity": "golden_model_comparator_assertion_based_det_cfg",
+  "configuration_id": "GOLDEN_MODEL_COMPARATOR_ASSERTION_BASED_69E77FF925BCDA10",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

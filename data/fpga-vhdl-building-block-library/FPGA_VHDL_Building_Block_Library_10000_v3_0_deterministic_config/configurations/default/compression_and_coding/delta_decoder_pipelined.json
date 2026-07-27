@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "delta_decoder_pipelined",
+  "wrapper_entity": "delta_decoder_pipelined_det_cfg",
+  "configuration_id": "DELTA_DECODER_PIPELINED_DF89E4638F04ABF2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 233
+  }
+}

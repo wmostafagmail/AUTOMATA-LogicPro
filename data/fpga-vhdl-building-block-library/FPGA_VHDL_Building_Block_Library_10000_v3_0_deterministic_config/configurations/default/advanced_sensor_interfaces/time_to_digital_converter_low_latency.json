@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "time_to_digital_converter_low_latency",
+  "wrapper_entity": "time_to_digital_converter_low_latency_det_cfg",
+  "configuration_id": "TIME_TO_DIGITAL_CONVERTER_LOW_LATENCY_E4EC1F7A1A94CC08",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

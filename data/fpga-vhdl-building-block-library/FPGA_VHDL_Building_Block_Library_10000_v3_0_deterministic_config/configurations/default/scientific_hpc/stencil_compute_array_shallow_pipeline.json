@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stencil_compute_array_shallow_pipeline",
+  "wrapper_entity": "stencil_compute_array_shallow_pipeline_det_cfg",
+  "configuration_id": "STENCIL_COMPUTE_ARRAY_SHALLOW_PIPELINE_15478E788AAAD0E1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

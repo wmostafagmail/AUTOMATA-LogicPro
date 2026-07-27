@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "genomic_kmer_counter_iterative",
+  "wrapper_entity": "genomic_kmer_counter_iterative_det_cfg",
+  "configuration_id": "GENOMIC_KMER_COUNTER_ITERATIVE_80ED06FC786DDAAE",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

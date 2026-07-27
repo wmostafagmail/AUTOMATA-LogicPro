@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "topk_selection_engine_low_power",
+  "wrapper_entity": "topk_selection_engine_low_power_det_cfg",
+  "configuration_id": "TOPK_SELECTION_ENGINE_LOW_POWER_C8B5E5A533C25754",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

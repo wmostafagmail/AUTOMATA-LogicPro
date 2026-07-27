@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "ignition_timing_scheduler_single_shot",
+  "wrapper_entity": "ignition_timing_scheduler_single_shot_det_cfg",
+  "configuration_id": "IGNITION_TIMING_SCHEDULER_SINGLE_SHOT_78B835706AFCD88A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

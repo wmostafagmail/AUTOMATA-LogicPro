@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_saturating",
+  "wrapper_entity": "logarithmic_quantizer_saturating_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_SATURATING_4F549B28E36AC3C8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

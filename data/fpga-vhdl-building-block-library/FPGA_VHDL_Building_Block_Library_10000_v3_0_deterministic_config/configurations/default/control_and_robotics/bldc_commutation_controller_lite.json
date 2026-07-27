@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bldc_commutation_controller_lite",
+  "wrapper_entity": "bldc_commutation_controller_lite_det_cfg",
+  "configuration_id": "BLDC_COMMUTATION_CONTROLLER_LITE_7B5C2B2102BF67B5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_fail_safe",
+  "wrapper_entity": "sensorless_back_emf_observer_fail_safe_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_FAIL_SAFE_19E7C11CF89EFFB7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_endpoint",
+  "wrapper_entity": "ip_fragment_reassembly_endpoint_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_ENDPOINT_03F82A4D6DA9E6D0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

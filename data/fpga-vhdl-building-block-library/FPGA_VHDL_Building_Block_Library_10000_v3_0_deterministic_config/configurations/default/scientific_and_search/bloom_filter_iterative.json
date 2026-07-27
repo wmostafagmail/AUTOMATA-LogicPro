@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bloom_filter_iterative",
+  "wrapper_entity": "bloom_filter_iterative_det_cfg",
+  "configuration_id": "BLOOM_FILTER_ITERATIVE_F40F603545D79FAE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 241
+  }
+}

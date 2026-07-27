@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2c_slave_clock_crossing",
+  "wrapper_entity": "i2c_slave_clock_crossing_det_cfg",
+  "configuration_id": "I2C_SLAVE_CLOCK_CROSSING_6662CCB4DD6C62C3",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

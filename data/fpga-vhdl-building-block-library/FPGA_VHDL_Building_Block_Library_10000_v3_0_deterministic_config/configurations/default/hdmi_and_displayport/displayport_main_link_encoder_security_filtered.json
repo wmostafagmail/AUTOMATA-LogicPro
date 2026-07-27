@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_main_link_encoder_security_filtered",
+  "wrapper_entity": "displayport_main_link_encoder_security_filtered_det_cfg",
+  "configuration_id": "DISPLAYPORT_MAIN_LINK_ENCODER_SECURITY_FILTERED_4496C213744758AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

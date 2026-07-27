@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_macsec_adapter_router",
+  "wrapper_entity": "ethernet_macsec_adapter_router_det_cfg",
+  "configuration_id": "ETHERNET_MACSEC_ADAPTER_ROUTER_714DB2A046E73BE1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

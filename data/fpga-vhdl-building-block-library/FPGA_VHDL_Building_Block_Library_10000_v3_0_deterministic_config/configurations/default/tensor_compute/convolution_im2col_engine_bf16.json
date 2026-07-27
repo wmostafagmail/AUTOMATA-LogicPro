@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_im2col_engine_bf16",
+  "wrapper_entity": "convolution_im2col_engine_bf16_det_cfg",
+  "configuration_id": "CONVOLUTION_IM2COL_ENGINE_BF16_291ABD488D639112",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

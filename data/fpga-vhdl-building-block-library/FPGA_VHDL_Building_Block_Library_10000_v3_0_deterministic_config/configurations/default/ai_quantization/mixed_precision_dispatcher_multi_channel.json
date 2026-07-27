@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_multi_channel",
+  "wrapper_entity": "mixed_precision_dispatcher_multi_channel_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_MULTI_CHANNEL_3021D166D431F43B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "vertex_fetch_engine_resource_shared",
+  "wrapper_entity": "vertex_fetch_engine_resource_shared_det_cfg",
+  "configuration_id": "VERTEX_FETCH_ENGINE_RESOURCE_SHARED_4C4B863ADC121CDE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

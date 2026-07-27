@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_ip_adapter_single_shot",
+  "wrapper_entity": "ethernet_ip_adapter_single_shot_det_cfg",
+  "configuration_id": "ETHERNET_IP_ADAPTER_SINGLE_SHOT_79F21B0229F3F937",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

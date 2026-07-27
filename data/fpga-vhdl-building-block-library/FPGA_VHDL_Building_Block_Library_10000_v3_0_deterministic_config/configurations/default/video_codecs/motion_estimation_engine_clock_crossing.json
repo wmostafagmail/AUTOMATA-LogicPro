@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_clock_crossing",
+  "wrapper_entity": "motion_estimation_engine_clock_crossing_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_CLOCK_CROSSING_7B46D103E8B1CF06",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

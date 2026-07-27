@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "causal_mask_generator_buffered_stream",
+  "wrapper_entity": "causal_mask_generator_buffered_stream_det_cfg",
+  "configuration_id": "CAUSAL_MASK_GENERATOR_BUFFERED_STREAM_162C785A14BD261E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

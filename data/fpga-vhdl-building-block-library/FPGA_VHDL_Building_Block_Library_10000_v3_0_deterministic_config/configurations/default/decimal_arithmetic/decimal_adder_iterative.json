@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_adder_iterative",
+  "wrapper_entity": "decimal_adder_iterative_det_cfg",
+  "configuration_id": "DECIMAL_ADDER_ITERATIVE_48FED08F042B38B4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

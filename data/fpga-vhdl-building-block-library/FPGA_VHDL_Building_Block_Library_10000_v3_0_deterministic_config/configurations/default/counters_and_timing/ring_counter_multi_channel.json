@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "ring_counter_multi_channel",
+  "wrapper_entity": "ring_counter_multi_channel_det_cfg",
+  "configuration_id": "RING_COUNTER_MULTI_CHANNEL_D6A10BCCAE39C713",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

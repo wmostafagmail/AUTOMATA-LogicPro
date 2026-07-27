@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204c_64b66b_codec_clock_crossing",
+  "wrapper_entity": "jesd204c_64b66b_codec_clock_crossing_det_cfg",
+  "configuration_id": "JESD204C_64B66B_CODEC_CLOCK_CROSSING_E25F9734391465FA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

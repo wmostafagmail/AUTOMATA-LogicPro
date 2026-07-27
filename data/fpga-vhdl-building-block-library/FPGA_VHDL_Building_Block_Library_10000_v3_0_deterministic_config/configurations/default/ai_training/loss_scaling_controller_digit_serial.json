@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_digit_serial",
+  "wrapper_entity": "loss_scaling_controller_digit_serial_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_DIGIT_SERIAL_34CBCED1FF416230",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

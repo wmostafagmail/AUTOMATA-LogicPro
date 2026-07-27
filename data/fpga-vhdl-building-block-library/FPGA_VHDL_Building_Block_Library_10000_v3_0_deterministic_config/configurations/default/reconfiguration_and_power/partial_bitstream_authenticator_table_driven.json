@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_table_driven",
+  "wrapper_entity": "partial_bitstream_authenticator_table_driven_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_TABLE_DRIVEN_10F8FB8EB53F495B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

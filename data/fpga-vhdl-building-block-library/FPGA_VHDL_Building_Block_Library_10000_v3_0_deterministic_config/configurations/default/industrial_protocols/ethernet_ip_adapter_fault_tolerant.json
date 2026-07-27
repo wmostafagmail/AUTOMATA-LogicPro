@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_ip_adapter_fault_tolerant",
+  "wrapper_entity": "ethernet_ip_adapter_fault_tolerant_det_cfg",
+  "configuration_id": "ETHERNET_IP_ADAPTER_FAULT_TOLERANT_9116B2437068E337",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

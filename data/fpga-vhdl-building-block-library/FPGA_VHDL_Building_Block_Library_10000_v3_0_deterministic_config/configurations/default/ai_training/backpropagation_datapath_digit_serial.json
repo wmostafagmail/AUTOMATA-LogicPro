@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "backpropagation_datapath_digit_serial",
+  "wrapper_entity": "backpropagation_datapath_digit_serial_det_cfg",
+  "configuration_id": "BACKPROPAGATION_DATAPATH_DIGIT_SERIAL_06794ED7E3CD9E2C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

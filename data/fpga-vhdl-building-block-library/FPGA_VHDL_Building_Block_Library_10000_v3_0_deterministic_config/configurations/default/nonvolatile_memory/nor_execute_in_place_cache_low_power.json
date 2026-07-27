@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nor_execute_in_place_cache_low_power",
+  "wrapper_entity": "nor_execute_in_place_cache_low_power_det_cfg",
+  "configuration_id": "NOR_EXECUTE_IN_PLACE_CACHE_LOW_POWER_320010B84C95BE5C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

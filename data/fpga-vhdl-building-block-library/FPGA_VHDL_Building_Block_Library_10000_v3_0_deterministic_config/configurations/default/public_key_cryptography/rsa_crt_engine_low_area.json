@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_crt_engine_low_area",
+  "wrapper_entity": "rsa_crt_engine_low_area_det_cfg",
+  "configuration_id": "RSA_CRT_ENGINE_LOW_AREA_AA19FE9E21F2EB8D",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

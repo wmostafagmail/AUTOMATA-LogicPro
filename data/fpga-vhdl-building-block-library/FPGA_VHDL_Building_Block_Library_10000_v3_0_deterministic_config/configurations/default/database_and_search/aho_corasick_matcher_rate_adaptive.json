@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aho_corasick_matcher_rate_adaptive",
+  "wrapper_entity": "aho_corasick_matcher_rate_adaptive_det_cfg",
+  "configuration_id": "AHO_CORASICK_MATCHER_RATE_ADAPTIVE_5A2D91F5E63A19AB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

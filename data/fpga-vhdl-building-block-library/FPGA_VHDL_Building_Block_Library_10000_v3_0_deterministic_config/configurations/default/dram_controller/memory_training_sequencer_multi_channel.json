@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_training_sequencer_multi_channel",
+  "wrapper_entity": "memory_training_sequencer_multi_channel_det_cfg",
+  "configuration_id": "MEMORY_TRAINING_SEQUENCER_MULTI_CHANNEL_2C82F5C5F2687181",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

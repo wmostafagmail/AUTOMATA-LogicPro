@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_lpi_controller_protocol_monitor",
+  "wrapper_entity": "ethernet_lpi_controller_protocol_monitor_det_cfg",
+  "configuration_id": "ETHERNET_LPI_CONTROLLER_PROTOCOL_MONITOR_4ACBDE2A5A457413",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

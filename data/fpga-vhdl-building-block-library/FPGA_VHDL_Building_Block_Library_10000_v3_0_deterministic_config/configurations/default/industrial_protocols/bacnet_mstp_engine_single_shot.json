@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bacnet_mstp_engine_single_shot",
+  "wrapper_entity": "bacnet_mstp_engine_single_shot_det_cfg",
+  "configuration_id": "BACNET_MSTP_ENGINE_SINGLE_SHOT_65786906E3DE8D9B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

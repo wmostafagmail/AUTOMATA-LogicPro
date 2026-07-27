@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "deformable_convolution_engine_fully_parallel",
+  "wrapper_entity": "deformable_convolution_engine_fully_parallel_det_cfg",
+  "configuration_id": "DEFORMABLE_CONVOLUTION_ENGINE_FULLY_PARALLEL_C259B1E031068A4D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

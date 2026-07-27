@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_coverage_driven",
+  "wrapper_entity": "trigger_matrix_coverage_driven_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_COVERAGE_DRIVEN_09D4C42F61E0D2F1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

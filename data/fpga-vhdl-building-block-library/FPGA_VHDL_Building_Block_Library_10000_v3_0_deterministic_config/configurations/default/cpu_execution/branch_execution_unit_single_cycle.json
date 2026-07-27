@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_execution_unit_single_cycle",
+  "wrapper_entity": "branch_execution_unit_single_cycle_det_cfg",
+  "configuration_id": "BRANCH_EXECUTION_UNIT_SINGLE_CYCLE_39E033C303C7B753",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

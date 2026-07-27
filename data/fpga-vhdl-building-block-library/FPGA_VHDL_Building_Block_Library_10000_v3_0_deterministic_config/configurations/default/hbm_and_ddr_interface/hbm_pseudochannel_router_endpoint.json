@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hbm_pseudochannel_router_endpoint",
+  "wrapper_entity": "hbm_pseudochannel_router_endpoint_det_cfg",
+  "configuration_id": "HBM_PSEUDOCHANNEL_ROUTER_ENDPOINT_AB21D3E43B2C5AC1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

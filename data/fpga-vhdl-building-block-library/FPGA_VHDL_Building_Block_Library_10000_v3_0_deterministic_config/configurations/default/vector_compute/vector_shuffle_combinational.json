@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_shuffle_combinational",
+  "wrapper_entity": "vector_shuffle_combinational_det_cfg",
+  "configuration_id": "VECTOR_SHUFFLE_COMBINATIONAL_254EF90C6B2ACC23",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

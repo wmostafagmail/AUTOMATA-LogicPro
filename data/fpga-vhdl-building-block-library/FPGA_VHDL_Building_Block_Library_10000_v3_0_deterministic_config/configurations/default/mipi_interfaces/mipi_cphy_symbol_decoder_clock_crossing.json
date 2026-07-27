@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_clock_crossing",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_clock_crossing_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_CLOCK_CROSSING_215DDAA8219A9BFD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

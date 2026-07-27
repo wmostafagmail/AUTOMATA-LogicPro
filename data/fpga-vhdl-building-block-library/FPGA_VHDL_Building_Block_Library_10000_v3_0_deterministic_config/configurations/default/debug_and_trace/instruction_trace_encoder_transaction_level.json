@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_trace_encoder_transaction_level",
+  "wrapper_entity": "instruction_trace_encoder_transaction_level_det_cfg",
+  "configuration_id": "INSTRUCTION_TRACE_ENCODER_TRANSACTION_LEVEL_FB3A6652D93FBAA7",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

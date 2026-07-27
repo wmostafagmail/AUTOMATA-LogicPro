@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_im2col_engine_int8",
+  "wrapper_entity": "convolution_im2col_engine_int8_det_cfg",
+  "configuration_id": "CONVOLUTION_IM2COL_ENGINE_INT8_FE4BC6BEA2F0614C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

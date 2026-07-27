@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_timestamped",
+  "wrapper_entity": "ptp_clock_servo_timestamped_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_TIMESTAMPED_C44F2CDF560475CA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

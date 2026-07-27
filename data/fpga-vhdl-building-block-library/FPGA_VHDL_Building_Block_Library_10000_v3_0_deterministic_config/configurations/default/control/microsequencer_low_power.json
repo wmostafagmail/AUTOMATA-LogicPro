@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microsequencer_low_power",
+  "wrapper_entity": "microsequencer_low_power_det_cfg",
+  "configuration_id": "MICROSEQUENCER_LOW_POWER_83252C6C8E24E318",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

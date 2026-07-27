@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profibus_frame_engine_programmable",
+  "wrapper_entity": "profibus_frame_engine_programmable_det_cfg",
+  "configuration_id": "PROFIBUS_FRAME_ENGINE_PROGRAMMABLE_7F8BC60A61CC930E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

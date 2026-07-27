@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "prefix_adder_streaming",
+  "wrapper_entity": "prefix_adder_streaming_det_cfg",
+  "configuration_id": "PREFIX_ADDER_STREAMING_BFBFD45617C6D27D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

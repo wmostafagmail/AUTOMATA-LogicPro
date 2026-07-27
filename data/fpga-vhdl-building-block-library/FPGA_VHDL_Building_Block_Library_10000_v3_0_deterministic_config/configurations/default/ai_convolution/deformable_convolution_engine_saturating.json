@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "deformable_convolution_engine_saturating",
+  "wrapper_entity": "deformable_convolution_engine_saturating_det_cfg",
+  "configuration_id": "DEFORMABLE_CONVOLUTION_ENGINE_SATURATING_AA6B487865BA855D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

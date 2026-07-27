@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "monte_carlo_engine_combinational",
+  "wrapper_entity": "monte_carlo_engine_combinational_det_cfg",
+  "configuration_id": "MONTE_CARLO_ENGINE_COMBINATIONAL_38061C628B91D235",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 251
+  }
+}

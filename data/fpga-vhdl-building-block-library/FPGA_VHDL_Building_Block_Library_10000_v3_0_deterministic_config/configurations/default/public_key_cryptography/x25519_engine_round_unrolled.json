@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "x25519_engine_round_unrolled",
+  "wrapper_entity": "x25519_engine_round_unrolled_det_cfg",
+  "configuration_id": "X25519_ENGINE_ROUND_UNROLLED_E5CF3FE472AF7FF9",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

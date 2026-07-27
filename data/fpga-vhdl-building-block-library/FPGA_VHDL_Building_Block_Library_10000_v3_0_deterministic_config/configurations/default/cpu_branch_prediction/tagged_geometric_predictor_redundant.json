@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_redundant",
+  "wrapper_entity": "tagged_geometric_predictor_redundant_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_REDUNDANT_89947D8E422E7AD0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

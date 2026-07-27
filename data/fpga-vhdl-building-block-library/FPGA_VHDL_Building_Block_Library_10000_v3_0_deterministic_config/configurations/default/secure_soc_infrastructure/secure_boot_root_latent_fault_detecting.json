@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_latent_fault_detecting",
+  "wrapper_entity": "secure_boot_root_latent_fault_detecting_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_LATENT_FAULT_DETECTING_FF3DB69E9904546D",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

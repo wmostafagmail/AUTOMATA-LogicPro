@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_vectorized",
+  "wrapper_entity": "mixed_precision_dispatcher_vectorized_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_VECTORIZED_87DFB23B91DB0F4D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

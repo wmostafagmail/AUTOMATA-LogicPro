@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_saturating",
+  "wrapper_entity": "riscv_crypto_unit_saturating_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_SATURATING_AB1D2CF3B3564B1F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

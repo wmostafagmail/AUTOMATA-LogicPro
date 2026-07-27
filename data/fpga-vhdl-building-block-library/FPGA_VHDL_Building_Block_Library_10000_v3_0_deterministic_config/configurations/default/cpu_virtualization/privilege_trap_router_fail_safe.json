@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_fail_safe",
+  "wrapper_entity": "privilege_trap_router_fail_safe_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_FAIL_SAFE_7E1634C59C0CC2D9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

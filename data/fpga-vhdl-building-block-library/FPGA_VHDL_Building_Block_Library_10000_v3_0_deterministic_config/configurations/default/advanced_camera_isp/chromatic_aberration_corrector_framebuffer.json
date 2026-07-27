@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chromatic_aberration_corrector_framebuffer",
+  "wrapper_entity": "chromatic_aberration_corrector_framebuffer_det_cfg",
+  "configuration_id": "CHROMATIC_ABERRATION_CORRECTOR_FRAMEBUFFER_BFD5F60A006001DC",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

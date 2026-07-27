@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "argmax_engine_int8",
+  "wrapper_entity": "argmax_engine_int8_det_cfg",
+  "configuration_id": "ARGMAX_ENGINE_INT8_CFD744765558DB0E",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_dma_attached",
+  "wrapper_entity": "storage_phy_oob_controller_dma_attached_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_DMA_ATTACHED_FC27E5F5B80F257F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

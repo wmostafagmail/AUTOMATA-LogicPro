@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kv_cache_allocator_burst_optimized",
+  "wrapper_entity": "kv_cache_allocator_burst_optimized_det_cfg",
+  "configuration_id": "KV_CACHE_ALLOCATOR_BURST_OPTIMIZED_FA07DDD4284917B5",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

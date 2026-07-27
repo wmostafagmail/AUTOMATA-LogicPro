@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_temporal_redundancy",
+  "wrapper_entity": "key_vault_controller_temporal_redundancy_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_TEMPORAL_REDUNDANCY_747B5E4C03B984A2",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

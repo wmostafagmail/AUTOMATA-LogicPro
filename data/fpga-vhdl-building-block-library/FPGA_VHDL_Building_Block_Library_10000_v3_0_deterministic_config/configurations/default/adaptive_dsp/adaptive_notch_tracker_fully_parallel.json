@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_notch_tracker_fully_parallel",
+  "wrapper_entity": "adaptive_notch_tracker_fully_parallel_det_cfg",
+  "configuration_id": "ADAPTIVE_NOTCH_TRACKER_FULLY_PARALLEL_82DD08136097832C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

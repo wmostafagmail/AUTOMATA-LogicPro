@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "denormal_handler_buffered_stream",
+  "wrapper_entity": "denormal_handler_buffered_stream_det_cfg",
+  "configuration_id": "DENORMAL_HANDLER_BUFFERED_STREAM_1A0AFF605FA0633B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

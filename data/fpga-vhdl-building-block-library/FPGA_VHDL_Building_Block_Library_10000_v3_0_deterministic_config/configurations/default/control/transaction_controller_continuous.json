@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "transaction_controller_continuous",
+  "wrapper_entity": "transaction_controller_continuous_det_cfg",
+  "configuration_id": "TRANSACTION_CONTROLLER_CONTINUOUS_BDA41DAE2EEFB8D2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

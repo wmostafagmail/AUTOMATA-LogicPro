@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_peripheral",
+  "wrapper_entity": "wishbone_peripheral_det_cfg",
+  "configuration_id": "WISHBONE_PERIPHERAL_B27FB107100290DC",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

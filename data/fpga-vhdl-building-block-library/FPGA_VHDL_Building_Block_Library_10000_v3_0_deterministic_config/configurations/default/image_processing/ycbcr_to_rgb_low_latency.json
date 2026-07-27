@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ycbcr_to_rgb_low_latency",
+  "wrapper_entity": "ycbcr_to_rgb_low_latency_det_cfg",
+  "configuration_id": "YCBCR_TO_RGB_LOW_LATENCY_9E7CC466FCC6EA2A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_single_cycle",
+  "wrapper_entity": "adaptive_null_steerer_single_cycle_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_SINGLE_CYCLE_6CFE0CBF20D6D34D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

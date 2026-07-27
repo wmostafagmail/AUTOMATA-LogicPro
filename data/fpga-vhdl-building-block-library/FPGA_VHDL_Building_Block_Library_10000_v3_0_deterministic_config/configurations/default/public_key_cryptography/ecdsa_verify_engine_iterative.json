@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_verify_engine_iterative",
+  "wrapper_entity": "ecdsa_verify_engine_iterative_det_cfg",
+  "configuration_id": "ECDSA_VERIFY_ENGINE_ITERATIVE_D15454F2DB81A867",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

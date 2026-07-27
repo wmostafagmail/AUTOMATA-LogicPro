@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_formally_instrumented",
+  "wrapper_entity": "mppt_controller_formally_instrumented_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_FORMALLY_INSTRUMENTED_03FD101118B6C0DE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

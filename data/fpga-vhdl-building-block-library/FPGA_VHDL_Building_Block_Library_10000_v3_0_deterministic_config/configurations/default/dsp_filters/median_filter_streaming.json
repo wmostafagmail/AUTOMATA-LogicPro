@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "median_filter_streaming",
+  "wrapper_entity": "median_filter_streaming_det_cfg",
+  "configuration_id": "MEDIAN_FILTER_STREAMING_8B54E59C66B98E18",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 190
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_microcoded",
+  "wrapper_entity": "guest_timer_virtualizer_microcoded_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_MICROCODED_874AB79366F102B9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_skip_controller_int8",
+  "wrapper_entity": "zero_skip_controller_int8_det_cfg",
+  "configuration_id": "ZERO_SKIP_CONTROLLER_INT8_EDC29148F1B6E181",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

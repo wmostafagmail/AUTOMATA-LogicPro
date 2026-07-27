@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_initiator",
+  "wrapper_entity": "credit_based_shaper_initiator_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_INITIATOR_3BF7D8253B02241E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

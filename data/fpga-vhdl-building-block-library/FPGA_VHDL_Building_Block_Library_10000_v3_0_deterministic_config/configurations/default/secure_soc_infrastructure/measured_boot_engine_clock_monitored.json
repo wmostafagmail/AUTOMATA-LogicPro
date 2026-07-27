@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_clock_monitored",
+  "wrapper_entity": "measured_boot_engine_clock_monitored_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_CLOCK_MONITORED_374E77F287B4ABAB",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

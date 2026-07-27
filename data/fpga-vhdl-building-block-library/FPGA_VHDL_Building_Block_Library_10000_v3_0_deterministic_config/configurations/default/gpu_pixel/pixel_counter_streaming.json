@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "pixel_counter_streaming",
+  "wrapper_entity": "pixel_counter_streaming_det_cfg",
+  "configuration_id": "PIXEL_COUNTER_STREAMING_7BB4120AFB5E4396",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

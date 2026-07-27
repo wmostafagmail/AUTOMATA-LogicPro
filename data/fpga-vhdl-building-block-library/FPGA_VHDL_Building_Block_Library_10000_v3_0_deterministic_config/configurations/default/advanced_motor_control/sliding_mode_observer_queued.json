@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_queued",
+  "wrapper_entity": "sliding_mode_observer_queued_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_QUEUED_98F66162ED0E04C5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

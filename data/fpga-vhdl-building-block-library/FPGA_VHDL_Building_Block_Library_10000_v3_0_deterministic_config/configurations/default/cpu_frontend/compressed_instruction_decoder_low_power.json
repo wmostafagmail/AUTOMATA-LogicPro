@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "compressed_instruction_decoder_low_power",
+  "wrapper_entity": "compressed_instruction_decoder_low_power_det_cfg",
+  "configuration_id": "COMPRESSED_INSTRUCTION_DECODER_LOW_POWER_A251950D1EEDD602",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

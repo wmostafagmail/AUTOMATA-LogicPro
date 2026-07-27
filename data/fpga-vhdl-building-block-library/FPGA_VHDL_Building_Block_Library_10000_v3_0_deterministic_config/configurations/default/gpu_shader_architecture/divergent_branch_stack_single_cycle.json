@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_single_cycle",
+  "wrapper_entity": "divergent_branch_stack_single_cycle_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_SINGLE_CYCLE_D7A2B3CA4CD19ACF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

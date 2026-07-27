@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_device_dma_fault_tolerant",
+  "wrapper_entity": "block_device_dma_fault_tolerant_det_cfg",
+  "configuration_id": "BLOCK_DEVICE_DMA_FAULT_TOLERANT_B586C6AC7CA0180E",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

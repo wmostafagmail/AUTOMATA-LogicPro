@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_low_power",
+  "wrapper_entity": "loss_scaling_controller_low_power_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_LOW_POWER_1B001B0A38DF4BB7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

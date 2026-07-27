@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "linear_dma_single_shot",
+  "wrapper_entity": "linear_dma_single_shot_det_cfg",
+  "configuration_id": "LINEAR_DMA_SINGLE_SHOT_C834AD3D6C741A35",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

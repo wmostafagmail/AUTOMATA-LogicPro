@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reed_solomon_encoder_pipelined",
+  "wrapper_entity": "reed_solomon_encoder_pipelined_det_cfg",
+  "configuration_id": "REED_SOLOMON_ENCODER_PIPELINED_EA36DF3D5CC1E29A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

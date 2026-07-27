@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_ats_controller_timestamped",
+  "wrapper_entity": "pcie_ats_controller_timestamped_det_cfg",
+  "configuration_id": "PCIE_ATS_CONTROLLER_TIMESTAMPED_907CC05CC1CD0F81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_priority_aware",
+  "wrapper_entity": "feedback_latency_controller_priority_aware_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_PRIORITY_AWARE_7E7360A6BC4C08AE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

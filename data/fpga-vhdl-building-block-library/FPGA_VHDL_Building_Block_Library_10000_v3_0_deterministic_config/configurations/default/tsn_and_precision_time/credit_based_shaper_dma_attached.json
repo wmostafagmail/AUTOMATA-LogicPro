@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_dma_attached",
+  "wrapper_entity": "credit_based_shaper_dma_attached_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_DMA_ATTACHED_5F4B81564DFBE9FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

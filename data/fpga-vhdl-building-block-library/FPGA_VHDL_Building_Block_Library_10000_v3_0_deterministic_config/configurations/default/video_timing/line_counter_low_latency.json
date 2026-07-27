@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "line_counter_low_latency",
+  "wrapper_entity": "line_counter_low_latency_det_cfg",
+  "configuration_id": "LINE_COUNTER_LOW_LATENCY_01AABC578EBAE755",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

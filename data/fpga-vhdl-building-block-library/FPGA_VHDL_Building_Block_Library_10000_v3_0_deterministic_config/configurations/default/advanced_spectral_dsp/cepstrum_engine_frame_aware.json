@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cepstrum_engine_frame_aware",
+  "wrapper_entity": "cepstrum_engine_frame_aware_det_cfg",
+  "configuration_id": "CEPSTRUM_ENGINE_FRAME_AWARE_C97AA2C0828ED617",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

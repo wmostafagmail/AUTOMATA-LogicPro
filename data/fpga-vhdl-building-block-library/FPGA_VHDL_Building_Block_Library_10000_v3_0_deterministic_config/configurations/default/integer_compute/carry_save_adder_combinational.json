@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_save_adder_combinational",
+  "wrapper_entity": "carry_save_adder_combinational_det_cfg",
+  "configuration_id": "CARRY_SAVE_ADDER_COMBINATIONAL_C53DE347AAC9B54A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

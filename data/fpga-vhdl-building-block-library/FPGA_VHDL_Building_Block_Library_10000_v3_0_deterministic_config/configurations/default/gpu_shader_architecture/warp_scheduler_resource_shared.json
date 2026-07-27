@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "warp_scheduler_resource_shared",
+  "wrapper_entity": "warp_scheduler_resource_shared_det_cfg",
+  "configuration_id": "WARP_SCHEDULER_RESOURCE_SHARED_9FD21FD9BA7E834C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

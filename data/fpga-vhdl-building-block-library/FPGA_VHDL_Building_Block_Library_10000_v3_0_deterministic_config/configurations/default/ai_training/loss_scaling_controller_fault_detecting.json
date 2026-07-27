@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_fault_detecting",
+  "wrapper_entity": "loss_scaling_controller_fault_detecting_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_FAULT_DETECTING_6147CCD522CE2B6F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

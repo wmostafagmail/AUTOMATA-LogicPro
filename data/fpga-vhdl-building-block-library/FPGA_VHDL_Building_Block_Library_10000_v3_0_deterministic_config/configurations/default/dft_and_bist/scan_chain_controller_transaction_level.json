@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_transaction_level",
+  "wrapper_entity": "scan_chain_controller_transaction_level_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_TRANSACTION_LEVEL_07E67736B5DE766D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_clock_crossing",
+  "wrapper_entity": "mueller_muller_detector_clock_crossing_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_CLOCK_CROSSING_D0C7C3F211EFF0B6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

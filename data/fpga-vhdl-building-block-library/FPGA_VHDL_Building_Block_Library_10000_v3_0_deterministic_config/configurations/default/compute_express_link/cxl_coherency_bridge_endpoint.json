@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_coherency_bridge_endpoint",
+  "wrapper_entity": "cxl_coherency_bridge_endpoint_det_cfg",
+  "configuration_id": "CXL_COHERENCY_BRIDGE_ENDPOINT_164C634D0EC4ED77",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

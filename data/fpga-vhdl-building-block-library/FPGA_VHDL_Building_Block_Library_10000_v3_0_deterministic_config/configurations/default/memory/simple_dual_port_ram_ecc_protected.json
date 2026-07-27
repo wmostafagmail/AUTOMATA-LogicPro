@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "simple_dual_port_ram_ecc_protected",
+  "wrapper_entity": "simple_dual_port_ram_ecc_protected_det_cfg",
+  "configuration_id": "SIMPLE_DUAL_PORT_RAM_ECC_PROTECTED_C175F93324CA1ECC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

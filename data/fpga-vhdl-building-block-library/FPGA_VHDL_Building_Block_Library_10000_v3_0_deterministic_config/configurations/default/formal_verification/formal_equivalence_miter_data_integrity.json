@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_data_integrity",
+  "wrapper_entity": "formal_equivalence_miter_data_integrity_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_DATA_INTEGRITY_F0F5AE0B11616DA1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

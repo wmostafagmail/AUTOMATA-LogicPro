@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "predistortion_engine_resource_shared",
+  "wrapper_entity": "predistortion_engine_resource_shared_det_cfg",
+  "configuration_id": "PREDISTORTION_ENGINE_RESOURCE_SHARED_8A10F68982846BC0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 22
+  }
+}

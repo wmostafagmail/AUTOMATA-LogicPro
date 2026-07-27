@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "tensor_mac_array_int8",
+  "wrapper_entity": "tensor_mac_array_int8_det_cfg",
+  "configuration_id": "TENSOR_MAC_ARRAY_INT8_06D8D039AB8FF680",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

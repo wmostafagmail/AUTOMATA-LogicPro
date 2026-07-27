@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "warp_scheduler_low_power",
+  "wrapper_entity": "warp_scheduler_low_power_det_cfg",
+  "configuration_id": "WARP_SCHEDULER_LOW_POWER_FC511787F225E24C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_telemetry_continuous",
+  "wrapper_entity": "power_telemetry_continuous_det_cfg",
+  "configuration_id": "POWER_TELEMETRY_CONTINUOUS_E059695458A86A36",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

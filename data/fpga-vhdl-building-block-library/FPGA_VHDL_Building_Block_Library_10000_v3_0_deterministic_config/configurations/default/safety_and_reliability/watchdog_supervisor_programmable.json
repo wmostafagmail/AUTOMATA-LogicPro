@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_supervisor_programmable",
+  "wrapper_entity": "watchdog_supervisor_programmable_det_cfg",
+  "configuration_id": "WATCHDOG_SUPERVISOR_PROGRAMMABLE_448F04A7281C0207",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

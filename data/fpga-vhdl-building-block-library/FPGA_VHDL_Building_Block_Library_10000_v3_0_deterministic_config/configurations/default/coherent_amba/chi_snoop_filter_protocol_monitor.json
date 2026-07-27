@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_protocol_monitor",
+  "wrapper_entity": "chi_snoop_filter_protocol_monitor_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_PROTOCOL_MONITOR_89D2DE86EF2AC530",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

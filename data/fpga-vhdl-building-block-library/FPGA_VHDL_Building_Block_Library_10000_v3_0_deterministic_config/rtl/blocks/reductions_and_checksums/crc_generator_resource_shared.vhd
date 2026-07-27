@@ -1,0 +1,12 @@
+-- Auto-generated from FPGA Building Block Catalog BB-1576
+-- Block: crc_generator_resource_shared
+-- Category: Reductions and Checksums / Reductions, CRC and hashing
+-- Implementation tier: A
+-- Verification status: static-validated source; run supplied GHDL regression before release.
+-- Protocol status: not_applicable_or_internal_contract
+-- Timing status: requires synthesis, place-and-route, and constraints for the selected FPGA/clock
+-- CDC status: single_clock_default; integration CDC review required
+-- Numerical status: bit-accurate integer behavior for implemented operation subset
+library ieee; use ieee.std_logic_1164.all;
+entity crc_generator_resource_shared is generic(DATA_WIDTH:positive:=8);port(clk,rst_n,clear:in std_logic;data_in:in std_logic_vector(DATA_WIDTH-1 downto 0);data_valid:in std_logic;crc_out:out std_logic_vector(31 downto 0);crc_valid:out std_logic);end entity;
+architecture rtl of crc_generator_resource_shared is begin u_core:entity work.bb_crc32_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst_n=>rst_n,clear=>clear,data_in=>data_in,data_valid=>data_valid,crc_out=>crc_out,crc_valid=>crc_valid);end architecture;

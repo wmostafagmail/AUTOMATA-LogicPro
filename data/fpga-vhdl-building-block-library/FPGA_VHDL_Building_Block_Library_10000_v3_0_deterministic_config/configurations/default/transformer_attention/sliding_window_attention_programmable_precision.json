@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_programmable_precision",
+  "wrapper_entity": "sliding_window_attention_programmable_precision_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_PROGRAMMABLE_PRECISION_F8FD31A7716B6486",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "oscilloscope_trigger_engine_redundant",
+  "wrapper_entity": "oscilloscope_trigger_engine_redundant_det_cfg",
+  "configuration_id": "OSCILLOSCOPE_TRIGGER_ENGINE_REDUNDANT_A36E8F58CF6DD07A",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "irig_b_decoder_fault_tolerant",
+  "wrapper_entity": "irig_b_decoder_fault_tolerant_det_cfg",
+  "configuration_id": "IRIG_B_DECODER_FAULT_TOLERANT_5341601C297E8A53",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

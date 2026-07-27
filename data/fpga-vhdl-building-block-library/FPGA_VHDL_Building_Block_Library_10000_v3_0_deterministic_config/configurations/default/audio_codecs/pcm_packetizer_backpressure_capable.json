@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcm_packetizer_backpressure_capable",
+  "wrapper_entity": "pcm_packetizer_backpressure_capable_det_cfg",
+  "configuration_id": "PCM_PACKETIZER_BACKPRESSURE_CAPABLE_576D90279E115CA5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

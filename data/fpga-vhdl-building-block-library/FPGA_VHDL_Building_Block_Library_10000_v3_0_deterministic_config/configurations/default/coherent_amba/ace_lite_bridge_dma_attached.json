@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ace_lite_bridge_dma_attached",
+  "wrapper_entity": "ace_lite_bridge_dma_attached_det_cfg",
+  "configuration_id": "ACE_LITE_BRIDGE_DMA_ATTACHED_30F74DD745BA8F5D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

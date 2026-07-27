@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_peripheral",
+  "wrapper_entity": "pwm_peripheral_det_cfg",
+  "configuration_id": "PWM_PERIPHERAL_E1247D4B648CAF06",
+  "generics": {
+    "WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "digital_up_converter_combinational",
+  "wrapper_entity": "digital_up_converter_combinational_det_cfg",
+  "configuration_id": "DIGITAL_UP_CONVERTER_COMBINATIONAL_906E420A77726EC7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 27
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_priority_aware",
+  "wrapper_entity": "stage2_address_translator_priority_aware_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_PRIORITY_AWARE_18AD88AB80783BEC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

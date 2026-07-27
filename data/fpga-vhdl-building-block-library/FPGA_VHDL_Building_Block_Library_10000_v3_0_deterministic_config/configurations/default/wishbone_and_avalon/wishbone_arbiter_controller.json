@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_arbiter_controller",
+  "wrapper_entity": "wishbone_arbiter_controller_det_cfg",
+  "configuration_id": "WISHBONE_ARBITER_CONTROLLER_CBE9100BD96C8628",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

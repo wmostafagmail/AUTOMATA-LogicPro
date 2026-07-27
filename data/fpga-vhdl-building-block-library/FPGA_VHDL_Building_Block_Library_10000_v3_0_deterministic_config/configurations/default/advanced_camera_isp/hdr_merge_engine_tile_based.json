@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_tile_based",
+  "wrapper_entity": "hdr_merge_engine_tile_based_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_TILE_BASED_025FE3E5C0147696",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pulse_synchronizer_fault_tolerant",
+  "wrapper_entity": "pulse_synchronizer_fault_tolerant_det_cfg",
+  "configuration_id": "PULSE_SYNCHRONIZER_FAULT_TOLERANT_9B58B2D3027ED4BB",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

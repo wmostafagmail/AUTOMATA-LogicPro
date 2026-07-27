@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hmac_engine_multi_context",
+  "wrapper_entity": "hmac_engine_multi_context_det_cfg",
+  "configuration_id": "HMAC_ENGINE_MULTI_CONTEXT_F781FAC711FD0BD4",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

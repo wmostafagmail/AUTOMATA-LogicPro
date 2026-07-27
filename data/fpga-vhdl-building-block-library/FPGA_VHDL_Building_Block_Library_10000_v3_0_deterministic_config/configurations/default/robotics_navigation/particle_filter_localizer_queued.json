@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_queued",
+  "wrapper_entity": "particle_filter_localizer_queued_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_QUEUED_AC8921BB607FA451",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

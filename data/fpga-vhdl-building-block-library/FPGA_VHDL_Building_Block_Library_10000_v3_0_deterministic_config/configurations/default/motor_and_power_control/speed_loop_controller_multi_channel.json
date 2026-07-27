@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speed_loop_controller_multi_channel",
+  "wrapper_entity": "speed_loop_controller_multi_channel_det_cfg",
+  "configuration_id": "SPEED_LOOP_CONTROLLER_MULTI_CHANNEL_88E9713848AB5977",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_adder_streaming",
+  "wrapper_entity": "fixed_point_adder_streaming_det_cfg",
+  "configuration_id": "FIXED_POINT_ADDER_STREAMING_765DD8E1BD7F6316",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

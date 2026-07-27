@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lane_bonding_controller_fault_tolerant",
+  "wrapper_entity": "lane_bonding_controller_fault_tolerant_det_cfg",
+  "configuration_id": "LANE_BONDING_CONTROLLER_FAULT_TOLERANT_AA46435978381D24",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

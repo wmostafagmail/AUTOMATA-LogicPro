@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "glyph_cache_controller_programmable",
+  "wrapper_entity": "glyph_cache_controller_programmable_det_cfg",
+  "configuration_id": "GLYPH_CACHE_CONTROLLER_PROGRAMMABLE_354AB822B80EBCA0",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

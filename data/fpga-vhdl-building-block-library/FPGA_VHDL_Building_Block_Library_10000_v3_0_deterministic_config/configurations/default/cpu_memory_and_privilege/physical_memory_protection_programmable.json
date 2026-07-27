@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_memory_protection_programmable",
+  "wrapper_entity": "physical_memory_protection_programmable_det_cfg",
+  "configuration_id": "PHYSICAL_MEMORY_PROTECTION_PROGRAMMABLE_F2520B87E718A99B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

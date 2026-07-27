@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_bist_controller_fault_injection",
+  "wrapper_entity": "memory_bist_controller_fault_injection_det_cfg",
+  "configuration_id": "MEMORY_BIST_CONTROLLER_FAULT_INJECTION_B7AFF42983806B9E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "snoop_request_filter_pipelined",
+  "wrapper_entity": "snoop_request_filter_pipelined_det_cfg",
+  "configuration_id": "SNOOP_REQUEST_FILTER_PIPELINED_BBA80AAF31AE4A39",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

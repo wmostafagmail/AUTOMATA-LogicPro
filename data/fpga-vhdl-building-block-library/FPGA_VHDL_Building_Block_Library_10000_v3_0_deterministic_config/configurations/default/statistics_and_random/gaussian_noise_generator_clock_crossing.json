@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gaussian_noise_generator_clock_crossing",
+  "wrapper_entity": "gaussian_noise_generator_clock_crossing_det_cfg",
+  "configuration_id": "GAUSSIAN_NOISE_GENERATOR_CLOCK_CROSSING_93CFE9EBC42213EF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

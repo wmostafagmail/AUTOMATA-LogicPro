@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_endpoint",
+  "wrapper_entity": "sata_fis_parser_endpoint_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_ENDPOINT_8A3D04A7DA54D9A4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

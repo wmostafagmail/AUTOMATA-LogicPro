@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_analyzer_randomized",
+  "wrapper_entity": "logic_analyzer_randomized_det_cfg",
+  "configuration_id": "LOGIC_ANALYZER_RANDOMIZED_16C2435F313CB32B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

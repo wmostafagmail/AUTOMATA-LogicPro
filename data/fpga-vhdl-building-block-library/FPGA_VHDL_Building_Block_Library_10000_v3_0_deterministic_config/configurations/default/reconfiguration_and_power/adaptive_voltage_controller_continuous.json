@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_voltage_controller_continuous",
+  "wrapper_entity": "adaptive_voltage_controller_continuous_det_cfg",
+  "configuration_id": "ADAPTIVE_VOLTAGE_CONTROLLER_CONTINUOUS_D8F16E717B6EAAD6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

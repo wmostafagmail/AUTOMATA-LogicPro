@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_dma_attached",
+  "wrapper_entity": "display_stream_compression_engine_dma_attached_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_DMA_ATTACHED_DA5A06D798B92BB7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "spacewire_link_engine_programmable",
+  "wrapper_entity": "spacewire_link_engine_programmable_det_cfg",
+  "configuration_id": "SPACEWIRE_LINK_ENGINE_PROGRAMMABLE_807EE8E330E2F099",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

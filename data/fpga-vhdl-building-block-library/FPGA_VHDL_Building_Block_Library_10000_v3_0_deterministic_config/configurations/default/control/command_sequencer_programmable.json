@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_sequencer_programmable",
+  "wrapper_entity": "command_sequencer_programmable_det_cfg",
+  "configuration_id": "COMMAND_SEQUENCER_PROGRAMMABLE_6D1106433A36063F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

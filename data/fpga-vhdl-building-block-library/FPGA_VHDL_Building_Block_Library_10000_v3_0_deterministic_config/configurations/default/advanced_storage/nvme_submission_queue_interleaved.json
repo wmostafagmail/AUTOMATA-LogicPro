@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nvme_submission_queue_interleaved",
+  "wrapper_entity": "nvme_submission_queue_interleaved_det_cfg",
+  "configuration_id": "NVME_SUBMISSION_QUEUE_INTERLEAVED_542F4D856C757E2B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

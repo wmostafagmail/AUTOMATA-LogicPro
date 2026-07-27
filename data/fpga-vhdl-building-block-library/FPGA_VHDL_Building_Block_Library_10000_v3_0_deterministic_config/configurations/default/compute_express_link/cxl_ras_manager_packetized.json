@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_ras_manager_packetized",
+  "wrapper_entity": "cxl_ras_manager_packetized_det_cfg",
+  "configuration_id": "CXL_RAS_MANAGER_PACKETIZED_E52FDE589F520403",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

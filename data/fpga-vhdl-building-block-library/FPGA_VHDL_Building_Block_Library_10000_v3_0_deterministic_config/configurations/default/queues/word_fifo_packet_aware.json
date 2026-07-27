@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "word_fifo_packet_aware",
+  "wrapper_entity": "word_fifo_packet_aware_det_cfg",
+  "configuration_id": "WORD_FIFO_PACKET_AWARE_5AB6F97ECDE1F725",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

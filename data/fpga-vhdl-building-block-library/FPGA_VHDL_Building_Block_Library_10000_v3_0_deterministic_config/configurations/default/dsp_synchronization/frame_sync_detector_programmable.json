@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_sync_detector_programmable",
+  "wrapper_entity": "frame_sync_detector_programmable_det_cfg",
+  "configuration_id": "FRAME_SYNC_DETECTOR_PROGRAMMABLE_F7737EFAE76DD149",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 135
+  }
+}

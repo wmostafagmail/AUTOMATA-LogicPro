@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adpcm_decoder_axi_stream",
+  "wrapper_entity": "adpcm_decoder_axi_stream_det_cfg",
+  "configuration_id": "ADPCM_DECODER_AXI_STREAM_49DAA681600802A2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bezier_curve_rasterizer_rate_adaptive",
+  "wrapper_entity": "bezier_curve_rasterizer_rate_adaptive_det_cfg",
+  "configuration_id": "BEZIER_CURVE_RASTERIZER_RATE_ADAPTIVE_042FBE46F0995F2F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

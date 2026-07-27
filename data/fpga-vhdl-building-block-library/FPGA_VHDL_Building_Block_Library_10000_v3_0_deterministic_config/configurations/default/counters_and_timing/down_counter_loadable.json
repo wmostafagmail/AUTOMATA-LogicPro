@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "down_counter_loadable",
+  "wrapper_entity": "down_counter_loadable_det_cfg",
+  "configuration_id": "DOWN_COUNTER_LOADABLE_18C77C562A64640B",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": true
+  }
+}

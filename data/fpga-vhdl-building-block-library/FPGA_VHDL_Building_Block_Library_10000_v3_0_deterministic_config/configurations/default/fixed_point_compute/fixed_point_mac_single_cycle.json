@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "fixed_point_mac_single_cycle",
+  "wrapper_entity": "fixed_point_mac_single_cycle_det_cfg",
+  "configuration_id": "FIXED_POINT_MAC_SINGLE_CYCLE_EE1A457148717FBB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

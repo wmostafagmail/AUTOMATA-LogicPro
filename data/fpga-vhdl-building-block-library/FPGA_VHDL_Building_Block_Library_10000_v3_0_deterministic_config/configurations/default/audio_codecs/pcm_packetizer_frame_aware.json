@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcm_packetizer_frame_aware",
+  "wrapper_entity": "pcm_packetizer_frame_aware_det_cfg",
+  "configuration_id": "PCM_PACKETIZER_FRAME_AWARE_2951A574047FD6E1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "noc_congestion_monitor_target",
+  "wrapper_entity": "noc_congestion_monitor_target_det_cfg",
+  "configuration_id": "NOC_CONGESTION_MONITOR_TARGET_EF40840EC20C1927",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_transaction_level",
+  "wrapper_entity": "data_trace_compressor_transaction_level_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_TRANSACTION_LEVEL_DE9BF34098DF7B28",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

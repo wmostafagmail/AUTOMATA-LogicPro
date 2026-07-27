@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pulse_compressor_resource_shared",
+  "wrapper_entity": "pulse_compressor_resource_shared_det_cfg",
+  "configuration_id": "PULSE_COMPRESSOR_RESOURCE_SHARED_F397C10C483CCB64",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 147
+  }
+}

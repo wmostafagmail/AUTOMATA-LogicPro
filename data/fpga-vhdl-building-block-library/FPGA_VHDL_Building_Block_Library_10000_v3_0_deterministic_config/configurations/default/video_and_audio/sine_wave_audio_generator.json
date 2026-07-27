@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sine_wave_audio_generator",
+  "wrapper_entity": "sine_wave_audio_generator_det_cfg",
+  "configuration_id": "SINE_WAVE_AUDIO_GENERATOR_2961D0738A0302BF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

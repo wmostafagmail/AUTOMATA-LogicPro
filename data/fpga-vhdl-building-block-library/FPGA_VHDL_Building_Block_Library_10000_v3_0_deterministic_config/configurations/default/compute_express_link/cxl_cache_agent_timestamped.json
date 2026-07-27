@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_timestamped",
+  "wrapper_entity": "cxl_cache_agent_timestamped_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_TIMESTAMPED_2CD01A4CB8DFB4C0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

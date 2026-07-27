@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_link_training_router",
+  "wrapper_entity": "usb3_link_training_router_det_cfg",
+  "configuration_id": "USB3_LINK_TRAINING_ROUTER_4D16285D7573C26A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

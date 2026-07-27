@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_triggered",
+  "wrapper_entity": "sigma_delta_adc_decimator_triggered_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_TRIGGERED_74E420036081D94F",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

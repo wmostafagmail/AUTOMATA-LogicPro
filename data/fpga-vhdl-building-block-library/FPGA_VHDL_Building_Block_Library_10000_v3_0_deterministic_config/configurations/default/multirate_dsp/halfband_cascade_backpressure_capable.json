@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_cascade_backpressure_capable",
+  "wrapper_entity": "halfband_cascade_backpressure_capable_det_cfg",
+  "configuration_id": "HALFBAND_CASCADE_BACKPRESSURE_CAPABLE_5A052EB50C7CC369",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_time_multiplexed",
+  "wrapper_entity": "normalized_lms_filter_time_multiplexed_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_TIME_MULTIPLEXED_24BAEB4A45C56500",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

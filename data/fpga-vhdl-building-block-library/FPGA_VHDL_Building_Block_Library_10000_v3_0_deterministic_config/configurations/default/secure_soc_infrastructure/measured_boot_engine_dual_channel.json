@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_dual_channel",
+  "wrapper_entity": "measured_boot_engine_dual_channel_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_DUAL_CHANNEL_0B44EF6881EAFC8C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "redundant_bus_selector_single_shot",
+  "wrapper_entity": "redundant_bus_selector_single_shot_det_cfg",
+  "configuration_id": "REDUNDANT_BUS_SELECTOR_SINGLE_SHOT_5D9AE4FCE2C6C44F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

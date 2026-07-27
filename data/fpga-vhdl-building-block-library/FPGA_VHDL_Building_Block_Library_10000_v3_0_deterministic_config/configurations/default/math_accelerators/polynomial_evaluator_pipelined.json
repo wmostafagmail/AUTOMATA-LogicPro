@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "polynomial_evaluator_pipelined",
+  "wrapper_entity": "polynomial_evaluator_pipelined_det_cfg",
+  "configuration_id": "POLYNOMIAL_EVALUATOR_PIPELINED_D4345E7BE58E6C29",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

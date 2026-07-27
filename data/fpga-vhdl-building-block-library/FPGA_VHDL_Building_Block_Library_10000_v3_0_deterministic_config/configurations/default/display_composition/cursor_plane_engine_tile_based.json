@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cursor_plane_engine_tile_based",
+  "wrapper_entity": "cursor_plane_engine_tile_based_det_cfg",
+  "configuration_id": "CURSOR_PLANE_ENGINE_TILE_BASED_E180B44FA703F2FD",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

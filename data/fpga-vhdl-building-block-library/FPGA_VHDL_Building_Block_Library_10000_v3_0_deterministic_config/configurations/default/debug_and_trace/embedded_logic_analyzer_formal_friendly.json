@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_formal_friendly",
+  "wrapper_entity": "embedded_logic_analyzer_formal_friendly_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_FORMAL_FRIENDLY_13AA9E25C0BBD325",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

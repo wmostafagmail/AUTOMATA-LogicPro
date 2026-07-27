@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_memory_device_controller_software_configurable",
+  "wrapper_entity": "cxl_memory_device_controller_software_configurable_det_cfg",
+  "configuration_id": "CXL_MEMORY_DEVICE_CONTROLLER_SOFTWARE_CONFIGURABLE_5B55A9FE8AB2DB0F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

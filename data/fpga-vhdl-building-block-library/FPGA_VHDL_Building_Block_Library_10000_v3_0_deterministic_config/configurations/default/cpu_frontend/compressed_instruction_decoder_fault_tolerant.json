@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "compressed_instruction_decoder_fault_tolerant",
+  "wrapper_entity": "compressed_instruction_decoder_fault_tolerant_det_cfg",
+  "configuration_id": "COMPRESSED_INSTRUCTION_DECODER_FAULT_TOLERANT_F33BDA178F93770F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

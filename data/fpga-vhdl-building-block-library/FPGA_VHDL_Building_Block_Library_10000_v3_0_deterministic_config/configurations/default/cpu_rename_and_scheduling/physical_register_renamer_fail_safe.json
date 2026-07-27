@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_fail_safe",
+  "wrapper_entity": "physical_register_renamer_fail_safe_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_FAIL_SAFE_F0ED4F6F11CD1097",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

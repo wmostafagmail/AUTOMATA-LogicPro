@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polynomial_sampler_redundant",
+  "wrapper_entity": "polynomial_sampler_redundant_det_cfg",
+  "configuration_id": "POLYNOMIAL_SAMPLER_REDUNDANT_F7D26D2DA1BFD5FB",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "timer_peripheral_continuous",
+  "wrapper_entity": "timer_peripheral_continuous_det_cfg",
+  "configuration_id": "TIMER_PERIPHERAL_CONTINUOUS_20AC5049246B118B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

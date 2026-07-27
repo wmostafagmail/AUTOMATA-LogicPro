@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_multi_channel",
+  "wrapper_entity": "physical_register_renamer_multi_channel_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_MULTI_CHANNEL_25D010BF8B8698A0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

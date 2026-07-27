@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_macsec_adapter_initiator",
+  "wrapper_entity": "ethernet_macsec_adapter_initiator_det_cfg",
+  "configuration_id": "ETHERNET_MACSEC_ADAPTER_INITIATOR_30588909C99160CB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

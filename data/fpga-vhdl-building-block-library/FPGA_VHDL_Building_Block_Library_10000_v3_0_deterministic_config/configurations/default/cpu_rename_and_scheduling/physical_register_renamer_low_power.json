@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_low_power",
+  "wrapper_entity": "physical_register_renamer_low_power_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_LOW_POWER_C6FB7016D1D7C892",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

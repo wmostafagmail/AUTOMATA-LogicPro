@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "self_checking_testbench_pattern",
+  "wrapper_entity": "self_checking_testbench_pattern_det_cfg",
+  "configuration_id": "SELF_CHECKING_TESTBENCH_PATTERN_53FD9BCD92E76350",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

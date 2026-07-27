@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_liveness_monitor_protocol_compliance",
+  "wrapper_entity": "formal_liveness_monitor_protocol_compliance_det_cfg",
+  "configuration_id": "FORMAL_LIVENESS_MONITOR_PROTOCOL_COMPLIANCE_942CC0B730C0E27C",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

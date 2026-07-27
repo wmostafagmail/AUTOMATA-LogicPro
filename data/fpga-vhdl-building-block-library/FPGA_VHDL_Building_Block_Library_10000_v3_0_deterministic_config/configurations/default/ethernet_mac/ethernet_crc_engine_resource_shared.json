@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_crc_engine_resource_shared",
+  "wrapper_entity": "ethernet_crc_engine_resource_shared_det_cfg",
+  "configuration_id": "ETHERNET_CRC_ENGINE_RESOURCE_SHARED_0CABEBC02E49B8F4",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

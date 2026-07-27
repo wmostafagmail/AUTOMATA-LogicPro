@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "forward_kinematics_engine_multi_channel",
+  "wrapper_entity": "forward_kinematics_engine_multi_channel_det_cfg",
+  "configuration_id": "FORWARD_KINEMATICS_ENGINE_MULTI_CHANNEL_D6693C7E0B623EE2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "regex_match_engine_streaming",
+  "wrapper_entity": "regex_match_engine_streaming_det_cfg",
+  "configuration_id": "REGEX_MATCH_ENGINE_STREAMING_8C73951C5D6C9822",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 163
+  }
+}

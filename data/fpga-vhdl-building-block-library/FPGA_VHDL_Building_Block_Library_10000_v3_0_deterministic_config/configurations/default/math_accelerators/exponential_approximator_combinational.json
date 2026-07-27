@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "exponential_approximator_combinational",
+  "wrapper_entity": "exponential_approximator_combinational_det_cfg",
+  "configuration_id": "EXPONENTIAL_APPROXIMATOR_COMBINATIONAL_A1CE209B71A06435",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

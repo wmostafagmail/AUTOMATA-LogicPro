@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_metadata_aware",
+  "wrapper_entity": "motion_estimation_engine_metadata_aware_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_METADATA_AWARE_0DCA077E30AD96DE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

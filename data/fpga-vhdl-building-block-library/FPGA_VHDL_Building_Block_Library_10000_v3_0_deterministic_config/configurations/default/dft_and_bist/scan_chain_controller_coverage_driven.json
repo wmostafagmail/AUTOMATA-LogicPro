@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_coverage_driven",
+  "wrapper_entity": "scan_chain_controller_coverage_driven_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_COVERAGE_DRIVEN_DBC6E5A89C7FDA3E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

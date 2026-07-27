@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_reciprocal_iterative",
+  "wrapper_entity": "floating_point_reciprocal_iterative_det_cfg",
+  "configuration_id": "FLOATING_POINT_RECIPROCAL_ITERATIVE_D5F261C3AEB6F449",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

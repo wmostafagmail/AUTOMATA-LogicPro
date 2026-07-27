@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_multi_channel",
+  "wrapper_entity": "profinet_irt_scheduler_multi_channel_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_MULTI_CHANNEL_FA742AC3D81F2B1A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

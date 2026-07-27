@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "motor_parameter_identifier_event_driven",
+  "wrapper_entity": "motor_parameter_identifier_event_driven_det_cfg",
+  "configuration_id": "MOTOR_PARAMETER_IDENTIFIER_EVENT_DRIVEN_9C135822D83A9897",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

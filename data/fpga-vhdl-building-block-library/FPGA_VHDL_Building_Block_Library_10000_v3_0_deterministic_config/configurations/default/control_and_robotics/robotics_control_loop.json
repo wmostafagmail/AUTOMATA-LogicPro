@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "robotics_control_loop",
+  "wrapper_entity": "robotics_control_loop_det_cfg",
+  "configuration_id": "ROBOTICS_CONTROL_LOOP_1384DA2590C94356",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

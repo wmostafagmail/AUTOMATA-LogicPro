@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_prefix_sum_single_cycle",
+  "wrapper_entity": "vector_prefix_sum_single_cycle_det_cfg",
+  "configuration_id": "VECTOR_PREFIX_SUM_SINGLE_CYCLE_6CFE82491745C954",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

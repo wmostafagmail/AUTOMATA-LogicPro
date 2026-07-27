@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_macsec_adapter_software_configurable",
+  "wrapper_entity": "ethernet_macsec_adapter_software_configurable_det_cfg",
+  "configuration_id": "ETHERNET_MACSEC_ADAPTER_SOFTWARE_CONFIGURABLE_098D13B16FF44DA8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

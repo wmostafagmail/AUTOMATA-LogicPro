@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cepstrum_engine_time_multiplexed",
+  "wrapper_entity": "cepstrum_engine_time_multiplexed_det_cfg",
+  "configuration_id": "CEPSTRUM_ENGINE_TIME_MULTIPLEXED_7CB16D0B639432A4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_baud_generator_clock_crossing",
+  "wrapper_entity": "uart_baud_generator_clock_crossing_det_cfg",
+  "configuration_id": "UART_BAUD_GENERATOR_CLOCK_CROSSING_6CD6E3DBEE3E44B9",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

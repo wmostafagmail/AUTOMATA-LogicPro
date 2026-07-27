@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spectral_kurtosis_estimator_fully_parallel",
+  "wrapper_entity": "spectral_kurtosis_estimator_fully_parallel_det_cfg",
+  "configuration_id": "SPECTRAL_KURTOSIS_ESTIMATOR_FULLY_PARALLEL_DB18E68EF31ECA64",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

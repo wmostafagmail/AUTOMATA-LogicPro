@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dilated_convolution_engine_saturating",
+  "wrapper_entity": "dilated_convolution_engine_saturating_det_cfg",
+  "configuration_id": "DILATED_CONVOLUTION_ENGINE_SATURATING_CF1391E394871FFA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "edge_equation_engine_combinational",
+  "wrapper_entity": "edge_equation_engine_combinational_det_cfg",
+  "configuration_id": "EDGE_EQUATION_ENGINE_COMBINATIONAL_9A0D0E5FE2B20434",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

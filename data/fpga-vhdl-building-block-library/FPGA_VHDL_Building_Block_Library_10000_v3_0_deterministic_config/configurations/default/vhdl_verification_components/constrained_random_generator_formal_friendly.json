@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_formal_friendly",
+  "wrapper_entity": "constrained_random_generator_formal_friendly_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_FORMAL_FRIENDLY_C705FD6879FB78CC",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

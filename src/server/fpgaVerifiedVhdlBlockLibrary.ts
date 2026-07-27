@@ -2,11 +2,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { FpgaArchitectFile } from './fpgaArchitect';
 import type { FpgaArchitectureComponentContract } from './fpgaArchitectureContract';
-import { buildLeafInterfaceSignature, buildVhdlEntityInterfaceSignature } from './fpgaGoldenLeafLibrary';
+import {
+  buildLeafInterfaceSignature,
+  buildVhdlEntityInterfaceSignature,
+  type GoldenLeafInterfaceSignature,
+} from './fpgaGoldenLeafLibrary';
+import { parseVhdlSemanticModel } from './vhdlSemanticFrontend';
 
 export const DEFAULT_VERIFIED_VHDL_BLOCK_LIBRARY_ROOT = path.resolve(
   process.cwd(),
-  'data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v2_1_pc_fix',
+  'data/fpga-vhdl-building-block-library/FPGA_VHDL_Building_Block_Library_10000_v3_0_deterministic_config',
 );
 
 export const DEFAULT_VERIFIED_VHDL_BLOCK_QUALIFICATION_PATH = path.resolve(
@@ -37,18 +42,58 @@ export type VhdlBlockLibraryQualification = {
 
 export type VerifiedVhdlBlockCandidate = {
   blockName: string;
+  entityName?: string;
   relativeRtlPath: string;
   relativeTestbenchPath: string | null;
   rtlContent: string;
   dependencyFiles: FpgaArchitectFile[];
   qualification: VhdlBlockLibraryQualification;
+  manifestRelativePath?: string;
+  sourceRelativePath?: string;
+  wrapperRelativePath?: string;
+  configurationId?: string;
+  deterministicWrapper?: boolean;
+};
+
+export type VerifiedVhdlBlockNearMatch = VerifiedVhdlBlockCandidate & {
+  entityName: string;
+  generatedRtlPath: string;
+  rtlFile: FpgaArchitectFile;
+  actualSignature: GoldenLeafInterfaceSignature;
+  approvedSignature: GoldenLeafInterfaceSignature;
 };
 
 type VerificationMatrixRow = {
   name: string;
+  manifestFile?: string;
+  wrapperFile?: string;
   sourceFile: string;
   testbenchFile: string;
   implementationTier: string;
+};
+
+type DeterministicLibraryIndexBlock = {
+  name: string;
+  category?: string;
+  manifest: string;
+  wrapper?: string;
+  config_id?: string;
+};
+
+type DeterministicBlockManifest = {
+  block?: {
+    name?: string;
+    entity?: string;
+    source?: string;
+    wrapper_entity?: string;
+  };
+  generation?: {
+    wrapper_path?: string;
+    configuration_file?: string;
+  };
+  configuration?: {
+    id?: string;
+  };
 };
 
 function normalizeName(value: string | null | undefined) {
@@ -65,6 +110,17 @@ function readJson<T>(filePath: string): T | null {
   } catch {
     return null;
   }
+}
+
+function loadDeterministicLibraryIndex(libraryRoot: string): DeterministicLibraryIndexBlock[] {
+  const indexPath = path.join(libraryRoot, 'manifests', 'library_index.json');
+  const index = readJson<{ blocks?: DeterministicLibraryIndexBlock[] }>(indexPath);
+  return Array.isArray(index?.blocks) ? index.blocks : [];
+}
+
+function loadDeterministicManifest(libraryRoot: string, relativePath: string | undefined): DeterministicBlockManifest | null {
+  if (!relativePath) return null;
+  return readJson<DeterministicBlockManifest>(path.join(libraryRoot, normalizePath(relativePath)));
 }
 
 export function loadVhdlBlockLibraryQualification(
@@ -105,6 +161,22 @@ function parseCsvLine(line: string) {
 }
 
 function loadVerificationMatrix(libraryRoot: string): VerificationMatrixRow[] {
+  const deterministicIndex = loadDeterministicLibraryIndex(libraryRoot);
+  if (deterministicIndex.length > 0) {
+    return deterministicIndex.map((block) => {
+      const manifest = loadDeterministicManifest(libraryRoot, block.manifest);
+      const sourceFile = manifest?.block?.source || '';
+      const wrapperFile = block.wrapper || manifest?.generation?.wrapper_path || '';
+      return {
+        name: block.name || manifest?.block?.name || '',
+        manifestFile: normalizePath(block.manifest),
+        wrapperFile: wrapperFile ? normalizePath(wrapperFile) : undefined,
+        sourceFile: normalizePath(sourceFile || wrapperFile),
+        testbenchFile: '',
+        implementationTier: '',
+      };
+    }).filter((row) => row.name && row.sourceFile);
+  }
   const matrixPath = path.join(libraryRoot, 'reports', 'verification_matrix.csv');
   try {
     const lines = fs.readFileSync(matrixPath, 'utf8').split(/\r?\n/).filter(Boolean);
@@ -146,11 +218,28 @@ function readLibraryFile(libraryRoot: string, relativePath: string) {
 
 function dependencyRelativePathForWorkUnit(libraryRoot: string, unitName: string) {
   const candidates = [
+    path.join('rtl', 'config', `${unitName}.vhd`),
     path.join('rtl', 'common', `${unitName}.vhd`),
     path.join('rtl', 'cores', `${unitName}.vhd`),
+    path.join('rtl', 'reference_cores', `${unitName}.vhd`),
   ];
   for (const candidate of candidates) {
     if (fileExists(path.join(libraryRoot, candidate))) return normalizePath(candidate);
+  }
+  const normalizedUnit = normalizeName(unitName);
+  for (const row of loadVerificationMatrix(libraryRoot)) {
+    const manifest = loadDeterministicManifest(libraryRoot, row.manifestFile);
+    if (
+      normalizeName(manifest?.block?.entity) === normalizedUnit
+      || normalizeName(manifest?.block?.wrapper_entity) === normalizedUnit
+      || normalizeName(row.name) === normalizedUnit
+    ) {
+      return normalizePath(
+        normalizeName(manifest?.block?.wrapper_entity) === normalizedUnit && row.wrapperFile
+          ? row.wrapperFile
+          : manifest?.block?.source || row.sourceFile,
+      );
+    }
   }
   return null;
 }
@@ -181,8 +270,30 @@ function collectDependencyPaths(libraryRoot: string, relativePath: string, visit
   return Array.from(new Set(ordered.filter((entry) => entry !== normalized)));
 }
 
-function toGeneratedLibraryPath(relativePath: string) {
+export function toGeneratedLibraryPath(relativePath: string) {
   return `lib/fpga_vhdl_blocks/${normalizePath(relativePath).replace(/^rtl\//, '')}`;
+}
+
+function buildDependencyFiles(libraryRoot: string, relativePath: string, component: FpgaArchitectureComponentContract) {
+  const dependencyPaths = collectDependencyPaths(libraryRoot, relativePath);
+  if (dependencyPaths === null) return null;
+  return dependencyPaths.map((dependencyPath) => {
+    const content = readLibraryFile(libraryRoot, dependencyPath);
+    if (content === null) return null;
+    return {
+      path: toGeneratedLibraryPath(dependencyPath),
+      fileType: /\/(?:common|config)\//.test(dependencyPath) ? 'vhdl_package' : 'vhdl_rtl',
+      purpose: `Verified VHDL library dependency for ${component.id}`,
+      content,
+    } satisfies FpgaArchitectFile;
+  }).filter((file): file is FpgaArchitectFile => file !== null);
+}
+
+function findReusableEntityName(content: string, requestedEntityName: string) {
+  const model = parseVhdlSemanticModel(content);
+  return model.entities.find((candidate) => candidate.name.toLowerCase() === requestedEntityName.toLowerCase())?.name
+    || model.entities[0]?.name
+    || null;
 }
 
 export function findVerifiedVhdlBlockCandidate(params: {
@@ -195,33 +306,84 @@ export function findVerifiedVhdlBlockCandidate(params: {
   if (!isVhdlBlockLibraryTrusted(qualification)) return null;
   const row = findBlockRow(libraryRoot, params.component.name) || findBlockRow(libraryRoot, params.component.id);
   if (!row) return null;
-  const rtlContent = readLibraryFile(libraryRoot, row.sourceFile);
+  const manifest = loadDeterministicManifest(libraryRoot, row.manifestFile);
+  const implementationPath = row.wrapperFile || row.sourceFile;
+  const rtlContent = readLibraryFile(libraryRoot, implementationPath);
   if (rtlContent === null) return null;
-  const actualSignature = buildVhdlEntityInterfaceSignature(rtlContent, params.component.name);
+  const requestedEntity = manifest?.block?.wrapper_entity || params.component.name;
+  const actualSignature = buildVhdlEntityInterfaceSignature(rtlContent, requestedEntity);
   const approvedSignature = buildLeafInterfaceSignature(params.component);
   if (JSON.stringify(actualSignature) !== JSON.stringify(approvedSignature)) return null;
-  const dependencyPaths = collectDependencyPaths(libraryRoot, row.sourceFile);
-  if (dependencyPaths === null) return null;
-  const dependencyFiles = dependencyPaths.map((dependencyPath) => {
-    const content = readLibraryFile(libraryRoot, dependencyPath);
-    if (content === null) return null;
-    return {
-      path: toGeneratedLibraryPath(dependencyPath),
-      fileType: dependencyPath.includes('/common/') ? 'vhdl_package' : 'vhdl_rtl',
-      purpose: `Verified VHDL library dependency for ${params.component.id}`,
-      content,
-    } satisfies FpgaArchitectFile;
-  }).filter((file): file is FpgaArchitectFile => file !== null);
+  const dependencyFiles = buildDependencyFiles(libraryRoot, implementationPath, params.component);
+  if (dependencyFiles === null) return null;
   const relativeTestbenchPath = row.testbenchFile && fileExists(path.join(libraryRoot, row.testbenchFile))
     ? normalizePath(row.testbenchFile)
     : null;
   return {
     blockName: row.name,
-    relativeRtlPath: normalizePath(row.sourceFile),
+    entityName: actualSignature?.entityName,
+    relativeRtlPath: normalizePath(implementationPath),
     relativeTestbenchPath,
     rtlContent,
     dependencyFiles,
     qualification,
+    manifestRelativePath: row.manifestFile,
+    sourceRelativePath: manifest?.block?.source ? normalizePath(manifest.block.source) : normalizePath(row.sourceFile),
+    wrapperRelativePath: row.wrapperFile,
+    configurationId: manifest?.configuration?.id,
+    deterministicWrapper: Boolean(row.wrapperFile),
+  };
+}
+
+export function findVerifiedVhdlBlockNearMatch(params: {
+  component: FpgaArchitectureComponentContract;
+  libraryRoot?: string;
+  qualificationPath?: string;
+}): VerifiedVhdlBlockNearMatch | null {
+  const libraryRoot = params.libraryRoot || DEFAULT_VERIFIED_VHDL_BLOCK_LIBRARY_ROOT;
+  const qualification = loadVhdlBlockLibraryQualification(params.qualificationPath);
+  if (!isVhdlBlockLibraryTrusted(qualification)) return null;
+  const row = findBlockRow(libraryRoot, params.component.name) || findBlockRow(libraryRoot, params.component.id);
+  if (!row) return null;
+  const manifest = loadDeterministicManifest(libraryRoot, row.manifestFile);
+  const implementationPath = row.wrapperFile || row.sourceFile;
+  const rtlContent = readLibraryFile(libraryRoot, implementationPath);
+  if (rtlContent === null) return null;
+  const entityName = findReusableEntityName(rtlContent, manifest?.block?.wrapper_entity || params.component.name);
+  if (!entityName) return null;
+  const actualSignature = buildVhdlEntityInterfaceSignature(rtlContent, entityName);
+  if (!actualSignature) return null;
+  const approvedSignature = buildLeafInterfaceSignature(params.component);
+  if (JSON.stringify(actualSignature) === JSON.stringify(approvedSignature)) return null;
+  const dependencyFiles = buildDependencyFiles(libraryRoot, implementationPath, params.component);
+  if (dependencyFiles === null) return null;
+  const relativeRtlPath = normalizePath(implementationPath);
+  const generatedRtlPath = toGeneratedLibraryPath(relativeRtlPath);
+  const relativeTestbenchPath = row.testbenchFile && fileExists(path.join(libraryRoot, row.testbenchFile))
+    ? normalizePath(row.testbenchFile)
+    : null;
+  return {
+    blockName: row.name,
+    entityName,
+    relativeRtlPath,
+    generatedRtlPath,
+    relativeTestbenchPath,
+    rtlContent,
+    rtlFile: {
+      path: generatedRtlPath,
+      fileType: 'vhdl_rtl',
+      purpose: `Verified VHDL library implementation wrapped for ${params.component.id}`,
+      content: rtlContent,
+    },
+    dependencyFiles,
+    qualification,
+    manifestRelativePath: row.manifestFile,
+    sourceRelativePath: manifest?.block?.source ? normalizePath(manifest.block.source) : normalizePath(row.sourceFile),
+    wrapperRelativePath: row.wrapperFile,
+    configurationId: manifest?.configuration?.id,
+    deterministicWrapper: Boolean(row.wrapperFile),
+    actualSignature,
+    approvedSignature,
   };
 }
 

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bitwise_logic_unit_single_cycle",
+  "wrapper_entity": "bitwise_logic_unit_single_cycle_det_cfg",
+  "configuration_id": "BITWISE_LOGIC_UNIT_SINGLE_CYCLE_D75710A5890E3189",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "checksum_accumulator_single_cycle",
+  "wrapper_entity": "checksum_accumulator_single_cycle_det_cfg",
+  "configuration_id": "CHECKSUM_ACCUMULATOR_SINGLE_CYCLE_C77EF5AE97B918DE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

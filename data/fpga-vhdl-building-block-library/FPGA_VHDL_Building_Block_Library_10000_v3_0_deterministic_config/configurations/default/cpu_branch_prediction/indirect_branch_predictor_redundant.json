@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "indirect_branch_predictor_redundant",
+  "wrapper_entity": "indirect_branch_predictor_redundant_det_cfg",
+  "configuration_id": "INDIRECT_BRANCH_PREDICTOR_REDUNDANT_FB73006034D84F92",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resource_usage_monitor_continuous",
+  "wrapper_entity": "resource_usage_monitor_continuous_det_cfg",
+  "configuration_id": "RESOURCE_USAGE_MONITOR_CONTINUOUS_44245E544CE53D0E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

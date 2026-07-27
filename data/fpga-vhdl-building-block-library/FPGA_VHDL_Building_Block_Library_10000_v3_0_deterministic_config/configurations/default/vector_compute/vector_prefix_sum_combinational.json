@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_prefix_sum_combinational",
+  "wrapper_entity": "vector_prefix_sum_combinational_det_cfg",
+  "configuration_id": "VECTOR_PREFIX_SUM_COMBINATIONAL_699BD0D2F2B8756F",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

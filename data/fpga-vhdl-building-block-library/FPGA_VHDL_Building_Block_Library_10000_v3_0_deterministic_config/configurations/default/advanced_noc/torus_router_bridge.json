@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_bridge",
+  "wrapper_entity": "torus_router_bridge_det_cfg",
+  "configuration_id": "TORUS_ROUTER_BRIDGE_A4F15A91FB3367D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

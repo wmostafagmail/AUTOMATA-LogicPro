@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_single_cycle",
+  "wrapper_entity": "delay_and_sum_beamformer_single_cycle_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_SINGLE_CYCLE_4B7C872548A58BDB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

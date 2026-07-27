@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_packetized",
+  "wrapper_entity": "ethernet_25g_lane_mapper_packetized_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_PACKETIZED_FD2641B633C9F782",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

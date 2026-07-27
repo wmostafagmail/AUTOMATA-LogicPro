@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constant_q_transform_multi_lane",
+  "wrapper_entity": "constant_q_transform_multi_lane_det_cfg",
+  "configuration_id": "CONSTANT_Q_TRANSFORM_MULTI_LANE_E9D7BC5C36021BFC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

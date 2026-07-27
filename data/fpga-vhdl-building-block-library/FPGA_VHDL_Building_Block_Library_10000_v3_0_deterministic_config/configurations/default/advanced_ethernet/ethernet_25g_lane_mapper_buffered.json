@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_buffered",
+  "wrapper_entity": "ethernet_25g_lane_mapper_buffered_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_BUFFERED_4460E03AE2B6BE39",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

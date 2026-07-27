@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "packed_bcd_alu_deep_pipeline",
+  "wrapper_entity": "packed_bcd_alu_deep_pipeline_det_cfg",
+  "configuration_id": "PACKED_BCD_ALU_DEEP_PIPELINE_CE616D18DF48CB47",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

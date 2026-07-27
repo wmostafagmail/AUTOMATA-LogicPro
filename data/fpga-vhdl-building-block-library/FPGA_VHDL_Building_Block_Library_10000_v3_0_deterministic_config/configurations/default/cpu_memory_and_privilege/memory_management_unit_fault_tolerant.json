@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "memory_management_unit_fault_tolerant",
+  "wrapper_entity": "memory_management_unit_fault_tolerant_det_cfg",
+  "configuration_id": "MEMORY_MANAGEMENT_UNIT_FAULT_TOLERANT_58C4CF25C2B0E751",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

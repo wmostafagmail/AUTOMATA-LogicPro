@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb3_endpoint_scheduler_packetized",
+  "wrapper_entity": "usb3_endpoint_scheduler_packetized_det_cfg",
+  "configuration_id": "USB3_ENDPOINT_SCHEDULER_PACKETIZED_9F26F2B4C3C768AC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

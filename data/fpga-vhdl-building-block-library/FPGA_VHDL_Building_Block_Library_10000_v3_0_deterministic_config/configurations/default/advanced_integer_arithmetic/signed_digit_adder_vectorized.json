@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "signed_digit_adder_vectorized",
+  "wrapper_entity": "signed_digit_adder_vectorized_det_cfg",
+  "configuration_id": "SIGNED_DIGIT_ADDER_VECTORIZED_8A6D84D70D0532CD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

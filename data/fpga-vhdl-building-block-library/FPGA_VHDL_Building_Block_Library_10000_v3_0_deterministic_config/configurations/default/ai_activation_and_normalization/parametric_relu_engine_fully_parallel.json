@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parametric_relu_engine_fully_parallel",
+  "wrapper_entity": "parametric_relu_engine_fully_parallel_det_cfg",
+  "configuration_id": "PARAMETRIC_RELU_ENGINE_FULLY_PARALLEL_6EF857700A48EE3E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

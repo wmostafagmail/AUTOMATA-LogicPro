@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_atomic_ops_engine_qos_aware",
+  "wrapper_entity": "pcie_atomic_ops_engine_qos_aware_det_cfg",
+  "configuration_id": "PCIE_ATOMIC_OPS_ENGINE_QOS_AWARE_73DE1B640E50ADED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "uart_transmitter_monitor",
+  "wrapper_entity": "uart_transmitter_monitor_det_cfg",
+  "configuration_id": "UART_TRANSMITTER_MONITOR_FE726FC8969A1CCE",
+  "generics": {
+    "CLOCK_HZ": 50000000,
+    "BAUD_RATE": 115200,
+    "DATA_BITS": 8
+  }
+}

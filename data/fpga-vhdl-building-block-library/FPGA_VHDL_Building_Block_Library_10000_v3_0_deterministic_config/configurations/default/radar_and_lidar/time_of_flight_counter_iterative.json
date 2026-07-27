@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "time_of_flight_counter_iterative",
+  "wrapper_entity": "time_of_flight_counter_iterative_det_cfg",
+  "configuration_id": "TIME_OF_FLIGHT_COUNTER_ITERATIVE_A44A5C2BC1ADD01E",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

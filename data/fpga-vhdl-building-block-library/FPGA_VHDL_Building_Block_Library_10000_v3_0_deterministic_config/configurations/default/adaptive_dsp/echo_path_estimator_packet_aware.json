@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "echo_path_estimator_packet_aware",
+  "wrapper_entity": "echo_path_estimator_packet_aware_det_cfg",
+  "configuration_id": "ECHO_PATH_ESTIMATOR_PACKET_AWARE_8F2CF2E053BAE662",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_rate_adaptive",
+  "wrapper_entity": "reverberation_engine_rate_adaptive_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_RATE_ADAPTIVE_D5C562E1B65E935E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

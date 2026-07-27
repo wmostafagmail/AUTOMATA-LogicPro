@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fir_filter",
+  "wrapper_entity": "fir_filter_det_cfg",
+  "configuration_id": "FIR_FILTER_D4147219CE9C5AC5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 127
+  }
+}

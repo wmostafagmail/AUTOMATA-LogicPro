@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_atomic_transaction_unit_redundant",
+  "wrapper_entity": "axi_atomic_transaction_unit_redundant_det_cfg",
+  "configuration_id": "AXI_ATOMIC_TRANSACTION_UNIT_REDUNDANT_A4A9AAC46B2A3AA3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

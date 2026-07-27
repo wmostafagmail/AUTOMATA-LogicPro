@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_factor_correction_controller_queued",
+  "wrapper_entity": "power_factor_correction_controller_queued_det_cfg",
+  "configuration_id": "POWER_FACTOR_CORRECTION_CONTROLLER_QUEUED_6B0E43B54FA33B4C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

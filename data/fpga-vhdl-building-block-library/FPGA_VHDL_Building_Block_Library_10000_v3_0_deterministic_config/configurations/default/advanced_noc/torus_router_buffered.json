@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "torus_router_buffered",
+  "wrapper_entity": "torus_router_buffered_det_cfg",
+  "configuration_id": "TORUS_ROUTER_BUFFERED_2E7BB93F888893E2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

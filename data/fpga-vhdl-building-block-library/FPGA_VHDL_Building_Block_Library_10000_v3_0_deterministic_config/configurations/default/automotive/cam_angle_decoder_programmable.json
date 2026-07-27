@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "cam_angle_decoder_programmable",
+  "wrapper_entity": "cam_angle_decoder_programmable_det_cfg",
+  "configuration_id": "CAM_ANGLE_DECODER_PROGRAMMABLE_CFF769FC54506E00",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

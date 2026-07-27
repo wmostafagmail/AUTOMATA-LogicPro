@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reset_synchronizer_multi_channel",
+  "wrapper_entity": "reset_synchronizer_multi_channel_det_cfg",
+  "configuration_id": "RESET_SYNCHRONIZER_MULTI_CHANNEL_C5D0FBBE7E9D7965",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

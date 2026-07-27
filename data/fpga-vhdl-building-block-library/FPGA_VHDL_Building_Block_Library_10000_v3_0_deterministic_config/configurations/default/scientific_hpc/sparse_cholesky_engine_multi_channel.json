@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sparse_cholesky_engine_multi_channel",
+  "wrapper_entity": "sparse_cholesky_engine_multi_channel_det_cfg",
+  "configuration_id": "SPARSE_CHOLESKY_ENGINE_MULTI_CHANNEL_3F4B1423007DFBF5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

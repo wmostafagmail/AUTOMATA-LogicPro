@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "auto_exposure_statistics_streaming",
+  "wrapper_entity": "auto_exposure_statistics_streaming_det_cfg",
+  "configuration_id": "AUTO_EXPOSURE_STATISTICS_STREAMING_7505B2F10DFF0A93",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

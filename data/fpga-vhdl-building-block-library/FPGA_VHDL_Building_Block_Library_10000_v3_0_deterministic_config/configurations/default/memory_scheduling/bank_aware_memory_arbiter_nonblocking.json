@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bank_aware_memory_arbiter_nonblocking",
+  "wrapper_entity": "bank_aware_memory_arbiter_nonblocking_det_cfg",
+  "configuration_id": "BANK_AWARE_MEMORY_ARBITER_NONBLOCKING_D0386AF00053FF92",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "ring_counter_timestamped",
+  "wrapper_entity": "ring_counter_timestamped_det_cfg",
+  "configuration_id": "RING_COUNTER_TIMESTAMPED_F1F568655F1BB068",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

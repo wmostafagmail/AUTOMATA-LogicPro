@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_digit_serial",
+  "wrapper_entity": "riscv_crypto_unit_digit_serial_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_DIGIT_SERIAL_F7EB3C88E8F54EC5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

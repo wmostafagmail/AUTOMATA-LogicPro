@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iq_calibration_engine_continuous",
+  "wrapper_entity": "iq_calibration_engine_continuous_det_cfg",
+  "configuration_id": "IQ_CALIBRATION_ENGINE_CONTINUOUS_77325A451B08F120",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

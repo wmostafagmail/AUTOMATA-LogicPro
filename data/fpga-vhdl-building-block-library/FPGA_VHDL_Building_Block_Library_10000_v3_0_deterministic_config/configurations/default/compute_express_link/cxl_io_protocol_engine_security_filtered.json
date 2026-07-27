@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_io_protocol_engine_security_filtered",
+  "wrapper_entity": "cxl_io_protocol_engine_security_filtered_det_cfg",
+  "configuration_id": "CXL_IO_PROTOCOL_ENGINE_SECURITY_FILTERED_7D1737840BEF04AD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

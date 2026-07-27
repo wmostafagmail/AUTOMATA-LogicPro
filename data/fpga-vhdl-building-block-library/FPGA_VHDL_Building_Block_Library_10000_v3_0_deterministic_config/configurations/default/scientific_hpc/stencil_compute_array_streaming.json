@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stencil_compute_array_streaming",
+  "wrapper_entity": "stencil_compute_array_streaming_det_cfg",
+  "configuration_id": "STENCIL_COMPUTE_ARRAY_STREAMING_776A927C77C0B85C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

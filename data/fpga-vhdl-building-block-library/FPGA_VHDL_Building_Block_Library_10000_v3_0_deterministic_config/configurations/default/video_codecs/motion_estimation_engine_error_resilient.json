@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_error_resilient",
+  "wrapper_entity": "motion_estimation_engine_error_resilient_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_ERROR_RESILIENT_D4002C8C4DE2FB1C",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

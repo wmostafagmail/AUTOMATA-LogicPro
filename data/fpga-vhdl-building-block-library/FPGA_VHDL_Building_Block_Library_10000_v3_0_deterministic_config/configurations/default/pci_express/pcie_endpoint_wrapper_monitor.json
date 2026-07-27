@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_endpoint_wrapper_monitor",
+  "wrapper_entity": "pcie_endpoint_wrapper_monitor_det_cfg",
+  "configuration_id": "PCIE_ENDPOINT_WRAPPER_MONITOR_5F2EE5D1B6804539",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ifft_engine_iterative",
+  "wrapper_entity": "ifft_engine_iterative_det_cfg",
+  "configuration_id": "IFFT_ENGINE_ITERATIVE_69534C8843C84121",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 81
+  }
+}

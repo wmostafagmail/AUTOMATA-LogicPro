@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_fail_safe",
+  "wrapper_entity": "anti_rollback_counter_fail_safe_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_FAIL_SAFE_21AD01C231768DE2",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

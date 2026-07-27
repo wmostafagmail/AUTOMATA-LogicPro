@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_multi_channel",
+  "wrapper_entity": "hdr_merge_engine_multi_channel_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_MULTI_CHANNEL_FAEA822F837EE07F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

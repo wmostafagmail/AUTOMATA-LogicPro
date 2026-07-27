@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "value_projection_engine_int16",
+  "wrapper_entity": "value_projection_engine_int16_det_cfg",
+  "configuration_id": "VALUE_PROJECTION_ENGINE_INT16_192A736303A10E2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

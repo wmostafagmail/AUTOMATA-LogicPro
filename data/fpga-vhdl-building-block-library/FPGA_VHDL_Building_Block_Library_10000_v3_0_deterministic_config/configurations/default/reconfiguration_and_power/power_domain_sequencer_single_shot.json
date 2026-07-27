@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_domain_sequencer_single_shot",
+  "wrapper_entity": "power_domain_sequencer_single_shot_det_cfg",
+  "configuration_id": "POWER_DOMAIN_SEQUENCER_SINGLE_SHOT_CD652A85A7F0FF9C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

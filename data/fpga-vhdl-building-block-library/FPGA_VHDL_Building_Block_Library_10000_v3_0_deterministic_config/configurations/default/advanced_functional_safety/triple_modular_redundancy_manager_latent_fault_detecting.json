@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triple_modular_redundancy_manager_latent_fault_detecting",
+  "wrapper_entity": "triple_modular_redundancy_manager_latent_fault_detecting_det_cfg",
+  "configuration_id": "TRIPLE_MODULAR_REDUNDANCY_MANAGER_LATENT_FAULT_DETECTING_8D03D2BBFEA0A604",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

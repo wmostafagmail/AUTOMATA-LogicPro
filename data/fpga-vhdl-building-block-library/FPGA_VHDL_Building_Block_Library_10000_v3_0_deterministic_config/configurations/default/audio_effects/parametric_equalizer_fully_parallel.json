@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parametric_equalizer_fully_parallel",
+  "wrapper_entity": "parametric_equalizer_fully_parallel_det_cfg",
+  "configuration_id": "PARAMETRIC_EQUALIZER_FULLY_PARALLEL_416D3483158F6D84",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

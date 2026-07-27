@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_voltage_controller_lockstep_checked",
+  "wrapper_entity": "adaptive_voltage_controller_lockstep_checked_det_cfg",
+  "configuration_id": "ADAPTIVE_VOLTAGE_CONTROLLER_LOCKSTEP_CHECKED_DD2D1470B50DC920",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

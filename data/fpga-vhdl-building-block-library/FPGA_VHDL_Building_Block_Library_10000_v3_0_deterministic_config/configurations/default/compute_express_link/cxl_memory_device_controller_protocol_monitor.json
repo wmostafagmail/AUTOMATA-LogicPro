@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_memory_device_controller_protocol_monitor",
+  "wrapper_entity": "cxl_memory_device_controller_protocol_monitor_det_cfg",
+  "configuration_id": "CXL_MEMORY_DEVICE_CONTROLLER_PROTOCOL_MONITOR_0C00C59D3E438295",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_xl_frame_engine_initiator",
+  "wrapper_entity": "can_xl_frame_engine_initiator_det_cfg",
+  "configuration_id": "CAN_XL_FRAME_ENGINE_INITIATOR_EA7554ADA17662AA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

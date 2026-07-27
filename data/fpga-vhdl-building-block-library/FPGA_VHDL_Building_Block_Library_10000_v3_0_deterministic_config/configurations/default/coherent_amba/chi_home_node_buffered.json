@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_home_node_buffered",
+  "wrapper_entity": "chi_home_node_buffered_det_cfg",
+  "configuration_id": "CHI_HOME_NODE_BUFFERED_372B1AEB03799EDF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

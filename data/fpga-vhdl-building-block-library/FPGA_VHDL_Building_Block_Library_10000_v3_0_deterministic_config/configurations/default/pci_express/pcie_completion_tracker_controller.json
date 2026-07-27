@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_completion_tracker_controller",
+  "wrapper_entity": "pcie_completion_tracker_controller_det_cfg",
+  "configuration_id": "PCIE_COMPLETION_TRACKER_CONTROLLER_7B0F66C688C71BDA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

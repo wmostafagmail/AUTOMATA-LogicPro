@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dram_refresh_manager_low_power",
+  "wrapper_entity": "dram_refresh_manager_low_power_det_cfg",
+  "configuration_id": "DRAM_REFRESH_MANAGER_LOW_POWER_53311E5318714207",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

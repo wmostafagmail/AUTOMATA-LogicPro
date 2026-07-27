@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "row_hit_scheduler_nonblocking",
+  "wrapper_entity": "row_hit_scheduler_nonblocking_det_cfg",
+  "configuration_id": "ROW_HIT_SCHEDULER_NONBLOCKING_82DCC9DD5DAC4092",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

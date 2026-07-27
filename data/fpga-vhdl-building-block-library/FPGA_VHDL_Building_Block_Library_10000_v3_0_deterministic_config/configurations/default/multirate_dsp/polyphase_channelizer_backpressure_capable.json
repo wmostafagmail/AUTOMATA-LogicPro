@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polyphase_channelizer_backpressure_capable",
+  "wrapper_entity": "polyphase_channelizer_backpressure_capable_det_cfg",
+  "configuration_id": "POLYPHASE_CHANNELIZER_BACKPRESSURE_CAPABLE_59DD94E28208707D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "frequency_meter_programmable",
+  "wrapper_entity": "frequency_meter_programmable_det_cfg",
+  "configuration_id": "FREQUENCY_METER_PROGRAMMABLE_9E0973BC6BD13670",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

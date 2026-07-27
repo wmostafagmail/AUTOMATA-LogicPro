@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_saturating",
+  "wrapper_entity": "sliding_window_attention_saturating_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_SATURATING_13573C7696827034",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

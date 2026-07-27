@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_error_detecting",
+  "wrapper_entity": "reverberation_engine_error_detecting_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_ERROR_DETECTING_77F7B1944D675FA3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

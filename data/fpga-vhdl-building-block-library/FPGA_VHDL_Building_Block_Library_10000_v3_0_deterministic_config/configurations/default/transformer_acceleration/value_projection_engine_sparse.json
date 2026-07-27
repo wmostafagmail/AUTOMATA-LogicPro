@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "value_projection_engine_sparse",
+  "wrapper_entity": "value_projection_engine_sparse_det_cfg",
+  "configuration_id": "VALUE_PROJECTION_ENGINE_SPARSE_7CF864C8410F1D4D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

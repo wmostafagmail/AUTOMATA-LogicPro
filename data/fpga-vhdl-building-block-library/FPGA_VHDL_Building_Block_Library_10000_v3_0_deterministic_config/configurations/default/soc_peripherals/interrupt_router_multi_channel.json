@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "interrupt_router_multi_channel",
+  "wrapper_entity": "interrupt_router_multi_channel_det_cfg",
+  "configuration_id": "INTERRUPT_ROUTER_MULTI_CHANNEL_88D0A34B2ED1B045",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

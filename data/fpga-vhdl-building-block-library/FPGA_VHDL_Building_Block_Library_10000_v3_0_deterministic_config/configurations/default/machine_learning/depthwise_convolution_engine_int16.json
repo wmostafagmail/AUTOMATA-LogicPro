@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "depthwise_convolution_engine_int16",
+  "wrapper_entity": "depthwise_convolution_engine_int16_det_cfg",
+  "configuration_id": "DEPTHWISE_CONVOLUTION_ENGINE_INT16_A1E0D2697F2C7703",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

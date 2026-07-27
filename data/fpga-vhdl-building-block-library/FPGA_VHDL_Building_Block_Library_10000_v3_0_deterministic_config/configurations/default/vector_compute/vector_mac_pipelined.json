@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_mac_pipelined",
+  "wrapper_entity": "vector_mac_pipelined_det_cfg",
+  "configuration_id": "VECTOR_MAC_PIPELINED_DBB3F543151D1962",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

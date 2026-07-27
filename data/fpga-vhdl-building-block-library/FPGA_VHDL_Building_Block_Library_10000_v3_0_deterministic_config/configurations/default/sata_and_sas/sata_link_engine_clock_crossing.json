@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_clock_crossing",
+  "wrapper_entity": "sata_link_engine_clock_crossing_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_CLOCK_CROSSING_4EEE7B73DAF86561",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

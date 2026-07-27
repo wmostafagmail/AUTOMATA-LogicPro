@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_ats_controller_dma_attached",
+  "wrapper_entity": "pcie_ats_controller_dma_attached_det_cfg",
+  "configuration_id": "PCIE_ATS_CONTROLLER_DMA_ATTACHED_F676C374F5B33E38",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

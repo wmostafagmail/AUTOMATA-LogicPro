@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reciprocal_approximator_resource_shared",
+  "wrapper_entity": "reciprocal_approximator_resource_shared_det_cfg",
+  "configuration_id": "RECIPROCAL_APPROXIMATOR_RESOURCE_SHARED_3021E1A3F5E1AF9C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

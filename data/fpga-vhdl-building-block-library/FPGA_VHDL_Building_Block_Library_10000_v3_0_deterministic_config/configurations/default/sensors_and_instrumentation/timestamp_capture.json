@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "timestamp_capture",
+  "wrapper_entity": "timestamp_capture_det_cfg",
+  "configuration_id": "TIMESTAMP_CAPTURE_951E55C3F363F7A3",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

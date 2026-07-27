@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "avalon_mm_slave_clock_crossing",
+  "wrapper_entity": "avalon_mm_slave_clock_crossing_det_cfg",
+  "configuration_id": "AVALON_MM_SLAVE_CLOCK_CROSSING_5C00E190822A7FFD",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

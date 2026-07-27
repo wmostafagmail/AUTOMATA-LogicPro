@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "mixed_precision_dispatcher_buffered_stream",
+  "wrapper_entity": "mixed_precision_dispatcher_buffered_stream_det_cfg",
+  "configuration_id": "MIXED_PRECISION_DISPATCHER_BUFFERED_STREAM_1A04D8A7510B76BB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

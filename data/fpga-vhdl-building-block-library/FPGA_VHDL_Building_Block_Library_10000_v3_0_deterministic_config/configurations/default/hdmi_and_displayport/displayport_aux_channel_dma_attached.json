@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_aux_channel_dma_attached",
+  "wrapper_entity": "displayport_aux_channel_dma_attached_det_cfg",
+  "configuration_id": "DISPLAYPORT_AUX_CHANNEL_DMA_ATTACHED_940E0CAD1F9A2708",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

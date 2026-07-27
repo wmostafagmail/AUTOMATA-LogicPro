@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "free_list_allocator_formally_instrumented",
+  "wrapper_entity": "free_list_allocator_formally_instrumented_det_cfg",
+  "configuration_id": "FREE_LIST_ALLOCATOR_FORMALLY_INSTRUMENTED_84DA02B528A5B19F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

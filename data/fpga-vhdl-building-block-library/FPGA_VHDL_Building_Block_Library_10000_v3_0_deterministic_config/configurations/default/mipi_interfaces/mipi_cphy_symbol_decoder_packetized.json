@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_cphy_symbol_decoder_packetized",
+  "wrapper_entity": "mipi_cphy_symbol_decoder_packetized_det_cfg",
+  "configuration_id": "MIPI_CPHY_SYMBOL_DECODER_PACKETIZED_5A22B62AAD109350",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

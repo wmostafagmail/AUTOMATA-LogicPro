@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multiband_compressor_packet_aware",
+  "wrapper_entity": "multiband_compressor_packet_aware_det_cfg",
+  "configuration_id": "MULTIBAND_COMPRESSOR_PACKET_AWARE_BE8FA1AF09D809F5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

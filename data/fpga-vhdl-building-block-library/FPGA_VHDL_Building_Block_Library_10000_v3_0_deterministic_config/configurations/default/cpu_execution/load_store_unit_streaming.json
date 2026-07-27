@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "load_store_unit_streaming",
+  "wrapper_entity": "load_store_unit_streaming_det_cfg",
+  "configuration_id": "LOAD_STORE_UNIT_STREAMING_93CB0D9F82A6B07E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bitstream_loader_low_power",
+  "wrapper_entity": "bitstream_loader_low_power_det_cfg",
+  "configuration_id": "BITSTREAM_LOADER_LOW_POWER_B3D219F1D2C43439",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

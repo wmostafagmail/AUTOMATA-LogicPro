@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_clock_variation",
+  "wrapper_entity": "performance_monitoring_unit_clock_variation_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_CLOCK_VARIATION_1D0718A3DA78F7B5",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

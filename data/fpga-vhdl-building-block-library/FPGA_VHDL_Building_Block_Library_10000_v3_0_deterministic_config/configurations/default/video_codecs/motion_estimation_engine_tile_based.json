@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_tile_based",
+  "wrapper_entity": "motion_estimation_engine_tile_based_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_TILE_BASED_FF19D85F667A544A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "qam_demapper_single_cycle",
+  "wrapper_entity": "qam_demapper_single_cycle_det_cfg",
+  "configuration_id": "QAM_DEMAPPER_SINGLE_CYCLE_F79E958CCDA57F81",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 242
+  }
+}

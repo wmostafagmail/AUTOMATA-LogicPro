@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_clamp_engine_sparse",
+  "wrapper_entity": "activation_clamp_engine_sparse_det_cfg",
+  "configuration_id": "ACTIVATION_CLAMP_ENGINE_SPARSE_24E490779BDA5718",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_preamble_engine_single_cycle",
+  "wrapper_entity": "ethernet_preamble_engine_single_cycle_det_cfg",
+  "configuration_id": "ETHERNET_PREAMBLE_ENGINE_SINGLE_CYCLE_E7FC4C8BC0FDA985",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

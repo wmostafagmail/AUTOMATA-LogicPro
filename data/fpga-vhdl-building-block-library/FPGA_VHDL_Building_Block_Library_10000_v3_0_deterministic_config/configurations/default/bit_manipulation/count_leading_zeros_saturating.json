@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "count_leading_zeros_saturating",
+  "wrapper_entity": "count_leading_zeros_saturating_det_cfg",
+  "configuration_id": "COUNT_LEADING_ZEROS_SATURATING_EE45E09C41A0D451",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

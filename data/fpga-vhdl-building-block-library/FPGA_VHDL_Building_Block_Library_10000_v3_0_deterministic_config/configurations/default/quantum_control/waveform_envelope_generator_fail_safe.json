@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_fail_safe",
+  "wrapper_entity": "waveform_envelope_generator_fail_safe_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_FAIL_SAFE_27E091DD3EE3C84D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

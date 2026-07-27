@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_bridge",
+  "wrapper_entity": "display_stream_compression_engine_bridge_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_BRIDGE_5948F7124163C0E9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

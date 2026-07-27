@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_multiplier_wrapper_multi_channel",
+  "wrapper_entity": "clock_multiplier_wrapper_multi_channel_det_cfg",
+  "configuration_id": "CLOCK_MULTIPLIER_WRAPPER_MULTI_CHANNEL_70E214C1C5684D81",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

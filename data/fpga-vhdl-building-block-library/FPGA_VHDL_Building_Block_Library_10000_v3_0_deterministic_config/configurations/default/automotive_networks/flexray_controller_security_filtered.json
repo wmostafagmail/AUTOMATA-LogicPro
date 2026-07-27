@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_security_filtered",
+  "wrapper_entity": "flexray_controller_security_filtered_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_SECURITY_FILTERED_F7E95D6809E33ABE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

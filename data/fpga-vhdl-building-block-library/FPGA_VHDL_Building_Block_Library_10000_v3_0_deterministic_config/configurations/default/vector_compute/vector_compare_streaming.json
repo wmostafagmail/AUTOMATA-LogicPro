@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_compare_streaming",
+  "wrapper_entity": "vector_compare_streaming_det_cfg",
+  "configuration_id": "VECTOR_COMPARE_STREAMING_2ED8AED0913CEB80",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

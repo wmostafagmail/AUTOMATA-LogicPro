@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "program_counter",
+  "wrapper_entity": "program_counter_det_cfg",
+  "configuration_id": "PROGRAM_COUNTER_8AB0831A35167F48",
+  "generics": {
+    "PC_WIDTH": 32,
+    "RESET_VECTOR": 0,
+    "INSTR_BYTES": 4
+  }
+}

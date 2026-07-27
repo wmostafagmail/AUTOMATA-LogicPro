@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix8_multiplier_low_power",
+  "wrapper_entity": "booth_radix8_multiplier_low_power_det_cfg",
+  "configuration_id": "BOOTH_RADIX8_MULTIPLIER_LOW_POWER_A36793809802764F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

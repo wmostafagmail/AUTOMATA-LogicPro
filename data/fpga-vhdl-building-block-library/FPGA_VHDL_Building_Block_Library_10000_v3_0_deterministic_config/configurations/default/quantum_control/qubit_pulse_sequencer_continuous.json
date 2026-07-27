@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_continuous",
+  "wrapper_entity": "qubit_pulse_sequencer_continuous_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_CONTINUOUS_B3F5D211203A6B1A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

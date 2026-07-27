@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "winograd_convolution_engine_digit_serial",
+  "wrapper_entity": "winograd_convolution_engine_digit_serial_det_cfg",
+  "configuration_id": "WINOGRAD_CONVOLUTION_ENGINE_DIGIT_SERIAL_0DB0D610692379BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

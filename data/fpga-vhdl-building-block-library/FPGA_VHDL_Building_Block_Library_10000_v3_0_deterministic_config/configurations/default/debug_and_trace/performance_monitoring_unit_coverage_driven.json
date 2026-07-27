@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_coverage_driven",
+  "wrapper_entity": "performance_monitoring_unit_coverage_driven_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_COVERAGE_DRIVEN_55AAA14D5A258FE3",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "goldschmidt_reciprocal_saturating",
+  "wrapper_entity": "goldschmidt_reciprocal_saturating_det_cfg",
+  "configuration_id": "GOLDSCHMIDT_RECIPROCAL_SATURATING_3CCB05556C0AC9E0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

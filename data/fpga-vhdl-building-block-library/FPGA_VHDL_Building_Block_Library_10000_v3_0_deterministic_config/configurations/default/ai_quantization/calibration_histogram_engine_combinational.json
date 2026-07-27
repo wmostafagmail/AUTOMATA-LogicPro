@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "calibration_histogram_engine_combinational",
+  "wrapper_entity": "calibration_histogram_engine_combinational_det_cfg",
+  "configuration_id": "CALIBRATION_HISTOGRAM_ENGINE_COMBINATIONAL_0E23E8AAE1B0AA4B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

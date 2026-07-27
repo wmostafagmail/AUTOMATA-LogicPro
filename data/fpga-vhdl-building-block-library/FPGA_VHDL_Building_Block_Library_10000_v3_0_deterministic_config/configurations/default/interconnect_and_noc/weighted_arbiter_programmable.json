@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "weighted_arbiter_programmable",
+  "wrapper_entity": "weighted_arbiter_programmable_det_cfg",
+  "configuration_id": "WEIGHTED_ARBITER_PROGRAMMABLE_59ED5A405AFAD03B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_iterative",
+  "wrapper_entity": "divergent_branch_stack_iterative_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_ITERATIVE_F50EB9F451F5C25C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

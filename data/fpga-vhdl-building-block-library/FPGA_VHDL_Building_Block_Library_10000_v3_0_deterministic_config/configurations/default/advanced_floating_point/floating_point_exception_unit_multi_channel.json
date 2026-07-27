@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_exception_unit_multi_channel",
+  "wrapper_entity": "floating_point_exception_unit_multi_channel_det_cfg",
+  "configuration_id": "FLOATING_POINT_EXCEPTION_UNIT_MULTI_CHANNEL_AA550FA92D464C3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

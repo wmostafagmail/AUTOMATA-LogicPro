@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_macsec_adapter_clock_crossing",
+  "wrapper_entity": "ethernet_macsec_adapter_clock_crossing_det_cfg",
+  "configuration_id": "ETHERNET_MACSEC_ADAPTER_CLOCK_CROSSING_7464FC50F7B6B46F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

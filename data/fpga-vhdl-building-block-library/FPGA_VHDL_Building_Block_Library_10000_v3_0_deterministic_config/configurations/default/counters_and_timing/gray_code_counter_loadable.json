@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "gray_code_counter_loadable",
+  "wrapper_entity": "gray_code_counter_loadable_det_cfg",
+  "configuration_id": "GRAY_CODE_COUNTER_LOADABLE_B08CEE4719278BA2",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

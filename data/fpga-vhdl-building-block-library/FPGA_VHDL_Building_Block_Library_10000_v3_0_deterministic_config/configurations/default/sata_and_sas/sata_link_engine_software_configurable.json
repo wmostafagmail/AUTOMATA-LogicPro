@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_link_engine_software_configurable",
+  "wrapper_entity": "sata_link_engine_software_configurable_det_cfg",
+  "configuration_id": "SATA_LINK_ENGINE_SOFTWARE_CONFIGURABLE_4C2554B39A08A09F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

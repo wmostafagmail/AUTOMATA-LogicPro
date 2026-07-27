@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "flash_attention_tile_engine_deep_pipeline",
+  "wrapper_entity": "flash_attention_tile_engine_deep_pipeline_det_cfg",
+  "configuration_id": "FLASH_ATTENTION_TILE_ENGINE_DEEP_PIPELINE_00092AD095147F7A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "halfband_cascade_time_multiplexed",
+  "wrapper_entity": "halfband_cascade_time_multiplexed_det_cfg",
+  "configuration_id": "HALFBAND_CASCADE_TIME_MULTIPLEXED_981163CF2261A92A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

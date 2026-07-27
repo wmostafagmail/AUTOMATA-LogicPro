@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_packet_protocol",
+  "wrapper_entity": "uart_packet_protocol_det_cfg",
+  "configuration_id": "UART_PACKET_PROTOCOL_90480A1EB5CFB56D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

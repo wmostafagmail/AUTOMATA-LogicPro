@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "numerically_controlled_oscillator_single_cycle",
+  "wrapper_entity": "numerically_controlled_oscillator_single_cycle_det_cfg",
+  "configuration_id": "NUMERICALLY_CONTROLLED_OSCILLATOR_SINGLE_CYCLE_EBFD381EE50D822C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 229
+  }
+}

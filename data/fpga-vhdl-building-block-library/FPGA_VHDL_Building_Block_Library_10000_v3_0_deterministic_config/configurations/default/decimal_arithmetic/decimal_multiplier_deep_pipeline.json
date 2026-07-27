@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_multiplier_deep_pipeline",
+  "wrapper_entity": "decimal_multiplier_deep_pipeline_det_cfg",
+  "configuration_id": "DECIMAL_MULTIPLIER_DEEP_PIPELINE_3AE05C366650CCFB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

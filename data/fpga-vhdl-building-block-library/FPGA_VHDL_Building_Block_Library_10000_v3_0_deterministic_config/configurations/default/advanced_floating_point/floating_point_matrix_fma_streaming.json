@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_matrix_fma_streaming",
+  "wrapper_entity": "floating_point_matrix_fma_streaming_det_cfg",
+  "configuration_id": "FLOATING_POINT_MATRIX_FMA_STREAMING_354A9BED60DD2EEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

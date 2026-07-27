@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_software_configurable",
+  "wrapper_entity": "obstacle_avoidance_controller_software_configurable_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_SOFTWARE_CONFIGURABLE_7B8BF8CAEAC614A4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

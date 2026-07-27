@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "automotive_gateway_single_shot",
+  "wrapper_entity": "automotive_gateway_single_shot_det_cfg",
+  "configuration_id": "AUTOMOTIVE_GATEWAY_SINGLE_SHOT_18F88D95E488E288",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

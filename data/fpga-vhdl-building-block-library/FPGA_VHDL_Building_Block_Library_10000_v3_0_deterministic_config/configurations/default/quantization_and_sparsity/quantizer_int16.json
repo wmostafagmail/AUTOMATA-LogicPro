@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quantizer_int16",
+  "wrapper_entity": "quantizer_int16_det_cfg",
+  "configuration_id": "QUANTIZER_INT16_E42431A8E7B3420A",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

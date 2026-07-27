@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_dma_attached",
+  "wrapper_entity": "hierarchical_noc_gateway_dma_attached_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_DMA_ATTACHED_5662AEEC7C70EE6F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

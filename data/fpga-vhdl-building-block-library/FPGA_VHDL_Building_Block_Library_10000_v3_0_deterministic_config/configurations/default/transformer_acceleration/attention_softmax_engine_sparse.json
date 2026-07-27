@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_softmax_engine_sparse",
+  "wrapper_entity": "attention_softmax_engine_sparse_det_cfg",
+  "configuration_id": "ATTENTION_SOFTMAX_ENGINE_SPARSE_35668A51F4E0A0FE",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_digit_serial",
+  "wrapper_entity": "riscv_bitmanip_unit_digit_serial_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_DIGIT_SERIAL_0B4E3EAD7FF95CE1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

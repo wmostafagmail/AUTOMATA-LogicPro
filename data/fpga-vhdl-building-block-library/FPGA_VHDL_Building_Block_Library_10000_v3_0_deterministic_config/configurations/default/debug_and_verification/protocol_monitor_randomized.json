@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_monitor_randomized",
+  "wrapper_entity": "protocol_monitor_randomized_det_cfg",
+  "configuration_id": "PROTOCOL_MONITOR_RANDOMIZED_5CE13DF33C5E23D1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

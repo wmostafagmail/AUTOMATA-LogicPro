@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensor_redundancy_voter_fault_tolerant",
+  "wrapper_entity": "sensor_redundancy_voter_fault_tolerant_det_cfg",
+  "configuration_id": "SENSOR_REDUNDANCY_VOTER_FAULT_TOLERANT_644C29F09CB1B9D8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

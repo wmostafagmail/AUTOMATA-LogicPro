@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_lane_alignment_bridge",
+  "wrapper_entity": "jesd204b_lane_alignment_bridge_det_cfg",
+  "configuration_id": "JESD204B_LANE_ALIGNMENT_BRIDGE_03E5111D7B1C863D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sine_wave_generator_single_cycle",
+  "wrapper_entity": "sine_wave_generator_single_cycle_det_cfg",
+  "configuration_id": "SINE_WAVE_GENERATOR_SINGLE_CYCLE_ED0F2B62E8EE86F6",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

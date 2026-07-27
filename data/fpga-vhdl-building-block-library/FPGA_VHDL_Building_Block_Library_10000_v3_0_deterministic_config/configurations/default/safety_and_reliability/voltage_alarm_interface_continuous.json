@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "voltage_alarm_interface_continuous",
+  "wrapper_entity": "voltage_alarm_interface_continuous_det_cfg",
+  "configuration_id": "VOLTAGE_ALARM_INTERFACE_CONTINUOUS_3CA635725ED3C3F8",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

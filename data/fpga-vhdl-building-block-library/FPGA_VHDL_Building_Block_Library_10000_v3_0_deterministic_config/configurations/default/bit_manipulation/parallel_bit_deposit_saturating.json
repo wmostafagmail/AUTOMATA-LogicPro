@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_deposit_saturating",
+  "wrapper_entity": "parallel_bit_deposit_saturating_det_cfg",
+  "configuration_id": "PARALLEL_BIT_DEPOSIT_SATURATING_5CB8160A72007816",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_null_steerer_iterative",
+  "wrapper_entity": "adaptive_null_steerer_iterative_det_cfg",
+  "configuration_id": "ADAPTIVE_NULL_STEERER_ITERATIVE_E75F2F032C4261BF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

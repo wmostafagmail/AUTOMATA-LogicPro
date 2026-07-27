@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "white_balance_engine_framebuffer",
+  "wrapper_entity": "white_balance_engine_framebuffer_det_cfg",
+  "configuration_id": "WHITE_BALANCE_ENGINE_FRAMEBUFFER_2637115DFD9F4757",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

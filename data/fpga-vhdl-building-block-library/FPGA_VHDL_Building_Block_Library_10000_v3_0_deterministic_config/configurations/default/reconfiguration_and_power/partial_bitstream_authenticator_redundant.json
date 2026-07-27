@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_redundant",
+  "wrapper_entity": "partial_bitstream_authenticator_redundant_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_REDUNDANT_725F7BDCB6603CF4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

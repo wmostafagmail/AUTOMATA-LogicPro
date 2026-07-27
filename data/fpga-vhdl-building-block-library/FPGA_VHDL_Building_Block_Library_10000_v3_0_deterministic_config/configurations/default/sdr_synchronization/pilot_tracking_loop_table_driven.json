@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_table_driven",
+  "wrapper_entity": "pilot_tracking_loop_table_driven_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_TABLE_DRIVEN_11AC2A703867F5A7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

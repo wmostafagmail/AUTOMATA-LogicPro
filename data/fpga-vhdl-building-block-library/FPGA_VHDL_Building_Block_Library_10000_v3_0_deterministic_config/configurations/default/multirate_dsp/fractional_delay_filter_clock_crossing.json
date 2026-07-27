@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fractional_delay_filter_clock_crossing",
+  "wrapper_entity": "fractional_delay_filter_clock_crossing_det_cfg",
+  "configuration_id": "FRACTIONAL_DELAY_FILTER_CLOCK_CROSSING_5F58E277FBA7D907",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

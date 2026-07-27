@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_configuration_space_target",
+  "wrapper_entity": "pcie_configuration_space_target_det_cfg",
+  "configuration_id": "PCIE_CONFIGURATION_SPACE_TARGET_2A599EF7A0431785",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

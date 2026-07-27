@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sort_merge_engine_iterative",
+  "wrapper_entity": "sort_merge_engine_iterative_det_cfg",
+  "configuration_id": "SORT_MERGE_ENGINE_ITERATIVE_8ACFD8B59F60819F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 82
+  }
+}

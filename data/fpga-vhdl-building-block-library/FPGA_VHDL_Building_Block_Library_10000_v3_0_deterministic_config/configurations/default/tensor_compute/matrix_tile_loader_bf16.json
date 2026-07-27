@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_tile_loader_bf16",
+  "wrapper_entity": "matrix_tile_loader_bf16_det_cfg",
+  "configuration_id": "MATRIX_TILE_LOADER_BF16_96FF6974D83826C9",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

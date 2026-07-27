@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_low_power",
+  "wrapper_entity": "shader_register_file_low_power_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_LOW_POWER_A22F4BFF1298C88D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

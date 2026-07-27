@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_security_filtered",
+  "wrapper_entity": "ethernet_25g_lane_mapper_security_filtered_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_SECURITY_FILTERED_973F75D75C89680D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "tensor_mac_array_bf16",
+  "wrapper_entity": "tensor_mac_array_bf16_det_cfg",
+  "configuration_id": "TENSOR_MAC_ARRAY_BF16_7C6A50EA4EA1E07A",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_telemetry_low_power",
+  "wrapper_entity": "power_telemetry_low_power_det_cfg",
+  "configuration_id": "POWER_TELEMETRY_LOW_POWER_0B0B8B9BFC456BFC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

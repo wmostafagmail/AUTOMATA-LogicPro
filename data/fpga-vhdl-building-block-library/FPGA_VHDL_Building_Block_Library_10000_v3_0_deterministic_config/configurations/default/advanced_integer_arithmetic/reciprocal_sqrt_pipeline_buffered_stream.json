@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reciprocal_sqrt_pipeline_buffered_stream",
+  "wrapper_entity": "reciprocal_sqrt_pipeline_buffered_stream_det_cfg",
+  "configuration_id": "RECIPROCAL_SQRT_PIPELINE_BUFFERED_STREAM_A8F8CA76B067CE9F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

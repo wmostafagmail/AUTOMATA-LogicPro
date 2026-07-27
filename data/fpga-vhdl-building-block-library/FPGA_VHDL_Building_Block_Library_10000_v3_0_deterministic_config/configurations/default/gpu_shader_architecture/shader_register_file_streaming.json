@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_streaming",
+  "wrapper_entity": "shader_register_file_streaming_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_STREAMING_56BAE48D895EB61D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

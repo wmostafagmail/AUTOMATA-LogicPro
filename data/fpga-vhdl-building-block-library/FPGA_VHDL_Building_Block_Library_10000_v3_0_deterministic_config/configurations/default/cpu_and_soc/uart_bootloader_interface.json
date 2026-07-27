@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "uart_bootloader_interface",
+  "wrapper_entity": "uart_bootloader_interface_det_cfg",
+  "configuration_id": "UART_BOOTLOADER_INTERFACE_27CA0E0E838AD9A9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

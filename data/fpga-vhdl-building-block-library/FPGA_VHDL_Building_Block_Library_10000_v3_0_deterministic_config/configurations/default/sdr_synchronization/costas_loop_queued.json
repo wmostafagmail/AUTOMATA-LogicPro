@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_queued",
+  "wrapper_entity": "costas_loop_queued_det_cfg",
+  "configuration_id": "COSTAS_LOOP_QUEUED_37FC7CFE573F794E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

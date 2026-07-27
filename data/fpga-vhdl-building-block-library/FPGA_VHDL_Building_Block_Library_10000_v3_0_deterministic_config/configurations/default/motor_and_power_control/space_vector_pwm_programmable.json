@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "space_vector_pwm_programmable",
+  "wrapper_entity": "space_vector_pwm_programmable_det_cfg",
+  "configuration_id": "SPACE_VECTOR_PWM_PROGRAMMABLE_60610AEA969AFE9D",
+  "generics": {
+    "WIDTH": 16
+  }
+}

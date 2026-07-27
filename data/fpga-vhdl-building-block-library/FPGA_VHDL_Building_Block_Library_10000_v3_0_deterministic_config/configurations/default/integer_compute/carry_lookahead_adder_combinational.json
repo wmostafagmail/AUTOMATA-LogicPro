@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_lookahead_adder_combinational",
+  "wrapper_entity": "carry_lookahead_adder_combinational_det_cfg",
+  "configuration_id": "CARRY_LOOKAHEAD_ADDER_COMBINATIONAL_C066CF51B8A1C530",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

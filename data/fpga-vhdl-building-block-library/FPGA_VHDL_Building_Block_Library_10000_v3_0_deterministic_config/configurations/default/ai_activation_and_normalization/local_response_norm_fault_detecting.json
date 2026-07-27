@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "local_response_norm_fault_detecting",
+  "wrapper_entity": "local_response_norm_fault_detecting_det_cfg",
+  "configuration_id": "LOCAL_RESPONSE_NORM_FAULT_DETECTING_FFC0BE09FDD22A9C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

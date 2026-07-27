@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "square_root_engine_streaming",
+  "wrapper_entity": "square_root_engine_streaming_det_cfg",
+  "configuration_id": "SQUARE_ROOT_ENGINE_STREAMING_0EA7F8ADD5C62490",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

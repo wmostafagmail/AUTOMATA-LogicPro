@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parallel_bit_extract_fully_parallel",
+  "wrapper_entity": "parallel_bit_extract_fully_parallel_det_cfg",
+  "configuration_id": "PARALLEL_BIT_EXTRACT_FULLY_PARALLEL_07152AB6EAECF22E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

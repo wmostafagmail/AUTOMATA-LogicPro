@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_register_file_fully_parallel",
+  "wrapper_entity": "shader_register_file_fully_parallel_det_cfg",
+  "configuration_id": "SHADER_REGISTER_FILE_FULLY_PARALLEL_A3AB846368F039C1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

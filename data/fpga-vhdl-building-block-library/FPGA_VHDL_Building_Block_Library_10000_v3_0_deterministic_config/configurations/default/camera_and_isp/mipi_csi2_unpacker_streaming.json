@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_unpacker_streaming",
+  "wrapper_entity": "mipi_csi2_unpacker_streaming_det_cfg",
+  "configuration_id": "MIPI_CSI2_UNPACKER_STREAMING_F5913627C068F1C4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

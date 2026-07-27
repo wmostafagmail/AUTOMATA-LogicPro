@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "tensor_mac_array_sparse",
+  "wrapper_entity": "tensor_mac_array_sparse_det_cfg",
+  "configuration_id": "TENSOR_MAC_ARRAY_SPARSE_A69E3C0EC7483F3C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

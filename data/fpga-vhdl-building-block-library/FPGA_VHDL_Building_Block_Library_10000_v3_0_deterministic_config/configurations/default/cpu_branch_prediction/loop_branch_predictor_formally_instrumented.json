@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_formally_instrumented",
+  "wrapper_entity": "loop_branch_predictor_formally_instrumented_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_FORMALLY_INSTRUMENTED_9C74D385DABBCD68",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

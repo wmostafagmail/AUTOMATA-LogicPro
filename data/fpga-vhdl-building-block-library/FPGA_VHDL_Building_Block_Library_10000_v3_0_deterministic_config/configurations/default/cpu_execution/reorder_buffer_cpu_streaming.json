@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reorder_buffer_cpu_streaming",
+  "wrapper_entity": "reorder_buffer_cpu_streaming_det_cfg",
+  "configuration_id": "REORDER_BUFFER_CPU_STREAMING_69B6764FF74D3304",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

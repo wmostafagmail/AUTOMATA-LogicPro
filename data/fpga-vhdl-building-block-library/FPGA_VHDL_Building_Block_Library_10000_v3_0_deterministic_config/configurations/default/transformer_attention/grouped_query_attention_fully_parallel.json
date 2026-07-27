@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_query_attention_fully_parallel",
+  "wrapper_entity": "grouped_query_attention_fully_parallel_det_cfg",
+  "configuration_id": "GROUPED_QUERY_ATTENTION_FULLY_PARALLEL_A5B5FBC4C6A524AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

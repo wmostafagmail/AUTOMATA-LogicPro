@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_bar_controller_width_adapted",
+  "wrapper_entity": "pcie_bar_controller_width_adapted_det_cfg",
+  "configuration_id": "PCIE_BAR_CONTROLLER_WIDTH_ADAPTED_5667D4D454664056",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

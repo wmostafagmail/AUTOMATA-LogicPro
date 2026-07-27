@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_pause_control_iterative",
+  "wrapper_entity": "ethernet_pause_control_iterative_det_cfg",
+  "configuration_id": "ETHERNET_PAUSE_CONTROL_ITERATIVE_C68978F029974365",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

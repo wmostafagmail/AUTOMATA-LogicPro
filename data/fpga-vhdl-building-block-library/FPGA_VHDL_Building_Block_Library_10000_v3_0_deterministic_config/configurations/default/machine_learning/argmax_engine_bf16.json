@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "argmax_engine_bf16",
+  "wrapper_entity": "argmax_engine_bf16_det_cfg",
+  "configuration_id": "ARGMAX_ENGINE_BF16_177BD619D115020E",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

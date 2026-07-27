@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_header_parser_fault_tolerant",
+  "wrapper_entity": "ipv6_header_parser_fault_tolerant_det_cfg",
+  "configuration_id": "IPV6_HEADER_PARSER_FAULT_TOLERANT_2D6B90FD46880E5D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

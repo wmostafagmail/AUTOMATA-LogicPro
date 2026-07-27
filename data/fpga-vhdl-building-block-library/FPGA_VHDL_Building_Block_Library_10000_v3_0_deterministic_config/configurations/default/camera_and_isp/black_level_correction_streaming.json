@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "black_level_correction_streaming",
+  "wrapper_entity": "black_level_correction_streaming_det_cfg",
+  "configuration_id": "BLACK_LEVEL_CORRECTION_STREAMING_3F48F06C54BAAB29",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

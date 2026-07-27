@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_pri_controller_redundant",
+  "wrapper_entity": "pcie_pri_controller_redundant_det_cfg",
+  "configuration_id": "PCIE_PRI_CONTROLLER_REDUNDANT_99AD7C9317365530",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

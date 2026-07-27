@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "denormal_handler_fully_parallel",
+  "wrapper_entity": "denormal_handler_fully_parallel_det_cfg",
+  "configuration_id": "DENORMAL_HANDLER_FULLY_PARALLEL_B7283158DBAA6470",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

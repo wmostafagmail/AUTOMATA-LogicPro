@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "frame_preemption_controller_redundant",
+  "wrapper_entity": "frame_preemption_controller_redundant_det_cfg",
+  "configuration_id": "FRAME_PREEMPTION_CONTROLLER_REDUNDANT_6DB936FB98931920",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

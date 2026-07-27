@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_confidence_estimator_fail_safe",
+  "wrapper_entity": "branch_confidence_estimator_fail_safe_det_cfg",
+  "configuration_id": "BRANCH_CONFIDENCE_ESTIMATOR_FAIL_SAFE_07EBE6CA2B21510B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

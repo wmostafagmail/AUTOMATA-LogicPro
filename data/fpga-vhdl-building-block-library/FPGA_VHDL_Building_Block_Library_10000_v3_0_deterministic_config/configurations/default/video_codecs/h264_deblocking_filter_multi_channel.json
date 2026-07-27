@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_multi_channel",
+  "wrapper_entity": "h264_deblocking_filter_multi_channel_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_MULTI_CHANNEL_041D412627B2BABE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

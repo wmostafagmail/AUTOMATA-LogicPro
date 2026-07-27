@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "huffman_encoder_streaming",
+  "wrapper_entity": "huffman_encoder_streaming_det_cfg",
+  "configuration_id": "HUFFMAN_ENCODER_STREAMING_03E732F5ECEB5008",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fir_interpolator_streaming",
+  "wrapper_entity": "fir_interpolator_streaming_det_cfg",
+  "configuration_id": "FIR_INTERPOLATOR_STREAMING_E96758555E66F539",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 157
+  }
+}

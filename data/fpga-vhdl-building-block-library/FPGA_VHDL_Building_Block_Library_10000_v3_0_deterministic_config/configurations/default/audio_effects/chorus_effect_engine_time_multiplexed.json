@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chorus_effect_engine_time_multiplexed",
+  "wrapper_entity": "chorus_effect_engine_time_multiplexed_det_cfg",
+  "configuration_id": "CHORUS_EFFECT_ENGINE_TIME_MULTIPLEXED_993292E703D1E9C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

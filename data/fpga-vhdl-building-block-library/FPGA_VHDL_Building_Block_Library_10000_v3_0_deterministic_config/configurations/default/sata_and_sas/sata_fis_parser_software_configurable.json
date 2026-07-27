@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_software_configurable",
+  "wrapper_entity": "sata_fis_parser_software_configurable_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_SOFTWARE_CONFIGURABLE_A3443C54D24F17F4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

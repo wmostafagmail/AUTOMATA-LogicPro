@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "spacewire_link_engine_low_power",
+  "wrapper_entity": "spacewire_link_engine_low_power_det_cfg",
+  "configuration_id": "SPACEWIRE_LINK_ENGINE_LOW_POWER_7C7C2D0C5B4CC2A4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

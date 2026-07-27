@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "return_address_stack_fault_tolerant",
+  "wrapper_entity": "return_address_stack_fault_tolerant_det_cfg",
+  "configuration_id": "RETURN_ADDRESS_STACK_FAULT_TOLERANT_E021EAB398B312DB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

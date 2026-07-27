@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_clock_enable_multi_plane",
+  "wrapper_entity": "pixel_clock_enable_multi_plane_det_cfg",
+  "configuration_id": "PIXEL_CLOCK_ENABLE_MULTI_PLANE_32E21117F4209C37",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

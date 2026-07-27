@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "logic_analyzer_formal_friendly",
+  "wrapper_entity": "logic_analyzer_formal_friendly_det_cfg",
+  "configuration_id": "LOGIC_ANALYZER_FORMAL_FRIENDLY_A4225ACA3257524A",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

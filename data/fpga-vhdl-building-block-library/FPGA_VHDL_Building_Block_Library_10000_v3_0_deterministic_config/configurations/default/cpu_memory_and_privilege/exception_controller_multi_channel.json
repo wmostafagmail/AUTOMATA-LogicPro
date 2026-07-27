@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_controller_multi_channel",
+  "wrapper_entity": "exception_controller_multi_channel_det_cfg",
+  "configuration_id": "EXCEPTION_CONTROLLER_MULTI_CHANNEL_BEFEBAC7E32E566C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

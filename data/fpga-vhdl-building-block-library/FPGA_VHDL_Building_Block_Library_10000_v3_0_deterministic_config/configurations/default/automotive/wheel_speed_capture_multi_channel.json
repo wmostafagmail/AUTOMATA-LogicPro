@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wheel_speed_capture_multi_channel",
+  "wrapper_entity": "wheel_speed_capture_multi_channel_det_cfg",
+  "configuration_id": "WHEEL_SPEED_CAPTURE_MULTI_CHANNEL_4870135090B42D93",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_cache_attribute_adapter_multi_channel",
+  "wrapper_entity": "axi_cache_attribute_adapter_multi_channel_det_cfg",
+  "configuration_id": "AXI_CACHE_ATTRIBUTE_ADAPTER_MULTI_CHANNEL_1B9EC0368811D54D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

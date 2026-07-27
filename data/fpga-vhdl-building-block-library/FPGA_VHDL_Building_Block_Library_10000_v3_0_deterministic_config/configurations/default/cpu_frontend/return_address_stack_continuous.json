@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "return_address_stack_continuous",
+  "wrapper_entity": "return_address_stack_continuous_det_cfg",
+  "configuration_id": "RETURN_ADDRESS_STACK_CONTINUOUS_99368E4A6C52713C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

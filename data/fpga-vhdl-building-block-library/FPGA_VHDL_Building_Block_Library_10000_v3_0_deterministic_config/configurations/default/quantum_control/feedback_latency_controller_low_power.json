@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_low_power",
+  "wrapper_entity": "feedback_latency_controller_low_power_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_LOW_POWER_B9AD844D254BE3F5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "write_buffer_ecc_protected",
+  "wrapper_entity": "write_buffer_ecc_protected_det_cfg",
+  "configuration_id": "WRITE_BUFFER_ECC_PROTECTED_5AFDEF0FCB7B98A2",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

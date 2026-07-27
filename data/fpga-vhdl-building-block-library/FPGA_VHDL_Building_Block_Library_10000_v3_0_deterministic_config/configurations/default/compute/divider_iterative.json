@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divider_iterative",
+  "wrapper_entity": "divider_iterative_det_cfg",
+  "configuration_id": "DIVIDER_ITERATIVE_B30C4261CB2FFAF2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

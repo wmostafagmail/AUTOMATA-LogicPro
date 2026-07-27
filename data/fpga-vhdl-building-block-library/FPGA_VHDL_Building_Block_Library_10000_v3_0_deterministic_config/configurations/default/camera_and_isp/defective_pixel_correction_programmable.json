@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "defective_pixel_correction_programmable",
+  "wrapper_entity": "defective_pixel_correction_programmable_det_cfg",
+  "configuration_id": "DEFECTIVE_PIXEL_CORRECTION_PROGRAMMABLE_6484D712AA14A5F9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

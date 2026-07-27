@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rgb_to_ycbcr_programmable",
+  "wrapper_entity": "rgb_to_ycbcr_programmable_det_cfg",
+  "configuration_id": "RGB_TO_YCBCR_PROGRAMMABLE_55DD696F39A46F05",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

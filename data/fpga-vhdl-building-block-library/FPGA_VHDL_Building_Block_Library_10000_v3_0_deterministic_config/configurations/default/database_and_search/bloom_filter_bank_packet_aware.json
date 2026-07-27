@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bloom_filter_bank_packet_aware",
+  "wrapper_entity": "bloom_filter_bank_packet_aware_det_cfg",
+  "configuration_id": "BLOOM_FILTER_BANK_PACKET_AWARE_CFE82E7E862D574D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

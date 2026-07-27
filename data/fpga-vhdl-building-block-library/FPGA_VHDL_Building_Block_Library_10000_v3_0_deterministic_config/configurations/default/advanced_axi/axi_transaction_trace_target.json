@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_transaction_trace_target",
+  "wrapper_entity": "axi_transaction_trace_target_det_cfg",
+  "configuration_id": "AXI_TRANSACTION_TRACE_TARGET_598C252329EC2CB6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

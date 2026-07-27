@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "nand_flash_translation_layer_multi_channel",
+  "wrapper_entity": "nand_flash_translation_layer_multi_channel_det_cfg",
+  "configuration_id": "NAND_FLASH_TRANSLATION_LAYER_MULTI_CHANNEL_3391B7B260C68FA2",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

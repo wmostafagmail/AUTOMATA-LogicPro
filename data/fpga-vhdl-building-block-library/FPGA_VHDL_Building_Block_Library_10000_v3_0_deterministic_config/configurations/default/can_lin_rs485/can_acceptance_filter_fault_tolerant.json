@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_acceptance_filter_fault_tolerant",
+  "wrapper_entity": "can_acceptance_filter_fault_tolerant_det_cfg",
+  "configuration_id": "CAN_ACCEPTANCE_FILTER_FAULT_TOLERANT_CF8D32333522028D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

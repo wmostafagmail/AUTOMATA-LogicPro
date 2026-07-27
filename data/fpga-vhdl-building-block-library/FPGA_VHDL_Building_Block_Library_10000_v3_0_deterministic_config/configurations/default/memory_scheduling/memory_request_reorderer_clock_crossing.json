@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_request_reorderer_clock_crossing",
+  "wrapper_entity": "memory_request_reorderer_clock_crossing_det_cfg",
+  "configuration_id": "MEMORY_REQUEST_REORDERER_CLOCK_CROSSING_B2CB35B5E244E3D9",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dynamic_range_tracker_pipelined",
+  "wrapper_entity": "dynamic_range_tracker_pipelined_det_cfg",
+  "configuration_id": "DYNAMIC_RANGE_TRACKER_PIPELINED_2D6ABBC2C9AC5EC1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

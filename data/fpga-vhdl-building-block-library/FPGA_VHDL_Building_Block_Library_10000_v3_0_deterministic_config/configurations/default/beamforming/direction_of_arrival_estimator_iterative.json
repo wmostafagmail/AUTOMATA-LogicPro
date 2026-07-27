@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "direction_of_arrival_estimator_iterative",
+  "wrapper_entity": "direction_of_arrival_estimator_iterative_det_cfg",
+  "configuration_id": "DIRECTION_OF_ARRIVAL_ESTIMATOR_ITERATIVE_7B4B65E5FB853944",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

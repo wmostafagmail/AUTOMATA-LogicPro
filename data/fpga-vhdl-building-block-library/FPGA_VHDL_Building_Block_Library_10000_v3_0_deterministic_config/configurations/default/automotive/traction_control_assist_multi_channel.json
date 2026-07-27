@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "traction_control_assist_multi_channel",
+  "wrapper_entity": "traction_control_assist_multi_channel_det_cfg",
+  "configuration_id": "TRACTION_CONTROL_ASSIST_MULTI_CHANNEL_C91F0FAC10FE10AC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spacefibre_lane_engine_multi_channel",
+  "wrapper_entity": "spacefibre_lane_engine_multi_channel_det_cfg",
+  "configuration_id": "SPACEFIBRE_LANE_ENGINE_MULTI_CHANNEL_F8C75E4B26B800AC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

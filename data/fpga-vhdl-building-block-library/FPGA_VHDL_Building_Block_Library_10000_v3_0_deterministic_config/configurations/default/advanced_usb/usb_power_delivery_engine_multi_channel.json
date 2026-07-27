@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_power_delivery_engine_multi_channel",
+  "wrapper_entity": "usb_power_delivery_engine_multi_channel_det_cfg",
+  "configuration_id": "USB_POWER_DELIVERY_ENGINE_MULTI_CHANNEL_50A8C8894F3321C2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "zero_point_adjuster_multi_engine",
+  "wrapper_entity": "zero_point_adjuster_multi_engine_det_cfg",
+  "configuration_id": "ZERO_POINT_ADJUSTER_MULTI_ENGINE_B3A0486292075725",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

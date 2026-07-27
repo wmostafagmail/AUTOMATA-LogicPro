@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_clock_crossing",
+  "wrapper_entity": "reorder_commit_engine_clock_crossing_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_CLOCK_CROSSING_9935AD10FA0A7FCF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

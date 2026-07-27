@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_aware_shaper_security_filtered",
+  "wrapper_entity": "time_aware_shaper_security_filtered_det_cfg",
+  "configuration_id": "TIME_AWARE_SHAPER_SECURITY_FILTERED_DA9E5F2D679623D7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

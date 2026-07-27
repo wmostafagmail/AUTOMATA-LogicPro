@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sign_extension_unit_single_cycle",
+  "wrapper_entity": "sign_extension_unit_single_cycle_det_cfg",
+  "configuration_id": "SIGN_EXTENSION_UNIT_SINGLE_CYCLE_6FCDF5AF69BAB1FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

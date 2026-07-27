@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_digit_serial",
+  "wrapper_entity": "logarithmic_quantizer_digit_serial_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_DIGIT_SERIAL_276144135047DD5F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "image_fallback_controller_multi_channel",
+  "wrapper_entity": "image_fallback_controller_multi_channel_det_cfg",
+  "configuration_id": "IMAGE_FALLBACK_CONTROLLER_MULTI_CHANNEL_61C5C6BA629BB4AF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

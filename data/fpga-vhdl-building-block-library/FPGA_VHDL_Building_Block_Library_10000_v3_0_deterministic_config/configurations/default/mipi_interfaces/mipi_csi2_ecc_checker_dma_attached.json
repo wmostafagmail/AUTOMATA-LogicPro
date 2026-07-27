@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_ecc_checker_dma_attached",
+  "wrapper_entity": "mipi_csi2_ecc_checker_dma_attached_det_cfg",
+  "configuration_id": "MIPI_CSI2_ECC_CHECKER_DMA_ATTACHED_A572AB246A947721",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

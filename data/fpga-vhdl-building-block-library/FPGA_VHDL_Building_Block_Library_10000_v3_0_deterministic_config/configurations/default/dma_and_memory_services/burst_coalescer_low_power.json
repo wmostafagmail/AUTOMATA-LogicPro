@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "burst_coalescer_low_power",
+  "wrapper_entity": "burst_coalescer_low_power_det_cfg",
+  "configuration_id": "BURST_COALESCER_LOW_POWER_5DE4AD271DFD132A",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

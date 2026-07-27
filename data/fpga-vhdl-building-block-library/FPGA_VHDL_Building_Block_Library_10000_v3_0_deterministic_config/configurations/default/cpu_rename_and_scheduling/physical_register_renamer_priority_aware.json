@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_priority_aware",
+  "wrapper_entity": "physical_register_renamer_priority_aware_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_PRIORITY_AWARE_7428B7C4205DA94D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

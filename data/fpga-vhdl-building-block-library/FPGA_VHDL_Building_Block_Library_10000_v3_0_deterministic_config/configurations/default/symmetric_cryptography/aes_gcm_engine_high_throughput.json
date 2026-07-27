@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_high_throughput",
+  "wrapper_entity": "aes_gcm_engine_high_throughput_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_HIGH_THROUGHPUT_93F732D55833B972",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

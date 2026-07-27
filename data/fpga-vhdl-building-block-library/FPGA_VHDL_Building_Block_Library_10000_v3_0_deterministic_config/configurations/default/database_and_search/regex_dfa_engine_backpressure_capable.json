@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "regex_dfa_engine_backpressure_capable",
+  "wrapper_entity": "regex_dfa_engine_backpressure_capable_det_cfg",
+  "configuration_id": "REGEX_DFA_ENGINE_BACKPRESSURE_CAPABLE_AC7ACA8B0D0EC16B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

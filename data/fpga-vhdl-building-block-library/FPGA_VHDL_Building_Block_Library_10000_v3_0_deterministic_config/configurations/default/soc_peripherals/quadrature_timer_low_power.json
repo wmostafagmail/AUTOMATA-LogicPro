@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_timer_low_power",
+  "wrapper_entity": "quadrature_timer_low_power_det_cfg",
+  "configuration_id": "QUADRATURE_TIMER_LOW_POWER_E1FE6439E040385E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

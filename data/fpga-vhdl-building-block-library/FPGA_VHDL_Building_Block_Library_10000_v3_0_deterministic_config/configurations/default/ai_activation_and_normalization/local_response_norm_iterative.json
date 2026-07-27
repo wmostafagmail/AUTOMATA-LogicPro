@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "local_response_norm_iterative",
+  "wrapper_entity": "local_response_norm_iterative_det_cfg",
+  "configuration_id": "LOCAL_RESPONSE_NORM_ITERATIVE_FE646075CBB437CA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

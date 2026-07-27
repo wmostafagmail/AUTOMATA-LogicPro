@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sha2_engine_resource_optimized",
+  "wrapper_entity": "sha2_engine_resource_optimized_det_cfg",
+  "configuration_id": "SHA2_ENGINE_RESOURCE_OPTIMIZED_F45607997EEC66F3",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_bridge",
+  "wrapper_entity": "storage_phy_oob_controller_bridge_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_BRIDGE_7B903282E7920B87",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

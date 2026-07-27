@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dilithium_ntt_engine_key_agile",
+  "wrapper_entity": "dilithium_ntt_engine_key_agile_det_cfg",
+  "configuration_id": "DILITHIUM_NTT_ENGINE_KEY_AGILE_E01853B28E94789C",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_packetized",
+  "wrapper_entity": "chi_snoop_filter_packetized_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_PACKETIZED_7DF3F88349BF69D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

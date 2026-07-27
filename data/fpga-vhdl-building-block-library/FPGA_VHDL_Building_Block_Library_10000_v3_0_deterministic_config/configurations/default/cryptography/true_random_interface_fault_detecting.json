@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "true_random_interface_fault_detecting",
+  "wrapper_entity": "true_random_interface_fault_detecting_det_cfg",
+  "configuration_id": "TRUE_RANDOM_INTERFACE_FAULT_DETECTING_CDB81FF029F8C2A0",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

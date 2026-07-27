@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_dma_engine_target",
+  "wrapper_entity": "pcie_dma_engine_target_det_cfg",
+  "configuration_id": "PCIE_DMA_ENGINE_TARGET_D9425D7448B63ADE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

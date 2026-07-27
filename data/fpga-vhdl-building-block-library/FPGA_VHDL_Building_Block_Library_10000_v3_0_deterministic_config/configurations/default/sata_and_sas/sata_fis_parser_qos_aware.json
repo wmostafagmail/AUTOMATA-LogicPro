@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sata_fis_parser_qos_aware",
+  "wrapper_entity": "sata_fis_parser_qos_aware_det_cfg",
+  "configuration_id": "SATA_FIS_PARSER_QOS_AWARE_3A884F6253892E48",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

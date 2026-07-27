@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_im2col_engine_pipelined",
+  "wrapper_entity": "convolution_im2col_engine_pipelined_det_cfg",
+  "configuration_id": "CONVOLUTION_IM2COL_ENGINE_PIPELINED_B6A77509D046DD2D",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

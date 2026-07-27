@@ -111,6 +111,77 @@ const describeArchitectureStatus = (params: {
   return humanizeArchitectureToken(params.stageStatus) || 'Working';
 };
 
+const formatArchitectDuration = (milliseconds: number) => {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+  }
+  return `${seconds}s`;
+};
+
+const formatArchitectClockTime = (timestampMs: number | null) => (
+  timestampMs
+    ? new Date(timestampMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : 'Waiting'
+);
+
+const describeArchitectureCurrentAction = (params: {
+  stage: string;
+  stageLabel: string;
+  stageStatus: string;
+  componentLabel: string;
+  providerPaused: boolean;
+  providerMessage: string;
+  innerRepairActive: boolean;
+  innerRepairAttempt: number;
+  innerRepairTotal: number;
+  innerRepairFailureCode: string;
+  innerRepairFileLine: string;
+}) => {
+  const componentText = params.componentLabel || 'the whole design';
+  if (params.providerPaused) {
+    return params.providerMessage || 'Waiting for the AI provider before retrying this attempt without counting it as failed.';
+  }
+  if (params.innerRepairActive) {
+    return [
+      `Repair attempt ${params.innerRepairAttempt}/${params.innerRepairTotal || 10} is active.`,
+      params.innerRepairFailureCode ? `Fixing ${humanizeArchitectureToken(params.innerRepairFailureCode)}.` : 'Fixing the latest validation issue.',
+      params.innerRepairFileLine ? `Location: ${params.innerRepairFileLine}.` : '',
+    ].filter(Boolean).join(' ');
+  }
+  if (params.stageStatus === 'validating') {
+    return `Checking generated VHDL with GHDL for ${componentText}.`;
+  }
+  if (params.stageStatus === 'completed') {
+    return `Finished ${params.stageLabel.toLowerCase()} for ${componentText}.`;
+  }
+  if (params.stage === 'packages') {
+    return 'Preparing shared VHDL package files from the approved architecture contract.';
+  }
+  if (params.stage === 'leaf_rtl') {
+    return `Generating or reusing the RTL building block for ${componentText}.`;
+  }
+  if (params.stage === 'top_integration') {
+    return 'Wiring child blocks into the top-level integration design and checking output ownership.';
+  }
+  if (params.stage === 'testbench') {
+    return 'Building the self-checking testbench with reset, stimulus, expected checks, and PASS/FAIL behavior.';
+  }
+  if (params.stage === 'collateral') {
+    return 'Creating the deterministic GHDL run plan and supporting project documentation.';
+  }
+  if (params.stage === 'manifest') {
+    return 'Assembling the final generated project manifest and file list.';
+  }
+  return 'Preparing the FPGA architecture contract, selecting building blocks, or waiting for the next detailed progress event.';
+};
+
 const loadStoredModelSelections = (): Record<string, string> => {
   if (typeof window === 'undefined') {
     return {};
@@ -240,6 +311,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const [architectLoopStageTotal, setArchitectLoopStageTotal] = useState(0);
   const [architectLoopStageComponent, setArchitectLoopStageComponent] = useState('');
   const [architectLoopStageStatus, setArchitectLoopStageStatus] = useState('');
+  const [architectLoopStartedAtMs, setArchitectLoopStartedAtMs] = useState<number | null>(null);
+  const [architectLoopLastProgressAtMs, setArchitectLoopLastProgressAtMs] = useState<number | null>(null);
+  const [architectLoopNowMs, setArchitectLoopNowMs] = useState(() => Date.now());
   const [architectLoopTelemetryAttemptCount, setArchitectLoopTelemetryAttemptCount] = useState(0);
   const [architectLoopLatestInputTokens, setArchitectLoopLatestInputTokens] = useState<number | null>(null);
   const [architectLoopLatestOutputTokens, setArchitectLoopLatestOutputTokens] = useState<number | null>(null);
@@ -269,8 +343,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
   const drawerScrollRef = useRef<HTMLDivElement | null>(null);
   const lowerControlsRef = useRef<HTMLDivElement | null>(null);
   const architectLoopStopRequestedRef = useRef(false);
+  const architectLoopActive = architectLoopRunning || Boolean(architectLoopJobId);
   const architectLoopInnerRepairActive =
-    (architectLoopRunning || !!architectLoopJobId)
+    architectLoopActive
     && architectLoopInnerRepairAttempt > 0
     && architectLoopInnerRepairTotal > 0;
   const architectureStageLabel = describeArchitectureStage(architectLoopStage);
@@ -291,7 +366,39 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     `Status: ${architectureStageStatusLabel}`,
     architectLoopStage ? `Raw stage: ${architectLoopStage}` : '',
     architectLoopStageStatus ? `Raw status: ${architectLoopStageStatus}` : '',
+    architectLoopStartedAtMs ? `Elapsed: ${formatArchitectDuration(architectLoopNowMs - architectLoopStartedAtMs)}` : '',
+    architectLoopLastProgressAtMs ? `Last update: ${formatArchitectClockTime(architectLoopLastProgressAtMs)}` : '',
   ].filter(Boolean).join(' | ');
+  const architectureCurrentActionLabel = describeArchitectureCurrentAction({
+    stage: architectLoopStage,
+    stageLabel: architectureStageLabel,
+    stageStatus: architectLoopStageStatus,
+    componentLabel: architectureStageComponentLabel,
+    providerPaused: architectLoopProviderPaused,
+    providerMessage: architectLoopProviderMessage,
+    innerRepairActive: architectLoopInnerRepairActive,
+    innerRepairAttempt: architectLoopInnerRepairAttempt,
+    innerRepairTotal: architectLoopInnerRepairTotal,
+    innerRepairFailureCode: architectLoopInnerRepairFailureCode,
+    innerRepairFileLine: architectLoopInnerRepairFileLine,
+  });
+  const architectureElapsedLabel = architectLoopStartedAtMs
+    ? formatArchitectDuration(architectLoopNowMs - architectLoopStartedAtMs)
+    : 'Starting';
+  const architectureLastProgressLabel = formatArchitectClockTime(architectLoopLastProgressAtMs);
+
+  useEffect(() => {
+    if (!architectLoopActive) {
+      return;
+    }
+    setArchitectLoopNowMs(Date.now());
+    const timer = window.setInterval(() => {
+      setArchitectLoopNowMs(Date.now());
+    }, 1000);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [architectLoopActive]);
 
   useEffect(() => {
     if (!architectLoopJobId) {
@@ -322,6 +429,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         }
 
         missedStatusPolls = 0;
+        const progressTimestamp = Date.now();
+        setArchitectLoopLastProgressAtMs(progressTimestamp);
+        setArchitectLoopStartedAtMs((previous) => previous ?? progressTimestamp);
         setArchitectLoopRunning(true);
         storeArchitectLoopJobId(architectLoopJobId);
 
@@ -436,6 +546,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
         }
 
         setArchitectLoopJobId(storedJobId);
+        const progressTimestamp = Date.now();
+        setArchitectLoopLastProgressAtMs(progressTimestamp);
+        setArchitectLoopStartedAtMs((previous) => previous ?? progressTimestamp);
         setArchitectLoopRunning(true);
         const nextCurrent = Number(data?.progress?.currentLoop);
         if (Number.isFinite(nextCurrent)) {
@@ -692,11 +805,15 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     pendingRemoteExportPreview,
     jobStatus,
     jobElapsedSeconds,
+    pendingArchitectureClarification,
+    architectureClarificationAnswer,
     testGenerating,
     testGenerateResult,
     handleSendMessage,
     handleMacroSendMessage,
     handleRetryLastMacro,
+    handleSubmitArchitectureClarification,
+    handleDismissArchitectureClarification,
     handleApproveRemoteExportPreview,
     handleCancelRemoteExportPreview,
     handleStopJob,
@@ -721,6 +838,8 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
     sessionOutputDisplayValue,
     jobCardBadge,
     jobCardBadgeTone,
+    architectureClarificationRequired,
+    setArchitectureClarificationAnswer,
     setProviderError,
     setPendingRemoteExportPreview,
   } = useAIDrawerAnalysis({
@@ -994,10 +1113,14 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       ? crypto.randomUUID()
       : `architect-loop-${Date.now()}`;
     flushSync(() => {
+      const progressTimestamp = Date.now();
       architectLoopStopRequestedRef.current = false;
       storeArchitectLoopJobId(loopJobId);
       setArchitectLoopRunning(true);
       setArchitectLoopJobId(loopJobId);
+      setArchitectLoopStartedAtMs(progressTimestamp);
+      setArchitectLoopLastProgressAtMs(progressTimestamp);
+      setArchitectLoopNowMs(progressTimestamp);
       setArchitectLoopCurrent(0);
       setArchitectLoopCompletedAttempts(0);
       setArchitectLoopFailures(0);
@@ -1083,6 +1206,8 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       storeArchitectLoopJobId(null);
       setArchitectLoopProviderPaused(false);
       resetArchitectLoopInnerRepairProgress();
+      setArchitectLoopStartedAtMs(null);
+      setArchitectLoopLastProgressAtMs(null);
     }
   };
 
@@ -1109,10 +1234,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
       setArchitectLoopCurrentDesignLabel('');
       setArchitectLoopCurrentDesignAttempt(0);
       resetArchitectLoopInnerRepairProgress();
+      setArchitectLoopStartedAtMs(null);
+      setArchitectLoopLastProgressAtMs(null);
     }
   };
 
-  const architectLoopActive = architectLoopRunning || Boolean(architectLoopJobId);
   const architectLoopAttemptProgress = architectLoopActive
     ? `${Math.max(architectLoopCurrent, architectLoopCompletedAttempts)}/${architectLoopAttempts}`
     : null;
@@ -1329,9 +1455,9 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   </div>
                 </div>
 
-                {architectLoopActive && architectLoopStage && (
+                {architectLoopActive && (
                   <div
-                    className="rounded-xl border border-brand-outline-variant/45 bg-brand-surface-high/65 px-4 py-3 text-[12px] font-mono font-bold leading-relaxed text-brand-on-surface"
+                    className="rounded-xl border border-brand-outline-variant/45 bg-brand-surface-high/70 px-4 py-3 text-[12px] font-mono font-bold leading-relaxed text-brand-on-surface shadow-[0_0_0_1px_rgba(34,211,238,0.04)]"
                     title={architectureStageTitle}
                   >
                     <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-1">
@@ -1346,23 +1472,70 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                         </div>
                       </div>
                       <div className="min-w-0 text-left sm:text-right">
-                        <div className="text-brand-on-surface/55">Current block</div>
+                        <div className="text-brand-on-surface/55">Elapsed</div>
                         <div className="mt-0.5 break-words text-brand-on-surface/85">
-                          {architectureStageComponentLabel || 'Whole design'}
+                          {architectureElapsedLabel}
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                      <div className="min-w-0 break-words text-brand-on-surface/70">
-                        Status: <span className="text-brand-on-surface/90">{architectureStageStatusLabel}</span>
+                    <div className="mt-3 rounded-lg border border-brand-cyan/20 bg-brand-cyan/8 px-3 py-2 text-brand-on-surface/90">
+                      <div className="text-[10px] uppercase tracking-[0.18em] text-brand-cyan/80">Current activity</div>
+                      <div className="mt-1 break-words text-[12px] leading-relaxed text-brand-on-surface/90">
+                        {architectureCurrentActionLabel}
                       </div>
-                      {architectLoopInnerRepairActive && (
-                        <div className="whitespace-nowrap rounded-lg border border-brand-cyan/25 bg-brand-cyan/10 px-2.5 py-1 text-brand-cyan">
-                          Repair attempt {architectLoopInnerRepairAttempt}/{architectLoopInnerRepairTotal || 10}
-                        </div>
-                      )}
                     </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-brand-on-surface/70">
+                      <div className="min-w-0 rounded-lg border border-brand-outline-variant/30 bg-brand-surface-low/50 px-2.5 py-2">
+                        <div className="text-[10px] uppercase tracking-[0.16em] text-brand-on-surface/45">Current block</div>
+                        <div className="mt-0.5 break-words text-brand-on-surface/90">
+                          {architectureStageComponentLabel || 'Whole design'}
+                        </div>
+                      </div>
+                      <div className="min-w-0 rounded-lg border border-brand-outline-variant/30 bg-brand-surface-low/50 px-2.5 py-2">
+                        <div className="text-[10px] uppercase tracking-[0.16em] text-brand-on-surface/45">Status</div>
+                        <div className="mt-0.5 break-words text-brand-on-surface/90">
+                          {architectureStageStatusLabel}
+                        </div>
+                      </div>
+                      <div className="min-w-0 rounded-lg border border-brand-outline-variant/30 bg-brand-surface-low/50 px-2.5 py-2">
+                        <div className="text-[10px] uppercase tracking-[0.16em] text-brand-on-surface/45">Design attempt</div>
+                        <div className="mt-0.5 break-words text-brand-on-surface/90">
+                          {architectLoopCurrentDesignLabel
+                            ? `${humanizeArchitectureToken(architectLoopCurrentDesignLabel)}${architectLoopCurrentDesignAttempt > 0 ? ` ${architectLoopCurrentDesignAttempt}/${FPGA_ARCHITECT_SWEEP_ATTEMPTS_PER_DESIGN}` : ''}`
+                            : 'Waiting for design'}
+                        </div>
+                      </div>
+                      <div className="min-w-0 rounded-lg border border-brand-outline-variant/30 bg-brand-surface-low/50 px-2.5 py-2">
+                        <div className="text-[10px] uppercase tracking-[0.16em] text-brand-on-surface/45">Last update</div>
+                        <div className="mt-0.5 break-words text-brand-on-surface/90">
+                          {architectureLastProgressLabel}
+                        </div>
+                      </div>
+                    </div>
+
+                    {architectLoopInnerRepairActive && (
+                      <div className="mt-3 rounded-lg border border-brand-cyan/25 bg-brand-cyan/10 px-3 py-2 text-brand-cyan">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span>Repair attempt {architectLoopInnerRepairAttempt}/{architectLoopInnerRepairTotal || 10}</span>
+                          <span className="min-w-0 truncate text-brand-cyan/80">
+                            {architectLoopInnerRepairFailureCode || 'validating'}
+                          </span>
+                        </div>
+                        {(architectLoopInnerRepairFileLine || architectLoopInnerRepairStatus) && (
+                          <div className="mt-1 truncate text-brand-cyan/70">
+                            {[architectLoopInnerRepairStatus, architectLoopInnerRepairFileLine].filter(Boolean).join(' - ')}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {architectLoopStage === 'leaf_rtl' && architectLoopStageIndex === 2 && (
+                      <div className="mt-2 text-[11px] leading-relaxed text-brand-on-surface/50">
+                        Note: Step 1 prepares packages. If this design does not need generated package files, the live stage can move directly to Step 2.
+                      </div>
+                    )}
 
                     {architectLoopStageTotal > 0 && (
                       <div
@@ -1389,32 +1562,6 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                             />
                           );
                         })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {architectLoopInnerRepairActive && (
-                  <div
-                    className="rounded-xl border border-brand-cyan/35 bg-brand-cyan/10 px-4 py-2 text-[12px] font-mono font-bold leading-relaxed text-brand-cyan"
-                    title={[
-                      `Repair attempt ${architectLoopInnerRepairAttempt}/${architectLoopInnerRepairTotal}`,
-                      architectLoopInnerRepairStatus ? `status: ${architectLoopInnerRepairStatus}` : '',
-                      architectLoopInnerRepairFailureCode ? `failure: ${architectLoopInnerRepairFailureCode}` : '',
-                      architectLoopInnerRepairFileLine ? `location: ${architectLoopInnerRepairFileLine}` : '',
-                    ].filter(Boolean).join(' | ')}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="whitespace-nowrap text-brand-cyan">
-                        Repair attempt {architectLoopInnerRepairAttempt}/{architectLoopInnerRepairTotal}
-                      </span>
-                      <span className="min-w-0 truncate text-brand-cyan/80">
-                        {architectLoopInnerRepairFailureCode || 'validating'}
-                      </span>
-                    </div>
-                    {(architectLoopInnerRepairFileLine || architectLoopInnerRepairStatus) && (
-                      <div className="truncate text-brand-cyan/70">
-                        {[architectLoopInnerRepairStatus, architectLoopInnerRepairFileLine].filter(Boolean).join(' - ')}
                       </div>
                     )}
                   </div>
@@ -1640,6 +1787,63 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
             </div>
           </>
         )}
+
+        {pendingArchitectureClarification && !loading && (
+          <div className="rounded-xl border border-amber-400/35 bg-amber-950/20 p-3 text-[12px] leading-relaxed text-amber-50">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-mono font-bold uppercase tracking-[0.18em] text-amber-200">
+                  Clarification needed before FPGA generation
+                </div>
+                <div className="mt-1 text-slate-200">
+                  The app paused instead of guessing architecture intent. Answer these, then it will rebuild the contract and continue.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleDismissArchitectureClarification}
+                className="flex-none rounded border border-amber-400/30 px-2 py-1 font-mono text-[11px] uppercase tracking-wide text-amber-200 hover:bg-amber-500/10"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            {pendingArchitectureClarification.questions.length > 0 && (
+              <div className="mt-3 space-y-1.5">
+                {pendingArchitectureClarification.questions.map((question, index) => (
+                  <div key={`${pendingArchitectureClarification.jobId}-question-${index}`} className="rounded-lg border border-amber-400/20 bg-[#060a12] px-3 py-2 text-slate-200">
+                    <span className="font-mono text-amber-200">Q{index + 1}.</span> {question}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {pendingArchitectureClarification.unknowns.length > 0 && (
+              <div className="mt-2 break-words font-mono text-[11px] text-amber-200/80">
+                Unknown fields: {pendingArchitectureClarification.unknowns.join(', ')}
+              </div>
+            )}
+
+            <textarea
+              value={architectureClarificationAnswer}
+              onChange={(event) => setArchitectureClarificationAnswer(event.target.value)}
+              rows={4}
+              className="mt-3 w-full resize-y rounded-lg border border-amber-400/25 bg-[#060a12] px-3 py-2 font-mono text-[12px] leading-relaxed text-slate-100 outline-none placeholder:text-slate-500 focus:border-amber-300/60"
+              placeholder="Example: CUPG means counter pulse generator. Use clk and synchronous active-high reset. Inputs: enable_i and period_i. Outputs: pulse_o and count_o. Success means pulse_o asserts once every period_i cycles."
+            />
+
+            <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => void handleSubmitArchitectureClarification()}
+                disabled={!architectureClarificationAnswer.trim()}
+                className="rounded-lg border border-amber-300/55 bg-amber-400/15 px-3 py-2 font-mono text-[12px] font-bold uppercase tracking-wide text-amber-100 hover:bg-amber-400/25 disabled:opacity-40"
+              >
+                Continue FPGA Architect
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {hasFinishedJobCard && (
@@ -1671,7 +1875,7 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({
                   <div className={`flex-none rounded-lg border px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide ${jobCardBadgeTone}`}>
                     {jobCardBadge}
                   </div>
-                  {jobFailed && lastRetryableMacroRequest && (
+                  {jobFailed && lastRetryableMacroRequest && !architectureClarificationRequired && (
                     <button
                       type="button"
                       onClick={() => void handleRetryLastMacro()}

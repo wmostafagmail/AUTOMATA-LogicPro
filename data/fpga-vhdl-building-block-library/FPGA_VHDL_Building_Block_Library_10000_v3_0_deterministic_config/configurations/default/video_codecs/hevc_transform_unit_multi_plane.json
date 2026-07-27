@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hevc_transform_unit_multi_plane",
+  "wrapper_entity": "hevc_transform_unit_multi_plane_det_cfg",
+  "configuration_id": "HEVC_TRANSFORM_UNIT_MULTI_PLANE_D99B5B0FE944EE93",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

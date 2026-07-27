@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "system_control_registers_continuous",
+  "wrapper_entity": "system_control_registers_continuous_det_cfg",
+  "configuration_id": "SYSTEM_CONTROL_REGISTERS_CONTINUOUS_BA4668E5D04B2CDC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

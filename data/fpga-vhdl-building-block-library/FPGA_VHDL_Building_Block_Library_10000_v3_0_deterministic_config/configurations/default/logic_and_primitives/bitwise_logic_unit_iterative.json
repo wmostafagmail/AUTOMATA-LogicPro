@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bitwise_logic_unit_iterative",
+  "wrapper_entity": "bitwise_logic_unit_iterative_det_cfg",
+  "configuration_id": "BITWISE_LOGIC_UNIT_ITERATIVE_2510288FDF1A338A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

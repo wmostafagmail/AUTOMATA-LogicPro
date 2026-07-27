@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "montgomery_multiplier_redundant",
+  "wrapper_entity": "montgomery_multiplier_redundant_det_cfg",
+  "configuration_id": "MONTGOMERY_MULTIPLIER_REDUNDANT_862ED17FCA68D8AC",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

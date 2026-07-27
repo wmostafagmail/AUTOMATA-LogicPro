@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_continuous",
+  "wrapper_entity": "physical_register_renamer_continuous_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_CONTINUOUS_11AD73EC516D4894",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

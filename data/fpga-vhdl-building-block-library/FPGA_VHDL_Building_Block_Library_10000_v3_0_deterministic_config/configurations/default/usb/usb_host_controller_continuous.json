@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_host_controller_continuous",
+  "wrapper_entity": "usb_host_controller_continuous_det_cfg",
+  "configuration_id": "USB_HOST_CONTROLLER_CONTINUOUS_5AD7BB0E26F5288C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

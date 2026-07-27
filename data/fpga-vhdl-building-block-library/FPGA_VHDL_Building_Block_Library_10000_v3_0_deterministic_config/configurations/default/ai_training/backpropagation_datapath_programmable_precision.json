@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "backpropagation_datapath_programmable_precision",
+  "wrapper_entity": "backpropagation_datapath_programmable_precision_det_cfg",
+  "configuration_id": "BACKPROPAGATION_DATAPATH_PROGRAMMABLE_PRECISION_ED8798EC2698F252",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "depth_range_mapper_pipelined",
+  "wrapper_entity": "depth_range_mapper_pipelined_det_cfg",
+  "configuration_id": "DEPTH_RANGE_MAPPER_PIPELINED_55BAF3FDD2A127D6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

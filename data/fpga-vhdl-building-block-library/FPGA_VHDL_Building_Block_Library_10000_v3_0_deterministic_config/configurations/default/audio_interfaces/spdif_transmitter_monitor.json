@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spdif_transmitter_monitor",
+  "wrapper_entity": "spdif_transmitter_monitor_det_cfg",
+  "configuration_id": "SPDIF_TRANSMITTER_MONITOR_7627A8EB356D8386",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

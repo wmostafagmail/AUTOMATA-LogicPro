@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "target_tracker_iterative",
+  "wrapper_entity": "target_tracker_iterative_det_cfg",
+  "configuration_id": "TARGET_TRACKER_ITERATIVE_D5D7CB2088727727",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 222
+  }
+}

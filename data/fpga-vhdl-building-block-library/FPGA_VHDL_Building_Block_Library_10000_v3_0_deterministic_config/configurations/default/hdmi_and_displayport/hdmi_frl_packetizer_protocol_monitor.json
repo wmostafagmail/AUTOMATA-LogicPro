@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_protocol_monitor",
+  "wrapper_entity": "hdmi_frl_packetizer_protocol_monitor_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_PROTOCOL_MONITOR_3652CD7122F0A381",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

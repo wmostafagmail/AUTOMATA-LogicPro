@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_pack_unpack_single_cycle",
+  "wrapper_entity": "vector_pack_unpack_single_cycle_det_cfg",
+  "configuration_id": "VECTOR_PACK_UNPACK_SINGLE_CYCLE_D8E6A6BA23AFE294",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

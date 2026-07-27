@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_single_shot",
+  "wrapper_entity": "carrier_frequency_estimator_single_shot_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_SINGLE_SHOT_D116F6B48A976A43",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

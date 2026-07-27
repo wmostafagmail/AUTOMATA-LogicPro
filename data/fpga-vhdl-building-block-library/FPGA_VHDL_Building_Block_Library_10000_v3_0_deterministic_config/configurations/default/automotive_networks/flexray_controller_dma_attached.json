@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "flexray_controller_dma_attached",
+  "wrapper_entity": "flexray_controller_dma_attached_det_cfg",
+  "configuration_id": "FLEXRAY_CONTROLLER_DMA_ATTACHED_74B468B6422AFDB8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

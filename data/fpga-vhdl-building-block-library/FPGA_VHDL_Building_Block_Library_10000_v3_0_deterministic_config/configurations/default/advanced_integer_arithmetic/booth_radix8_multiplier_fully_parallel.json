@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix8_multiplier_fully_parallel",
+  "wrapper_entity": "booth_radix8_multiplier_fully_parallel_det_cfg",
+  "configuration_id": "BOOTH_RADIX8_MULTIPLIER_FULLY_PARALLEL_A0A5A539BABF575D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

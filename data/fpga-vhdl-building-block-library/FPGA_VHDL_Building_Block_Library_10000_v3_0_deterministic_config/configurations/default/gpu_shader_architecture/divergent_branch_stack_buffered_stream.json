@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_buffered_stream",
+  "wrapper_entity": "divergent_branch_stack_buffered_stream_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_BUFFERED_STREAM_6E9581ECB7C2F3DE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

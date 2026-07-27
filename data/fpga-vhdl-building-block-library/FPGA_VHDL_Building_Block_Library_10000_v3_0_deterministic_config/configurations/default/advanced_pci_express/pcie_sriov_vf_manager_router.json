@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_router",
+  "wrapper_entity": "pcie_sriov_vf_manager_router_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_ROUTER_06E29EA4C16C9983",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

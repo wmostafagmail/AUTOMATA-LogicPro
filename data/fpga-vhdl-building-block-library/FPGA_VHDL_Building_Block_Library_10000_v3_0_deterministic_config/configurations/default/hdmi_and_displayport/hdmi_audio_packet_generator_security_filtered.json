@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_security_filtered",
+  "wrapper_entity": "hdmi_audio_packet_generator_security_filtered_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_SECURITY_FILTERED_BA0BD3BC98A30770",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

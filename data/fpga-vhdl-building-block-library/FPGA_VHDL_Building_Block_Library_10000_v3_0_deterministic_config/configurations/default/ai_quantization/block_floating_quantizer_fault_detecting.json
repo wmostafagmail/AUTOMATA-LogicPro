@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "block_floating_quantizer_fault_detecting",
+  "wrapper_entity": "block_floating_quantizer_fault_detecting_det_cfg",
+  "configuration_id": "BLOCK_FLOATING_QUANTIZER_FAULT_DETECTING_BA69B342BF28345B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "affine_blit_engine_metadata_aware",
+  "wrapper_entity": "affine_blit_engine_metadata_aware_det_cfg",
+  "configuration_id": "AFFINE_BLIT_ENGINE_METADATA_AWARE_84217C7EB843C8A7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

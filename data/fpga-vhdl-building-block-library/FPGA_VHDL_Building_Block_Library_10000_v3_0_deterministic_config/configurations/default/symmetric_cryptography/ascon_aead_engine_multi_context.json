@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_multi_context",
+  "wrapper_entity": "ascon_aead_engine_multi_context_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_MULTI_CONTEXT_8C3F3CC56377692E",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

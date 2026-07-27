@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "voltage_alarm_interface_single_shot",
+  "wrapper_entity": "voltage_alarm_interface_single_shot_det_cfg",
+  "configuration_id": "VOLTAGE_ALARM_INTERFACE_SINGLE_SHOT_AD18921FB9810AB9",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

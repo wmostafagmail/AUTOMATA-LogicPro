@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_offload_engine_security_filtered",
+  "wrapper_entity": "tcp_offload_engine_security_filtered_det_cfg",
+  "configuration_id": "TCP_OFFLOAD_ENGINE_SECURITY_FILTERED_1D29FA979E8F19C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

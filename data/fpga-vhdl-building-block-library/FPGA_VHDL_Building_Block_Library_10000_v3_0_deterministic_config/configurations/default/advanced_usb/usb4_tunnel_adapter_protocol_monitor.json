@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb4_tunnel_adapter_protocol_monitor",
+  "wrapper_entity": "usb4_tunnel_adapter_protocol_monitor_det_cfg",
+  "configuration_id": "USB4_TUNNEL_ADAPTER_PROTOCOL_MONITOR_F2EDED0B332E738B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

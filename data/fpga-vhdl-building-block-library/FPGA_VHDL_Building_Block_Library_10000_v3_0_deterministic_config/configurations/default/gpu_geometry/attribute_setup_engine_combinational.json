@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "attribute_setup_engine_combinational",
+  "wrapper_entity": "attribute_setup_engine_combinational_det_cfg",
+  "configuration_id": "ATTRIBUTE_SETUP_ENGINE_COMBINATIONAL_FBDDD475AE4A8A98",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

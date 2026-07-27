@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ofdm_modulator_streaming",
+  "wrapper_entity": "ofdm_modulator_streaming_det_cfg",
+  "configuration_id": "OFDM_MODULATOR_STREAMING_555435C4316A219B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 109
+  }
+}

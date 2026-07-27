@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_redundant",
+  "wrapper_entity": "loop_branch_predictor_redundant_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_REDUNDANT_8B2B0B51E44BE14B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

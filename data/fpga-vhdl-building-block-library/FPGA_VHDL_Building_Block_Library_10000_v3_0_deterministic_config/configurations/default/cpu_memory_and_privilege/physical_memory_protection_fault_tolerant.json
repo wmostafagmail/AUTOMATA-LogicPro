@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_memory_protection_fault_tolerant",
+  "wrapper_entity": "physical_memory_protection_fault_tolerant_det_cfg",
+  "configuration_id": "PHYSICAL_MEMORY_PROTECTION_FAULT_TOLERANT_C4F9499B37E8C27A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

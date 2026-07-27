@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sensorless_back_emf_observer_low_power",
+  "wrapper_entity": "sensorless_back_emf_observer_low_power_det_cfg",
+  "configuration_id": "SENSORLESS_BACK_EMF_OBSERVER_LOW_POWER_63D4C68D07D4C151",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

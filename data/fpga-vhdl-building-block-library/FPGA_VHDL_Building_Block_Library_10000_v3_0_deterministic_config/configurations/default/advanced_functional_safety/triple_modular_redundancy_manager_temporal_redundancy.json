@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triple_modular_redundancy_manager_temporal_redundancy",
+  "wrapper_entity": "triple_modular_redundancy_manager_temporal_redundancy_det_cfg",
+  "configuration_id": "TRIPLE_MODULAR_REDUNDANCY_MANAGER_TEMPORAL_REDUNDANCY_7C91CD9CAD894B79",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

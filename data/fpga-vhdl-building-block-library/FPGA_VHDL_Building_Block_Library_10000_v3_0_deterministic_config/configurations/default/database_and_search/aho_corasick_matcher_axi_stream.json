@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aho_corasick_matcher_axi_stream",
+  "wrapper_entity": "aho_corasick_matcher_axi_stream_det_cfg",
+  "configuration_id": "AHO_CORASICK_MATCHER_AXI_STREAM_30DF6180139E8F1E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

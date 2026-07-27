@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "snoop_request_filter_burst_optimized",
+  "wrapper_entity": "snoop_request_filter_burst_optimized_det_cfg",
+  "configuration_id": "SNOOP_REQUEST_FILTER_BURST_OPTIMIZED_2AB44FF924C3D5FC",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

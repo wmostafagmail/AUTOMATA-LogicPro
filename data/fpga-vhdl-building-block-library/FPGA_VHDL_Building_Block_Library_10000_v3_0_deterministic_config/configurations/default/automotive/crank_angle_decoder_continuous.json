@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "crank_angle_decoder_continuous",
+  "wrapper_entity": "crank_angle_decoder_continuous_det_cfg",
+  "configuration_id": "CRANK_ANGLE_DECODER_CONTINUOUS_C56C0877B3ADFB76",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

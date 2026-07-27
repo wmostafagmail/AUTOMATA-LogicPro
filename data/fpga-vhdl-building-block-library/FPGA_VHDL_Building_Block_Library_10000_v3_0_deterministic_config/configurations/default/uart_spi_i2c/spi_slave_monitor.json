@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spi_slave_monitor",
+  "wrapper_entity": "spi_slave_monitor_det_cfg",
+  "configuration_id": "SPI_SLAVE_MONITOR_0FAD0AB1496CB3E5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

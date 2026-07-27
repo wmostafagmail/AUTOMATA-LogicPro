@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bounding_box_decoder_buffered",
+  "wrapper_entity": "bounding_box_decoder_buffered_det_cfg",
+  "configuration_id": "BOUNDING_BOX_DECODER_BUFFERED_94952971C89C0697",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

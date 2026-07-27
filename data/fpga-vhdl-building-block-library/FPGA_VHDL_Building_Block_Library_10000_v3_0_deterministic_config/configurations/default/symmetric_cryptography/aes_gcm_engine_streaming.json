@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_streaming",
+  "wrapper_entity": "aes_gcm_engine_streaming_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_STREAMING_F67900AC96FD0C09",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

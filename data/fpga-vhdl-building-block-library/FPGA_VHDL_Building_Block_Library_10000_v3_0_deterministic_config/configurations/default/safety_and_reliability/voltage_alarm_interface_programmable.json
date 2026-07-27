@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "voltage_alarm_interface_programmable",
+  "wrapper_entity": "voltage_alarm_interface_programmable_det_cfg",
+  "configuration_id": "VOLTAGE_ALARM_INTERFACE_PROGRAMMABLE_C73922A95AD0F971",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

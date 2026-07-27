@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_self_testing",
+  "wrapper_entity": "anti_rollback_counter_self_testing_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_SELF_TESTING_F4F8BC3E6583427C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

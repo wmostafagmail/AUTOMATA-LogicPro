@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_fault_detecting",
+  "wrapper_entity": "shader_special_function_unit_fault_detecting_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_FAULT_DETECTING_9A6F1131FA96993E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

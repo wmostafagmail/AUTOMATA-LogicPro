@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_compressor_axi_stream",
+  "wrapper_entity": "lz4_compressor_axi_stream_det_cfg",
+  "configuration_id": "LZ4_COMPRESSOR_AXI_STREAM_82EBC62C5BA441FC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

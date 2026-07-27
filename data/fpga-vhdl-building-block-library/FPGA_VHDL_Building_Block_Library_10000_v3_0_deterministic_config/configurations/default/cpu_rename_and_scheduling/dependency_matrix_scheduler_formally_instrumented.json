@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_formally_instrumented",
+  "wrapper_entity": "dependency_matrix_scheduler_formally_instrumented_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_FORMALLY_INSTRUMENTED_360D601F3A9C33B4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

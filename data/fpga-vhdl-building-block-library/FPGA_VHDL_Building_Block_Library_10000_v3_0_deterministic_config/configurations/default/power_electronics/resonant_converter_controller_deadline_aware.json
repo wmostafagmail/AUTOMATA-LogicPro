@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resonant_converter_controller_deadline_aware",
+  "wrapper_entity": "resonant_converter_controller_deadline_aware_det_cfg",
+  "configuration_id": "RESONANT_CONVERTER_CONTROLLER_DEADLINE_AWARE_0AAE2B5B12317A69",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

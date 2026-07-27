@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parametric_equalizer_deep_pipelined",
+  "wrapper_entity": "parametric_equalizer_deep_pipelined_det_cfg",
+  "configuration_id": "PARAMETRIC_EQUALIZER_DEEP_PIPELINED_0C105ECB7E101C14",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triangle_edge_walker_tile_based",
+  "wrapper_entity": "triangle_edge_walker_tile_based_det_cfg",
+  "configuration_id": "TRIANGLE_EDGE_WALKER_TILE_BASED_DD95F9416078B2A8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

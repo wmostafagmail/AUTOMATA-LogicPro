@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "apb_slave_controller",
+  "wrapper_entity": "apb_slave_controller_det_cfg",
+  "configuration_id": "APB_SLAVE_CONTROLLER_236E8A56B30268DC",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

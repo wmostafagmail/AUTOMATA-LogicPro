@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_distributed_clock_software_configurable",
+  "wrapper_entity": "ethercat_distributed_clock_software_configurable_det_cfg",
+  "configuration_id": "ETHERCAT_DISTRIBUTED_CLOCK_SOFTWARE_CONFIGURABLE_95C09F06656A1CA4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

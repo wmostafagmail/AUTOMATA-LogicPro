@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_latency_checking",
+  "wrapper_entity": "embedded_logic_analyzer_latency_checking_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_LATENCY_CHECKING_38C733BA8810B6DC",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

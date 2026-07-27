@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "phase_detector_low_power",
+  "wrapper_entity": "phase_detector_low_power_det_cfg",
+  "configuration_id": "PHASE_DETECTOR_LOW_POWER_83D122B35261BFA2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 167
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "ecc_scalar_multiplier_constant_time",
+  "wrapper_entity": "ecc_scalar_multiplier_constant_time_det_cfg",
+  "configuration_id": "ECC_SCALAR_MULTIPLIER_CONSTANT_TIME_A8385B4185B2B769",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_bitmanip_unit_fault_detecting",
+  "wrapper_entity": "riscv_bitmanip_unit_fault_detecting_det_cfg",
+  "configuration_id": "RISCV_BITMANIP_UNIT_FAULT_DETECTING_EEE9A51F8211CF7C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

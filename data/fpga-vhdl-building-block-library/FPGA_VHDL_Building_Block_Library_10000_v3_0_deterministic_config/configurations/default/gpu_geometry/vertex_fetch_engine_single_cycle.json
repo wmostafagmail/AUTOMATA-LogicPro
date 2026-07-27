@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "vertex_fetch_engine_single_cycle",
+  "wrapper_entity": "vertex_fetch_engine_single_cycle_det_cfg",
+  "configuration_id": "VERTEX_FETCH_ENGINE_SINGLE_CYCLE_D3D46E8B8BF8C79E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "inverse_kinematics_engine_single_shot",
+  "wrapper_entity": "inverse_kinematics_engine_single_shot_det_cfg",
+  "configuration_id": "INVERSE_KINEMATICS_ENGINE_SINGLE_SHOT_8D7D8DF820E78667",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

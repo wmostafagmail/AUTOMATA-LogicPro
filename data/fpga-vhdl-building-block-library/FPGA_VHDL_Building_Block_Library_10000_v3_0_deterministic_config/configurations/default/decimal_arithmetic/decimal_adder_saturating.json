@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_adder_saturating",
+  "wrapper_entity": "decimal_adder_saturating_det_cfg",
+  "configuration_id": "DECIMAL_ADDER_SATURATING_308D9480D0B83106",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

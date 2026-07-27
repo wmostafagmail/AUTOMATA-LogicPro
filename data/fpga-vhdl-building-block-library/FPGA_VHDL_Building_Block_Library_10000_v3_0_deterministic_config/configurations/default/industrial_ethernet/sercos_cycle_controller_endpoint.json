@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sercos_cycle_controller_endpoint",
+  "wrapper_entity": "sercos_cycle_controller_endpoint_det_cfg",
+  "configuration_id": "SERCOS_CYCLE_CONTROLLER_ENDPOINT_1A51138D3B57E1C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

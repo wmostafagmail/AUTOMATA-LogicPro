@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "diagnostic_test_sequencer_lockstep",
+  "wrapper_entity": "diagnostic_test_sequencer_lockstep_det_cfg",
+  "configuration_id": "DIAGNOSTIC_TEST_SEQUENCER_LOCKSTEP_0C813ED19F82FB9D",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

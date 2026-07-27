@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_deadline_aware",
+  "wrapper_entity": "feedback_latency_controller_deadline_aware_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_DEADLINE_AWARE_820DC387AB3BC31F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_100g_pcs_lane_qos_aware",
+  "wrapper_entity": "ethernet_100g_pcs_lane_qos_aware_det_cfg",
+  "configuration_id": "ETHERNET_100G_PCS_LANE_QOS_AWARE_11B1AAEAD04A90DE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

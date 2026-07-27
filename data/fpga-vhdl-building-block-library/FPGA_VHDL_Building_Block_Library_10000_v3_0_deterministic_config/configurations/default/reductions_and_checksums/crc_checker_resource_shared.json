@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_checker_resource_shared",
+  "wrapper_entity": "crc_checker_resource_shared_det_cfg",
+  "configuration_id": "CRC_CHECKER_RESOURCE_SHARED_DA4DF4653EE2955E",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_throughput_checking",
+  "wrapper_entity": "performance_monitoring_unit_throughput_checking_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_THROUGHPUT_CHECKING_6BFE594FD587F7D6",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

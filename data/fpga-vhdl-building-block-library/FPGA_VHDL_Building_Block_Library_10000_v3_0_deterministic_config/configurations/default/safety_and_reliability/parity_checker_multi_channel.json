@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parity_checker_multi_channel",
+  "wrapper_entity": "parity_checker_multi_channel_det_cfg",
+  "configuration_id": "PARITY_CHECKER_MULTI_CHANNEL_1D03C160A6C1D3DE",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

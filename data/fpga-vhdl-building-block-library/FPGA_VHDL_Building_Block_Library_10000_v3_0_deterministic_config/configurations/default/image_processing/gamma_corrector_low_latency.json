@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "gamma_corrector_low_latency",
+  "wrapper_entity": "gamma_corrector_low_latency_det_cfg",
+  "configuration_id": "GAMMA_CORRECTOR_LOW_LATENCY_813477F2FF8C0CC3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

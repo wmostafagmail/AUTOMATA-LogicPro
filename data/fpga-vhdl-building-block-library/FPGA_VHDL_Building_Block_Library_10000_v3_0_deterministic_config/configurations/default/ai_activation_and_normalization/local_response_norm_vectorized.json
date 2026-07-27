@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "local_response_norm_vectorized",
+  "wrapper_entity": "local_response_norm_vectorized_det_cfg",
+  "configuration_id": "LOCAL_RESPONSE_NORM_VECTORIZED_8F0CFA1E214CA263",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

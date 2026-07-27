@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "speculative_checkpoint_file_redundant",
+  "wrapper_entity": "speculative_checkpoint_file_redundant_det_cfg",
+  "configuration_id": "SPECULATIVE_CHECKPOINT_FILE_REDUNDANT_661D56F92118747C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

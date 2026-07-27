@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_sysref_monitor_redundant",
+  "wrapper_entity": "jesd204_sysref_monitor_redundant_det_cfg",
+  "configuration_id": "JESD204_SYSREF_MONITOR_REDUNDANT_0E7E9F9E505E54E0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

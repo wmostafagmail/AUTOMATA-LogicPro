@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "csr_status_control_block",
+  "wrapper_entity": "csr_status_control_block_det_cfg",
+  "configuration_id": "CSR_STATUS_CONTROL_BLOCK_F9250FAF06FC327F",
+  "generics": {
+    "ADDR_WIDTH": 8,
+    "DATA_WIDTH": 32,
+    "REG_COUNT": 16
+  }
+}

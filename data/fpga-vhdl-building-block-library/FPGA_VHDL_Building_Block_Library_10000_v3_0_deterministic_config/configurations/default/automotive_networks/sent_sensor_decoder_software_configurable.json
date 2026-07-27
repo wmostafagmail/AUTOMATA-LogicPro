@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sent_sensor_decoder_software_configurable",
+  "wrapper_entity": "sent_sensor_decoder_software_configurable_det_cfg",
+  "configuration_id": "SENT_SENSOR_DECODER_SOFTWARE_CONFIGURABLE_F54DBC6E2CEAE352",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

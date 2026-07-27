@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "scan_chain_controller_throughput_checking",
+  "wrapper_entity": "scan_chain_controller_throughput_checking_det_cfg",
+  "configuration_id": "SCAN_CHAIN_CONTROLLER_THROUGHPUT_CHECKING_141579B3B63E030F",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

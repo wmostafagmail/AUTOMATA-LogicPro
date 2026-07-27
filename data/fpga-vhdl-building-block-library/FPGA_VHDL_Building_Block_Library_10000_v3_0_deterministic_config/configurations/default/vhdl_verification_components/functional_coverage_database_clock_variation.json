@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "functional_coverage_database_clock_variation",
+  "wrapper_entity": "functional_coverage_database_clock_variation_det_cfg",
+  "configuration_id": "FUNCTIONAL_COVERAGE_DATABASE_CLOCK_VARIATION_0A57866C8ECA11B5",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

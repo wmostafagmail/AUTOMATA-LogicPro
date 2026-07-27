@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "protection_unit_low_power",
+  "wrapper_entity": "protection_unit_low_power_det_cfg",
+  "configuration_id": "PROTECTION_UNIT_LOW_POWER_74D789708026FAA2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

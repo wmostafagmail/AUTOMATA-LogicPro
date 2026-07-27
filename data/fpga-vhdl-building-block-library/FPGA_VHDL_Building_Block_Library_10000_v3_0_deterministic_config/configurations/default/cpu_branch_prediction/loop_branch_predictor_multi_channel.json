@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_multi_channel",
+  "wrapper_entity": "loop_branch_predictor_multi_channel_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_MULTI_CHANNEL_0F5DD2D64D8418AD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

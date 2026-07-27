@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "glyph_cache_controller_multi_plane",
+  "wrapper_entity": "glyph_cache_controller_multi_plane_det_cfg",
+  "configuration_id": "GLYPH_CACHE_CONTROLLER_MULTI_PLANE_D4EC1D748B73ADB0",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

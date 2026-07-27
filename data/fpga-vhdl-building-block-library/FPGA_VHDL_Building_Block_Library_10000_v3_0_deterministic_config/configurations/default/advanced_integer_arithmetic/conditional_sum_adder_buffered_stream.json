@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_buffered_stream",
+  "wrapper_entity": "conditional_sum_adder_buffered_stream_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_BUFFERED_STREAM_BB70B6293DC6ADBD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

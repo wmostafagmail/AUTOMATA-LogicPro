@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_software_configurable",
+  "wrapper_entity": "powerslink_cycle_manager_software_configurable_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_SOFTWARE_CONFIGURABLE_C09245FAB5034129",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

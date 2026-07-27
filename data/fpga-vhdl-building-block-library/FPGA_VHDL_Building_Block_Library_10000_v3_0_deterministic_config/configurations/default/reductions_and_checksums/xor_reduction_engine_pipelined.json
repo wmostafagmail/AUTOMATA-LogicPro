@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "xor_reduction_engine_pipelined",
+  "wrapper_entity": "xor_reduction_engine_pipelined_det_cfg",
+  "configuration_id": "XOR_REDUCTION_ENGINE_PIPELINED_7C66E357C47178D7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

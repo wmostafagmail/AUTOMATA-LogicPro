@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "attribute_setup_engine_pipelined",
+  "wrapper_entity": "attribute_setup_engine_pipelined_det_cfg",
+  "configuration_id": "ATTRIBUTE_SETUP_ENGINE_PIPELINED_A174D427A220011F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

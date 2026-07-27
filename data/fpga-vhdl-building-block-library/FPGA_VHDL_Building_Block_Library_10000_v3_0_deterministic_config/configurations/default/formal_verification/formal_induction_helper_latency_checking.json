@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_induction_helper_latency_checking",
+  "wrapper_entity": "formal_induction_helper_latency_checking_det_cfg",
+  "configuration_id": "FORMAL_INDUCTION_HELPER_LATENCY_CHECKING_6261C6353BC2C4BC",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

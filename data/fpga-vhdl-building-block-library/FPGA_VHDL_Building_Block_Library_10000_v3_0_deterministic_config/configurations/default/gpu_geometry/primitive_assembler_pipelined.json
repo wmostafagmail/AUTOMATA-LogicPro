@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "primitive_assembler_pipelined",
+  "wrapper_entity": "primitive_assembler_pipelined_det_cfg",
+  "configuration_id": "PRIMITIVE_ASSEMBLER_PIPELINED_B49415E39F59C2CE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

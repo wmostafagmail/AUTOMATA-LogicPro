@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ahb_master_clock_crossing",
+  "wrapper_entity": "ahb_master_clock_crossing_det_cfg",
+  "configuration_id": "AHB_MASTER_CLOCK_CROSSING_F0600C5E4F836F47",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

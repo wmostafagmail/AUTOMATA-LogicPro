@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sha2_engine_key_agile",
+  "wrapper_entity": "sha2_engine_key_agile_det_cfg",
+  "configuration_id": "SHA2_ENGINE_KEY_AGILE_6F3940249FADF28C",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

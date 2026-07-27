@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_initializer_continuous",
+  "wrapper_entity": "memory_initializer_continuous_det_cfg",
+  "configuration_id": "MEMORY_INITIALIZER_CONTINUOUS_B1AFE69EF3A28512",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

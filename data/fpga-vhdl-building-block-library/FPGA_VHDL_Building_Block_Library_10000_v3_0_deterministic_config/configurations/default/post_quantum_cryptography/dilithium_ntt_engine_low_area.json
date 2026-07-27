@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dilithium_ntt_engine_low_area",
+  "wrapper_entity": "dilithium_ntt_engine_low_area_det_cfg",
+  "configuration_id": "DILITHIUM_NTT_ENGINE_LOW_AREA_B7B53AF2AD45583E",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

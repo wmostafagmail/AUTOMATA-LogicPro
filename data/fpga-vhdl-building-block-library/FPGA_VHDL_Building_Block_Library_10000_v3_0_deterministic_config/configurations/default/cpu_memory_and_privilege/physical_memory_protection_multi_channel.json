@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_memory_protection_multi_channel",
+  "wrapper_entity": "physical_memory_protection_multi_channel_det_cfg",
+  "configuration_id": "PHYSICAL_MEMORY_PROTECTION_MULTI_CHANNEL_02A0721C3DD281DB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

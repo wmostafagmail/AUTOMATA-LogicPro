@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_fully_parallel",
+  "wrapper_entity": "loss_scaling_controller_fully_parallel_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_FULLY_PARALLEL_C2C42248A0E1C1EB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

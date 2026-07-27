@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_coherency_bridge_dma_attached",
+  "wrapper_entity": "cxl_coherency_bridge_dma_attached_det_cfg",
+  "configuration_id": "CXL_COHERENCY_BRIDGE_DMA_ATTACHED_B2D563712E29263E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

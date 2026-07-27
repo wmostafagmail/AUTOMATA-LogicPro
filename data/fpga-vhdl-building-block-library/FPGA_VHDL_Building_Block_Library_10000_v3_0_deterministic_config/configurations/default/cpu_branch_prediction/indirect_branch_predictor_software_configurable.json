@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "indirect_branch_predictor_software_configurable",
+  "wrapper_entity": "indirect_branch_predictor_software_configurable_det_cfg",
+  "configuration_id": "INDIRECT_BRANCH_PREDICTOR_SOFTWARE_CONFIGURABLE_8BE2268E74F58907",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "attention_dropout_engine_shallow_pipeline",
+  "wrapper_entity": "attention_dropout_engine_shallow_pipeline_det_cfg",
+  "configuration_id": "ATTENTION_DROPOUT_ENGINE_SHALLOW_PIPELINE_6F32BC3C8EF180DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

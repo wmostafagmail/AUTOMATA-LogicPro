@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_packet_engine_target",
+  "wrapper_entity": "uart_packet_engine_target_det_cfg",
+  "configuration_id": "UART_PACKET_ENGINE_TARGET_E218AB13DF46D723",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

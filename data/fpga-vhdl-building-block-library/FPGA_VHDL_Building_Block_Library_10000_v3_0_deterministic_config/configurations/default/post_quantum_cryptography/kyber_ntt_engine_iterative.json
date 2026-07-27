@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_iterative",
+  "wrapper_entity": "kyber_ntt_engine_iterative_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_ITERATIVE_E6D0FC6667C8E373",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

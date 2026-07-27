@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_sensitive_io_scheduler_continuous",
+  "wrapper_entity": "time_sensitive_io_scheduler_continuous_det_cfg",
+  "configuration_id": "TIME_SENSITIVE_IO_SCHEDULER_CONTINUOUS_4C4083446026AFD3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

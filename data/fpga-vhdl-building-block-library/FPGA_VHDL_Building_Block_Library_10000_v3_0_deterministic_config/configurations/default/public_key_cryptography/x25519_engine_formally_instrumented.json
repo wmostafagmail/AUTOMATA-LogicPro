@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "x25519_engine_formally_instrumented",
+  "wrapper_entity": "x25519_engine_formally_instrumented_det_cfg",
+  "configuration_id": "X25519_ENGINE_FORMALLY_INSTRUMENTED_931745BD1BD3C1A8",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

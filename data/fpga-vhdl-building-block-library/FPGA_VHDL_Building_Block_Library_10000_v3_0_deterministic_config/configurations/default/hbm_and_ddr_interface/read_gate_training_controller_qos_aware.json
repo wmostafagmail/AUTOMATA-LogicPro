@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_gate_training_controller_qos_aware",
+  "wrapper_entity": "read_gate_training_controller_qos_aware_det_cfg",
+  "configuration_id": "READ_GATE_TRAINING_CONTROLLER_QOS_AWARE_8CC8189DCA697012",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

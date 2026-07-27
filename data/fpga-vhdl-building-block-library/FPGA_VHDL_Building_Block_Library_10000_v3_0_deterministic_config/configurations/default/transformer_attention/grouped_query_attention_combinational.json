@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_query_attention_combinational",
+  "wrapper_entity": "grouped_query_attention_combinational_det_cfg",
+  "configuration_id": "GROUPED_QUERY_ATTENTION_COMBINATIONAL_345395A9FC8BA587",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

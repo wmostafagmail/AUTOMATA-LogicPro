@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_vlan_strip_combinational",
+  "wrapper_entity": "ethernet_vlan_strip_combinational_det_cfg",
+  "configuration_id": "ETHERNET_VLAN_STRIP_COMBINATIONAL_2F75DD0E3D541B0F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

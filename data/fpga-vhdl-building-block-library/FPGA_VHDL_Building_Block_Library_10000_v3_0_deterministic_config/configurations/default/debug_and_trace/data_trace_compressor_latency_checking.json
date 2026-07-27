@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_latency_checking",
+  "wrapper_entity": "data_trace_compressor_latency_checking_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_LATENCY_CHECKING_F8D81837ED6F7DF4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

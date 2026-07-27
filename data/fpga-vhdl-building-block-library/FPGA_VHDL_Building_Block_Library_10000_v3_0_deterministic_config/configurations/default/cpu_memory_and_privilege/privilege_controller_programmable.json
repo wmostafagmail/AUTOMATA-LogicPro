@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_controller_programmable",
+  "wrapper_entity": "privilege_controller_programmable_det_cfg",
+  "configuration_id": "PRIVILEGE_CONTROLLER_PROGRAMMABLE_A2422162F421A5CD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

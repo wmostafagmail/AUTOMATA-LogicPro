@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cic_filter",
+  "wrapper_entity": "cic_filter_det_cfg",
+  "configuration_id": "CIC_FILTER_827F7ACAFB64471E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 165
+  }
+}

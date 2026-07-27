@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "resolver_decoder_multi_channel",
+  "wrapper_entity": "resolver_decoder_multi_channel_det_cfg",
+  "configuration_id": "RESOLVER_DECODER_MULTI_CHANNEL_06E831549484D8F1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

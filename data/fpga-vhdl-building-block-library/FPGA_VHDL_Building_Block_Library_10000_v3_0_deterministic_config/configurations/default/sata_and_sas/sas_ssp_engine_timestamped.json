@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_timestamped",
+  "wrapper_entity": "sas_ssp_engine_timestamped_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_TIMESTAMPED_8D8E9C82618FB978",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

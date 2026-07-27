@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_formally_instrumented",
+  "wrapper_entity": "guest_timer_virtualizer_formally_instrumented_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_FORMALLY_INSTRUMENTED_6A6EEC9DD7460651",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

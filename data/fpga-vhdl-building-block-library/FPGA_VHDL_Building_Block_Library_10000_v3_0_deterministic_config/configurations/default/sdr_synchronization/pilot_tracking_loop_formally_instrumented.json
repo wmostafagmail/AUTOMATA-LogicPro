@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_formally_instrumented",
+  "wrapper_entity": "pilot_tracking_loop_formally_instrumented_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_FORMALLY_INSTRUMENTED_4C390F95ECD2DCDC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

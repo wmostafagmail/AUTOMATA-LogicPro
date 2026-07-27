@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_extension_parser_protocol_monitor",
+  "wrapper_entity": "ipv6_extension_parser_protocol_monitor_det_cfg",
+  "configuration_id": "IPV6_EXTENSION_PARSER_PROTOCOL_MONITOR_5B5868CE09CBA202",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

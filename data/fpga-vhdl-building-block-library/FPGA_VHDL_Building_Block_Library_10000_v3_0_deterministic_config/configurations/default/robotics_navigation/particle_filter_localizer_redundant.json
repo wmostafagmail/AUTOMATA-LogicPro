@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_redundant",
+  "wrapper_entity": "particle_filter_localizer_redundant_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_REDUNDANT_C2A57CD63702FACE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

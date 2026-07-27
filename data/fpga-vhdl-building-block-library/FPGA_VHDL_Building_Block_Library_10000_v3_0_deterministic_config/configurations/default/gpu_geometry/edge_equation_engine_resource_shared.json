@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "edge_equation_engine_resource_shared",
+  "wrapper_entity": "edge_equation_engine_resource_shared_det_cfg",
+  "configuration_id": "EDGE_EQUATION_ENGINE_RESOURCE_SHARED_148174D7C0FFBC35",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

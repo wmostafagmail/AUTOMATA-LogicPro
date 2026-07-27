@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "occupancy_grid_updater_event_driven",
+  "wrapper_entity": "occupancy_grid_updater_event_driven_det_cfg",
+  "configuration_id": "OCCUPANCY_GRID_UPDATER_EVENT_DRIVEN_F7EE581D0EAA485F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

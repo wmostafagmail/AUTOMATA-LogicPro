@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_controller_single_shot",
+  "wrapper_entity": "privilege_controller_single_shot_det_cfg",
+  "configuration_id": "PRIVILEGE_CONTROLLER_SINGLE_SHOT_53ECCE4055F64267",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

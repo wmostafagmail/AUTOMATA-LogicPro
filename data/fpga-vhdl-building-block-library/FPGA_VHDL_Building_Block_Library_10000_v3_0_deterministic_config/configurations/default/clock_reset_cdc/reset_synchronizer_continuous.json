@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reset_synchronizer_continuous",
+  "wrapper_entity": "reset_synchronizer_continuous_det_cfg",
+  "configuration_id": "RESET_SYNCHRONIZER_CONTINUOUS_1391C372224B815A",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

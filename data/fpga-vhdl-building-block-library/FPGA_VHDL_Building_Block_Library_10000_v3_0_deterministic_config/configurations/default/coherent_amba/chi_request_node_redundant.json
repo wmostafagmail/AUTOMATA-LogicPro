@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_request_node_redundant",
+  "wrapper_entity": "chi_request_node_redundant_det_cfg",
+  "configuration_id": "CHI_REQUEST_NODE_REDUNDANT_80F43D9D771D1BE9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

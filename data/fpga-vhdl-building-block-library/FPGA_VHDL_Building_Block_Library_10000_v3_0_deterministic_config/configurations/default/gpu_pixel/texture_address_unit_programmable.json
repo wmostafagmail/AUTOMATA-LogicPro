@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_address_unit_programmable",
+  "wrapper_entity": "texture_address_unit_programmable_det_cfg",
+  "configuration_id": "TEXTURE_ADDRESS_UNIT_PROGRAMMABLE_FC8CF9BA5853E155",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

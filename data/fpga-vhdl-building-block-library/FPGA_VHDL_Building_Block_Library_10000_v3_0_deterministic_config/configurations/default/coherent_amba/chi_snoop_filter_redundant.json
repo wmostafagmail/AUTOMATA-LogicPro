@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_snoop_filter_redundant",
+  "wrapper_entity": "chi_snoop_filter_redundant_det_cfg",
+  "configuration_id": "CHI_SNOOP_FILTER_REDUNDANT_3A0D4D18917F91CA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

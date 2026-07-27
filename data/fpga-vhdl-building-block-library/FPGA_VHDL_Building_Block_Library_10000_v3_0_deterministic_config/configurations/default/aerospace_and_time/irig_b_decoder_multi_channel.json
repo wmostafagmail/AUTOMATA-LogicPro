@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "irig_b_decoder_multi_channel",
+  "wrapper_entity": "irig_b_decoder_multi_channel_det_cfg",
+  "configuration_id": "IRIG_B_DECODER_MULTI_CHANNEL_1FCE064A2712ABCD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

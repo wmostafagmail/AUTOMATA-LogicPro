@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rasterizer_programmable",
+  "wrapper_entity": "rasterizer_programmable_det_cfg",
+  "configuration_id": "RASTERIZER_PROGRAMMABLE_A7E4D26893DE8517",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

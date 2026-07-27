@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_generator_fault_tolerant",
+  "wrapper_entity": "pwm_generator_fault_tolerant_det_cfg",
+  "configuration_id": "PWM_GENERATOR_FAULT_TOLERANT_636EB75396120970",
+  "generics": {
+    "WIDTH": 16
+  }
+}

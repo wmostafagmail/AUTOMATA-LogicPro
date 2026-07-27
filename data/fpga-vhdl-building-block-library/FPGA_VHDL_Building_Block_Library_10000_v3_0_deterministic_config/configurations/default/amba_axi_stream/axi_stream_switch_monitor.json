@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_switch_monitor",
+  "wrapper_entity": "axi_stream_switch_monitor_det_cfg",
+  "configuration_id": "AXI_STREAM_SWITCH_MONITOR_72035638252C2949",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 108
+  }
+}

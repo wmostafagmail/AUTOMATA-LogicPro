@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_table_driven",
+  "wrapper_entity": "loop_branch_predictor_table_driven_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_TABLE_DRIVEN_0A6943029CA8DAF2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clock_frequency_governor_queued",
+  "wrapper_entity": "clock_frequency_governor_queued_det_cfg",
+  "configuration_id": "CLOCK_FREQUENCY_GOVERNOR_QUEUED_940F641A996DF789",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

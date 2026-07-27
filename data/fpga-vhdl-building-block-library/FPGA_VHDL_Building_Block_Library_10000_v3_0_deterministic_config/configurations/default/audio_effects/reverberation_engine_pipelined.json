@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_pipelined",
+  "wrapper_entity": "reverberation_engine_pipelined_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_PIPELINED_3FC529E6C5A3523D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

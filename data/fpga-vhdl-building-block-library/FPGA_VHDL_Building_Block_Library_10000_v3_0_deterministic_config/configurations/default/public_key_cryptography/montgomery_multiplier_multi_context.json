@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "montgomery_multiplier_multi_context",
+  "wrapper_entity": "montgomery_multiplier_multi_context_det_cfg",
+  "configuration_id": "MONTGOMERY_MULTIPLIER_MULTI_CONTEXT_D68327CABBA99D1D",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

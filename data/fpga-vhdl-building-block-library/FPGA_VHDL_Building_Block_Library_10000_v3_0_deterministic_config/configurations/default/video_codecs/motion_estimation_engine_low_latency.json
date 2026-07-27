@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "motion_estimation_engine_low_latency",
+  "wrapper_entity": "motion_estimation_engine_low_latency_det_cfg",
+  "configuration_id": "MOTION_ESTIMATION_ENGINE_LOW_LATENCY_0108CB3F5C86FE34",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "hyperbolic_function_engine_single_cycle",
+  "wrapper_entity": "hyperbolic_function_engine_single_cycle_det_cfg",
+  "configuration_id": "HYPERBOLIC_FUNCTION_ENGINE_SINGLE_CYCLE_07FF96811EBDE87D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

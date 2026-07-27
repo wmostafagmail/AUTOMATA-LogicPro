@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gardner_timing_detector_software_configurable",
+  "wrapper_entity": "gardner_timing_detector_software_configurable_det_cfg",
+  "configuration_id": "GARDNER_TIMING_DETECTOR_SOFTWARE_CONFIGURABLE_6680FD62C7EBE31C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

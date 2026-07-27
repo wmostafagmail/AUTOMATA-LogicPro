@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_border_unit_framebuffer",
+  "wrapper_entity": "texture_border_unit_framebuffer_det_cfg",
+  "configuration_id": "TEXTURE_BORDER_UNIT_FRAMEBUFFER_BECA95E57635F3E4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

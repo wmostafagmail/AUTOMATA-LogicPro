@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_fma_iterative",
+  "wrapper_entity": "floating_point_fma_iterative_det_cfg",
+  "configuration_id": "FLOATING_POINT_FMA_ITERATIVE_6D6870984ADD1B0C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

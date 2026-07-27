@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profibus_frame_engine_low_power",
+  "wrapper_entity": "profibus_frame_engine_low_power_det_cfg",
+  "configuration_id": "PROFIBUS_FRAME_ENGINE_LOW_POWER_B83804DA00CCF327",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

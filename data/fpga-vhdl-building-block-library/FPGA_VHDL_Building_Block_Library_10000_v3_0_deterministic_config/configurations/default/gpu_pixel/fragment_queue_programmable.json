@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fragment_queue_programmable",
+  "wrapper_entity": "fragment_queue_programmable_det_cfg",
+  "configuration_id": "FRAGMENT_QUEUE_PROGRAMMABLE_E78ECF46D182B3CB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

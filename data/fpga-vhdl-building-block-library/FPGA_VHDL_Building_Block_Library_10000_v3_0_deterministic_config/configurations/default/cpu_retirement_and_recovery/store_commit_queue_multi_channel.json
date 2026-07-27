@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_multi_channel",
+  "wrapper_entity": "store_commit_queue_multi_channel_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_MULTI_CHANNEL_74D6E237E3DC88E8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "elastic_store_fault_tolerant",
+  "wrapper_entity": "elastic_store_fault_tolerant_det_cfg",
+  "configuration_id": "ELASTIC_STORE_FAULT_TOLERANT_03BED166FB8CDE2E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

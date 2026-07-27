@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_boundary_focused",
+  "wrapper_entity": "constrained_random_generator_boundary_focused_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_BOUNDARY_FOCUSED_060E78483003415D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

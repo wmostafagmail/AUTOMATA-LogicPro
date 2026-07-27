@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "distributed_ram_single_clock",
+  "wrapper_entity": "distributed_ram_single_clock_det_cfg",
+  "configuration_id": "DISTRIBUTED_RAM_SINGLE_CLOCK_B6863FF13716CED8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

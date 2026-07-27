@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "huffman_encoder_single_cycle",
+  "wrapper_entity": "huffman_encoder_single_cycle_det_cfg",
+  "configuration_id": "HUFFMAN_ENCODER_SINGLE_CYCLE_375978157F0518AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

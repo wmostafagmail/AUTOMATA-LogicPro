@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rs485_packet_engine_programmable",
+  "wrapper_entity": "rs485_packet_engine_programmable_det_cfg",
+  "configuration_id": "RS485_PACKET_ENGINE_PROGRAMMABLE_12E3BB1C7985D946",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

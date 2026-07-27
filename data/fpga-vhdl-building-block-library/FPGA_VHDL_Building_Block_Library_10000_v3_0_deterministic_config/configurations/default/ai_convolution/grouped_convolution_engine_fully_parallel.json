@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_fully_parallel",
+  "wrapper_entity": "grouped_convolution_engine_fully_parallel_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_FULLY_PARALLEL_2C24FC8ECA996C9C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_dot_product_engine",
+  "wrapper_entity": "vector_dot_product_engine_det_cfg",
+  "configuration_id": "VECTOR_DOT_PRODUCT_ENGINE_EF05DE6C70431A42",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

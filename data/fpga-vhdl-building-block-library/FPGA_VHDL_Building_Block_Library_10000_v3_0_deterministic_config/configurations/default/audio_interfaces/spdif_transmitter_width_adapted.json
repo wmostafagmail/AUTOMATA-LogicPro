@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spdif_transmitter_width_adapted",
+  "wrapper_entity": "spdif_transmitter_width_adapted_det_cfg",
+  "configuration_id": "SPDIF_TRANSMITTER_WIDTH_ADAPTED_EFF830C4D4C99A0F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

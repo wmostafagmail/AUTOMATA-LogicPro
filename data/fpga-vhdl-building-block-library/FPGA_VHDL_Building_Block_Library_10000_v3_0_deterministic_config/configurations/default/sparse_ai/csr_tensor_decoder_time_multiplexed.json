@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "csr_tensor_decoder_time_multiplexed",
+  "wrapper_entity": "csr_tensor_decoder_time_multiplexed_det_cfg",
+  "configuration_id": "CSR_TENSOR_DECODER_TIME_MULTIPLEXED_AEA36AE7C2BD7C5E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

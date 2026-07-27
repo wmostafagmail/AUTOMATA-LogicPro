@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "row_hammer_monitor_single_port",
+  "wrapper_entity": "row_hammer_monitor_single_port_det_cfg",
+  "configuration_id": "ROW_HAMMER_MONITOR_SINGLE_PORT_0EE8042DB51F3DE5",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

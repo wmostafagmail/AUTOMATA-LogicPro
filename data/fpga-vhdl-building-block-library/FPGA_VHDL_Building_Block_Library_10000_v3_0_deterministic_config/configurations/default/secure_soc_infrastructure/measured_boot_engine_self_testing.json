@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "measured_boot_engine_self_testing",
+  "wrapper_entity": "measured_boot_engine_self_testing_det_cfg",
+  "configuration_id": "MEASURED_BOOT_ENGINE_SELF_TESTING_06BBC3503F2E864B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

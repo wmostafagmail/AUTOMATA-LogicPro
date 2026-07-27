@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "non_max_suppression_engine_formally_instrumented",
+  "wrapper_entity": "non_max_suppression_engine_formally_instrumented_det_cfg",
+  "configuration_id": "NON_MAX_SUPPRESSION_ENGINE_FORMALLY_INSTRUMENTED_88DEAA4BEB4FE000",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

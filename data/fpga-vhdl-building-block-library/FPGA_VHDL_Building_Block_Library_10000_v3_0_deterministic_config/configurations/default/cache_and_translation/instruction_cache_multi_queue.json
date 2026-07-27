@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_cache_multi_queue",
+  "wrapper_entity": "instruction_cache_multi_queue_det_cfg",
+  "configuration_id": "INSTRUCTION_CACHE_MULTI_QUEUE_A081B15F74506C34",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

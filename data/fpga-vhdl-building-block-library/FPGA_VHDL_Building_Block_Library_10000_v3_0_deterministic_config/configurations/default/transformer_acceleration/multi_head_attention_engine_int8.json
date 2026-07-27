@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multi_head_attention_engine_int8",
+  "wrapper_entity": "multi_head_attention_engine_int8_det_cfg",
+  "configuration_id": "MULTI_HEAD_ATTENTION_ENGINE_INT8_FDBC37AE22280A3C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

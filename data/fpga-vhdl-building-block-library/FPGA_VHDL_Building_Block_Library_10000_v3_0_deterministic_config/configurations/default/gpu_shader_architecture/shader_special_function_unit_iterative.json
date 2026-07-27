@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "shader_special_function_unit_iterative",
+  "wrapper_entity": "shader_special_function_unit_iterative_det_cfg",
+  "configuration_id": "SHADER_SPECIAL_FUNCTION_UNIT_ITERATIVE_A3938404E31B810F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

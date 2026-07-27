@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "icmp_endpoint_continuous",
+  "wrapper_entity": "icmp_endpoint_continuous_det_cfg",
+  "configuration_id": "ICMP_ENDPOINT_CONTINUOUS_B58BFC703F584E2F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

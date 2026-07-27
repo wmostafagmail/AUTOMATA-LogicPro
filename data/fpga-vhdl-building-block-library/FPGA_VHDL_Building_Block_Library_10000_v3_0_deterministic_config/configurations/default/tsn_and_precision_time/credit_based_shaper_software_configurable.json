@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_software_configurable",
+  "wrapper_entity": "credit_based_shaper_software_configurable_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_SOFTWARE_CONFIGURABLE_B9F69B9A00789588",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

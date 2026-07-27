@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_weakening_controller_event_driven",
+  "wrapper_entity": "field_weakening_controller_event_driven_det_cfg",
+  "configuration_id": "FIELD_WEAKENING_CONTROLLER_EVENT_DRIVEN_B32D9E4E3BAE8D58",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

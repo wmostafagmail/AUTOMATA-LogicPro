@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_combinational",
+  "wrapper_entity": "bit_reverse_network_combinational_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_COMBINATIONAL_47922CC18B27A1B2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

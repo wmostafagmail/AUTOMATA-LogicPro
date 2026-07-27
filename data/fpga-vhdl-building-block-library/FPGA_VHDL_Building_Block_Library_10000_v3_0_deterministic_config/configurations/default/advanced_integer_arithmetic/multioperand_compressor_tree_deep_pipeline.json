@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "multioperand_compressor_tree_deep_pipeline",
+  "wrapper_entity": "multioperand_compressor_tree_deep_pipeline_det_cfg",
+  "configuration_id": "MULTIOPERAND_COMPRESSOR_TREE_DEEP_PIPELINE_24486C4199E1A6EC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

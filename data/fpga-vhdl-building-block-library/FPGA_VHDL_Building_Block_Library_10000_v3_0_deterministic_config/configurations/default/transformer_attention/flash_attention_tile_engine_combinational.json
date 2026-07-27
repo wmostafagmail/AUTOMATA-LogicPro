@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "flash_attention_tile_engine_combinational",
+  "wrapper_entity": "flash_attention_tile_engine_combinational_det_cfg",
+  "configuration_id": "FLASH_ATTENTION_TILE_ENGINE_COMBINATIONAL_E2445E63C9189F9B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

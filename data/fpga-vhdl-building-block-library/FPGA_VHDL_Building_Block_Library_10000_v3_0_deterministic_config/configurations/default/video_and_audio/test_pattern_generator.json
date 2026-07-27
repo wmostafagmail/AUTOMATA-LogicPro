@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "test_pattern_generator",
+  "wrapper_entity": "test_pattern_generator_det_cfg",
+  "configuration_id": "TEST_PATTERN_GENERATOR_DB7472A31E0C0908",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

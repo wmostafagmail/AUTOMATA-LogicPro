@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_clock_crossing",
+  "wrapper_entity": "stage2_address_translator_clock_crossing_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_CLOCK_CROSSING_95832F9CF339A838",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

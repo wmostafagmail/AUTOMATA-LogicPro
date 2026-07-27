@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb4_tunnel_adapter_dma_attached",
+  "wrapper_entity": "usb4_tunnel_adapter_dma_attached_det_cfg",
+  "configuration_id": "USB4_TUNNEL_ADAPTER_DMA_ATTACHED_24B54BBD5F7CED0B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

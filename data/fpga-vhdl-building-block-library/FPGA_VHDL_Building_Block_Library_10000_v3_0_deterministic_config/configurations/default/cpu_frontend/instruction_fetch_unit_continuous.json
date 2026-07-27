@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "instruction_fetch_unit_continuous",
+  "wrapper_entity": "instruction_fetch_unit_continuous_det_cfg",
+  "configuration_id": "INSTRUCTION_FETCH_UNIT_CONTINUOUS_8D31374DF96626CD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "stream_fifo",
+  "wrapper_entity": "stream_fifo_det_cfg",
+  "configuration_id": "STREAM_FIFO_C5FCF001EE6A0971",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

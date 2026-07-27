@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_multi_channel",
+  "wrapper_entity": "adam_optimizer_engine_multi_channel_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_MULTI_CHANNEL_E1FFC5F70E41FDC2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

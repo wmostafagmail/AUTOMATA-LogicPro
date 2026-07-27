@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "uart_core",
+  "wrapper_entity": "uart_core_det_cfg",
+  "configuration_id": "UART_CORE_5EEDF583B1186395",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_side_channel_hardened",
+  "wrapper_entity": "ascon_aead_engine_side_channel_hardened_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_SIDE_CHANNEL_HARDENED_54EF8637BB9F849F",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

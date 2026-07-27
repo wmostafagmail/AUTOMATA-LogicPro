@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "demosaic_engine_line_buffered",
+  "wrapper_entity": "demosaic_engine_line_buffered_det_cfg",
+  "configuration_id": "DEMOSAIC_ENGINE_LINE_BUFFERED_83197D15BF81A4EE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

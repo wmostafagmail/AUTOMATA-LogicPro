@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_dma_attached",
+  "wrapper_entity": "jesd204_deterministic_latency_dma_attached_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_DMA_ATTACHED_CFC04E52305F753B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

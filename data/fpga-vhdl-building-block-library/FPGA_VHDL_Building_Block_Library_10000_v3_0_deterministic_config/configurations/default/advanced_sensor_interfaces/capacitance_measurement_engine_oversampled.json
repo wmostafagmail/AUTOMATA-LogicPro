@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_oversampled",
+  "wrapper_entity": "capacitance_measurement_engine_oversampled_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_OVERSAMPLED_5DE80D240ECF2C65",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

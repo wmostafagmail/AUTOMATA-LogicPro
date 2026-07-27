@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_sqrt_streaming",
+  "wrapper_entity": "floating_point_sqrt_streaming_det_cfg",
+  "configuration_id": "FLOATING_POINT_SQRT_STREAMING_BB657F86A23C338E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

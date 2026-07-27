@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_fill_engine_programmable",
+  "wrapper_entity": "memory_fill_engine_programmable_det_cfg",
+  "configuration_id": "MEMORY_FILL_ENGINE_PROGRAMMABLE_4FA633033231C9B6",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

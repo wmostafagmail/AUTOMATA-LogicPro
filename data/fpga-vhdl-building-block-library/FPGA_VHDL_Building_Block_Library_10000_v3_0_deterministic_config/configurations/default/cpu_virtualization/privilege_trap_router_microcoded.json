@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "privilege_trap_router_microcoded",
+  "wrapper_entity": "privilege_trap_router_microcoded_det_cfg",
+  "configuration_id": "PRIVILEGE_TRAP_ROUTER_MICROCODED_E2318AB6D13F6C6B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

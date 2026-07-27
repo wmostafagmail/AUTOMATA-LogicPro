@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sparse_accumulator_bank_rate_adaptive",
+  "wrapper_entity": "sparse_accumulator_bank_rate_adaptive_det_cfg",
+  "configuration_id": "SPARSE_ACCUMULATOR_BANK_RATE_ADAPTIVE_638D8112AB87D6B7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

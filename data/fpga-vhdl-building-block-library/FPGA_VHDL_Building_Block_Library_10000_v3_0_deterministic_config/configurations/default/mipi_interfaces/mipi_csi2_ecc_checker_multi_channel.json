@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_ecc_checker_multi_channel",
+  "wrapper_entity": "mipi_csi2_ecc_checker_multi_channel_det_cfg",
+  "configuration_id": "MIPI_CSI2_ECC_CHECKER_MULTI_CHANNEL_1F96E1010189D216",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

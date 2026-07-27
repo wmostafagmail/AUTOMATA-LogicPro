@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_qos_aware",
+  "wrapper_entity": "hierarchical_noc_gateway_qos_aware_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_QOS_AWARE_EEC3F778D7077854",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

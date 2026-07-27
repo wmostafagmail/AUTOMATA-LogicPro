@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "data_trace_compressor_reset_robustness",
+  "wrapper_entity": "data_trace_compressor_reset_robustness_det_cfg",
+  "configuration_id": "DATA_TRACE_COMPRESSOR_RESET_ROBUSTNESS_98F2704769064EB4",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

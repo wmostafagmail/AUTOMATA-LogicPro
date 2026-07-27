@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "watchdog_peripheral_programmable",
+  "wrapper_entity": "watchdog_peripheral_programmable_det_cfg",
+  "configuration_id": "WATCHDOG_PERIPHERAL_PROGRAMMABLE_67E0449B5408644F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

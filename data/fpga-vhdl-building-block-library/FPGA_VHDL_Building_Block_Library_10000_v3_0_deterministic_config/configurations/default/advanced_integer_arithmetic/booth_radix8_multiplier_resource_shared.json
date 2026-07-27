@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix8_multiplier_resource_shared",
+  "wrapper_entity": "booth_radix8_multiplier_resource_shared_det_cfg",
+  "configuration_id": "BOOTH_RADIX8_MULTIPLIER_RESOURCE_SHARED_E3AA3E1D7FB30222",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

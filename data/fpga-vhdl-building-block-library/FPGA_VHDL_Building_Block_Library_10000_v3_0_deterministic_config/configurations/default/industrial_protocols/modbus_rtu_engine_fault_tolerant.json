@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "modbus_rtu_engine_fault_tolerant",
+  "wrapper_entity": "modbus_rtu_engine_fault_tolerant_det_cfg",
+  "configuration_id": "MODBUS_RTU_ENGINE_FAULT_TOLERANT_AD7C844D76C99921",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

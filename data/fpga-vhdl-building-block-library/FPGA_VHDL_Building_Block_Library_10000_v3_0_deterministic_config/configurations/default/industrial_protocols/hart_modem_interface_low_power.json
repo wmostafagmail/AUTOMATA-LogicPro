@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hart_modem_interface_low_power",
+  "wrapper_entity": "hart_modem_interface_low_power_det_cfg",
+  "configuration_id": "HART_MODEM_INTERFACE_LOW_POWER_37A0343AFB8A69F0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

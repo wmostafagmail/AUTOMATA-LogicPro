@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multisample_pattern_generator_rate_adaptive",
+  "wrapper_entity": "multisample_pattern_generator_rate_adaptive_det_cfg",
+  "configuration_id": "MULTISAMPLE_PATTERN_GENERATOR_RATE_ADAPTIVE_1C4931EE90F71C6E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

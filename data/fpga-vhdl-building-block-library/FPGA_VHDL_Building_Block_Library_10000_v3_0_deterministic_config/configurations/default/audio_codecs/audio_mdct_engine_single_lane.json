@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mdct_engine_single_lane",
+  "wrapper_entity": "audio_mdct_engine_single_lane_det_cfg",
+  "configuration_id": "AUDIO_MDCT_ENGINE_SINGLE_LANE_C746894BA3F4677E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "flash_attention_tile_engine_iterative",
+  "wrapper_entity": "flash_attention_tile_engine_iterative_det_cfg",
+  "configuration_id": "FLASH_ATTENTION_TILE_ENGINE_ITERATIVE_841E6A20D03C8438",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_arbiter_width_adapted",
+  "wrapper_entity": "wishbone_arbiter_width_adapted_det_cfg",
+  "configuration_id": "WISHBONE_ARBITER_WIDTH_ADAPTED_F002AD2DB2DA404C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

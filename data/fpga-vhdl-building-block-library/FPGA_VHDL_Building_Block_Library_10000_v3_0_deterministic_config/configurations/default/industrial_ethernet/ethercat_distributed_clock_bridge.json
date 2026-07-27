@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_distributed_clock_bridge",
+  "wrapper_entity": "ethercat_distributed_clock_bridge_det_cfg",
+  "configuration_id": "ETHERCAT_DISTRIBUTED_CLOCK_BRIDGE_F346377A8DCFF1B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

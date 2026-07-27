@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_adder_iterative",
+  "wrapper_entity": "vector_adder_iterative_det_cfg",
+  "configuration_id": "VECTOR_ADDER_ITERATIVE_F0E7B889E5F13C84",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

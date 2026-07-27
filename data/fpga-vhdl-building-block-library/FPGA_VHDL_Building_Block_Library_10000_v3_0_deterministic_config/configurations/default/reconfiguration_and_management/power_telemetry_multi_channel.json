@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_telemetry_multi_channel",
+  "wrapper_entity": "power_telemetry_multi_channel_det_cfg",
+  "configuration_id": "POWER_TELEMETRY_MULTI_CHANNEL_FB795E314E9A6A15",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

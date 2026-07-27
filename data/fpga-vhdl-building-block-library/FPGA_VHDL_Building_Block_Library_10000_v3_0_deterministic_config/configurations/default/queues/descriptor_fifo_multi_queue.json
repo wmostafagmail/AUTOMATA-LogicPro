@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "descriptor_fifo_multi_queue",
+  "wrapper_entity": "descriptor_fifo_multi_queue_det_cfg",
+  "configuration_id": "DESCRIPTOR_FIFO_MULTI_QUEUE_B9607ACE54AB436D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

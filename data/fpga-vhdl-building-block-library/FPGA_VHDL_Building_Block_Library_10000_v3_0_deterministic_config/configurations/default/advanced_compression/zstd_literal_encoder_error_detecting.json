@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zstd_literal_encoder_error_detecting",
+  "wrapper_entity": "zstd_literal_encoder_error_detecting_det_cfg",
+  "configuration_id": "ZSTD_LITERAL_ENCODER_ERROR_DETECTING_1C86000B1B80A16F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

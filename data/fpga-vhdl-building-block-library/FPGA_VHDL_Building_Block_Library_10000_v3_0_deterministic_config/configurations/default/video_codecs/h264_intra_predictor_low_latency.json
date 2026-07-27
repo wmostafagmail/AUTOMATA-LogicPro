@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_low_latency",
+  "wrapper_entity": "h264_intra_predictor_low_latency_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_LOW_LATENCY_7392B555F8285257",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

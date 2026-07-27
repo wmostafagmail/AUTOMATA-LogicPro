@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lockstep_comparator_multi_channel",
+  "wrapper_entity": "lockstep_comparator_multi_channel_det_cfg",
+  "configuration_id": "LOCKSTEP_COMPARATOR_MULTI_CHANNEL_F56A0C3858421E83",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ieee1588_timestamp_unit_clock_crossing",
+  "wrapper_entity": "ieee1588_timestamp_unit_clock_crossing_det_cfg",
+  "configuration_id": "IEEE1588_TIMESTAMP_UNIT_CLOCK_CROSSING_EF70A451BDEB97D5",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

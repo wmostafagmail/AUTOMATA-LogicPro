@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "perceptron_branch_predictor_redundant",
+  "wrapper_entity": "perceptron_branch_predictor_redundant_det_cfg",
+  "configuration_id": "PERCEPTRON_BRANCH_PREDICTOR_REDUNDANT_D75792071F1C44AC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

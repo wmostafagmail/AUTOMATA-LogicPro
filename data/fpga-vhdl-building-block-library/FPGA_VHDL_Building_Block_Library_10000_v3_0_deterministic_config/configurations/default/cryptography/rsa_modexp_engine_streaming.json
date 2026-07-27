@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "rsa_modexp_engine_streaming",
+  "wrapper_entity": "rsa_modexp_engine_streaming_det_cfg",
+  "configuration_id": "RSA_MODEXP_ENGINE_STREAMING_283B3192E9FC6015",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_low_power",
+  "wrapper_entity": "reverberation_engine_low_power_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_LOW_POWER_AB1473602F484690",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

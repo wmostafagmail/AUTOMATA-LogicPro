@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_spatial_redundancy",
+  "wrapper_entity": "latent_fault_monitor_spatial_redundancy_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_SPATIAL_REDUNDANCY_CFD1E95D82CE9D28",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

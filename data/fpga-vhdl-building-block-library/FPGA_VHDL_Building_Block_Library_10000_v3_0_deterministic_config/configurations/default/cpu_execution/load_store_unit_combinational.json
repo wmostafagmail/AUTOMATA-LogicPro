@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "load_store_unit_combinational",
+  "wrapper_entity": "load_store_unit_combinational_det_cfg",
+  "configuration_id": "LOAD_STORE_UNIT_COMBINATIONAL_0E60D410E0497FAE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

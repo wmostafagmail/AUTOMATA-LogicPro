@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wheel_speed_capture_low_power",
+  "wrapper_entity": "wheel_speed_capture_low_power_det_cfg",
+  "configuration_id": "WHEEL_SPEED_CAPTURE_LOW_POWER_8E5B6A467F77288D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

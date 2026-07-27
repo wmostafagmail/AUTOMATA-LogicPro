@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "wheel_speed_capture_continuous",
+  "wrapper_entity": "wheel_speed_capture_continuous_det_cfg",
+  "configuration_id": "WHEEL_SPEED_CAPTURE_CONTINUOUS_2D19CF83DA226098",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

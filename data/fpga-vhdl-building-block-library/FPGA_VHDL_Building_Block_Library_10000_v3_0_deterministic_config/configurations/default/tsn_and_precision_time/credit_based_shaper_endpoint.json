@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_based_shaper_endpoint",
+  "wrapper_entity": "credit_based_shaper_endpoint_det_cfg",
+  "configuration_id": "CREDIT_BASED_SHAPER_ENDPOINT_266226619364C706",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

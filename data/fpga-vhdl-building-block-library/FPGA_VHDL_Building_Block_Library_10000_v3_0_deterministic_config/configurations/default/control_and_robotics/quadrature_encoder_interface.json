@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_encoder_interface",
+  "wrapper_entity": "quadrature_encoder_interface_det_cfg",
+  "configuration_id": "QUADRATURE_ENCODER_INTERFACE_9E3997D95F8541E2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mel_filterbank_engine_single_lane",
+  "wrapper_entity": "mel_filterbank_engine_single_lane_det_cfg",
+  "configuration_id": "MEL_FILTERBANK_ENGINE_SINGLE_LANE_EBB178935067DAE7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

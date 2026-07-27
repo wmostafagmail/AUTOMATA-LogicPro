@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "decimal_adder_multi_channel",
+  "wrapper_entity": "decimal_adder_multi_channel_det_cfg",
+  "configuration_id": "DECIMAL_ADDER_MULTI_CHANNEL_3DD1EBDE1060FCCF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

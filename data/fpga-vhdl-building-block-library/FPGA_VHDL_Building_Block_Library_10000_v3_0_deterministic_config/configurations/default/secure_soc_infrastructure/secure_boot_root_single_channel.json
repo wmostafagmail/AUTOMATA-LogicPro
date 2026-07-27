@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_single_channel",
+  "wrapper_entity": "secure_boot_root_single_channel_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_SINGLE_CHANNEL_3314E47F25119B01",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

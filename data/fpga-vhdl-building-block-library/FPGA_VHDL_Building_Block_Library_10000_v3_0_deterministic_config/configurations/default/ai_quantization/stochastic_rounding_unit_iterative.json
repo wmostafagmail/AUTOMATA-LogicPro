@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stochastic_rounding_unit_iterative",
+  "wrapper_entity": "stochastic_rounding_unit_iterative_det_cfg",
+  "configuration_id": "STOCHASTIC_ROUNDING_UNIT_ITERATIVE_60554B428BDF8B92",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

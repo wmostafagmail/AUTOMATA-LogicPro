@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "deadtime_inserter_low_power",
+  "wrapper_entity": "deadtime_inserter_low_power_det_cfg",
+  "configuration_id": "DEADTIME_INSERTER_LOW_POWER_04761CEB652A2F9C",
+  "generics": {
+    "WIDTH": 16
+  }
+}

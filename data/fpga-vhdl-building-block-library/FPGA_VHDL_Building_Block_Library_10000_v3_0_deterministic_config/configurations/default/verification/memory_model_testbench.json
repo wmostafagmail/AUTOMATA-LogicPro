@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_model_testbench",
+  "wrapper_entity": "memory_model_testbench_det_cfg",
+  "configuration_id": "MEMORY_MODEL_TESTBENCH_BAD98C46D6FAE982",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

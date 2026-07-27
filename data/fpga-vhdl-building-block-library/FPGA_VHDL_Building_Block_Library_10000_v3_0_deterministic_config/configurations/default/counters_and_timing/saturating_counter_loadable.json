@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "saturating_counter_loadable",
+  "wrapper_entity": "saturating_counter_loadable_det_cfg",
+  "configuration_id": "SATURATING_COUNTER_LOADABLE_38DB7015A66F5287",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": true,
+    "DOWN_COUNT": false
+  }
+}

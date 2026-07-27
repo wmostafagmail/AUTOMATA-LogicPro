@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_memory_protection_low_power",
+  "wrapper_entity": "physical_memory_protection_low_power_det_cfg",
+  "configuration_id": "PHYSICAL_MEMORY_PROTECTION_LOW_POWER_61F192718B99C92D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

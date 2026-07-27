@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_limiter_resource_shared",
+  "wrapper_entity": "audio_limiter_resource_shared_det_cfg",
+  "configuration_id": "AUDIO_LIMITER_RESOURCE_SHARED_6248087CFF5B2AC2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

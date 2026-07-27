@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_masked",
+  "wrapper_entity": "hash_based_signature_engine_masked_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_MASKED_9334F558748845CB",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

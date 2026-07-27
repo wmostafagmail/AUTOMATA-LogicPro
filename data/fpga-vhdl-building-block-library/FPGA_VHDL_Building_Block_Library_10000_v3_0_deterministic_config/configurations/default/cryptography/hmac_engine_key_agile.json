@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hmac_engine_key_agile",
+  "wrapper_entity": "hmac_engine_key_agile_det_cfg",
+  "configuration_id": "HMAC_ENGINE_KEY_AGILE_C0D3E34CD37F8439",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

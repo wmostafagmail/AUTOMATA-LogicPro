@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "debug_module_continuous",
+  "wrapper_entity": "debug_module_continuous_det_cfg",
+  "configuration_id": "DEBUG_MODULE_CONTINUOUS_CE4D442BFC45BCA8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

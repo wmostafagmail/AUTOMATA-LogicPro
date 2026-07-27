@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "digital_up_converter",
+  "wrapper_entity": "digital_up_converter_det_cfg",
+  "configuration_id": "DIGITAL_UP_CONVERTER_96330B35A2DE746D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 16
+  }
+}

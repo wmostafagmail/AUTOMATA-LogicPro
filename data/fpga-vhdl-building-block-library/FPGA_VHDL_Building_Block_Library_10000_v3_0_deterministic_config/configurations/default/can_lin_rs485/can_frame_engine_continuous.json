@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_frame_engine_continuous",
+  "wrapper_entity": "can_frame_engine_continuous_det_cfg",
+  "configuration_id": "CAN_FRAME_ENGINE_CONTINUOUS_310B4C2F34FE417F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

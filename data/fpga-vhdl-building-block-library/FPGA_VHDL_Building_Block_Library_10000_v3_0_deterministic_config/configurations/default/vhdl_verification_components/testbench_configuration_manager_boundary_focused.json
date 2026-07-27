@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "testbench_configuration_manager_boundary_focused",
+  "wrapper_entity": "testbench_configuration_manager_boundary_focused_det_cfg",
+  "configuration_id": "TESTBENCH_CONFIGURATION_MANAGER_BOUNDARY_FOCUSED_2DA5749D802F6CD1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

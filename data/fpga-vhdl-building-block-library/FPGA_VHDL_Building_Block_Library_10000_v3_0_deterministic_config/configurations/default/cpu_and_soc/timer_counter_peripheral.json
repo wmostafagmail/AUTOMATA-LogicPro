@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "timer_counter_peripheral",
+  "wrapper_entity": "timer_counter_peripheral_det_cfg",
+  "configuration_id": "TIMER_COUNTER_PERIPHERAL_E7E034309478E824",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

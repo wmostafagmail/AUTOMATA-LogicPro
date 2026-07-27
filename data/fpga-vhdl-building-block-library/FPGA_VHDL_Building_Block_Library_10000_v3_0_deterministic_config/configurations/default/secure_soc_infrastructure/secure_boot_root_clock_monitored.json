@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "secure_boot_root_clock_monitored",
+  "wrapper_entity": "secure_boot_root_clock_monitored_det_cfg",
+  "configuration_id": "SECURE_BOOT_ROOT_CLOCK_MONITORED_E63A5965AE525F34",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

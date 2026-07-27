@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "bounding_box_decoder_packet_aware",
+  "wrapper_entity": "bounding_box_decoder_packet_aware_det_cfg",
+  "configuration_id": "BOUNDING_BOX_DECODER_PACKET_AWARE_C82DF71EC411FCBC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

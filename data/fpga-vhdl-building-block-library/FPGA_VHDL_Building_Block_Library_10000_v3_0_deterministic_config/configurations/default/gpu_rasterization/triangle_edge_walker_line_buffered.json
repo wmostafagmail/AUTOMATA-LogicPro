@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "triangle_edge_walker_line_buffered",
+  "wrapper_entity": "triangle_edge_walker_line_buffered_det_cfg",
+  "configuration_id": "TRIANGLE_EDGE_WALKER_LINE_BUFFERED_52473441F939ABC8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

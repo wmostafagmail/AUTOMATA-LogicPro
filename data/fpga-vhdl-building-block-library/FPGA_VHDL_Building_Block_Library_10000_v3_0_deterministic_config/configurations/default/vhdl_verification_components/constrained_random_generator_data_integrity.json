@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_data_integrity",
+  "wrapper_entity": "constrained_random_generator_data_integrity_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_DATA_INTEGRITY_804A6990AC3BFA0B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

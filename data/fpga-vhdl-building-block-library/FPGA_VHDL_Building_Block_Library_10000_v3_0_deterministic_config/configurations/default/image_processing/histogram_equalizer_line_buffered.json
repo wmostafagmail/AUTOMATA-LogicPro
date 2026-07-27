@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "histogram_equalizer_line_buffered",
+  "wrapper_entity": "histogram_equalizer_line_buffered_det_cfg",
+  "configuration_id": "HISTOGRAM_EQUALIZER_LINE_BUFFERED_3A3D6C8151F09B33",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

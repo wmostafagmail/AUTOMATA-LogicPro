@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204c_64b66b_codec_target",
+  "wrapper_entity": "jesd204c_64b66b_codec_target_det_cfg",
+  "configuration_id": "JESD204C_64B66B_CODEC_TARGET_C2D43109755BE3AD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

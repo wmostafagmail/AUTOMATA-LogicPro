@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pitch_shift_engine_single_lane",
+  "wrapper_entity": "pitch_shift_engine_single_lane_det_cfg",
+  "configuration_id": "PITCH_SHIFT_ENGINE_SINGLE_LANE_A54319D51E619B52",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

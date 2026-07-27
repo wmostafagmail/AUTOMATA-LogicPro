@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "vertex_transform_engine_single_cycle",
+  "wrapper_entity": "vertex_transform_engine_single_cycle_det_cfg",
+  "configuration_id": "VERTEX_TRANSFORM_ENGINE_SINGLE_CYCLE_B993EC8491D55DAE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

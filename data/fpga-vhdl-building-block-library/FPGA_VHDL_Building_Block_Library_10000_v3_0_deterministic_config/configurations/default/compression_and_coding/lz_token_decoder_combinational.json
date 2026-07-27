@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz_token_decoder_combinational",
+  "wrapper_entity": "lz_token_decoder_combinational_det_cfg",
+  "configuration_id": "LZ_TOKEN_DECODER_COMBINATIONAL_4B4FC6E9AE7C2E88",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 117
+  }
+}

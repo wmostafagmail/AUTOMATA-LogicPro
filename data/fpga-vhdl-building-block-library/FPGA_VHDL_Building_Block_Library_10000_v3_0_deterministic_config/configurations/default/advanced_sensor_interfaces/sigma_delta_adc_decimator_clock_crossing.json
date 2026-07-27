@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_clock_crossing",
+  "wrapper_entity": "sigma_delta_adc_decimator_clock_crossing_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_CLOCK_CROSSING_E0B829C897C6E443",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

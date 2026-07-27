@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_clock_variation",
+  "wrapper_entity": "constrained_random_generator_clock_variation_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_CLOCK_VARIATION_CEE405720CE15EA9",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

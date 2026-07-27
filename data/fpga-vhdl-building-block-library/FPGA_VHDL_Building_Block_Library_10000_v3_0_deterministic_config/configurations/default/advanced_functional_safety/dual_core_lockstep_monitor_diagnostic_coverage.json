@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_core_lockstep_monitor_diagnostic_coverage",
+  "wrapper_entity": "dual_core_lockstep_monitor_diagnostic_coverage_det_cfg",
+  "configuration_id": "DUAL_CORE_LOCKSTEP_MONITOR_DIAGNOSTIC_COVERAGE_C6F3F9F736F879EE",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

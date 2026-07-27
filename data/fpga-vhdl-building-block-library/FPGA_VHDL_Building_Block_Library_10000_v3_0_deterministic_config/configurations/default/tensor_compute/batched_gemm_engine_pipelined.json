@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "batched_gemm_engine_pipelined",
+  "wrapper_entity": "batched_gemm_engine_pipelined_det_cfg",
+  "configuration_id": "BATCHED_GEMM_ENGINE_PIPELINED_7F7431B9945ECAF0",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_clock_crossing",
+  "wrapper_entity": "h264_intra_predictor_clock_crossing_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_CLOCK_CROSSING_17F4F840E48C5477",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

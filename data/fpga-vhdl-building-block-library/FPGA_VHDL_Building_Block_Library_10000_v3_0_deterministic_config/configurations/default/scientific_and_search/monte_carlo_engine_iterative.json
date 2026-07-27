@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "monte_carlo_engine_iterative",
+  "wrapper_entity": "monte_carlo_engine_iterative_det_cfg",
+  "configuration_id": "MONTE_CARLO_ENGINE_ITERATIVE_D3346B9665CF2B1A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 92
+  }
+}

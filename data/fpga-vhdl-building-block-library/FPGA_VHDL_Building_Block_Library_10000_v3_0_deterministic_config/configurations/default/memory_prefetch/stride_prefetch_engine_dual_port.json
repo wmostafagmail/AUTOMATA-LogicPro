@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "stride_prefetch_engine_dual_port",
+  "wrapper_entity": "stride_prefetch_engine_dual_port_det_cfg",
+  "configuration_id": "STRIDE_PREFETCH_ENGINE_DUAL_PORT_FAFB3C22AC22A4BC",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

@@ -1,0 +1,81 @@
+category,subcategory,archetype,implementation_tier,block_count
+2D Graphics,Vector and blit engines,media,B,80
+AI Activation and Normalization,Activation and normalization,datapath,B,80
+AI Convolution,Advanced convolution,datapath,B,80
+AI Pooling and Postprocessing,Pooling and detection postprocess,stream,B,80
+AI Quantization,Advanced quantization,datapath,B,80
+AI Tensor Movement,Tensor data orchestration,memory,B,80
+AI Training,Training datapaths,datapath,B,80
+Adaptive DSP,Adaptive filters,stream,B,80
+Advanced AXI,AXI services,protocol,C,80
+Advanced Cache,Cache organizations,memory,B,80
+Advanced Camera ISP,Computational camera processing,media,B,80
+Advanced Channel Coding,Modern FEC,stream,B,80
+Advanced Compression,Lossless compression,stream,B,80
+Advanced Data Acquisition,Measurement instruments,sensor,B,80
+Advanced Ethernet,High-speed Ethernet services,protocol,C,80
+Advanced Floating Point,Floating-point support,datapath,B,80
+Advanced Functional Safety,Redundancy and diagnostics,safety,B,80
+Advanced Integer Arithmetic,Adder architectures,datapath,B,80
+Advanced Integer Arithmetic,Division and reciprocal,datapath,B,80
+Advanced Integer Arithmetic,Multiplier architectures,datapath,B,80
+Advanced Motor Control,Sensorless and optimal motor control,control,B,80
+Advanced NoC,Network-on-chip architectures,protocol,C,80
+Advanced PCI Express,PCIe optional services,protocol,C,80
+Advanced Sensor Interfaces,Precision sensor conversion,sensor,B,80
+Advanced Spectral DSP,Alternative spectral transforms,stream,B,80
+Advanced Storage,NVMe RAID and zoned storage,memory,B,80
+Advanced USB,USB3 USB4 and Type-C,protocol,C,80
+Aerospace Protocols,Space and avionics communication,protocol,C,80
+Audio Codecs,Audio coding primitives,stream,B,80
+Audio Effects,Audio effects processing,stream,B,80
+Automotive Networks,Automotive serial and Ethernet,protocol,C,80
+Beamforming,Array processing,datapath,B,80
+Bit Manipulation,Permutation and counting,datapath,B,80
+CPU Branch Prediction,Prediction structures,control,B,80
+CPU Rename and Scheduling,Rename and issue,control,B,80
+CPU Retirement and Recovery,Commit and recovery,control,B,80
+CPU Virtualization,Virtualization and IOMMU,control,B,80
+Cache Coherence,Coherent cache control,memory,B,80
+Coherent AMBA,ACE and CHI,protocol,C,80
+Compute Express Link,CXL protocols,protocol,C,80
+DFT and BIST,Design-for-test logic,verification,B,80
+DRAM Controller,DRAM management,memory,B,80
+Database and Search,Search and database acceleration,stream,B,80
+Debug and Trace,On-chip observability,verification,B,80
+Decimal Arithmetic,Decimal datapaths,datapath,B,80
+Display Composition,Display planes and color,media,B,80
+Formal Verification,Formal harness components,verification,B,80
+GPU Rasterization,Raster operations,media,B,80
+GPU Shader Architecture,Shader execution,datapath,B,80
+GPU Texture Processing,Texture sampling,media,B,80
+HBM and DDR Interface,Memory PHY adaptation,protocol,C,80
+HDMI and DisplayPort,Modern display links,protocol,C,80
+Industrial Ethernet,Deterministic industrial links,protocol,C,80
+JESD204 Interfaces,Converter serial links,protocol,C,80
+MIPI Interfaces,Camera and display serial links,protocol,C,80
+Memory Prefetch,Prefetch engines,memory,B,80
+Memory Scheduling,Memory arbitration,memory,B,80
+Multirate DSP,Resampling and channelization,stream,B,80
+Nonvolatile Memory,Emerging and flash memory,memory,B,80
+Numeric Formats,Format conversion,datapath,B,80
+Post-Quantum Cryptography,Lattice and hash-based primitives,crypto,C,80
+Power Electronics,Power conversion control,control,B,80
+Public Key Cryptography,Classical public-key operations,crypto,C,80
+Quantum Control,Qubit control electronics,control,B,80
+RISC-V Extensions,ISA extension units,datapath,B,80
+Reconfiguration and Power,Runtime adaptation and power management,control,B,80
+Robotics Navigation,Localization and planning,control,B,80
+SATA and SAS,Storage serial protocols,protocol,C,80
+SDR Synchronization,Symbol and carrier tracking,control,B,80
+Scientific HPC,Scientific kernels,datapath,B,80
+Secure SoC Infrastructure,Root of trust services,safety,B,80
+Sparse AI,Sparse tensor processing,stream,B,80
+Statistics and Random,Random and online statistics,stream,B,80
+Symmetric Cryptography,Authenticated encryption and key wrap,crypto,C,80
+TCP and IP,Transport and network offload,protocol,C,80
+TSN and Precision Time,Deterministic Ethernet,protocol,C,80
+Transformer Attention,Advanced attention,datapath,B,80
+Transformer KV and Position,KV-cache and position,memory,B,80
+VHDL Verification Components,Reusable verification infrastructure,verification,B,80
+Video Codecs,Video compression primitives,media,B,80

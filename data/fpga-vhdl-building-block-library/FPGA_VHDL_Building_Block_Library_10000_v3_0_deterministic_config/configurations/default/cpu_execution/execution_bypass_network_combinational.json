@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "execution_bypass_network_combinational",
+  "wrapper_entity": "execution_bypass_network_combinational_det_cfg",
+  "configuration_id": "EXECUTION_BYPASS_NETWORK_COMBINATIONAL_5F32C92E21319479",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sparse_matrix_vector_engine_single_cycle",
+  "wrapper_entity": "sparse_matrix_vector_engine_single_cycle_det_cfg",
+  "configuration_id": "SPARSE_MATRIX_VECTOR_ENGINE_SINGLE_CYCLE_26CA05CAD7E100B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 33
+  }
+}

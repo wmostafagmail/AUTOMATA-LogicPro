@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_rounding_unit_shallow_pipeline",
+  "wrapper_entity": "floating_point_rounding_unit_shallow_pipeline_det_cfg",
+  "configuration_id": "FLOATING_POINT_ROUNDING_UNIT_SHALLOW_PIPELINE_EC8F7F3B144B9E26",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

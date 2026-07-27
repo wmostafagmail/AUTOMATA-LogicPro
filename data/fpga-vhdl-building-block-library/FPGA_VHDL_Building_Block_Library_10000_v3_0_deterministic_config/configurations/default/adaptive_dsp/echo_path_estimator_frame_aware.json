@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "echo_path_estimator_frame_aware",
+  "wrapper_entity": "echo_path_estimator_frame_aware_det_cfg",
+  "configuration_id": "ECHO_PATH_ESTIMATOR_FRAME_AWARE_025905E1D47AE36A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

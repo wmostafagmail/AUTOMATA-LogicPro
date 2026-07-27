@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dense_layer_engine_sparse",
+  "wrapper_entity": "dense_layer_engine_sparse_det_cfg",
+  "configuration_id": "DENSE_LAYER_ENGINE_SPARSE_E92ED96B901E3D0C",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

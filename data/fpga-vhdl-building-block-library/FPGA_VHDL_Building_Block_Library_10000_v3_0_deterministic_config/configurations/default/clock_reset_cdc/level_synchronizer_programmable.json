@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "level_synchronizer_programmable",
+  "wrapper_entity": "level_synchronizer_programmable_det_cfg",
+  "configuration_id": "LEVEL_SYNCHRONIZER_PROGRAMMABLE_B7884C891B2BB6F4",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

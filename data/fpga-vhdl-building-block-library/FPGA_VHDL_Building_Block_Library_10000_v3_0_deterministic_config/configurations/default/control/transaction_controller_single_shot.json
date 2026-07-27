@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "transaction_controller_single_shot",
+  "wrapper_entity": "transaction_controller_single_shot_det_cfg",
+  "configuration_id": "TRANSACTION_CONTROLLER_SINGLE_SHOT_274312704C079E78",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

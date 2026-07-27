@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_low_power",
+  "wrapper_entity": "delay_and_sum_beamformer_low_power_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_LOW_POWER_7504A9A41F461AEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

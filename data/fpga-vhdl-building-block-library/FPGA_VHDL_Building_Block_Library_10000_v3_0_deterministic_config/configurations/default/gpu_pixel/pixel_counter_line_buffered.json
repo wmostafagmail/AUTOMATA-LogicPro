@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "pixel_counter_line_buffered",
+  "wrapper_entity": "pixel_counter_line_buffered_det_cfg",
+  "configuration_id": "PIXEL_COUNTER_LINE_BUFFERED_1496690C05508621",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_clock_crossing",
+  "wrapper_entity": "path_planning_accelerator_clock_crossing_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_CLOCK_CROSSING_CD3E7316FB23D68E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

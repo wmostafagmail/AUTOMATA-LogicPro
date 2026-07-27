@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reverberation_engine_time_multiplexed",
+  "wrapper_entity": "reverberation_engine_time_multiplexed_det_cfg",
+  "configuration_id": "REVERBERATION_ENGINE_TIME_MULTIPLEXED_7BC755F4F75D46CA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

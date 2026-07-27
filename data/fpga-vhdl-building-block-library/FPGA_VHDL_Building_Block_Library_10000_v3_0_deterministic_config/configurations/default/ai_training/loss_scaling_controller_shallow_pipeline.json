@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "loss_scaling_controller_shallow_pipeline",
+  "wrapper_entity": "loss_scaling_controller_shallow_pipeline_det_cfg",
+  "configuration_id": "LOSS_SCALING_CONTROLLER_SHALLOW_PIPELINE_2CF6F084AB7C1DCA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

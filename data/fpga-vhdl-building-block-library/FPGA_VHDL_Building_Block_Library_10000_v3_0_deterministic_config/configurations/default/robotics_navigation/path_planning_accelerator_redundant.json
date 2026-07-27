@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "path_planning_accelerator_redundant",
+  "wrapper_entity": "path_planning_accelerator_redundant_det_cfg",
+  "configuration_id": "PATH_PLANNING_ACCELERATOR_REDUNDANT_63E5BCCD0C713918",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

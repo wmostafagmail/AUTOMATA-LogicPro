@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_timestamped",
+  "wrapper_entity": "ethernet_25g_lane_mapper_timestamped_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_TIMESTAMPED_487872E4A05C36BC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

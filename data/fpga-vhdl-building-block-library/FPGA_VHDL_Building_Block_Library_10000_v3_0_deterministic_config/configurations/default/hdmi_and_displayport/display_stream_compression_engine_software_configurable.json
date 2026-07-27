@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_software_configurable",
+  "wrapper_entity": "display_stream_compression_engine_software_configurable_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_SOFTWARE_CONFIGURABLE_96A8A861F42106E7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

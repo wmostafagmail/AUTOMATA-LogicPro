@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_metadata_aware",
+  "wrapper_entity": "display_gamma_lut_metadata_aware_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_METADATA_AWARE_2E281ACF790F7DA8",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

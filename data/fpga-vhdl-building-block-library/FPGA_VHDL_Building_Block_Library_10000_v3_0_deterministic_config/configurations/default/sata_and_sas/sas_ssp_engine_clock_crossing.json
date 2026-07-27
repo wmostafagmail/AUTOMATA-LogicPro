@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_clock_crossing",
+  "wrapper_entity": "sas_ssp_engine_clock_crossing_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_CLOCK_CROSSING_434F847F9EA5FBD2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_equivalence_miter_stress_test",
+  "wrapper_entity": "formal_equivalence_miter_stress_test_det_cfg",
+  "configuration_id": "FORMAL_EQUIVALENCE_MITER_STRESS_TEST_4BCF53E568FD01F1",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_single_shot",
+  "wrapper_entity": "loop_branch_predictor_single_shot_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_SINGLE_SHOT_AF25B7C8D3ED1283",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

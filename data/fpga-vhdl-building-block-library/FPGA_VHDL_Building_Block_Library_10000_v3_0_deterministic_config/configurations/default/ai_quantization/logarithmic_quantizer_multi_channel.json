@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "logarithmic_quantizer_multi_channel",
+  "wrapper_entity": "logarithmic_quantizer_multi_channel_det_cfg",
+  "configuration_id": "LOGARITHMIC_QUANTIZER_MULTI_CHANNEL_F9B91E5E1BDDDFAE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

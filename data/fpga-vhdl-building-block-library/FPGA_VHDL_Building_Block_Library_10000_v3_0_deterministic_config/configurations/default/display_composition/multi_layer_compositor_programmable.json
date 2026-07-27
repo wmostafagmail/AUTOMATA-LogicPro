@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_programmable",
+  "wrapper_entity": "multi_layer_compositor_programmable_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_PROGRAMMABLE_76ADB81A5D6A49BE",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

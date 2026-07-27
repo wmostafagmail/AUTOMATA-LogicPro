@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_compressor_pipelined",
+  "wrapper_entity": "lz4_compressor_pipelined_det_cfg",
+  "configuration_id": "LZ4_COMPRESSOR_PIPELINED_51117F04B57D8F10",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

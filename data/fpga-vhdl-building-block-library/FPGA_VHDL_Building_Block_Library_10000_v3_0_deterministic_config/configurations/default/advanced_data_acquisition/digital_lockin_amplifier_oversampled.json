@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "digital_lockin_amplifier_oversampled",
+  "wrapper_entity": "digital_lockin_amplifier_oversampled_det_cfg",
+  "configuration_id": "DIGITAL_LOCKIN_AMPLIFIER_OVERSAMPLED_A0BB655B9E7674E5",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

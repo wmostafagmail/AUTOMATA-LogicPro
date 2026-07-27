@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_lockstep_checked",
+  "wrapper_entity": "exception_replay_controller_lockstep_checked_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_LOCKSTEP_CHECKED_E3C42EB3125ED71F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

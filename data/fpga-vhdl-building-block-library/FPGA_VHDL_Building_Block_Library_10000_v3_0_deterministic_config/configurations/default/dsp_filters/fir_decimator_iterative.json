@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fir_decimator_iterative",
+  "wrapper_entity": "fir_decimator_iterative_det_cfg",
+  "configuration_id": "FIR_DECIMATOR_ITERATIVE_5E683159E20A3B1F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 113
+  }
+}

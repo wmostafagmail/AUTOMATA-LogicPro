@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "divergent_branch_stack_low_power",
+  "wrapper_entity": "divergent_branch_stack_low_power_det_cfg",
+  "configuration_id": "DIVERGENT_BRANCH_STACK_LOW_POWER_19A13D610E021458",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

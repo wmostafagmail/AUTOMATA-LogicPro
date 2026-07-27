@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sort_merge_engine_single_cycle",
+  "wrapper_entity": "sort_merge_engine_single_cycle_det_cfg",
+  "configuration_id": "SORT_MERGE_ENGINE_SINGLE_CYCLE_56BB4028ADB8BC07",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 2
+  }
+}

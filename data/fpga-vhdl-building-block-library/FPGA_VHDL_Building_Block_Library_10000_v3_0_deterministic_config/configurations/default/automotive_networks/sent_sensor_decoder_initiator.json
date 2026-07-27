@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sent_sensor_decoder_initiator",
+  "wrapper_entity": "sent_sensor_decoder_initiator_det_cfg",
+  "configuration_id": "SENT_SENSOR_DECODER_INITIATOR_E124DEDCC38D5D26",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

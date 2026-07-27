@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "cpu_core",
+  "wrapper_entity": "cpu_core_det_cfg",
+  "configuration_id": "CPU_CORE_7085258C7E4CC33C",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

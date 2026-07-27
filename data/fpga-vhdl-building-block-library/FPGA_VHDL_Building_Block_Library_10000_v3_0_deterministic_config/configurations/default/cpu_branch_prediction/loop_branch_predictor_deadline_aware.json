@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "loop_branch_predictor_deadline_aware",
+  "wrapper_entity": "loop_branch_predictor_deadline_aware_det_cfg",
+  "configuration_id": "LOOP_BRANCH_PREDICTOR_DEADLINE_AWARE_05EE1168FEED7236",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

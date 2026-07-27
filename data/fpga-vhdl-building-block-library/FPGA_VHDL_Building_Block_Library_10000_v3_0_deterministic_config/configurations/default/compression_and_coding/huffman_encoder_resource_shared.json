@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "huffman_encoder_resource_shared",
+  "wrapper_entity": "huffman_encoder_resource_shared_det_cfg",
+  "configuration_id": "HUFFMAN_ENCODER_RESOURCE_SHARED_F2A7825C1E5F8FFE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

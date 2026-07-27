@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "finite_element_assembler_iterative",
+  "wrapper_entity": "finite_element_assembler_iterative_det_cfg",
+  "configuration_id": "FINITE_ELEMENT_ASSEMBLER_ITERATIVE_92D34F3916F3DA44",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

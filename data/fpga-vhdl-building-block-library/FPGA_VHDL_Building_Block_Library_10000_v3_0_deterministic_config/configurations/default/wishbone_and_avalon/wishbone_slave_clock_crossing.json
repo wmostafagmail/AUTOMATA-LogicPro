@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wishbone_slave_clock_crossing",
+  "wrapper_entity": "wishbone_slave_clock_crossing_det_cfg",
+  "configuration_id": "WISHBONE_SLAVE_CLOCK_CROSSING_DF4F44C59BBD0F70",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

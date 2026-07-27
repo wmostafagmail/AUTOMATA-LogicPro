@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_gamma_lut_fixed_latency",
+  "wrapper_entity": "display_gamma_lut_fixed_latency_det_cfg",
+  "configuration_id": "DISPLAY_GAMMA_LUT_FIXED_LATENCY_ED992C78BEC051DA",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

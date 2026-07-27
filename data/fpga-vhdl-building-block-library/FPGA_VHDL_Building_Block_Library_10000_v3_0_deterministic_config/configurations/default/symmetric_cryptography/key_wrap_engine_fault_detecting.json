@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_wrap_engine_fault_detecting",
+  "wrapper_entity": "key_wrap_engine_fault_detecting_det_cfg",
+  "configuration_id": "KEY_WRAP_ENGINE_FAULT_DETECTING_EA998E5070D6D4D2",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_stress_test",
+  "wrapper_entity": "embedded_logic_analyzer_stress_test_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_STRESS_TEST_A95230FF011517F2",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

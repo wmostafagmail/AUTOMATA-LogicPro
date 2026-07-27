@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_noc_router_continuous",
+  "wrapper_entity": "packet_noc_router_continuous_det_cfg",
+  "configuration_id": "PACKET_NOC_ROUTER_CONTINUOUS_E480250BCE52F71C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

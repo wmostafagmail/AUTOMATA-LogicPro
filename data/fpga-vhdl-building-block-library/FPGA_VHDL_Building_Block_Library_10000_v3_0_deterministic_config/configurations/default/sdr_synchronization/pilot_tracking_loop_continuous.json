@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "pilot_tracking_loop_continuous",
+  "wrapper_entity": "pilot_tracking_loop_continuous_det_cfg",
+  "configuration_id": "PILOT_TRACKING_LOOP_CONTINUOUS_3A638BC21751364D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

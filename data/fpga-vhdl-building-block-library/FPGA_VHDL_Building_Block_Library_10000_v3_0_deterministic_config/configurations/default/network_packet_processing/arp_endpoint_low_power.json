@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arp_endpoint_low_power",
+  "wrapper_entity": "arp_endpoint_low_power_det_cfg",
+  "configuration_id": "ARP_ENDPOINT_LOW_POWER_E27EBE02AA9A9AAC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

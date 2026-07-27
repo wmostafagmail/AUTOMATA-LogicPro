@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "recurrent_cell_engine_int8",
+  "wrapper_entity": "recurrent_cell_engine_int8_det_cfg",
+  "configuration_id": "RECURRENT_CELL_ENGINE_INT8_A2DB24628E325955",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

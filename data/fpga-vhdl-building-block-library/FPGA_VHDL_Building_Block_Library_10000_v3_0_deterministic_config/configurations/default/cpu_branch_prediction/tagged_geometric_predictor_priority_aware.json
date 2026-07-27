@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_priority_aware",
+  "wrapper_entity": "tagged_geometric_predictor_priority_aware_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_PRIORITY_AWARE_8B06202636FE40A0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

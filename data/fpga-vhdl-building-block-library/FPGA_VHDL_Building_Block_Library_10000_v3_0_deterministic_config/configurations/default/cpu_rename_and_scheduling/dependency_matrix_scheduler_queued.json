@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_queued",
+  "wrapper_entity": "dependency_matrix_scheduler_queued_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_QUEUED_E434711255E49FCF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

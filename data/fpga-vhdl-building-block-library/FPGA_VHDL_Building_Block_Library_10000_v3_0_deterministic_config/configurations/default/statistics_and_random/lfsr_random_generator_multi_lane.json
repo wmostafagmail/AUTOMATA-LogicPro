@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lfsr_random_generator_multi_lane",
+  "wrapper_entity": "lfsr_random_generator_multi_lane_det_cfg",
+  "configuration_id": "LFSR_RANDOM_GENERATOR_MULTI_LANE_4825875A6089F664",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

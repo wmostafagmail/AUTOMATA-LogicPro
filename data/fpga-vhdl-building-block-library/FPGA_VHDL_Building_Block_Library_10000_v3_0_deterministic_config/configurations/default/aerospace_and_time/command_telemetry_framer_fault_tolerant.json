@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_telemetry_framer_fault_tolerant",
+  "wrapper_entity": "command_telemetry_framer_fault_tolerant_det_cfg",
+  "configuration_id": "COMMAND_TELEMETRY_FRAMER_FAULT_TOLERANT_8E30BED98F5E2DF7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

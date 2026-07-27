@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bitfield_insert_unit_iterative",
+  "wrapper_entity": "bitfield_insert_unit_iterative_det_cfg",
+  "configuration_id": "BITFIELD_INSERT_UNIT_ITERATIVE_DA35715F2F23AA4F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "modulo_counter_multi_channel",
+  "wrapper_entity": "modulo_counter_multi_channel_det_cfg",
+  "configuration_id": "MODULO_COUNTER_MULTI_CHANNEL_F86A3CD6E977B265",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

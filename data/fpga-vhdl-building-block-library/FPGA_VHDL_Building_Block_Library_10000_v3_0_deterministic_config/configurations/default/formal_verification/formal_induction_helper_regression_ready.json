@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_induction_helper_regression_ready",
+  "wrapper_entity": "formal_induction_helper_regression_ready_det_cfg",
+  "configuration_id": "FORMAL_INDUCTION_HELPER_REGRESSION_READY_03B0393E7CFC8315",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

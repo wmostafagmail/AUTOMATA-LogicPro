@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "displayport_main_link_encoder_software_configurable",
+  "wrapper_entity": "displayport_main_link_encoder_software_configurable_det_cfg",
+  "configuration_id": "DISPLAYPORT_MAIN_LINK_ENCODER_SOFTWARE_CONFIGURABLE_F27BCEDE4C279F82",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

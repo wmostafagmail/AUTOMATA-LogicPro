@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_queued",
+  "wrapper_entity": "qubit_pulse_sequencer_queued_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_QUEUED_F8EA14C24E36B2C4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

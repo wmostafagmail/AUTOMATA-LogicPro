@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_sum_streaming",
+  "wrapper_entity": "vector_reduce_sum_streaming_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_SUM_STREAMING_10DB4EFE2F3D68C8",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_bar_controller_bridge",
+  "wrapper_entity": "pcie_bar_controller_bridge_det_cfg",
+  "configuration_id": "PCIE_BAR_CONTROLLER_BRIDGE_D4C5EE9BEA2FDF91",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

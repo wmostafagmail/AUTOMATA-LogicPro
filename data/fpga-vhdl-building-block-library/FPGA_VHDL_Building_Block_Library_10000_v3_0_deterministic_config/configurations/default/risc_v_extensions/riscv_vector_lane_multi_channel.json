@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_vector_lane_multi_channel",
+  "wrapper_entity": "riscv_vector_lane_multi_channel_det_cfg",
+  "configuration_id": "RISCV_VECTOR_LANE_MULTI_CHANNEL_26C7ADC33F7AA52A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "viewport_transform_engine_resource_shared",
+  "wrapper_entity": "viewport_transform_engine_resource_shared_det_cfg",
+  "configuration_id": "VIEWPORT_TRANSFORM_ENGINE_RESOURCE_SHARED_B90ADF7DBDC5B97A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

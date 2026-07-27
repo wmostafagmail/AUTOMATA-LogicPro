@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "per_bit_deskew_controller_buffered",
+  "wrapper_entity": "per_bit_deskew_controller_buffered_det_cfg",
+  "configuration_id": "PER_BIT_DESKEW_CONTROLLER_BUFFERED_CCE4A16FE4CAFC18",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

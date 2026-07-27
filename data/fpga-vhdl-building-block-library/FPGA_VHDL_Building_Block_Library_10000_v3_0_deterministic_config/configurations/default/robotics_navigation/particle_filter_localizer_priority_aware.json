@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_priority_aware",
+  "wrapper_entity": "particle_filter_localizer_priority_aware_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_PRIORITY_AWARE_D6AA26844CB8B890",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

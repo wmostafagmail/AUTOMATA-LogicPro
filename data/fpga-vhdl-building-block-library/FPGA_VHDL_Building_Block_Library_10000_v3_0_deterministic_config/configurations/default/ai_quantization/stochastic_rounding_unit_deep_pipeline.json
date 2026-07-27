@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stochastic_rounding_unit_deep_pipeline",
+  "wrapper_entity": "stochastic_rounding_unit_deep_pipeline_det_cfg",
+  "configuration_id": "STOCHASTIC_ROUNDING_UNIT_DEEP_PIPELINE_D56FF2CDABBD62F0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_port_ram_controller",
+  "wrapper_entity": "dual_port_ram_controller_det_cfg",
+  "configuration_id": "DUAL_PORT_RAM_CONTROLLER_9EBC364075A2EF16",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

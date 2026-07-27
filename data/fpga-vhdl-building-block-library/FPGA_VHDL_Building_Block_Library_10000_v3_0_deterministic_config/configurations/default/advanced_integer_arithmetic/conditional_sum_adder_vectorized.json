@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conditional_sum_adder_vectorized",
+  "wrapper_entity": "conditional_sum_adder_vectorized_det_cfg",
+  "configuration_id": "CONDITIONAL_SUM_ADDER_VECTORIZED_92E01BF802E97F0B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

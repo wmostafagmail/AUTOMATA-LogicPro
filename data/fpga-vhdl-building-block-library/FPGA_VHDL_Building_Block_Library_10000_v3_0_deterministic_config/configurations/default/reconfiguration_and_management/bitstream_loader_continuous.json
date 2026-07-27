@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "bitstream_loader_continuous",
+  "wrapper_entity": "bitstream_loader_continuous_det_cfg",
+  "configuration_id": "BITSTREAM_LOADER_CONTINUOUS_D79E225541D6A4B1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

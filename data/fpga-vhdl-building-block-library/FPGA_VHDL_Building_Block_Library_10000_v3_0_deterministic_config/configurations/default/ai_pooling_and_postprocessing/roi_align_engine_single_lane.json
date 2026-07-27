@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "roi_align_engine_single_lane",
+  "wrapper_entity": "roi_align_engine_single_lane_det_cfg",
+  "configuration_id": "ROI_ALIGN_ENGINE_SINGLE_LANE_EF294389B99D3B25",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

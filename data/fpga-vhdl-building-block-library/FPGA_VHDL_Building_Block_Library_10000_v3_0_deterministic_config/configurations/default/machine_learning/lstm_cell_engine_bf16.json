@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "lstm_cell_engine_bf16",
+  "wrapper_entity": "lstm_cell_engine_bf16_det_cfg",
+  "configuration_id": "LSTM_CELL_ENGINE_BF16_27A8C7C0614D5BC3",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

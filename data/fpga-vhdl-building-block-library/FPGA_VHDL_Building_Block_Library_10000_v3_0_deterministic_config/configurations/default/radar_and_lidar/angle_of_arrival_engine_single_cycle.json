@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "angle_of_arrival_engine_single_cycle",
+  "wrapper_entity": "angle_of_arrival_engine_single_cycle_det_cfg",
+  "configuration_id": "ANGLE_OF_ARRIVAL_ENGINE_SINGLE_CYCLE_F44B24467E3C5FF6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 100
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_stream_combiner_clock_crossing",
+  "wrapper_entity": "axi_stream_combiner_clock_crossing_det_cfg",
+  "configuration_id": "AXI_STREAM_COMBINER_CLOCK_CROSSING_1077B119C8DE95A6",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "percentile_estimator_multi_lane",
+  "wrapper_entity": "percentile_estimator_multi_lane_det_cfg",
+  "configuration_id": "PERCENTILE_ESTIMATOR_MULTI_LANE_5177B5F4574E1BC7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

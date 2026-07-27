@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "normalized_lms_filter_frame_aware",
+  "wrapper_entity": "normalized_lms_filter_frame_aware_det_cfg",
+  "configuration_id": "NORMALIZED_LMS_FILTER_FRAME_AWARE_7DCD889482405D3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

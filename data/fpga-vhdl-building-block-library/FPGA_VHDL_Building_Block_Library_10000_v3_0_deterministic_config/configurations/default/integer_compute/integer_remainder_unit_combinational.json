@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_remainder_unit_combinational",
+  "wrapper_entity": "integer_remainder_unit_combinational_det_cfg",
+  "configuration_id": "INTEGER_REMAINDER_UNIT_COMBINATIONAL_02D3C9C8260AB6ED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

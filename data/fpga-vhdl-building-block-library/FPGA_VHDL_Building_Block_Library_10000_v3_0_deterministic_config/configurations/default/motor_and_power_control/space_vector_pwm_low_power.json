@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "space_vector_pwm_low_power",
+  "wrapper_entity": "space_vector_pwm_low_power_det_cfg",
+  "configuration_id": "SPACE_VECTOR_PWM_LOW_POWER_73CC9F8C76C13DFD",
+  "generics": {
+    "WIDTH": 16
+  }
+}

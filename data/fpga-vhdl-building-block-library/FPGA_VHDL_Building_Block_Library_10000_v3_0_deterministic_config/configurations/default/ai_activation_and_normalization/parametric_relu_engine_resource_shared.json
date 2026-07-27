@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "parametric_relu_engine_resource_shared",
+  "wrapper_entity": "parametric_relu_engine_resource_shared_det_cfg",
+  "configuration_id": "PARAMETRIC_RELU_ENGINE_RESOURCE_SHARED_DEC63CB0E54A2FB8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sha3_engine_constant_time",
+  "wrapper_entity": "sha3_engine_constant_time_det_cfg",
+  "configuration_id": "SHA3_ENGINE_CONSTANT_TIME_B1B17FB4CE02A3B9",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

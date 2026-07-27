@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_based_signature_engine_iterative",
+  "wrapper_entity": "hash_based_signature_engine_iterative_det_cfg",
+  "configuration_id": "HASH_BASED_SIGNATURE_ENGINE_ITERATIVE_3C274FA35E16DE8D",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

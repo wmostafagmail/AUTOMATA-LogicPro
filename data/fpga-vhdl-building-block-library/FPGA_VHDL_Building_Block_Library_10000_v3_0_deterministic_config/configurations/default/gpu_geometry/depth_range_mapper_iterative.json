@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "depth_range_mapper_iterative",
+  "wrapper_entity": "depth_range_mapper_iterative_det_cfg",
+  "configuration_id": "DEPTH_RANGE_MAPPER_ITERATIVE_EF642A70DBF1D9DD",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

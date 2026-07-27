@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lattice_reconciliation_unit_fault_detecting",
+  "wrapper_entity": "lattice_reconciliation_unit_fault_detecting_det_cfg",
+  "configuration_id": "LATTICE_RECONCILIATION_UNIT_FAULT_DETECTING_E9FA9AB7B63F1E88",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

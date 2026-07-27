@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_voltage_controller_redundant",
+  "wrapper_entity": "adaptive_voltage_controller_redundant_det_cfg",
+  "configuration_id": "ADAPTIVE_VOLTAGE_CONTROLLER_REDUNDANT_46FC4543D07F3D1F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

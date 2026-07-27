@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "shutdown_sequencer_single_shot",
+  "wrapper_entity": "shutdown_sequencer_single_shot_det_cfg",
+  "configuration_id": "SHUTDOWN_SEQUENCER_SINGLE_SHOT_6146F208DDEB6E9E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

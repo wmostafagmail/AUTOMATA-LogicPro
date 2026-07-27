@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_framebuffer",
+  "wrapper_entity": "hdr_merge_engine_framebuffer_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_FRAMEBUFFER_DDC7089F72DEFC3D",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

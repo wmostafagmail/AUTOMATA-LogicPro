@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "attitude_estimator_multi_channel",
+  "wrapper_entity": "attitude_estimator_multi_channel_det_cfg",
+  "configuration_id": "ATTITUDE_ESTIMATOR_MULTI_CHANNEL_3008950F4CD2F9D7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

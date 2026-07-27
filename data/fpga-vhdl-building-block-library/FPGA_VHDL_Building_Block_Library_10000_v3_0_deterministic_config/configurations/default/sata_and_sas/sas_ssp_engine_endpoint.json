@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_endpoint",
+  "wrapper_entity": "sas_ssp_engine_endpoint_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_ENDPOINT_8A2F19DAA650A3F1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

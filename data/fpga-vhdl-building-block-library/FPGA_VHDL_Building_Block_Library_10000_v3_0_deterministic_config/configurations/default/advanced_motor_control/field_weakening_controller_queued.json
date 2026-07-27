@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "field_weakening_controller_queued",
+  "wrapper_entity": "field_weakening_controller_queued_det_cfg",
+  "configuration_id": "FIELD_WEAKENING_CONTROLLER_QUEUED_7B49A51BC5BCFED2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

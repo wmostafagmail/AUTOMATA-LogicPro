@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_low_latency",
+  "wrapper_entity": "anisotropic_filter_engine_low_latency_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_LOW_LATENCY_771D9FEC5D06F1A4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

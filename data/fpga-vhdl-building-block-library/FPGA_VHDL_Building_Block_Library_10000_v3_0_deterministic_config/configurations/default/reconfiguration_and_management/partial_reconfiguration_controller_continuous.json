@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_reconfiguration_controller_continuous",
+  "wrapper_entity": "partial_reconfiguration_controller_continuous_det_cfg",
+  "configuration_id": "PARTIAL_RECONFIGURATION_CONTROLLER_CONTINUOUS_0DE1F719D8A5A25F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

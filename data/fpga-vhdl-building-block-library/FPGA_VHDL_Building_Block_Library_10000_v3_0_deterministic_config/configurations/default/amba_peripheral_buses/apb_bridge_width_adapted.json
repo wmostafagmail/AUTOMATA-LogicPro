@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "apb_bridge_width_adapted",
+  "wrapper_entity": "apb_bridge_width_adapted_det_cfg",
+  "configuration_id": "APB_BRIDGE_WIDTH_ADAPTED_EBFF3AB343D1C403",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

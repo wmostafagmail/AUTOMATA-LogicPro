@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "pooling_engine_int8",
+  "wrapper_entity": "pooling_engine_int8_det_cfg",
+  "configuration_id": "POOLING_ENGINE_INT8_8F921EE873B3EC38",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

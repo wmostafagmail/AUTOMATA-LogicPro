@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_fail_safe",
+  "wrapper_entity": "mppt_controller_fail_safe_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_FAIL_SAFE_D8A036C00702A920",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

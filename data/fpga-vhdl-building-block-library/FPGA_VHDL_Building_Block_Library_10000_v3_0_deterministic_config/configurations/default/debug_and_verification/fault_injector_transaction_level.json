@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fault_injector_transaction_level",
+  "wrapper_entity": "fault_injector_transaction_level_det_cfg",
+  "configuration_id": "FAULT_INJECTOR_TRANSACTION_LEVEL_E7A7AB635EA7C0F9",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

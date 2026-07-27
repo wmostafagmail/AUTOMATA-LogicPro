@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "boot_rom_controller_multi_channel",
+  "wrapper_entity": "boot_rom_controller_multi_channel_det_cfg",
+  "configuration_id": "BOOT_ROM_CONTROLLER_MULTI_CHANNEL_E5C427EA18E8ED44",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

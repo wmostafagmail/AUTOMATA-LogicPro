@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "key_vault_controller_lockstep",
+  "wrapper_entity": "key_vault_controller_lockstep_det_cfg",
+  "configuration_id": "KEY_VAULT_CONTROLLER_LOCKSTEP_801D023DA88A0E0C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

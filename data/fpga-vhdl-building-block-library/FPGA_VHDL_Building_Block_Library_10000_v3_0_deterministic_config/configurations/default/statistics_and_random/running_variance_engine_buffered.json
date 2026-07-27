@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_buffered",
+  "wrapper_entity": "running_variance_engine_buffered_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_BUFFERED_FBCCE3543C63F124",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

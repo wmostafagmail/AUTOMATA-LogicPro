@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_transport_layer_multi_channel",
+  "wrapper_entity": "jesd204b_transport_layer_multi_channel_det_cfg",
+  "configuration_id": "JESD204B_TRANSPORT_LAYER_MULTI_CHANNEL_AF7CE417D99EB509",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

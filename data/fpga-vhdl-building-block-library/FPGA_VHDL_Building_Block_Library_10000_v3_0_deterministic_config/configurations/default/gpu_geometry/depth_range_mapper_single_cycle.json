@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "depth_range_mapper_single_cycle",
+  "wrapper_entity": "depth_range_mapper_single_cycle_det_cfg",
+  "configuration_id": "DEPTH_RANGE_MAPPER_SINGLE_CYCLE_681959F7AC89CF0B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

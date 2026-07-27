@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "grid_sync_pll_lockstep_checked",
+  "wrapper_entity": "grid_sync_pll_lockstep_checked_det_cfg",
+  "configuration_id": "GRID_SYNC_PLL_LOCKSTEP_CHECKED_8B87B4AEF02E8EA1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

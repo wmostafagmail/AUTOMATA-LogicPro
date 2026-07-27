@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aho_corasick_matcher_fully_parallel",
+  "wrapper_entity": "aho_corasick_matcher_fully_parallel_det_cfg",
+  "configuration_id": "AHO_CORASICK_MATCHER_FULLY_PARALLEL_7F1373178FD0087C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

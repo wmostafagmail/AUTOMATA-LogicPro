@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lz4_decompressor_clock_crossing",
+  "wrapper_entity": "lz4_decompressor_clock_crossing_det_cfg",
+  "configuration_id": "LZ4_DECOMPRESSOR_CLOCK_CROSSING_251F1887E62E7976",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

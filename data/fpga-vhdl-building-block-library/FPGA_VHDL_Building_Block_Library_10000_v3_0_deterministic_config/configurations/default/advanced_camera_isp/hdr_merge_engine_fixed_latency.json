@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdr_merge_engine_fixed_latency",
+  "wrapper_entity": "hdr_merge_engine_fixed_latency_det_cfg",
+  "configuration_id": "HDR_MERGE_ENGINE_FIXED_LATENCY_332F90EF3C291460",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

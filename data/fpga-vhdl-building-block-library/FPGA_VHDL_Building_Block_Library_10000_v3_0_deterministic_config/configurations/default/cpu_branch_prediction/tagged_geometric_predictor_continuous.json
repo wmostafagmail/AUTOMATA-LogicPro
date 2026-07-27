@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "tagged_geometric_predictor_continuous",
+  "wrapper_entity": "tagged_geometric_predictor_continuous_det_cfg",
+  "configuration_id": "TAGGED_GEOMETRIC_PREDICTOR_CONTINUOUS_36A9DEA3F4949B2D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

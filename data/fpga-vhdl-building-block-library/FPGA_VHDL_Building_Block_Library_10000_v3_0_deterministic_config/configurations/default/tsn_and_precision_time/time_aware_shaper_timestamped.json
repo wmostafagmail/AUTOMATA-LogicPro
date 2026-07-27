@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "time_aware_shaper_timestamped",
+  "wrapper_entity": "time_aware_shaper_timestamped_det_cfg",
+  "configuration_id": "TIME_AWARE_SHAPER_TIMESTAMPED_30CFAE85A1691E30",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

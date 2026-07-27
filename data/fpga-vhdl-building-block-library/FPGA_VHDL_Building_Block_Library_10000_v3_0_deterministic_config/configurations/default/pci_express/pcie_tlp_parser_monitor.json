@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_tlp_parser_monitor",
+  "wrapper_entity": "pcie_tlp_parser_monitor_det_cfg",
+  "configuration_id": "PCIE_TLP_PARSER_MONITOR_41E5A73D4755BF5A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

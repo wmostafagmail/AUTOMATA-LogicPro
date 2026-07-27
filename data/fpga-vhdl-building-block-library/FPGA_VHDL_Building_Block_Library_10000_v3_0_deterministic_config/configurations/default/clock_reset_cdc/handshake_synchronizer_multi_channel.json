@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "handshake_synchronizer_multi_channel",
+  "wrapper_entity": "handshake_synchronizer_multi_channel_det_cfg",
+  "configuration_id": "HANDSHAKE_SYNCHRONIZER_MULTI_CHANNEL_AD503EF7D848E261",
+  "generics": {
+    "DATA_WIDTH": 1,
+    "STAGES": 2
+  }
+}

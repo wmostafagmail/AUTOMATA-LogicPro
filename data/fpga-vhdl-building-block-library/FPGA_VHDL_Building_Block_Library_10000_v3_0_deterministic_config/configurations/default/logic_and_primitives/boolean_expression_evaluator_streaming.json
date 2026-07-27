@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "boolean_expression_evaluator_streaming",
+  "wrapper_entity": "boolean_expression_evaluator_streaming_det_cfg",
+  "configuration_id": "BOOLEAN_EXPRESSION_EVALUATOR_STREAMING_13868626E67DDBCE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

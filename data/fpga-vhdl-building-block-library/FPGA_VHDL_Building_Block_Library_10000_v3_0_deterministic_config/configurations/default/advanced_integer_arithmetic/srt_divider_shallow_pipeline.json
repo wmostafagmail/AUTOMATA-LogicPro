@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "srt_divider_shallow_pipeline",
+  "wrapper_entity": "srt_divider_shallow_pipeline_det_cfg",
+  "configuration_id": "SRT_DIVIDER_SHALLOW_PIPELINE_506D4AC04EEFBA2A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

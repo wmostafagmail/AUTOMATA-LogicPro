@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_limiter_combinational",
+  "wrapper_entity": "audio_limiter_combinational_det_cfg",
+  "configuration_id": "AUDIO_LIMITER_COMBINATIONAL_F7BD1C1CEA235C96",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

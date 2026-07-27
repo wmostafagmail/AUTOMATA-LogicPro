@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "shutdown_sequencer_fault_tolerant",
+  "wrapper_entity": "shutdown_sequencer_fault_tolerant_det_cfg",
+  "configuration_id": "SHUTDOWN_SEQUENCER_FAULT_TOLERANT_C03266C466454F42",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

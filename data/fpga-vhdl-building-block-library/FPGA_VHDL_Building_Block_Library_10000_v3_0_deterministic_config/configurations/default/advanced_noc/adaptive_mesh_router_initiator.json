@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_initiator",
+  "wrapper_entity": "adaptive_mesh_router_initiator_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_INITIATOR_72525AA0F33170B6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

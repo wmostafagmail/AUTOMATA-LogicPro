@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ipv6_extension_parser_clock_crossing",
+  "wrapper_entity": "ipv6_extension_parser_clock_crossing_det_cfg",
+  "configuration_id": "IPV6_EXTENSION_PARSER_CLOCK_CROSSING_1DBE0F86C5752FC0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

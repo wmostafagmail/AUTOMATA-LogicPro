@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "system_control_registers_single_shot",
+  "wrapper_entity": "system_control_registers_single_shot_det_cfg",
+  "configuration_id": "SYSTEM_CONTROL_REGISTERS_SINGLE_SHOT_60732BE3BE8A84AE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

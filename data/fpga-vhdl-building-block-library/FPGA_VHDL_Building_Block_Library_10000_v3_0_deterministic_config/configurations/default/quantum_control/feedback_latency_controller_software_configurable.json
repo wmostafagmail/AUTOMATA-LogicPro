@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "feedback_latency_controller_software_configurable",
+  "wrapper_entity": "feedback_latency_controller_software_configurable_det_cfg",
+  "configuration_id": "FEEDBACK_LATENCY_CONTROLLER_SOFTWARE_CONFIGURABLE_7DC865AD2F2E5E9A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

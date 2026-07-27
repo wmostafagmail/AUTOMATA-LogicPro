@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_crc_engine_streaming",
+  "wrapper_entity": "ethernet_crc_engine_streaming_det_cfg",
+  "configuration_id": "ETHERNET_CRC_ENGINE_STREAMING_6356F0E8F920B784",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

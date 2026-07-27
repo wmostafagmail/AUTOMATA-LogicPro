@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "float_to_fixed_converter_low_power",
+  "wrapper_entity": "float_to_fixed_converter_low_power_det_cfg",
+  "configuration_id": "FLOAT_TO_FIXED_CONVERTER_LOW_POWER_33588F4A07CD3EBF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

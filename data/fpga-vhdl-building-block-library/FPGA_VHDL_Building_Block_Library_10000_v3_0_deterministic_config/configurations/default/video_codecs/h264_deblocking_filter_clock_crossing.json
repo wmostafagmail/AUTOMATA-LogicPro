@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_clock_crossing",
+  "wrapper_entity": "h264_deblocking_filter_clock_crossing_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_CLOCK_CROSSING_30AE9D7D1E432997",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

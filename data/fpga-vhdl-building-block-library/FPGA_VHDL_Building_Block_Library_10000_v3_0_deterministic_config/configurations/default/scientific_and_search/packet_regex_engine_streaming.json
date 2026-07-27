@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "packet_regex_engine_streaming",
+  "wrapper_entity": "packet_regex_engine_streaming_det_cfg",
+  "configuration_id": "PACKET_REGEX_ENGINE_STREAMING_6B2F9D01429B5098",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 156
+  }
+}

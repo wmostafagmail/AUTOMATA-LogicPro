@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "functional_coverage_database_throughput_checking",
+  "wrapper_entity": "functional_coverage_database_throughput_checking_det_cfg",
+  "configuration_id": "FUNCTIONAL_COVERAGE_DATABASE_THROUGHPUT_CHECKING_44656E761B2AA473",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

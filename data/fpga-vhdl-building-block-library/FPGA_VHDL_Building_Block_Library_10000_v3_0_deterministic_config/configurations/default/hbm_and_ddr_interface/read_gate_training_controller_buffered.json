@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "read_gate_training_controller_buffered",
+  "wrapper_entity": "read_gate_training_controller_buffered_det_cfg",
+  "configuration_id": "READ_GATE_TRAINING_CONTROLLER_BUFFERED_105FC2D39A53A792",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

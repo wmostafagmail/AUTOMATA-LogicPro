@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cursor_plane_engine_line_buffered",
+  "wrapper_entity": "cursor_plane_engine_line_buffered_det_cfg",
+  "configuration_id": "CURSOR_PLANE_ENGINE_LINE_BUFFERED_522C15C22C3AC9EB",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dsi_packet_generator_multi_channel",
+  "wrapper_entity": "mipi_dsi_packet_generator_multi_channel_det_cfg",
+  "configuration_id": "MIPI_DSI_PACKET_GENERATOR_MULTI_CHANNEL_74D3A292A6CB0A50",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

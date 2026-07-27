@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "virtual_interrupt_controller_low_power",
+  "wrapper_entity": "virtual_interrupt_controller_low_power_det_cfg",
+  "configuration_id": "VIRTUAL_INTERRUPT_CONTROLLER_LOW_POWER_D3DEBF836722454E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

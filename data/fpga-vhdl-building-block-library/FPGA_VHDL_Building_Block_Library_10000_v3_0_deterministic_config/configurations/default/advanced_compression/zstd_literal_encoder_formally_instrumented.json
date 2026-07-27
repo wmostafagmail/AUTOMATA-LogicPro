@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "zstd_literal_encoder_formally_instrumented",
+  "wrapper_entity": "zstd_literal_encoder_formally_instrumented_det_cfg",
+  "configuration_id": "ZSTD_LITERAL_ENCODER_FORMALLY_INSTRUMENTED_61CE1C933CB0C6C8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

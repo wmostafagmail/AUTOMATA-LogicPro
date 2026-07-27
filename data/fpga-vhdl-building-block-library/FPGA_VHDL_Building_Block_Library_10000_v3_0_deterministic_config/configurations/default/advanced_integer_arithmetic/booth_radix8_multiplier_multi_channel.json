@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "booth_radix8_multiplier_multi_channel",
+  "wrapper_entity": "booth_radix8_multiplier_multi_channel_det_cfg",
+  "configuration_id": "BOOTH_RADIX8_MULTIPLIER_MULTI_CHANNEL_0CF13B6FF6328778",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

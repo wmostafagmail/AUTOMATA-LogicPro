@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "physical_register_renamer_microcoded",
+  "wrapper_entity": "physical_register_renamer_microcoded_det_cfg",
+  "configuration_id": "PHYSICAL_REGISTER_RENAMER_MICROCODED_504C21EFB9D5A903",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

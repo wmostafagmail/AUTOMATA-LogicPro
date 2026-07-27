@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "montgomery_multiplier_masked",
+  "wrapper_entity": "montgomery_multiplier_masked_det_cfg",
+  "configuration_id": "MONTGOMERY_MULTIPLIER_MASKED_98FE05F9B7C0A0F5",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

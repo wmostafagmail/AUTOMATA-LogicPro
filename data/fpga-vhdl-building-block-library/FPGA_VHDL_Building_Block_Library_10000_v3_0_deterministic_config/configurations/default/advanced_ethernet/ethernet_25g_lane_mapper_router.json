@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_25g_lane_mapper_router",
+  "wrapper_entity": "ethernet_25g_lane_mapper_router_det_cfg",
+  "configuration_id": "ETHERNET_25G_LANE_MAPPER_ROUTER_0CC618C7AFCA86FF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_clock_crossing",
+  "wrapper_entity": "pcie_sriov_vf_manager_clock_crossing_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_CLOCK_CROSSING_9F948813CE9B68B0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

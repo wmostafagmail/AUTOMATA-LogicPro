@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_shader_datapath_streaming",
+  "wrapper_entity": "pixel_shader_datapath_streaming_det_cfg",
+  "configuration_id": "PIXEL_SHADER_DATAPATH_STREAMING_3113FFD2CAAE6A74",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

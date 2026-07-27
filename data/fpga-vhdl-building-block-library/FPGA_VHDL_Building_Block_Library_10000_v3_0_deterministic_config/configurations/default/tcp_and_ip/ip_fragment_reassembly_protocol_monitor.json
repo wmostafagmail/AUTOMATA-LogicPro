@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ip_fragment_reassembly_protocol_monitor",
+  "wrapper_entity": "ip_fragment_reassembly_protocol_monitor_det_cfg",
+  "configuration_id": "IP_FRAGMENT_REASSEMBLY_PROTOCOL_MONITOR_29A647E6D4CD356D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

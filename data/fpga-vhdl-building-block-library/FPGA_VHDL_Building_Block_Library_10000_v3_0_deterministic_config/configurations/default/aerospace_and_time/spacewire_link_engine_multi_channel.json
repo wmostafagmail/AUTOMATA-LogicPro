@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "spacewire_link_engine_multi_channel",
+  "wrapper_entity": "spacewire_link_engine_multi_channel_det_cfg",
+  "configuration_id": "SPACEWIRE_LINK_ENGINE_MULTI_CHANNEL_EE7C91F8D9C55EDB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "display_stream_compression_engine_multi_channel",
+  "wrapper_entity": "display_stream_compression_engine_multi_channel_det_cfg",
+  "configuration_id": "DISPLAY_STREAM_COMPRESSION_ENGINE_MULTI_CHANNEL_E441D20EBF71C787",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

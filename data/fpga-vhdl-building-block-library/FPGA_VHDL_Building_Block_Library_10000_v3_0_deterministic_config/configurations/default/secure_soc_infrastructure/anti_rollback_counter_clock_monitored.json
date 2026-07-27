@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_clock_monitored",
+  "wrapper_entity": "anti_rollback_counter_clock_monitored_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_CLOCK_MONITORED_E46072D25C025FB6",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

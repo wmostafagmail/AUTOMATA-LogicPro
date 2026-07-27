@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204b_transport_layer_protocol_monitor",
+  "wrapper_entity": "jesd204b_transport_layer_protocol_monitor_det_cfg",
+  "configuration_id": "JESD204B_TRANSPORT_LAYER_PROTOCOL_MONITOR_4E142452B556F0C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

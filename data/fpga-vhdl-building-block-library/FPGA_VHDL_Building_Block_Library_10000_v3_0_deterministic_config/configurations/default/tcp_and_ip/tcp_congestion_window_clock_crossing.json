@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_congestion_window_clock_crossing",
+  "wrapper_entity": "tcp_congestion_window_clock_crossing_det_cfg",
+  "configuration_id": "TCP_CONGESTION_WINDOW_CLOCK_CROSSING_FF58A453D3DA6BD0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

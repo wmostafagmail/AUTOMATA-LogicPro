@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "link_training_controller_single_shot",
+  "wrapper_entity": "link_training_controller_single_shot_det_cfg",
+  "configuration_id": "LINK_TRAINING_CONTROLLER_SINGLE_SHOT_AF40CA9143956CDE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

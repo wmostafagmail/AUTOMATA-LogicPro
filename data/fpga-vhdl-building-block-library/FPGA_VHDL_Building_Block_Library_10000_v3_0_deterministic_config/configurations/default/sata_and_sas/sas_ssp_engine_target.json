@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_target",
+  "wrapper_entity": "sas_ssp_engine_target_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_TARGET_9064E1AD5F87C8E9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

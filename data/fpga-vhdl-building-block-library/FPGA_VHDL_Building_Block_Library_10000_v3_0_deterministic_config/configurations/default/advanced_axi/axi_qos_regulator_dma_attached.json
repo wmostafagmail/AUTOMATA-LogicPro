@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi_qos_regulator_dma_attached",
+  "wrapper_entity": "axi_qos_regulator_dma_attached_det_cfg",
+  "configuration_id": "AXI_QOS_REGULATOR_DMA_ATTACHED_9D8DD903F87B765E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

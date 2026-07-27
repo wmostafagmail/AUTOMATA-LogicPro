@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dense_layer_engine_bf16",
+  "wrapper_entity": "dense_layer_engine_bf16_det_cfg",
+  "configuration_id": "DENSE_LAYER_ENGINE_BF16_F7C54A2C1667B342",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

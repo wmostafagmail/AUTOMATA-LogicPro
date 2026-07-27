@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dphy_lane_controller_endpoint",
+  "wrapper_entity": "mipi_dphy_lane_controller_endpoint_det_cfg",
+  "configuration_id": "MIPI_DPHY_LANE_CONTROLLER_ENDPOINT_6BB5BC8659CAE051",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

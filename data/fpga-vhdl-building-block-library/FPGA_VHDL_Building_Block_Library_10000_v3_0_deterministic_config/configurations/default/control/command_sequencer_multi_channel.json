@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "command_sequencer_multi_channel",
+  "wrapper_entity": "command_sequencer_multi_channel_det_cfg",
+  "configuration_id": "COMMAND_SEQUENCER_MULTI_CHANNEL_B3C837FA690FEE88",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

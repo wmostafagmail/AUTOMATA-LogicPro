@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ascon_aead_engine_constant_time",
+  "wrapper_entity": "ascon_aead_engine_constant_time_det_cfg",
+  "configuration_id": "ASCON_AEAD_ENGINE_CONSTANT_TIME_FA0EC6A985704DF5",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

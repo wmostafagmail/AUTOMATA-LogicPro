@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_subtractor_iterative",
+  "wrapper_entity": "integer_subtractor_iterative_det_cfg",
+  "configuration_id": "INTEGER_SUBTRACTOR_ITERATIVE_6BEC796C4BF7CD2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

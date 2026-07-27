@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "xorshift_random_generator_clock_crossing",
+  "wrapper_entity": "xorshift_random_generator_clock_crossing_det_cfg",
+  "configuration_id": "XORSHIFT_RANDOM_GENERATOR_CLOCK_CROSSING_849C3AFA3DB8C337",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

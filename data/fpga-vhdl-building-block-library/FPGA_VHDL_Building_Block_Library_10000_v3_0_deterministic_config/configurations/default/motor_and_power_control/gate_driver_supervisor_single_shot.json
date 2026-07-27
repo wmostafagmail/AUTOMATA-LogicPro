@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "gate_driver_supervisor_single_shot",
+  "wrapper_entity": "gate_driver_supervisor_single_shot_det_cfg",
+  "configuration_id": "GATE_DRIVER_SUPERVISOR_SINGLE_SHOT_A1273EB911125F3F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

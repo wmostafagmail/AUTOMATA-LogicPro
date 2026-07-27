@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_induction_helper_scoreboard_based",
+  "wrapper_entity": "formal_induction_helper_scoreboard_based_det_cfg",
+  "configuration_id": "FORMAL_INDUCTION_HELPER_SCOREBOARD_BASED_CBB1BC377132B70D",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

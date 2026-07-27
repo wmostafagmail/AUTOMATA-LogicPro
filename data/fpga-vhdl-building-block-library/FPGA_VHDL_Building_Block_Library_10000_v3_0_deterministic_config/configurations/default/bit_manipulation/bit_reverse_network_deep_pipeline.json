@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bit_reverse_network_deep_pipeline",
+  "wrapper_entity": "bit_reverse_network_deep_pipeline_det_cfg",
+  "configuration_id": "BIT_REVERSE_NETWORK_DEEP_PIPELINE_831F83F9B62B759F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

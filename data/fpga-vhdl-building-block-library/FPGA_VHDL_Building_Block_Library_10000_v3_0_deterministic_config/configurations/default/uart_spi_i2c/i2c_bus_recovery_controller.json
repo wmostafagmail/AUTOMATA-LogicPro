@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2c_bus_recovery_controller",
+  "wrapper_entity": "i2c_bus_recovery_controller_det_cfg",
+  "configuration_id": "I2C_BUS_RECOVERY_CONTROLLER_7FE9FF20F9F23CA4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

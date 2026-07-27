@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microsequencer_multi_channel",
+  "wrapper_entity": "microsequencer_multi_channel_det_cfg",
+  "configuration_id": "MICROSEQUENCER_MULTI_CHANNEL_AFD1988C00452B3F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

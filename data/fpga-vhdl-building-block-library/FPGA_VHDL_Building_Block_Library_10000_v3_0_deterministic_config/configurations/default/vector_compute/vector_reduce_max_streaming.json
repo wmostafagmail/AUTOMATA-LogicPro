@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_reduce_max_streaming",
+  "wrapper_entity": "vector_reduce_max_streaming_det_cfg",
+  "configuration_id": "VECTOR_REDUCE_MAX_STREAMING_88769D92F7B891A5",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

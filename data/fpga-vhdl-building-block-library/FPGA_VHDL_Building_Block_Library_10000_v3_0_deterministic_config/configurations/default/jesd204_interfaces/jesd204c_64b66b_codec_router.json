@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204c_64b66b_codec_router",
+  "wrapper_entity": "jesd204c_64b66b_codec_router_det_cfg",
+  "configuration_id": "JESD204C_64B66B_CODEC_ROUTER_FB25BAE043A4F071",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

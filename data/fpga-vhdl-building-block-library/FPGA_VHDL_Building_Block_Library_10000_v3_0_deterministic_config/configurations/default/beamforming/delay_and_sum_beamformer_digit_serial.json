@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delay_and_sum_beamformer_digit_serial",
+  "wrapper_entity": "delay_and_sum_beamformer_digit_serial_det_cfg",
+  "configuration_id": "DELAY_AND_SUM_BEAMFORMER_DIGIT_SERIAL_5E80CA4EC1B46FD4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

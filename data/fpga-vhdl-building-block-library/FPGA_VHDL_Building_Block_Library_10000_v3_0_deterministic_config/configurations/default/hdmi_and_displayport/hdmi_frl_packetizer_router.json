@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_router",
+  "wrapper_entity": "hdmi_frl_packetizer_router_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_ROUTER_22A959AA5F3A8D9F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

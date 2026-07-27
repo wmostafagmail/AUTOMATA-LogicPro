@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_irt_scheduler_software_configurable",
+  "wrapper_entity": "profinet_irt_scheduler_software_configurable_det_cfg",
+  "configuration_id": "PROFINET_IRT_SCHEDULER_SOFTWARE_CONFIGURABLE_AB8E23BE286D8539",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

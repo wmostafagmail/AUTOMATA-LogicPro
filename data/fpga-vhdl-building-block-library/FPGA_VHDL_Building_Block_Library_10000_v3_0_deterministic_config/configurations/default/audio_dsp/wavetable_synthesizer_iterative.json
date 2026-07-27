@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "wavetable_synthesizer_iterative",
+  "wrapper_entity": "wavetable_synthesizer_iterative_det_cfg",
+  "configuration_id": "WAVETABLE_SYNTHESIZER_ITERATIVE_B58DD2B76B5CDB72",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

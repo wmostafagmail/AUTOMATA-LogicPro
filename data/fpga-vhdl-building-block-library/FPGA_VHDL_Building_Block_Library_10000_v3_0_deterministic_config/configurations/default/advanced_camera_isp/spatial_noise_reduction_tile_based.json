@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spatial_noise_reduction_tile_based",
+  "wrapper_entity": "spatial_noise_reduction_tile_based_det_cfg",
+  "configuration_id": "SPATIAL_NOISE_REDUCTION_TILE_BASED_90A8FC9301C182EF",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

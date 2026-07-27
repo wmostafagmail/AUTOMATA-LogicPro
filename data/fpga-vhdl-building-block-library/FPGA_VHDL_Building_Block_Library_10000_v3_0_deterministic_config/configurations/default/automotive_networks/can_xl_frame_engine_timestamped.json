@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_xl_frame_engine_timestamped",
+  "wrapper_entity": "can_xl_frame_engine_timestamped_det_cfg",
+  "configuration_id": "CAN_XL_FRAME_ENGINE_TIMESTAMPED_7C7FCCFEB0567B98",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

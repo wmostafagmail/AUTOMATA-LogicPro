@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_timer_multi_channel",
+  "wrapper_entity": "quadrature_timer_multi_channel_det_cfg",
+  "configuration_id": "QUADRATURE_TIMER_MULTI_CHANNEL_57BEC639B0F5AAC9",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

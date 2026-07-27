@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trigger_matrix_reset_robustness",
+  "wrapper_entity": "trigger_matrix_reset_robustness_det_cfg",
+  "configuration_id": "TRIGGER_MATRIX_RESET_ROBUSTNESS_8FB1CB5756D6FBB8",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

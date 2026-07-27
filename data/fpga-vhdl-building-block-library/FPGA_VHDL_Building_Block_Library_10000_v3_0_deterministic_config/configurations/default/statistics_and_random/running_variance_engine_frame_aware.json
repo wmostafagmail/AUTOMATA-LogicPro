@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "running_variance_engine_frame_aware",
+  "wrapper_entity": "running_variance_engine_frame_aware_det_cfg",
+  "configuration_id": "RUNNING_VARIANCE_ENGINE_FRAME_AWARE_2AFDA2C5D8B4AF96",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

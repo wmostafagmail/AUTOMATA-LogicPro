@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "maximum_torque_per_ampere_lockstep_checked",
+  "wrapper_entity": "maximum_torque_per_ampere_lockstep_checked_det_cfg",
+  "configuration_id": "MAXIMUM_TORQUE_PER_AMPERE_LOCKSTEP_CHECKED_3E2F0485E496B7D5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

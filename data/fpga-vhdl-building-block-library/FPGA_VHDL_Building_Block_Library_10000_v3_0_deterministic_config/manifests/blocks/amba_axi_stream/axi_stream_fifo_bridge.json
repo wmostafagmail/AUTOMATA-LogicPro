@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "axi_stream_fifo_bridge",
+    "entity": "axi_stream_fifo_bridge",
+    "version": "3.0.0",
+    "category": "amba_axi_stream",
+    "source": "rtl/blocks/amba_axi_stream/axi_stream_fifo_bridge.vhd",
+    "wrapper_entity": "axi_stream_fifo_bridge_det_cfg"
+  },
+  "configuration": {
+    "id": "AXI_STREAM_FIFO_BRIDGE_46BFB307B77E8D5A",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "DEPTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "DEPTH": 16
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_en",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "full",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "almost_full",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_en",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "empty",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "almost_empty",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "level",
+        "direction": "out",
+        "type": "std_logic_vector(clog2(DEPTH+1)-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "subset_contract; run official or commercial protocol VIP before release"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/amba_axi_stream/axi_stream_fifo_bridge_det_cfg.vhd",
+    "configuration_file": "configurations/default/axi_stream_fifo_bridge.json"
+  }
+}

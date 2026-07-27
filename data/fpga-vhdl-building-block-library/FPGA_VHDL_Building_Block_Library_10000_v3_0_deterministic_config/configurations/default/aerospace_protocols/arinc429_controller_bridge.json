@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "arinc429_controller_bridge",
+  "wrapper_entity": "arinc429_controller_bridge_det_cfg",
+  "configuration_id": "ARINC429_CONTROLLER_BRIDGE_DB6707B32F883947",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

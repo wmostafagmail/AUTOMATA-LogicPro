@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dsi_packet_generator_security_filtered",
+  "wrapper_entity": "mipi_dsi_packet_generator_security_filtered_det_cfg",
+  "configuration_id": "MIPI_DSI_PACKET_GENERATOR_SECURITY_FILTERED_83E3D054E2DCBEEB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

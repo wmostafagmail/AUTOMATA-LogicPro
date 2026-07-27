@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "thermometer_encoder_iterative",
+  "wrapper_entity": "thermometer_encoder_iterative_det_cfg",
+  "configuration_id": "THERMOMETER_ENCODER_ITERATIVE_07AA4DFC9FDE905C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

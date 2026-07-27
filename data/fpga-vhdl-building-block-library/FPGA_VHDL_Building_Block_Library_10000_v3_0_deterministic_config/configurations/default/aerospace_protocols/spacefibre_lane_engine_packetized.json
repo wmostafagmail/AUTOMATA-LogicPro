@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spacefibre_lane_engine_packetized",
+  "wrapper_entity": "spacefibre_lane_engine_packetized_det_cfg",
+  "configuration_id": "SPACEFIBRE_LANE_ENGINE_PACKETIZED_DA4F96D2A6038812",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fragment_queue_multi_plane",
+  "wrapper_entity": "fragment_queue_multi_plane_det_cfg",
+  "configuration_id": "FRAGMENT_QUEUE_MULTI_PLANE_1B222AD69CB229ED",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

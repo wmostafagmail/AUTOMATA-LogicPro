@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_bit_timing_low_power",
+  "wrapper_entity": "can_bit_timing_low_power_det_cfg",
+  "configuration_id": "CAN_BIT_TIMING_LOW_POWER_BC809C0878074351",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "debug_module_fault_tolerant",
+  "wrapper_entity": "debug_module_fault_tolerant_det_cfg",
+  "configuration_id": "DEBUG_MODULE_FAULT_TOLERANT_371763A76B9D4E28",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

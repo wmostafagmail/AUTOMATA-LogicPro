@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_induction_helper_protocol_compliance",
+  "wrapper_entity": "formal_induction_helper_protocol_compliance_det_cfg",
+  "configuration_id": "FORMAL_INDUCTION_HELPER_PROTOCOL_COMPLIANCE_92F6DB9F253701BF",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

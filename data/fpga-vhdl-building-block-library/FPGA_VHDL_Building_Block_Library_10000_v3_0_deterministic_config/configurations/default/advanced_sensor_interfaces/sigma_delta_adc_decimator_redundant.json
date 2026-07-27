@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sigma_delta_adc_decimator_redundant",
+  "wrapper_entity": "sigma_delta_adc_decimator_redundant_det_cfg",
+  "configuration_id": "SIGMA_DELTA_ADC_DECIMATOR_REDUNDANT_32FC1CC5DC8BFDFE",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

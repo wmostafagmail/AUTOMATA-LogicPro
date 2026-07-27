@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parametric_equalizer_formally_instrumented",
+  "wrapper_entity": "parametric_equalizer_formally_instrumented_det_cfg",
+  "configuration_id": "PARAMETRIC_EQUALIZER_FORMALLY_INSTRUMENTED_F0E8D866712FC7C9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

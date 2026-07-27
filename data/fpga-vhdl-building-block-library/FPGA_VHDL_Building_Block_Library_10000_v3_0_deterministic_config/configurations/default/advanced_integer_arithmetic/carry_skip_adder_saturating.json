@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_saturating",
+  "wrapper_entity": "carry_skip_adder_saturating_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_SATURATING_12393E6DD0A13D83",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

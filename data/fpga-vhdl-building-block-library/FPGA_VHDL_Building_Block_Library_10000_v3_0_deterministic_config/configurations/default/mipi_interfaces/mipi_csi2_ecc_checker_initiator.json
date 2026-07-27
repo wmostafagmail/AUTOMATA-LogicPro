@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_csi2_ecc_checker_initiator",
+  "wrapper_entity": "mipi_csi2_ecc_checker_initiator_det_cfg",
+  "configuration_id": "MIPI_CSI2_ECC_CHECKER_INITIATOR_8E963BDDE96D2E7D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

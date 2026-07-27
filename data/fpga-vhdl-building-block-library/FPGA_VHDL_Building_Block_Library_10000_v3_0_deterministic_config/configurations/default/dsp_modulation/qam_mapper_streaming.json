@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "qam_mapper_streaming",
+  "wrapper_entity": "qam_mapper_streaming_det_cfg",
+  "configuration_id": "QAM_MAPPER_STREAMING_4AE38D584C461EC2",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 175
+  }
+}

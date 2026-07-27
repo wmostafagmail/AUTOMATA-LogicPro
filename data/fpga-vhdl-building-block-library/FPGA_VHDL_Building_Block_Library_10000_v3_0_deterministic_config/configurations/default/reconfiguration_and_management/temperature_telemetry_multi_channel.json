@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "temperature_telemetry_multi_channel",
+  "wrapper_entity": "temperature_telemetry_multi_channel_det_cfg",
+  "configuration_id": "TEMPERATURE_TELEMETRY_MULTI_CHANNEL_232BE1E6EDF43130",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

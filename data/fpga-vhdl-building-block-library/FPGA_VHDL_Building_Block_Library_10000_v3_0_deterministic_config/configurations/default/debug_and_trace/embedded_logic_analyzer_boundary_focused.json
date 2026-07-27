@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_boundary_focused",
+  "wrapper_entity": "embedded_logic_analyzer_boundary_focused_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_BOUNDARY_FOCUSED_E6BE5B8F3859C7C0",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "interrupt_router_programmable",
+  "wrapper_entity": "interrupt_router_programmable_det_cfg",
+  "configuration_id": "INTERRUPT_ROUTER_PROGRAMMABLE_57A0FCDF78D615C5",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

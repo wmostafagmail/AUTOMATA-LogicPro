@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_frame_engine_single_shot",
+  "wrapper_entity": "can_frame_engine_single_shot_det_cfg",
+  "configuration_id": "CAN_FRAME_ENGINE_SINGLE_SHOT_4A939393849031D4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

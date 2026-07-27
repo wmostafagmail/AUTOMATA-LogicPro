@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "kyber_ntt_engine_high_throughput",
+  "wrapper_entity": "kyber_ntt_engine_high_throughput_det_cfg",
+  "configuration_id": "KYBER_NTT_ENGINE_HIGH_THROUGHPUT_8B8A5ADCFECEEEA5",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

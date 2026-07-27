@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ldpc_encoder_error_detecting",
+  "wrapper_entity": "ldpc_encoder_error_detecting_det_cfg",
+  "configuration_id": "LDPC_ENCODER_ERROR_DETECTING_D08501469E08E4A3",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

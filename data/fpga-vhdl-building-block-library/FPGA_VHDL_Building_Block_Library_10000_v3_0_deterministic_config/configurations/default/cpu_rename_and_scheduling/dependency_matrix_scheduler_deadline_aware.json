@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_deadline_aware",
+  "wrapper_entity": "dependency_matrix_scheduler_deadline_aware_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_DEADLINE_AWARE_A2420B227B7F7F20",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

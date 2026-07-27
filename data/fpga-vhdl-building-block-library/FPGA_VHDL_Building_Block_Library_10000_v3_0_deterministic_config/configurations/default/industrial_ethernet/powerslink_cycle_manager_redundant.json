@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_redundant",
+  "wrapper_entity": "powerslink_cycle_manager_redundant_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_REDUNDANT_C7D106ECF48F421F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aho_corasick_matcher_time_multiplexed",
+  "wrapper_entity": "aho_corasick_matcher_time_multiplexed_det_cfg",
+  "configuration_id": "AHO_CORASICK_MATCHER_TIME_MULTIPLEXED_02C98811B15425D0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

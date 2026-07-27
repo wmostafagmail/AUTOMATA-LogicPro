@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "texture_border_unit_low_power",
+  "wrapper_entity": "texture_border_unit_low_power_det_cfg",
+  "configuration_id": "TEXTURE_BORDER_UNIT_LOW_POWER_0D173B6C8C9BD32A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

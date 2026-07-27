@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "powerslink_cycle_manager_clock_crossing",
+  "wrapper_entity": "powerslink_cycle_manager_clock_crossing_det_cfg",
+  "configuration_id": "POWERSLINK_CYCLE_MANAGER_CLOCK_CROSSING_6D520E12EDFA4EF6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

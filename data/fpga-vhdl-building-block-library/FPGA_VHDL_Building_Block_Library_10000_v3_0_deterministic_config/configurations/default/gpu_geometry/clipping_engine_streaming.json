@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clipping_engine_streaming",
+  "wrapper_entity": "clipping_engine_streaming_det_cfg",
+  "configuration_id": "CLIPPING_ENGINE_STREAMING_B60199F63A9926AA",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

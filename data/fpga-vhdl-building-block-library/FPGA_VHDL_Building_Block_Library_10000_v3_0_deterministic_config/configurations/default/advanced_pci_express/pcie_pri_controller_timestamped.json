@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_pri_controller_timestamped",
+  "wrapper_entity": "pcie_pri_controller_timestamped_det_cfg",
+  "configuration_id": "PCIE_PRI_CONTROLLER_TIMESTAMPED_EE792656E45E3449",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

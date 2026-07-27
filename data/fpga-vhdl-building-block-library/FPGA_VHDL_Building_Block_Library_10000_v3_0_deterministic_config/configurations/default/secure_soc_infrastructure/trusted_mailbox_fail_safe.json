@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_fail_safe",
+  "wrapper_entity": "trusted_mailbox_fail_safe_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_FAIL_SAFE_3B6CA10B79BF4B6E",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

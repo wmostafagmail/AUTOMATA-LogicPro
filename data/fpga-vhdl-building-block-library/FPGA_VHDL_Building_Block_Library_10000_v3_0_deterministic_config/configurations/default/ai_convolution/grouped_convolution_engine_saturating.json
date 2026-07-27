@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_saturating",
+  "wrapper_entity": "grouped_convolution_engine_saturating_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_SATURATING_F0C7083C6CA12C3F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

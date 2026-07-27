@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "irig_b_decoder_continuous",
+  "wrapper_entity": "irig_b_decoder_continuous_det_cfg",
+  "configuration_id": "IRIG_B_DECODER_CONTINUOUS_300B3A3268A03972",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

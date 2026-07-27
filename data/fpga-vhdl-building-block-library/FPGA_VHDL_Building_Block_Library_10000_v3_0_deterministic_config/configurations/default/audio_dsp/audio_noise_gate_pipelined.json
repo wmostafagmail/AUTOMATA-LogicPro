@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_noise_gate_pipelined",
+  "wrapper_entity": "audio_noise_gate_pipelined_det_cfg",
+  "configuration_id": "AUDIO_NOISE_GATE_PIPELINED_F5E238E170D5B068",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

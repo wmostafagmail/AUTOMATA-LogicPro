@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "ring_counter_loadable",
+  "wrapper_entity": "ring_counter_loadable_det_cfg",
+  "configuration_id": "RING_COUNTER_LOADABLE_2F7B2A80967EEFD4",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": false,
+    "DOWN_COUNT": false
+  }
+}

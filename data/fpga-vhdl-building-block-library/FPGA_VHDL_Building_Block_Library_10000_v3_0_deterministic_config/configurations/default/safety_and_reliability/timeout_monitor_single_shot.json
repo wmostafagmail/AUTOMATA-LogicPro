@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "timeout_monitor_single_shot",
+  "wrapper_entity": "timeout_monitor_single_shot_det_cfg",
+  "configuration_id": "TIMEOUT_MONITOR_SINGLE_SHOT_933A4D0FCAB1401C",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

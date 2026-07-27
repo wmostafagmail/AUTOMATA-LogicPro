@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_clock_monitored",
+  "wrapper_entity": "latent_fault_monitor_clock_monitored_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_CLOCK_MONITORED_77B2692667C87A0B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

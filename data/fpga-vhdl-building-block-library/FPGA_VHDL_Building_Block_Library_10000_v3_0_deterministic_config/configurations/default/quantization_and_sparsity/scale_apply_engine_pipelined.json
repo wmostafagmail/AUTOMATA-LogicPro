@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "scale_apply_engine_pipelined",
+  "wrapper_entity": "scale_apply_engine_pipelined_det_cfg",
+  "configuration_id": "SCALE_APPLY_ENGINE_PIPELINED_019668655F45C208",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

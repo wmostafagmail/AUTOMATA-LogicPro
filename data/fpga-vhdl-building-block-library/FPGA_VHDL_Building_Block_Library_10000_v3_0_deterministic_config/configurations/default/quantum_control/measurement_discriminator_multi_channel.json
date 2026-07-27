@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "measurement_discriminator_multi_channel",
+  "wrapper_entity": "measurement_discriminator_multi_channel_det_cfg",
+  "configuration_id": "MEASUREMENT_DISCRIMINATOR_MULTI_CHANNEL_3B44EE68B7A0975F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

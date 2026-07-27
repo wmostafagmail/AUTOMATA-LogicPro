@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_crypto_unit_buffered_stream",
+  "wrapper_entity": "riscv_crypto_unit_buffered_stream_det_cfg",
+  "configuration_id": "RISCV_CRYPTO_UNIT_BUFFERED_STREAM_0DEFE3DC27DB82D8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

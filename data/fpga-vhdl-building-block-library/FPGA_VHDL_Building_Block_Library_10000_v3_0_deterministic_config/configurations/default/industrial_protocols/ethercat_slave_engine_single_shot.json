@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_slave_engine_single_shot",
+  "wrapper_entity": "ethercat_slave_engine_single_shot_det_cfg",
+  "configuration_id": "ETHERCAT_SLAVE_ENGINE_SINGLE_SHOT_2D5D68CC1530534D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

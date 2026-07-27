@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "synchronous_rom_single_clock",
+  "wrapper_entity": "synchronous_rom_single_clock_det_cfg",
+  "configuration_id": "SYNCHRONOUS_ROM_SINGLE_CLOCK_795EA287B3BACA1E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 256
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "convolution_layer_engine_int8",
+  "wrapper_entity": "convolution_layer_engine_int8_det_cfg",
+  "configuration_id": "CONVOLUTION_LAYER_ENGINE_INT8_7B475DF136C569A1",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

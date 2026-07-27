@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waypoint_sequencer_multi_channel",
+  "wrapper_entity": "waypoint_sequencer_multi_channel_det_cfg",
+  "configuration_id": "WAYPOINT_SEQUENCER_MULTI_CHANNEL_CBEA0AD7BD8D2DB3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

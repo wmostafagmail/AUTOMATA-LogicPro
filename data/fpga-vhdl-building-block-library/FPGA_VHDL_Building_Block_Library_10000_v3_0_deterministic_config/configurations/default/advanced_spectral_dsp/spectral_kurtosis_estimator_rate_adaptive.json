@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spectral_kurtosis_estimator_rate_adaptive",
+  "wrapper_entity": "spectral_kurtosis_estimator_rate_adaptive_det_cfg",
+  "configuration_id": "SPECTRAL_KURTOSIS_ESTIMATOR_RATE_ADAPTIVE_02BA9D917A18CE05",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anisotropic_filter_engine_high_throughput",
+  "wrapper_entity": "anisotropic_filter_engine_high_throughput_det_cfg",
+  "configuration_id": "ANISOTROPIC_FILTER_ENGINE_HIGH_THROUGHPUT_D54902FD9A42336B",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

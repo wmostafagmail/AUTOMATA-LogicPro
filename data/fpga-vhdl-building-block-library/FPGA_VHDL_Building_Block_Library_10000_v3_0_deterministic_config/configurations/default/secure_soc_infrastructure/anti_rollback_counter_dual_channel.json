@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "anti_rollback_counter_dual_channel",
+  "wrapper_entity": "anti_rollback_counter_dual_channel_det_cfg",
+  "configuration_id": "ANTI_ROLLBACK_COUNTER_DUAL_CHANNEL_57384F4AA1F2F82F",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

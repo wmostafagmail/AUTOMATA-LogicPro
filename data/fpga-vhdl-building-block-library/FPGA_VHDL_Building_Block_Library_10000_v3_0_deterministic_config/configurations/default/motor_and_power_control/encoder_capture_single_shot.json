@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "encoder_capture_single_shot",
+  "wrapper_entity": "encoder_capture_single_shot_det_cfg",
+  "configuration_id": "ENCODER_CAPTURE_SINGLE_SHOT_F2A5DEC47DA530FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

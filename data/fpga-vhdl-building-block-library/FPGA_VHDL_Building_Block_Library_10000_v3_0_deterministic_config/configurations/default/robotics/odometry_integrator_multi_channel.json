@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "odometry_integrator_multi_channel",
+  "wrapper_entity": "odometry_integrator_multi_channel_det_cfg",
+  "configuration_id": "ODOMETRY_INTEGRATOR_MULTI_CHANNEL_E4E0B50442FD31E7",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

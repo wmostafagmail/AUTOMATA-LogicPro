@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sampler_state_unit_low_power",
+  "wrapper_entity": "sampler_state_unit_low_power_det_cfg",
+  "configuration_id": "SAMPLER_STATE_UNIT_LOW_POWER_F6EA93A06C4690D5",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

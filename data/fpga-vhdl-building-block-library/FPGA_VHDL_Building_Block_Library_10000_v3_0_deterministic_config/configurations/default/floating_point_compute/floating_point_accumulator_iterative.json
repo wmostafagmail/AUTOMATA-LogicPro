@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_accumulator_iterative",
+  "wrapper_entity": "floating_point_accumulator_iterative_det_cfg",
+  "configuration_id": "FLOATING_POINT_ACCUMULATOR_ITERATIVE_8E9B0139981807FE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

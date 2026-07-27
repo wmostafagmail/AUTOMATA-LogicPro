@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_fd_controller_target",
+  "wrapper_entity": "can_fd_controller_target_det_cfg",
+  "configuration_id": "CAN_FD_CONTROLLER_TARGET_ECD532124EC5E81B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

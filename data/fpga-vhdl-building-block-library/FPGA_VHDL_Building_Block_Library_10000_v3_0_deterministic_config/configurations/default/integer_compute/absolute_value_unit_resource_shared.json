@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "absolute_value_unit_resource_shared",
+  "wrapper_entity": "absolute_value_unit_resource_shared_det_cfg",
+  "configuration_id": "ABSOLUTE_VALUE_UNIT_RESOURCE_SHARED_E271DFC5795AC6CD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

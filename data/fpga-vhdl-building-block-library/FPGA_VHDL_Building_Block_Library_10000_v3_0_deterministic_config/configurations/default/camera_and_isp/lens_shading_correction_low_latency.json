@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lens_shading_correction_low_latency",
+  "wrapper_entity": "lens_shading_correction_low_latency_det_cfg",
+  "configuration_id": "LENS_SHADING_CORRECTION_LOW_LATENCY_1A920A975526F414",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

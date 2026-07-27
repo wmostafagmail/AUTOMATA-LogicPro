@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "instruction_queue_single_shot",
+  "wrapper_entity": "instruction_queue_single_shot_det_cfg",
+  "configuration_id": "INSTRUCTION_QUEUE_SINGLE_SHOT_51624A0CBD3104C6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

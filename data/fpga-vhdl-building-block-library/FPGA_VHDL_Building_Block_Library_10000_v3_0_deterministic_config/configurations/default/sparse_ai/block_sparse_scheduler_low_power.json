@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "block_sparse_scheduler_low_power",
+  "wrapper_entity": "block_sparse_scheduler_low_power_det_cfg",
+  "configuration_id": "BLOCK_SPARSE_SCHEDULER_LOW_POWER_CAE8E622E16FF2AE",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

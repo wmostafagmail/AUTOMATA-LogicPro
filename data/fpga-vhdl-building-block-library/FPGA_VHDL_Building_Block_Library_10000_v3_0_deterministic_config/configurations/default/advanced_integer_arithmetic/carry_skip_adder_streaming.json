@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "carry_skip_adder_streaming",
+  "wrapper_entity": "carry_skip_adder_streaming_det_cfg",
+  "configuration_id": "CARRY_SKIP_ADDER_STREAMING_923D633C8CDEF2FD",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

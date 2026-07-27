@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "per_bit_deskew_controller_timestamped",
+  "wrapper_entity": "per_bit_deskew_controller_timestamped_det_cfg",
+  "configuration_id": "PER_BIT_DESKEW_CONTROLLER_TIMESTAMPED_BE188A6DD4FBB06D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

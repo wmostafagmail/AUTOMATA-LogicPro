@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "multiply_divide_unit_single_cycle",
+  "wrapper_entity": "multiply_divide_unit_single_cycle_det_cfg",
+  "configuration_id": "MULTIPLY_DIVIDE_UNIT_SINGLE_CYCLE_31769BCC5051F52B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

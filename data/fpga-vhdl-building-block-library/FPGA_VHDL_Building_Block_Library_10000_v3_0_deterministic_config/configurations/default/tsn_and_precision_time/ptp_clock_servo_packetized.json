@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_packetized",
+  "wrapper_entity": "ptp_clock_servo_packetized_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_PACKETIZED_C714895D4A799873",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

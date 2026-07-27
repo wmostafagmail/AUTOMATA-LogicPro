@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_streaming",
+  "wrapper_entity": "binary_to_bcd_converter_streaming_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_STREAMING_147778B2766676D1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

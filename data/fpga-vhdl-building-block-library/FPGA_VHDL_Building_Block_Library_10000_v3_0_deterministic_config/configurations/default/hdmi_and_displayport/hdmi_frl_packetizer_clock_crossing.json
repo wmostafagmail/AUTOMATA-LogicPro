@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_frl_packetizer_clock_crossing",
+  "wrapper_entity": "hdmi_frl_packetizer_clock_crossing_det_cfg",
+  "configuration_id": "HDMI_FRL_PACKETIZER_CLOCK_CROSSING_1A925B24170D3653",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

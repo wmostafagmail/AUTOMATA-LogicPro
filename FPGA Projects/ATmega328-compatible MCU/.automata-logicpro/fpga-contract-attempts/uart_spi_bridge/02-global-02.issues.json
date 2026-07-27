@@ -5,8 +5,58 @@
   "designLabel": "UART-to-SPI Protocol Bridge with FIFOs",
   "attempt": 2,
   "designAttempt": 2,
-  "issueCount": 0,
-  "topIssueCodes": [],
-  "message": "staged_port_interface_drift\nStaged VHDL for \"uart_tx\" changed the approved port interface.\ncomponentId=uart_tx\nexpectedGenerics=(none)\nactualGenerics=(none)\nexpectedPorts=clk,rst,enable_i,data_i\nactualPorts=clk,rst,enable_i,data_i,done_o,error_o,status_o",
-  "issues": []
+  "issueCount": 9,
+  "topIssueCodes": [
+    "architecture_intent_ambiguous_design_class",
+    "architecture_intent_clarification_required",
+    "architecture_intent_unknown_required_field"
+  ],
+  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does SCLK mean in this FPGA design? What does MOSI mean in this FPGA design?",
+  "issues": [
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FILE",
+      "message": "What does FILE mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:JSON",
+      "message": "What does JSON mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:SCLK",
+      "message": "What does SCLK mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:MOSI",
+      "message": "What does MOSI mean in this FPGA design?"
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:MISO",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:PASS",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_ambiguous_design_class",
+      "path": "$.intent.unknown_acronym:FAIL",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_unknown_required_field",
+      "path": "$.intent.widthOrFormat",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    },
+    {
+      "code": "architecture_intent_clarification_required",
+      "path": "$.intent",
+      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+    }
+  ]
 }

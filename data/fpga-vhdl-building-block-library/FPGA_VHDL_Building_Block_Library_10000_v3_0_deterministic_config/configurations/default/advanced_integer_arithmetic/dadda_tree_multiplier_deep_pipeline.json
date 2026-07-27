@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_deep_pipeline",
+  "wrapper_entity": "dadda_tree_multiplier_deep_pipeline_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_DEEP_PIPELINE_05D2256F17FC566E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

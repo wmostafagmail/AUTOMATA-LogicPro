@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "startup_sequencer_programmable",
+  "wrapper_entity": "startup_sequencer_programmable_det_cfg",
+  "configuration_id": "STARTUP_SEQUENCER_PROGRAMMABLE_8969CD0027F9E5A2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

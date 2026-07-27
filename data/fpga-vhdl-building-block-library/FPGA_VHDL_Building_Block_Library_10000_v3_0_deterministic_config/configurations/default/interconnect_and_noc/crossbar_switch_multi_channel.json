@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "crossbar_switch_multi_channel",
+  "wrapper_entity": "crossbar_switch_multi_channel_det_cfg",
+  "configuration_id": "CROSSBAR_SWITCH_MULTI_CHANNEL_B7D4BA657FBC795B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

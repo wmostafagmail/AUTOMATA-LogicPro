@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_low_power",
+  "wrapper_entity": "reorder_commit_engine_low_power_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_LOW_POWER_6ABCA14A044DCE7A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

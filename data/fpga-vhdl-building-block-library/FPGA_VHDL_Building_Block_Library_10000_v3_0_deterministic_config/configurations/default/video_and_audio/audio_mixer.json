@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_mixer",
+  "wrapper_entity": "audio_mixer_det_cfg",
+  "configuration_id": "AUDIO_MIXER_61A29AC5C58E37AC",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

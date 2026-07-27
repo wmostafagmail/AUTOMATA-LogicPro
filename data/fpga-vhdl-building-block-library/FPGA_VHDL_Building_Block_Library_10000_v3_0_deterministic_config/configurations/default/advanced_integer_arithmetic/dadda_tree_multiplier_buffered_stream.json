@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dadda_tree_multiplier_buffered_stream",
+  "wrapper_entity": "dadda_tree_multiplier_buffered_stream_det_cfg",
+  "configuration_id": "DADDA_TREE_MULTIPLIER_BUFFERED_STREAM_7B1D6AF6A97441C7",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

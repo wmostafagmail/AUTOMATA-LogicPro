@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chi_request_node_timestamped",
+  "wrapper_entity": "chi_request_node_timestamped_det_cfg",
+  "configuration_id": "CHI_REQUEST_NODE_TIMESTAMPED_9BF76127CFAA1408",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "newton_raphson_reciprocal_multi_channel",
+  "wrapper_entity": "newton_raphson_reciprocal_multi_channel_det_cfg",
+  "configuration_id": "NEWTON_RAPHSON_RECIPROCAL_MULTI_CHANNEL_1AC66266627A6E5C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

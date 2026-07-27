@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_error_resilient",
+  "wrapper_entity": "h264_deblocking_filter_error_resilient_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_ERROR_RESILIENT_2A952225E186A017",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

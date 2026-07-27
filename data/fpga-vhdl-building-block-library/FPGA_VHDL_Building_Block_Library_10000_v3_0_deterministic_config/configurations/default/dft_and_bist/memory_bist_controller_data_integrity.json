@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_bist_controller_data_integrity",
+  "wrapper_entity": "memory_bist_controller_data_integrity_det_cfg",
+  "configuration_id": "MEMORY_BIST_CONTROLLER_DATA_INTEGRITY_95D256957B17DE9A",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

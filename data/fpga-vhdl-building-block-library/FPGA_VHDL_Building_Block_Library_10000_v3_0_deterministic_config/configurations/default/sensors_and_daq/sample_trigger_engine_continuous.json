@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sample_trigger_engine_continuous",
+  "wrapper_entity": "sample_trigger_engine_continuous_det_cfg",
+  "configuration_id": "SAMPLE_TRIGGER_ENGINE_CONTINUOUS_1AD50E65489E3209",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

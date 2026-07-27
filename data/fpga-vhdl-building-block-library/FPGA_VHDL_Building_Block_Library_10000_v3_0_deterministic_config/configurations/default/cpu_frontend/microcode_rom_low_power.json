@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microcode_rom_low_power",
+  "wrapper_entity": "microcode_rom_low_power_det_cfg",
+  "configuration_id": "MICROCODE_ROM_LOW_POWER_02952242A4513F2E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

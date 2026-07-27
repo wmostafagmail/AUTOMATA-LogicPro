@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "space_vector_pwm_continuous",
+  "wrapper_entity": "space_vector_pwm_continuous_det_cfg",
+  "configuration_id": "SPACE_VECTOR_PWM_CONTINUOUS_2C7FDBFBC1BC5F2E",
+  "generics": {
+    "WIDTH": 16
+  }
+}

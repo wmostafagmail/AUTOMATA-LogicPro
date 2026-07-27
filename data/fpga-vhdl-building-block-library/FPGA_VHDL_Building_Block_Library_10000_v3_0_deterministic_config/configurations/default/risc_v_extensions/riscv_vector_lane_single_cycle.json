@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "riscv_vector_lane_single_cycle",
+  "wrapper_entity": "riscv_vector_lane_single_cycle_det_cfg",
+  "configuration_id": "RISCV_VECTOR_LANE_SINGLE_CYCLE_A93394135FD4592A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

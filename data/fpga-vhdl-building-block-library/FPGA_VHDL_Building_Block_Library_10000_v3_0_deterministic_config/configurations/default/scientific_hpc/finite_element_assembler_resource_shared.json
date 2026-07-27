@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "finite_element_assembler_resource_shared",
+  "wrapper_entity": "finite_element_assembler_resource_shared_det_cfg",
+  "configuration_id": "FINITE_ELEMENT_ASSEMBLER_RESOURCE_SHARED_23140677679CA2AC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

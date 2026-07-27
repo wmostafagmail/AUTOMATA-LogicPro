@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_macsec_adapter_security_filtered",
+  "wrapper_entity": "ethernet_macsec_adapter_security_filtered_det_cfg",
+  "configuration_id": "ETHERNET_MACSEC_ADAPTER_SECURITY_FILTERED_8877A9DE69672D49",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

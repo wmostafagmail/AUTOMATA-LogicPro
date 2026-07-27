@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "coherence_probe_router_ecc_protected",
+  "wrapper_entity": "coherence_probe_router_ecc_protected_det_cfg",
+  "configuration_id": "COHERENCE_PROBE_ROUTER_ECC_PROTECTED_159ADD6CF4F6DCE7",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

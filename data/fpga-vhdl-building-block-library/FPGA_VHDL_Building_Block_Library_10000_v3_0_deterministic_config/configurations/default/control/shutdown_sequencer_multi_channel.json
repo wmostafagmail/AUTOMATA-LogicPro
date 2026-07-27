@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "shutdown_sequencer_multi_channel",
+  "wrapper_entity": "shutdown_sequencer_multi_channel_det_cfg",
+  "configuration_id": "SHUTDOWN_SEQUENCER_MULTI_CHANNEL_CCF05989BB20B5AC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "partial_bitstream_authenticator_deadline_aware",
+  "wrapper_entity": "partial_bitstream_authenticator_deadline_aware_det_cfg",
+  "configuration_id": "PARTIAL_BITSTREAM_AUTHENTICATOR_DEADLINE_AWARE_AF5B4EA70A0A2C89",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

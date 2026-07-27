@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "grouped_convolution_engine_combinational",
+  "wrapper_entity": "grouped_convolution_engine_combinational_det_cfg",
+  "configuration_id": "GROUPED_CONVOLUTION_ENGINE_COMBINATIONAL_44263C067574B225",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

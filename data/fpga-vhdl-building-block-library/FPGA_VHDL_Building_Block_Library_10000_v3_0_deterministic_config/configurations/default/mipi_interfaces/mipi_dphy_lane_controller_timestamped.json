@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "mipi_dphy_lane_controller_timestamped",
+  "wrapper_entity": "mipi_dphy_lane_controller_timestamped_det_cfg",
+  "configuration_id": "MIPI_DPHY_LANE_CONTROLLER_TIMESTAMPED_9EE82C5B96292C7B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "store_commit_queue_microcoded",
+  "wrapper_entity": "store_commit_queue_microcoded_det_cfg",
+  "configuration_id": "STORE_COMMIT_QUEUE_MICROCODED_1D2D489703A34C81",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

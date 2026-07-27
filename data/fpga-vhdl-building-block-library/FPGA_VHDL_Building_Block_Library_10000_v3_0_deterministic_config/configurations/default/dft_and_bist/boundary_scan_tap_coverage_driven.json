@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "boundary_scan_tap_coverage_driven",
+  "wrapper_entity": "boundary_scan_tap_coverage_driven_det_cfg",
+  "configuration_id": "BOUNDARY_SCAN_TAP_COVERAGE_DRIVEN_97C008B95D0A2F8E",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

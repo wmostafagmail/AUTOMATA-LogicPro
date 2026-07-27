@@ -223,6 +223,25 @@ test('app-owned contract draft validates before model refinement', () => {
   assert.equal(contract.components.filter((component) => component.kind === 'top').length, 1);
   assert.equal(contract.components.filter((component) => component.kind === 'testbench').length, 1);
   assert.equal(contract.sourceOrder.at(-1), contract.components.find((component) => component.kind === 'testbench')?.file);
+  assert.ok(contract.outputOwnership?.some((entry) => entry.signal === 'done_o'));
+  assert.ok(contract.signalTimelines?.some((entry) => entry.events.length > 0));
+  assert.ok(contract.verificationDerivation?.some((entry) => entry.verificationId === contract.verification[0].id));
+});
+
+test('contract validation rejects vague behavior timing before VHDL generation', () => {
+  const contract = buildFpgaArchitectureContractDraft({ userRequest: 'Mandatory design class: alu. Design an 8-bit ALU.' });
+  contract.behaviors[0] = {
+    ...contract.behaviors[0],
+    timing: 'The output eventually becomes correct as needed.',
+  };
+
+  const validation = validateFpgaArchitectureContract({
+    contract,
+    userRequest: 'Mandatory design class: alu. Design an 8-bit ALU.',
+  });
+
+  assert.equal(validation.ok, false);
+  assert.ok(validation.issues.some((issue) => issue.code === 'architecture_contract_timeline_ambiguous'));
 });
 
 test('contract parser safely quotes recoverable raw JSON-ish VHDL tokens', () => {
@@ -708,6 +727,24 @@ test('contract proposal uses narrow repair prompting before VHDL generation', as
   assert.match(prompts[2], /previous architecture contract was rejected/i);
   assert.equal(result.repaired, true);
   assert.equal(result.contract.topEntity, 'alu_top');
+});
+
+test('contract proposal blocks ambiguous user intent before architecture selection', async () => {
+  let modelCalls = 0;
+  await assert.rejects(
+    proposeApprovedFpgaArchitectureContract({
+      ai: null,
+      provider: 'ollama',
+      model: 'test-model',
+      userRequest: 'Design a 16-bit CUPG.',
+      runModelAnalysis: async () => {
+        modelCalls += 1;
+        return { text: '{}', telemetry: { durationMs: 1 } };
+      },
+    }),
+    /Architecture intent needs clarification before VHDL generation/i,
+  );
+  assert.equal(modelCalls, 0);
 });
 
 test('partial architecture selection review is injected into the contract proposal prompt', async () => {

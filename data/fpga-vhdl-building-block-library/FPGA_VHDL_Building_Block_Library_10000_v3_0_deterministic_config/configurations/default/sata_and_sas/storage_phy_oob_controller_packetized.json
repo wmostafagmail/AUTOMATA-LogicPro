@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "storage_phy_oob_controller_packetized",
+  "wrapper_entity": "storage_phy_oob_controller_packetized_det_cfg",
+  "configuration_id": "STORAGE_PHY_OOB_CONTROLLER_PACKETIZED_42D5DCD2F4DEC510",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

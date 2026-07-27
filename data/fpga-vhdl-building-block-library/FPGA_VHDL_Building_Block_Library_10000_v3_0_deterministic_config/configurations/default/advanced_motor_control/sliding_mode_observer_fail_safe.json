@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "sliding_mode_observer_fail_safe",
+  "wrapper_entity": "sliding_mode_observer_fail_safe_det_cfg",
+  "configuration_id": "SLIDING_MODE_OBSERVER_FAIL_SAFE_676EFCEB05310886",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

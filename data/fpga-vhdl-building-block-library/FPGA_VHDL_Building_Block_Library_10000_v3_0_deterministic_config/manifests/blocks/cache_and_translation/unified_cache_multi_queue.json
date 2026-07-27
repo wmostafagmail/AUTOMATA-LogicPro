@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "unified_cache_multi_queue",
+    "entity": "unified_cache_multi_queue",
+    "version": "3.0.0",
+    "category": "cache_and_translation",
+    "source": "rtl/blocks/cache_and_translation/unified_cache_multi_queue.vhd",
+    "wrapper_entity": "unified_cache_multi_queue_det_cfg"
+  },
+  "configuration": {
+    "id": "UNIFIED_CACHE_MULTI_QUEUE_2AFDB5EA40778003",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "DEPTH",
+        "type": "positive",
+        "default": "16",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "DATA_WIDTH": 32,
+      "DEPTH": 16
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_en",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "wr_data",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "full",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "almost_full",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_en",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rd_data",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "empty",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "almost_empty",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "level",
+        "direction": "out",
+        "type": "std_logic_vector(clog2(DEPTH+1)-1 downto 0)"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "not_applicable_or_internal_contract"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "A",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/cache_and_translation/unified_cache_multi_queue_det_cfg.vhd",
+    "configuration_file": "configurations/default/unified_cache_multi_queue.json"
+  }
+}

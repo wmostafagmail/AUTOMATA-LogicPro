@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "atomic_operation_unit_fault_tolerant",
+  "wrapper_entity": "atomic_operation_unit_fault_tolerant_det_cfg",
+  "configuration_id": "ATOMIC_OPERATION_UNIT_FAULT_TOLERANT_A05ADD5B747070DE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

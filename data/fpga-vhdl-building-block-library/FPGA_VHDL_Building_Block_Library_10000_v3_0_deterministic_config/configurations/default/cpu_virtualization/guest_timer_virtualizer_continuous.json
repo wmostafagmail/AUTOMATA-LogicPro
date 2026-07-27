@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "guest_timer_virtualizer_continuous",
+  "wrapper_entity": "guest_timer_virtualizer_continuous_det_cfg",
+  "configuration_id": "GUEST_TIMER_VIRTUALIZER_CONTINUOUS_3127A8B8A16A987F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

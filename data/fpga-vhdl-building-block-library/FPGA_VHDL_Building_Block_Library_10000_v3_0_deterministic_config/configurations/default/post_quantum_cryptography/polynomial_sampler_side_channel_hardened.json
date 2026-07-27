@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "polynomial_sampler_side_channel_hardened",
+  "wrapper_entity": "polynomial_sampler_side_channel_hardened_det_cfg",
+  "configuration_id": "POLYNOMIAL_SAMPLER_SIDE_CHANNEL_HARDENED_E5B6BB125FB91E12",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

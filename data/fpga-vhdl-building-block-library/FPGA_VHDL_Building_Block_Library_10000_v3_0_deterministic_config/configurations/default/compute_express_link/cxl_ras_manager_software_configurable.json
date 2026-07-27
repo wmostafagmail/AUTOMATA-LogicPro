@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_ras_manager_software_configurable",
+  "wrapper_entity": "cxl_ras_manager_software_configurable_det_cfg",
+  "configuration_id": "CXL_RAS_MANAGER_SOFTWARE_CONFIGURABLE_5CE0A4C20108F638",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

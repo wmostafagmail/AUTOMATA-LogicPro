@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_frame_engine_fault_tolerant",
+  "wrapper_entity": "lin_frame_engine_fault_tolerant_det_cfg",
+  "configuration_id": "LIN_FRAME_ENGINE_FAULT_TOLERANT_CB0066D885BE5833",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

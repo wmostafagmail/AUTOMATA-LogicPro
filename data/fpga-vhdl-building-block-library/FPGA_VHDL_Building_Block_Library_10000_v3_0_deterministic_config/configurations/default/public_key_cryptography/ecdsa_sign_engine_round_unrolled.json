@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecdsa_sign_engine_round_unrolled",
+  "wrapper_entity": "ecdsa_sign_engine_round_unrolled_det_cfg",
+  "configuration_id": "ECDSA_SIGN_ENGINE_ROUND_UNROLLED_D8C8AB6953900CFF",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

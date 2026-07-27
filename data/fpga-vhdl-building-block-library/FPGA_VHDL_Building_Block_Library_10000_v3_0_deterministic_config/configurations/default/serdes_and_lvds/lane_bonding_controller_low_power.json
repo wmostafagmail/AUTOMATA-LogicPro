@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lane_bonding_controller_low_power",
+  "wrapper_entity": "lane_bonding_controller_low_power_det_cfg",
+  "configuration_id": "LANE_BONDING_CONTROLLER_LOW_POWER_24796EA94941A2E8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

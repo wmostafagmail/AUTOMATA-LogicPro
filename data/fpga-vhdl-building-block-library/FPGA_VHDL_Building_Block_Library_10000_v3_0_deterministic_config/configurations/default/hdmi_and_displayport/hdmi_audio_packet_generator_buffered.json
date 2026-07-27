@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_buffered",
+  "wrapper_entity": "hdmi_audio_packet_generator_buffered_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_BUFFERED_FD4A08069D0CF74C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ecc_controller_single_shot",
+  "wrapper_entity": "ecc_controller_single_shot_det_cfg",
+  "configuration_id": "ECC_CONTROLLER_SINGLE_SHOT_4D6D4BFF8028EEAC",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

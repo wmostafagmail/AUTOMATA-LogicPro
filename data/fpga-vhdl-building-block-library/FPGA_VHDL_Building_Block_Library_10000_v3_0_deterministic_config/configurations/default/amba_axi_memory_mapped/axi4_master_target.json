@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "axi4_master_target",
+  "wrapper_entity": "axi4_master_target_det_cfg",
+  "configuration_id": "AXI4_MASTER_TARGET_DBD37CB0B572935C",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

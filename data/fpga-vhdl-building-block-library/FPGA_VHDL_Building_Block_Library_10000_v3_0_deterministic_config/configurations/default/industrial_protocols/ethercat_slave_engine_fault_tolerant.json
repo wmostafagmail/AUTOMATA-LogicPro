@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethercat_slave_engine_fault_tolerant",
+  "wrapper_entity": "ethercat_slave_engine_fault_tolerant_det_cfg",
+  "configuration_id": "ETHERCAT_SLAVE_ENGINE_FAULT_TOLERANT_437FDEE04D6137A6",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

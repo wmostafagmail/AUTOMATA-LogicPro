@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "stochastic_rounding_unit_fully_parallel",
+  "wrapper_entity": "stochastic_rounding_unit_fully_parallel_det_cfg",
+  "configuration_id": "STOCHASTIC_ROUNDING_UNIT_FULLY_PARALLEL_35C7C52B432C18CB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hdmi_audio_packet_generator_timestamped",
+  "wrapper_entity": "hdmi_audio_packet_generator_timestamped_det_cfg",
+  "configuration_id": "HDMI_AUDIO_PACKET_GENERATOR_TIMESTAMPED_CE70895E07289C5E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

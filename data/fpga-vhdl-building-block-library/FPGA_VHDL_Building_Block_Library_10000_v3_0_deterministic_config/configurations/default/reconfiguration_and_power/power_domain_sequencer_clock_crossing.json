@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_domain_sequencer_clock_crossing",
+  "wrapper_entity": "power_domain_sequencer_clock_crossing_det_cfg",
+  "configuration_id": "POWER_DOMAIN_SEQUENCER_CLOCK_CROSSING_482F7C952C9B6E2D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

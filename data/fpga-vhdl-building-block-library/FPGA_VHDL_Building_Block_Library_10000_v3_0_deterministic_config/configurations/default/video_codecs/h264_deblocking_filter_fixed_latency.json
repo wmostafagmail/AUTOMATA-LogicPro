@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_deblocking_filter_fixed_latency",
+  "wrapper_entity": "h264_deblocking_filter_fixed_latency_det_cfg",
+  "configuration_id": "H264_DEBLOCKING_FILTER_FIXED_LATENCY_AEBAE80361D03572",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

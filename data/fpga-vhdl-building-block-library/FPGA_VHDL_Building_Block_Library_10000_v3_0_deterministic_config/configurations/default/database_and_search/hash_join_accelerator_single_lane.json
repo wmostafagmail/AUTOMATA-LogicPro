@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hash_join_accelerator_single_lane",
+  "wrapper_entity": "hash_join_accelerator_single_lane_det_cfg",
+  "configuration_id": "HASH_JOIN_ACCELERATOR_SINGLE_LANE_5819135B8FAE660A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

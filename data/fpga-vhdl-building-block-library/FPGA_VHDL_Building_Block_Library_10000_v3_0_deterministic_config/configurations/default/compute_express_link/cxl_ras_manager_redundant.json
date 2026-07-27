@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_ras_manager_redundant",
+  "wrapper_entity": "cxl_ras_manager_redundant_det_cfg",
+  "configuration_id": "CXL_RAS_MANAGER_REDUNDANT_669BA57BBE91AB7A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "dac_streamer_low_power",
+  "wrapper_entity": "dac_streamer_low_power_det_cfg",
+  "configuration_id": "DAC_STREAMER_LOW_POWER_04666D0556EA07F5",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

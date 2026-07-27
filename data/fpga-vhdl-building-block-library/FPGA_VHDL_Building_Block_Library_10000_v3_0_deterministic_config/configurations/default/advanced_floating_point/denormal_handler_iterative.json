@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "denormal_handler_iterative",
+  "wrapper_entity": "denormal_handler_iterative_det_cfg",
+  "configuration_id": "DENORMAL_HANDLER_ITERATIVE_9F78408592D63502",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

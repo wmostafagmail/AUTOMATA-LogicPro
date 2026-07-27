@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_noc_gateway_clock_crossing",
+  "wrapper_entity": "hierarchical_noc_gateway_clock_crossing_det_cfg",
+  "configuration_id": "HIERARCHICAL_NOC_GATEWAY_CLOCK_CROSSING_70250FF98DE65A2D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

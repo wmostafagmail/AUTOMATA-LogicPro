@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_packetized",
+  "wrapper_entity": "automotive_ethernet_tsn_packetized_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_PACKETIZED_F21313A916880917",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

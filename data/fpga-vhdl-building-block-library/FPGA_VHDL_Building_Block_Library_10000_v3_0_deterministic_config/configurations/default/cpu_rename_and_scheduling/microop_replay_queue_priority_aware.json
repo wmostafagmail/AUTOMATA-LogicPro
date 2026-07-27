@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "microop_replay_queue_priority_aware",
+  "wrapper_entity": "microop_replay_queue_priority_aware_det_cfg",
+  "configuration_id": "MICROOP_REPLAY_QUEUE_PRIORITY_AWARE_73D30F0BBBCD05DF",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

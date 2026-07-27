@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_poly1305_engine_redundant",
+  "wrapper_entity": "chacha20_poly1305_engine_redundant_det_cfg",
+  "configuration_id": "CHACHA20_POLY1305_ENGINE_REDUNDANT_E1EC701B84EA9E52",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

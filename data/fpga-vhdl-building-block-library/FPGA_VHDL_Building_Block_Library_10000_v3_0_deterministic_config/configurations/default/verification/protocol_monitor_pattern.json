@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "protocol_monitor_pattern",
+  "wrapper_entity": "protocol_monitor_pattern_det_cfg",
+  "configuration_id": "PROTOCOL_MONITOR_PATTERN_A8A32A58EE7BC224",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "tcp_retransmission_manager_packetized",
+  "wrapper_entity": "tcp_retransmission_manager_packetized_det_cfg",
+  "configuration_id": "TCP_RETRANSMISSION_MANAGER_PACKETIZED_CA34EA7450845EFF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

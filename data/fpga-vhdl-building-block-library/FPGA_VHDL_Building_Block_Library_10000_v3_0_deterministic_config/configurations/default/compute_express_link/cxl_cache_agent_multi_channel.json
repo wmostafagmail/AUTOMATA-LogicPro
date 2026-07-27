@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cxl_cache_agent_multi_channel",
+  "wrapper_entity": "cxl_cache_agent_multi_channel_det_cfg",
+  "configuration_id": "CXL_CACHE_AGENT_MULTI_CHANNEL_BD73E1FEBCDFF3D8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

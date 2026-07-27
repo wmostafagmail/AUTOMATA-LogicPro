@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_clock_enable_programmable",
+  "wrapper_entity": "pixel_clock_enable_programmable_det_cfg",
+  "configuration_id": "PIXEL_CLOCK_ENABLE_PROGRAMMABLE_CE41C71853B6BE87",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

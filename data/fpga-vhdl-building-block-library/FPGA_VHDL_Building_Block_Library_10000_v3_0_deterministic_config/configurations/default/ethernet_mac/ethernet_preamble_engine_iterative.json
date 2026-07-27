@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_preamble_engine_iterative",
+  "wrapper_entity": "ethernet_preamble_engine_iterative_det_cfg",
+  "configuration_id": "ETHERNET_PREAMBLE_ENGINE_ITERATIVE_CC249934AFBE865B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

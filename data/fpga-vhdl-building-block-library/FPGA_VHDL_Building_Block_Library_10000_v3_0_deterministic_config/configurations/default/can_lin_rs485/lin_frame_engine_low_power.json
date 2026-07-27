@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "lin_frame_engine_low_power",
+  "wrapper_entity": "lin_frame_engine_low_power_det_cfg",
+  "configuration_id": "LIN_FRAME_ENGINE_LOW_POWER_AC33A763417F97B4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

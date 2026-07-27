@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "scale_apply_engine_int8",
+  "wrapper_entity": "scale_apply_engine_int8_det_cfg",
+  "configuration_id": "SCALE_APPLY_ENGINE_INT8_9B9B2CFB9A45D795",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

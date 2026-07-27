@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deserializer_low_power",
+  "wrapper_entity": "deserializer_low_power_det_cfg",
+  "configuration_id": "DESERIALIZER_LOW_POWER_8278D1D5E0E73C8A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "multiply_divide_unit_iterative",
+  "wrapper_entity": "multiply_divide_unit_iterative_det_cfg",
+  "configuration_id": "MULTIPLY_DIVIDE_UNIT_ITERATIVE_B6E288C841546C44",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

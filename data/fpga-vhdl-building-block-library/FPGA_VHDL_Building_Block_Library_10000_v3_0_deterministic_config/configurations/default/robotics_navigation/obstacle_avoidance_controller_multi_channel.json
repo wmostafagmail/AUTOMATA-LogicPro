@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "obstacle_avoidance_controller_multi_channel",
+  "wrapper_entity": "obstacle_avoidance_controller_multi_channel_det_cfg",
+  "configuration_id": "OBSTACLE_AVOIDANCE_CONTROLLER_MULTI_CHANNEL_8A95735FCF447BB6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

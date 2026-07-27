@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ultra_ram_wrapper_multi_queue",
+  "wrapper_entity": "ultra_ram_wrapper_multi_queue_det_cfg",
+  "configuration_id": "ULTRA_RAM_WRAPPER_MULTI_QUEUE_FF7F0D27633F2D28",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

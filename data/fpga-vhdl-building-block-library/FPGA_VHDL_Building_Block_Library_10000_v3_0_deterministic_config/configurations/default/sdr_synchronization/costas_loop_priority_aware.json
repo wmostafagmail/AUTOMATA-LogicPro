@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_priority_aware",
+  "wrapper_entity": "costas_loop_priority_aware_det_cfg",
+  "configuration_id": "COSTAS_LOOP_PRIORITY_AWARE_1B5768E6E4B59E96",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

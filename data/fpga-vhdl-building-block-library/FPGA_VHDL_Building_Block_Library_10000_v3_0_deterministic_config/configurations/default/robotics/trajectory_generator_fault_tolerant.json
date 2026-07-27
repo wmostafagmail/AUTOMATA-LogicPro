@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "trajectory_generator_fault_tolerant",
+  "wrapper_entity": "trajectory_generator_fault_tolerant_det_cfg",
+  "configuration_id": "TRAJECTORY_GENERATOR_FAULT_TOLERANT_6C4C052CAC9A2A5D",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

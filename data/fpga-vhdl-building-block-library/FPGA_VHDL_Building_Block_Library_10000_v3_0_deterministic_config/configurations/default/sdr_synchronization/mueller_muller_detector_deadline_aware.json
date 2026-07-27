@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mueller_muller_detector_deadline_aware",
+  "wrapper_entity": "mueller_muller_detector_deadline_aware_det_cfg",
+  "configuration_id": "MUELLER_MULLER_DETECTOR_DEADLINE_AWARE_AA99ACA39F999430",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

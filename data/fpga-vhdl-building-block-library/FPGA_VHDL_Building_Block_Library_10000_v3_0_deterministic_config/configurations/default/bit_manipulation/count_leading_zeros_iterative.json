@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "count_leading_zeros_iterative",
+  "wrapper_entity": "count_leading_zeros_iterative_det_cfg",
+  "configuration_id": "COUNT_LEADING_ZEROS_ITERATIVE_349A5C5BFFF78BE0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "crc_checker_pipelined",
+  "wrapper_entity": "crc_checker_pipelined_det_cfg",
+  "configuration_id": "CRC_CHECKER_PIPELINED_89FD40EAB5B73A4A",
+  "generics": {
+    "DATA_WIDTH": 8
+  }
+}

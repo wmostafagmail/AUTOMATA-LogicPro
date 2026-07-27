@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "device_identity_block_fault_tolerant",
+  "wrapper_entity": "device_identity_block_fault_tolerant_det_cfg",
+  "configuration_id": "DEVICE_IDENTITY_BLOCK_FAULT_TOLERANT_C5E7C0C71CDB6BF0",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

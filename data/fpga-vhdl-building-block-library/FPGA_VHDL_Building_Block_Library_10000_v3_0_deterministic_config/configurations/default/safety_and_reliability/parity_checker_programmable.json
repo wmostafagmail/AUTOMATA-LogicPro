@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "parity_checker_programmable",
+  "wrapper_entity": "parity_checker_programmable_det_cfg",
+  "configuration_id": "PARITY_CHECKER_PROGRAMMABLE_C371D4169A1522E5",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

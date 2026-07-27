@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "binary_to_bcd_converter_low_power",
+  "wrapper_entity": "binary_to_bcd_converter_low_power_det_cfg",
+  "configuration_id": "BINARY_TO_BCD_CONVERTER_LOW_POWER_52A73917D3FC6F79",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

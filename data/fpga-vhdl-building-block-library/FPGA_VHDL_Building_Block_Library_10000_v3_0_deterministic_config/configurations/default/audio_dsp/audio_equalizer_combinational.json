@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_equalizer_combinational",
+  "wrapper_entity": "audio_equalizer_combinational_det_cfg",
+  "configuration_id": "AUDIO_EQUALIZER_COMBINATIONAL_6B8087C25D8949BD",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

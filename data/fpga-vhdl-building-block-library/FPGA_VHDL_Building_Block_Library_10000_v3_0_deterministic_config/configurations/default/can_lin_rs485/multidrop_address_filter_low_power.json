@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multidrop_address_filter_low_power",
+  "wrapper_entity": "multidrop_address_filter_low_power_det_cfg",
+  "configuration_id": "MULTIDROP_ADDRESS_FILTER_LOW_POWER_DA0A7D55C3D2474A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

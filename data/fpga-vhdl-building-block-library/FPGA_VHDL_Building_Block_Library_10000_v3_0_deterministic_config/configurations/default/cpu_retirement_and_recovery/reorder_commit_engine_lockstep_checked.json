@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_lockstep_checked",
+  "wrapper_entity": "reorder_commit_engine_lockstep_checked_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_LOCKSTEP_CHECKED_79DC8A9FCD101A0F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

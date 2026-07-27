@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "block": "saturating_counter_windowed",
+  "wrapper_entity": "saturating_counter_windowed_det_cfg",
+  "configuration_id": "SATURATING_COUNTER_WINDOWED_806583997B36D9F3",
+  "generics": {
+    "COUNT_WIDTH": 32,
+    "MODULUS": 65536,
+    "STEP": 1,
+    "SATURATING": true,
+    "DOWN_COUNT": false
+  }
+}

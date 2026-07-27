@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constant_q_transform_deep_pipelined",
+  "wrapper_entity": "constant_q_transform_deep_pipelined_det_cfg",
+  "configuration_id": "CONSTANT_Q_TRANSFORM_DEEP_PIPELINED_35AC6296F6CB43B8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

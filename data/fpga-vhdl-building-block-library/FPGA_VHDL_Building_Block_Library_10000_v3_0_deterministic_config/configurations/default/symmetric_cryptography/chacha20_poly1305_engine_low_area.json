@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "chacha20_poly1305_engine_low_area",
+  "wrapper_entity": "chacha20_poly1305_engine_low_area_det_cfg",
+  "configuration_id": "CHACHA20_POLY1305_ENGINE_LOW_AREA_A7871EFF5D873D73",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

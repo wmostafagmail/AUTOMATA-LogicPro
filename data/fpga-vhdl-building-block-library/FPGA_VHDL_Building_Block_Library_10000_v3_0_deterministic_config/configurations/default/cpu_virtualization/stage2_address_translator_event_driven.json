@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "stage2_address_translator_event_driven",
+  "wrapper_entity": "stage2_address_translator_event_driven_det_cfg",
+  "configuration_id": "STAGE2_ADDRESS_TRANSLATOR_EVENT_DRIVEN_33BFC6E72094379B",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

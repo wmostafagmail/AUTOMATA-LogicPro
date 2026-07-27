@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "costas_loop_microcoded",
+  "wrapper_entity": "costas_loop_microcoded_det_cfg",
+  "configuration_id": "COSTAS_LOOP_MICROCODED_A3778BF469A92F7F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

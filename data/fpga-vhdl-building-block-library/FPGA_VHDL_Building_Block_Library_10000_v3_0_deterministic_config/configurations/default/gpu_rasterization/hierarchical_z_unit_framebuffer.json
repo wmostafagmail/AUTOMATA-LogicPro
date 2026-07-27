@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "hierarchical_z_unit_framebuffer",
+  "wrapper_entity": "hierarchical_z_unit_framebuffer_det_cfg",
+  "configuration_id": "HIERARCHICAL_Z_UNIT_FRAMEBUFFER_DFAED7416DBC346E",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

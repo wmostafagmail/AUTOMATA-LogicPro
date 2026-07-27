@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "waveform_envelope_generator_table_driven",
+  "wrapper_entity": "waveform_envelope_generator_table_driven_det_cfg",
+  "configuration_id": "WAVEFORM_ENVELOPE_GENERATOR_TABLE_DRIVEN_5180D171906E981E",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

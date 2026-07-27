@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "credit_queue_multi_queue",
+  "wrapper_entity": "credit_queue_multi_queue_det_cfg",
+  "configuration_id": "CREDIT_QUEUE_MULTI_QUEUE_BFE9F58ED6E81692",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

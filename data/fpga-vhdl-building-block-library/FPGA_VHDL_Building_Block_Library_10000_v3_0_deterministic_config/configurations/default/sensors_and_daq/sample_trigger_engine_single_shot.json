@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sample_trigger_engine_single_shot",
+  "wrapper_entity": "sample_trigger_engine_single_shot_det_cfg",
+  "configuration_id": "SAMPLE_TRIGGER_ENGINE_SINGLE_SHOT_F3162A7A3A2D28DF",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

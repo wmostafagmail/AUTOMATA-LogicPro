@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "actuator_command_mixer_programmable",
+  "wrapper_entity": "actuator_command_mixer_programmable_det_cfg",
+  "configuration_id": "ACTUATOR_COMMAND_MIXER_PROGRAMMABLE_D9F9439BE487F267",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

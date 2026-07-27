@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "automotive_ethernet_tsn_redundant",
+  "wrapper_entity": "automotive_ethernet_tsn_redundant_det_cfg",
+  "configuration_id": "AUTOMOTIVE_ETHERNET_TSN_REDUNDANT_86F42112B609DA34",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

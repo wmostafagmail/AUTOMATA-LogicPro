@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_100g_pcs_lane_router",
+  "wrapper_entity": "ethernet_100g_pcs_lane_router_det_cfg",
+  "configuration_id": "ETHERNET_100G_PCS_LANE_ROUTER_AA2DA82CC78FD0E9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

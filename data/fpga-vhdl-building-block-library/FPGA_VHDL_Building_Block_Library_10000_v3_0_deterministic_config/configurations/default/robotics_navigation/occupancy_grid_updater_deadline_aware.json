@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "occupancy_grid_updater_deadline_aware",
+  "wrapper_entity": "occupancy_grid_updater_deadline_aware_det_cfg",
+  "configuration_id": "OCCUPANCY_GRID_UPDATER_DEADLINE_AWARE_6C649F2255C1F5A8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "floating_point_multiplier_combinational",
+  "wrapper_entity": "floating_point_multiplier_combinational_det_cfg",
+  "configuration_id": "FLOATING_POINT_MULTIPLIER_COMBINATIONAL_F32656A61B4D6EAC",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": true
+  }
+}

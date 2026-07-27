@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "time_triggered_scheduler_single_shot",
+  "wrapper_entity": "time_triggered_scheduler_single_shot_det_cfg",
+  "configuration_id": "TIME_TRIGGERED_SCHEDULER_SINGLE_SHOT_F0870FC47F9A8154",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

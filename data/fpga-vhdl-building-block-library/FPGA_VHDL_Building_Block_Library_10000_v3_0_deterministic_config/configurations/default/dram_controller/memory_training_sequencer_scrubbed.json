@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "memory_training_sequencer_scrubbed",
+  "wrapper_entity": "memory_training_sequencer_scrubbed_det_cfg",
+  "configuration_id": "MEMORY_TRAINING_SEQUENCER_SCRUBBED_6032447F3119CCD4",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

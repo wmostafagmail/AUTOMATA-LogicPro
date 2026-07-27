@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "prbs_generator_fault_tolerant",
+  "wrapper_entity": "prbs_generator_fault_tolerant_det_cfg",
+  "configuration_id": "PRBS_GENERATOR_FAULT_TOLERANT_C2ABD104A05F4C21",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

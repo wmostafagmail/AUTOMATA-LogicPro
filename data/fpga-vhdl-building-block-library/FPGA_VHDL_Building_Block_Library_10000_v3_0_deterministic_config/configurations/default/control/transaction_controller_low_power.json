@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "transaction_controller_low_power",
+  "wrapper_entity": "transaction_controller_low_power_det_cfg",
+  "configuration_id": "TRANSACTION_CONTROLLER_LOW_POWER_4AD7EBD7436B0BEB",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

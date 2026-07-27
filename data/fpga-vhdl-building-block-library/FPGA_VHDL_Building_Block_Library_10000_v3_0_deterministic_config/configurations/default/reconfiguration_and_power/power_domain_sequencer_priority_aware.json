@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "power_domain_sequencer_priority_aware",
+  "wrapper_entity": "power_domain_sequencer_priority_aware_det_cfg",
+  "configuration_id": "POWER_DOMAIN_SEQUENCER_PRIORITY_AWARE_83B7616102CF37E1",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

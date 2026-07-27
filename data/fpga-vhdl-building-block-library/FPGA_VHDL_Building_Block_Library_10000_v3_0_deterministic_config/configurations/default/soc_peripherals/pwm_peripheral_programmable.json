@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "block": "pwm_peripheral_programmable",
+  "wrapper_entity": "pwm_peripheral_programmable_det_cfg",
+  "configuration_id": "PWM_PERIPHERAL_PROGRAMMABLE_F06286ADFA076968",
+  "generics": {
+    "WIDTH": 16
+  }
+}

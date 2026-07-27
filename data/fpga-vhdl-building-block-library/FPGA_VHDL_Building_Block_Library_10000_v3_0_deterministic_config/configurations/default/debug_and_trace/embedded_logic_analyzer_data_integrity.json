@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_data_integrity",
+  "wrapper_entity": "embedded_logic_analyzer_data_integrity_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_DATA_INTEGRITY_3763CA5AD6520A11",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

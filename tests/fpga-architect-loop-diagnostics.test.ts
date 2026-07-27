@@ -7,6 +7,12 @@ import {
 } from '../src/server/fpgaArchitectLoopDiagnostics';
 
 test('classifyFpgaArchitectLoopFailure recognizes new contract-oriented failure families', () => {
+  const intentDiagnostic = classifyFpgaArchitectLoopFailure(
+    'Architecture intent needs clarification before VHDL generation. [architecture_intent_clarification_required] What does CUPG mean in this FPGA design?',
+  );
+  assert.equal(intentDiagnostic.category, 'architecture_intent');
+  assert.equal(intentDiagnostic.label, 'Architecture Intent');
+
   const architectureDiagnostic = classifyFpgaArchitectLoopFailure(
     'FPGA architecture proposal was rejected before VHDL generation. [architecture_contract_capability_unowned] No component owns the required capability.',
   );
@@ -48,6 +54,33 @@ test('classifyFpgaArchitectLoopFailure recognizes new contract-oriented failure 
   );
   assert.equal(rtlDiagnostic.category, 'rtl_tb_construct_misuse');
   assert.deepEqual(rtlDiagnostic.ruleIds, ['ghdl-rtl-tb-separation', 'ghdl-no-wait-in-rtl']);
+
+  const implementationSourceDiagnostic = classifyFpgaArchitectLoopFailure(
+    'model_vhdl_generation_blocked_by_policy Strict FPGA implementation policy blocked fresh model-authored VHDL for component "custom_crypto_unit".',
+  );
+  assert.equal(implementationSourceDiagnostic.category, 'implementation_source');
+  assert.equal(implementationSourceDiagnostic.label, 'Implementation Source');
+  assert.notEqual(implementationSourceDiagnostic.category, 'other');
+
+  const hybridDiagnostic = classifyFpgaArchitectLoopFailure(
+    'hybrid_implementation_source_unresolved Curated verified-library wrapping is unsafe for component "rx_fifo", so the app must switch to hybrid source discovery.',
+  );
+  assert.equal(hybridDiagnostic.category, 'implementation_source');
+  assert.match(hybridDiagnostic.excerpt, /hybrid_implementation_source_unresolved/);
+  assert.notEqual(hybridDiagnostic.category, 'other');
+
+  const parameterDiagnostic = classifyFpgaArchitectLoopFailure(
+    'verified_parameter_smoke_failed Configured verified VHDL block "rx_fifo" failed focused GHDL smoke for component "rx_fifo".',
+  );
+  assert.equal(parameterDiagnostic.category, 'implementation_source');
+  assert.match(parameterDiagnostic.excerpt, /verified_parameter_smoke_failed/);
+
+  const parameterClarificationDiagnostic = classifyFpgaArchitectLoopFailure(
+    'Architecture parameters need clarification before VHDL generation. architecture_parameter_clarification_required What clock frequency should uart_rx.CLOCK_HZ use?',
+  );
+  assert.equal(parameterClarificationDiagnostic.category, 'architecture_intent');
+  assert.match(parameterClarificationDiagnostic.excerpt, /architecture_parameter_clarification_required/);
+  assert.notEqual(parameterClarificationDiagnostic.category, 'other');
 });
 
 test('summarizeFpgaArchitectLoopFailures buckets repeated messages by refined category', () => {
@@ -159,6 +192,12 @@ test('classifyFpgaArchitectLoopFailure maps staged numeric_std and model-output 
   const stagedEntityMissingDiagnostic = classifyFpgaArchitectLoopFailure(
     'staged_component_entity_missing\nStaged VHDL for component "rx_fifo" did not declare entity "rx_fifo".',
   );
+  const outputOwnershipDiagnostic = classifyFpgaArchitectLoopFailure([
+    'component_output_ownership_violation',
+    'Staged VHDL for component "spi_master" assigns "done_o", but that name is not owned by this component.',
+    'line=78',
+    "excerpt=done_o <= '1';",
+  ].join('\n'));
   const vectorLiteralDiagnostic = classifyFpgaArchitectLoopFailure(
     'Staged GHDL checkpoint failed after leaf component uart_rx while analyzing src/uart_rx.vhd:\n'
       + 'src/uart_rx.vhd:33:25:error: string length does not match that of anonymous integer subtype defined at src/uart_rx.vhd:18:39\n'
@@ -172,6 +211,7 @@ test('classifyFpgaArchitectLoopFailure maps staged numeric_std and model-output 
   assert.equal(mixedLogicalDiagnostic.category, 'numeric_std_typing');
   assert.equal(stagedDriftDiagnostic.category, 'architecture_contract');
   assert.equal(stagedEntityMissingDiagnostic.category, 'architecture_contract');
+  assert.equal(outputOwnershipDiagnostic.category, 'interface_declaration_misuse');
   assert.equal(vectorLiteralDiagnostic.category, 'width_literal_mismatch');
 });
 

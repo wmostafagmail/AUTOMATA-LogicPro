@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "jesd204_deterministic_latency_redundant",
+  "wrapper_entity": "jesd204_deterministic_latency_redundant_det_cfg",
+  "configuration_id": "JESD204_DETERMINISTIC_LATENCY_REDUNDANT_906F03EAD46A12AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

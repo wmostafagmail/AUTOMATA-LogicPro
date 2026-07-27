@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "capacitance_measurement_engine_clock_crossing",
+  "wrapper_entity": "capacitance_measurement_engine_clock_crossing_det_cfg",
+  "configuration_id": "CAPACITANCE_MEASUREMENT_ENGINE_CLOCK_CROSSING_3D7E03B922AAD5CE",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}

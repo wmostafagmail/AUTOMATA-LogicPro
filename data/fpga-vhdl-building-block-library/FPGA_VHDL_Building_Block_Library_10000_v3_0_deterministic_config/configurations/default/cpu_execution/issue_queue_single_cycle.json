@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "issue_queue_single_cycle",
+  "wrapper_entity": "issue_queue_single_cycle_det_cfg",
+  "configuration_id": "ISSUE_QUEUE_SINGLE_CYCLE_9E96F59FD74677B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "audio_limiter_single_cycle",
+  "wrapper_entity": "audio_limiter_single_cycle_det_cfg",
+  "configuration_id": "AUDIO_LIMITER_SINGLE_CYCLE_E89695BFB0E05BB7",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

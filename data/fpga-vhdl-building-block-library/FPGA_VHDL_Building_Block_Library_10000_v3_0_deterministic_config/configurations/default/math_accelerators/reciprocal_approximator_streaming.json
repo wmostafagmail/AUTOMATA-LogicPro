@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "reciprocal_approximator_streaming",
+  "wrapper_entity": "reciprocal_approximator_streaming_det_cfg",
+  "configuration_id": "RECIPROCAL_APPROXIMATOR_STREAMING_4A981212671B0A8C",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

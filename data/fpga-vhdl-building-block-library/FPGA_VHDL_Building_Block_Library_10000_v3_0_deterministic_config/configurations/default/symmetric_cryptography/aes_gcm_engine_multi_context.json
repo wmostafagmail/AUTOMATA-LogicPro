@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "aes_gcm_engine_multi_context",
+  "wrapper_entity": "aes_gcm_engine_multi_context_det_cfg",
+  "configuration_id": "AES_GCM_ENGINE_MULTI_CONTEXT_3ABB709865CD0607",
+  "generics": {
+    "DATA_WIDTH": 128,
+    "KEY_WIDTH": 128
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_recovery_detector_programmable",
+  "wrapper_entity": "clock_recovery_detector_programmable_det_cfg",
+  "configuration_id": "CLOCK_RECOVERY_DETECTOR_PROGRAMMABLE_220BA198EACDC0C4",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 228
+  }
+}

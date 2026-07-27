@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "descriptor_fifo_dual_clock",
+  "wrapper_entity": "descriptor_fifo_dual_clock_det_cfg",
+  "configuration_id": "DESCRIPTOR_FIFO_DUAL_CLOCK_6A2C64A3A7DB8869",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

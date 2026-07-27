@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "trusted_mailbox_dual_channel",
+  "wrapper_entity": "trusted_mailbox_dual_channel_det_cfg",
+  "configuration_id": "TRUSTED_MAILBOX_DUAL_CHANNEL_3607022A24EDAE9B",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "xorshift_random_generator_formally_instrumented",
+  "wrapper_entity": "xorshift_random_generator_formally_instrumented_det_cfg",
+  "configuration_id": "XORSHIFT_RANDOM_GENERATOR_FORMALLY_INSTRUMENTED_4AF32449528015B1",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

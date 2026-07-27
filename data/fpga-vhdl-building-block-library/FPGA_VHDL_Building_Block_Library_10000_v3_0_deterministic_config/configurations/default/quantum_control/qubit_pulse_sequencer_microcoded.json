@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "qubit_pulse_sequencer_microcoded",
+  "wrapper_entity": "qubit_pulse_sequencer_microcoded_det_cfg",
+  "configuration_id": "QUBIT_PULSE_SEQUENCER_MICROCODED_A1439ABE3608472F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

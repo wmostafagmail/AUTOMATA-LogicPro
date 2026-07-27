@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "conservative_rasterizer_clock_crossing",
+  "wrapper_entity": "conservative_rasterizer_clock_crossing_det_cfg",
+  "configuration_id": "CONSERVATIVE_RASTERIZER_CLOCK_CROSSING_765EA9C11B8A899F",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

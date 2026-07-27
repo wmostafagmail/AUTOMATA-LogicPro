@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "delta_encoder_combinational",
+  "wrapper_entity": "delta_encoder_combinational_det_cfg",
+  "configuration_id": "DELTA_ENCODER_COMBINATIONAL_B0F1A95AB63113A0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "reed_solomon_decoder_single_cycle",
+  "wrapper_entity": "reed_solomon_decoder_single_cycle_det_cfg",
+  "configuration_id": "REED_SOLOMON_DECODER_SINGLE_CYCLE_9563F63B3323572D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 74
+  }
+}

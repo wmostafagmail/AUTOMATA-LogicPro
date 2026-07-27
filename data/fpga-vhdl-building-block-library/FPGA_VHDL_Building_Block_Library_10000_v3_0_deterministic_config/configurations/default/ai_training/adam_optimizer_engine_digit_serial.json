@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "adam_optimizer_engine_digit_serial",
+  "wrapper_entity": "adam_optimizer_engine_digit_serial_det_cfg",
+  "configuration_id": "ADAM_OPTIMIZER_ENGINE_DIGIT_SERIAL_1A4F1027F2C9028E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

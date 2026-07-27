@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fragment_queue_streaming",
+  "wrapper_entity": "fragment_queue_streaming_det_cfg",
+  "configuration_id": "FRAGMENT_QUEUE_STREAMING_ED2D9BE19BDECBE8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "DEPTH": 16
+  }
+}

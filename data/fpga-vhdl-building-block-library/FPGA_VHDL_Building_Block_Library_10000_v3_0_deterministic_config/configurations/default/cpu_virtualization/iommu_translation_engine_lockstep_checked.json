@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iommu_translation_engine_lockstep_checked",
+  "wrapper_entity": "iommu_translation_engine_lockstep_checked_det_cfg",
+  "configuration_id": "IOMMU_TRANSLATION_ENGINE_LOCKSTEP_CHECKED_BD924C8E19A43042",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

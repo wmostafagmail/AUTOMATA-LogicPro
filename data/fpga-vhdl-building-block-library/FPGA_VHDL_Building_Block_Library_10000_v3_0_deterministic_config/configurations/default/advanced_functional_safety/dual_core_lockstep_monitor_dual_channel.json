@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "dual_core_lockstep_monitor_dual_channel",
+  "wrapper_entity": "dual_core_lockstep_monitor_dual_channel_det_cfg",
+  "configuration_id": "DUAL_CORE_LOCKSTEP_MONITOR_DUAL_CHANNEL_BE1A041DEE737AFA",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

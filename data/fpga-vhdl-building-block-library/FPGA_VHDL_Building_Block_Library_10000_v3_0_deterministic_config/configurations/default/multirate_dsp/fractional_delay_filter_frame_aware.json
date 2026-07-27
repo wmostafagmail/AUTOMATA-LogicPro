@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "fractional_delay_filter_frame_aware",
+  "wrapper_entity": "fractional_delay_filter_frame_aware_det_cfg",
+  "configuration_id": "FRACTIONAL_DELAY_FILTER_FRAME_AWARE_E370F101E0E8293B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

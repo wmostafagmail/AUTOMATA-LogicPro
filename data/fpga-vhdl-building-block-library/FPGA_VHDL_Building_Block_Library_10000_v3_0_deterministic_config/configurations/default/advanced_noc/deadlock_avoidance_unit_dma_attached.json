@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "deadlock_avoidance_unit_dma_attached",
+  "wrapper_entity": "deadlock_avoidance_unit_dma_attached_det_cfg",
+  "configuration_id": "DEADLOCK_AVOIDANCE_UNIT_DMA_ATTACHED_5BE5B2F921D02E17",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "arbitration_controller_continuous",
+  "wrapper_entity": "arbitration_controller_continuous_det_cfg",
+  "configuration_id": "ARBITRATION_CONTROLLER_CONTINUOUS_6EE0FD169BBC193F",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "precise_state_recovery_microcoded",
+  "wrapper_entity": "precise_state_recovery_microcoded_det_cfg",
+  "configuration_id": "PRECISE_STATE_RECOVERY_MICROCODED_3AE1A6C3DAB9B6F4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

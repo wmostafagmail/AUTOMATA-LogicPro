@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "flash_attention_tile_engine_multi_channel",
+  "wrapper_entity": "flash_attention_tile_engine_multi_channel_det_cfg",
+  "configuration_id": "FLASH_ATTENTION_TILE_ENGINE_MULTI_CHANNEL_8F7B439A09001073",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

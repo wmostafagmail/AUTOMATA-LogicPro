@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ahb_lite_slave_target",
+  "wrapper_entity": "ahb_lite_slave_target_det_cfg",
+  "configuration_id": "AHB_LITE_SLAVE_TARGET_4BFCC2FBF8C3709B",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

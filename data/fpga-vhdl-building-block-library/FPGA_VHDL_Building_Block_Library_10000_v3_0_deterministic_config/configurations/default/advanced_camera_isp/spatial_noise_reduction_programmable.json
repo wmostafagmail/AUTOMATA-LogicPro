@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "spatial_noise_reduction_programmable",
+  "wrapper_entity": "spatial_noise_reduction_programmable_det_cfg",
+  "configuration_id": "SPATIAL_NOISE_REDUCTION_PROGRAMMABLE_C2FC2BC940964CA4",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

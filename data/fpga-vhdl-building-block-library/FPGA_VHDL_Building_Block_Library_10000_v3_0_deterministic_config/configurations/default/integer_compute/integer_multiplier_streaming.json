@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "integer_multiplier_streaming",
+  "wrapper_entity": "integer_multiplier_streaming_det_cfg",
+  "configuration_id": "INTEGER_MULTIPLIER_STREAMING_C869A66FC37E836F",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

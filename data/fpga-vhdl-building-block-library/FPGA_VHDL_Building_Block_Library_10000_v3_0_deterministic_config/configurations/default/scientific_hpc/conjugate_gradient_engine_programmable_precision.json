@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conjugate_gradient_engine_programmable_precision",
+  "wrapper_entity": "conjugate_gradient_engine_programmable_precision_det_cfg",
+  "configuration_id": "CONJUGATE_GRADIENT_ENGINE_PROGRAMMABLE_PRECISION_F2E7776BE51B75DB",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

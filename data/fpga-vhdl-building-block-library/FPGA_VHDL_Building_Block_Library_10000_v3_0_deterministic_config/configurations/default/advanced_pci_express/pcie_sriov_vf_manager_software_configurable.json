@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pcie_sriov_vf_manager_software_configurable",
+  "wrapper_entity": "pcie_sriov_vf_manager_software_configurable_det_cfg",
+  "configuration_id": "PCIE_SRIOV_VF_MANAGER_SOFTWARE_CONFIGURABLE_4CABBD22DAFAA054",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

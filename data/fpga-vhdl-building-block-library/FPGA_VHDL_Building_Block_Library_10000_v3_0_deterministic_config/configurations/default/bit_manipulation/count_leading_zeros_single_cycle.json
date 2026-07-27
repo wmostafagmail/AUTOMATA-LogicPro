@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "count_leading_zeros_single_cycle",
+  "wrapper_entity": "count_leading_zeros_single_cycle_det_cfg",
+  "configuration_id": "COUNT_LEADING_ZEROS_SINGLE_CYCLE_CE6F6E32860D22DA",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "matrix_vector_engine",
+  "wrapper_entity": "matrix_vector_engine_det_cfg",
+  "configuration_id": "MATRIX_VECTOR_ENGINE_18CC7835A7ED40B9",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

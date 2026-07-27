@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "formal_assume_guarantee_wrapper_clock_variation",
+  "wrapper_entity": "formal_assume_guarantee_wrapper_clock_variation_det_cfg",
+  "configuration_id": "FORMAL_ASSUME_GUARANTEE_WRAPPER_CLOCK_VARIATION_77FEB5D9DB4A32F6",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

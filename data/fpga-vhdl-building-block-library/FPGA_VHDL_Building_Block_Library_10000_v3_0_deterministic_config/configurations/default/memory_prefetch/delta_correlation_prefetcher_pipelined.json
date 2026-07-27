@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "delta_correlation_prefetcher_pipelined",
+  "wrapper_entity": "delta_correlation_prefetcher_pipelined_det_cfg",
+  "configuration_id": "DELTA_CORRELATION_PREFETCHER_PIPELINED_F076290203F67A05",
+  "generics": {
+    "ADDR_WIDTH": 32,
+    "DATA_WIDTH": 32
+  }
+}

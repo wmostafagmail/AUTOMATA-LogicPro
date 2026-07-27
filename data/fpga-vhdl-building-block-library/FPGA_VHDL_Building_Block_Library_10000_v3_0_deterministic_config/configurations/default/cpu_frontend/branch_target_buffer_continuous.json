@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "branch_target_buffer_continuous",
+  "wrapper_entity": "branch_target_buffer_continuous_det_cfg",
+  "configuration_id": "BRANCH_TARGET_BUFFER_CONTINUOUS_FAAA5325A39F94AC",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

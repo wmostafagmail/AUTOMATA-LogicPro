@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "finite_element_assembler_saturating",
+  "wrapper_entity": "finite_element_assembler_saturating_det_cfg",
+  "configuration_id": "FINITE_ELEMENT_ASSEMBLER_SATURATING_440815E8CDC7FDCF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

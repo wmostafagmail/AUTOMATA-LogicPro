@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_lpi_controller_multi_channel",
+  "wrapper_entity": "ethernet_lpi_controller_multi_channel_det_cfg",
+  "configuration_id": "ETHERNET_LPI_CONTROLLER_MULTI_CHANNEL_ED25BA9337B8400E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

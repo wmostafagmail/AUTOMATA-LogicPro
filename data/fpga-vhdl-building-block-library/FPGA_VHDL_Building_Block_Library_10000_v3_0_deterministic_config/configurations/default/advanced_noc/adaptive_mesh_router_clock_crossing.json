@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_clock_crossing",
+  "wrapper_entity": "adaptive_mesh_router_clock_crossing_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_CLOCK_CROSSING_11FB447EB24486AF",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

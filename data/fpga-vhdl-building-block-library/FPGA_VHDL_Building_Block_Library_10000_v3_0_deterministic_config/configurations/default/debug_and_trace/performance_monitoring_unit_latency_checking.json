@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "performance_monitoring_unit_latency_checking",
+  "wrapper_entity": "performance_monitoring_unit_latency_checking_det_cfg",
+  "configuration_id": "PERFORMANCE_MONITORING_UNIT_LATENCY_CHECKING_0105406085E1717F",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

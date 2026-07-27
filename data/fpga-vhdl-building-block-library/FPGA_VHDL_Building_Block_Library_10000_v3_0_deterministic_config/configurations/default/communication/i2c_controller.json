@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "i2c_controller",
+  "wrapper_entity": "i2c_controller_det_cfg",
+  "configuration_id": "I2C_CONTROLLER_A5E6E55D9FBB030D",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sample_rate_tracking_loop_multi_lane",
+  "wrapper_entity": "sample_rate_tracking_loop_multi_lane_det_cfg",
+  "configuration_id": "SAMPLE_RATE_TRACKING_LOOP_MULTI_LANE_26CB1C7F980A89A0",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "XOR_MASK": 3
+  }
+}

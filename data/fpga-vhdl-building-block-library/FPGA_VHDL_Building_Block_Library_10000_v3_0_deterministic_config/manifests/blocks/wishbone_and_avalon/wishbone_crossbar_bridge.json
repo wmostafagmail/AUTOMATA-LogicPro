@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/block_manifest.schema.json",
+  "schema_version": 1,
+  "block": {
+    "name": "wishbone_crossbar_bridge",
+    "entity": "wishbone_crossbar_bridge",
+    "version": "3.0.0",
+    "category": "wishbone_and_avalon",
+    "source": "rtl/blocks/wishbone_and_avalon/wishbone_crossbar_bridge.vhd",
+    "wrapper_entity": "wishbone_crossbar_bridge_det_cfg"
+  },
+  "configuration": {
+    "id": "WISHBONE_CROSSBAR_BRIDGE_374F95176C79801A",
+    "hash_algorithm": "sha256-64",
+    "locked": true,
+    "generics": [
+      {
+        "name": "ADDR_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      },
+      {
+        "name": "DATA_WIDTH",
+        "type": "positive",
+        "default": "32",
+        "minimum": 1
+      }
+    ],
+    "resolved_defaults": {
+      "ADDR_WIDTH": 32,
+      "DATA_WIDTH": 32
+    }
+  },
+  "interface": {
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rst_n",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_valid",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_ready",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_write",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "req_addr",
+        "direction": "in",
+        "type": "std_logic_vector(ADDR_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "req_wdata",
+        "direction": "in",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "rsp_valid",
+        "direction": "out",
+        "type": "std_logic"
+      },
+      {
+        "name": "rsp_ready",
+        "direction": "in",
+        "type": "std_logic"
+      },
+      {
+        "name": "rsp_rdata",
+        "direction": "out",
+        "type": "std_logic_vector(DATA_WIDTH-1 downto 0)"
+      },
+      {
+        "name": "rsp_error",
+        "direction": "out",
+        "type": "std_logic"
+      }
+    ],
+    "clock_ports": [
+      "clk"
+    ],
+    "reset_ports": [
+      "rst_n"
+    ]
+  },
+  "contracts": {
+    "latency": {
+      "kind": "declared_by_block_family",
+      "cycles": null
+    },
+    "throughput": {
+      "kind": "declared_by_block_family",
+      "transactions_per_cycle": null
+    },
+    "reset": {
+      "policy": "preserve_source_entity_contract"
+    },
+    "cdc": {
+      "status": "single_clock_default; integration CDC review required",
+      "clock_domain_count": 1
+    },
+    "protocol": {
+      "status": "subset_contract; run official or commercial protocol VIP before release"
+    },
+    "numerical": {
+      "status": "application-specific; reference model required"
+    }
+  },
+  "maturity": {
+    "implementation_tier": "B",
+    "verification": "static-validated source; run supplied GHDL regression before release.",
+    "timing": "requires synthesis, place-and-route, and constraints for the selected FPGA/clock"
+  },
+  "generation": {
+    "wrapper_path": "generated/default_wrappers/wishbone_and_avalon/wishbone_crossbar_bridge_det_cfg.vhd",
+    "configuration_file": "configurations/default/wishbone_crossbar_bridge.json"
+  }
+}

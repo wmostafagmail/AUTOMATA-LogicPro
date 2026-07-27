@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "abs_timing_controller_fault_tolerant",
+  "wrapper_entity": "abs_timing_controller_fault_tolerant_det_cfg",
+  "configuration_id": "ABS_TIMING_CONTROLLER_FAULT_TOLERANT_6A2EB36FE1A85405",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

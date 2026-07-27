@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "activation_clamp_engine_pipelined",
+  "wrapper_entity": "activation_clamp_engine_pipelined_det_cfg",
+  "configuration_id": "ACTIVATION_CLAMP_ENGINE_PIPELINED_32C5B000EDB609B7",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

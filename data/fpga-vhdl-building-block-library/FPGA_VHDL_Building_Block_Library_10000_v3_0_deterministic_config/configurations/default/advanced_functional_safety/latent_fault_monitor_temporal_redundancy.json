@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "latent_fault_monitor_temporal_redundancy",
+  "wrapper_entity": "latent_fault_monitor_temporal_redundancy_det_cfg",
+  "configuration_id": "LATENT_FAULT_MONITOR_TEMPORAL_REDUNDANCY_DA098B75C562F125",
+  "generics": {
+    "MON_WIDTH": 16,
+    "COUNT_WIDTH": 32
+  }
+}

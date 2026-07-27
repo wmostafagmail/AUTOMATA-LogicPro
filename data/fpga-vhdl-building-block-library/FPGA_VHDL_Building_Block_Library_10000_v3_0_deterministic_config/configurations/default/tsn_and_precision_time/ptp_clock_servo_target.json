@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ptp_clock_servo_target",
+  "wrapper_entity": "ptp_clock_servo_target_det_cfg",
+  "configuration_id": "PTP_CLOCK_SERVO_TARGET_3517B9E7C865A757",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

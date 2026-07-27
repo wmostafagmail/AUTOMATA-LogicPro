@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "constrained_random_generator_throughput_checking",
+  "wrapper_entity": "constrained_random_generator_throughput_checking_det_cfg",
+  "configuration_id": "CONSTRAINED_RANDOM_GENERATOR_THROUGHPUT_CHECKING_2ACECF7A65138F4B",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

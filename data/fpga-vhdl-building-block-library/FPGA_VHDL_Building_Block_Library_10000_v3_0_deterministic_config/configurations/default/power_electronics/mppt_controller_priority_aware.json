@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "mppt_controller_priority_aware",
+  "wrapper_entity": "mppt_controller_priority_aware_det_cfg",
+  "configuration_id": "MPPT_CONTROLLER_PRIORITY_AWARE_30B8F695BBC6649A",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

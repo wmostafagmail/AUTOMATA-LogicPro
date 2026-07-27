@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "can_bit_timing_single_shot",
+  "wrapper_entity": "can_bit_timing_single_shot_det_cfg",
+  "configuration_id": "CAN_BIT_TIMING_SINGLE_SHOT_DB3539F309397320",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

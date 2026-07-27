@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "sliding_window_attention_buffered_stream",
+  "wrapper_entity": "sliding_window_attention_buffered_stream_det_cfg",
+  "configuration_id": "SLIDING_WINDOW_ATTENTION_BUFFERED_STREAM_66EE77B1B43F5D8E",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

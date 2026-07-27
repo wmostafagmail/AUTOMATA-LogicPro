@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "sas_ssp_engine_multi_channel",
+  "wrapper_entity": "sas_ssp_engine_multi_channel_det_cfg",
+  "configuration_id": "SAS_SSP_ENGINE_MULTI_CHANNEL_A0944E9D142E3A82",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

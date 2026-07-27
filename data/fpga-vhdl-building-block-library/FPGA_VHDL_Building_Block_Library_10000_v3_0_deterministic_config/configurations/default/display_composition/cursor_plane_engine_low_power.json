@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "cursor_plane_engine_low_power",
+  "wrapper_entity": "cursor_plane_engine_low_power_det_cfg",
+  "configuration_id": "CURSOR_PLANE_ENGINE_LOW_POWER_E4BA77D831CA85A3",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

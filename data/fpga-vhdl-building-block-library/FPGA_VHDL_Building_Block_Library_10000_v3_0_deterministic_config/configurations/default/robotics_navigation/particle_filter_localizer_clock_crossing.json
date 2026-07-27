@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "particle_filter_localizer_clock_crossing",
+  "wrapper_entity": "particle_filter_localizer_clock_crossing_det_cfg",
+  "configuration_id": "PARTICLE_FILTER_LOCALIZER_CLOCK_CROSSING_FD7B1652D8B453F3",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

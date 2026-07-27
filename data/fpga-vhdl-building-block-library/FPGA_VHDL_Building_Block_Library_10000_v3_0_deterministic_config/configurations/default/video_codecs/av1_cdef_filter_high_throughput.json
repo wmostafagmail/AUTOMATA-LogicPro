@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "av1_cdef_filter_high_throughput",
+  "wrapper_entity": "av1_cdef_filter_high_throughput_det_cfg",
+  "configuration_id": "AV1_CDEF_FILTER_HIGH_THROUGHPUT_A0C8C6E7D126D010",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "multi_layer_compositor_line_buffered",
+  "wrapper_entity": "multi_layer_compositor_line_buffered_det_cfg",
+  "configuration_id": "MULTI_LAYER_COMPOSITOR_LINE_BUFFERED_D405FF18B5837069",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

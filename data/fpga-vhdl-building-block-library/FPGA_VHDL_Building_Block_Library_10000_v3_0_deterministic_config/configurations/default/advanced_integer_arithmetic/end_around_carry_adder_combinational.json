@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "end_around_carry_adder_combinational",
+  "wrapper_entity": "end_around_carry_adder_combinational_det_cfg",
+  "configuration_id": "END_AROUND_CARRY_ADDER_COMBINATIONAL_7D738D3B53CB1326",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "carrier_frequency_estimator_lockstep_checked",
+  "wrapper_entity": "carrier_frequency_estimator_lockstep_checked_det_cfg",
+  "configuration_id": "CARRIER_FREQUENCY_ESTIMATOR_LOCKSTEP_CHECKED_6194D23E887DEED6",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "pixel_clock_enable_framebuffer",
+  "wrapper_entity": "pixel_clock_enable_framebuffer_det_cfg",
+  "configuration_id": "PIXEL_CLOCK_ENABLE_FRAMEBUFFER_221008603EEF3F3A",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

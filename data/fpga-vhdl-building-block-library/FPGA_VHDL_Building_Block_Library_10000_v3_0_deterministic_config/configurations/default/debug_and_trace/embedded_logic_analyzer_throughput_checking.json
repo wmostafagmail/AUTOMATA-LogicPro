@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "embedded_logic_analyzer_throughput_checking",
+  "wrapper_entity": "embedded_logic_analyzer_throughput_checking_det_cfg",
+  "configuration_id": "EMBEDDED_LOGIC_ANALYZER_THROUGHPUT_CHECKING_CDD071F14A665AAB",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

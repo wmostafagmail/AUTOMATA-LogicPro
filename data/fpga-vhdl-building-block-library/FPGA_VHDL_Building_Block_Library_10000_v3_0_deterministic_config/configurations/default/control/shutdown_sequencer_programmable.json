@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "shutdown_sequencer_programmable",
+  "wrapper_entity": "shutdown_sequencer_programmable_det_cfg",
+  "configuration_id": "SHUTDOWN_SEQUENCER_PROGRAMMABLE_6D538F415E710CCE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

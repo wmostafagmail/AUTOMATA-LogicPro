@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "dependency_matrix_scheduler_multi_channel",
+  "wrapper_entity": "dependency_matrix_scheduler_multi_channel_det_cfg",
+  "configuration_id": "DEPENDENCY_MATRIX_SCHEDULER_MULTI_CHANNEL_BF7780469F1D92B4",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

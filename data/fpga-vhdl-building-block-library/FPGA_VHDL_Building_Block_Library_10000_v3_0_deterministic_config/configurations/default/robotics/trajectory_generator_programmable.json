@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "trajectory_generator_programmable",
+  "wrapper_entity": "trajectory_generator_programmable_det_cfg",
+  "configuration_id": "TRAJECTORY_GENERATOR_PROGRAMMABLE_73C884EED2367329",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

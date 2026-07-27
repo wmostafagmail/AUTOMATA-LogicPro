@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "exception_replay_controller_priority_aware",
+  "wrapper_entity": "exception_replay_controller_priority_aware_det_cfg",
+  "configuration_id": "EXCEPTION_REPLAY_CONTROLLER_PRIORITY_AWARE_87571C366C7A32D2",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

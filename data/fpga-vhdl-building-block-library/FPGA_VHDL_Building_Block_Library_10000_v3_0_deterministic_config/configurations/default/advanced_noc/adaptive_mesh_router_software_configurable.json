@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "adaptive_mesh_router_software_configurable",
+  "wrapper_entity": "adaptive_mesh_router_software_configurable_det_cfg",
+  "configuration_id": "ADAPTIVE_MESH_ROUTER_SOFTWARE_CONFIGURABLE_C1ADDDC7B1CC5275",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

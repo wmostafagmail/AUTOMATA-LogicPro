@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "ethernet_ip_adapter_programmable",
+  "wrapper_entity": "ethernet_ip_adapter_programmable_det_cfg",
+  "configuration_id": "ETHERNET_IP_ADAPTER_PROGRAMMABLE_8CEC5D3A6115DD86",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

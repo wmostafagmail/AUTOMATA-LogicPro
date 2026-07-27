@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "iq_calibration_engine_table_driven",
+  "wrapper_entity": "iq_calibration_engine_table_driven_det_cfg",
+  "configuration_id": "IQ_CALIBRATION_ENGINE_TABLE_DRIVEN_55A94E52698B1D88",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

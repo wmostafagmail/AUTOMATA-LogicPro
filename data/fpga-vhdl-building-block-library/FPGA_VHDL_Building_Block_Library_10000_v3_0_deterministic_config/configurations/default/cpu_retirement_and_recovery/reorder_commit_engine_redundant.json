@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "reorder_commit_engine_redundant",
+  "wrapper_entity": "reorder_commit_engine_redundant_det_cfg",
+  "configuration_id": "REORDER_COMMIT_ENGINE_REDUNDANT_D398D6C12DF42671",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

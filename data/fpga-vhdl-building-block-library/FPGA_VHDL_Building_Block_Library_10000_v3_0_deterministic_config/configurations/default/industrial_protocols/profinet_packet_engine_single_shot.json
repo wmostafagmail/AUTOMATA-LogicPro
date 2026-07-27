@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "profinet_packet_engine_single_shot",
+  "wrapper_entity": "profinet_packet_engine_single_shot_det_cfg",
+  "configuration_id": "PROFINET_PACKET_ENGINE_SINGLE_SHOT_6203A7F4E145F021",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

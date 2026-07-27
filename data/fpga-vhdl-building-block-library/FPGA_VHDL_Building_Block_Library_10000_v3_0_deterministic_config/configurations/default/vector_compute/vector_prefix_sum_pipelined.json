@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "vector_prefix_sum_pipelined",
+  "wrapper_entity": "vector_prefix_sum_pipelined_det_cfg",
+  "configuration_id": "VECTOR_PREFIX_SUM_PIPELINED_51A3ECF1834E0D15",
+  "generics": {
+    "ELEM_WIDTH": 8,
+    "LANES": 4,
+    "ACC_WIDTH": 32
+  }
+}

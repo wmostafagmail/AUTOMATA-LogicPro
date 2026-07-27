@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "quadrature_timer_programmable",
+  "wrapper_entity": "quadrature_timer_programmable_det_cfg",
+  "configuration_id": "QUADRATURE_TIMER_PROGRAMMABLE_C93EC03571ECE8DE",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

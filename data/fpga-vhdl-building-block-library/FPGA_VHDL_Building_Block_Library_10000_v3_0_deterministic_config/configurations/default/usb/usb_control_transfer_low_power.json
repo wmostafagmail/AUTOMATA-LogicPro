@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "usb_control_transfer_low_power",
+  "wrapper_entity": "usb_control_transfer_low_power_det_cfg",
+  "configuration_id": "USB_CONTROL_TRANSFER_LOW_POWER_4EF8102636F4106A",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "STATUS_WIDTH": 16
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "block": "clock_frequency_governor_table_driven",
+  "wrapper_entity": "clock_frequency_governor_table_driven_det_cfg",
+  "configuration_id": "CLOCK_FREQUENCY_GOVERNOR_TABLE_DRIVEN_C12CE7756F17DEA8",
+  "generics": {
+    "CMD_WIDTH": 8,
+    "CFG_WIDTH": 32,
+    "STATUS_WIDTH": 32,
+    "LATENCY_CYCLES": 4
+  }
+}

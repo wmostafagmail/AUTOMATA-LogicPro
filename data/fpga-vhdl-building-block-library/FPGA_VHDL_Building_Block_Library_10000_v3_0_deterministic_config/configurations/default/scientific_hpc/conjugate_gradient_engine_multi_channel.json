@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "conjugate_gradient_engine_multi_channel",
+  "wrapper_entity": "conjugate_gradient_engine_multi_channel_det_cfg",
+  "configuration_id": "CONJUGATE_GRADIENT_ENGINE_MULTI_CHANNEL_EAAD948C9C491C1B",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

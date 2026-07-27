@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "clock_reset_tb_harness",
+  "wrapper_entity": "clock_reset_tb_harness_det_cfg",
+  "configuration_id": "CLOCK_RESET_TB_HARNESS_7585601F1208C5D0",
+  "generics": {
+    "OBS_WIDTH": 32,
+    "COUNT_WIDTH": 32
+  }
+}

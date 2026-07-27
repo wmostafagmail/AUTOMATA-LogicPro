@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "block": "h264_intra_predictor_axi_stream",
+  "wrapper_entity": "h264_intra_predictor_axi_stream_det_cfg",
+  "configuration_id": "H264_INTRA_PREDICTOR_AXI_STREAM_8BED40EA41C22FC2",
+  "generics": {
+    "DATA_WIDTH": 24,
+    "GAIN_SHIFT": 0
+  }
+}

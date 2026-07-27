@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "karatsuba_multiplier_programmable_precision",
+  "wrapper_entity": "karatsuba_multiplier_programmable_precision_det_cfg",
+  "configuration_id": "KARATSUBA_MULTIPLIER_PROGRAMMABLE_PRECISION_90F68A86711E18D8",
+  "generics": {
+    "DATA_WIDTH": 32,
+    "RESULT_WIDTH": 32,
+    "SIGNED_MODE": false
+  }
+}

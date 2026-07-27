@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "block": "bridge_sensor_linearizer_low_noise",
+  "wrapper_entity": "bridge_sensor_linearizer_low_noise_det_cfg",
+  "configuration_id": "BRIDGE_SENSOR_LINEARIZER_LOW_NOISE_DB5B9BB79F9A2429",
+  "generics": {
+    "SENSOR_WIDTH": 16,
+    "DATA_WIDTH": 32,
+    "THRESHOLD": 100
+  }
+}
