@@ -5,58 +5,127 @@
   "designLabel": "UART-to-SPI Protocol Bridge with FIFOs",
   "attempt": 3,
   "designAttempt": 3,
-  "issueCount": 9,
+  "issueCount": 21,
   "topIssueCodes": [
-    "architecture_intent_ambiguous_design_class",
-    "architecture_intent_clarification_required",
-    "architecture_intent_unknown_required_field"
+    "architecture_contract_capability_unowned",
+    "architecture_contract_behaviors_missing",
+    "architecture_contract_components_missing",
+    "architecture_contract_design_class",
+    "architecture_contract_design_name",
+    "architecture_contract_schema_version",
+    "architecture_contract_system_intent",
+    "architecture_contract_testbench_component",
+    "architecture_contract_top_component",
+    "architecture_contract_top_entity",
+    "architecture_contract_top_testbench",
+    "architecture_contract_verification_incomplete"
   ],
-  "message": "Architecture intent needs clarification before VHDL generation. What does FILE mean in this FPGA design? What does JSON mean in this FPGA design? What does SCLK mean in this FPGA design? What does MOSI mean in this FPGA design?",
+  "message": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 21 issue(s).",
   "issues": [
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:FILE",
-      "message": "What does FILE mean in this FPGA design?"
+      "code": "architecture_contract_schema_version",
+      "path": "$.schemaVersion",
+      "message": "schemaVersion must be \"1.0\" or \"2.0\". New contracts must use \"2.0\"."
     },
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:JSON",
-      "message": "What does JSON mean in this FPGA design?"
+      "code": "architecture_contract_design_name",
+      "path": "$.designName",
+      "message": "designName must be a non-empty basic identifier."
     },
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:SCLK",
-      "message": "What does SCLK mean in this FPGA design?"
+      "code": "architecture_contract_design_class",
+      "path": "$.designClass",
+      "message": "designClass must remain \"uart_spi_protocol_bridge\" for this request."
     },
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:MOSI",
-      "message": "What does MOSI mean in this FPGA design?"
+      "code": "architecture_contract_system_intent",
+      "path": "$.systemIntent",
+      "message": "systemIntent must be precise and must not contain placeholders."
     },
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:MISO",
-      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+      "code": "architecture_contract_top_entity",
+      "path": "$.topEntity",
+      "message": "topEntity must be a legal basic VHDL identifier."
     },
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:PASS",
-      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+      "code": "architecture_contract_top_testbench",
+      "path": "$.topTestbench",
+      "message": "topTestbench must be a legal basic VHDL identifier."
     },
     {
-      "code": "architecture_intent_ambiguous_design_class",
-      "path": "$.intent.unknown_acronym:FAIL",
-      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+      "code": "architecture_contract_components_missing",
+      "path": "$.components",
+      "message": "At least one package/RTL component, one top component, and one testbench component are required."
     },
     {
-      "code": "architecture_intent_unknown_required_field",
-      "path": "$.intent.widthOrFormat",
-      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+      "code": "architecture_contract_top_component",
+      "path": "$.components",
+      "message": "Exactly one top component is required and its name must equal topEntity."
     },
     {
-      "code": "architecture_intent_clarification_required",
-      "path": "$.intent",
-      "message": "Architecture intent needs clarification before VHDL generation. Answer the listed questions so the app can select patterns and build the contract without guessing."
+      "code": "architecture_contract_testbench_component",
+      "path": "$.components",
+      "message": "Exactly one testbench component is required and its name must equal topTestbench."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"bridge_pkg\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"uart_rx\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"uart_tx\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"spi_master\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"tx_fifo\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"rx_fifo\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"bridge_control_fsm\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"status_error_block\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"bridge_top\"."
+    },
+    {
+      "code": "architecture_contract_capability_unowned",
+      "path": "$.components",
+      "message": "No component owns required capability \"tb_bridge_top\"."
+    },
+    {
+      "code": "architecture_contract_behaviors_missing",
+      "path": "$.behaviors",
+      "message": "At least one observable behavioral contract is required."
+    },
+    {
+      "code": "architecture_contract_verification_incomplete",
+      "path": "$.verification[0]",
+      "message": "Verification item must include requirement, deterministic stimulus, expected result, and observables."
     }
   ]
 }

@@ -11,6 +11,13 @@ export type VerifiedPortRole =
   | 'payload_out'
   | 'valid'
   | 'ready'
+  | 'tx_request_valid'
+  | 'tx_request_ready'
+  | 'register_read_address'
+  | 'register_write_address'
+  | 'register_read_data'
+  | 'register_write_data'
+  | 'register_write_enable'
   | 'error'
   | 'status'
   | 'address'
@@ -53,6 +60,14 @@ export function isReceiverLikeComponent(component: FpgaArchitectureComponentCont
 
 export function isTransmitterLikeComponent(component: FpgaArchitectureComponentContract) {
   return /\b(?:tx|transmit|transmitter|egress|output|emit)\b/i.test(componentText(component));
+}
+
+export function isUartTransmitterComponent(component: FpgaArchitectureComponentContract) {
+  return /\b(?:uart_tx|uart_transmitter|serial_transmitter|tx_uart)\b/i.test(componentText(component));
+}
+
+export function isRegisterFileComponent(component: FpgaArchitectureComponentContract) {
+  return /\b(?:register_file|regfile|register\s+file|cpu\s+register)\b/i.test(componentText(component));
 }
 
 function isVector(type: string) {
@@ -118,6 +133,39 @@ export function classifyVerifiedPortRole(
     set('data', 50, `name ${port.name} is generic data-like`);
   }
 
+  if (isUartTransmitterComponent(component)) {
+    if (mode === 'in' && /^(?:valid|valid_i|tx_valid|tx_valid_i|data_valid|data_valid_i|request_valid|req_valid)$/i.test(base)) {
+      set('tx_request_valid', 96, `UART TX input ${port.name} is transmit-request valid`);
+    }
+    if ((mode === 'out' || mode === 'buffer') && /^(?:ready|ready_o|tx_ready|tx_ready_o|request_ready|req_ready)$/i.test(base)) {
+      set('tx_request_ready', 96, `UART TX output ${port.name} is transmit-request ready`);
+    }
+    if ((mode === 'out' || mode === 'buffer') && /^(?:tx|tx_o|uart_tx|uart_tx_o|serial_tx|serial_tx_o|txd)$/i.test(base) && isScalarLogic(type)) {
+      set('serial_tx', 98, `UART TX output ${port.name} is serial TX`);
+    }
+    if (mode === 'in' && isVector(type) && /^(?:data|data_i|tx_data|tx_data_i|payload|payload_i|byte_i)$/i.test(base)) {
+      set('payload_in', 94, `UART TX input ${port.name} is transmit payload`);
+    }
+  }
+
+  if (isRegisterFileComponent(component)) {
+    if (mode === 'in' && /^(?:src_addr|src_addr_i|read_addr|read_addr_i|rd_addr|rd_addr_i|rs1_addr|rs2_addr|raddr|raddr_i)$/i.test(base)) {
+      set('register_read_address', 98, `register-file input ${port.name} is read-address`);
+    }
+    if (mode === 'in' && /^(?:dst_addr|dst_addr_i|write_addr|write_addr_i|wr_addr|wr_addr_i|rdst_addr|waddr|waddr_i)$/i.test(base)) {
+      set('register_write_address', 98, `register-file input ${port.name} is write-address`);
+    }
+    if ((mode === 'out' || mode === 'buffer') && isVector(type) && /^(?:data|data_out|data_o|read_data|read_data_o|rd_data|rd_data_o|src_data|src_data_o|rdata|rdata_o)$/i.test(base)) {
+      set('register_read_data', 96, `register-file output ${port.name} is read-data`);
+    }
+    if (mode === 'in' && isVector(type) && /^(?:data|data_in|data_i|write_data|write_data_i|wr_data|wr_data_i|dst_data|dst_data_i|wdata|wdata_i)$/i.test(base)) {
+      set('register_write_data', 96, `register-file input ${port.name} is write-data`);
+    }
+    if (mode === 'in' && /^(?:we|we_i|wr_en|wr_en_i|write_enable|write_enable_i|reg_write|reg_write_i)$/i.test(base)) {
+      set('register_write_enable', 96, `register-file input ${port.name} is write-enable`);
+    }
+  }
+
   if (role === 'payload_in' && isReceiverLikeComponent(component) && /data_i|payload_i|din/.test(name)) {
     optional = true;
     evidence.push(`payload input ${port.name} is optional/suspicious on receiver-like component ${component.id}`);
@@ -134,6 +182,8 @@ export function classifyVerifiedPortRole(
 
 export function rolesCompatible(verified: VerifiedPortRoleEvidence, approved: VerifiedPortRoleEvidence) {
   if (verified.role === approved.role && verified.role !== 'unknown') return true;
+  if (verified.role.startsWith('register_') || approved.role.startsWith('register_')) return false;
+  if (verified.role.startsWith('tx_request_') || approved.role.startsWith('tx_request_')) return false;
   if (verified.role === 'payload_out' && approved.role === 'data') return true;
   if (verified.role === 'data' && approved.role === 'payload_out') return true;
   if (verified.role === 'payload_in' && approved.role === 'data') return true;

@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-27T22:23:34.513Z",
+  "updatedAt": "2026-07-28T00:48:25.637Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
       "model": "charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 523,
+      "attempts": 540,
       "successes": 225,
-      "codeQualityFailures": 298,
+      "codeQualityFailures": 315,
       "providerRuntimeFailures": 14,
-      "lastUpdatedAt": "2026-07-27T22:23:34.513Z",
+      "lastUpdatedAt": "2026-07-28T00:48:25.637Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 169,
+          "attempts": 172,
           "successes": 61,
-          "codeQualityFailures": 108,
+          "codeQualityFailures": 111,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -406,11 +406,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 14,
-              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_tx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_tx\ncomponentName=uart_tx\nverifiedBlock=uart_tx\nverifiedEntity=uart_tx_det_cfg\nunsafeReasons=verified port tx_valid cannot be safely mapped\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "count": 16,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"uart_tx\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=uart_tx\ncomponentName=uart_tx\nverifiedBlock=uart_tx\nverifiedEntity=uart_tx_det_cfg\nunsafeReasons=approved generic g_clock_hz cannot be represented by verified block | approved generic g_baud_rate cannot be represented by verified block | approved generic g_data_bits cannot be represented by verified block\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-27T22:16:04.243Z"
+              "lastSeenAt": "2026-07-27T22:58:42.148Z"
             },
             "top_integration_contract::undriven_top_output_port::ghdl-instantiation-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches::": {
               "category": "top_integration_contract",
@@ -429,13 +429,50 @@
               "forbiddenConstruct": "top/integration output port \"rx_data\" has no architecture driver",
               "legalReplacementPattern": "drive \"rx_data\" with a concurrent assignment, a registered process, or a child output port mapped through a correctly typed signal",
               "lastSeenAt": "2026-07-27T22:02:19.818Z"
+            },
+            "architecture_contract::architecture_contract_validation_failed::::architecture_contract_behaviors_missing,architecture_contract_capability_unowned,architecture_contract_components_missing,architecture_contract_design_class,architecture_contract_design_name,architecture_contract_schema_version,architecture_contract_system_intent,architecture_contract_testbench_component,architecture_contract_top_component,architecture_contract_top_entity,architecture_contract_top_testbench,architecture_contract_verification_incomplete": {
+              "category": "architecture_contract",
+              "label": "Architecture Contract",
+              "failureCode": "architecture_contract_validation_failed",
+              "stage": "architecture_contract",
+              "issueCodes": [
+                "architecture_contract_schema_version",
+                "architecture_contract_design_name",
+                "architecture_contract_design_class",
+                "architecture_contract_system_intent",
+                "architecture_contract_top_entity",
+                "architecture_contract_top_testbench",
+                "architecture_contract_components_missing",
+                "architecture_contract_top_component",
+                "architecture_contract_testbench_component",
+                "architecture_contract_capability_unowned",
+                "architecture_contract_behaviors_missing",
+                "architecture_contract_verification_incomplete"
+              ],
+              "issuePaths": [
+                "$.schemaVersion",
+                "$.designName",
+                "$.designClass",
+                "$.systemIntent",
+                "$.topEntity",
+                "$.topTestbench",
+                "$.components",
+                "$.behaviors",
+                "$.verification[0]"
+              ],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 21 issue(s).",
+              "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+              "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+              "lastSeenAt": "2026-07-27T23:00:08.709Z"
             }
           }
         },
         "mini_cpu_core": {
-          "attempts": 117,
+          "attempts": 120,
           "successes": 49,
-          "codeQualityFailures": 68,
+          "codeQualityFailures": 71,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -607,11 +644,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 4,
-              "lastMessage": "Request was cancelled by the user.",
+              "count": 7,
+              "lastMessage": "Cannot access 'component' before initialization",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-26T09:36:45.955Z"
+              "lastSeenAt": "2026-07-27T23:27:09.979Z"
             },
             "context_budget::category_only::::": {
               "category": "context_budget",
@@ -791,9 +828,9 @@
           }
         },
         "video_pattern_generator": {
-          "attempts": 100,
+          "attempts": 105,
           "successes": 50,
-          "codeQualityFailures": 50,
+          "codeQualityFailures": 55,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -1114,18 +1151,18 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 7,
-              "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"horizontal_counter\".\ncomponentId=horizontal_counter\ncomponentName=horizontal_counter\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+              "count": 12,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"sync_generator\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=sync_generator\ncomponentName=sync_generator\nverifiedBlock=sync_generator\nverifiedEntity=sync_generator_det_cfg\nunsafeReasons=verified port h_active cannot be safely mapped; capability=sync_generator; verified=h_active{mode=in, type=std_logic_vector(h_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port h_front cannot be safely mapped; capability=sync_generator; verified=h_front{mode=in, type=std_logic_vector(h_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port h_sync cannot be safely mapped; capability=sync_generator; verified=h_sync{mode=in, type=std_logic_vector(h_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port h_back cannot be safely mapped; capability=sync_generator; verified=h_back{mode=in, type=std_logic_vector(h_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port v_active cannot be safely mapped; capability=sync_generator; verified=v_active{mode=in, type=std_logic_vector(v_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port v_front cannot be safely mapped; capability=sync_generator; verified=v_front{mode=in, type=std_logic_vector(v_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port v_sync cannot be safely mapped; capability=sync_generator; verified=v_sync{mode=in, type=std_logic_vector(v_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | verified port v_back cannot be safely mapped; capability=sync_generator; verified=v_back{mode=in, type=std_logic_vector(v_width - 1 downto 0), role=unknown, confidence=0}; approvedRoleNeeded=unknown; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=payload_in, confidence=82}; resolvedGenerics={\"h_width\":\"16\",\"v_width\":\"16\"} | approved port data_i has no verified driver/source\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-27T20:17:35.441Z"
+              "lastSeenAt": "2026-07-27T23:49:39.804Z"
             }
           }
         },
         "dsp_chain": {
-          "attempts": 76,
+          "attempts": 79,
           "successes": 32,
-          "codeQualityFailures": 44,
+          "codeQualityFailures": 47,
           "providerRuntimeFailures": 4,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -1365,18 +1402,18 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 6,
+              "count": 9,
               "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"sample_input_stage\".\ncomponentId=sample_input_stage\ncomponentName=sample_input_stage\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-27T20:49:35.603Z"
+              "lastSeenAt": "2026-07-28T00:15:35.058Z"
             }
           }
         },
         "axi_stream_router": {
-          "attempts": 61,
+          "attempts": 64,
           "successes": 33,
-          "codeQualityFailures": 28,
+          "codeQualityFailures": 31,
           "providerRuntimeFailures": 1,
           "failureBuckets": {
             "reserved_identifier::ghdl-identifier-safety": {
@@ -1489,11 +1526,11 @@
               "issueCodes": [],
               "issuePaths": [],
               "ruleIds": [],
-              "count": 4,
+              "count": 7,
               "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"ingress_interface_blocks\".\ncomponentId=ingress_interface_blocks\ncomponentName=ingress_interface_blocks\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
               "forbiddenConstruct": null,
               "legalReplacementPattern": null,
-              "lastSeenAt": "2026-07-27T21:03:13.987Z"
+              "lastSeenAt": "2026-07-28T00:48:25.637Z"
             }
           }
         }
@@ -1708,11 +1745,11 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 28,
-          "lastMessage": "Request was cancelled by the user.",
+          "count": 31,
+          "lastMessage": "Cannot access 'component' before initialization",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-27T22:04:22.513Z"
+          "lastSeenAt": "2026-07-27T23:27:09.979Z"
         },
         "reserved_identifier::reserved_identifier::ghdl-identifier-safety::": {
           "category": "reserved_identifier",
@@ -2267,11 +2304,11 @@
           "issueCodes": [],
           "issuePaths": [],
           "ruleIds": [],
-          "count": 43,
-          "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"register_file\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=register_file\ncomponentName=register_file\nverifiedBlock=register_file\nverifiedEntity=register_file_det_cfg\nunsafeReasons=verified port src_addr cannot be safely mapped | verified port dst_addr cannot be safely mapped | port data_i/data_in type differs unsafely: std_logic_vector(7 downto 0) vs std_logic_vector(data_width - 1 downto 0)\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+          "count": 56,
+          "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"ingress_interface_blocks\".\ncomponentId=ingress_interface_blocks\ncomponentName=ingress_interface_blocks\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
           "forbiddenConstruct": null,
           "legalReplacementPattern": null,
-          "lastSeenAt": "2026-07-27T22:23:34.513Z"
+          "lastSeenAt": "2026-07-28T00:48:25.637Z"
         },
         "top_integration_contract::undriven_top_output_port::ghdl-instantiation-rules,ghdl-reset-discipline,ghdl-self-checking-testbenches::": {
           "category": "top_integration_contract",
@@ -2290,6 +2327,43 @@
           "forbiddenConstruct": "top/integration output port \"rx_data\" has no architecture driver",
           "legalReplacementPattern": "drive \"rx_data\" with a concurrent assignment, a registered process, or a child output port mapped through a correctly typed signal",
           "lastSeenAt": "2026-07-27T22:02:19.818Z"
+        },
+        "architecture_contract::architecture_contract_validation_failed::::architecture_contract_behaviors_missing,architecture_contract_capability_unowned,architecture_contract_components_missing,architecture_contract_design_class,architecture_contract_design_name,architecture_contract_schema_version,architecture_contract_system_intent,architecture_contract_testbench_component,architecture_contract_top_component,architecture_contract_top_entity,architecture_contract_top_testbench,architecture_contract_verification_incomplete": {
+          "category": "architecture_contract",
+          "label": "Architecture Contract",
+          "failureCode": "architecture_contract_validation_failed",
+          "stage": "architecture_contract",
+          "issueCodes": [
+            "architecture_contract_schema_version",
+            "architecture_contract_design_name",
+            "architecture_contract_design_class",
+            "architecture_contract_system_intent",
+            "architecture_contract_top_entity",
+            "architecture_contract_top_testbench",
+            "architecture_contract_components_missing",
+            "architecture_contract_top_component",
+            "architecture_contract_testbench_component",
+            "architecture_contract_capability_unowned",
+            "architecture_contract_behaviors_missing",
+            "architecture_contract_verification_incomplete"
+          ],
+          "issuePaths": [
+            "$.schemaVersion",
+            "$.designName",
+            "$.designClass",
+            "$.systemIntent",
+            "$.topEntity",
+            "$.topTestbench",
+            "$.components",
+            "$.behaviors",
+            "$.verification[0]"
+          ],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "FPGA architecture proposal was rejected before VHDL generation. Architecture contract failed deterministic validation with 21 issue(s).",
+          "forbiddenConstruct": "Invalid or incomplete Architecture Contract V2 JSON path/value.",
+          "legalReplacementPattern": "Return one complete JSON object preserving app-owned IDs and fixing the exact failing contract paths.",
+          "lastSeenAt": "2026-07-27T23:00:08.709Z"
         }
       }
     },

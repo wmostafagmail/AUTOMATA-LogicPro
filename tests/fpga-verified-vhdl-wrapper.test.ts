@@ -4,6 +4,8 @@ import type { FpgaArchitectureContract } from '../src/server/fpgaArchitectureCon
 import { buildLeafInterfaceSignature, buildVhdlEntityInterfaceSignature } from '../src/server/fpgaGoldenLeafLibrary';
 import type { VerifiedVhdlBlockNearMatch } from '../src/server/fpgaVerifiedVhdlBlockLibrary';
 import { planVerifiedVhdlWrapper, renderVerifiedVhdlWrapper } from '../src/server/fpgaVerifiedVhdlWrapper';
+import { normalizeComponentContractForVerifiedCapability } from '../src/server/fpgaCapabilityContractNormalizer';
+import { evaluateVerifiedVhdlParameterCompatibility } from '../src/server/fpgaVerifiedVhdlParameterGate';
 
 const component = {
   id: 'rx_fifo',
@@ -196,4 +198,125 @@ test('verified VHDL wrapper semantically adapts UART RX deterministic wrapper po
   assert.match(wrapper, /u_verified_leaf : entity work\.uart_rx_det_cfg/);
   assert.match(wrapper, /rst_n => w_rst_n_adapt/);
   assert.match(wrapper, /uart_rx => rx_i/);
+});
+
+test('capability normalization makes UART TX bootstrap facade wrapper-safe without treating enable as valid', () => {
+  const uartTxComponent = {
+    ...component,
+    id: 'uart_tx',
+    name: 'uart_tx',
+    file: 'src/uart_tx.vhd',
+    responsibility: 'Transmit UART serial frames.',
+    implements: ['uart_tx'],
+    generics: [],
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 'enable_i', mode: 'in' as const, type: 'std_logic', purpose: 'Generic wrapper enable, not a ready/valid request.' },
+      { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Payload byte.' },
+    ],
+  };
+  const originalContract = { ...contract, components: [uartTxComponent] };
+  const normalized = normalizeComponentContractForVerifiedCapability({
+    contract: originalContract,
+    component: uartTxComponent,
+  });
+  assert.deepEqual(uartTxComponent.ports.map((port) => port.name), ['clk', 'rst', 'enable_i', 'data_i']);
+  assert.ok(normalized.component.ports.some((port) => port.name === 'valid_i'));
+  assert.ok(normalized.component.ports.some((port) => port.name === 'ready_o'));
+  assert.ok(normalized.component.ports.some((port) => port.name === 'tx_o'));
+  assert.ok(normalized.component.ports.some((port) => port.name === 'busy_o'));
+
+  const facadeContent = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity uart_tx_basic is',
+    '  generic (G_CLOCK_HZ : positive := 50000000; G_BAUD_RATE : positive := 115200; G_DATA_BITS : positive := 8);',
+    '  port (clk_i : in std_logic; rst_ni : in std_logic; data_i : in std_logic_vector(G_DATA_BITS-1 downto 0); valid_i : in std_logic; ready_o : out std_logic; tx_o : out std_logic; busy_o : out std_logic);',
+    'end entity;',
+    'architecture rtl of uart_tx_basic is begin end architecture;',
+    '',
+  ].join('\n');
+  const candidate = makeCandidate(facadeContent, 'uart_tx_basic', normalized.component);
+  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({
+    component: normalized.component,
+    candidate,
+  });
+  assert.notEqual(parameterCompatibility.kind, 'parameter_unsafe');
+  const plan = planVerifiedVhdlWrapper({ component: normalized.component, candidate, parameterCompatibility });
+  assert.equal(plan.kind, 'wrapper_safe');
+  assert.equal(plan.portAssociations.valid_i, 'valid_i');
+  assert.notEqual(plan.portAssociations.valid_i, 'enable_i');
+  assert.equal(plan.portAssociations.ready_o, 'ready_o');
+  assert.equal(plan.portAssociations.tx_o, 'tx_o');
+  assert.equal(plan.portAssociations.busy_o, 'busy_o');
+});
+
+test('verified VHDL wrapper resolves register-file read/write roles without swapping channels', () => {
+  const registerComponent = {
+    ...component,
+    id: 'register_file',
+    name: 'register_file',
+    file: 'src/register_file.vhd',
+    responsibility: 'Own CPU register storage, read ports, and write-data contract.',
+    implements: ['register_file'],
+    generics: [
+      { name: 'ADDR_WIDTH', type: 'positive', default: '5' },
+      { name: 'DATA_WIDTH', type: 'positive', default: '8' },
+    ],
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 'enable_i', mode: 'in' as const, type: 'std_logic', purpose: 'Transaction request.' },
+      { name: 'src_addr', mode: 'in' as const, type: 'std_logic_vector(ADDR_WIDTH-1 downto 0)', purpose: 'Read address.' },
+      { name: 'dst_addr', mode: 'in' as const, type: 'std_logic_vector(ADDR_WIDTH-1 downto 0)', purpose: 'Write address.' },
+      { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Write data.' },
+      { name: 'data_o', mode: 'out' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Read data.' },
+      { name: 'busy_o', mode: 'out' as const, type: 'std_logic', purpose: 'Busy.' },
+      { name: 'done_o', mode: 'out' as const, type: 'std_logic', purpose: 'Done.' },
+      { name: 'error_o', mode: 'out' as const, type: 'std_logic', purpose: 'Error.' },
+    ],
+  };
+  const verifiedContent = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity register_file_det_cfg is',
+    '  generic (ADDR_WIDTH : positive := 5; DATA_WIDTH : positive := 8);',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst_n : in std_logic;',
+    '    start : in std_logic;',
+    '    src_addr : in std_logic_vector(ADDR_WIDTH-1 downto 0);',
+    '    dst_addr : in std_logic_vector(ADDR_WIDTH-1 downto 0);',
+    '    data_in : in std_logic_vector(DATA_WIDTH-1 downto 0);',
+    '    data_out : out std_logic_vector(DATA_WIDTH-1 downto 0);',
+    '    busy : out std_logic;',
+    '    done : out std_logic;',
+    '    error : out std_logic',
+    '  );',
+    'end entity;',
+    'architecture rtl of register_file_det_cfg is begin end architecture;',
+    '',
+  ].join('\n');
+  const candidate = makeCandidate(verifiedContent, 'register_file_det_cfg', registerComponent);
+  const plan = planVerifiedVhdlWrapper({
+    component: registerComponent,
+    candidate,
+    parameterCompatibility: {
+      kind: 'parameter_exact',
+      genericMap: { addr_width: 'ADDR_WIDTH', data_width: 'DATA_WIDTH' },
+      resolvedValues: { addr_width: '5', data_width: '8' },
+      constraints: [],
+      derivations: [],
+      unsafeReasons: [],
+      requiresConfiguredSmoke: false,
+      configurationHash: 'test',
+    },
+  });
+  assert.equal(plan.kind, 'wrapper_safe');
+  assert.equal(plan.portAssociations.src_addr, 'src_addr');
+  assert.equal(plan.portAssociations.dst_addr, 'dst_addr');
+  assert.notEqual(plan.portAssociations.src_addr, 'dst_addr');
+  assert.equal(plan.portAssociations.data_in, 'data_i');
+  assert.equal(plan.portAssociations.data_out, 'data_o');
 });

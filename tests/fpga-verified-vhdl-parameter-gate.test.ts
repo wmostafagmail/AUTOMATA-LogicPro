@@ -271,3 +271,81 @@ test('parameter gate accepts boolean and key-width generic families', () => {
   assert.ok(result.constraints.some((constraint) => constraint.rule === 'key_width_common_crypto_values' && constraint.ok));
   assert.ok(result.constraints.some((constraint) => constraint.rule === 'boolean_compatible' && constraint.ok));
 });
+
+test('parameter gate derives DATA_WIDTH from fixed approved register-file data port', () => {
+  const component: FpgaArchitectureComponentContract = {
+    id: 'register_file',
+    kind: 'rtl',
+    name: 'register_file',
+    file: 'src/register_file.vhd',
+    responsibility: 'CPU register file with read/write register storage.',
+    implements: ['register_file'],
+    dependsOn: [],
+    children: [],
+    clockDomain: 'clk',
+    generics: [
+      { name: 'ADDR_WIDTH', type: 'positive', default: '5' },
+      { name: 'DATA_WIDTH', type: 'positive', default: '32' },
+    ],
+    ports: [
+      { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+      { name: 'enable_i', mode: 'in', type: 'std_logic', purpose: 'Request.' },
+      { name: 'src_addr', mode: 'in', type: 'std_logic_vector(ADDR_WIDTH-1 downto 0)', purpose: 'Read address.' },
+      { name: 'dst_addr', mode: 'in', type: 'std_logic_vector(ADDR_WIDTH-1 downto 0)', purpose: 'Write address.' },
+      { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Write data.' },
+      { name: 'data_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Read data.' },
+      { name: 'busy_o', mode: 'out', type: 'std_logic', purpose: 'Busy.' },
+      { name: 'done_o', mode: 'out', type: 'std_logic', purpose: 'Done.' },
+      { name: 'error_o', mode: 'out', type: 'std_logic', purpose: 'Error.' },
+    ],
+    exports: [],
+  };
+  const rtl = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity register_file is',
+    '  generic (ADDR_WIDTH : positive := 32; DATA_WIDTH : positive := 32);',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst_n : in std_logic;',
+    '    start : in std_logic;',
+    '    src_addr : in std_logic_vector(ADDR_WIDTH-1 downto 0);',
+    '    dst_addr : in std_logic_vector(ADDR_WIDTH-1 downto 0);',
+    '    data_in : in std_logic_vector(DATA_WIDTH-1 downto 0);',
+    '    data_out : out std_logic_vector(DATA_WIDTH-1 downto 0);',
+    '    busy : out std_logic;',
+    '    done : out std_logic;',
+    '    error : out std_logic',
+    '  );',
+    'end entity;',
+    'architecture rtl of register_file is begin end architecture;',
+    '',
+  ].join('\n');
+  const result = evaluateVerifiedVhdlParameterCompatibility({
+    component,
+    candidate: makeGenericCandidate(component, 'register_file', rtl),
+  });
+  assert.equal(result.kind, 'parameter_safe_configured');
+  assert.equal(result.resolvedValues.data_width, '8');
+  assert.equal(result.genericMap.data_width, '8');
+  assert.ok(result.derivations.some((entry) => entry.generic === 'data_width' && entry.value === 8 && entry.sourceReference === 'data_i'));
+});
+
+test('parameter gate rejects contradictory generic width derivations', () => {
+  const component = fifoComponent(8, 16);
+  const mismatched = {
+    ...component,
+    ports: component.ports.map((port) => {
+      if (port.name === 'data_i') return { ...port, type: 'std_logic_vector(7 downto 0)' };
+      if (port.name === 'data_o') return { ...port, type: 'std_logic_vector(15 downto 0)' };
+      return port;
+    }),
+  };
+  const result = evaluateVerifiedVhdlParameterCompatibility({
+    component: mismatched,
+    candidate: makeCandidate(mismatched, fifoRtl(32, 16)),
+  });
+  assert.equal(result.kind, 'parameter_unsafe');
+  assert.match(result.unsafeReasons.join('\n'), /generic_derivation_conflict/i);
+});

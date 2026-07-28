@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import type { FpgaArchitectureComponentContract } from './fpgaArchitectureContract';
 import type { GoldenLeafInterfaceItem } from './fpgaGoldenLeafLibrary';
 import type { VerifiedVhdlBlockNearMatch } from './fpgaVerifiedVhdlBlockLibrary';
+import { classifyVerifiedPortRole, rolesCompatible } from './fpgaVerifiedVhdlPortRoles';
 
 export type VerifiedVhdlParameterCompatibilityKind =
   | 'parameter_exact'
@@ -16,11 +17,21 @@ export type VerifiedVhdlParameterConstraint = {
   message: string;
 };
 
+export type VerifiedVhdlGenericDerivation = {
+  generic: string;
+  value: number;
+  source: 'approved-port-width';
+  sourceReference: string;
+  verifiedType: string;
+  approvedType: string;
+};
+
 export type VerifiedVhdlParameterCompatibilityResult = {
   kind: VerifiedVhdlParameterCompatibilityKind;
   genericMap: Record<string, string>;
   resolvedValues: Record<string, string>;
   constraints: VerifiedVhdlParameterConstraint[];
+  derivations: VerifiedVhdlGenericDerivation[];
   unsafeReasons: string[];
   requiresConfiguredSmoke: boolean;
   configurationHash: string;
@@ -51,6 +62,86 @@ function parseIntegerLiteral(value: string | null | undefined) {
   if (!/^[+-]?\d+$/.test(normalized)) return null;
   const parsed = Number.parseInt(normalized, 10);
   return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
+function widthOfConcreteVector(type: string) {
+  const normalized = normalizeType(type);
+  const match = normalized.match(/\((\d+)\s+downto\s+(\d+)\)/);
+  if (!match) return null;
+  return Math.abs(Number(match[1]) - Number(match[2])) + 1;
+}
+
+function genericWidthNameFromVectorType(type: string) {
+  const normalized = normalizeType(type);
+  const match = normalized.match(/\(([a-zA-Z][a-zA-Z0-9_]*)-1\s+downto\s+0\)/);
+  return match?.[1] || null;
+}
+
+function sameBaseName(left: string, right: string) {
+  const base = (value: string) => normalizeName(value)
+    .replace(/^(?:i_|o_)/, '')
+    .replace(/_(?:i|o|in|out)$/, '')
+    .replace(/^(?:in|out)_/, '');
+  return base(left) === base(right);
+}
+
+function findApprovedPortForVerifiedPort(params: {
+  verifiedPort: GoldenLeafInterfaceItem;
+  approvedPorts: GoldenLeafInterfaceItem[];
+  component: FpgaArchitectureComponentContract;
+}) {
+  const compatible = params.approvedPorts.filter((port) => normalizeName(port.mode) === normalizeName(params.verifiedPort.mode));
+  const exact = compatible.find((port) => normalizeName(port.name) === normalizeName(params.verifiedPort.name));
+  if (exact) return exact;
+  const baseMatches = compatible.filter((port) => sameBaseName(port.name, params.verifiedPort.name));
+  if (baseMatches.length === 1) return baseMatches[0];
+  const verifiedRole = classifyVerifiedPortRole(params.verifiedPort, params.component);
+  const roleMatches = compatible
+    .map((port) => ({ port, role: classifyVerifiedPortRole(port, params.component) }))
+    .filter((entry) => rolesCompatible(verifiedRole, entry.role));
+  return roleMatches.length === 1 ? roleMatches[0].port : null;
+}
+
+function deriveGenericWidthsFromPortTypes(params: {
+  component: FpgaArchitectureComponentContract;
+  candidate: VerifiedVhdlBlockNearMatch;
+}) {
+  const derivations: VerifiedVhdlGenericDerivation[] = [];
+  const unsafeReasons: string[] = [];
+  const values = new Map<string, VerifiedVhdlGenericDerivation>();
+  for (const verifiedPort of params.candidate.actualSignature.ports) {
+    const generic = genericWidthNameFromVectorType(verifiedPort.type);
+    if (!generic) continue;
+    const approvedPort = findApprovedPortForVerifiedPort({
+      verifiedPort,
+      approvedPorts: params.candidate.approvedSignature.ports,
+      component: params.component,
+    });
+    if (!approvedPort) continue;
+    const width = widthOfConcreteVector(approvedPort.type);
+    if (width === null) continue;
+    const key = normalizeName(generic);
+    const nextDerivation: VerifiedVhdlGenericDerivation = {
+      generic,
+      value: width,
+      source: 'approved-port-width',
+      sourceReference: approvedPort.name,
+      verifiedType: verifiedPort.type,
+      approvedType: approvedPort.type,
+    };
+    const previous = values.get(key);
+    if (previous && previous.value !== width) {
+      unsafeReasons.push(
+        `generic_derivation_conflict ${generic}: ${previous.value} from ${previous.sourceReference} conflicts with ${width} from ${approvedPort.name}`,
+      );
+      continue;
+    }
+    if (!previous) {
+      values.set(key, nextDerivation);
+      derivations.push(nextDerivation);
+    }
+  }
+  return { derivations, unsafeReasons };
 }
 
 function isIntegerLikeType(type: string) {
@@ -119,6 +210,9 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
   const approvedByName = new Map(approvedPublicGenerics.map((item) => [normalizeName(item.name), item]));
   const mappedApprovedGenericNames = new Set<string>();
   let changed = false;
+  const portWidthDerivation = deriveGenericWidthsFromPortTypes(params);
+  const derivedByGeneric = new Map(portWidthDerivation.derivations.map((entry) => [normalizeName(entry.generic), entry]));
+  unsafeReasons.push(...portWidthDerivation.unsafeReasons);
 
   for (const verifiedGeneric of verifiedPublicGenerics) {
     const approvedGeneric = approvedByName.get(normalizeName(verifiedGeneric.name));
@@ -133,7 +227,9 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
     genericMap[verifiedGeneric.name] = approvedGeneric.name;
     mappedApprovedGenericNames.add(normalizeName(approvedGeneric.name));
     const verifiedDefault = normalizeValue(verifiedGeneric.defaultValue);
-    const approvedDefault = normalizeValue(approvedGeneric.defaultValue);
+    const derived = derivedByGeneric.get(normalizeName(verifiedGeneric.name));
+    const approvedDefault = derived ? String(derived.value) : normalizeValue(approvedGeneric.defaultValue);
+    if (derived) genericMap[verifiedGeneric.name] = approvedDefault;
     resolvedValues[verifiedGeneric.name] = approvedDefault || verifiedDefault;
     if (verifiedDefault !== approvedDefault) changed = true;
 
@@ -272,13 +368,14 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
     resolvedValues,
   });
   if (unsafeReasons.length > 0) {
-    return { kind: 'parameter_unsafe', genericMap, resolvedValues, constraints, unsafeReasons, requiresConfiguredSmoke: false, configurationHash };
+    return { kind: 'parameter_unsafe', genericMap, resolvedValues, constraints, derivations: portWidthDerivation.derivations, unsafeReasons, requiresConfiguredSmoke: false, configurationHash };
   }
   return {
     kind: changed ? 'parameter_safe_configured' : 'parameter_exact',
     genericMap,
     resolvedValues,
     constraints,
+    derivations: portWidthDerivation.derivations,
     unsafeReasons,
     requiresConfiguredSmoke: changed,
     configurationHash,

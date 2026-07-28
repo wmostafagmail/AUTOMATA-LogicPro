@@ -139,6 +139,16 @@ function matchInterfaceItem(
     rx_data: ['data', 'data_o', 'payload_o', 'out_data'],
     rx_valid: ['valid', 'valid_o', 'data_valid', 'data_valid_o'],
     framing_error: ['error', 'error_o', 'err_o', 'framing_error_o'],
+    tx_data: ['data', 'data_i', 'payload_i', 'in_data'],
+    tx_valid: ['valid', 'valid_i', 'data_valid_i', 'request_valid_i'],
+    tx_ready: ['ready', 'ready_o', 'request_ready_o'],
+    uart_tx: ['tx', 'tx_o', 'serial_tx', 'serial_tx_o'],
+    busy: ['busy_o', 'busy', 'status_o'],
+    src_addr: ['src_addr', 'src_addr_i', 'read_addr', 'read_addr_i', 'rd_addr_i'],
+    dst_addr: ['dst_addr', 'dst_addr_i', 'write_addr', 'write_addr_i', 'wr_addr_i'],
+    data_in: ['data_i', 'write_data_i', 'wr_data_i'],
+    data_out: ['data_o', 'read_data_o', 'rd_data_o'],
+    start: ['start_i', 'enable_i'],
   };
   const aliasMatches = compatibleItems.filter((item) => (aliases[verifiedBase] || []).includes(baseSignalName(item.name)));
   if (aliasMatches.length === 1) return { item: aliasMatches[0], adapterKind: 'name_alias' };
@@ -164,6 +174,11 @@ function safeExtraInputDefault(name: string) {
   if (/^(?:clear|clr|flush|load|start|valid|ready|stall|hold|redirect_valid|branch_valid|jump_valid|load_valid)(?:_i)?$/.test(normalized)) return "'0'";
   if (/^(?:sequential_advance|advance|step|increment_enable)(?:_i)?$/.test(normalized)) return "'1'";
   return null;
+}
+
+function describePortRole(port: GoldenLeafInterfaceItem, component: FpgaArchitectureComponentContract) {
+  const role = classifyVerifiedPortRole(port, component);
+  return `${port.name}{mode=${port.mode || 'generic'}, type=${port.type}, role=${role.role}, confidence=${role.confidence}}`;
 }
 
 function adaptedSignalName(name: string) {
@@ -276,7 +291,17 @@ export function planVerifiedVhdlWrapper(params: {
         mismatches.push({ kind: 'extra_output_open', verifiedName: verifiedPort.name, message: `Extra verified output ${verifiedPort.name} left open` });
         continue;
       }
-      unsafeReasons.push(`verified port ${verifiedPort.name} cannot be safely mapped`);
+      const verifiedRole = classifyVerifiedPortRole(verifiedPort, params.component);
+      const compatibleCandidates = approvedPorts
+        .filter((port) => port.mode === verifiedPort.mode)
+        .map((port) => describePortRole(port, params.component))
+        .join('; ') || 'none';
+      unsafeReasons.push(
+        `verified port ${verifiedPort.name} cannot be safely mapped; ` +
+        `capability=${params.component.id}; verified=${describePortRole(verifiedPort, params.component)}; ` +
+        `approvedRoleNeeded=${verifiedRole.role}; ambiguityCandidates=${compatibleCandidates}; ` +
+        `resolvedGenerics=${JSON.stringify(resolvedGenericValues)}`,
+      );
       mismatches.push({ kind: 'extra_port', verifiedName: verifiedPort.name, verifiedType: verifiedPort.type, message: `Extra verified port ${verifiedPort.name} cannot be mapped safely` });
       continue;
     }
@@ -316,7 +341,13 @@ export function planVerifiedVhdlWrapper(params: {
       continue;
     }
     if (!isSafeVectorConversion(approvedPort.type, verifiedPort.type, resolvedGenericValues)) {
-      unsafeReasons.push(`port ${approvedPort.name}/${verifiedPort.name} type differs unsafely: ${approvedPort.type} vs ${verifiedPort.type}`);
+      const substitutedVerifiedType = substituteResolvedGenerics(verifiedPort.type, resolvedGenericValues);
+      unsafeReasons.push(
+        `port ${approvedPort.name}/${verifiedPort.name} type differs unsafely: ` +
+        `${approvedPort.type} vs ${verifiedPort.type}; verifiedTypeAfterSubstitution=${substitutedVerifiedType}; ` +
+        `approved=${describePortRole(approvedPort, params.component)}; verified=${describePortRole(verifiedPort, params.component)}; ` +
+        `resolvedGenerics=${JSON.stringify(resolvedGenericValues)}`,
+      );
       mismatches.push({ kind: 'port_type_mismatch', approvedName: approvedPort.name, verifiedName: verifiedPort.name, approvedType: approvedPort.type, verifiedType: verifiedPort.type, message: `Unsafe type mismatch for ${approvedPort.name}` });
       continue;
     }

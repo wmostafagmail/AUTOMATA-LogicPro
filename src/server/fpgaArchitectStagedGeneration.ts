@@ -40,6 +40,7 @@ import {
   promoteVerifiedVhdlGenericsIntoComponent,
 } from './fpgaArchitectureParameterIntent';
 import { findBootstrapFacadeNearMatch } from './fpgaBootstrapArchitectureResolver';
+import { normalizeComponentContractForVerifiedCapability } from './fpgaCapabilityContractNormalizer';
 import { renderDeterministicLeafTemplate } from './fpgaDeterministicLeafTemplates';
 import type { FpgaVhdlImplementationPolicy } from './fpgaPipelineConfig';
 
@@ -1224,58 +1225,72 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
         verifiedVhdlBlock: verifiedCandidate,
       };
     }
-    const bootstrapFacade = findBootstrapFacadeNearMatch({
+    const capabilityNormalization = normalizeComponentContractForVerifiedCapability({
+      contract: params.contract,
       component: params.component,
+    });
+    const verifiedComponent = capabilityNormalization.component;
+    const verifiedContract = capabilityNormalization.contract;
+    const bootstrapFacade = findBootstrapFacadeNearMatch({
+      component: verifiedComponent,
       verifiedLibraryRoot: params.verifiedVhdlBlockLibraryRoot || undefined,
       qualificationPath: params.verifiedVhdlBlockQualificationPath || undefined,
     });
     if (bootstrapFacade) {
-      const wrapperPlan = planVerifiedVhdlWrapper({
-        component: params.component,
+      const bootstrapParameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({
+        component: verifiedComponent,
         candidate: bootstrapFacade,
+      });
+      const wrapperPlan = planVerifiedVhdlWrapper({
+        component: verifiedComponent,
+        candidate: bootstrapFacade,
+        parameterCompatibility: bootstrapParameterCompatibility.kind === 'parameter_unsafe'
+          ? undefined
+          : bootstrapParameterCompatibility,
       });
       if (wrapperPlan.kind === 'wrapper_safe') {
         const content = normalizeStagedVhdlContent(renderVerifiedVhdlWrapper({
-          contract: params.contract,
-          component: params.component,
+          contract: verifiedContract,
+          component: verifiedComponent,
           plan: wrapperPlan,
         }));
-        assertGeneratedComponentInterface(params.stage, params.component, content);
+        assertGeneratedComponentInterface(params.stage, verifiedComponent, content);
         return {
           content,
           attempts: stageAttempts,
           dependencyFiles: [...bootstrapFacade.dependencyFiles, bootstrapFacade.rtlFile],
           verifiedVhdlBlock: bootstrapFacade,
           verifiedWrapperPlan: wrapperPlan,
+          contract: verifiedContract,
         };
       }
     }
     const nearMatch = findVerifiedVhdlBlockNearMatch({
-      component: params.component,
+      component: verifiedComponent,
       libraryRoot: params.verifiedVhdlBlockLibraryRoot || undefined,
       qualificationPath: params.verifiedVhdlBlockQualificationPath || undefined,
     });
     if (nearMatch) {
       const promotion = promoteVerifiedVhdlGenericsIntoComponent({
-        component: params.component,
+        component: verifiedComponent,
         verifiedGenerics: nearMatch.actualSignature.generics,
         userRequest: [
-          params.contract.systemIntent,
-          ...(params.contract.assumptions || []),
-          JSON.stringify(params.contract.intent?.explicitRequirements || {}),
-          JSON.stringify(params.contract.sourceGroundedRequirements || []),
+          verifiedContract.systemIntent,
+          ...(verifiedContract.assumptions || []),
+          JSON.stringify(verifiedContract.intent?.explicitRequirements || {}),
+          JSON.stringify(verifiedContract.sourceGroundedRequirements || []),
         ].join('\n'),
       });
       if (promotion.unsafeReasons.length > 0) {
         if (params.hybridOnUnsafeWrapper !== false) {
           throw new HybridImplementationSourceUnresolvedError({
             stage: params.stage,
-            component: params.component,
+            component: verifiedComponent,
             candidate: nearMatch,
             plan: {
               kind: 'wrapper_unsafe',
-              componentId: params.component.id,
-              approvedEntityName: params.component.name,
+              componentId: verifiedComponent.id,
+              approvedEntityName: verifiedComponent.name,
               verifiedBlockName: nearMatch.blockName,
               verifiedEntityName: nearMatch.entityName,
               mismatches: promotion.unsafeReasons.map((reason) => ({ kind: 'generic_parameter_mismatch', message: reason })),
@@ -1291,8 +1306,8 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       }
       const promotedComponent = promotion.component;
       const promotedContract = applyVerifiedGenericPromotionToContract({
-        contract: params.contract,
-        component: params.component,
+        contract: verifiedContract,
+        component: verifiedComponent,
         promotion,
       });
       const promotedNearMatch: VerifiedVhdlBlockNearMatch = {
@@ -1396,7 +1411,7 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       }
       throw new VerifiedWrapperUnsafeMismatchError({
         stage: params.stage,
-        component: params.component,
+        component: promotedComponent,
         candidate: effectiveNearMatch,
         plan: wrapperPlan,
       });
