@@ -229,10 +229,10 @@ test('capability normalization promotes video timing config ports before wrapper
     'end architecture;',
     '',
   ].join('\n');
-  const candidate = makeCandidate(verifiedContent, 'sync_generator_det_cfg', normalized.component);
-  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({ component: normalized.component, candidate });
+  const candidate = makeCandidate(verifiedContent, 'sync_generator_det_cfg', normalized.component as any);
+  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({ component: normalized.component as any, candidate });
   assert.notEqual(parameterCompatibility.kind, 'parameter_unsafe');
-  const plan = planVerifiedVhdlWrapper({ component: normalized.component, candidate, parameterCompatibility });
+  const plan = planVerifiedVhdlWrapper({ component: normalized.component as any, candidate, parameterCompatibility });
   assert.equal(plan.kind, 'wrapper_safe');
   assert.equal(plan.portAssociations.h_active, 'h_active');
   assert.ok(plan.mismatches.some((entry) => entry.kind === 'approved_leaf_input_ignored' && entry.approvedName === 'data_i'));
@@ -284,10 +284,10 @@ test('capability normalization promotes program-counter redirect contract before
     'end architecture;',
     '',
   ].join('\n');
-  const candidate = makeCandidate(verifiedContent, 'program_counter_det_cfg', normalized.component);
-  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({ component: normalized.component, candidate });
+  const candidate = makeCandidate(verifiedContent, 'program_counter_det_cfg', normalized.component as any);
+  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({ component: normalized.component as any, candidate });
   assert.notEqual(parameterCompatibility.kind, 'parameter_unsafe');
-  const plan = planVerifiedVhdlWrapper({ component: normalized.component, candidate, parameterCompatibility });
+  const plan = planVerifiedVhdlWrapper({ component: normalized.component as any, candidate, parameterCompatibility });
   assert.equal(plan.kind, 'wrapper_safe');
   assert.equal(plan.portAssociations.redirect_pc, 'redirect_pc_i');
   assert.equal(plan.portAssociations.redirect_valid, 'redirect_valid_i');
@@ -395,9 +395,9 @@ test('capability normalization makes UART TX bootstrap facade wrapper-safe witho
     'architecture rtl of uart_tx_basic is begin end architecture;',
     '',
   ].join('\n');
-  const candidate = makeCandidate(facadeContent, 'uart_tx_basic', normalized.component);
+  const candidate = makeCandidate(facadeContent, 'uart_tx_basic', normalized.component as any);
   const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({
-    component: normalized.component,
+    component: normalized.component as any,
     candidate,
   });
   assert.notEqual(parameterCompatibility.kind, 'parameter_unsafe');

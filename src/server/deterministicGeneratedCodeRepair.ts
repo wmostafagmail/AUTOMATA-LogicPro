@@ -1594,7 +1594,7 @@ function repairMultipleSignalDriverOrSliceAssignment(content: string, detail: Ge
   const assignmentPattern = new RegExp(`\\b${escaped}\\s*(?:\\([^\\n;]*\\))?\\s*<=`, 'i');
   const processPattern = /\bprocess(?:\s*\([^)]*\))?[\s\S]*?\bend\s+process\s*;/gi;
   const processMatches = Array.from(content.matchAll(processPattern))
-    .filter((match): match is RegExpMatchArray & { index: number } => match.index != null)
+    .filter((match): match is RegExpExecArray => match.index != null)
     .map((match) => ({
       start: match.index,
       end: match.index + match[0].length,

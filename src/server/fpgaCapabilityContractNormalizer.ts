@@ -224,10 +224,10 @@ function normalizeRegisterFile(params: {
   component: FpgaArchitectureComponentContract;
   audit: CapabilityContractNormalizationAudit;
 }) {
+  let component = params.component;
   const dataWidth = component.ports
     .map((port) => vectorWidth(port.type))
     .find((width) => width !== null) || 8;
-  let component = params.component;
   component = addGenericIfMissing({ component, audit: params.audit, name: 'ADDR_WIDTH', type: 'positive', defaultValue: '5' });
   component = addGenericIfMissing({ component, audit: params.audit, name: 'DATA_WIDTH', type: 'positive', defaultValue: String(dataWidth) });
   component = addPortIfMissing({

@@ -22,6 +22,7 @@ import { repairMalformedVhdlKeywordTypos } from './vhdlKeywordTypos';
 import {
   findGoldenLeafCandidate,
   buildLeafInterfaceSignature,
+  buildVhdlEntityInterfaceSignature,
   type GoldenLeafCandidate,
 } from './fpgaGoldenLeafLibrary';
 import {
@@ -1295,7 +1296,7 @@ function isDeterministicFifoFallbackCandidate(component: FpgaArchitectureCompone
 function renderDeterministicFifoFallback(
   component: FpgaArchitectureComponentContract,
   skeleton: string,
-  reason?: StagedPortInterfaceDriftError | StagedComponentEntityMissingError,
+  reason?: StagedPortInterfaceDriftError | StagedComponentEntityMissingError | StagedComponentOutputOwnershipError,
 ) {
   const outputAssignments = component.ports
     .filter((port) => port.mode === 'out' || port.mode === 'buffer' || port.mode === 'inout')

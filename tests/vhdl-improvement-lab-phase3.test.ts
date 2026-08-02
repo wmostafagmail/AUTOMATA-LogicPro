@@ -62,16 +62,19 @@ test('VHDL Lab Phase 3 builds audited dataset releases only from accepted artifa
     acceptedArtifacts: [{
       id: 'accepted_phase3',
       runId: 'run_phase3',
-      contractId: contractResult.contract.id,
-      contractHash: contractResult.contract.contractHash,
-      entityName: contractResult.contract.entityName,
+      contractId: (contractResult.contract as any).id,
+      contractHash: (contractResult.contract as any).contractHash,
+      entityName: (contractResult.contract as any).entityName,
       artifactPath,
       contentHash: lab.sha256(vhdl),
       createdAt: new Date(0).toISOString(),
     }],
   });
   const dataset = await lab.buildVhdlLabDatasetRelease({ name: 'phase3 dataset' });
-  assert.equal(dataset.ok, true);
+  assert.equal(dataset.ok, false);
+  assert.equal(dataset.release.status, 'AUDIT_FAILED');
+  assert.equal(dataset.release.schemaVersion, 2);
+  assert.equal(dataset.release.testCount, 0);
   assert.equal(dataset.release.recordCount, 1);
   assert.equal((await fs.readFile(path.join(dataset.release.datasetPath, 'records.jsonl'), 'utf8')).trim().split('\n').length, 1);
 });
@@ -142,7 +145,9 @@ test('VHDL Lab Phase 3 dataset builder supports capped verified 10k releases', a
     sourceType: 'verified_10k_blocks',
     maxLibraryRecords: 2,
   });
-  assert.equal(release.ok, true);
+  assert.equal(release.ok, false);
+  assert.equal(release.release.status, 'AUDIT_FAILED');
+  assert.equal(release.release.schemaVersion, 2);
   assert.equal(release.release.recordCount, 2);
   assert.equal(release.release.audit.sourceType, 'verified_10k_blocks');
   assert.equal((release.release.audit.verified10k as any).trusted, true);
@@ -169,7 +174,7 @@ test('VHDL Lab Phase 3 queues benchmark child runs and prompt candidates', async
   assert.equal(optimize.promptVersion.status, 'CANDIDATE');
   const benchmark = await lab.queueVhdlLabBenchmark({
     suiteId: 'smoke_core_contracts',
-    contractIds: [contractResult.contract.id],
+    contractIds: [(contractResult.contract as any).id],
     promptVersionId: optimize.promptVersion.id,
     seedList: [42, 43],
   });
@@ -196,7 +201,7 @@ test('VHDL Lab Phase 3 benchmark finalizer marks interrupted child runs instead 
     ...state,
     runs: [{
       id: runId,
-      contractId: contractResult.contract.id,
+      contractId: (contractResult.contract as any).id,
       modelProfileId: null,
       promptVersionId: state.promptVersions[0].id,
       verificationProfileId: state.verificationProfiles[0].id,
@@ -225,7 +230,7 @@ test('VHDL Lab Phase 3 benchmark finalizer marks interrupted child runs instead 
       id: 'benchmark_interrupted_child',
       suiteId: 'smoke_core_contracts',
       status: 'RUNNING' as const,
-      contractIds: [contractResult.contract.id],
+      contractIds: [(contractResult.contract as any).id],
       childRunIds: [runId],
       modelProfileId: null,
       promptVersionId: state.promptVersions[0].id,
@@ -291,12 +296,14 @@ test('VHDL Lab Phase 3 reports MLX unavailable without failing the app', async (
     const state = await lab.readVhdlLabState();
     const release = {
       id: 'dataset_training_test',
+      schemaVersion: 2 as const,
       status: 'BUILT' as const,
       name: 'training test',
-      recordCount: 1,
-      trainCount: 1,
-      validationCount: 0,
-      holdoutCount: 0,
+      recordCount: 160,
+      trainCount: 100,
+      validationCount: 20,
+      testCount: 20,
+      holdoutCount: 20,
       manifestPath: '/tmp/manifest.json',
       datasetPath: '/tmp/dataset',
       sourceRunIds: ['run_a'],
@@ -329,12 +336,14 @@ test('VHDL Lab Phase 3 creates a fresh training run for repeated same dataset an
     const state = await lab.readVhdlLabState();
     const release = {
       id: 'dataset_training_unique_test',
+      schemaVersion: 2 as const,
       status: 'BUILT' as const,
       name: 'training unique test',
-      recordCount: 1,
-      trainCount: 1,
-      validationCount: 0,
-      holdoutCount: 0,
+      recordCount: 160,
+      trainCount: 100,
+      validationCount: 20,
+      testCount: 20,
+      holdoutCount: 20,
       manifestPath: '/tmp/manifest.json',
       datasetPath: '/tmp/dataset',
       sourceRunIds: ['run_a'],
@@ -363,7 +372,24 @@ test('VHDL Lab Phase 3 launches local MLX LoRA training and records a checkpoint
   process.env.VHDL_LAB_DATA_ROOT = dataRoot;
   const oldCommand = process.env.VHDL_LAB_MLX_LORA_COMMAND;
   const fakeCommand = path.join(dataRoot, 'fake-mlx-lora.sh');
-  await fs.writeFile(fakeCommand, '#!/bin/sh\nprintf "%s\\n" "$@" > "$PWD/invocation.args"\nmkdir -p "$PWD/adapter"\nexit 0\n');
+  await fs.writeFile(fakeCommand, [
+    '#!/bin/sh',
+    'printf "%s\\n" "$@" > "$PWD/invocation.args"',
+    'if echo "$@" | grep -q "best-adapter-test-config"; then',
+    '  echo "Test loss 0.321, Test ppl 1.378."',
+    '  exit 0',
+    'fi',
+    'mkdir -p "$PWD/adapter"',
+    'printf "weights" > "$PWD/adapter/0000100_adapters.safetensors"',
+    'printf "final" > "$PWD/adapter/adapters.safetensors"',
+    'printf "{\\"adapter\\":\\"lora\\"}\\n" > "$PWD/adapter/adapter_config.json"',
+    'echo "Trainable parameters: 0.123% (45.678M/37000.000M)"',
+    'echo "Iter 10: Train loss 0.900"',
+    'echo "Iter 100: Val loss 0.500, Val took 1.0s"',
+    'echo "Peak mem 2.5 GB"',
+    'exit 0',
+    '',
+  ].join('\n'));
   await fs.chmod(fakeCommand, 0o755);
   process.env.VHDL_LAB_MLX_LORA_COMMAND = fakeCommand;
   try {
@@ -373,16 +399,19 @@ test('VHDL Lab Phase 3 launches local MLX LoRA training and records a checkpoint
     await fs.mkdir(datasetPath, { recursive: true });
     await fs.writeFile(path.join(datasetPath, 'train.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
     await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
+    await fs.writeFile(path.join(datasetPath, 'test.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
     await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
     const state = await lab.readVhdlLabState();
     const release = {
       id: 'dataset_mlx_launch_test',
+      schemaVersion: 2 as const,
       status: 'BUILT' as const,
       name: 'mlx launch test',
-      recordCount: 1,
-      trainCount: 1,
-      validationCount: 1,
-      holdoutCount: 1,
+      recordCount: 160,
+      trainCount: 100,
+      validationCount: 20,
+      testCount: 20,
+      holdoutCount: 20,
       manifestPath: path.join(datasetPath, 'manifest.json'),
       datasetPath,
       sourceRunIds: ['run_a'],
@@ -395,7 +424,7 @@ test('VHDL Lab Phase 3 launches local MLX LoRA training and records a checkpoint
     const training = await lab.createVhdlLabTrainingRun({
       datasetReleaseId: release.id,
       baseModel: 'local-mlx-model',
-      config: { iters: 1, batchSize: 1, maxSeqLength: 128 },
+      config: { profile: 'quality_v1' },
     });
     assert.equal(training.ok, true);
     if (!training.ok) return;
@@ -409,11 +438,16 @@ test('VHDL Lab Phase 3 launches local MLX LoRA training and records a checkpoint
     const finalRun = finalState.trainingRuns.find((entry) => entry.id === training.trainingRun.id);
     assert.equal(finalRun?.status, 'COMPLETED');
     assert.equal(finalRun?.checkpointIds.length, 1);
-    assert.match(await fs.readFile(path.join(training.trainingRun.outputPath, 'invocation.args'), 'utf8'), /--train/);
+    assert.match(await fs.readFile(path.join(training.trainingRun.outputPath, 'invocation.args'), 'utf8'), /--config/);
+    assert.match(await fs.readFile(path.join(training.trainingRun.outputPath, 'mlx-lora-config.yaml'), 'utf8'), /max_seq_length: 4096/);
     const mlxTrainRecord = JSON.parse((await fs.readFile(path.join(training.trainingRun.outputPath, 'mlx-data', 'train.jsonl'), 'utf8')).trim().split(/\r?\n/)[0]);
     assert.equal(Array.isArray(mlxTrainRecord.messages), true);
     assert.equal(typeof mlxTrainRecord.messages[1].content, 'string');
-    assert.equal((finalState.checkpoints || []).some((entry) => entry.trainingRunId === training.trainingRun.id), true);
+    const checkpoint = (finalState.checkpoints || []).find((entry) => entry.trainingRunId === training.trainingRun.id);
+    assert(checkpoint);
+    assert.match(checkpoint.checkpointPath, /best-adapter$/);
+    assert.equal(checkpoint.metrics.mlxHeldoutTestLoss, 0.321);
+    assert.equal(checkpoint.metrics.mlxHeldoutTestPpl, 1.378);
   } finally {
     if (oldCommand === undefined) delete process.env.VHDL_LAB_MLX_LORA_COMMAND;
     else process.env.VHDL_LAB_MLX_LORA_COMMAND = oldCommand;
@@ -480,7 +514,7 @@ VHDL
     if (!contractResult.ok) return;
     const datasetPath = path.join(dataRoot, 'dataset');
     await fs.mkdir(datasetPath, { recursive: true });
-    const holdoutRecord = { contractId: contractResult.contract.id, prompt: 'contract', completion: 'rtl' };
+    const holdoutRecord = { contractId: (contractResult.contract as any).id, prompt: 'contract', completion: 'rtl' };
     await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'train.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
@@ -491,11 +525,13 @@ VHDL
       ...state,
       datasetReleases: [{
         id: 'dataset_checkpoint_benchmark_test',
+        schemaVersion: 2 as const,
         status: 'BUILT' as const,
         name: 'checkpoint benchmark test',
         recordCount: 1,
         trainCount: 1,
         validationCount: 1,
+        testCount: 1,
         holdoutCount: 1,
         manifestPath: path.join(datasetPath, 'manifest.json'),
         datasetPath,
@@ -658,7 +694,7 @@ esac
     if (!contractResult.ok) return;
     const datasetPath = path.join(dataRoot, 'dataset');
     await fs.mkdir(datasetPath, { recursive: true });
-    const holdoutRecord = { contractId: contractResult.contract.id, prompt: 'contract', completion: 'rtl' };
+    const holdoutRecord = { contractId: (contractResult.contract as any).id, prompt: 'contract', completion: 'rtl' };
     await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'train.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
@@ -669,11 +705,13 @@ esac
       ...state,
       datasetReleases: [{
         id: 'dataset_checkpoint_repair_test',
+        schemaVersion: 2 as const,
         status: 'BUILT' as const,
         name: 'checkpoint repair test',
         recordCount: 1,
         trainCount: 1,
         validationCount: 1,
+        testCount: 1,
         holdoutCount: 1,
         manifestPath: path.join(datasetPath, 'manifest.json'),
         datasetPath,
@@ -788,7 +826,7 @@ VHDL
     if (!contractResult.ok) return;
     const datasetPath = path.join(dataRoot, 'dataset');
     await fs.mkdir(datasetPath, { recursive: true });
-    const holdoutRecord = { contractId: contractResult.contract.id, prompt: 'contract', completion: 'rtl' };
+    const holdoutRecord = { contractId: (contractResult.contract as any).id, prompt: 'contract', completion: 'rtl' };
     await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'train.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
@@ -799,11 +837,13 @@ VHDL
       ...state,
       datasetReleases: [{
         id: 'dataset_checkpoint_fallback_test',
+        schemaVersion: 2 as const,
         status: 'BUILT' as const,
         name: 'checkpoint fallback test',
         recordCount: 1,
         trainCount: 1,
         validationCount: 1,
+        testCount: 1,
         holdoutCount: 1,
         manifestPath: path.join(datasetPath, 'manifest.json'),
         datasetPath,
@@ -961,7 +1001,7 @@ VHDL
     if (!contractResult.ok) return;
     const datasetPath = path.join(dataRoot, 'dataset');
     await fs.mkdir(datasetPath, { recursive: true });
-    const holdoutRecord = { contractId: contractResult.contract.id, prompt: 'contract', completion: 'rtl' };
+    const holdoutRecord = { contractId: (contractResult.contract as any).id, prompt: 'contract', completion: 'rtl' };
     await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'train.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
     await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify(holdoutRecord)}\n`);
@@ -972,11 +1012,13 @@ VHDL
       ...state,
       datasetReleases: [{
         id: 'dataset_checkpoint_ghdl_fallback_test',
+        schemaVersion: 2 as const,
         status: 'BUILT' as const,
         name: 'checkpoint ghdl fallback test',
         recordCount: 1,
         trainCount: 1,
         validationCount: 1,
+        testCount: 1,
         holdoutCount: 1,
         manifestPath: path.join(datasetPath, 'manifest.json'),
         datasetPath,
@@ -1048,11 +1090,13 @@ test('VHDL Lab Phase 3 refuses checkpoint promotion without smoke and holdout ev
     ...state,
     datasetReleases: [{
       id: 'dataset_promotion_missing',
+      schemaVersion: 2 as const,
       status: 'BUILT',
       name: 'promotion missing dataset',
       recordCount: 1,
       trainCount: 1,
       validationCount: 0,
+      testCount: 0,
       holdoutCount: 0,
       manifestPath: path.join(process.env.VHDL_LAB_DATA_ROOT!, 'datasets', 'dataset_promotion_missing', 'manifest.json'),
       datasetPath: path.join(process.env.VHDL_LAB_DATA_ROOT!, 'datasets', 'dataset_promotion_missing'),
@@ -1142,11 +1186,13 @@ test('VHDL Lab Phase 3 materializes category-balanced promotion holdouts from ve
     ...state,
     datasetReleases: [{
       id: 'dataset_materialized_holdout',
+      schemaVersion: 2 as const,
       status: 'BUILT',
       name: 'materialized holdout dataset',
       recordCount: 2,
       trainCount: 0,
       validationCount: 0,
+      testCount: 0,
       holdoutCount: 2,
       manifestPath: path.join(datasetPath, 'manifest.json'),
       datasetPath,
@@ -1201,11 +1247,12 @@ test('VHDL Lab Phase 3 stores selected promotion strictness in benchmark summary
     ...state,
     contracts: Array.from({ length: 6 }, (_, index) => ({
       id: `strictness_contract_${index}`,
+      version: 1,
       status: 'FROZEN',
       name: `Strictness Contract ${index}`,
       taskFamily: index % 2 === 0 ? 'protocol' : 'dsp',
       entityName: `strictness_entity_${index}`,
-      contractJson: { entity: { name: `strictness_entity_${index}` } },
+      contractJson: { ...makeContract(), entity: { name: `strictness_entity_${index}` } },
       contractHash: `hash_${index}`,
       sourceType: 'fixture',
       sourceReference: 'test',
@@ -1279,11 +1326,13 @@ test('VHDL Lab Phase 3 blocks production promotion when passes required fallback
     ...state,
     datasetReleases: [{
       id: 'dataset_promotion_fallback',
+      schemaVersion: 2 as const,
       status: 'BUILT',
       name: 'promotion fallback dataset',
       recordCount: 5,
       trainCount: 4,
       validationCount: 0,
+      testCount: 0,
       holdoutCount: 1,
       manifestPath: '/tmp/manifest.json',
       datasetPath: '/tmp/dataset',
@@ -1384,11 +1433,13 @@ test('VHDL Lab Phase 3 promotes only clean smoke plus holdout adapter evidence',
     ...state,
     datasetReleases: [{
       id: 'dataset_promotion_clean',
+      schemaVersion: 2 as const,
       status: 'BUILT',
       name: 'promotion clean dataset',
       recordCount: 10,
       trainCount: 8,
       validationCount: 1,
+      testCount: 1,
       holdoutCount: 1,
       manifestPath: '/tmp/manifest.json',
       datasetPath: '/tmp/dataset',

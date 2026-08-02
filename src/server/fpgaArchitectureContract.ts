@@ -33,6 +33,7 @@ import {
   applyResolvedFpgaArchitectureParameters,
   buildFpgaArchitectureParameterClarificationIssues,
   validateFpgaArchitectureParameterCompleteness,
+  type FpgaArchitectureParameterClarificationRequest,
 } from './fpgaArchitectureParameterIntent';
 import { VHDL_RESERVED_IDENTIFIERS } from './ghdlStrictVhdlRules';
 import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
@@ -499,7 +500,7 @@ export function buildFpgaArchitectureContractDraft(params: {
   const contractedVerificationExpected = isUartSpiProtocolBridge
     ? 'Reset drives done_o = 0, error_o = 0, and status_o = x"00"; after start_i with x"5A", done_o asserts, error_o remains 0, and status_o equals x"01" within four clock cycles.'
     : 'Reset drives outputs to zero; after start_i, done_o asserts, error_o remains zero, and status_o is deterministic.';
-  const contractedVerificationActions = isUartSpiProtocolBridge
+  const contractedVerificationActions: FpgaArchitectureScenarioAction[] = isUartSpiProtocolBridge
     ? [
       { kind: 'drive', signal: 'rst', value: "'1'" },
       { kind: 'drive', signal: 'start_i', value: "'0'" },
@@ -2800,9 +2801,10 @@ export async function proposeApprovedFpgaArchitectureContract<TTelemetry>(params
         intent,
       });
       if (!parameterValidation.ok) {
+        const clarification = (parameterValidation as { ok: false; clarificationRequest: FpgaArchitectureParameterClarificationRequest }).clarificationRequest;
         throw new FpgaArchitectureContractError(
-          `Architecture parameters need clarification before VHDL generation. ${parameterValidation.clarificationRequest.questions.join(' ')}`,
-          buildFpgaArchitectureParameterClarificationIssues(parameterValidation.clarificationRequest),
+          `Architecture parameters need clarification before VHDL generation. ${clarification.questions.join(' ')}`,
+          buildFpgaArchitectureParameterClarificationIssues(clarification),
         );
       }
       const parameterizedContract = applyResolvedFpgaArchitectureParameters({

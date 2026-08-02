@@ -40,7 +40,7 @@ type VhdlLabOverview = {
     completedAt?: string | null;
   }>;
   failureClusters: Array<{ id: string; category: string; occurrenceCount: number; status: string }>;
-  datasetReleases: Array<{ id: string; status: string; recordCount?: number; trainCount?: number; validationCount?: number; holdoutCount?: number; audit?: Record<string, unknown> }>;
+  datasetReleases: Array<{ id: string; status: string; recordCount?: number; trainCount?: number; validationCount?: number; testCount?: number; holdoutCount?: number; schemaVersion?: number; audit?: Record<string, unknown> }>;
   trainingRuns: Array<{ id: string; status: string; error?: string | null; baseModel?: string; adapterName?: string; logPath?: string }>;
   checkpoints?: Array<{
     id: string;
@@ -374,7 +374,9 @@ export function VhdlImprovementLabPanel({ onClose }: { onClose: () => void }) {
       : visibleBenchmarks.filter((benchmark) => benchmark.suiteId.startsWith('checkpoint_adapter_generation') && String(benchmark.summary?.adapterCheckpointId || '') === latestCheckpoint?.id);
     return candidates
       .sort((a, b) => {
-        const orderDelta = (visibleOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (visibleOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER);
+        const leftOrder = Number(visibleOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER);
+        const rightOrder = Number(visibleOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER);
+        const orderDelta = leftOrder - rightOrder;
         if (orderDelta !== 0) return orderDelta;
         return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       })[0] || null;
@@ -552,7 +554,7 @@ export function VhdlImprovementLabPanel({ onClose }: { onClose: () => void }) {
       body: JSON.stringify({
         datasetReleaseId: datasetId,
         baseModel: effectiveTrainingBaseModel,
-        config: { iters: 10, batchSize: 1, maxSeqLength: 1024, learningRate: 1e-5, maskPrompt: true },
+        config: { profile: 'quality_v1' },
       }),
     });
     const data = await readVhdlLabJson(response, 'LoRA training start');
@@ -700,6 +702,9 @@ export function VhdlImprovementLabPanel({ onClose }: { onClose: () => void }) {
                 <div className="mt-1 text-[13px] text-slate-400">
                   Choose the training data and MLX base model, then run the single training action. The app builds the dataset first when needed.
                 </div>
+                <div className="mt-3 rounded-lg border border-brand-cyan/20 bg-brand-cyan/10 px-3 py-2 text-[11px] font-bold text-brand-cyan">
+                  Quality v1: 3 epochs · 4,096 tokens · all layers · rank 16 · effective batch 8 · full validation/test · best-checkpoint selection
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -763,7 +768,7 @@ export function VhdlImprovementLabPanel({ onClose }: { onClose: () => void }) {
                 className="mt-4 w-full rounded-xl border border-brand-amber/30 bg-brand-amber/10 px-4 py-4 text-left text-[13px] font-black text-brand-amber hover:bg-brand-amber/15 disabled:opacity-50"
               >
                 {actionBusy === 'start-lora-training' ? <Loader2 size={16} className="mb-2 animate-spin" /> : <Database size={16} className="mb-2" />}
-                Build Dataset + Start LoRA Training
+                Build Dataset + Start Quality Training
               </button>
 
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -870,7 +875,7 @@ export function VhdlImprovementLabPanel({ onClose }: { onClose: () => void }) {
                   className="rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 px-3 py-3 text-left text-[12px] font-bold text-brand-cyan hover:bg-brand-cyan/15 disabled:opacity-50"
                 >
                   {actionBusy === 'benchmark-latest-checkpoint' ? <Loader2 size={14} className="mb-2 animate-spin" /> : <Play size={14} className="mb-2" />}
-                  Benchmark Latest Adapter
+                  Benchmark Best Adapter
                 </button>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <button

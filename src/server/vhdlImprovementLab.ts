@@ -5,6 +5,19 @@ import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { FPGA_ARCHITECT_SWEEP_DESIGNS } from '../fpgaArchitectSweepConfig';
 import { buildVerifiedVhdlLibraryTrainingRecords } from './fpgaVhdlLibraryTrainingDataset';
+import {
+  assignVhdlQualityDatasetSplit,
+  auditVhdlQualitySplitOverlaps,
+  deduplicateVhdlTrainingRecords,
+  normalizeVhdlContentForHash,
+  parseMlxTrainingMetrics,
+  renderMlxLoraConfigYaml,
+  renderMlxLoraTestConfigYaml,
+  resolveVhdlQualityTrainingConfig,
+  selectBestMlxAdapterCandidate,
+  validateVhdlQualityDatasetMinimums,
+  type VhdlQualityTrainingConfig,
+} from './vhdlTrainingQuality';
 
 const execFileAsync = promisify(execFile);
 const activeVhdlLabTrainingProcesses = new Map<string, ReturnType<typeof spawn>>();
@@ -223,11 +236,13 @@ export type VhdlLabFailureAdvisor = {
 
 export type VhdlLabDatasetRelease = {
   id: string;
+  schemaVersion: 1 | 2;
   status: 'BUILT' | 'AUDIT_FAILED';
   name: string;
   recordCount: number;
   trainCount: number;
   validationCount: number;
+  testCount: number;
   holdoutCount: number;
   manifestPath: string;
   datasetPath: string;
@@ -437,6 +452,8 @@ export type VhdlLabValidationIssue = {
 export type VhdlExtractionResult =
   | { ok: true; vhdl: string; entityName: string; architectureName: string }
   | { ok: false; issues: VhdlLabValidationIssue[] };
+
+type FailedVhdlExtractionResult = Extract<VhdlExtractionResult, { ok: false }>;
 
 export type ParsedVhdlEntityInterface = {
   entityName: string;
@@ -705,7 +722,11 @@ function normalizeVhdlLabState(state: VhdlLabState, dataRoot = getVhdlLabConfig(
   return {
     ...state,
     providers,
-    datasetReleases: state.datasetReleases || [],
+    datasetReleases: (state.datasetReleases || []).map((release: any) => ({
+      ...release,
+      schemaVersion: release.schemaVersion || 1,
+      testCount: Number(release.testCount || 0),
+    })),
     trainingRuns: state.trainingRuns || [],
     checkpoints: (state.checkpoints || []).map((checkpoint) => ({
       ...checkpoint,
@@ -2487,14 +2508,15 @@ async function validateVhdlLabAdapterCandidate(params: {
 
   const extraction = extractOneVhdlArtifact(params.rawText);
   if (!extraction.ok) {
+    const failedExtraction = extraction as FailedVhdlExtractionResult;
     return {
       ok: false as const,
       stage: 'extracting',
-      failureCode: failureCodeFromIssues('extracting', extraction.issues),
-      message: extraction.issues.map((issue) => `${issue.code}: ${issue.message}`).join('\n'),
+      failureCode: failureCodeFromIssues('extracting', failedExtraction.issues),
+      message: failedExtraction.issues.map((issue) => `${issue.code}: ${issue.message}`).join('\n'),
       artifactPath: null,
       rawResponse: params.rawText,
-      issues: extraction.issues,
+      issues: failedExtraction.issues,
       generatedVhdl: '',
     };
   }
@@ -2840,11 +2862,12 @@ export async function runVhdlLabWorkerOnce() {
       if (!run) return getVhdlLabWorkerSnapshot();
       const extraction = extractOneVhdlArtifact(generation.text);
       if (!extraction.ok) {
+        const failedExtraction = extraction as FailedVhdlExtractionResult;
         const packet = buildVhdlLabRepairPacket({
           stage: 'extracting',
           candidateAttempt,
-          issues: extraction.issues,
-          message: extraction.issues.map((issue) => `${issue.code}: ${issue.message}`).join(' '),
+          issues: failedExtraction.issues,
+          message: failedExtraction.issues.map((issue) => `${issue.code}: ${issue.message}`).join(' '),
         });
         await appendVhdlLabRepairAudit(run, packet);
         if (candidateAttempt < maxCandidateAttempts) {
@@ -2858,7 +2881,7 @@ export async function runVhdlLabWorkerOnce() {
             contract,
             promptVersion,
             rawResponse: generation.text,
-            extractionIssues: extraction.issues,
+            extractionIssues: failedExtraction.issues,
             repairAttempt: candidateAttempt,
             maxRepairAttempts: run.maxRepairAttempts,
           });
@@ -2871,7 +2894,7 @@ export async function runVhdlLabWorkerOnce() {
           if (!run) return getVhdlLabWorkerSnapshot();
           continue;
         }
-        await failVhdlLabRun({ run, contract, stage: 'extracting', message: extraction.issues.map((issue) => issue.message).join(' '), promptVersionId: promptVersion.id });
+        await failVhdlLabRun({ run, contract, stage: 'extracting', message: failedExtraction.issues.map((issue) => issue.message).join(' '), promptVersionId: promptVersion.id });
         return getVhdlLabWorkerSnapshot();
       }
       const assembledVhdl = assembleVhdlWithFrozenEntity(extraction.vhdl, contract);
@@ -3361,16 +3384,30 @@ function jsonl(values: unknown[]) {
   return values.map((value) => JSON.stringify(value)).join('\n') + (values.length ? '\n' : '');
 }
 
-function splitDatasetRecord(record: any) {
-  if (record.evaluationOnly) return 'holdout';
-  const bucket = parseInt(sha256(`${record.contractHash}:${record.recordType}`).slice(0, 8), 16) % 10;
-  if (bucket < 8) return 'train';
-  if (bucket === 8) return 'validation';
-  return 'holdout';
-}
-
 function containsLikelySecret(value: string) {
   return /\b(api[_-]?key|password|secret|token|bearer|github_pat_)\b/i.test(value);
+}
+
+function validateDatasetTrainingRecord(record: any) {
+  const completion = typeof record?.completion === 'string' ? record.completion : '';
+  if (!completion.trim()) return { ok: false as const, reason: 'empty_assistant_completion' };
+  try {
+    const normalized = normalizeMlxTrainingRecord(record);
+    const messages = Array.isArray(normalized.messages) ? normalized.messages : [];
+    const hasUser = messages.some((message: any) => message.role === 'user' && typeof message.content === 'string' && message.content.trim());
+    const final = messages[messages.length - 1];
+    const hasAssistant = final?.role === 'assistant' && typeof final.content === 'string' && final.content.trim();
+    if (!hasUser || !hasAssistant) return { ok: false as const, reason: 'malformed_chat_record' };
+    return { ok: true as const };
+  } catch {
+    return { ok: false as const, reason: 'malformed_chat_record' };
+  }
+}
+
+async function writeJsonlFile(filePath: string, values: unknown[]) {
+  const content = jsonl(values);
+  await fs.writeFile(filePath, content);
+  return sha256(content);
 }
 
 export async function buildVhdlLabDatasetRelease(params: {
@@ -3386,11 +3423,13 @@ export async function buildVhdlLabDatasetRelease(params: {
     if (!params.sourceRunIds?.length) return true;
     return params.sourceRunIds.includes(artifact.runId);
   });
-  const records: any[] = [];
+  let records: any[] = [];
   const audit: Record<string, unknown> = {
     sourceType,
     acceptedArtifacts: { excludedSecrets: 0, missingArtifacts: 0, excludedUnverified: 0, includedRecords: 0 },
     verified10k: null,
+    excludedMalformedTrainingRecords: 0,
+    excludedEmptyAssistantCompletions: 0,
   };
   if (sourceType === 'accepted_artifacts' || sourceType === 'mixed_accepted_and_verified_10k') {
     const acceptedAudit = audit.acceptedArtifacts as Record<string, number>;
@@ -3417,8 +3456,10 @@ export async function buildVhdlLabDatasetRelease(params: {
         recordType: 'contract_to_accepted_rtl',
         contractId: contract.id,
         contractHash: contract.contractHash,
+        contentHash: artifact.contentHash || sha256(normalizeVhdlContentForHash(vhdlContent)),
         entityName: contract.entityName,
         taskFamily: contract.taskFamily,
+        category: contract.taskFamily,
         prompt: {
           contractJson: contract.contractJson,
           instruction: `Generate one complete VHDL-2008 RTL file for entity ${contract.entityName}.`,
@@ -3426,6 +3467,7 @@ export async function buildVhdlLabDatasetRelease(params: {
         completion: vhdlContent,
         artifactId: artifact.id,
         runId: artifact.runId,
+        verificationStrength: 'ghdl_simulation',
         evaluationOnly: Boolean(contract.isBenchmarkHoldout),
         createdAt: nowIso(),
       });
@@ -3442,25 +3484,67 @@ export async function buildVhdlLabDatasetRelease(params: {
     audit.verified10k = verified.audit;
     records.push(...verified.records);
   }
+  records = records.filter((record) => {
+    const validation = validateDatasetTrainingRecord(record);
+    if (validation.ok) return true;
+    if (validation.reason === 'empty_assistant_completion') (audit.excludedEmptyAssistantCompletions as number) += 1;
+    else (audit.excludedMalformedTrainingRecords as number) += 1;
+    return false;
+  });
+  const deduplicated = deduplicateVhdlTrainingRecords(records, sha256);
+  records = deduplicated.records;
+  audit.exactDuplicateRecordsRemoved = deduplicated.removedCount;
+  audit.exactDuplicateGroups = deduplicated.duplicateGroups;
+  audit.evaluationOnlyDuplicateConflicts = deduplicated.evaluationOnlyConflicts;
   const datasetId = id('dataset', `${params.name || 'dataset'}:${records.map((record) => record.id).join(':')}`);
   const datasetPath = path.join(vhdlLabPaths().datasets, datasetId);
   await fs.mkdir(datasetPath, { recursive: true });
-  const train = records.filter((record) => splitDatasetRecord(record) === 'train');
-  const validation = records.filter((record) => splitDatasetRecord(record) === 'validation');
-  const holdout = records.filter((record) => splitDatasetRecord(record) === 'holdout');
+  const train = records.filter((record) => assignVhdlQualityDatasetSplit(record, sha256) === 'train');
+  const validation = records.filter((record) => assignVhdlQualityDatasetSplit(record, sha256) === 'validation');
+  const test = records.filter((record) => assignVhdlQualityDatasetSplit(record, sha256) === 'test');
+  const holdout = records.filter((record) => assignVhdlQualityDatasetSplit(record, sha256) === 'holdout');
+  const overlapAudit = auditVhdlQualitySplitOverlaps({ train, validation, test, holdout });
+  const qualityGate = validateVhdlQualityDatasetMinimums({
+    total: records.length,
+    trainCount: train.length,
+    validationCount: validation.length,
+    testCount: test.length,
+    holdoutCount: holdout.length,
+    overlapAudit,
+  });
+  const crossSplitOverlapCount = [
+    overlapAudit.trainValidationOverlap,
+    overlapAudit.trainTestOverlap,
+    overlapAudit.trainHoldoutOverlap,
+    overlapAudit.validationTestOverlap,
+    overlapAudit.validationHoldoutOverlap,
+    overlapAudit.testHoldoutOverlap,
+  ].reduce((sum, value) => sum + value, 0);
+  Object.assign(audit, overlapAudit, {
+    qualityGateIssues: qualityGate.qualityGateIssues,
+    qualityGatePassed: qualityGate.ok,
+    minimumTrain: qualityGate.minimumTrain,
+    minimumEvaluationSplit: qualityGate.minimumEvaluationSplit,
+    crossSplitOverlapCount,
+  });
   const manifestPath = path.join(datasetPath, 'manifest.json');
-  await fs.writeFile(path.join(datasetPath, 'records.jsonl'), jsonl(records));
-  await fs.writeFile(path.join(datasetPath, 'train.jsonl'), jsonl(train));
-  await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), jsonl(validation));
-  await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), jsonl(holdout));
+  const hashes = {
+    records: await writeJsonlFile(path.join(datasetPath, 'records.jsonl'), records),
+    train: await writeJsonlFile(path.join(datasetPath, 'train.jsonl'), train),
+    validation: await writeJsonlFile(path.join(datasetPath, 'validation.jsonl'), validation),
+    test: await writeJsonlFile(path.join(datasetPath, 'test.jsonl'), test),
+    holdout: await writeJsonlFile(path.join(datasetPath, 'holdout.jsonl'), holdout),
+  };
   await fs.writeFile(path.join(datasetPath, 'audit.json'), `${JSON.stringify(audit, null, 2)}\n`);
   const release: VhdlLabDatasetRelease = {
     id: datasetId,
-    status: records.length > 0 ? 'BUILT' : 'AUDIT_FAILED',
+    schemaVersion: 2,
+    status: records.length > 0 && qualityGate.ok && crossSplitOverlapCount === 0 ? 'BUILT' : 'AUDIT_FAILED',
     name: params.name || `Dataset ${new Date().toISOString()}`,
     recordCount: records.length,
     trainCount: train.length,
     validationCount: validation.length,
+    testCount: test.length,
     holdoutCount: holdout.length,
     manifestPath,
     datasetPath,
@@ -3470,7 +3554,18 @@ export async function buildVhdlLabDatasetRelease(params: {
     frozenAt: nowIso(),
     audit,
   };
-  await fs.writeFile(manifestPath, `${JSON.stringify({ release, splits: { train: train.length, validation: validation.length, holdout: holdout.length } }, null, 2)}\n`);
+  await fs.writeFile(manifestPath, `${JSON.stringify({
+    release,
+    schemaVersion: 2,
+    splits: { train: train.length, validation: validation.length, test: test.length, holdout: holdout.length },
+    hashes,
+    auditSummary: {
+      exactDuplicateRecordsRemoved: deduplicated.removedCount,
+      exactDuplicateGroups: deduplicated.duplicateGroups,
+      crossSplitOverlapCount,
+      qualityGatePassed: qualityGate.ok,
+    },
+  }, null, 2)}\n`);
   await writeVhdlLabState({ ...state, datasetReleases: [release, ...state.datasetReleases.filter((entry) => entry.id !== release.id)] });
   return { ok: release.status === 'BUILT', release, records };
 }
@@ -3774,19 +3869,6 @@ function stringTrainingConfig(config: Record<string, unknown>, key: string, fall
   return typeof value === 'string' && value.trim() ? value.trim() : fallback;
 }
 
-async function copyIfUseful(source: string, fallback: string, destination: string) {
-  try {
-    const content = await fs.readFile(source, 'utf8');
-    if (content.trim()) {
-      await fs.writeFile(destination, normalizeMlxTrainingJsonl(content));
-      return;
-    }
-  } catch {
-    // Use the fallback split below.
-  }
-  await fs.writeFile(destination, normalizeMlxTrainingJsonl(await fs.readFile(fallback, 'utf8')));
-}
-
 function mlXPromptTextFromRecord(record: any) {
   if (typeof record.prompt === 'string') return record.prompt;
   const instruction = typeof record.prompt?.instruction === 'string'
@@ -3838,20 +3920,126 @@ function normalizeMlxTrainingJsonl(content: string) {
     .join('\n') + '\n';
 }
 
-async function prepareMlxTrainingDataset(release: VhdlLabDatasetRelease, outputPath: string) {
+function countNonEmptyJsonlRecords(content: string) {
+  return content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length;
+}
+
+async function requireNonEmptyTrainingSplit(sourcePath: string, destinationPath: string, splitName: string) {
+  const content = await fs.readFile(sourcePath, 'utf8').catch(() => '');
+  if (!content.trim()) throw new Error(`Quality training requires a non-empty ${splitName} split.`);
+  const normalized = normalizeMlxTrainingJsonl(content);
+  if (countNonEmptyJsonlRecords(normalized) < 1) throw new Error(`Quality training requires at least one valid ${splitName} record.`);
+  await fs.writeFile(destinationPath, normalized);
+}
+
+export async function prepareMlxTrainingDataset(release: VhdlLabDatasetRelease, outputPath: string) {
+  if (release.schemaVersion !== 2) {
+    throw new Error('This dataset release predates isolated quality-training splits. Rebuild the dataset to create independent train, validation, test, and promotion-holdout splits.');
+  }
+  if (release.status !== 'BUILT') throw new Error('Dataset does not meet quality minimum record counts.');
   const trainSource = path.join(release.datasetPath, 'train.jsonl');
   const validationSource = path.join(release.datasetPath, 'validation.jsonl');
+  const testSource = path.join(release.datasetPath, 'test.jsonl');
   const holdoutSource = path.join(release.datasetPath, 'holdout.jsonl');
   const dataPath = path.join(outputPath, 'mlx-data');
   await fs.mkdir(dataPath, { recursive: true });
-  const trainContent = await fs.readFile(trainSource, 'utf8');
-  if (!trainContent.trim()) throw new Error('Dataset has no train.jsonl records. Build a dataset from accepted Lab artifacts before training.');
-  await fs.writeFile(path.join(dataPath, 'train.jsonl'), normalizeMlxTrainingJsonl(trainContent));
-  await copyIfUseful(validationSource, trainSource, path.join(dataPath, 'valid.jsonl'));
-  await copyIfUseful(holdoutSource, validationSource, path.join(dataPath, 'test.jsonl')).catch(async () => {
-    await fs.copyFile(trainSource, path.join(dataPath, 'test.jsonl'));
-  });
+  await requireNonEmptyTrainingSplit(trainSource, path.join(dataPath, 'train.jsonl'), 'train');
+  await requireNonEmptyTrainingSplit(validationSource, path.join(dataPath, 'valid.jsonl'), 'validation');
+  await requireNonEmptyTrainingSplit(testSource, path.join(dataPath, 'test.jsonl'), 'test');
+  const holdoutContent = await fs.readFile(holdoutSource, 'utf8').catch(() => '');
+  if (!holdoutContent.trim()) throw new Error('Promotion holdout is missing or empty.');
   return dataPath;
+}
+
+function shellQuote(value: string) {
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+async function hashFile(filePath: string) {
+  return sha256(await fs.readFile(filePath));
+}
+
+async function copyFileWithHash(sourcePath: string, destinationPath: string) {
+  await fs.mkdir(path.dirname(destinationPath), { recursive: true });
+  await fs.copyFile(sourcePath, destinationPath);
+  return hashFile(destinationPath);
+}
+
+async function runLoggedMlxProcess(params: {
+  trainingRunId: string;
+  command: string;
+  args: string[];
+  cwd: string;
+  logPath: string;
+  env: NodeJS.ProcessEnv;
+}): Promise<{
+  code: number | null;
+  signal: NodeJS.Signals | null;
+}> {
+  await fs.appendFile(params.logPath, `Command: ${shellQuote(params.command)} ${params.args.map(shellQuote).join(' ')}\n`);
+  return await new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      activeVhdlLabTrainingProcesses.delete(params.trainingRunId);
+      callback();
+    };
+    const child = spawn(params.command, params.args, { cwd: params.cwd, env: params.env });
+    activeVhdlLabTrainingProcesses.set(params.trainingRunId, child);
+    child.stdout.on('data', (chunk) => {
+      void fs.appendFile(params.logPath, chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      void fs.appendFile(params.logPath, chunk);
+    });
+    child.on('error', (error) => {
+      void fs.appendFile(params.logPath, `\nMLX process failed to start: ${error.message}\n`);
+      finish(() => reject(error));
+    });
+    child.on('close', (code, signal) => {
+      finish(() => resolve({ code, signal }));
+    });
+  });
+}
+
+async function materializeBestAdapter(params: {
+  trainingRunId: string;
+  outputPath: string;
+  adapterPath: string;
+  logPath: string;
+  resolvedConfigPath: string;
+  metrics: ReturnType<typeof parseMlxTrainingMetrics>;
+}) {
+  const selection = await selectBestMlxAdapterCandidate({
+    adapterDirectory: params.adapterPath,
+    validationMetrics: params.metrics.validation,
+  });
+  const bestAdapterPath = path.join(params.outputPath, 'best-adapter');
+  await fs.mkdir(bestAdapterPath, { recursive: true });
+  const weightsSha256 = await copyFileWithHash(selection.selectedSourcePath, path.join(bestAdapterPath, 'adapters.safetensors'));
+  const adapterConfigPath = path.join(params.adapterPath, 'adapter_config.json');
+  const adapterConfigSha256 = await copyFileWithHash(adapterConfigPath, path.join(bestAdapterPath, 'adapter_config.json')).catch(async () => {
+    const fallbackConfig = `${JSON.stringify({ adapterType: 'lora', generatedBy: 'vhdl_lab_quality_v1' }, null, 2)}\n`;
+    const destination = path.join(bestAdapterPath, 'adapter_config.json');
+    await fs.writeFile(destination, fallbackConfig);
+    return sha256(fallbackConfig);
+  });
+  const selectionJson = {
+    trainingRunId: params.trainingRunId,
+    selectedSourcePath: selection.selectedSourcePath,
+    selectedIteration: selection.selectedIteration,
+    selectedValidationLoss: selection.selectedValidationLoss,
+    selectionReason: selection.selectionReason,
+    trainingLogPath: params.logPath,
+    resolvedConfigPath: params.resolvedConfigPath,
+    selectedAt: nowIso(),
+    weightsSha256,
+    adapterConfigSha256,
+  };
+  await fs.writeFile(path.join(bestAdapterPath, 'selection.json'), `${JSON.stringify(selectionJson, null, 2)}\n`);
+  await fs.appendFile(params.logPath, `Best adapter selection: ${selection.selectionReason}; source=${selection.selectedSourcePath}; iteration=${selection.selectedIteration ?? 'final'}; validationLoss=${selection.selectedValidationLoss ?? 'n/a'}.\n`);
+  return { bestAdapterPath, selection, weightsSha256, adapterConfigSha256 };
 }
 
 async function updateVhdlLabTrainingRun(trainingRunId: string, updater: (run: VhdlLabTrainingRun, state: VhdlLabState) => { run: VhdlLabTrainingRun; checkpoint?: VhdlLabCheckpoint | null }) {
@@ -3871,91 +4059,212 @@ async function updateVhdlLabTrainingRun(trainingRunId: string, updater: (run: Vh
 
 async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release: VhdlLabDatasetRelease, availability: Awaited<ReturnType<typeof getVhdlLabMlxLmAvailability>>) {
   if (!availability.available || !availability.command) return;
-  const dataPath = await prepareMlxTrainingDataset(release, trainingRun.outputPath);
-  const adapterPath = path.join(trainingRun.outputPath, 'adapter');
-  const config = trainingRun.config || {};
-  const args = [
-    '--model', trainingRun.baseModel,
-    '--train',
-    '--data', dataPath,
-    '--fine-tune-type', stringTrainingConfig(config, 'fineTuneType', 'lora'),
-    '--adapter-path', adapterPath,
-    '--iters', String(numericTrainingConfig(config, 'iters', 10, 1, 100000)),
-    '--batch-size', String(numericTrainingConfig(config, 'batchSize', 1, 1, 256)),
-    '--learning-rate', String(Number(config.learningRate || 1e-5)),
-    '--max-seq-length', String(numericTrainingConfig(config, 'maxSeqLength', 1024, 128, 32768)),
-  ];
-  if (config.maskPrompt !== false) args.push('--mask-prompt');
-  await fs.appendFile(trainingRun.logPath, [
-    `Starting MLX-LM LoRA training at ${nowIso()}`,
-    `Command: ${availability.command} ${args.join(' ')}`,
-    `Dataset: ${dataPath}`,
-    `Adapter path: ${adapterPath}`,
-    '',
-  ].join('\n'));
-  await updateVhdlLabTrainingRun(trainingRun.id, (run) => ({
-    run: { ...run, status: 'RUNNING', startedAt: run.startedAt || nowIso(), error: null },
-  }));
   const env = {
     ...process.env,
     PATH: `${path.resolve(process.cwd(), '.venv', 'bin')}:${process.env.PATH || ''}`,
   };
-  const child = spawn(availability.command, args, { cwd: trainingRun.outputPath, env });
-  activeVhdlLabTrainingProcesses.set(trainingRun.id, child);
-  child.stdout.on('data', (chunk) => {
-    void fs.appendFile(trainingRun.logPath, chunk);
-  });
-  child.stderr.on('data', (chunk) => {
-    void fs.appendFile(trainingRun.logPath, chunk);
-  });
-  child.on('error', (error) => {
-    activeVhdlLabTrainingProcesses.delete(trainingRun.id);
-    void fs.appendFile(trainingRun.logPath, `\nTraining process failed to start: ${error.message}\n`);
-    void updateVhdlLabTrainingRun(trainingRun.id, (run) => ({
-      run: { ...run, status: 'FAILED', completedAt: nowIso(), error: error.message },
+  try {
+    const dataPath = await prepareMlxTrainingDataset(release, trainingRun.outputPath);
+    const adapterPath = path.join(trainingRun.outputPath, 'adapter');
+    const requestedConfig = (trainingRun.config?.requested as Record<string, unknown> | undefined) || trainingRun.config || {};
+    const resolvedConfig = resolveVhdlQualityTrainingConfig({ trainCount: release.trainCount, overrides: requestedConfig });
+    const mlxConfigPath = path.join(trainingRun.outputPath, 'mlx-lora-config.yaml');
+    const resolvedConfigPath = path.join(trainingRun.outputPath, 'resolved-training-config.json');
+    const mlxConfig = renderMlxLoraConfigYaml({
+      model: trainingRun.baseModel,
+      dataPath,
+      adapterPath,
+      config: resolvedConfig,
+    });
+    await fs.writeFile(mlxConfigPath, mlxConfig);
+    const mlxConfigSha256 = sha256(mlxConfig);
+    const resolvedPayload = {
+      requestedConfig,
+      resolvedConfig,
+      datasetReleaseId: release.id,
+      datasetManifestPath: release.manifestPath,
+      baseModel: trainingRun.baseModel,
+      trainerCommand: availability.command,
+      generatedYamlPath: mlxConfigPath,
+      generatedYamlSha256: mlxConfigSha256,
+      createdAt: nowIso(),
+    };
+    await fs.writeFile(resolvedConfigPath, `${JSON.stringify(resolvedPayload, null, 2)}\n`);
+    const resolvedConfigSha256 = await hashFile(resolvedConfigPath);
+    const manifestSha256 = await hashFile(release.manifestPath).catch(() => null);
+    await fs.appendFile(trainingRun.logPath, [
+      `Starting MLX-LM LoRA quality training at ${nowIso()}`,
+      `Training profile: ${resolvedConfig.profile}`,
+      `Dataset release ID: ${release.id}`,
+      `Dataset schema version: ${release.schemaVersion}`,
+      `Train/validation/test/holdout counts: ${release.trainCount}/${release.validationCount}/${release.testCount}/${release.holdoutCount}`,
+      `Base model: ${trainingRun.baseModel}`,
+      `Resolved epochs: ${resolvedConfig.epochs}`,
+      `Resolved iterations: ${resolvedConfig.iters}`,
+      `Effective batch size: ${resolvedConfig.effectiveBatchSize}`,
+      `Maximum sequence length: ${resolvedConfig.maxSeqLength}`,
+      `Number of layers: ${resolvedConfig.numLayers}`,
+      `LoRA rank/scale/dropout: ${resolvedConfig.loraParameters.rank}/${resolvedConfig.loraParameters.scale}/${resolvedConfig.loraParameters.dropout}`,
+      `Validation interval: ${resolvedConfig.stepsPerEval}`,
+      `Checkpoint interval: ${resolvedConfig.saveEvery}`,
+      `YAML path: ${mlxConfigPath}`,
+      `YAML hash: ${mlxConfigSha256}`,
+      '',
+    ].join('\n'));
+    await updateVhdlLabTrainingRun(trainingRun.id, (run) => ({
+      run: {
+        ...run,
+        status: 'RUNNING',
+        startedAt: run.startedAt || nowIso(),
+        error: null,
+        config: {
+          requested: requestedConfig,
+          resolved: resolvedConfig,
+          trainerCommand: availability.command,
+          mlxConfigPath,
+          mlxConfigSha256,
+        },
+      },
     }));
-  });
-  child.on('close', (code, signal) => {
-    activeVhdlLabTrainingProcesses.delete(trainingRun.id);
+    const mainResult = await runLoggedMlxProcess({
+      trainingRunId: trainingRun.id,
+      command: availability.command,
+      args: ['--config', mlxConfigPath],
+      cwd: trainingRun.outputPath,
+      logPath: trainingRun.logPath,
+      env,
+    });
+    const afterMainState = await readVhdlLabState();
+    const afterMainRun = afterMainState.trainingRuns.find((entry) => entry.id === trainingRun.id);
+    if (afterMainRun?.status === 'CANCELLED') return;
+    await fs.appendFile(trainingRun.logPath, `\nMain training process exited at ${nowIso()} with code=${mainResult.code} signal=${mainResult.signal || 'none'}.\n`);
+    if (mainResult.code !== 0) {
+      throw new Error(`Main training process failed. mlx_lm.lora exited with code ${mainResult.code}${mainResult.signal ? ` (${mainResult.signal})` : ''}. The quality_v1 profile did not complete with this model. The resolved configuration and full MLX log were preserved. Select a smaller quantized base model or explicitly provide a reviewed backend override; the application did not silently reduce training quality.`);
+    }
+    const trainingLogText = await fs.readFile(trainingRun.logPath, 'utf8');
+    const trainingMetrics = parseMlxTrainingMetrics(trainingLogText);
+    const best = await materializeBestAdapter({
+      trainingRunId: trainingRun.id,
+      outputPath: trainingRun.outputPath,
+      adapterPath,
+      logPath: trainingRun.logPath,
+      resolvedConfigPath,
+      metrics: trainingMetrics,
+    });
+    const testConfigPath = path.join(trainingRun.outputPath, 'best-adapter-test-config.yaml');
+    const testLogPath = path.join(trainingRun.outputPath, 'best-adapter-test.log');
+    const testConfig = renderMlxLoraTestConfigYaml({
+      model: trainingRun.baseModel,
+      dataPath,
+      adapterPath: best.bestAdapterPath,
+      config: resolvedConfig,
+    });
+    await fs.writeFile(testConfigPath, testConfig);
+    await fs.writeFile(testLogPath, `Starting best-adapter isolated test evaluation at ${nowIso()}\n`);
+    const testResult = await runLoggedMlxProcess({
+      trainingRunId: trainingRun.id,
+      command: availability.command,
+      args: ['--config', testConfigPath],
+      cwd: trainingRun.outputPath,
+      logPath: testLogPath,
+      env,
+    });
+    const afterTestState = await readVhdlLabState();
+    const afterTestRun = afterTestState.trainingRuns.find((entry) => entry.id === trainingRun.id);
+    if (afterTestRun?.status === 'CANCELLED') return;
+    await fs.appendFile(trainingRun.logPath, `Best-adapter test evaluation exited at ${nowIso()} with code=${testResult.code} signal=${testResult.signal || 'none'}.\n`);
+    if (testResult.code !== 0) throw new Error('Best-adapter test evaluation failed. Training completed but the selected adapter did not pass isolated test-loss evaluation.');
+    const testLogText = await fs.readFile(testLogPath, 'utf8');
+    const testMetrics = parseMlxTrainingMetrics(testLogText);
+    if (testMetrics.testLoss === null || testMetrics.testPpl === null) throw new Error('Test loss could not be parsed. Best-adapter test evaluation failed to emit parseable Test loss and Test ppl metrics.');
     const completedAt = nowIso();
-    const ok = code === 0;
-    void fs.appendFile(trainingRun.logPath, `\nTraining process exited at ${completedAt} with code=${code} signal=${signal || 'none'}.\n`);
-    void updateVhdlLabTrainingRun(trainingRun.id, (run) => {
+    const checkpoint = {
+      id: id('checkpoint', `${trainingRun.id}:${best.bestAdapterPath}`),
+      trainingRunId: trainingRun.id,
+      checkpointPath: best.bestAdapterPath,
+      benchmarkRunIds: [],
+      status: 'CREATED' as const,
+      metrics: {
+        trainer: 'mlx_lm.lora',
+        trainingProfile: 'quality_v1',
+        exitCode: 0,
+        epochs: resolvedConfig.epochs,
+        iters: resolvedConfig.iters,
+        trainCount: release.trainCount,
+        validationCount: release.validationCount,
+        testCount: release.testCount,
+        holdoutCount: release.holdoutCount,
+        batchSize: resolvedConfig.batchSize,
+        gradAccumulationSteps: resolvedConfig.gradAccumulationSteps,
+        effectiveBatchSize: resolvedConfig.effectiveBatchSize,
+        maxSeqLength: resolvedConfig.maxSeqLength,
+        numLayers: resolvedConfig.numLayers,
+        learningRate: resolvedConfig.learningRate,
+        minimumLearningRate: resolvedConfig.minimumLearningRate,
+        warmupIterations: resolvedConfig.warmupIterations,
+        loraRank: resolvedConfig.loraParameters.rank,
+        loraScale: resolvedConfig.loraParameters.scale,
+        loraDropout: resolvedConfig.loraParameters.dropout,
+        bestValidationIteration: best.selection.selectedIteration,
+        bestValidationLoss: best.selection.selectedValidationLoss,
+        checkpointSelectionReason: best.selection.selectionReason,
+        mlxHeldoutTestLoss: testMetrics.testLoss,
+        mlxHeldoutTestPpl: testMetrics.testPpl,
+        finalTrainLoss: trainingMetrics.finalTrainLoss,
+        trainableParameterPercent: trainingMetrics.trainableParameterPercent,
+        trainableParameterMillions: trainingMetrics.trainableParameterMillions,
+        totalParameterMillions: trainingMetrics.totalParameterMillions,
+        peakMemoryGb: trainingMetrics.peakMemoryGb,
+        truncationWarningCount: trainingMetrics.truncationWarningCount,
+        datasetSchemaVersion: release.schemaVersion,
+        datasetManifestPath: release.manifestPath,
+        datasetManifestSha256: manifestSha256,
+        trainingConfigPath: mlxConfigPath,
+        trainingConfigSha256: mlxConfigSha256,
+        resolvedConfigPath,
+        resolvedConfigSha256,
+        selectedAdapterWeightsSha256: best.weightsSha256,
+        adapterConfigSha256: best.adapterConfigSha256,
+      },
+      promotionStatus: 'LAB_ONLY' as const,
+      promotionBenchmarks: [],
+      fallbackPassCount: 0,
+      adapterAuthoredPassCount: 0,
+      qualifiedForFpgaArchitectAt: null,
+      qualificationIssues: [],
+      qualifiedSourceId: null,
+      createdAt: completedAt,
+    };
+    await updateVhdlLabTrainingRun(trainingRun.id, (run) => {
       if (run.status === 'CANCELLED') return { run };
-      const checkpoint = ok ? {
-        id: id('checkpoint', `${run.id}:${adapterPath}`),
-        trainingRunId: run.id,
-        checkpointPath: adapterPath,
-        benchmarkRunIds: [],
-        status: 'CREATED' as const,
-        metrics: { trainer: 'mlx_lm.lora', exitCode: code },
-        promotionStatus: 'LAB_ONLY' as const,
-        promotionBenchmarks: [],
-        fallbackPassCount: 0,
-        adapterAuthoredPassCount: 0,
-        qualifiedForFpgaArchitectAt: null,
-        qualificationIssues: [],
-        qualifiedSourceId: null,
-        createdAt: completedAt,
-      } : null;
       return {
         run: {
           ...run,
-          status: ok ? 'COMPLETED' : 'FAILED',
+          status: 'COMPLETED',
           completedAt,
-          checkpointIds: checkpoint ? [checkpoint.id, ...run.checkpointIds.filter((entry) => entry !== checkpoint.id)] : run.checkpointIds,
-          error: ok ? null : `mlx_lm.lora exited with code ${code}${signal ? ` (${signal})` : ''}.`,
+          checkpointIds: [checkpoint.id, ...run.checkpointIds.filter((entry) => entry !== checkpoint.id)],
+          error: null,
         },
         checkpoint,
       };
     });
-  });
+  } catch (error: any) {
+    await fs.appendFile(trainingRun.logPath, `\nTraining failed: ${String(error?.message || error)}\n`);
+    await updateVhdlLabTrainingRun(trainingRun.id, (run) => {
+      if (run.status === 'CANCELLED') return { run };
+      return { run: { ...run, status: 'FAILED', completedAt: nowIso(), error: String(error?.message || error) } };
+    });
+  }
 }
 
 export async function createVhdlLabTrainingRun(params: { datasetReleaseId: string; baseModel?: string; adapterName?: string; config?: Record<string, unknown> }) {
   const state = await readVhdlLabState();
   const release = state.datasetReleases.find((entry) => entry.id === params.datasetReleaseId);
   if (!release || release.status !== 'BUILT') return { ok: false as const, error: `Dataset release ${params.datasetReleaseId} is not available for training.` };
+  if (release.schemaVersion !== 2) return { ok: false as const, error: 'This dataset release predates isolated quality-training splits. Rebuild the dataset to create independent train, validation, test, and promotion-holdout splits.' };
+  if (release.testCount < 1) return { ok: false as const, error: 'Test split is missing or empty.' };
+  if (release.validationCount < 1) return { ok: false as const, error: 'Validation split is missing or empty.' };
+  if (release.holdoutCount < 1) return { ok: false as const, error: 'Promotion holdout is missing or empty.' };
   const baseModel = (params.baseModel || process.env.VHDL_LAB_MLX_BASE_MODEL || '').trim();
   if (!baseModel) return { ok: false as const, error: 'Select an MLX base model or local model path before starting LoRA training.' };
   const trainingNonce = `${nowIso()}:${Math.random()}`;
@@ -3965,16 +4274,20 @@ export async function createVhdlLabTrainingRun(params: { datasetReleaseId: strin
   const logPath = path.join(outputPath, 'training.log');
   const availability = await getVhdlLabMlxLmAvailability();
   const mlxAvailable = availability.available;
-  const config = Object.keys(params.config || {}).length
-    ? params.config!
-    : { trainer: 'mlx_lm.lora', localOnly: true, projectVenvPath: path.resolve(process.cwd(), '.venv'), iters: 10, batchSize: 1, maxSeqLength: 1024, learningRate: 1e-5 };
+  const requestedConfig = Object.keys(params.config || {}).length ? params.config! : { profile: 'quality_v1' };
+  let resolvedConfig: VhdlQualityTrainingConfig;
+  try {
+    resolvedConfig = resolveVhdlQualityTrainingConfig({ trainCount: release.trainCount, overrides: requestedConfig });
+  } catch (error: any) {
+    return { ok: false as const, error: String(error?.message || error) };
+  }
   const trainingRun: VhdlLabTrainingRun = {
     id: trainingId,
     status: mlxAvailable ? 'QUEUED' : 'BLOCKED_MLX_UNAVAILABLE',
     datasetReleaseId: release.id,
     baseModel,
     adapterName: params.adapterName || `vhdl-lora-${trainingId.slice(-6)}`,
-    config: { ...config, trainerCommand: availability.command },
+    config: { requested: requestedConfig, resolved: resolvedConfig, trainerCommand: availability.command },
     outputPath,
     logPath,
     checkpointIds: [],
@@ -4204,6 +4517,17 @@ export function resolveVhdlLabPromotionStrictness(
     maxFallbackPassCount: withOverride('maxFallbackPassCount', profile.maxFallbackPassCount, 0, 10_000),
     maxRepairNoProgressCount: withOverride('maxRepairNoProgressCount', profile.maxRepairNoProgressCount, 0, 10_000),
     advancedOverrides,
+  };
+}
+
+function toPromotionStrictnessInput(
+  strictness: VhdlLabPromotionStrictnessInput | VhdlLabResolvedPromotionStrictness | null | undefined,
+): VhdlLabPromotionStrictnessInput | null {
+  if (!strictness) return null;
+  const resolved = strictness as Partial<VhdlLabResolvedPromotionStrictness> & VhdlLabPromotionStrictnessInput;
+  return {
+    profileId: resolved.profileId || resolved.sourceProfileId,
+    overrides: resolved.overrides || resolved.advancedOverrides,
   };
 }
 
@@ -4457,16 +4781,25 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
           cancelledAt: null,
           createdAt: benchmark.createdAt,
         }, packet);
+        const failedValidation = validation as {
+          stage: string;
+          failureCode: string;
+          message: string;
+          artifactPath?: string;
+          rawResponse?: string;
+          issues?: Array<VhdlLabValidationIssue>;
+          generatedVhdl?: string;
+        };
         const progressKey = `${packet.failureCode}:${packet.contentHash || sha256(generation.text || '')}`;
         if (lastRepairProgressKey === progressKey) {
-          contractResult = shouldUseAdapterBenchmarkFallback(validation)
+          contractResult = shouldUseAdapterBenchmarkFallback(failedValidation)
             ? await tryVhdlLabAdapterBenchmarkFallback({
                 benchmarkId: params.benchmarkId,
                 contract,
                 profile,
                 promptVersion,
                 workspacePath: evaluationWorkspace,
-                previousValidation: validation,
+                previousValidation: failedValidation,
                 candidateAttempt,
                 maxRepairAttempts: maxAdapterRepairAttempts,
                 elapsedMs: generation.elapsedMs,
@@ -4480,7 +4813,7 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
                 stage: 'repairing',
                 failureCode: 'repair_no_progress',
                 message: `repair_no_progress: repeated ${packet.failureCode} with unchanged adapter candidate content. Failure cluster ${id('cluster', progressKey)}.`,
-                artifactPath: validation.artifactPath,
+                artifactPath: failedValidation.artifactPath,
                 promptPath: generation.promptPath,
                 responsePath: generation.responsePath,
                 elapsedMs: generation.elapsedMs,
@@ -4495,14 +4828,14 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
         }
         lastRepairProgressKey = progressKey;
         if (candidateAttempt >= maxAdapterCandidateAttempts) {
-          contractResult = shouldUseAdapterBenchmarkFallback(validation)
+          contractResult = shouldUseAdapterBenchmarkFallback(failedValidation)
             ? await tryVhdlLabAdapterBenchmarkFallback({
                 benchmarkId: params.benchmarkId,
                 contract,
                 profile,
                 promptVersion,
                 workspacePath: evaluationWorkspace,
-                previousValidation: validation,
+                previousValidation: failedValidation,
                 candidateAttempt,
                 maxRepairAttempts: maxAdapterRepairAttempts,
                 elapsedMs: generation.elapsedMs,
@@ -4823,8 +5156,10 @@ export function evaluateVhdlLabAdapterQualification(state: VhdlLabState, checkpo
   if (!trainingRun) return { ok: false as const, error: `Training run ${checkpoint.trainingRunId} was not found.` };
   const { smoke, holdout } = selectAdapterPromotionBenchmarks(checkpoint, state.benchmarkRuns || []);
   const storedStrictness = holdout?.summary?.promotionStrictness as VhdlLabPromotionStrictnessInput | VhdlLabResolvedPromotionStrictness | null | undefined;
+  const requestedStrictnessInput = toPromotionStrictnessInput(options.promotionStrictness);
+  const storedStrictnessInput = toPromotionStrictnessInput(storedStrictness);
   const promotionStrictness = resolveVhdlLabPromotionStrictness(
-    options.promotionStrictness || storedStrictness || {
+    requestedStrictnessInput || storedStrictnessInput || {
       profileId: 'fast_check',
       overrides: {
         holdoutPassRate: options.holdoutPassRateThreshold ?? process.env.VHDL_LAB_ADAPTER_PROMOTION_HOLDOUT_PASS_RATE,

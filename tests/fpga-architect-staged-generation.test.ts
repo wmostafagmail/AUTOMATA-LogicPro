@@ -1607,7 +1607,7 @@ test('staged generation uses deterministic FIFO fallback immediately after FIFO 
         exports: [],
       },
     ],
-    clockDomains: [{ id: 'clk', clock: 'clk', reset: 'rst', resetPolarity: 'high', frequencyHint: '100 MHz' }],
+    clockDomains: [{ id: 'clk', clockPort: 'clk', resetPort: 'rst', resetActive: 'high', resetStyle: 'synchronous', memberComponents: ['fifo_top'] }],
     behaviors: [{
       id: 'fifo_default_behavior',
       requirement: 'FIFO output is benign when model fallback is used.',
@@ -1748,7 +1748,7 @@ test('staged generation uses deterministic FIFO fallback immediately after FIFO 
         exports: [],
       },
     ],
-    clockDomains: [{ id: 'clk', clock: 'clk', reset: 'rst', resetPolarity: 'high', frequencyHint: '100 MHz' }],
+    clockDomains: [{ id: 'clk', clockPort: 'clk', resetPort: 'rst', resetActive: 'high', resetStyle: 'synchronous', memberComponents: ['fifo_top'] }],
     behaviors: [],
     verification: [{
       id: 'check_fifo_fallback',
@@ -1926,7 +1926,14 @@ test('staged generation does not inject bridge status-output contract into fifo 
         },
       },
     ],
-    connections: [{ id: 'fifo_data_s', type: 'std_logic_vector(7 downto 0)', from: 'u_rx_fifo.data_o', to: 'bridge_top.status_o', cdc: 'none' }],
+    connections: [{
+      id: 'fifo_data_s',
+      type: 'std_logic_vector(7 downto 0)',
+      source: { componentId: 'rx_fifo', port: 'data_o' },
+      sinks: [{ componentId: 'bridge_top', port: 'status_o' }],
+      clockDomain: 'clk',
+      cdc: 'none',
+    }],
     stateMachines: [],
     sourceOrder: ['src/rx_fifo.vhd', 'src/bridge_top.vhd', 'tb/tb_bridge_top.vhd'],
   };

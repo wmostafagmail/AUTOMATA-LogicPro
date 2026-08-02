@@ -211,14 +211,14 @@ export function classifyVerifiedPortRole(
     }
   }
 
-  if (role === 'payload_in' && isReceiverLikeComponent(component) && /data_i|payload_i|din/.test(name)) {
+  if ((role as string) === 'payload_in' && isReceiverLikeComponent(component) && /data_i|payload_i|din/.test(name)) {
     optional = true;
     evidence.push(`payload input ${port.name} is optional/suspicious on receiver-like component ${component.id}`);
   }
 
   return {
     role,
-    activeLowReset: role === 'reset' && /(?:_n$|_ni$|n$|_b$|aresetn|resetn)/i.test(name),
+    activeLowReset: (role as string) === 'reset' && /(?:_n$|_ni$|n$|_b$|aresetn|resetn)/i.test(name),
     optional,
     confidence,
     evidence,

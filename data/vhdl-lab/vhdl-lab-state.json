@@ -22720,7 +22720,9 @@
           "includedRecords": 105
         },
         "verified10k": null
-      }
+      },
+      "schemaVersion": 1,
+      "testCount": 0
     },
     {
       "id": "dataset_aa237a7a037922be",
@@ -32762,7 +32764,9 @@
           "excludedUntrusted": 0,
           "cappedAt": 10000
         }
-      }
+      },
+      "schemaVersion": 1,
+      "testCount": 0
     },
     {
       "id": "dataset_ad62b7f00dcbbb12",
@@ -42804,7 +42808,9 @@
           "excludedUntrusted": 0,
           "cappedAt": 10000
         }
-      }
+      },
+      "schemaVersion": 1,
+      "testCount": 0
     },
     {
       "id": "dataset_dcdd60092b57abf3",
@@ -52846,7 +52852,9 @@
           "excludedUntrusted": 0,
           "cappedAt": 10000
         }
-      }
+      },
+      "schemaVersion": 1,
+      "testCount": 0
     },
     {
       "id": "dataset_2106ea897ee2b8e1",
@@ -62888,7 +62896,9 @@
           "excludedUntrusted": 0,
           "cappedAt": 10000
         }
-      }
+      },
+      "schemaVersion": 1,
+      "testCount": 0
     },
     {
       "id": "dataset_f5081285e6b938eb",
@@ -62962,7 +62972,9 @@
         "excludedSecrets": 0,
         "missingArtifacts": 0,
         "excludedUnverified": 0
-      }
+      },
+      "schemaVersion": 1,
+      "testCount": 0
     }
   ],
   "trainingRuns": [
@@ -63196,7 +63208,8 @@
         "benchmark_ee1dc6f709183e48",
         "benchmark_2dca84e4fb50fa02",
         "benchmark_55a0cc0e53b60da8",
-        "benchmark_32d4e462099b4c51"
+        "benchmark_32d4e462099b4c51",
+        "benchmark_b6951e33a4c90248"
       ],
       "status": "BENCHMARKED",
       "metrics": {
@@ -64167,6 +64180,57 @@
     }
   ],
   "benchmarkRuns": [
+    {
+      "id": "benchmark_b6951e33a4c90248",
+      "suiteId": "checkpoint_adapter_generation:adapter_promotion_holdout",
+      "status": "RUNNING",
+      "contractIds": [
+        "contract_fb9b64a3834e20d1"
+      ],
+      "childRunIds": [],
+      "modelProfileId": null,
+      "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+      "seedList": [
+        42
+      ],
+      "maxRepairAttempts": 3,
+      "summary": {
+        "total": 1,
+        "passed": 0,
+        "failed": 0,
+        "running": 1,
+        "passRate": 0,
+        "adapterCheckpointId": "checkpoint_d89e3f6c33c577f7",
+        "adapterPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/training/training_968ef12009ccb87b/adapter",
+        "trainingRunId": "training_968ef12009ccb87b",
+        "baseModel": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+        "maxRepairAttempts": 3,
+        "evaluationScope": "adapter_promotion_holdout",
+        "holdoutCount": 1,
+        "categoryCoverage": {
+          "FPGA_SWEEP_UART_SPI_BRIDGE": 1
+        },
+        "promotionStrictness": {
+          "id": "production_qualification",
+          "label": "Production qualification",
+          "description": "Production-grade leaf RTL adapter promotion gate.",
+          "maxContracts": 250,
+          "minHoldoutContracts": 100,
+          "minHoldoutCategories": 8,
+          "holdoutPassRate": 0.95,
+          "maxFallbackPassCount": 0,
+          "maxRepairNoProgressCount": 0,
+          "sourceProfileId": "production_qualification",
+          "advancedOverrides": {}
+        },
+        "promotionStrictnessProfileId": "production_qualification",
+        "materializedContractCount": 26,
+        "generationBenchmarkPassed": false
+      },
+      "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_b6951e33a4c90248/summary.json",
+      "createdAt": "2026-08-02T14:26:59.190Z",
+      "completedAt": null
+    },
     {
       "id": "benchmark_32d4e462099b4c51",
       "suiteId": "checkpoint_adapter_generation:adapter_promotion_holdout",
@@ -70689,5 +70753,5 @@
       "createdAt": "2026-07-31T12:23:43.525Z"
     }
   ],
-  "updatedAt": "2026-08-02T13:26:57.610Z"
+  "updatedAt": "2026-08-02T14:26:59.191Z"
 }
