@@ -1,0 +1,7 @@
+v 4
+file . "../testbench/tb_dsp_chain_top.candidate-1.vhd" "60df51b8f73f999217fbc4ce2035195eb951864c" "20260802002807.078":
+  entity tb_dsp_chain_top at 1( 0) + 0 on 17;
+  architecture sim of tb_dsp_chain_top at 8( 127) + 0 on 18;
+file . "dsp_chain_top.vhd" "7896fe3dc8b00aac094254c76b464b3fadc89639" "20260802002806.995":
+  entity dsp_chain_top at 1( 0) + 0 on 15;
+  architecture rtl of dsp_chain_top at 20( 417) + 0 on 16;

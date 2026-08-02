@@ -246,6 +246,10 @@ function normalizeGenericKey(value: string) {
   return String(value || '').trim().toLowerCase();
 }
 
+function normalizeGenericCanonicalKey(value: string) {
+  return canonicalParameterName(String(value || '').replace(/^(?:g|c)_/i, '')).toLowerCase();
+}
+
 function isSupportedPromotedGenericType(genericName: string, type: string) {
   const canonical = canonicalParameterName(genericName);
   if (canonical === 'SIGNED_MODE' || canonical === 'SATURATING') return isBooleanLike(type) || isIntegerLike(type);
@@ -267,6 +271,7 @@ export function promoteVerifiedVhdlGenericsIntoComponent(params: {
   userRequest?: string;
 }): VerifiedGenericPromotionResult {
   const existingByName = new Set((params.component.generics || []).map((generic) => normalizeGenericKey(generic.name)));
+  const existingByCanonical = new Set((params.component.generics || []).map((generic) => normalizeGenericCanonicalKey(generic.name)));
   const promptValues = extractFpgaParameterValuesFromPrompt(params.userRequest || '');
   const promotedGenerics: VerifiedGenericPromotionAuditEntry[] = [];
   const unsafeReasons: string[] = [];
@@ -274,7 +279,8 @@ export function promoteVerifiedVhdlGenericsIntoComponent(params: {
 
   for (const verifiedGeneric of params.verifiedGenerics) {
     if (isInternalLockedConfigurationGeneric(verifiedGeneric.name)) continue;
-    if (existingByName.has(normalizeGenericKey(verifiedGeneric.name))) continue;
+    const verifiedCanonicalKey = normalizeGenericCanonicalKey(verifiedGeneric.name);
+    if (existingByName.has(normalizeGenericKey(verifiedGeneric.name)) || existingByCanonical.has(verifiedCanonicalKey)) continue;
     const canonicalName = canonicalParameterName(verifiedGeneric.name);
     if (!isDeterministicFpgaParameterGeneric(verifiedGeneric.name)) {
       unsafeReasons.push(`verified generic ${verifiedGeneric.name} is not a deterministic configurable parameter`);
@@ -301,6 +307,7 @@ export function promoteVerifiedVhdlGenericsIntoComponent(params: {
       default: value,
     });
     existingByName.add(normalizeGenericKey(verifiedGeneric.name));
+    existingByCanonical.add(verifiedCanonicalKey);
     promotedGenerics.push({
       genericName: verifiedGeneric.name,
       type: verifiedGeneric.type,

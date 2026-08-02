@@ -12,6 +12,10 @@ import {
   StagedComponentEntityMissingError,
   StagedPortInterfaceDriftError,
 } from '../src/server/fpgaArchitectStagedGeneration';
+import {
+  buildVhdlSpecialistAdvisorPrompt,
+  scoreVhdlSpecialistAdvisorResponse,
+} from '../src/server/fpgaVhdlSpecialistAdvisor';
 import { parseFpgaArchitectResponse } from '../src/server/fpgaArchitect';
 import type { FpgaArchitectureContract } from '../src/server/fpgaArchitectureContract';
 import {
@@ -19,6 +23,7 @@ import {
   buildLeafInterfaceSignature,
   writeGoldenLeafLibrary,
 } from '../src/server/fpgaGoldenLeafLibrary';
+import { renderDeterministicLeafTemplate } from '../src/server/fpgaDeterministicLeafTemplates';
 
 const contract: FpgaArchitectureContract = {
   schemaVersion: '2.0', designName: 'logic_gate', designClass: 'generic_fpga_vhdl_system', topEntity: 'logic_gate', topTestbench: 'tb_logic_gate', systemIntent: 'Implement one AND gate.', assumptions: ['Combinational.'], requiredCapabilityIds: [],
@@ -129,6 +134,60 @@ test('strict staged generation blocks fresh model VHDL when no verified or deter
       return true;
     },
   );
+});
+
+test('deterministic leaf templates cover generic sample input and stream ingress roles', () => {
+  const sampleComponent = {
+    id: 'sample_input_stage',
+    kind: 'rtl' as const,
+    name: 'sample_input_stage',
+    file: 'src/sample_input_stage.vhd',
+    responsibility: 'Accept valid samples and align input handshakes.',
+    implements: [],
+    dependsOn: [],
+    children: [],
+    clockDomain: 'clk',
+    generics: [],
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 'sample_i', mode: 'in' as const, type: 'std_logic_vector(15 downto 0)', purpose: 'Sample.' },
+      { name: 'valid_i', mode: 'in' as const, type: 'std_logic', purpose: 'Valid.' },
+      { name: 'sample_o', mode: 'out' as const, type: 'std_logic_vector(15 downto 0)', purpose: 'Registered sample.' },
+      { name: 'valid_o', mode: 'out' as const, type: 'std_logic', purpose: 'Output valid.' },
+      { name: 'ready_o', mode: 'out' as const, type: 'std_logic', purpose: 'Input ready.' },
+    ],
+    exports: [],
+  };
+  const streamComponent = {
+    ...sampleComponent,
+    id: 'ingress_interface_blocks',
+    name: 'ingress_interface_blocks',
+    file: 'src/ingress_interface_blocks.vhd',
+    responsibility: 'Own valid/ready input handshake and packet capture.',
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 's_valid_i', mode: 'in' as const, type: 'std_logic', purpose: 'Stream valid.' },
+      { name: 's_data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Stream data.' },
+      { name: 's_last_i', mode: 'in' as const, type: 'std_logic', purpose: 'Stream last.' },
+      { name: 'm_valid_o', mode: 'out' as const, type: 'std_logic', purpose: 'Captured valid.' },
+      { name: 'm_data_o', mode: 'out' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Captured data.' },
+      { name: 'm_last_o', mode: 'out' as const, type: 'std_logic', purpose: 'Captured last.' },
+      { name: 's_ready_o', mode: 'out' as const, type: 'std_logic', purpose: 'Ready.' },
+    ],
+  };
+
+  const sampleTemplate = renderDeterministicLeafTemplate({ contract, component: sampleComponent });
+  const streamTemplate = renderDeterministicLeafTemplate({ contract, component: streamComponent });
+
+  assert.equal(sampleTemplate?.templateId, 'deterministic_sample_input_stage');
+  assert.match(sampleTemplate?.content || '', /sample_o_r <= sample_i;/);
+  assert.match(sampleTemplate?.content || '', /ready_o <= '1';/);
+  assert.equal(streamTemplate?.templateId, 'deterministic_stream_boundary_leaf');
+  assert.match(streamTemplate?.content || '', /m_data_o_r <= s_data_i;/);
+  assert.match(streamTemplate?.content || '', /m_last_o_r <= s_last_i;/);
+  assert.match(streamTemplate?.content || '', /s_ready_o <= '1';/);
 });
 
 test('strict staged generation renders framebuffer pixel stage without illegal integer bitmask operators', async () => {
@@ -983,6 +1042,7 @@ test('staged generation switches to typed hybrid failure when verified wrapper i
       maxStageOutputChars: 20_000,
       verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
       verifiedVhdlBlockQualificationPath,
+      vhdlSpecialistAdvisor: false,
       runModelAnalysis: async () => {
         throw new Error('model should not be called for unsafe verified wrapper mismatch');
       },
@@ -994,6 +1054,440 @@ test('staged generation switches to typed hybrid failure when verified wrapper i
       return true;
     },
   );
+});
+
+test('staged generation uses VHDL specialist advisor but rejects unsafe role mappings', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-verified-wrapper-advisor-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeVerifiedVhdlLibraryForContract(verifiedLibraryRoot);
+  await fs.writeFile(path.join(verifiedLibraryRoot, 'rtl', 'blocks', 'memory', 'rx_fifo.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity bb_rx_fifo is',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    mode_i : in std_logic;',
+    '    data_i : in std_logic_vector(7 downto 0);',
+    '    data_o : out std_logic_vector(7 downto 0)',
+    '  );',
+    'end entity bb_rx_fifo;',
+    'architecture rtl of bb_rx_fifo is begin',
+    '  data_o <= data_i;',
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+
+  let advisorPrompt = '';
+  await assert.rejects(
+    runStagedFpgaArchitectGeneration({
+      ai: null,
+      provider: 'ollama',
+      model: 'model',
+      contract: makeGoldenLeafContract(),
+      maxStageOutputChars: 20_000,
+      verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+      verifiedVhdlBlockQualificationPath,
+      runModelAnalysis: async ({ prompt, generationProfile }) => {
+        advisorPrompt = prompt;
+        assert.equal(generationProfile?.id, 'vhdl_advisor');
+        return {
+          text: JSON.stringify({
+            canHelp: true,
+            safeMappings: [{ verifiedPort: 'mode_i', approvedPort: 'data_i' }],
+            missingContractSignals: [],
+            verdict: 'incorrectly force mode onto data',
+          }),
+          telemetry: { durationMs: 1 },
+        };
+      },
+    }),
+    (error: unknown) => {
+      assert.ok(error instanceof HybridImplementationSourceUnresolvedError);
+      assert.equal(error.specialistAdvice?.accepted, false);
+      assert.match(error.message, /specialistAdvice=rejected/);
+      assert.match(error.message, /mode_i->data_i/);
+      assert.match(error.message, /role mismatch/i);
+      return true;
+    },
+  );
+  assert.match(advisorPrompt, /VHDL contract\/wrapper specialist/);
+  assert.match(advisorPrompt, /Do not write VHDL/);
+});
+
+test('VHDL specialist advisor scorer accepts missing contract signals but rejects unsafe mappings', () => {
+  const component = makeGoldenLeafContract().components.find((candidate) => candidate.id === 'rx_fifo');
+  assert.ok(component);
+  const candidate: any = {
+    blockName: 'rx_fifo',
+    entityName: 'bb_rx_fifo',
+    actualSignature: {
+      generics: [],
+      ports: [
+        { name: 'clk', mode: 'in', type: 'std_logic' },
+        { name: 'rst', mode: 'in', type: 'std_logic' },
+        { name: 'mode_i', mode: 'in', type: 'std_logic' },
+      ],
+    },
+    approvedSignature: {
+      generics: [],
+      ports: [
+        { name: 'clk', mode: 'in', type: 'std_logic' },
+        { name: 'rst', mode: 'in', type: 'std_logic' },
+        { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)' },
+      ],
+    },
+  };
+  const score = scoreVhdlSpecialistAdvisorResponse({
+    component,
+    candidate,
+    wrapperPlan: {
+      kind: 'wrapper_unsafe',
+      componentId: component.id,
+      approvedEntityName: component.name,
+      verifiedBlockName: 'rx_fifo',
+      verifiedEntityName: 'bb_rx_fifo',
+      mismatches: [{ kind: 'extra_port', verifiedName: 'mode_i', message: 'Extra verified port mode_i cannot be mapped safely' }],
+      unsafeReasons: ['verified port mode_i cannot be safely mapped'],
+      portAssociations: {},
+      genericAssociations: {},
+      declarations: [],
+      preInstanceAssignments: [],
+      postInstanceAssignments: [],
+    },
+    responseText: JSON.stringify({
+      safeMappings: [{ verifiedPort: 'mode_i', approvedPort: 'data_i' }],
+      missingContractSignals: [{ name: 'mode_select_i', role: 'config', direction: 'in' }],
+      verdict: 'add explicit mode select instead of using data_i',
+    }),
+  });
+  assert.equal(score.accepted, false);
+  assert.deepEqual(score.missingContractSignals.map((signal) => signal.name), ['mode_select_i']);
+  assert.match(score.rejectedReasons.join('\n'), /mode_i->data_i/);
+});
+
+test('VHDL specialist advisor prompt forces missing contract signals for SPI master unresolved ports', () => {
+  const component: any = {
+    id: 'spi_master',
+    kind: 'rtl',
+    name: 'spi_master',
+    file: 'src/spi_master.vhd',
+    responsibility: 'Own SPI clock/chip-select sequencing and byte transfer control.',
+    implements: ['spi_master'],
+    dependsOn: [],
+    children: [],
+    clockDomain: 'clk',
+    generics: [],
+    ports: [
+      { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+      { name: 'enable_i', mode: 'in', type: 'std_logic', purpose: 'Enable.' },
+      { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Payload.' },
+    ],
+    exports: [],
+  };
+  const candidate: any = {
+    blockName: 'spi_master',
+    entityName: 'spi_master_det_cfg',
+    actualSignature: {
+      generics: [],
+      ports: [
+        { name: 'clk', mode: 'in', type: 'std_logic' },
+        { name: 'rst', mode: 'in', type: 'std_logic' },
+        { name: 'phy_rx', mode: 'in', type: 'std_logic' },
+        { name: 'tx_valid', mode: 'in', type: 'std_logic' },
+      ],
+    },
+    approvedSignature: {
+      generics: [],
+      ports: component.ports.map((port: any) => ({ name: port.name, mode: port.mode, type: port.type })),
+    },
+  };
+  const wrapperPlan: any = {
+    kind: 'wrapper_unsafe',
+    componentId: 'spi_master',
+    approvedEntityName: 'spi_master',
+    verifiedBlockName: 'spi_master',
+    verifiedEntityName: 'spi_master_det_cfg',
+    mismatches: [
+      { kind: 'extra_port', verifiedName: 'phy_rx', message: 'Extra verified port phy_rx cannot be mapped safely' },
+      { kind: 'extra_port', verifiedName: 'tx_valid', message: 'Extra verified port tx_valid cannot be mapped safely' },
+    ],
+    unsafeReasons: [
+      'verified port phy_rx cannot be safely mapped',
+      'verified port tx_valid cannot be safely mapped',
+    ],
+    portAssociations: {},
+    genericAssociations: {},
+    declarations: [],
+    preInstanceAssignments: [],
+    postInstanceAssignments: [],
+  };
+
+  const prompt = buildVhdlSpecialistAdvisorPrompt({ component, candidate, wrapperPlan });
+  assert.match(prompt, /requiredFor=phy_rx/);
+  assert.match(prompt, /role=serial_rx/);
+  assert.match(prompt, /suggestedNames=miso_i\|spi_miso_i\|serial_rx_i/);
+  assert.match(prompt, /requiredFor=tx_valid/);
+  assert.match(prompt, /suggestedNames=tx_valid_i\|start_i\|valid_i/);
+  assert.match(prompt, /missingContractSignals must still cover every unresolved requiredFor port/);
+  assert.match(prompt, /For SPI master serial_rx, prefer missing input names like miso_i/);
+});
+
+test('VHDL specialist advisor scorer accepts role-correct missing SPI contract signals', () => {
+  const component: any = {
+    id: 'spi_master',
+    kind: 'rtl',
+    name: 'spi_master',
+    file: 'src/spi_master.vhd',
+    responsibility: 'Own SPI master PHY pins and transaction command handshake.',
+    implements: ['spi_master'],
+    dependsOn: [],
+    children: [],
+    clockDomain: 'clk',
+    generics: [],
+    ports: [
+      { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+      { name: 'enable_i', mode: 'in', type: 'std_logic', purpose: 'Enable.' },
+      { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Payload.' },
+    ],
+    exports: [],
+  };
+  const candidate: any = {
+    blockName: 'spi_master',
+    entityName: 'spi_master_det_cfg',
+    actualSignature: {
+      generics: [],
+      ports: [
+        { name: 'phy_rx', mode: 'in', type: 'std_logic' },
+        { name: 'tx_valid', mode: 'in', type: 'std_logic' },
+      ],
+    },
+    approvedSignature: {
+      generics: [],
+      ports: component.ports.map((port: any) => ({ name: port.name, mode: port.mode, type: port.type })),
+    },
+  };
+  const wrapperPlan: any = {
+    kind: 'wrapper_unsafe',
+    componentId: 'spi_master',
+    approvedEntityName: 'spi_master',
+    verifiedBlockName: 'spi_master',
+    verifiedEntityName: 'spi_master_det_cfg',
+    mismatches: [
+      { kind: 'extra_port', verifiedName: 'phy_rx', message: 'Extra verified port phy_rx cannot be mapped safely' },
+      { kind: 'extra_port', verifiedName: 'tx_valid', message: 'Extra verified port tx_valid cannot be mapped safely' },
+    ],
+    unsafeReasons: ['verified port phy_rx cannot be safely mapped', 'verified port tx_valid cannot be safely mapped'],
+    portAssociations: {},
+    genericAssociations: {},
+    declarations: [],
+    preInstanceAssignments: [],
+    postInstanceAssignments: [],
+  };
+
+  const score = scoreVhdlSpecialistAdvisorResponse({
+    component,
+    candidate,
+    wrapperPlan,
+    responseText: JSON.stringify({
+      safeMappings: [],
+      unsafeMappings: [
+        { verifiedPort: 'phy_rx', rejectedApprovedPorts: ['data_i'], reason: 'serial_rx cannot map to stream data' },
+        { verifiedPort: 'tx_valid', rejectedApprovedPorts: ['enable_i'], reason: 'transaction valid is not generic enable' },
+      ],
+      missingContractSignals: [
+        { name: 'miso_i', role: 'serial_rx', direction: 'in', type: 'std_logic', requiredFor: 'phy_rx' },
+        { name: 'tx_valid_i', role: 'valid', direction: 'in', type: 'std_logic', requiredFor: 'tx_valid' },
+      ],
+      contractRepair: { action: 'add_missing_ports', safe: true },
+      verdict: 'add explicit SPI receive and command-valid contract ports',
+    }),
+  });
+
+  assert.equal(score.accepted, true);
+  assert.deepEqual(score.missingContractSignals.map((signal) => signal.name), ['miso_i', 'tx_valid_i']);
+  assert.equal(score.rejectedReasons.length, 0);
+});
+
+async function writeVerifiedSpiMasterLibrary(root: string) {
+  await fs.mkdir(path.join(root, 'reports'), { recursive: true });
+  await fs.mkdir(path.join(root, 'rtl', 'blocks', 'communication'), { recursive: true });
+  await fs.mkdir(path.join(root, 'tb', 'blocks', 'communication'), { recursive: true });
+  await fs.writeFile(path.join(root, 'reports', 'verification_matrix.csv'), [
+    'block_id,name,category,subcategory,origin,function,archetype,implementation_tier,protocol_status,timing_status,cdc_status,numeric_status,core,source_file,testbench_file,static_validation,ghdl_analysis,functional_simulation',
+    '0002,spi_master,Communication,SPI,fixture,SPI master fixture,leaf,A,ok,ok,ok,ok,spi_master,rtl/blocks/communication/spi_master.vhd,tb/blocks/communication/tb_spi_master.vhd,PASS,PASS,PASS',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'rtl', 'blocks', 'communication', 'spi_master.vhd'), [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity spi_master_det_cfg is',
+    '  generic (',
+    '    data_width : positive := 8',
+    '  );',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    phy_rx : in std_logic;',
+    '    tx_valid : in std_logic;',
+    '    data_i : in std_logic_vector(data_width - 1 downto 0);',
+    '    data_o : out std_logic_vector(data_width - 1 downto 0)',
+    '  );',
+    'end entity spi_master_det_cfg;',
+    'architecture rtl of spi_master_det_cfg is begin',
+    '  data_o <= data_i when tx_valid = \'1\' else (others => phy_rx);',
+    'end architecture rtl;',
+    '',
+  ].join('\n'));
+  await fs.writeFile(path.join(root, 'tb', 'blocks', 'communication', 'tb_spi_master.vhd'), 'entity tb_spi_master is end entity;\narchitecture sim of tb_spi_master is begin end architecture;\n');
+  const qualificationPath = path.join(root, 'qualification.json');
+  const target = { ok: true, exitCode: 0, summary: 'passed' };
+  await fs.writeFile(qualificationPath, JSON.stringify({
+    libraryVersion: 'fixture',
+    libraryRoot: root,
+    ghdlVersion: 'GHDL fixture',
+    verifiedAt: '2026-01-01T00:00:00.000Z',
+    blockCount: 1,
+    testbenchCount: 1,
+    coreCount: 1,
+    trustedForReuse: true,
+    targets: { static: target, 'core-regression': target, 'all-smokes': target },
+    warnings: [],
+  }, null, 2));
+  return qualificationPath;
+}
+
+function makeThinSpiMasterContract(): FpgaArchitectureContract {
+  return {
+    ...contract,
+    designName: 'spi_wrapper_demo',
+    designClass: 'spi_master',
+    topEntity: 'spi_top',
+    topTestbench: 'tb_spi_top',
+    systemIntent: 'Instantiate an SPI master from a verified block.',
+    components: [
+      {
+        id: 'spi_master',
+        kind: 'rtl',
+        name: 'spi_master',
+        file: 'src/spi_master.vhd',
+        responsibility: 'Own SPI clock/chip-select sequencing and byte transfer control.',
+        implements: ['spi_master'],
+        dependsOn: [],
+        children: [],
+        clockDomain: 'clk',
+        generics: [{ name: 'data_width', type: 'positive', default: '8' }],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'enable_i', mode: 'in', type: 'std_logic', purpose: 'Enable.' },
+          { name: 'data_i', mode: 'in', type: 'std_logic_vector(data_width - 1 downto 0)', purpose: 'Transmit byte.' },
+          { name: 'data_o', mode: 'out', type: 'std_logic_vector(data_width - 1 downto 0)', purpose: 'Received byte.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'spi_top',
+        kind: 'top',
+        name: 'spi_top',
+        file: 'src/spi_top.vhd',
+        responsibility: 'Integrate SPI master.',
+        implements: [],
+        dependsOn: ['spi_master'],
+        children: ['spi_master'],
+        clockDomain: 'clk',
+        generics: [],
+        ports: [
+          { name: 'clk', mode: 'in', type: 'std_logic', purpose: 'Clock.' },
+          { name: 'rst', mode: 'in', type: 'std_logic', purpose: 'Reset.' },
+          { name: 'data_i', mode: 'in', type: 'std_logic_vector(7 downto 0)', purpose: 'Transmit byte.' },
+          { name: 'data_o', mode: 'out', type: 'std_logic_vector(7 downto 0)', purpose: 'Received byte.' },
+        ],
+        exports: [],
+      },
+      {
+        id: 'tb_spi_top',
+        kind: 'testbench',
+        name: 'tb_spi_top',
+        file: 'tb/tb_spi_top.vhd',
+        responsibility: 'Check SPI wrapper.',
+        implements: [],
+        dependsOn: ['spi_top'],
+        children: ['spi_top'],
+        clockDomain: null,
+        generics: [],
+        ports: [],
+        exports: [],
+      },
+    ],
+    behaviors: [{
+      id: 'spi_passthrough_behavior',
+      requirement: 'SPI wrapper exposes deterministic received data.',
+      inputs: ['data_i'],
+      outputs: ['data_o'],
+      timing: 'Registered or combinational within one cycle.',
+      resetBehavior: 'Outputs reset to zero.',
+      latencyCycles: 1,
+    }],
+    verification: [{
+      id: 'check_spi_wrapper',
+      requirement: 'Check SPI wrapper smoke behavior.',
+      stimulus: 'Drive reset and one data byte.',
+      expected: 'TEST PASSED.',
+      observables: ['data_o'],
+      covers: ['spi_master'],
+      coversBehaviors: ['spi_passthrough_behavior'],
+      actions: [{ kind: 'finish', message: 'TEST PASSED' }],
+    }],
+    instances: [
+      { id: 'u_spi_master', parentComponentId: 'spi_top', childComponentId: 'spi_master', label: 'u_spi_master', genericMap: { data_width: '8' }, portMap: { clk: 'clk', rst: 'rst', data_i: 'data_i', data_o: 'data_o' } },
+      { id: 'tb_dut', parentComponentId: 'tb_spi_top', childComponentId: 'spi_top', label: 'dut', genericMap: {}, portMap: { clk: 'clk', rst: 'rst', data_i: 'data_i', data_o: 'data_o' } },
+    ],
+    sourceOrder: ['src/spi_master.vhd', 'src/spi_top.vhd', 'tb/tb_spi_top.vhd'],
+  };
+}
+
+test('staged generation normalizes SPI missing-port contract before advisor fallback', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'staged-spi-advisor-contract-'));
+  const verifiedLibraryRoot = path.join(tempDir, 'verified-library');
+  const verifiedVhdlBlockQualificationPath = await writeVerifiedSpiMasterLibrary(verifiedLibraryRoot);
+  const result = await runStagedFpgaArchitectGeneration({
+    ai: null,
+    provider: 'ollama',
+    model: 'model',
+    contract: makeThinSpiMasterContract(),
+    maxStageOutputChars: 20_000,
+    verifiedVhdlBlockLibraryRoot: verifiedLibraryRoot,
+    verifiedVhdlBlockQualificationPath,
+    runModelAnalysis: async ({ generationProfile }) => {
+      assert.equal(generationProfile?.id, 'vhdl_advisor');
+      return {
+        text: JSON.stringify({
+          safeMappings: [],
+          unsafeMappings: [],
+          missingContractSignals: [
+            { name: 'miso_i', role: 'serial_rx', direction: 'in', type: 'std_logic', requiredFor: 'phy_rx' },
+            { name: 'tx_valid_i', role: 'valid', direction: 'in', type: 'std_logic', requiredFor: 'tx_valid' },
+          ],
+          contractRepair: { action: 'add_missing_ports', safe: true },
+          verdict: 'add explicit SPI serial receive and transaction valid inputs',
+        }),
+        telemetry: { durationMs: 1 },
+      };
+    },
+  });
+
+  const spiFile = result.project.files.find((file) => file.path === 'src/spi_master.vhd')?.content || '';
+  const topFile = result.project.files.find((file) => file.path === 'src/spi_top.vhd')?.content || '';
+  assert.match(spiFile, /miso_i\s*:\s*in\s+std_logic/i);
+  assert.match(spiFile, /tx_valid_i\s*:\s*in\s+std_logic/i);
+  assert.match(spiFile, /phy_rx\s*=>\s*miso_i/i);
+  assert.match(spiFile, /tx_valid\s*=>\s*tx_valid_i/i);
+  assert.match(topFile, /miso_i\s*=>\s*'0'/i);
+  assert.match(topFile, /tx_valid_i\s*=>\s*'1'/i);
+  assert.equal(result.attempts.length, 0);
 });
 
 test('staged generation adapts a safe near-match from a known-good leaf baseline', async () => {

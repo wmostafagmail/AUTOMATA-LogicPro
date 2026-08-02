@@ -11,6 +11,7 @@ import {
   Play,
   RefreshCw,
   Copy,
+  FlaskConical,
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -31,6 +32,7 @@ interface ToolbarProps {
   onOpenWorkspace: () => void;
   onOpenAIDrawer: () => void;
   onOpenGhdlRunner: () => void;
+  onOpenVhdlLab: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -50,7 +52,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onExportVCD,
   onOpenWorkspace,
   onOpenAIDrawer,
-  onOpenGhdlRunner
+  onOpenGhdlRunner,
+  onOpenVhdlLab
 }) => {
   return (
     <div className="h-10 border-b border-brand-outline-variant/40 bg-brand-surface-low px-3 flex items-center justify-between flex-none select-none font-sans z-10 gap-2 overflow-x-auto">
@@ -169,6 +172,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         >
           <Play size={11} className="text-lime-400" />
           <span>Start Simulation</span>
+        </button>
+
+        <button
+          onClick={onOpenVhdlLab}
+          className="px-2 py-1 select-none flex items-center gap-1 bg-brand-cyan/10 hover:bg-brand-cyan/15 border border-brand-cyan/30 rounded text-[12px] font-bold text-brand-cyan uppercase cursor-pointer"
+          title="Open the VHDL Improvement Lab"
+        >
+          <FlaskConical size={11} />
+          <span>VHDL Lab</span>
         </button>
       </div>
 

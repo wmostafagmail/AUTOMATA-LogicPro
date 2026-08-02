@@ -1,0 +1,51 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+## Adapter Benchmark Output Contract
+This benchmark validates exactly one returned VHDL file as a single-file artifact.
+Design intent: Design a VGA or HDMI-style pattern generator with a framebuffer-oriented architecture in VHDL, including deterministic sync timing, pixel addressing, and a verifiable top-level video path.
+
+Frozen interface that must be preserved exactly:
+entity video_pattern_generator_top
+Required generics:
+- generic DATA_WIDTH : positive := 8
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port hsync_o : out std_logic
+- port vsync_o : out std_logic
+- port de_o : out std_logic
+- port pixel_o : out std_logic_vector(23 downto 0)
+- port pixel_addr_o : out unsigned(18 downto 0)
+
+Port semantic summary:
+- clk: in std_logic (clock)
+- rst: in std_logic (reset)
+- hsync_o: out std_logic (horizontal_sync)
+- vsync_o: out std_logic (vertical_sync)
+- de_o: out std_logic (data_enable)
+- pixel_o: out std_logic_vector(23 downto 0) (rgb_pixel)
+- pixel_addr_o: out unsigned(18 downto 0) (pixel_address)
+
+Reset policy: rst, active_high, synchronous.
+Observable output obligations:
+- drive hsync_o deterministically after reset
+- drive vsync_o deterministically after reset
+- drive de_o deterministically after reset
+- drive pixel_o deterministically after reset
+- drive pixel_addr_o deterministically after reset
+
+Do not create a hierarchical project.
+Do not instantiate any external work-library unit.
+Forbidden text in the returned VHDL: entity work.
+Forbidden text in the returned VHDL: entity bb_ or entity core as an instantiation target.
+Forbidden construct in the returned VHDL: component declaration/instantiation for missing child blocks.
+Return one top entity and one top architecture for the frozen entity.
+The returned file must contain "architecture rtl of video_pattern_generator_top is".
+If the architecture description mentions sub-block responsibilities, implement them as local signals, processes, constants, records, functions, or procedures inside the top architecture.
+Do not add child entity declarations unless absolutely necessary; if you do, every child entity and architecture must appear before the top architecture and must not instantiate more missing children.
+Use deterministic, conservative behavior that satisfies the observable interface contract rather than trying to recreate a full multi-file subsystem.
+Prefer a compact implementation under 180 lines.
+Return VHDL only.

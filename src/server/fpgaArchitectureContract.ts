@@ -1747,7 +1747,7 @@ function compatiblePort(parent: FpgaArchitectureComponentContract, childPort: Fp
     ));
     if (match) return match;
   }
-  return parent.ports.find((port) => inputModes.includes(port.mode) && normalizeType(port.type) === childType) || null;
+  return null;
 }
 
 function isWritablePort(port: FpgaArchitecturePortContract) {

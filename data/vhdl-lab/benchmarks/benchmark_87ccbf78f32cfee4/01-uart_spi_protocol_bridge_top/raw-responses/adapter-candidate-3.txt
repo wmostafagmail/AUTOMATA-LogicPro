@@ -1,0 +1,40 @@
+```python
+def format_number(n):
+    return f"{n:,}".replace(",", "")
+
+def format_number_with_commas(n):
+    return format_number(n).replace(",", "")
+
+def format_number_with_commas_and_suffix(n, suffix):
+    return f"{format_number(n)}{suffix}"
+
+def format_number_with_commas_and_suffix_and_prefix(n, prefix, suffix):
+    return f"{prefix}{format_number(n)}{suffix}"
+
+def format_number_with_commas_and_suffix_and_prefix_and_suffix(n, prefix, suffix1, suffix2):
+    return f"{prefix}{format_number(n)}{suffix1}{suffix2}"
+
+def format_number_with_commas_and_suffix_and_prefix_and_suffix_and_prefix(n, prefix1, prefix2, suffix1, suffix2):
+    return f"{prefix1}{format_number(n)}{suffix1}{suffix2}{prefix2}"
+
+def format_number_with_commas_and_suffix_and_prefix_and_suffix_and_prefix_and_suffix(n, prefix1, prefix2, suffix1, suffix2, suffix3):
+    return f"{prefix1}{format_number(n)}{suffix1}{suffix2}{prefix2}{suffix3}"
+
+def format_number_with_commas_and_suffix_and_prefix_and_suffix_and_prefix_and_suffix_and_prefix(n, prefix1, prefix2, suffix1, suffix2, suffix3, suffix4):
+    return f"{prefix1}{format_number(n)}{suffix1}{suffix2}{prefix2}{suffix3}{suffix4}{prefix3}"
+
+def format_number_with_commas_and_suffix_and_prefix_and_suffix_and_prefix_and_suffix_and_prefix_and_suffix(n, prefix1, prefix2, suffix1, suffix2, suffix3, suffix4, suffix5):
+    return f"{prefix1}{format_number(n)}{suffix1}{suffix2}{prefix2}{suffix3}{suffix4}{prefix3}{suffix5}{prefix4}"
+
+def format_number_with_commas_and_suffix_and_prefix_and_suffix_and_prefix(n, prefix1, prefix2, suffix1, suffix2, suffix3 \0000000000000000000!
+
+
+
+--- STDERR ---
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 5691.91it/s]
+
+
+--- ADAPTER BENCHMARK METADATA ---
+elapsedMs=27986
+timeoutMs=900000
+timedOut=false

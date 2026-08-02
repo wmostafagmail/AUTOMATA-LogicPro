@@ -1,0 +1,109 @@
+{
+  "id": "benchmark_6224aa4ed3b4f640",
+  "suiteId": "checkpoint_adapter_generation:smoke_core_contracts",
+  "status": "FAILED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1",
+    "contract_88296f5c0367cfbe",
+    "contract_74680bc3fae28ab1",
+    "contract_9e1f855131977b5e",
+    "contract_6ec6045a1bfc1d5a"
+  ],
+  "childRunIds": [],
+  "modelProfileId": null,
+  "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 0,
+  "summary": {
+    "total": 5,
+    "passed": 0,
+    "failed": 5,
+    "running": 0,
+    "passRate": 0,
+    "adapterCheckpointId": "checkpoint_b1f8eda836bb63ff",
+    "adapterPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/training/training_3b69f9c999e1f404/adapter",
+    "trainingRunId": "training_3b69f9c999e1f404",
+    "baseModel": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+    "evaluationScope": "smoke_core_contracts",
+    "holdoutCount": 0,
+    "generationBenchmarkPassed": false,
+    "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+    "results": [
+      {
+        "contractId": "contract_fb9b64a3834e20d1",
+        "contractName": "UART-to-SPI Protocol Bridge with FIFOs",
+        "entityName": "uart_spi_protocol_bridge_top",
+        "passed": false,
+        "stage": "validating_dependencies",
+        "failureCode": "missing_work_unit_dependency",
+        "message": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_rx, but no entity uart_rx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.\nmissing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_tx, but no entity uart_tx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.\nmissing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.spi_master, but no entity spi_master is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.\nmissing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.tx_fifo, but no entity tx_fifo is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.\nmissing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.rx_fifo, but no entity rx_fifo is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.\nmissing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.control, but no entity control is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-1.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/01-uart_spi_protocol_bridge_top/requests/adapter-candidate-1.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/01-uart_spi_protocol_bridge_top/raw-responses/adapter-candidate-1.txt",
+        "elapsedMs": 10518,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_88296f5c0367cfbe",
+        "contractName": "Lab Counter Smoke Contract",
+        "entityName": "lab_counter",
+        "passed": false,
+        "stage": "validating_dependencies",
+        "failureCode": "single_file_work_unit_order",
+        "message": "single_file_work_unit_order: Single-file VHDL Lab run instantiates entity work.core before entity core is declared. Move child entity/architecture design units before the architecture that instantiates them, or inline the logic.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/02-lab_counter/generated/rtl/lab_counter.adapter-candidate-2.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/02-lab_counter/requests/adapter-candidate-2.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/02-lab_counter/raw-responses/adapter-candidate-2.txt",
+        "elapsedMs": 6278,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_74680bc3fae28ab1",
+        "contractName": "AXI-Stream Packet Router / Network Switch",
+        "entityName": "axi_stream_packet_router_top",
+        "passed": false,
+        "stage": "validating_dependencies",
+        "failureCode": "missing_work_unit_dependency",
+        "message": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/03-axi_stream_packet_router_top/generated/rtl/axi_stream_packet_router_top.adapter-candidate-3.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/03-axi_stream_packet_router_top/requests/adapter-candidate-3.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/03-axi_stream_packet_router_top/raw-responses/adapter-candidate-3.txt",
+        "elapsedMs": 7289,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_9e1f855131977b5e",
+        "contractName": "Digital Signal Processing Chain: FIR Filter + FFT-lite Analyzer",
+        "entityName": "dsp_chain_top",
+        "passed": false,
+        "stage": "validating_dependencies",
+        "failureCode": "missing_work_unit_dependency",
+        "message": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-4.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/04-dsp_chain_top/requests/adapter-candidate-4.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/04-dsp_chain_top/raw-responses/adapter-candidate-4.txt",
+        "elapsedMs": 5771,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_6ec6045a1bfc1d5a",
+        "contractName": "VGA/HDMI Pattern Generator with Framebuffer",
+        "entityName": "video_pattern_generator_top",
+        "passed": false,
+        "stage": "validating_dependencies",
+        "failureCode": "missing_work_unit_dependency",
+        "message": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-5.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/05-video_pattern_generator_top/requests/adapter-candidate-5.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/05-video_pattern_generator_top/raw-responses/adapter-candidate-5.txt",
+        "elapsedMs": 5921,
+        "timeoutMs": 900000
+      }
+    ]
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_6224aa4ed3b4f640/summary.json",
+  "createdAt": "2026-08-01T20:54:01.277Z",
+  "completedAt": "2026-08-01T20:54:37.169Z"
+}

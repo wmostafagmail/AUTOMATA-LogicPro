@@ -1,0 +1,7 @@
+v 4
+file . "../testbench/tb_video_pattern_generator_top.candidate-3.vhd" "938c912dec3fbc59dd0ff4ef477759ec6ab00862" "20260802040201.105":
+  entity tb_video_pattern_generator_top at 1( 0) + 0 on 13;
+  architecture sim of tb_video_pattern_generator_top at 8( 155) + 0 on 14;
+file . "video_pattern_generator_top.adapter-candidate-3.vhd" "0dfdcfce916d2146b7bb41a82bef5c033935cb4f" "20260802040201.083":
+  entity video_pattern_generator_top at 1( 0) + 0 on 11;
+  architecture rtl of video_pattern_generator_top at 20( 437) + 0 on 12;

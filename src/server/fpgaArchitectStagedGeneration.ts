@@ -5,8 +5,8 @@ import path from 'path';
 import { promisify } from 'util';
 import type { FpgaArchitectFile, FpgaArchitectProject } from './fpgaArchitect';
 import { buildDeterministicArchitectGhdlRunCommands } from './fpgaArchitect';
-import type { FpgaArchitectureComponentContract, FpgaArchitectureContract } from './fpgaArchitectureContract';
-import { hashFpgaArchitectureContract } from './fpgaArchitectureContract';
+import type { FpgaArchitectureComponentContract, FpgaArchitectureContract, FpgaArchitecturePortContract } from './fpgaArchitectureContract';
+import { completeFpgaArchitectureContract, hashFpgaArchitectureContract } from './fpgaArchitectureContract';
 import { renderAppOwnedTestbench } from './fpgaVerificationScenario';
 import { defaultVhdlValue, renderContractPackage, renderIntegrationTop, renderLeafSkeleton } from './fpgaContractRenderer';
 import { buildModelGenerationProfile, type ModelGenerationProfile } from './modelGenerationProfiles';
@@ -43,6 +43,13 @@ import { findBootstrapFacadeNearMatch } from './fpgaBootstrapArchitectureResolve
 import { normalizeComponentContractForVerifiedCapability } from './fpgaCapabilityContractNormalizer';
 import { renderDeterministicLeafTemplate } from './fpgaDeterministicLeafTemplates';
 import type { FpgaVhdlImplementationPolicy } from './fpgaPipelineConfig';
+import {
+  buildVhdlSpecialistAdvisorPrompt,
+  scoreVhdlSpecialistAdvisorResponse,
+  type VhdlSpecialistMissingSignalAdvice,
+  type VhdlSpecialistAdvisorScore,
+} from './fpgaVhdlSpecialistAdvisor';
+import { classifyVerifiedPortRole, rolesCompatible } from './fpgaVerifiedVhdlPortRoles';
 
 export type FpgaArchitectStage = 'packages' | 'leaf_rtl' | 'top_integration' | 'testbench' | 'collateral' | 'manifest';
 
@@ -57,6 +64,137 @@ export type FpgaArchitectStageProgress = {
 type StagedAiResult<TTelemetry> = { text: string; telemetry: TTelemetry };
 const execFileAsync = promisify(execFile);
 const VHDL_RESERVED_IDENTIFIER_SET = new Set(VHDL_RESERVED_IDENTIFIERS.map((entry) => entry.toLowerCase()));
+
+function shouldWrapAsStagedRuntimeError(error: unknown) {
+  if ((error as any)?.failureCode) return false;
+  if ((error as any)?.name === 'AbortError' || /aborted|aborterror/i.test(String((error as any)?.message || error))) return false;
+  return true;
+}
+
+function formatVhdlSpecialistAdviceForError(advice: VhdlSpecialistAdvisorScore | null) {
+  if (!advice) return 'specialistAdvice=not_run';
+  const acceptedMappings = advice.acceptedMappings.map((mapping) => `${mapping.verifiedPort}->${mapping.approvedPort}`).join(',') || '(none)';
+  const missingSignals = advice.missingContractSignals.map((signal) => signal.name).join(',') || '(none)';
+  const rejected = advice.rejectedReasons.slice(0, 5).join(' | ') || '(none)';
+  return [
+    `specialistAdvice=${advice.accepted ? 'accepted' : 'rejected'}`,
+    `specialistAcceptedMappings=${acceptedMappings}`,
+    `specialistMissingSignals=${missingSignals}`,
+    `specialistRejectedReasons=${rejected}`,
+    `specialistVerdict=${advice.verdict}`,
+  ].join('\n');
+}
+
+function createTimeoutSignal(parent: AbortSignal | undefined, timeoutMs: number) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const abortFromParent = () => controller.abort();
+  if (parent?.aborted) controller.abort();
+  parent?.addEventListener('abort', abortFromParent, { once: true });
+  return {
+    signal: controller.signal,
+    cleanup: () => {
+      clearTimeout(timeout);
+      parent?.removeEventListener('abort', abortFromParent);
+    },
+  };
+}
+
+function normalizePortName(value: string | null | undefined) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isLegalBasicVhdlIdentifier(value: string) {
+  return /^[A-Za-z][A-Za-z0-9_]*$/.test(value) && !VHDL_RESERVED_IDENTIFIER_SET.has(value.toLowerCase());
+}
+
+function findUnresolvedVerifiedPort(params: {
+  candidate: VerifiedVhdlBlockNearMatch;
+  wrapperPlan: VerifiedWrapperPlan;
+  requiredFor: string | undefined;
+}) {
+  const required = normalizePortName(params.requiredFor);
+  if (!required) return null;
+  const unresolved = new Set(params.wrapperPlan.mismatches
+    .filter((mismatch) => ['extra_port', 'verified_config_input_unresolved'].includes(mismatch.kind))
+    .map((mismatch) => normalizePortName(mismatch.verifiedName)));
+  if (!unresolved.has(required)) return null;
+  return params.candidate.actualSignature.ports.find((port) => normalizePortName(port.name) === required) || null;
+}
+
+function advisorSignalMatchesVerifiedPort(params: {
+  component: FpgaArchitectureComponentContract;
+  verifiedPort: { name: string; mode?: string; type: string };
+  signal: VhdlSpecialistMissingSignalAdvice;
+}) {
+  if (!isLegalBasicVhdlIdentifier(params.signal.name)) return false;
+  if (params.signal.direction && normalizePortName(params.signal.direction) !== normalizePortName(params.verifiedPort.mode)) return false;
+  if (params.signal.type && params.signal.type.trim().toLowerCase() !== params.verifiedPort.type.trim().toLowerCase()) return false;
+  const advisedRole = params.signal.role
+    ? { role: params.signal.role as any, activeLowReset: false, optional: false, confidence: 100, evidence: ['advisor role'] }
+    : null;
+  const verifiedRole = classifyVerifiedPortRole(params.verifiedPort as any, params.component);
+  return !advisedRole || rolesCompatible(verifiedRole, advisedRole) || verifiedRole.role === advisedRole.role;
+}
+
+function applyAcceptedVhdlSpecialistAdviceToContract(params: {
+  contract: FpgaArchitectureContract;
+  component: FpgaArchitectureComponentContract;
+  candidate: VerifiedVhdlBlockNearMatch;
+  wrapperPlan: VerifiedWrapperPlan;
+  advice: VhdlSpecialistAdvisorScore | null;
+}): { contract: FpgaArchitectureContract; component: FpgaArchitectureComponentContract; addedPorts: FpgaArchitecturePortContract[] } | null {
+  if (!params.advice?.accepted || params.advice.missingContractSignals.length === 0) return null;
+  const existingPortNames = new Set(params.component.ports.map((port) => normalizePortName(port.name)));
+  const addedPorts: FpgaArchitecturePortContract[] = [];
+  for (const signal of params.advice.missingContractSignals) {
+    const verifiedPort = findUnresolvedVerifiedPort({
+      candidate: params.candidate,
+      wrapperPlan: params.wrapperPlan,
+      requiredFor: signal.requiredFor,
+    });
+    if (!verifiedPort) continue;
+    if (!advisorSignalMatchesVerifiedPort({ component: params.component, verifiedPort, signal })) continue;
+    const normalized = normalizePortName(signal.name);
+    if (existingPortNames.has(normalized)) continue;
+    existingPortNames.add(normalized);
+    addedPorts.push({
+      name: signal.name,
+      mode: (verifiedPort.mode || 'in') as FpgaArchitecturePortContract['mode'],
+      type: verifiedPort.type,
+      purpose: [
+        `Advisor-normalized contract signal for verified port ${verifiedPort.name}.`,
+        signal.rationale || '',
+      ].filter(Boolean).join(' '),
+    });
+  }
+  if (addedPorts.length === 0) return null;
+  const componentWithAdvice: FpgaArchitectureComponentContract = {
+    ...params.component,
+    ports: [...params.component.ports, ...addedPorts],
+  };
+  const contractWithAdvice: FpgaArchitectureContract = {
+    ...params.contract,
+    assumptions: [
+      ...(params.contract.assumptions || []),
+      `VHDL_SPECIALIST_CONTRACT_NORMALIZATION component=${params.component.id} addedPorts=${addedPorts.map((port) => port.name).join(',')}`,
+    ],
+    components: params.contract.components.map((component) => (
+      component.id === params.component.id ? componentWithAdvice : component
+    )),
+  };
+  const completed = completeFpgaArchitectureContract({
+    contract: contractWithAdvice,
+    userRequest: contractWithAdvice.systemIntent,
+  });
+  const completedComponent = completed.contract.components.find((component) => component.id === params.component.id);
+  if (!completedComponent) return null;
+  return {
+    contract: completed.contract,
+    component: completedComponent,
+    addedPorts,
+  };
+}
 
 export class StagedPortInterfaceDriftError extends Error {
   readonly failureCode = 'staged_port_interface_drift';
@@ -227,6 +365,35 @@ export class VerifiedLeafImplementationMissingError extends Error {
   }
 }
 
+export class StagedGenerationRuntimeError extends Error {
+  readonly failureCode = 'staged_generation_runtime_error';
+  readonly stage: FpgaArchitectStage;
+  readonly componentId: string;
+  readonly componentName: string;
+  readonly originalMessage: string;
+
+  constructor(params: {
+    stage: FpgaArchitectStage;
+    component: FpgaArchitectureComponentContract;
+    error: unknown;
+  }) {
+    const originalMessage = params.error instanceof Error ? params.error.message : String(params.error);
+    super([
+      'staged_generation_runtime_error',
+      `The app hit an internal staged-generation runtime error while processing component "${params.component.id}".`,
+      `stage=${params.stage}`,
+      `componentId=${params.component.id}`,
+      `componentName=${params.component.name}`,
+      `originalMessage=${originalMessage}`,
+    ].join('\n'));
+    this.name = 'StagedGenerationRuntimeError';
+    this.stage = params.stage;
+    this.componentId = params.component.id;
+    this.componentName = params.component.name;
+    this.originalMessage = originalMessage;
+  }
+}
+
 export class VerifiedWrapperUnsafeMismatchError extends Error {
   readonly failureCode = 'verified_semantic_wrapper_unsafe_mismatch';
   readonly stage: FpgaArchitectStage;
@@ -236,12 +403,14 @@ export class VerifiedWrapperUnsafeMismatchError extends Error {
   readonly verifiedEntityName: string;
   readonly unsafeReasons: string[];
   readonly mismatches: string[];
+  readonly specialistAdvice: VhdlSpecialistAdvisorScore | null;
 
   constructor(params: {
     stage: FpgaArchitectStage;
     component: FpgaArchitectureComponentContract;
     candidate: VerifiedVhdlBlockNearMatch;
     plan: VerifiedWrapperPlan;
+    specialistAdvice?: VhdlSpecialistAdvisorScore | null;
   }) {
     super([
       'verified_semantic_wrapper_unsafe_mismatch',
@@ -252,6 +421,7 @@ export class VerifiedWrapperUnsafeMismatchError extends Error {
       `verifiedEntity=${params.candidate.entityName}`,
       `unsafeReasons=${params.plan.unsafeReasons.join(' | ') || '(none)'}`,
       `mismatches=${params.plan.mismatches.map((mismatch) => mismatch.message).join(' | ') || '(none)'}`,
+      formatVhdlSpecialistAdviceForError(params.specialistAdvice || null),
     ].join('\n'));
     this.name = 'VerifiedWrapperUnsafeMismatchError';
     this.stage = params.stage;
@@ -261,6 +431,7 @@ export class VerifiedWrapperUnsafeMismatchError extends Error {
     this.verifiedEntityName = params.candidate.entityName;
     this.unsafeReasons = params.plan.unsafeReasons;
     this.mismatches = params.plan.mismatches.map((mismatch) => mismatch.message);
+    this.specialistAdvice = params.specialistAdvice || null;
   }
 }
 
@@ -272,12 +443,14 @@ export class HybridImplementationSourceUnresolvedError extends Error {
   readonly verifiedBlockName: string;
   readonly verifiedEntityName: string;
   readonly unsafeReasons: string[];
+  readonly specialistAdvice: VhdlSpecialistAdvisorScore | null;
 
   constructor(params: {
     stage: FpgaArchitectStage;
     component: FpgaArchitectureComponentContract;
     candidate: VerifiedVhdlBlockNearMatch;
     plan: VerifiedWrapperPlan;
+    specialistAdvice?: VhdlSpecialistAdvisorScore | null;
   }) {
     super([
       'hybrid_implementation_source_unresolved',
@@ -287,6 +460,7 @@ export class HybridImplementationSourceUnresolvedError extends Error {
       `verifiedBlock=${params.candidate.blockName}`,
       `verifiedEntity=${params.candidate.entityName}`,
       `unsafeReasons=${params.plan.unsafeReasons.join(' | ') || '(none)'}`,
+      formatVhdlSpecialistAdviceForError(params.specialistAdvice || null),
       'Do not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.',
     ].join('\n'));
     this.name = 'HybridImplementationSourceUnresolvedError';
@@ -296,6 +470,7 @@ export class HybridImplementationSourceUnresolvedError extends Error {
     this.verifiedBlockName = params.candidate.blockName;
     this.verifiedEntityName = params.candidate.entityName;
     this.unsafeReasons = params.plan.unsafeReasons;
+    this.specialistAdvice = params.specialistAdvice || null;
   }
 }
 
@@ -1161,6 +1336,7 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
   verifiedVhdlBlockQualificationPath?: string | null;
   vhdlImplementationPolicy?: FpgaVhdlImplementationPolicy;
   hybridOnUnsafeWrapper?: boolean;
+  vhdlSpecialistAdvisor?: boolean;
   stageGhdlValidation?: boolean;
   runModelAnalysis: (params: {
     ai: any;
@@ -1206,6 +1382,50 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
       const normalizedRewrapped = normalizeStagedVhdlContent(rewrapped);
       assertGeneratedComponentInterface(params.stage, params.component, normalizedRewrapped);
       return normalizedRewrapped;
+    }
+  };
+
+  const runVhdlSpecialistAdvisor = async (
+    candidate: VerifiedVhdlBlockNearMatch,
+    component: FpgaArchitectureComponentContract,
+    wrapperPlan: VerifiedWrapperPlan,
+  ): Promise<VhdlSpecialistAdvisorScore | null> => {
+    if (params.vhdlSpecialistAdvisor === false) return null;
+    const timeout = createTimeoutSignal(params.signal, 90_000);
+    try {
+      const prompt = buildVhdlSpecialistAdvisorPrompt({ component, candidate, wrapperPlan });
+      const result = await params.runModelAnalysis({
+        ai: params.ai,
+        provider: params.provider,
+        model: params.model,
+        prompt,
+        signal: timeout.signal,
+        generationProfile: buildModelGenerationProfile({
+          id: 'vhdl_advisor',
+          scope: `${hashFpgaArchitectureContract(params.contract)}\u0000${component.id}\u0000${candidate.blockName}`,
+          maxOutputTokens: 512,
+        }),
+      });
+      stageAttempts.push(result);
+      return scoreVhdlSpecialistAdvisorResponse({
+        component,
+        candidate,
+        wrapperPlan,
+        responseText: result.text,
+      });
+    } catch (error: any) {
+      if (params.signal?.aborted) throw error;
+      return {
+        accepted: false,
+        acceptedMappings: [],
+        rejectedMappings: [],
+        missingContractSignals: [],
+        rejectedReasons: [`advisor failed or timed out: ${String(error?.message || error)}`],
+        verdict: 'advisor unavailable',
+        rawText: '',
+      };
+    } finally {
+      timeout.cleanup();
     }
   };
 
@@ -1401,12 +1621,49 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
           contract: promotedContract,
         };
       }
+      const specialistAdvice = await runVhdlSpecialistAdvisor(effectiveNearMatch, promotedComponent, wrapperPlan);
+      const adviceNormalization = applyAcceptedVhdlSpecialistAdviceToContract({
+        contract: promotedContract,
+        component: promotedComponent,
+        candidate: effectiveNearMatch,
+        wrapperPlan,
+        advice: specialistAdvice,
+      });
+      if (adviceNormalization) {
+        const advisedNearMatch: VerifiedVhdlBlockNearMatch = {
+          ...effectiveNearMatch,
+          approvedSignature: buildLeafInterfaceSignature(adviceNormalization.component),
+        };
+        const advisedWrapperPlan = planVerifiedVhdlWrapper({
+          component: adviceNormalization.component,
+          candidate: advisedNearMatch,
+          parameterCompatibility,
+        });
+        if (advisedWrapperPlan.kind === 'wrapper_safe') {
+          const content = normalizeStagedVhdlContent(renderVerifiedVhdlWrapper({
+            contract: adviceNormalization.contract,
+            component: adviceNormalization.component,
+            plan: advisedWrapperPlan,
+          }));
+          assertGeneratedComponentInterface(params.stage, adviceNormalization.component, content);
+          return {
+            content,
+            attempts: stageAttempts,
+            dependencyFiles: [...effectiveNearMatch.dependencyFiles, effectiveNearMatch.rtlFile],
+            verifiedVhdlBlock: effectiveNearMatch,
+            verifiedWrapperPlan: advisedWrapperPlan,
+            verifiedParameterCompatibility: parameterCompatibility,
+            contract: adviceNormalization.contract,
+          };
+        }
+      }
       if (params.hybridOnUnsafeWrapper !== false) {
         throw new HybridImplementationSourceUnresolvedError({
           stage: params.stage,
           component: promotedComponent,
           candidate: effectiveNearMatch,
           plan: wrapperPlan,
+          specialistAdvice,
         });
       }
       throw new VerifiedWrapperUnsafeMismatchError({
@@ -1414,6 +1671,7 @@ async function generateComponentWithInterfaceRetry<TTelemetry>(params: {
         component: promotedComponent,
         candidate: effectiveNearMatch,
         plan: wrapperPlan,
+        specialistAdvice,
       });
     }
   }
@@ -1626,6 +1884,7 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
   verifiedVhdlBlockQualificationPath?: string | null;
   vhdlImplementationPolicy?: FpgaVhdlImplementationPolicy;
   hybridOnUnsafeWrapper?: boolean;
+  vhdlSpecialistAdvisor?: boolean;
   runModelAnalysis: (params: {
     ai: any;
     provider: any;
@@ -1677,24 +1936,34 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
     if (!component) continue;
     await notify('leaf_rtl', 2, component.id, 'starting');
     const skeleton = renderLeafSkeleton(workingContract, component);
-    const { content, attempts: stageAttempts, dependencyFiles, contract: nextContract } = await generateComponentWithInterfaceRetry({
-      ai: params.ai,
-      provider: params.provider,
-      model: params.model,
-      contract: workingContract,
-      component,
-      skeleton,
-      stage: 'leaf_rtl',
-      signal: params.signal,
-      maxStageOutputChars: params.maxStageOutputChars,
-      goldenLeafLibraryPath: params.goldenLeafLibraryPath,
-      verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
-      verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
-      vhdlImplementationPolicy: params.vhdlImplementationPolicy || 'verified_or_template_only',
-      hybridOnUnsafeWrapper: params.hybridOnUnsafeWrapper,
-      stageGhdlValidation: params.stageGhdlValidation,
-      runModelAnalysis: params.runModelAnalysis,
-    });
+    let generatedLeaf: any;
+    try {
+      generatedLeaf = await generateComponentWithInterfaceRetry({
+        ai: params.ai,
+        provider: params.provider,
+        model: params.model,
+        contract: workingContract,
+        component,
+        skeleton,
+        stage: 'leaf_rtl',
+        signal: params.signal,
+        maxStageOutputChars: params.maxStageOutputChars,
+        goldenLeafLibraryPath: params.goldenLeafLibraryPath,
+        verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
+        verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
+        vhdlImplementationPolicy: params.vhdlImplementationPolicy || 'verified_or_template_only',
+        hybridOnUnsafeWrapper: params.hybridOnUnsafeWrapper,
+        vhdlSpecialistAdvisor: params.vhdlSpecialistAdvisor,
+        stageGhdlValidation: params.stageGhdlValidation,
+        runModelAnalysis: params.runModelAnalysis,
+      });
+    } catch (error) {
+      if (shouldWrapAsStagedRuntimeError(error)) {
+        throw new StagedGenerationRuntimeError({ stage: 'leaf_rtl', component, error });
+      }
+      throw error;
+    }
+    const { content, attempts: stageAttempts, dependencyFiles, contract: nextContract } = generatedLeaf;
     if (nextContract) workingContract = nextContract;
     attempts.push(...stageAttempts);
     for (const dependencyFile of dependencyFiles) {
@@ -1717,24 +1986,33 @@ export async function runStagedFpgaArchitectGeneration<TTelemetry>(params: {
     topContent = renderIntegrationTop(workingContract, top);
   } else {
     const skeleton = renderLeafSkeleton(workingContract, top);
-    const generated = await generateComponentWithInterfaceRetry({
-      ai: params.ai,
-      provider: params.provider,
-      model: params.model,
-      contract: workingContract,
-      component: top,
-      skeleton,
-      stage: 'top_integration',
-      signal: params.signal,
-      maxStageOutputChars: params.maxStageOutputChars,
-      goldenLeafLibraryPath: params.goldenLeafLibraryPath,
-      verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
-      verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
-      vhdlImplementationPolicy: params.vhdlImplementationPolicy || 'verified_or_template_only',
-      hybridOnUnsafeWrapper: params.hybridOnUnsafeWrapper,
-      stageGhdlValidation: params.stageGhdlValidation,
-      runModelAnalysis: params.runModelAnalysis,
-    });
+    let generated: any;
+    try {
+      generated = await generateComponentWithInterfaceRetry({
+        ai: params.ai,
+        provider: params.provider,
+        model: params.model,
+        contract: workingContract,
+        component: top,
+        skeleton,
+        stage: 'top_integration',
+        signal: params.signal,
+        maxStageOutputChars: params.maxStageOutputChars,
+        goldenLeafLibraryPath: params.goldenLeafLibraryPath,
+        verifiedVhdlBlockLibraryRoot: params.verifiedVhdlBlockLibraryRoot,
+        verifiedVhdlBlockQualificationPath: params.verifiedVhdlBlockQualificationPath,
+        vhdlImplementationPolicy: params.vhdlImplementationPolicy || 'verified_or_template_only',
+        hybridOnUnsafeWrapper: params.hybridOnUnsafeWrapper,
+        vhdlSpecialistAdvisor: params.vhdlSpecialistAdvisor,
+        stageGhdlValidation: params.stageGhdlValidation,
+        runModelAnalysis: params.runModelAnalysis,
+      });
+    } catch (error) {
+      if (shouldWrapAsStagedRuntimeError(error)) {
+        throw new StagedGenerationRuntimeError({ stage: 'top_integration', component: top, error });
+      }
+      throw error;
+    }
     topContent = generated.content;
     if (generated.contract) workingContract = generated.contract;
     attempts.push(...generated.attempts);

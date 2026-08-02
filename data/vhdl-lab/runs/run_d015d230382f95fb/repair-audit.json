@@ -1,0 +1,45 @@
+{
+  "runId": "run_d015d230382f95fb",
+  "packets": [
+    {
+      "failureCode": "dsp_accumulator_width_bound_check",
+      "stage": "simulating",
+      "fileLine": "dsp_chain_top.vhd:82",
+      "excerpt": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.vhd:82 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).fft_proc ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "validatorOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.vhd:82 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).fft_proc ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "ghdlOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.vhd:82 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).fft_proc ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "forbiddenPattern": "dsp_accumulator_width_bound_check",
+      "legalReplacement": "Use an accumulator wide enough for signed multiply/add products, resize products to sum'length, then resize the final result to the output signal length.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_d015d230382f95fb/generated/rtl/dsp_chain_top.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "dcdadcf604cff09f3de7014e9a09521c6fa4dd76a149d38d415d77c02a2143fe",
+      "advisor": {
+        "rootCauseOwner": "generated_rtl",
+        "failureClass": "dsp_accumulator_width_bound_check",
+        "deterministicFixPossible": true,
+        "recommendedAction": "Normalize FIR multiply/add sizing by resizing products to a wide accumulator and resizing the final assignment to the destination length."
+      },
+      "createdAt": "2026-08-01T19:30:31.361Z"
+    },
+    {
+      "failureCode": "dsp_accumulator_width_bound_check",
+      "stage": "simulating",
+      "fileLine": "dsp_chain_top.vhd:82",
+      "excerpt": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.vhd:82 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).fft_proc ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "validatorOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.vhd:82 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).fft_proc ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "ghdlOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.vhd:82 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).fft_proc ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "forbiddenPattern": "dsp_accumulator_width_bound_check",
+      "legalReplacement": "Use an accumulator wide enough for signed multiply/add products, resize products to sum'length, then resize the final result to the output signal length.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_d015d230382f95fb/generated/rtl/dsp_chain_top.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "dcdadcf604cff09f3de7014e9a09521c6fa4dd76a149d38d415d77c02a2143fe",
+      "advisor": {
+        "rootCauseOwner": "generated_rtl",
+        "failureClass": "dsp_accumulator_width_bound_check",
+        "deterministicFixPossible": true,
+        "recommendedAction": "Normalize FIR multiply/add sizing by resizing products to a wide accumulator and resizing the final assignment to the destination length."
+      },
+      "createdAt": "2026-08-01T19:31:31.389Z"
+    }
+  ]
+}

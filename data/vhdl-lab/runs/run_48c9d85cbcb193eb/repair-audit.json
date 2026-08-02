@@ -1,0 +1,25 @@
+{
+  "runId": "run_48c9d85cbcb193eb",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_receiver, but no entity uart_receiver is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_transmitter, but no entity uart_transmitter is declared ",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_receiver, but no entity uart_receiver is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_transmitter, but no entity uart_transmitter is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.spi_master, but no entity spi_master is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.fifo, but no entity fifo is declared in the returned artifact. ",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_48c9d85cbcb193eb/generated/rtl/uart_spi_protocol_bridge_top.candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "88b6bbb79bba63bd4b3b75097e909bc229f9b34978c13a7860900d168d55bf45",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T19:36:06.357Z"
+    }
+  ]
+}

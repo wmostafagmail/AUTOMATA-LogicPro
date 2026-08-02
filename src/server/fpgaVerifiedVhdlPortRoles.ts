@@ -18,6 +18,15 @@ export type VerifiedPortRole =
   | 'register_read_data'
   | 'register_write_data'
   | 'register_write_enable'
+  | 'stream_data'
+  | 'stream_last'
+  | 'stream_user'
+  | 'packet_metadata'
+  | 'video_timing_config'
+  | 'sync_output'
+  | 'sample_input'
+  | 'sample_output'
+  | 'config'
   | 'error'
   | 'status'
   | 'address'
@@ -70,6 +79,18 @@ export function isRegisterFileComponent(component: FpgaArchitectureComponentCont
   return /\b(?:register_file|regfile|register\s+file|cpu\s+register)\b/i.test(componentText(component));
 }
 
+export function isSpiMasterComponent(component: FpgaArchitectureComponentContract) {
+  return /\b(?:spi_master|spi\s+master)\b/i.test(componentText(component));
+}
+
+export function isProgramCounterComponent(component: FpgaArchitectureComponentContract) {
+  return /\b(?:program_counter|program\s+counter|pc_counter|pc\s+counter|\bpc\b)\b/i.test(componentText(component));
+}
+
+export function isVideoTimingComponent(component: FpgaArchitectureComponentContract) {
+  return /\b(?:sync_generator|sync\s+generator|video_timing|video\s+timing|vga|hdmi|hsync|vsync|pixel\s+timing)\b/i.test(componentText(component));
+}
+
 function isVector(type: string) {
   return /\b(?:std_logic_vector|std_ulogic_vector|unsigned|signed)\b/i.test(type);
 }
@@ -116,6 +137,30 @@ export function classifyVerifiedPortRole(
   if (/status|state|flags?/.test(name)) set('status', 80, `name ${port.name} is status-like`);
   if (/addr|address|pc(?:_|$)|index/.test(name)) set('address', 78, `name ${port.name} is address-like`);
   if (/ctrl|control|cmd|opcode|op_/.test(name)) set('control', 74, `name ${port.name} is control-like`);
+  if (/^(?:h|v)_(?:active|front|sync|back|total|visible|porch)$/.test(name) || /(?:width|height|threshold|limit|period|polarity|cfg|config)/.test(name)) {
+    set(/^(?:h|v)_/.test(name) ? 'video_timing_config' : 'config', 86, `name ${port.name} is configuration-like`);
+  }
+  if ((mode === 'out' || mode === 'buffer') && /^(?:h|v)?sync(?:_o)?$|^(?:hsync|vsync)(?:_o)?$/.test(name)) {
+    set('sync_output', 94, `output ${port.name} is sync-like`);
+  }
+  if (/^(?:tdata|s_data|m_data|data)(?:_i|_o)?$/.test(base) && isVector(type)) {
+    set('stream_data', 84, `vector ${port.name} is stream data-like`);
+  }
+  if (/^(?:tlast|last)(?:_i|_o)?$/.test(base)) {
+    set('stream_last', 86, `name ${port.name} is stream last-like`);
+  }
+  if (/^(?:tuser|user|route|dest|id)(?:_i|_o)?$/.test(base)) {
+    set('stream_user', 78, `name ${port.name} is stream user/metadata-like`);
+  }
+  if (/packet|route|dest|id|keep|strb/.test(name)) {
+    set('packet_metadata', 72, `name ${port.name} is packet metadata-like`);
+  }
+  if (mode === 'in' && /sample/.test(name)) {
+    set('sample_input', 82, `input ${port.name} is sample-like`);
+  }
+  if ((mode === 'out' || mode === 'buffer') && /sample/.test(name)) {
+    set('sample_output', 82, `output ${port.name} is sample-like`);
+  }
 
   if (mode === 'in' && /(?:^|_)uart_rx$|(?:^|_)rx$|rx_i$|serial_rx|rxd|miso|mosi/.test(name) && isScalarLogic(type)) {
     set('serial_rx', 92, `input ${port.name} is serial receive-like`);
@@ -189,5 +234,11 @@ export function rolesCompatible(verified: VerifiedPortRoleEvidence, approved: Ve
   if (verified.role === 'payload_in' && approved.role === 'data') return true;
   if (verified.role === 'data' && approved.role === 'payload_in') return true;
   if (verified.role === 'error' && approved.role === 'status') return true;
+  if (verified.role === 'sample_input' && approved.role === 'payload_in') return true;
+  if (verified.role === 'payload_in' && approved.role === 'sample_input') return true;
+  if (verified.role === 'sample_output' && approved.role === 'payload_out') return true;
+  if (verified.role === 'payload_out' && approved.role === 'sample_output') return true;
+  if (verified.role === 'stream_data' && (approved.role === 'payload_in' || approved.role === 'payload_out' || approved.role === 'data')) return true;
+  if (approved.role === 'stream_data' && (verified.role === 'payload_in' || verified.role === 'payload_out' || verified.role === 'data')) return true;
   return false;
 }

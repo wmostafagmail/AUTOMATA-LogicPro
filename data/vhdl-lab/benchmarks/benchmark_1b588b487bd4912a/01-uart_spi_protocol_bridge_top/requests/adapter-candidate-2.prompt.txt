@@ -1,0 +1,82 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+## Focused Single-File Dependency Repair
+Repair attempt 1/3.
+The previous answer instantiated missing child entities in a single-file VHDL Lab run.
+Return exactly one complete self-contained VHDL-2008 file.
+Hard rule: do not use entity work.X unless entity X and architecture of X are declared earlier in this same returned file.
+Best repair: inline simple child behavior into the top architecture and remove entity work.X instantiations.
+If helper entities are necessary, declare each child entity/architecture before the top architecture that instantiates it.
+Repeat these context clauses before every design unit: library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+Preserve the exact frozen entity interface below. Do not add/remove/rename public ports or generics.
+Return VHDL only, no Markdown, no prose.
+
+Frozen interface:
+entity uart_spi_protocol_bridge_top
+Required generics:
+- generic DATA_WIDTH : positive := 8
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port uart_rx_i : in std_logic
+- port uart_tx_o : out std_logic
+- port spi_miso_i : in std_logic
+- port spi_mosi_o : out std_logic
+- port spi_sclk_o : out std_logic
+- port spi_cs_o : out std_logic
+- port busy_o : out std_logic
+- port error_o : out std_logic
+- port status_o : out std_logic_vector(7 downto 0)
+
+Required behavior obligations:
+[
+  "Generate a self-checking VHDL testbench.",
+  "Exercise nominal transfers from UART into SPI and back again.",
+  "Exercise FIFO backpressure, framing errors, overflow/underflow handling, and representative recovery behavior.",
+  "Produce deterministic PASS/FAIL assertions with useful messages."
+]
+
+Missing dependency findings:
+- Single-file VHDL Lab run instantiates entity work.uart_rx, but no entity uart_rx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.uart_tx, but no entity uart_tx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.spi_master, but no entity spi_master is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.tx_fifo, but no entity tx_fifo is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.rx_fifo, but no entity rx_fifo is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.control, but no entity control is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+
+Previous generated VHDL excerpt to repair:
+library ieee; use ieee.std_logic_1164.all;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity uart_spi_protocol_bridge_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    uart_rx_i : in std_logic;
+    uart_tx_o : out std_logic;
+    spi_miso_i : in std_logic;
+    spi_mosi_o : out std_logic;
+    spi_sclk_o : out std_logic;
+    spi_cs_o : out std_logic;
+    busy_o : out std_logic;
+    error_o : out std_logic;
+    status_o : out std_logic_vector(7 downto 0)
+  );
+end entity uart_spi_protocol_bridge_top;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_o=>uart_tx_o);u_spi_master:entity work.spi_master generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,miso_i=>spi_miso_i,mosi_o=>spi_mosi_o,sclk_o=>spi_sclk_o,cs_o=>spi_cs_o);u_tx_fifo:entity work.tx_fifo generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_data_i=>uart_tx_o,tx_valid_i=>uart_tx_o,tx_ready_o=>uart_tx_o);u_rx_fifo:entity work.rx_fifo generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_data_i=>spi_miso_i,rx_valid_i=>spi_miso_i,rx_ready_o=>spi_miso_i);u_control:entity work.control generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,busy_o=>busy_o,error_o=>error_o,status_o=>status_o);end architecture;

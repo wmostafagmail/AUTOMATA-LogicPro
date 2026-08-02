@@ -75,6 +75,18 @@ test('classifyFpgaArchitectLoopFailure recognizes new contract-oriented failure 
   assert.equal(parameterDiagnostic.category, 'implementation_source');
   assert.match(parameterDiagnostic.excerpt, /verified_parameter_smoke_failed/);
 
+  const configInputDiagnostic = classifyFpgaArchitectLoopFailure(
+    'verified_config_input_unresolved h_active: no deterministic contract or preset value is available for component "sync_generator".',
+  );
+  assert.equal(configInputDiagnostic.category, 'implementation_source');
+  assert.match(configInputDiagnostic.excerpt, /verified_config_input_unresolved/);
+
+  const stagedRuntimeDiagnostic = classifyFpgaArchitectLoopFailure(
+    'staged_generation_runtime_error The app hit an internal staged-generation runtime error while processing component "register_file". originalMessage=Cannot access component before initialization',
+  );
+  assert.equal(stagedRuntimeDiagnostic.category, 'provider_runtime');
+  assert.match(stagedRuntimeDiagnostic.excerpt, /staged_generation_runtime_error/);
+
   const parameterClarificationDiagnostic = classifyFpgaArchitectLoopFailure(
     'Architecture parameters need clarification before VHDL generation. architecture_parameter_clarification_required What clock frequency should uart_rx.CLOCK_HZ use?',
   );
@@ -183,6 +195,9 @@ test('classifyFpgaArchitectLoopFailure maps staged numeric_std and model-output 
   const outputBudgetDiagnostic = classifyFpgaArchitectLoopFailure(
     'Ollama returned no generated text for model "qwen" via /api/chat. Payload summary: done=true; done_reason=length; message_content_length=0',
   );
+  const modelTimeoutDiagnostic = classifyFpgaArchitectLoopFailure(
+    'model_generation_timeout: model_output_budget_exhausted Ollama reached http://127.0.0.1:11434, but contract_json generation did not complete for model "qwen". Original error: fetch failed',
+  );
   const mixedLogicalDiagnostic = classifyFpgaArchitectLoopFailure(
     'src/alu_pkg_for_opcodes_flags.vhd:41:52:error: only one type of logical operators may be used to combine relation',
   );
@@ -208,6 +223,7 @@ test('classifyFpgaArchitectLoopFailure maps staged numeric_std and model-output 
   assert.equal(indexedConversionDiagnostic.category, 'numeric_std_typing');
   assert.equal(assignmentMismatchDiagnostic.category, 'numeric_std_typing');
   assert.equal(outputBudgetDiagnostic.category, 'context_budget');
+  assert.equal(modelTimeoutDiagnostic.category, 'context_budget');
   assert.equal(mixedLogicalDiagnostic.category, 'numeric_std_typing');
   assert.equal(stagedDriftDiagnostic.category, 'architecture_contract');
   assert.equal(stagedEntityMissingDiagnostic.category, 'architecture_contract');

@@ -1,0 +1,109 @@
+{
+  "id": "benchmark_a3203aa46a98f6ae",
+  "suiteId": "checkpoint_adapter_generation:smoke_core_contracts",
+  "status": "FAILED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1",
+    "contract_88296f5c0367cfbe",
+    "contract_74680bc3fae28ab1",
+    "contract_9e1f855131977b5e",
+    "contract_6ec6045a1bfc1d5a"
+  ],
+  "childRunIds": [],
+  "modelProfileId": null,
+  "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 0,
+  "summary": {
+    "total": 5,
+    "passed": 3,
+    "failed": 2,
+    "running": 0,
+    "passRate": 0.6,
+    "adapterCheckpointId": "checkpoint_87c0925338f946c3",
+    "adapterPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/training/training_afe67160f80573b1/adapter",
+    "trainingRunId": "training_afe67160f80573b1",
+    "baseModel": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+    "evaluationScope": "smoke_core_contracts",
+    "holdoutCount": 0,
+    "generationBenchmarkPassed": false,
+    "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+    "results": [
+      {
+        "contractId": "contract_fb9b64a3834e20d1",
+        "contractName": "UART-to-SPI Protocol Bridge with FIFOs",
+        "entityName": "uart_spi_protocol_bridge_top",
+        "passed": false,
+        "stage": "analyzing",
+        "failureCode": "error",
+        "message": "uart_spi_protocol_bridge_top.adapter-candidate-1.vhd:67:13:error: target (variable \"bit_count\") is not a signal\n            bit_count <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:68:13:error: target (variable \"bit_time\") is not a signal\n            bit_time <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:71:17:error: target (variable \"bit_count\") is not a signal\n                bit_count <= 0;\n                ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:72:17:error: target (variable \"bit_time\") is not a signal\n                bit_time <= 0;\n                ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:76:21:error: target (variable \"bit_count\") is not a signal\n                    bit_count <= bit_count + 1;\n                    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:77:21:error: target (variable \"bit_time\") is not a signal\n                    bit_time <= 0;\n                    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:79:21:error: target (variable \"bit_time\") is not a signal\n                    bit_time <= bit_time + 1;\n                    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:97:13:error: target (variable \"bit_count\") is not a signal\n            bit_count <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:98:13:error: target (variable \"bit_time\") is not a signal\n            bit_time <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:104:25:error: target (variable \"bit_count\") is not a signal\n                        bit_count <= bit_count + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:105:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= 0;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:107:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= bit_time + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:128:13:error: target (variable \"bit_count\") is not a signal\n            bit_count <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:129:13:error: target (variable \"bit_time\") is not a signal\n            bit_time <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:135:25:error: target (variable \"bit_count\") is not a signal\n                        bit_count <= bit_count + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:136:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= 0;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:138:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= bit_time + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:149:25:error: target (variable \"bit_count\") is not a signal\n                        bit_count <= bit_count + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:150:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= 0;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:152:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= bit_time + 1;\n                        ^\n/opt/homebrew/bin/ghdl:error: compilation error\n\nCommand failed: /opt/homebrew/bin/ghdl -a --std=08 uart_spi_protocol_bridge_top.adapter-candidate-1.vhd\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:67:13:error: target (variable \"bit_count\") is not a signal\n            bit_count <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:68:13:error: target (variable \"bit_time\") is not a signal\n            bit_time <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:71:17:error: target (variable \"bit_count\") is not a signal\n                bit_count <= 0;\n                ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:72:17:error: target (variable \"bit_time\") is not a signal\n                bit_time <= 0;\n                ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:76:21:error: target (variable \"bit_count\") is not a signal\n                    bit_count <= bit_count + 1;\n                    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:77:21:error: target (variable \"bit_time\") is not a signal\n                    bit_time <= 0;\n                    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:79:21:error: target (variable \"bit_time\") is not a signal\n                    bit_time <= bit_time + 1;\n                    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:97:13:error: target (variable \"bit_count\") is not a signal\n            bit_count <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:98:13:error: target (variable \"bit_time\") is not a signal\n            bit_time <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:104:25:error: target (variable \"bit_count\") is not a signal\n                        bit_count <= bit_count + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:105:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= 0;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:107:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= bit_time + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:128:13:error: target (variable \"bit_count\") is not a signal\n            bit_count <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:129:13:error: target (variable \"bit_time\") is not a signal\n            bit_time <= 0;\n            ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:135:25:error: target (variable \"bit_count\") is not a signal\n                        bit_count <= bit_count + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:136:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= 0;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:138:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= bit_time + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:149:25:error: target (variable \"bit_count\") is not a signal\n                        bit_count <= bit_count + 1;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:150:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= 0;\n                        ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:152:25:error: target (variable \"bit_time\") is not a signal\n                        bit_time <= bit_time + 1;\n                        ^\n/opt/homebrew/bin/ghdl:error: compilation error\n\n",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-1.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/01-uart_spi_protocol_bridge_top/requests/adapter-candidate-1.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/01-uart_spi_protocol_bridge_top/raw-responses/adapter-candidate-1.txt",
+        "elapsedMs": 84932,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_88296f5c0367cfbe",
+        "contractName": "Lab Counter Smoke Contract",
+        "entityName": "lab_counter",
+        "passed": true,
+        "stage": "accepted",
+        "failureCode": null,
+        "message": "Adapter-generated RTL passed extraction, interface, dependency, static policy, GHDL analyze, and simulation gates.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/02-lab_counter/generated/rtl/lab_counter.adapter-candidate-2.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/02-lab_counter/requests/adapter-candidate-2.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/02-lab_counter/raw-responses/adapter-candidate-2.txt",
+        "elapsedMs": 12851,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_74680bc3fae28ab1",
+        "contractName": "AXI-Stream Packet Router / Network Switch",
+        "entityName": "axi_stream_packet_router_top",
+        "passed": true,
+        "stage": "accepted",
+        "failureCode": null,
+        "message": "Adapter-generated RTL passed extraction, interface, dependency, static policy, GHDL analyze, and simulation gates.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/03-axi_stream_packet_router_top/generated/rtl/axi_stream_packet_router_top.adapter-candidate-3.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/03-axi_stream_packet_router_top/requests/adapter-candidate-3.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/03-axi_stream_packet_router_top/raw-responses/adapter-candidate-3.txt",
+        "elapsedMs": 29293,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_9e1f855131977b5e",
+        "contractName": "Digital Signal Processing Chain: FIR Filter + FFT-lite Analyzer",
+        "entityName": "dsp_chain_top",
+        "passed": true,
+        "stage": "accepted",
+        "failureCode": null,
+        "message": "Adapter-generated RTL passed extraction, interface, dependency, static policy, GHDL analyze, and simulation gates.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-4.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/04-dsp_chain_top/requests/adapter-candidate-4.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/04-dsp_chain_top/raw-responses/adapter-candidate-4.txt",
+        "elapsedMs": 19323,
+        "timeoutMs": 900000
+      },
+      {
+        "contractId": "contract_6ec6045a1bfc1d5a",
+        "contractName": "VGA/HDMI Pattern Generator with Framebuffer",
+        "entityName": "video_pattern_generator_top",
+        "passed": false,
+        "stage": "simulating",
+        "failureCode": "vhdl",
+        "message": "../../src/ieee2008/numeric_std-body.vhdl:1337:7:@0ms:(assertion warning): NUMERIC_STD.\"<\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1641:7:@0ms:(assertion warning): NUMERIC_STD.\">=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1337:7:@0ms:(assertion warning): NUMERIC_STD.\"<\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1641:7:@0ms:(assertion warning): NUMERIC_STD.\">=\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:1337:7:@0ms:(assertion warning): NUMERIC_STD.\"<\": metavalue detected, returning FALSE\n../../src/ieee2008/numeric_std-body.vhdl:3053:7:@0ms:(assertion warning): NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0\n../../src/ieee2008/numeric_std-body.vhdl:3053:7:@0ms:(assertion warning): NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0\n../../src/ieee2008/numeric_std-body.vhdl:3053:7:@0ms:(assertion warning): NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0\n./tb_video_pattern_generator_top:error: bound check failure at video_pattern_generator_top.adapter-candidate-5.vhd:70\n  instance: .tb_video_pattern_generator_top(sim).dut@video_pattern_generator_top(rtl).P5\n./tb_video_pattern_generator_top:error: simulation failed\n\nCommand failed: /opt/homebrew/bin/ghdl -r --std=08 tb_video_pattern_generator_top --stop-time=200ns\n\n",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-5.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/05-video_pattern_generator_top/requests/adapter-candidate-5.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/05-video_pattern_generator_top/raw-responses/adapter-candidate-5.txt",
+        "elapsedMs": 37203,
+        "timeoutMs": 900000
+      }
+    ]
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_a3203aa46a98f6ae/summary.json",
+  "createdAt": "2026-08-01T20:11:25.268Z",
+  "completedAt": "2026-08-01T20:14:31.033Z"
+}

@@ -1,8 +1,10 @@
 export { default as AlertCircle } from 'lucide-react/dist/esm/icons/alert-circle.js';
 export { default as AlertTriangle } from 'lucide-react/dist/esm/icons/alert-triangle.js';
 export { default as Bot } from 'lucide-react/dist/esm/icons/bot.js';
+export { default as BrainCircuit } from 'lucide-react/dist/esm/icons/brain-circuit.js';
 export { default as Bug } from 'lucide-react/dist/esm/icons/bug.js';
 export { default as Check } from 'lucide-react/dist/esm/icons/check.js';
+export { default as CheckCircle2 } from 'lucide-react/dist/esm/icons/check-circle-2.js';
 export { default as ChevronDown } from 'lucide-react/dist/esm/icons/chevron-down.js';
 export { default as ChevronLeft } from 'lucide-react/dist/esm/icons/chevron-left.js';
 export { default as ChevronRight } from 'lucide-react/dist/esm/icons/chevron-right.js';
@@ -11,11 +13,13 @@ export { default as CircuitBoard } from 'lucide-react/dist/esm/icons/circuit-boa
 export { default as CircleDot } from 'lucide-react/dist/esm/icons/circle-dot.js';
 export { default as Copy } from 'lucide-react/dist/esm/icons/copy.js';
 export { default as Cpu } from 'lucide-react/dist/esm/icons/cpu.js';
+export { default as Database } from 'lucide-react/dist/esm/icons/database.js';
 export { default as Download } from 'lucide-react/dist/esm/icons/download.js';
 export { default as EyeOff } from 'lucide-react/dist/esm/icons/eye-off.js';
 export { default as FileCode } from 'lucide-react/dist/esm/icons/file-code.js';
 export { default as FileCode2 } from 'lucide-react/dist/esm/icons/file-code-2.js';
 export { default as FileText } from 'lucide-react/dist/esm/icons/file-text.js';
+export { default as FlaskConical } from 'lucide-react/dist/esm/icons/flask-conical.js';
 export { default as FolderOpen } from 'lucide-react/dist/esm/icons/folder-open.js';
 export { default as Gauge } from 'lucide-react/dist/esm/icons/gauge.js';
 export { default as GitBranch } from 'lucide-react/dist/esm/icons/git-branch.js';

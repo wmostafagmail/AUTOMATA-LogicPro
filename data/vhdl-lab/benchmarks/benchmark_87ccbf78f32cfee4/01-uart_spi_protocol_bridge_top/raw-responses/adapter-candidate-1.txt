@@ -1,0 +1,16 @@
+```vhdl
+library ieee; use ieee.std!ntity_1164.allall;
+entity uart_spi_protocol_bridge_bridge_topiam0
+0 generic(DATA_WIDTH:positive:=8)port(clk,rst:in std_logic;uart_rx_i:in std_logic;uart_tx to o:out0!!
+
+
+
+
+--- STDERR ---
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 5485.14it/s]
+
+
+--- ADAPTER BENCHMARK METADATA ---
+elapsedMs=85844
+timeoutMs=900000
+timedOut=false

@@ -1,0 +1,4 @@
+v 4
+file . "lab_counter.vhd" "ab296de074cf734883d599a72b35325e51bac4f0" "20260731122833.781":
+  entity lab_counter at 1( 0) + 0 on 11;
+  architecture rtl of lab_counter at 17( 338) + 0 on 12;

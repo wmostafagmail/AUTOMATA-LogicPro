@@ -1,0 +1,85 @@
+{
+  "runId": "checkpoint_eval_benchmark_1b588b487bd4912a_contract_9e1f855131977b5e",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "67c320c9f44be8a184875486997431e0d6095488d5dedb3ef7d9c29d5cd866cf",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:20:41.187Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "c2b4067dd5903ef267c341e1480b4271d9a152426acd2c50976cb229e88fbea2",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:20:47.124Z"
+    },
+    {
+      "failureCode": "failed",
+      "stage": "simulating",
+      "fileLine": null,
+      "excerpt": "Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "validatorOutput": "Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "ghdlOutput": "Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "forbiddenPattern": "failed",
+      "legalReplacement": "Repair locally and keep the frozen contract unchanged.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "d464caf19133b13435ba1fdb050c960720d960949a86c7d7c40265dc774682c8",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:20:57.663Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-4.vhd",
+      "candidateAttempt": 4,
+      "contentHash": "c2b4067dd5903ef267c341e1480b4271d9a152426acd2c50976cb229e88fbea2",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:21:05.383Z"
+    }
+  ]
+}

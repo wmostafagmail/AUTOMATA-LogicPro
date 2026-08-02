@@ -1,0 +1,65 @@
+{
+  "runId": "checkpoint_eval_benchmark_25be09f5b2606dbb_contract_6ec6045a1bfc1d5a",
+  "packets": [
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "video_pattern_generator_top.adapter-candidate-1.vhd:44:31",
+      "excerpt": "video_pattern_generator_top.adapter-candidate-1.vhd:44:31:error: no overloaded function found matching \"to_slv\" return unsigned(to_slv(h * V_ACTIVE + v, 19)); ^ video_pattern_generator_top.adapter-candidate-1.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "validatorOutput": "video_pattern_generator_top.adapter-candidate-1.vhd:44:31:error: no overloaded function found matching \"to_slv\" return unsigned(to_slv(h * V_ACTIVE + v, 19)); ^ video_pattern_generator_top.adapter-candidate-1.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-1.vhd video_pattern_generator_top.adapter-candidate-1.vhd:44:31:error: no overloaded function found matching \"to_slv\" return unsigned(to_slv(h * V_ACTIVE + v, 19)); ^ video_pattern_generator_top.adapter-candidate-1.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:",
+      "ghdlOutput": "video_pattern_generator_top.adapter-candidate-1.vhd:44:31:error: no overloaded function found matching \"to_slv\" return unsigned(to_slv(h * V_ACTIVE + v, 19)); ^ video_pattern_generator_top.adapter-candidate-1.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-1.vhd video_pattern_generator_top.adapter-candidate-1.vhd:44:31:error: no overloaded function found matching \"to_slv\" return unsigned(to_slv(h * V_ACTIVE + v, 19)); ^ video_pattern_generator_top.adapter-candidate-1.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_25be09f5b2606dbb/05-video_pattern_generator_top/baseline/generated/rtl/video_pattern_generator_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "4e445dddd844f9b6fc068475f6bed3e56083724f683282377ca0eba6f04694c2",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:55:23.545Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "video_pattern_generator_top.adapter-candidate-2.vhd:52:20",
+      "excerpt": "video_pattern_generator_top.adapter-candidate-2.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-2.vhd video_pattern_generator_top.adapter-candidate-2.vhd:52:20",
+      "validatorOutput": "video_pattern_generator_top.adapter-candidate-2.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-2.vhd video_pattern_generator_top.adapter-candidate-2.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "ghdlOutput": "video_pattern_generator_top.adapter-candidate-2.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-2.vhd video_pattern_generator_top.adapter-candidate-2.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_25be09f5b2606dbb/05-video_pattern_generator_top/baseline/generated/rtl/video_pattern_generator_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "ade0059fd6667bed32ccb0dfe5b6e3ad0996038619a3b1cf539e213b1b75b57a",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:55:37.473Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "video_pattern_generator_top.adapter-candidate-3.vhd:52:20",
+      "excerpt": "video_pattern_generator_top.adapter-candidate-3.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-3.vhd video_pattern_generator_top.adapter-candidate-3.vhd:52:20",
+      "validatorOutput": "video_pattern_generator_top.adapter-candidate-3.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-3.vhd video_pattern_generator_top.adapter-candidate-3.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "ghdlOutput": "video_pattern_generator_top.adapter-candidate-3.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-3.vhd video_pattern_generator_top.adapter-candidate-3.vhd:52:20:error: 'others' choice not allowed for an aggregate in this context return (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_25be09f5b2606dbb/05-video_pattern_generator_top/baseline/generated/rtl/video_pattern_generator_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "ade0059fd6667bed32ccb0dfe5b6e3ad0996038619a3b1cf539e213b1b75b57a",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:55:51.315Z"
+    }
+  ]
+}

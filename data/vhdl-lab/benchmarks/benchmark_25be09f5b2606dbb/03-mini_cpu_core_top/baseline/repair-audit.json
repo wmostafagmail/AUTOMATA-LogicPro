@@ -1,0 +1,65 @@
+{
+  "runId": "checkpoint_eval_benchmark_25be09f5b2606dbb_contract_c2fc1f8518d0be2f",
+  "packets": [
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "mini_cpu_core_top.adapter-candidate-1.vhd:42:17",
+      "excerpt": "mini_cpu_core_top.adapter-candidate-1.vhd:42:17:error: port \"pm_data_i\" can't be assigned pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_core_top.adapter-candidate-1.vhd:42:30:error: can't match character literal '0' with type array type \"STD_ULOGIC_VECTOR\" pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_cor",
+      "validatorOutput": "mini_cpu_core_top.adapter-candidate-1.vhd:42:17:error: port \"pm_data_i\" can't be assigned pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_core_top.adapter-candidate-1.vhd:42:30:error: can't match character literal '0' with type array type \"STD_ULOGIC_VECTOR\" pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_core_top.adapter-candidate-1.vhd:50:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-1.vhd:52:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-1.vhd:53:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:e",
+      "ghdlOutput": "mini_cpu_core_top.adapter-candidate-1.vhd:42:17:error: port \"pm_data_i\" can't be assigned pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_core_top.adapter-candidate-1.vhd:42:30:error: can't match character literal '0' with type array type \"STD_ULOGIC_VECTOR\" pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_core_top.adapter-candidate-1.vhd:50:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-1.vhd:52:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-1.vhd:53:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.adapter-candidate-1.vhd mini_cpu_core_top.adapter-candidate-1.vhd:42:17:error: port \"pm_data_i\" can't be assigned pm_data_i <= '0'; -- Placeholder for actual instruction fetch ^ mini_cpu_core_top.adapter-candidate-1.vhd:42:30:error: can't match character literal '0' with type array type \"STD_ULOGIC_VECTOR\"",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_25be09f5b2606dbb/03-mini_cpu_core_top/baseline/generated/rtl/mini_cpu_core_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "9b14ceafef2b43897d4802b1bee2d519ec9ac1c70f160f75a02c280e56888516",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:42:36.320Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "mini_cpu_core_top.adapter-candidate-2.vhd:49:39",
+      "excerpt": "mini_cpu_core_top.adapter-candidate-2.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-2.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-2.vhd:52:46:error: can't match indexed name w",
+      "validatorOutput": "mini_cpu_core_top.adapter-candidate-2.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-2.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-2.vhd:52:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.adapter-candidate-2.vhd mini_cpu_core_top.adapter-candidate-2.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-2.vhd:51:45:error: can't match indexed name with type array type \"",
+      "ghdlOutput": "mini_cpu_core_top.adapter-candidate-2.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-2.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-2.vhd:52:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.adapter-candidate-2.vhd mini_cpu_core_top.adapter-candidate-2.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-2.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-2.vhd:52:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_25be09f5b2606dbb/03-mini_cpu_core_top/baseline/generated/rtl/mini_cpu_core_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "de1d8472e76a45146a369a0a733430bb0f05501a2a437b8e653fda4f355b9922",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:42:47.884Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "mini_cpu_core_top.adapter-candidate-3.vhd:49:39",
+      "excerpt": "mini_cpu_core_top.adapter-candidate-3.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-3.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-3.vhd:52:46:error: can't match indexed name w",
+      "validatorOutput": "mini_cpu_core_top.adapter-candidate-3.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-3.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-3.vhd:52:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.adapter-candidate-3.vhd mini_cpu_core_top.adapter-candidate-3.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-3.vhd:51:45:error: can't match indexed name with type array type \"",
+      "ghdlOutput": "mini_cpu_core_top.adapter-candidate-3.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-3.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-3.vhd:52:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.adapter-candidate-3.vhd mini_cpu_core_top.adapter-candidate-3.vhd:49:39:error: can't match \"dm_rdata_i\" with type STD_ULOGIC regfile(0) <= dm_rdata_i; ^ mini_cpu_core_top.adapter-candidate-3.vhd:51:45:error: can't match indexed name with type array type \"UNRESOLVED_UNSIGNED\" dm_addr_o <= regfile(1); ^ mini_cpu_core_top.adapter-candidate-3.vhd:52:46:error: can't match indexed name with type array type \"STD_ULOGIC_VECTOR\" dm_wdata_o <= regfile(0); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_25be09f5b2606dbb/03-mini_cpu_core_top/baseline/generated/rtl/mini_cpu_core_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "de1d8472e76a45146a369a0a733430bb0f05501a2a437b8e653fda4f355b9922",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:42:59.202Z"
+    }
+  ]
+}

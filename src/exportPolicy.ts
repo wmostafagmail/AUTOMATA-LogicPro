@@ -34,7 +34,7 @@ function computeDeterministicHashHex(value: string) {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
-const LOCAL_PROVIDER_IDS = new Set(['ollama', 'mtplx']);
+const LOCAL_PROVIDER_IDS = new Set(['ollama', 'unsloth', 'unslouth', 'mtplx']);
 const REMOTE_EXPORT_ALLOWED_EXTENSIONS = new Set([
   '.vcd', '.vsd', '.json', '.vhd', '.vhdl', '.sv', '.v', '.vh',
   '.c', '.cc', '.cpp', '.h', '.hpp', '.py', '.tcl', '.md', '.txt',

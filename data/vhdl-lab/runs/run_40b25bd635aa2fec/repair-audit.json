@@ -1,0 +1,25 @@
+{
+  "runId": "run_40b25bd635aa2fec",
+  "packets": [
+    {
+      "failureCode": "deterministic_dsp_accumulator_width_template",
+      "stage": "deterministic_repair",
+      "fileLine": null,
+      "excerpt": "deterministic_dsp_accumulator_width_template: Rewrote DSP multiply/add sizing to resize products into a wide accumulator and resize square/multiply outputs to the destination length.",
+      "validatorOutput": "deterministic_dsp_accumulator_width_template: Rewrote DSP multiply/add sizing to resize products into a wide accumulator and resize square/multiply outputs to the destination length.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "deterministic_dsp_accumulator_width_template",
+      "legalReplacement": "Repair locally and keep the frozen contract unchanged.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_40b25bd635aa2fec/generated/rtl/dsp_chain_top.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "bf6d846a43a51871a039826c2a2e574abf026b967f0d1bdec8b085e046e3a75a",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T20:21:20.462Z"
+    }
+  ]
+}

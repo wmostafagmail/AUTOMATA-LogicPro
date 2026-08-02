@@ -1,0 +1,38 @@
+{
+  "id": "benchmark_89455f9a81aec5aa",
+  "suiteId": "smoke_core_contracts",
+  "status": "COMPLETED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1",
+    "contract_88296f5c0367cfbe",
+    "contract_74680bc3fae28ab1",
+    "contract_9e1f855131977b5e",
+    "contract_6ec6045a1bfc1d5a"
+  ],
+  "childRunIds": [
+    "run_b0fb2aa2397d566b",
+    "run_05f9e4cb63712fa9",
+    "run_7399642d6e9d39b5",
+    "run_13e18375413cb8e8",
+    "run_99ee8f75e18f8209"
+  ],
+  "modelProfileId": "model_c5d98dc1ed26c328",
+  "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 3,
+  "summary": {
+    "queuedRuns": 5,
+    "passed": 5,
+    "failed": 0,
+    "failureCategories": {},
+    "total": 5,
+    "cancelled": 0,
+    "running": 0,
+    "passRate": 1
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_89455f9a81aec5aa/summary.json",
+  "createdAt": "2026-08-01T16:25:27.957Z",
+  "completedAt": "2026-08-01T16:38:31.889Z"
+}

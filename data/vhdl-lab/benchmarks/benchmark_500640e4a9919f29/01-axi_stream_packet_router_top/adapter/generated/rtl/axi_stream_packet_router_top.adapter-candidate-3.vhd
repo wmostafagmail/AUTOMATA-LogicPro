@@ -1,0 +1,33 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity axi_stream_packet_router_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    s_axis_tvalid_i : in std_logic;
+    s_axis_tready_o : out std_logic;
+    s_axis_tdata_i : in std_logic_vector(31 downto 0);
+    s_axis_tlast_i : in std_logic;
+    m_axis_tvalid_o : out std_logic;
+    m_axis_tready_i : in std_logic;
+    m_axis_tdata_o : out std_logic_vector(31 downto 0);
+    m_axis_tlast_o : out std_logic
+  );
+end entity axi_stream_packet_router_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of axi_stream_packet_router_top is
+begin
+  s_axis_tready_o <= '1';
+  m_axis_tvalid_o <= '0';
+  m_axis_tdata_o <= (others => '0');
+  m_axis_tlast_o <= '0';
+end architecture rtl;

@@ -1,0 +1,85 @@
+{
+  "runId": "checkpoint_eval_benchmark_bb4fce652ee0df39_contract_9e1f855131977b5e",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_bb4fce652ee0df39/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "a4181fb1bff0d5962e2ad7b542558633da80b71426e35e6d18e798e03fee810b",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:47:29.195Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_bb4fce652ee0df39/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "000a28ecc97b23662fced96ee057890bd3f5edc346ce142ff81871895e981fa4",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:47:41.308Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_bb4fce652ee0df39/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "666d40039ce8e428852985d403229db22a897d9a57f617cc0921bad3590782fc",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:47:54.602Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "dsp_chain_top.adapter-candidate-4.vhd:42:17",
+      "excerpt": "dsp_chain_top.adapter-candidate-4.vhd:42:17:error: no declaration for \"bb_core\" u_core:entity bb_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,sample_i=>sample_i,sample_valid_i=>sample_valid_i,sample_ready_o=>sample_ready_o,result_o=>result_o,result_valid_o=>result_valid_o); ^ /opt/homebrew/bin/ghdl:error: compilation error Command fail",
+      "validatorOutput": "dsp_chain_top.adapter-candidate-4.vhd:42:17:error: no declaration for \"bb_core\" u_core:entity bb_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,sample_i=>sample_i,sample_valid_i=>sample_valid_i,sample_ready_o=>sample_ready_o,result_o=>result_o,result_valid_o=>result_valid_o); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 dsp_chain_top.adapter-candidate-4.vhd dsp_chain_top.adapter-candidate-4.vhd:42:17:error: no declaration for \"bb_core\" u_core:entity bb_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,sample_i=>sample_i,sample_valid_i=>sample_valid_i,sample_ready_o=>sample_ready_o,result_o=>result_o,result_valid_o=>result_valid_o); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "ghdlOutput": "dsp_chain_top.adapter-candidate-4.vhd:42:17:error: no declaration for \"bb_core\" u_core:entity bb_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,sample_i=>sample_i,sample_valid_i=>sample_valid_i,sample_ready_o=>sample_ready_o,result_o=>result_o,result_valid_o=>result_valid_o); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 dsp_chain_top.adapter-candidate-4.vhd dsp_chain_top.adapter-candidate-4.vhd:42:17:error: no declaration for \"bb_core\" u_core:entity bb_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,sample_i=>sample_i,sample_valid_i=>sample_valid_i,sample_ready_o=>sample_ready_o,result_o=>result_o,result_valid_o=>result_valid_o); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_bb4fce652ee0df39/04-dsp_chain_top/generated/rtl/dsp_chain_top.adapter-candidate-4.vhd",
+      "candidateAttempt": 4,
+      "contentHash": "565ae31d7bf16a332c4a20aa2185817ed8424e0735ec96d4880b767f78050b62",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:48:18.669Z"
+    }
+  ]
+}

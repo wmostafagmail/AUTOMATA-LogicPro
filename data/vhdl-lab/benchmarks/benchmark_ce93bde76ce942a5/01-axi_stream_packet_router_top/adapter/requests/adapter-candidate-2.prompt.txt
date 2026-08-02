@@ -1,0 +1,70 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+## Adapter Benchmark Output Contract
+This benchmark validates exactly one returned VHDL file as a single-file artifact.
+Design intent: Design an AXI-Stream packet router or small network-switch style fabric in VHDL with scalable routing, deterministic arbitration, and verifiable valid/ready handshake behavior.
+
+Frozen interface that must be preserved exactly:
+entity axi_stream_packet_router_top
+Required generics:
+- generic DATA_WIDTH : positive := 8
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port s_axis_tvalid_i : in std_logic
+- port s_axis_tready_o : out std_logic
+- port s_axis_tdata_i : in std_logic_vector(31 downto 0)
+- port s_axis_tlast_i : in std_logic
+- port m_axis_tvalid_o : out std_logic
+- port m_axis_tready_i : in std_logic
+- port m_axis_tdata_o : out std_logic_vector(31 downto 0)
+- port m_axis_tlast_o : out std_logic
+
+Port semantic summary:
+- clk: in std_logic (clock)
+- rst: in std_logic (reset)
+- s_axis_tvalid_i: in std_logic (stream_valid_in)
+- s_axis_tready_o: out std_logic (stream_ready_out)
+- s_axis_tdata_i: in std_logic_vector(31 downto 0) (stream_data_in)
+- s_axis_tlast_i: in std_logic (stream_last_in)
+- m_axis_tvalid_o: out std_logic (stream_valid_out)
+- m_axis_tready_i: in std_logic (stream_ready_in)
+- m_axis_tdata_o: out std_logic_vector(31 downto 0) (stream_data_out)
+- m_axis_tlast_o: out std_logic (stream_last_out)
+
+Reset policy: rst, active_high, synchronous.
+Observable output obligations:
+- drive s_axis_tready_o deterministically after reset
+- drive m_axis_tvalid_o deterministically after reset
+- drive m_axis_tdata_o deterministically after reset
+- drive m_axis_tlast_o deterministically after reset
+
+Do not create a hierarchical project.
+Do not instantiate any external work-library unit.
+Forbidden text in the returned VHDL: entity work.
+Forbidden text in the returned VHDL: entity bb_ or entity core as an instantiation target.
+Forbidden construct in the returned VHDL: component declaration/instantiation for missing child blocks.
+Return one top entity and one top architecture for the frozen entity.
+The returned file must contain "architecture rtl of axi_stream_packet_router_top is".
+If the architecture description mentions sub-block responsibilities, implement them as local signals, processes, constants, records, functions, or procedures inside the top architecture.
+Do not add child entity declarations unless absolutely necessary; if you do, every child entity and architecture must appear before the top architecture and must not instantiate more missing children.
+Use deterministic, conservative behavior that satisfies the observable interface contract rather than trying to recreate a full multi-file subsystem.
+Prefer a compact implementation under 180 lines.
+Return VHDL only.
+
+## Focused Extraction Repair
+Repair attempt 1/3.
+The previous adapter response did not include a complete architecture for axi_stream_packet_router_top.
+Return a complete file containing both "entity axi_stream_packet_router_top is" and "architecture rtl of axi_stream_packet_router_top is".
+Do not emit child-only entities, recursive helper entities, catalog metadata, Markdown, JSON, or prose.
+Do not instantiate external children. No entity work. No component instantiations.
+Return compact self-contained VHDL only.
+
+Extraction findings:
+- vhdl_extraction_missing_entity: Extracted VHDL is missing an entity declaration.
+
+Previous raw response tail, for diagnosis only:
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

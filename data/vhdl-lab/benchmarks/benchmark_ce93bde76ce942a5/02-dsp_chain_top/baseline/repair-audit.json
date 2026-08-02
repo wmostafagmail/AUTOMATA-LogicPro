@@ -1,0 +1,45 @@
+{
+  "runId": "checkpoint_eval_benchmark_ce93bde76ce942a5_contract_9e1f855131977b5e",
+  "packets": [
+    {
+      "failureCode": "dsp_accumulator_width_bound_check",
+      "stage": "simulating",
+      "fileLine": "dsp_chain_top.adapter-candidate-1.vhd:33",
+      "excerpt": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.adapter-candidate-1.vhd:33 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).P0 ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "validatorOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.adapter-candidate-1.vhd:33 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).P0 ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "ghdlOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.adapter-candidate-1.vhd:33 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).P0 ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "forbiddenPattern": "dsp_accumulator_width_bound_check",
+      "legalReplacement": "Use an accumulator wide enough for signed multiply/add products, resize products to sum'length, then resize the final result to the output signal length.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_ce93bde76ce942a5/02-dsp_chain_top/baseline/generated/rtl/dsp_chain_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "dedb03a0c04b054ece49b037b5ba15ce71907094e9599a5471d5142d6ebc7052",
+      "advisor": {
+        "rootCauseOwner": "generated_rtl",
+        "failureClass": "dsp_accumulator_width_bound_check",
+        "deterministicFixPossible": true,
+        "recommendedAction": "Normalize FIR multiply/add sizing by resizing products to a wide accumulator and resizing the final assignment to the destination length."
+      },
+      "createdAt": "2026-08-02T03:45:09.543Z"
+    },
+    {
+      "failureCode": "dsp_accumulator_width_bound_check",
+      "stage": "simulating",
+      "fileLine": "dsp_chain_top.adapter-candidate-2.vhd:33",
+      "excerpt": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.adapter-candidate-2.vhd:33 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).P0 ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "validatorOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.adapter-candidate-2.vhd:33 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).P0 ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "ghdlOutput": "./tb_dsp_chain_top:error: bound check failure at dsp_chain_top.adapter-candidate-2.vhd:33 instance: .tb_dsp_chain_top(sim).dut@dsp_chain_top(rtl).P0 ./tb_dsp_chain_top:error: simulation failed Command failed: /opt/homebrew/bin/ghdl -r --std=08 tb_dsp_chain_top --stop-time=200ns",
+      "forbiddenPattern": "dsp_accumulator_width_bound_check",
+      "legalReplacement": "Use an accumulator wide enough for signed multiply/add products, resize products to sum'length, then resize the final result to the output signal length.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_ce93bde76ce942a5/02-dsp_chain_top/baseline/generated/rtl/dsp_chain_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "dedb03a0c04b054ece49b037b5ba15ce71907094e9599a5471d5142d6ebc7052",
+      "advisor": {
+        "rootCauseOwner": "generated_rtl",
+        "failureClass": "dsp_accumulator_width_bound_check",
+        "deterministicFixPossible": true,
+        "recommendedAction": "Normalize FIR multiply/add sizing by resizing products to a wide accumulator and resizing the final assignment to the destination length."
+      },
+      "createdAt": "2026-08-02T03:45:17.598Z"
+    }
+  ]
+}

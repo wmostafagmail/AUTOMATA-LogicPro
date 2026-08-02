@@ -1,0 +1,77 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+## Focused Single-File Dependency Repair
+Repair attempt 3/3.
+The previous answer instantiated missing child entities in a single-file VHDL Lab run.
+Return exactly one complete self-contained VHDL-2008 file.
+For this repair, do not output any line containing "entity work.".
+For this repair, do not output component declarations or component instantiations.
+Hard rule: do not use entity work.X unless entity X and architecture of X are declared earlier in this same returned file.
+Best repair: inline simple child behavior into the top architecture and remove entity work.X instantiations.
+If helper entities are necessary, declare each child entity/architecture before the top architecture that instantiates it.
+Repeat these context clauses before every design unit: library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+Preserve the exact frozen entity interface below. Do not add/remove/rename public ports or generics.
+Return VHDL only, no Markdown, no prose.
+
+Frozen interface:
+entity video_pattern_generator_top
+Required generics:
+- generic DATA_WIDTH : positive := 8
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port hsync_o : out std_logic
+- port vsync_o : out std_logic
+- port de_o : out std_logic
+- port pixel_o : out std_logic_vector(23 downto 0)
+- port pixel_addr_o : out unsigned(18 downto 0)
+
+Required behavior obligations:
+[
+  "Generate a GHDL-friendly self-checking testbench.",
+  "Verify timing windows, sync pulse widths, counter wrap behavior, and representative pixel flow.",
+  "Use deterministic checks rather than visual-only inspection."
+]
+
+Missing dependency findings:
+- Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+
+Do not copy the previous broken hierarchy. Treat this as the required replacement shape:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity video_pattern_generator_top is ... end entity;
+architecture rtl of video_pattern_generator_top is
+  -- local signals/functions/procedures only
+begin
+  -- synchronous processes and concurrent assignments only
+end architecture;
+
+Diagnostic excerpt from the previous broken VHDL, for reference only:
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+entity video_pattern_generator_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    hsync_o : out std_logic;
+    vsync_o : out std_logic;
+    de_o : out std_logic;
+    pixel_o : out std_logic_vector(23 downto 0);
+    pixel_addr_o : out unsigned(18 downto 0)
+  );
+end entity video_pattern_generator_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of video_pattern_generator_top is
+begin
+  u_core:entity bb_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,hsync_o=>hsync_o,vsync_o=>vsync_o,de_o=>de_o,pixel_o=>pixel_o,pixel_addr_o=>pixel_addr_o);
+end architecture;

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28T00:48:25.637Z",
+  "updatedAt": "2026-07-31T12:07:29.973Z",
   "models": {
     "ollama::charaf/qwen3.6-35b-a3b-coding-nvfp4-mlx-latest-latest-latest-latest-latest-latest:latest::fpga_vhdl_architect": {
       "provider": "ollama",
@@ -2675,21 +2675,273 @@
       "provider": "ollama",
       "model": "hf.co/mradermacher/qwen-32b-vhdl-gpt-GGUF:Q8_0",
       "macroId": "fpga_vhdl_architect",
-      "attempts": 0,
+      "attempts": 76,
       "successes": 0,
-      "codeQualityFailures": 0,
-      "providerRuntimeFailures": 2,
-      "lastUpdatedAt": "2026-07-21T21:22:31.647Z",
+      "codeQualityFailures": 76,
+      "providerRuntimeFailures": 28,
+      "lastUpdatedAt": "2026-07-31T12:07:29.973Z",
       "designs": {
         "uart_spi_bridge": {
-          "attempts": 0,
+          "attempts": 20,
           "successes": 0,
-          "codeQualityFailures": 0,
+          "codeQualityFailures": 20,
+          "providerRuntimeFailures": 26,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 7,
+              "lastMessage": "Staged pre-GHDL validation failed after leaf component spi_master before invoking GHDL.\nsrc/spi_master.vhd:7: generic \"DATA_WIDTH\" collides with constant \"DATA_WIDTH\" imported from work.uart_spi_protocol_bridge_pkg.all. VHDL identifiers are case-insensitive, so these names are the same identifier.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-31T11:49:33.503Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "implementation_source",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 13,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"spi_master\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=spi_master\ncomponentName=spi_master\nverifiedBlock=spi_master\nverifiedEntity=spi_master_det_cfg\nunsafeReasons=verified port phy_rx cannot be safely mapped; capability=spi_master; verified=phy_rx{mode=in, type=std_logic, role=serial_rx, confidence=92}; approvedRoleNeeded=serial_rx; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=stream_data, confidence=84}; resolvedGenerics={\"data_width\":\"8\",\"status_width\":\"32\"} | verified port tx_valid cannot be safely mapped; capability=spi_master; verified=tx_valid{mode=in, type=std_logic, role=valid, confidence=88}; approvedRoleNeeded=valid; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=stream_data, confidence=84}; resolvedGenerics={\"data_width\":\"8\",\"status_width\":\"32\"}\nspecialistAdvice=rejected\nspecialistAcceptedMappings=(none)\nspecialistMissingSignals=(none)\nspecialistRejectedReasons=advisor response was not valid JSON\nspecialistVerdict=rejected\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-31T10:22:31.830Z"
+            }
+          }
+        },
+        "mini_cpu_core": {
+          "attempts": 16,
+          "successes": 0,
+          "codeQualityFailures": 16,
           "providerRuntimeFailures": 2,
-          "failureBuckets": {}
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 6,
+              "lastMessage": "Cannot access 'component' before initialization",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-30T14:34:40.050Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "implementation_source",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 10,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"program_counter\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=program_counter\ncomponentName=program_counter\nverifiedBlock=program_counter\nverifiedEntity=program_counter_det_cfg\nunsafeReasons=verified port redirect_pc cannot be safely mapped; capability=program_counter; verified=redirect_pc{mode=in, type=std_logic_vector(pc_width - 1 downto 0), role=address, confidence=78}; approvedRoleNeeded=address; ambiguityCandidates=clk{mode=in, type=std_logic, role=clock, confidence=100}; rst{mode=in, type=std_logic, role=reset, confidence=100}; enable_i{mode=in, type=std_logic, role=enable, confidence=88}; data_i{mode=in, type=std_logic_vector(7 downto 0), role=stream_data, confidence=84}; resolvedGenerics={\"pc_width\":\"32\",\"reset_vector\":\"0\",\"instr_bytes\":\"4\"} | approved port data_i has no verified driver/source\nspecialistAdvice=accepted\nspecialistAcceptedMappings=(none)\nspecialistMissingSignals=redirect_pc_i\nspecialistRejectedReasons=(none)\nspecialistVerdict=unsafe\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-31T10:40:36.662Z"
+            }
+          }
+        },
+        "video_pattern_generator": {
+          "attempts": 15,
+          "successes": 0,
+          "codeQualityFailures": 15,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 4,
+              "lastMessage": "Request was cancelled by the user.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-30T20:31:21.420Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "implementation_source",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 11,
+              "lastMessage": "hybrid_implementation_source_unresolved\nCurated verified-library wrapping is unsafe for component \"sync_generator\", so the app must switch to hybrid source discovery before generating this leaf.\ncomponentId=sync_generator\ncomponentName=sync_generator\nverifiedBlock=sync_generator\nverifiedEntity=sync_generator_det_cfg\nunsafeReasons=verified_config_input_unresolved h_active: no deterministic contract or preset value is available | verified_config_input_unresolved h_front: no deterministic contract or preset value is available | verified_config_input_unresolved h_sync: no deterministic contract or preset value is available | verified_config_input_unresolved h_back: no deterministic contract or preset value is available | verified_config_input_unresolved v_active: no deterministic contract or preset value is available | verified_config_input_unresolved v_front: no deterministic contract or preset value is available | verified_config_input_unresolved v_sync: no deterministic contract or preset value is available | verified_config_input_unresolved v_back: no deterministic contract or preset value is available | approved port data_i has no verified driver/source\nspecialistAdvice=rejected\nspecialistAcceptedMappings=(none)\nspecialistMissingSignals=(none)\nspecialistRejectedReasons=advisor response was not valid JSON\nspecialistVerdict=rejected\nDo not ask the model to invent fresh VHDL for this component until a verified source, safe wrapper, golden leaf, deterministic template, or approved hybrid source is available.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-31T11:03:33.585Z"
+            }
+          }
+        },
+        "dsp_chain": {
+          "attempts": 13,
+          "successes": 0,
+          "codeQualityFailures": 13,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Ollama Local is selected, but http://127.0.0.1:11434 is unreachable. Start the Ollama service or choose a different provider/model.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-30T10:16:19.365Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "implementation_source",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 10,
+              "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"sample_input_stage\".\ncomponentId=sample_input_stage\ncomponentName=sample_input_stage\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-31T11:12:39.493Z"
+            }
+          }
+        },
+        "axi_stream_router": {
+          "attempts": 12,
+          "successes": 0,
+          "codeQualityFailures": 12,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 3,
+              "lastMessage": "Ollama Local is selected, but http://127.0.0.1:11434 is unreachable. Start the Ollama service or choose a different provider/model.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-30T10:16:30.136Z"
+            },
+            "implementation_source::category_only::::": {
+              "category": "implementation_source",
+              "label": "Implementation Source",
+              "failureCode": null,
+              "stage": "implementation_source",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 9,
+              "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"ingress_interface_blocks\".\ncomponentId=ingress_interface_blocks\ncomponentName=ingress_interface_blocks\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-31T00:40:46.777Z"
+            }
+          }
         }
       },
-      "failureBuckets": {}
+      "failureBuckets": {
+        "other::category_only::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 23,
+          "lastMessage": "Staged pre-GHDL validation failed after leaf component spi_master before invoking GHDL.\nsrc/spi_master.vhd:7: generic \"DATA_WIDTH\" collides with constant \"DATA_WIDTH\" imported from work.uart_spi_protocol_bridge_pkg.all. VHDL identifiers are case-insensitive, so these names are the same identifier.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-31T11:49:33.503Z"
+        },
+        "implementation_source::category_only::::": {
+          "category": "implementation_source",
+          "label": "Implementation Source",
+          "failureCode": null,
+          "stage": "implementation_source",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 53,
+          "lastMessage": "model_vhdl_generation_blocked_by_policy\nStrict FPGA implementation policy blocked fresh model-authored VHDL for component \"sample_input_stage\".\ncomponentId=sample_input_stage\ncomponentName=sample_input_stage\npolicy=verified_or_template_only\nProvide a verified library block, an exact golden leaf, or a deterministic app-owned template for this component.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-31T11:12:39.493Z"
+        }
+      }
+    },
+    "ollama::deepseek-coder-v2:latest::fpga_vhdl_architect": {
+      "provider": "ollama",
+      "model": "deepseek-coder-v2:latest",
+      "macroId": "fpga_vhdl_architect",
+      "attempts": 1,
+      "successes": 0,
+      "codeQualityFailures": 1,
+      "providerRuntimeFailures": 0,
+      "lastUpdatedAt": "2026-07-29T17:13:35.646Z",
+      "designs": {
+        "uart_spi_bridge": {
+          "attempts": 1,
+          "successes": 0,
+          "codeQualityFailures": 1,
+          "providerRuntimeFailures": 0,
+          "failureBuckets": {
+            "other::category_only::::": {
+              "category": "other",
+              "label": "Other",
+              "failureCode": null,
+              "stage": "vhdl_generation",
+              "issueCodes": [],
+              "issuePaths": [],
+              "ruleIds": [],
+              "count": 1,
+              "lastMessage": "Ollama Local is selected, but http://127.0.0.1:11434 is unreachable. Start the Ollama service or choose a different provider/model.",
+              "forbiddenConstruct": null,
+              "legalReplacementPattern": null,
+              "lastSeenAt": "2026-07-29T17:13:35.646Z"
+            }
+          }
+        }
+      },
+      "failureBuckets": {
+        "other::category_only::::": {
+          "category": "other",
+          "label": "Other",
+          "failureCode": null,
+          "stage": "vhdl_generation",
+          "issueCodes": [],
+          "issuePaths": [],
+          "ruleIds": [],
+          "count": 1,
+          "lastMessage": "Ollama Local is selected, but http://127.0.0.1:11434 is unreachable. Start the Ollama service or choose a different provider/model.",
+          "forbiddenConstruct": null,
+          "legalReplacementPattern": null,
+          "lastSeenAt": "2026-07-29T17:13:35.646Z"
+        }
+      }
     }
   }
 }

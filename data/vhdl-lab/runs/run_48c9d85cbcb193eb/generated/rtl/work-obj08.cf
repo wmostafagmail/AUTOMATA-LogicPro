@@ -1,0 +1,17 @@
+v 4
+file . "../testbench/tb_uart_spi_protocol_bridge_top.candidate-2.vhd" "b51bcae11a6f0a37f54027421ae67391b510b35b" "20260801193859.305":
+  entity tb_uart_spi_protocol_bridge_top at 1( 0) + 0 on 23;
+  architecture sim of tb_uart_spi_protocol_bridge_top at 8( 157) + 0 on 24;
+file . "uart_spi_protocol_bridge_top.vhd" "fb654fb9fbd4e66c8813079f066f1cd5488c0bdd" "20260801193859.136":
+  entity uart_spi_protocol_bridge_top at 1( 0) + 0 on 11;
+  entity uart_receiver at 24( 552) + 0 on 12;
+  architecture rtl of uart_receiver at 42( 946) + 0 on 13;
+  entity uart_transmitter at 51( 1126) + 0 on 14;
+  architecture rtl of uart_transmitter at 69( 1526) + 0 on 15;
+  entity spi_master at 78( 1712) + 0 on 16;
+  architecture rtl of spi_master at 99( 2192) + 0 on 17;
+  entity fifo at 108( 2366) + 0 on 18;
+  architecture rtl of fifo at 129( 2865) + 0 on 19;
+  entity control_logic at 138( 3027) + 0 on 20;
+  architecture rtl of control_logic at 155( 3453) + 0 on 21;
+  architecture rtl of uart_spi_protocol_bridge_top at 164( 3633) + 0 on 22;

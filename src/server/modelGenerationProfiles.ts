@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 export type ModelResponseMode = 'text' | 'json';
 
 export type ModelGenerationProfile = {
-  id: 'contract_json' | 'vhdl_stage' | 'repair' | 'analysis';
+  id: 'contract_json' | 'vhdl_stage' | 'vhdl_advisor' | 'repair' | 'analysis';
   temperature: number;
   seed: number;
   maxOutputTokens: number;
@@ -20,11 +20,13 @@ export function buildModelGenerationProfile(params: {
   scope: string;
   maxOutputTokens?: number;
 }): ModelGenerationProfile {
-  const responseMode: ModelResponseMode = params.id === 'contract_json' ? 'json' : 'text';
+  const responseMode: ModelResponseMode = params.id === 'contract_json' || params.id === 'vhdl_advisor' ? 'json' : 'text';
   const defaultOutputTokens = params.id === 'contract_json'
     ? 8_192
     : params.id === 'vhdl_stage'
       ? 12_288
+      : params.id === 'vhdl_advisor'
+        ? 512
       : 8_192;
   return {
     id: params.id,
@@ -52,6 +54,33 @@ export function buildOllamaGenerationOptions(profile?: ModelGenerationProfile) {
       temperature: profile.temperature,
       seed: profile.seed,
       num_predict: profile.maxOutputTokens,
+    },
+    ...(profile.responseMode === 'json' ? { format: 'json' } : {}),
+  };
+}
+
+export function resolveOllamaMaxOutputTokens(profile: ModelGenerationProfile, model: string) {
+  const normalizedModel = model.toLowerCase();
+  return profile.id === 'contract_json'
+    ? Math.min(
+      profile.maxOutputTokens,
+      normalizedModel.includes('qwen-32b-vhdl') || normalizedModel.includes('mradermacher/qwen-32b')
+        ? 1_536
+        : 3_072,
+    )
+    : profile.id === 'vhdl_advisor'
+      ? Math.min(profile.maxOutputTokens, 512)
+    : profile.maxOutputTokens;
+}
+
+export function buildOllamaGenerationOptionsForModel(profile: ModelGenerationProfile | undefined, model: string) {
+  if (!profile) return {};
+  const maxOutputTokens = resolveOllamaMaxOutputTokens(profile, model);
+  return {
+    options: {
+      temperature: profile.temperature,
+      seed: profile.seed,
+      num_predict: maxOutputTokens,
     },
     ...(profile.responseMode === 'json' ? { format: 'json' } : {}),
   };

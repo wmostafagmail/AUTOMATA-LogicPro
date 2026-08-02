@@ -1,0 +1,46 @@
+{
+  "id": "benchmark_df55ab8dda0ded32",
+  "suiteId": "checkpoint_adapter_generation",
+  "status": "FAILED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1"
+  ],
+  "childRunIds": [],
+  "modelProfileId": null,
+  "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 0,
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "running": 0,
+    "passRate": 0,
+    "adapterCheckpointId": "checkpoint_87c0925338f946c3",
+    "adapterPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/training/training_afe67160f80573b1/adapter",
+    "trainingRunId": "training_afe67160f80573b1",
+    "baseModel": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+    "evaluationScope": "dataset_holdout",
+    "holdoutCount": 1,
+    "generationBenchmarkPassed": false,
+    "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+    "results": [
+      {
+        "contractId": "contract_fb9b64a3834e20d1",
+        "contractName": "UART-to-SPI Protocol Bridge with FIFOs",
+        "entityName": "uart_spi_protocol_bridge_top",
+        "passed": false,
+        "stage": "generating",
+        "failureCode": "model_generation_timeout",
+        "message": "model_generation_timeout: mlx_lm.generate timed out while benchmarking the adapter.",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df55ab8dda0ded32/01-uart_spi_protocol_bridge_top/requests/adapter-candidate-1.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df55ab8dda0ded32/01-uart_spi_protocol_bridge_top/raw-responses/adapter-candidate-1.txt"
+      }
+    ]
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df55ab8dda0ded32/summary.json",
+  "createdAt": "2026-08-01T15:07:35.199Z",
+  "completedAt": "2026-08-01T15:11:35.205Z"
+}

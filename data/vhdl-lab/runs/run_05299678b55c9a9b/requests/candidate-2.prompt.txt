@@ -1,0 +1,158 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+Contract JSON:
+{
+  "contract_version": "1.0",
+  "entity": {
+    "name": "lab_counter",
+    "description": "A tiny counter contract for VHDL Improvement Lab smoke setup."
+  },
+  "generics": [
+    {
+      "name": "WIDTH",
+      "type": "positive",
+      "default": "8",
+      "constraints": [
+        "WIDTH >= 1"
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "name": "clk",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "clock"
+    },
+    {
+      "name": "rst",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "reset"
+    },
+    {
+      "name": "enable_i",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "enable"
+    },
+    {
+      "name": "count_o",
+      "mode": "out",
+      "type": "unsigned(WIDTH-1 downto 0)",
+      "semantic_role": "counter_value"
+    }
+  ],
+  "clocking": {
+    "domains": [
+      {
+        "name": "main",
+        "clock_port": "clk",
+        "edge": "rising"
+      }
+    ]
+  },
+  "reset": {
+    "port": "rst",
+    "polarity": "active_high",
+    "synchronous": true,
+    "reset_values": {
+      "count_o": "to_unsigned(0, WIDTH)"
+    }
+  },
+  "behavior": [
+    "On each rising edge when enable_i is 1, count_o increments by one. Reset clears count_o to zero."
+  ],
+  "corner_cases": [
+    "Reset while enabled",
+    "WIDTH=1 minimum legal width",
+    "Counter wraparound"
+  ],
+  "prohibited_implementations": [
+    "std_logic_unsigned",
+    "std_logic_arith",
+    "vendor primitives"
+  ],
+  "synthesis_requirements": [
+    "Synthesizable VHDL-2008",
+    "Use numeric_std only"
+  ],
+  "testbench_obligations": [
+    "Self-check reset, increment, hold, and wrap behavior",
+    "Print PASS only after all checks pass"
+  ],
+  "pass_marker": "PASS"
+}
+
+Return one complete VHDL-2008 file for entity lab_counter.
+
+
+## Repair Required
+Repair attempt 1/3.
+The generated RTL passed static/interface checks, but the self-checking simulation gate failed.
+Repair the RTL behavior locally while preserving the exact frozen entity interface.
+Do not delete, weaken, rename, skip, or silence the testbench PASS/assertion behavior.
+Use synthesizable VHDL-2008 and numeric_std only.
+Return one complete VHDL file only, no Markdown, no prose.
+
+Simulation/testbench output:
+../testbench/tb_lab_counter.candidate-1.vhd:12:29:error: no declaration for "width"
+  signal count_o : unsigned(WIDTH-1 downto 0) := (others => '0');
+                            ^
+/opt/homebrew/bin/ghdl:error: compilation error
+
+Command failed: /opt/homebrew/bin/ghdl -a --std=08 ../testbench/tb_lab_counter.candidate-1.vhd
+../testbench/tb_lab_counter.candidate-1.vhd:12:29:error: no declaration for "width"
+  signal count_o : unsigned(WIDTH-1 downto 0) := (others => '0');
+                            ^
+/opt/homebrew/bin/ghdl:error: compilation error
+
+
+
+Contract behavior obligations:
+[
+  "Self-check reset, increment, hold, and wrap behavior",
+  "Print PASS only after all checks pass"
+]
+
+Previous generated VHDL to repair:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity lab_counter is
+  generic (
+    WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    enable_i : in std_logic;
+    count_o : out unsigned(WIDTH-1 downto 0)
+  );
+end entity lab_counter;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of lab_counter is
+begin
+
+    process (clk, rst) is
+        variable count_v : unsigned(WIDTH-1 downto 0);
+    begin
+        if rst = '1' then
+            count_v := to_unsigned(0, WIDTH);
+        elsif rising_edge(clk) then
+            if enable_i = '1' then
+                count_v := count_v + 1;
+            end if;
+        end if;
+        count_o <= count_v;
+    end process;
+
+end architecture rtl;

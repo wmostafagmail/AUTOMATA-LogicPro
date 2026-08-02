@@ -1,0 +1,110 @@
+{
+  "id": "benchmark_233721d55550d5c2",
+  "suiteId": "checkpoint_adapter_generation:adapter_promotion_holdout",
+  "status": "COMPLETED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1"
+  ],
+  "childRunIds": [],
+  "modelProfileId": null,
+  "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 3,
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "running": 0,
+    "passRate": 1,
+    "adapterCheckpointId": "checkpoint_d89e3f6c33c577f7",
+    "adapterPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/training/training_968ef12009ccb87b/adapter",
+    "trainingRunId": "training_968ef12009ccb87b",
+    "baseModel": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+    "maxRepairAttempts": 3,
+    "evaluationScope": "adapter_promotion_holdout",
+    "holdoutCount": 1,
+    "categoryCoverage": {
+      "FPGA_SWEEP_UART_SPI_BRIDGE": 1
+    },
+    "promotionStrictness": {
+      "id": "standard_qualification",
+      "label": "Standard qualification",
+      "description": "Balanced qualification before serious adapter comparison.",
+      "maxContracts": 100,
+      "minHoldoutContracts": 50,
+      "minHoldoutCategories": 5,
+      "holdoutPassRate": 0.93,
+      "maxFallbackPassCount": 0,
+      "maxRepairNoProgressCount": 0,
+      "sourceProfileId": "standard_qualification",
+      "advancedOverrides": {}
+    },
+    "promotionStrictnessProfileId": "standard_qualification",
+    "materializedContractCount": 26,
+    "generationBenchmarkPassed": true,
+    "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+    "results": [
+      {
+        "contractId": "contract_fb9b64a3834e20d1",
+        "contractName": "UART-to-SPI Protocol Bridge with FIFOs",
+        "entityName": "uart_spi_protocol_bridge_top",
+        "passed": true,
+        "stage": "accepted",
+        "failureCode": null,
+        "message": "Adapter-generated RTL passed extraction, interface, dependency, static policy, GHDL analyze, and simulation gates.\nAdapter repair exhausted on malformed, recursive, or missing-dependency output; app-owned deterministic interface-smoke fallback passed validation.",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/adapter/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-3.vhd",
+        "acceptedTestbenchPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/accepted/testbench/tb_uart_spi_protocol_bridge_top.c50cc5894985b69da6a5b2c8720360d0e82af1f3e31b03427b10f0ce9cf27da9.0a663716fbeb.vhd",
+        "simulationLogPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/adapter/logs/ghdl-simulate-candidate-3.log",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/adapter/requests/adapter-fallback-3.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/adapter/raw-responses/adapter-fallback-3.txt",
+        "elapsedMs": 159783,
+        "timeoutMs": 900000,
+        "candidateAttemptsUsed": 2,
+        "fallbackCandidateAttempt": 3,
+        "maxRepairAttempts": 3,
+        "repairAuditPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/adapter/repair-audit.json",
+        "adapterFallbackUsed": true,
+        "adapterModelPassed": false,
+        "previousFailureCode": "vhdl_extraction_missing_entity",
+        "previousFailureStage": "extracting",
+        "baseline": {
+          "contractId": "contract_fb9b64a3834e20d1",
+          "passed": true,
+          "stage": "accepted",
+          "failureCode": null,
+          "message": "Adapter-generated RTL passed extraction, interface, dependency, static policy, GHDL analyze, and simulation gates.",
+          "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/baseline/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-1.vhd",
+          "elapsedMs": 8323,
+          "timeoutMs": 900000,
+          "candidateAttemptsUsed": 1,
+          "maxRepairAttempts": 3,
+          "repairAuditPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/01-uart_spi_protocol_bridge_top/baseline/repair-audit.json"
+        }
+      }
+    ],
+    "improvement": {
+      "comparableContracts": 1,
+      "baselinePassed": 1,
+      "adapterPassed": 1,
+      "baselinePassRate": 1,
+      "adapterPassRate": 1,
+      "passRateDelta": 0,
+      "passRateDeltaPoints": 0,
+      "baselineAverageRepairAttempts": 0,
+      "adapterAverageRepairAttempts": 1,
+      "repairReduction": -1,
+      "baselineTimeouts": 0,
+      "adapterTimeouts": 0,
+      "timeoutChange": 0,
+      "regressionCount": 0,
+      "improvementCount": 0,
+      "regressionContractIds": [],
+      "improvedContractIds": []
+    }
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_233721d55550d5c2/summary.json",
+  "createdAt": "2026-08-02T11:00:01.894Z",
+  "completedAt": "2026-08-02T11:05:29.066Z"
+}

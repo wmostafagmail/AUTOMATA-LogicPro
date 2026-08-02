@@ -1,0 +1,258 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+Contract JSON:
+{
+  "contract_version": "1.0",
+  "entity": {
+    "name": "mini_cpu_core_top",
+    "description": "Design a small CPU core project in VHDL, choosing either a mini RISC-V subset or a coherent custom 8-bit ISA, with a complete fetch/decode/execute path and deterministic verification."
+  },
+  "generics": [
+    {
+      "name": "DATA_WIDTH",
+      "type": "positive",
+      "default": "8",
+      "constraints": [
+        "DATA_WIDTH >= 1"
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "name": "clk",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "clock"
+    },
+    {
+      "name": "rst",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "reset"
+    },
+    {
+      "name": "pm_addr_o",
+      "mode": "out",
+      "type": "unsigned(7 downto 0)",
+      "semantic_role": "program_memory_address"
+    },
+    {
+      "name": "pm_data_i",
+      "mode": "in",
+      "type": "std_logic_vector(7 downto 0)",
+      "semantic_role": "program_memory_data"
+    },
+    {
+      "name": "dm_addr_o",
+      "mode": "out",
+      "type": "unsigned(7 downto 0)",
+      "semantic_role": "data_memory_address"
+    },
+    {
+      "name": "dm_wdata_o",
+      "mode": "out",
+      "type": "std_logic_vector(7 downto 0)",
+      "semantic_role": "data_memory_write_data"
+    },
+    {
+      "name": "dm_rdata_i",
+      "mode": "in",
+      "type": "std_logic_vector(7 downto 0)",
+      "semantic_role": "data_memory_read_data"
+    },
+    {
+      "name": "dm_we_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "data_memory_write_enable"
+    },
+    {
+      "name": "halted_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "halted"
+    },
+    {
+      "name": "status_o",
+      "mode": "out",
+      "type": "std_logic_vector(7 downto 0)",
+      "semantic_role": "status"
+    }
+  ],
+  "clocking": {
+    "domains": [
+      {
+        "name": "main",
+        "clock_port": "clk",
+        "edge": "rising"
+      }
+    ]
+  },
+  "reset": {
+    "port": "rst",
+    "polarity": "active_high",
+    "synchronous": true
+  },
+  "behavior": [
+    "Design a small CPU core project in VHDL, choosing either a mini RISC-V subset or a coherent custom 8-bit ISA, with a complete fetch/decode/execute path and deterministic verification.",
+    "Required block/responsibility: instruction fetch path with program counter management",
+    "Required block/responsibility: instruction decoder",
+    "Required block/responsibility: ALU with clearly defined supported operations",
+    "Required block/responsibility: register file",
+    "Required block/responsibility: control unit or control FSM",
+    "Required block/responsibility: program memory interface",
+    "Required block/responsibility: data memory interface",
+    "Required block/responsibility: branch/jump or control-flow handling",
+    "Required block/responsibility: top-level CPU integration entity",
+    "State the chosen ISA subset or custom instruction set clearly.",
+    "Define operand widths, register count, and memory interface semantics explicitly.",
+    "Keep decode, execute, and state-update behavior understandable rather than opaque.",
+    "Assume a single clock domain for the core and document any alternative choice explicitly.",
+    "Reset must place the CPU into a deterministic fetch-ready state.",
+    "Avoid gated clocks and uncontrolled combinational feedback between control and datapath blocks."
+  ],
+  "corner_cases": [
+    "Generate a meaningful self-checking testbench.",
+    "The testbench must prove fetch, decode, execute, register update, and control-flow behavior with deterministic checks.",
+    "Include representative arithmetic, logical, load/store, and branch-style scenarios where supported by the chosen ISA."
+  ],
+  "prohibited_implementations": [
+    "std_logic_unsigned",
+    "std_logic_arith",
+    "std_logic_signed",
+    "Do not describe the CPU as complete while omitting decode or write-back behavior.",
+    "Do not use placeholder pseudo-instructions without implementing them in the RTL and testbench.",
+    "Do not hide the memory interface behind undocumented magic constants or comments."
+  ],
+  "synthesis_requirements": [
+    "Generated RTL and testbench must compile, elaborate, and simulate under GHDL.",
+    "The testbench must verify successful execution of a short deterministic instruction sequence.",
+    "The generated collateral must make the architectural split between datapath and control clear."
+  ],
+  "testbench_obligations": [
+    "Generate a meaningful self-checking testbench.",
+    "The testbench must prove fetch, decode, execute, register update, and control-flow behavior with deterministic checks.",
+    "Include representative arithmetic, logical, load/store, and branch-style scenarios where supported by the chosen ISA."
+  ],
+  "pass_marker": "PASS"
+}
+
+Return one complete VHDL-2008 file for entity mini_cpu_core_top.
+
+
+## Repair Required
+Repair attempt 1/3.
+GHDL analyze rejected the returned VHDL.
+Repair only the exact syntax/type/analyze issues reported below.
+Preserve the exact frozen entity interface.
+Use VHDL-2008, ieee.std_logic_1164, and ieee.numeric_std only.
+Do not introduce missing work-library entities; keep this a self-contained single file.
+Do not weaken or remove required behavior.
+Return one complete VHDL file only, no Markdown, no prose.
+
+GHDL analyze output:
+mini_cpu_core_top.adapter-candidate-1.vhd:42:17:error: port "pm_data_i" can't be assigned
+                pm_data_i <= '0'; -- Placeholder for actual instruction fetch
+                ^
+mini_cpu_core_top.adapter-candidate-1.vhd:42:30:error: can't match character literal '0' with type array type "STD_ULOGIC_VECTOR"
+                pm_data_i <= '0'; -- Placeholder for actual instruction fetch
+                             ^
+mini_cpu_core_top.adapter-candidate-1.vhd:50:39:error: can't match "dm_rdata_i" with type STD_ULOGIC
+                        regfile(0) <= dm_rdata_i;
+                                      ^
+mini_cpu_core_top.adapter-candidate-1.vhd:52:45:error: can't match indexed name with type array type "UNRESOLVED_UNSIGNED"
+                        dm_addr_o <= regfile(1);
+                                            ^
+mini_cpu_core_top.adapter-candidate-1.vhd:53:46:error: can't match indexed name with type array type "STD_ULOGIC_VECTOR"
+                        dm_wdata_o <= regfile(0);
+                                             ^
+/opt/homebrew/bin/ghdl:error: compilation error
+
+Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.adapter-candidate-1.vhd
+mini_cpu_core_top.adapter-candidate-1.vhd:42:17:error: port "pm_data_i" can't be assigned
+                pm_data_i <= '0'; -- Placeholder for actual instruction fetch
+                ^
+mini_cpu_core_top.adapter-candidate-1.vhd:42:30:error: can't match character literal '0' with type array type "STD_ULOGIC_VECTOR"
+                pm_data_i <= '0'; -- Placeholder for actual instruction fetch
+                             ^
+mini_cpu_core_top.adapter-candidate-1.vhd:50:39:error: can't match "dm_rdata_i" with type STD_ULOGIC
+                        regfile(0) <= dm_rdata_i;
+                                      ^
+mini_cpu_core_top.adapter-candidate-1.vhd:52:45:error: can't match indexed name with type array type "UNRESOLVED_UNSIGNED"
+                        dm_addr_o <= regfile(1);
+                                            ^
+mini_cpu_core_top.adapter-candidate-1.vhd:53:46:error: can't match indexed name with type array type "STD_ULOGIC_VECTOR"
+                        dm_wdata_o <= regfile(0);
+                                             ^
+/opt/homebrew/bin/ghdl:error: compilation error
+
+
+
+Previous generated VHDL to repair:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity mini_cpu_core_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    pm_addr_o : out unsigned(7 downto 0);
+    pm_data_i : in std_logic_vector(7 downto 0);
+    dm_addr_o : out unsigned(7 downto 0);
+    dm_wdata_o : out std_logic_vector(7 downto 0);
+    dm_rdata_i : in std_logic_vector(7 downto 0);
+    dm_we_o : out std_logic;
+    halted_o : out std_logic;
+    status_o : out std_logic_vector(7 downto 0)
+  );
+end entity mini_cpu_core_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of mini_cpu_core_top is
+    signal pc : unsigned(7 downto 0) := (others => '0');
+    signal ir : std_logic_vector(7 downto 0);
+    signal alu_out : std_logic_vector(7 downto 0);
+    signal regfile : std_logic_vector(7 downto 0) := (others => '0');
+    signal halted : std_logic := '0';
+begin
+    process(clk, rst)
+    begin
+        if rst = '1' then
+            pc <= (others => '0');
+            halted <= '1';
+        elsif rising_edge(clk) then
+            if halted = '0' then
+                pm_addr_o <= pc;
+                pm_data_i <= '0'; -- Placeholder for actual instruction fetch
+                pc <= pc + 1;
+                ir <= pm_data_i;
+                -- Decode and execute
+                case ir is
+                    when "00000000" => -- NOP
+                        null;
+                    when "00000001" => -- LDR R0, [R1]
+                        regfile(0) <= dm_rdata_i;
+                    when "00000010" => -- STR R0, [R1]
+                        dm_addr_o <= regfile(1);
+                        dm_wdata_o <= regfile(0);
+                        dm_we_o <= '1';
+                    when others =>
+                        halted <= '1';
+                end case;
+            end if;
+        end if;
+    end process;
+
+    status_o <= (others => '0');
+    halted_o <= halted;
+end architecture rtl;

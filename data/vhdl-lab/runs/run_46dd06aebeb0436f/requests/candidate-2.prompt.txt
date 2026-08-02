@@ -1,0 +1,346 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+Contract JSON:
+{
+  "contract_version": "1.0",
+  "entity": {
+    "name": "uart_spi_protocol_bridge_top",
+    "description": "Design a UART-to-SPI protocol bridge with transmit and receive FIFOs that cleanly accepts UART traffic, frames transactions, and drives an SPI master path with explicit status/error reporting."
+  },
+  "generics": [
+    {
+      "name": "DATA_WIDTH",
+      "type": "positive",
+      "default": "8",
+      "constraints": [
+        "DATA_WIDTH >= 1"
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "name": "clk",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "clock"
+    },
+    {
+      "name": "rst",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "reset"
+    },
+    {
+      "name": "uart_rx_i",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "uart_rx"
+    },
+    {
+      "name": "uart_tx_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "uart_tx"
+    },
+    {
+      "name": "spi_miso_i",
+      "mode": "in",
+      "type": "std_logic",
+      "semantic_role": "spi_miso"
+    },
+    {
+      "name": "spi_mosi_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "spi_mosi"
+    },
+    {
+      "name": "spi_sclk_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "spi_sclk"
+    },
+    {
+      "name": "spi_cs_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "spi_chip_select"
+    },
+    {
+      "name": "busy_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "busy"
+    },
+    {
+      "name": "error_o",
+      "mode": "out",
+      "type": "std_logic",
+      "semantic_role": "error"
+    },
+    {
+      "name": "status_o",
+      "mode": "out",
+      "type": "std_logic_vector(7 downto 0)",
+      "semantic_role": "status"
+    }
+  ],
+  "clocking": {
+    "domains": [
+      {
+        "name": "main",
+        "clock_port": "clk",
+        "edge": "rising"
+      }
+    ]
+  },
+  "reset": {
+    "port": "rst",
+    "polarity": "active_high",
+    "synchronous": true
+  },
+  "behavior": [
+    "Design a UART-to-SPI protocol bridge with transmit and receive FIFOs that cleanly accepts UART traffic, frames transactions, and drives an SPI master path with explicit status/error reporting.",
+    "Required block/responsibility: uart_rx receiver path",
+    "Required block/responsibility: uart_tx transmitter path",
+    "Required block/responsibility: spi_master controller",
+    "Required block/responsibility: tx_fifo buffering for outbound SPI payloads",
+    "Required block/responsibility: rx_fifo buffering for inbound SPI response data",
+    "Required block/responsibility: control/status register block or equivalent status signaling",
+    "Required block/responsibility: bridge control FSM coordinating UART framing and SPI execution",
+    "Required block/responsibility: error reporting for framing, overflow, underflow, and protocol faults",
+    "Keep UART framing logic separate from SPI transaction execution logic.",
+    "Make FIFO widths, depths, and framing assumptions explicit with generics or constants where practical.",
+    "Use explicit state-machine transitions for idle, load, transmit, receive, and error recovery behavior.",
+    "Prefer a single synchronous clock domain unless another domain is absolutely justified and documented.",
+    "Reset behavior must be deterministic and compatible with the selected reset style in the app.",
+    "Do not use gated clocks; use clock-enable style control instead."
+  ],
+  "corner_cases": [
+    "Generate a self-checking VHDL testbench.",
+    "Exercise nominal transfers from UART into SPI and back again.",
+    "Exercise FIFO backpressure, framing errors, overflow/underflow handling, and representative recovery behavior.",
+    "Produce deterministic PASS/FAIL assertions with useful messages."
+  ],
+  "prohibited_implementations": [
+    "std_logic_unsigned",
+    "std_logic_arith",
+    "std_logic_signed",
+    "Do not collapse the entire design into one monolithic process without architectural structure.",
+    "Do not omit FIFOs or replace them with hand-wavy placeholder comments.",
+    "Do not claim protocol behavior that is not represented in the RTL or testbench."
+  ],
+  "synthesis_requirements": [
+    "All generated VHDL must compile with GHDL using VHDL-2008.",
+    "The bridge must elaborate and simulate successfully under GHDL.",
+    "The testbench must prove nominal transfers and at least one error-path scenario.",
+    "The generated project must include clear top-level ownership of UART, SPI, buffering, and control responsibilities."
+  ],
+  "testbench_obligations": [
+    "Generate a self-checking VHDL testbench.",
+    "Exercise nominal transfers from UART into SPI and back again.",
+    "Exercise FIFO backpressure, framing errors, overflow/underflow handling, and representative recovery behavior.",
+    "Produce deterministic PASS/FAIL assertions with useful messages."
+  ],
+  "pass_marker": "PASS"
+}
+
+Return one complete VHDL-2008 file for entity uart_spi_protocol_bridge_top.
+
+
+## Repair Required
+Repair attempt 1/3.
+You returned top RTL that instantiates missing child entities.
+Return one complete self-contained VHDL file.
+Do not use entity work.X unless X is declared in this same file.
+Single-file VHDL ordering rules:
+- If you instantiate entity work.X, entity X and architecture of X must be declared earlier in this same file before the architecture that instantiates it.
+- Repeat library/use clauses before every entity/architecture design unit.
+- Prefer inline logic for simple children instead of external work-unit instantiation.
+- Do not rely on separate files or external work libraries.
+Preserve the exact frozen entity interface.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+Missing dependency findings:
+- Single-file VHDL Lab run instantiates entity work.uart_receiver, but no entity uart_receiver is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.uart_transmitter, but no entity uart_transmitter is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.spi_master_controller, but no entity spi_master_controller is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.fifo, but no entity fifo is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.control_status_register, but no entity control_status_register is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.bridge_control_fsm, but no entity bridge_control_fsm is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+
+Previous generated VHDL to repair:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity uart_spi_protocol_bridge_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    uart_rx_i : in std_logic;
+    uart_tx_o : out std_logic;
+    spi_miso_i : in std_logic;
+    spi_mosi_o : out std_logic;
+    spi_sclk_o : out std_logic;
+    spi_cs_o : out std_logic;
+    busy_o : out std_logic;
+    error_o : out std_logic;
+    status_o : out std_logic_vector(7 downto 0)
+  );
+end entity uart_spi_protocol_bridge_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of uart_spi_protocol_bridge_top is
+
+    -- FIFO depth and width constants
+    constant TX_FIFO_DEPTH : natural := 16; -- Example depth for transmit FIFO
+    constant RX_FIFO_DEPTH : natural := 16; -- Example depth for receive FIFO
+
+    -- UART receiver signals
+    signal uart_rx_data   : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal uart_rx_valid  : std_logic;
+    signal uart_rx_ready  : std_logic;
+
+    -- UART transmitter signals
+    signal uart_tx_data   : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal uart_tx_valid  : std_logic;
+    signal uart_tx_ready  : std_logic;
+
+    -- SPI master controller signals
+    signal spi_mosi_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal spi_miso_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal spi_start      : std_logic;
+    signal spi_done       : std_logic;
+
+    -- FIFO control signals
+    signal tx_fifo_full   : std_logic;
+    signal rx_fifo_empty  : std_logic;
+
+    -- Control/status register signals
+    signal busy           : std_logic := '0';
+    signal error          : std_logic := '0';
+    signal status         : std_logic_vector(7 downto 0) := (others => '0');
+
+begin
+
+    -- UART Receiver
+    uart_rx_inst: entity work.uart_receiver
+        generic map (
+            DATA_WIDTH => DATA_WIDTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            rx_i      => uart_rx_i,
+            data_o    => uart_rx_data,
+            valid_o   => uart_rx_valid,
+            ready_i   => uart_rx_ready
+        );
+
+    -- UART Transmitter
+    uart_tx_inst: entity work.uart_transmitter
+        generic map (
+            DATA_WIDTH => DATA_WIDTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            tx_o      => uart_tx_o,
+            data_i    => uart_tx_data,
+            valid_i   => uart_tx_valid,
+            ready_o   => uart_tx_ready
+        );
+
+    -- SPI Master Controller
+    spi_master_inst: entity work.spi_master_controller
+        generic map (
+            DATA_WIDTH => DATA_WIDTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            miso_i    => spi_miso_i,
+            mosi_o    => spi_mosi_o,
+            sclk_o    => spi_sclk_o,
+            cs_o      => spi_cs_o,
+            data_i    => spi_mosi_data,
+            data_o    => spi_miso_data,
+            start_i   => spi_start,
+            done_o    => spi_done
+        );
+
+    -- Transmit FIFO
+    tx_fifo_inst: entity work.fifo
+        generic map (
+            DATA_WIDTH => DATA_WIDTH,
+            DEPTH      => TX_FIFO_DEPTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            data_i    => uart_rx_data,
+            valid_i   => uart_rx_valid,
+            ready_o   => uart_rx_ready,
+            data_o    => spi_mosi_data,
+            valid_o   => spi_start,
+            ready_i   => spi_done,
+            full_o    => tx_fifo_full
+        );
+
+    -- Receive FIFO
+    rx_fifo_inst: entity work.fifo
+        generic map (
+            DATA_WIDTH => DATA_WIDTH,
+            DEPTH      => RX_FIFO_DEPTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            data_i    => spi_miso_data,
+            valid_i   => spi_done,
+            ready_o   => open,
+            data_o    => uart_tx_data,
+            valid_o   => uart_tx_valid,
+            ready_i   => uart_tx_ready,
+            empty_o   => rx_fifo_empty
+        );
+
+    -- Control/Status Register
+    control_status_inst: entity work.control_status_register
+        port map (
+            clk       => clk,
+            rst       => rst,
+            busy_o    => busy,
+            error_o   => error,
+            status_o  => status
+        );
+
+    -- Bridge Control FSM
+    bridge_control_fsm_inst: entity work.bridge_control_fsm
+        generic map (
+            DATA_WIDTH => DATA_WIDTH
+        )
+        port map (
+            clk           => clk,
+            rst           => rst,
+            uart_rx_valid => uart_rx_valid,
+            tx_fifo_full  => tx_fifo_full,
+            spi_done      => spi_done,
+            rx_fifo_empty => rx_fifo_empty,
+            busy_o        => busy_o,
+            error_o       => error_o,
+            status_o      => status_o
+        );
+
+end architecture rtl;

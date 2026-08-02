@@ -1,0 +1,33 @@
+{
+  "runId": "run_7d08ce28f2b86a76",
+  "packets": [
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "mini_cpu_core_top.vhd:123:68",
+      "excerpt": "mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt",
+      "validatorOutput": "mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.vhd mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error",
+      "ghdlOutput": "mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.vhd mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_7d08ce28f2b86a76/generated/rtl/mini_cpu_core_top.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "e36681560cd383fdf11b5c13f9f955a7c6e20e9f66689e9f9e5d0ba9a6e37f76",
+      "createdAt": "2026-08-01T08:35:37.373Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "mini_cpu_core_top.vhd:123:68",
+      "excerpt": "mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt",
+      "validatorOutput": "mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.vhd mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error",
+      "ghdlOutput": "mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 mini_cpu_core_top.vhd mini_cpu_core_top.vhd:123:68:error: can't resolve overload for operator \"&\" pc <= unsigned(instruction(3 downto 0) & instruction(7 downto 4)); ^ mini_cpu_core_top.vhd:123:68:error: possible interpretations are: mini_cpu_core_top.vhd:43:27:error: array type \"reg_file_type\" ../../src/ieee2008/std_logic_1164.vhdl:75:29:error: array type \"STD_ULOGIC_VECTOR\" /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_7d08ce28f2b86a76/generated/rtl/mini_cpu_core_top.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "e36681560cd383fdf11b5c13f9f955a7c6e20e9f66689e9f9e5d0ba9a6e37f76",
+      "createdAt": "2026-08-01T08:37:22.906Z"
+    }
+  ]
+}

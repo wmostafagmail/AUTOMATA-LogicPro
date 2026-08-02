@@ -1,0 +1,85 @@
+{
+  "runId": "checkpoint_eval_benchmark_1b588b487bd4912a_contract_fb9b64a3834e20d1",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_rx, but no entity uart_rx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_tx, but no entity uart_tx is declared in the returned artifact. Retu",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_rx, but no entity uart_rx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_tx, but no entity uart_tx is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.spi_master, but no entity spi_master is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.tx_fifo, but no entity tx_fifo is declared in the returned artifact. Return self-contained RT",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "6248b332827e807ffef477e0bfb601d3407b98d322932869e6428486810b4e8b",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:18:38.883Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_rx_core, but no entity uart_rx_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_tx_core, but no entity uart_tx_core is declared in the ret",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_rx_core, but no entity uart_rx_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.uart_tx_core, but no entity uart_tx_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.spi_master_core, but no entity spi_master_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode. missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.tx_fifo_core, but no entity tx_fifo_core is declared in the ret",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "2734a62d81d5274647308f58834c296c2877f50c4c527558531d6d472a071187",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:19:01.401Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "uart_spi_protocol_bridge_top.adapter-candidate-3.vhd:98:575",
+      "excerpt": "uart_spi_protocol_bridge_top.adapter-candidate-3.vhd:98:575:error: can't associate \"uart_tx_o\" with port \"tx_data_i\" architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx_core generic map(DATA_WIDTH=>DATA_WIDTH)",
+      "validatorOutput": "uart_spi_protocol_bridge_top.adapter-candidate-3.vhd:98:575:error: can't associate \"uart_tx_o\" with port \"tx_data_i\" architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_o=>uart_tx_o);u_spi_master:entity work.spi_master_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,miso_i=>spi_miso_i,mosi_o=>spi_mosi_o,sclk_o=>spi_sclk_o,cs_o=>spi_cs_o);u_tx_fifo:entity work.tx_fifo_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_data_i=>uart_tx_o,tx_valid_i=>uart_tx_o,tx_ready_o=>uart_tx_o);u_rx_fifo:entity work.rx_fifo_core generic map(DATA_WI",
+      "ghdlOutput": "uart_spi_protocol_bridge_top.adapter-candidate-3.vhd:98:575:error: can't associate \"uart_tx_o\" with port \"tx_data_i\" architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_o=>uart_tx_o);u_spi_master:entity work.spi_master_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,miso_i=>spi_miso_i,mosi_o=>spi_mosi_o,sclk_o=>spi_sclk_o,cs_o=>spi_cs_o);u_tx_fifo:entity work.tx_fifo_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_data_i=>uart_tx_o,tx_valid_i=>uart_tx_o,tx_ready_o=>uart_tx_o);u_rx_fifo:entity work.rx_fifo_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_data_i=>spi_miso_i,rx_valid_i=>spi_miso_i,rx_ready_o=>spi_miso_i);u_control:entity work.control_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,busy_o=>busy_o,error_o=>error_o,status_o=>status_o);end architecture; ^ uart_spi_protocol_bridge_top.adapter-candidate-3.vhd:98:575:error: (type of \"uart_tx_o\" is STD_LOGIC) uart_spi_protoc",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "4126ac45d615c578c29ea76473eaed6e4ea7c18abfad384d14682ec80817d5b7",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:19:25.847Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "uart_spi_protocol_bridge_top.adapter-candidate-4.vhd:98:575",
+      "excerpt": "uart_spi_protocol_bridge_top.adapter-candidate-4.vhd:98:575:error: can't associate \"uart_tx_o\" with port \"tx_data_i\" architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx_core generic map(DATA_WIDTH=>DATA_WIDTH)",
+      "validatorOutput": "uart_spi_protocol_bridge_top.adapter-candidate-4.vhd:98:575:error: can't associate \"uart_tx_o\" with port \"tx_data_i\" architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_o=>uart_tx_o);u_spi_master:entity work.spi_master_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,miso_i=>spi_miso_i,mosi_o=>spi_mosi_o,sclk_o=>spi_sclk_o,cs_o=>spi_cs_o);u_tx_fifo:entity work.tx_fifo_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_data_i=>uart_tx_o,tx_valid_i=>uart_tx_o,tx_ready_o=>uart_tx_o);u_rx_fifo:entity work.rx_fifo_core generic map(DATA_WI",
+      "ghdlOutput": "uart_spi_protocol_bridge_top.adapter-candidate-4.vhd:98:575:error: can't associate \"uart_tx_o\" with port \"tx_data_i\" architecture rtl of uart_spi_protocol_bridge_top is begin u_uart_rx:entity work.uart_rx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_i=>uart_rx_i);u_uart_tx:entity work.uart_tx_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_o=>uart_tx_o);u_spi_master:entity work.spi_master_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,miso_i=>spi_miso_i,mosi_o=>spi_mosi_o,sclk_o=>spi_sclk_o,cs_o=>spi_cs_o);u_tx_fifo:entity work.tx_fifo_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,tx_data_i=>uart_tx_o,tx_valid_i=>uart_tx_o,tx_ready_o=>uart_tx_o);u_rx_fifo:entity work.rx_fifo_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,rx_data_i=>spi_miso_i,rx_valid_i=>spi_miso_i,rx_ready_o=>spi_miso_i);u_control:entity work.control_core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,busy_o=>busy_o,error_o=>error_o,status_o=>status_o);end architecture; ^ uart_spi_protocol_bridge_top.adapter-candidate-4.vhd:98:575:error: (type of \"uart_tx_o\" is STD_LOGIC) uart_spi_protoc",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-4.vhd",
+      "candidateAttempt": 4,
+      "contentHash": "4126ac45d615c578c29ea76473eaed6e4ea7c18abfad384d14682ec80817d5b7",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:19:58.094Z"
+    }
+  ]
+}

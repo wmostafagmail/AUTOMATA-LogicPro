@@ -3,8 +3,17 @@ import assert from 'node:assert/strict';
 import {
   buildRemoteExportPreviewPayload,
   computeRemoteExportPreviewHash,
+  getProviderDeployment,
+  requiresRemoteExportConsent,
   scrubProjectContextForRemoteExport,
 } from '../src/exportPolicy';
+
+test('local provider policy treats Unsloth like Ollama and MTPLX', () => {
+  assert.equal(getProviderDeployment('unsloth'), 'local');
+  assert.equal(getProviderDeployment('unslouth'), 'local');
+  assert.equal(requiresRemoteExportConsent('unsloth'), false);
+  assert.equal(requiresRemoteExportConsent('openai'), true);
+});
 
 test('remote export policy keeps only allowlisted project context fields and scrubs sensitive content', () => {
   const result = scrubProjectContextForRemoteExport({

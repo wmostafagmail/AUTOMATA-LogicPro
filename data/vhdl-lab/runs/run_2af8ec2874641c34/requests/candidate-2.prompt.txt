@@ -1,0 +1,152 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+Evidence-guided repair guidance:
+Avoid recurring DSP_NUMERIC_WIDTH_FAILURE: repair_no_progress: repeated dsp_accumulator_width_bound_check with unchanged candidate content.
+
+## Focused Single-File Dependency Repair
+Repair attempt 1/3.
+The previous answer instantiated missing child entities in a single-file VHDL Lab run.
+Return exactly one complete self-contained VHDL-2008 file.
+For this repair, do not output any line containing "entity work.".
+For this repair, do not output component declarations or component instantiations.
+Hard rule: do not use entity work.X unless entity X and architecture of X are declared earlier in this same returned file.
+Best repair: inline simple child behavior into the top architecture and remove entity work.X instantiations.
+If helper entities are necessary, declare each child entity/architecture before the top architecture that instantiates it.
+Repeat these context clauses before every design unit: library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+Preserve the exact frozen entity interface below. Do not add/remove/rename public ports or generics.
+Return VHDL only, no Markdown, no prose.
+
+Frozen interface:
+entity uart_spi_protocol_bridge_top
+Required generics:
+- generic DATA_WIDTH : positive := 8
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port uart_rx_i : in std_logic
+- port uart_tx_o : out std_logic
+- port spi_miso_i : in std_logic
+- port spi_mosi_o : out std_logic
+- port spi_sclk_o : out std_logic
+- port spi_cs_o : out std_logic
+- port busy_o : out std_logic
+- port error_o : out std_logic
+- port status_o : out std_logic_vector(7 downto 0)
+
+Required behavior obligations:
+[
+  "Generate a self-checking VHDL testbench.",
+  "Exercise nominal transfers from UART into SPI and back again.",
+  "Exercise FIFO backpressure, framing errors, overflow/underflow handling, and representative recovery behavior.",
+  "Produce deterministic PASS/FAIL assertions with useful messages."
+]
+
+Missing dependency findings:
+- Single-file VHDL Lab run instantiates entity work.uart_receiver, but no entity uart_receiver is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.uart_transmitter, but no entity uart_transmitter is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.spi_master, but no entity spi_master is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.fifo, but no entity fifo is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+- Single-file VHDL Lab run instantiates entity work.control_logic, but no entity control_logic is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+
+Do not copy the previous broken hierarchy. Treat this as the required replacement shape:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity uart_spi_protocol_bridge_top is ... end entity;
+architecture rtl of uart_spi_protocol_bridge_top is
+  -- local signals/functions/procedures only
+begin
+  -- synchronous processes and concurrent assignments only
+end architecture;
+
+Diagnostic excerpt from the previous broken VHDL, for reference only:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity uart_spi_protocol_bridge_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    uart_rx_i : in std_logic;
+    uart_tx_o : out std_logic;
+    spi_miso_i : in std_logic;
+    spi_mosi_o : out std_logic;
+    spi_sclk_o : out std_logic;
+    spi_cs_o : out std_logic;
+    busy_o : out std_logic;
+    error_o : out std_logic;
+    status_o : out std_logic_vector(7 downto 0)
+  );
+end entity uart_spi_protocol_bridge_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of uart_spi_protocol_bridge_top is
+
+    -- Constants
+    constant FIFO_DEPTH : natural := 16; -- Example depth, can be adjusted
+
+    -- Signals for UART RX
+    signal uart_rx_data   : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal uart_rx_valid  : std_logic;
+    signal uart_rx_ready  : std_logic;
+
+    -- Signals for UART TX
+    signal uart_tx_data   : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal uart_tx_valid  : std_logic;
+    signal uart_tx_ready  : std_logic;
+
+    -- Signals for SPI Master
+    signal spi_mosi_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal spi_miso_data  : std_logic_vector(DATA_WIDTH-1 downto 0);
+    signal spi_start      : std_logic;
+    signal spi_done       : std_logic;
+
+    -- Signals for FIFOs
+    signal tx_fifo_full   : std_logic;
+    signal tx_fifo_empty  : std_logic;
+    signal rx_fifo_full   : std_logic;
+    signal rx_fifo_empty  : std_logic;
+
+    -- Control signals
+    type state_type is (IDLE, LOAD_TX_FIFO, START_SPI, WAIT_SPI_DONE, CHECK_RX_FIFO);
+    signal current_state  : state_type := IDLE;
+    signal next_state     : state_type;
+
+begin
+
+    -- UART RX Receiver Path
+    uart_rx_inst: entity work.uart_receiver
+        generic map (
+            DATA_WIDTH => DATA_WIDTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            rx_i      => uart_rx_i,
+            data_o    => uart_rx_data,
+            valid_o   => uart_rx_valid,
+            ready_i   => uart_rx_ready
+        );
+
+    -- UART TX Transmitter Path
+    uart_tx_inst: entity work.uart_transmitter
+        generic map (
+            DATA_WIDTH => DATA_WIDTH
+        )
+        port map (
+            clk       => clk,
+            rst       => rst,
+            tx_o      => uart_tx_o,
+            data_i    => uart_tx_data,
+            valid_i   => uart_tx_valid,
+            ready_o

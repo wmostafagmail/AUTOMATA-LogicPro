@@ -1,0 +1,45 @@
+{
+  "runId": "run_648cf9d014cf23f0",
+  "packets": [
+    {
+      "failureCode": "deterministic_video_pixel_address_template",
+      "stage": "deterministic_repair",
+      "fileLine": null,
+      "excerpt": "deterministic_video_pixel_address_template: Rewrote pixel_addr_o with guarded integer address calculation and to_unsigned(..., pixel_addr_o'length).",
+      "validatorOutput": "deterministic_video_pixel_address_template: Rewrote pixel_addr_o with guarded integer address calculation and to_unsigned(..., pixel_addr_o'length).",
+      "ghdlOutput": "",
+      "forbiddenPattern": "deterministic_video_pixel_address_template",
+      "legalReplacement": "Repair locally and keep the frozen contract unchanged.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_648cf9d014cf23f0/generated/rtl/video_pattern_generator_top.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "727d94feb8f7c7fc2bc7bfe716075549e55ba1b7b088431cbf8fab1a93cce8ac",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T19:42:32.687Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "video_pattern_generator_top.vhd:93:26",
+      "excerpt": "video_pattern_generator_top.vhd:93:26:error: no declaration for \"active_video\" when active_video = '1' else (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.vhd video_pattern_generator_top.vhd:93:26:error: no declaration for \"active_video\" when active_video = '1'",
+      "validatorOutput": "video_pattern_generator_top.vhd:93:26:error: no declaration for \"active_video\" when active_video = '1' else (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.vhd video_pattern_generator_top.vhd:93:26:error: no declaration for \"active_video\" when active_video = '1' else (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "ghdlOutput": "video_pattern_generator_top.vhd:93:26:error: no declaration for \"active_video\" when active_video = '1' else (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.vhd video_pattern_generator_top.vhd:93:26:error: no declaration for \"active_video\" when active_video = '1' else (others => '0'); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_648cf9d014cf23f0/generated/rtl/video_pattern_generator_top.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "727d94feb8f7c7fc2bc7bfe716075549e55ba1b7b088431cbf8fab1a93cce8ac",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T19:42:32.718Z"
+    }
+  ]
+}

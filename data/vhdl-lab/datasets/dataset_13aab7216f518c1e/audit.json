@@ -1,0 +1,10 @@
+{
+  "sourceType": "accepted_artifacts",
+  "acceptedArtifacts": {
+    "excludedSecrets": 0,
+    "missingArtifacts": 0,
+    "excludedUnverified": 0,
+    "includedRecords": 105
+  },
+  "verified10k": null
+}

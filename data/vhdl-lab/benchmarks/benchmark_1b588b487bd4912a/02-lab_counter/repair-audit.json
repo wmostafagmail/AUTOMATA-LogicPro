@@ -1,0 +1,25 @@
+{
+  "runId": "checkpoint_eval_benchmark_1b588b487bd4912a_contract_88296f5c0367cfbe",
+  "packets": [
+    {
+      "failureCode": "single_file_work_unit_order",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "single_file_work_unit_order: Single-file VHDL Lab run instantiates entity work.core before entity core is declared. Move child entity/architecture design units before the architecture that instantiates them, or inline the logic.",
+      "validatorOutput": "single_file_work_unit_order: Single-file VHDL Lab run instantiates entity work.core before entity core is declared. Move child entity/architecture design units before the architecture that instantiates them, or inline the logic.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "single_file_work_unit_order",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/02-lab_counter/generated/rtl/lab_counter.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "04e4df27d4b3c50fb11a95f1a849b26ac16cc76e50f00cb32932651283748d7b",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:20:04.471Z"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "benchmark_65c9b6d8edd8b85c",
+  "suiteId": "prompt_ab_test",
+  "status": "FAILED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1",
+    "contract_88296f5c0367cfbe",
+    "contract_74680bc3fae28ab1",
+    "contract_9e1f855131977b5e",
+    "contract_6ec6045a1bfc1d5a"
+  ],
+  "childRunIds": [
+    "run_76446543bcbb3b25",
+    "run_3c8749d062488ab9",
+    "run_85167778210ea6d2",
+    "run_e7136fab6129f606",
+    "run_f43b3cb4f5ee0dc4"
+  ],
+  "modelProfileId": "model_c5d98dc1ed26c328",
+  "promptVersionId": "prompt_version_3b4cc4071b56d431",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 3,
+  "summary": {
+    "queuedRuns": 5,
+    "passed": 3,
+    "failed": 2,
+    "failureCategories": {
+      "MODEL_REPAIR_TIMEOUT": 1,
+      "DSP_NUMERIC_WIDTH_FAILURE": 1
+    },
+    "total": 5,
+    "cancelled": 0,
+    "running": 0,
+    "passRate": 0.6
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_65c9b6d8edd8b85c/summary.json",
+  "createdAt": "2026-08-01T16:25:44.674Z",
+  "completedAt": "2026-08-01T16:56:58.860Z"
+}

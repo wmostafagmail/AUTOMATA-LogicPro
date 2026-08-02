@@ -22,6 +22,7 @@ import { AIDrawer } from './components/AIDrawer';
 import { AIBottomDrawer, AIAnalysisContent } from './components/AIBottomDrawer';
 import { AIDiagramContent } from './components/AIDiagramViewer';
 import { AIArchitectWorkspace } from './components/AIArchitectWorkspace';
+import { VhdlImprovementLabPanel } from './components/VhdlImprovementLabPanel';
 import { AIWorkspaceReport } from './aiReport';
 import {
   Wrench,
@@ -34,6 +35,8 @@ import {
   Loader2,
   Maximize2,
   Minimize2,
+  CircleDot,
+  Sparkles,
 } from 'lucide-react';
 
 const DEFAULT_LEFT_WORKSPACE_BOTTOM_GAP_PX = 214;
@@ -50,6 +53,8 @@ const DEFAULT_AI_DIAGRAM_WINDOW_BOUNDS = {
   height: 720,
 };
 const GHDL_INSTALL_CONFIRMATION_TEXT = 'INSTALL GHDL';
+const APP_THEME_STORAGE_KEY = 'automata-logicpro-color-theme';
+type AppColorTheme = 'light' | 'dark';
 
 export default function App() {
   type MarkerFamily = 'hazard' | 'protocol' | 'clockReset' | 'fsm';
@@ -58,6 +63,11 @@ export default function App() {
   const [timeUnit, setTimeUnit] = useState<'ns' | 'us' | 'ms' | 's'>('ns');
   const [tickDuration, setTickDuration] = useState(5);
   const [activePresetId, setActivePresetId] = useState('spi_debug');
+  const [colorTheme, setColorTheme] = useState<AppColorTheme>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const stored = window.localStorage.getItem(APP_THEME_STORAGE_KEY);
+    return stored === 'dark' ? 'dark' : 'light';
+  });
   
   // 2. Waveform View configuration states
   const [zoom, setZoom] = useState(1.4);
@@ -74,6 +84,7 @@ export default function App() {
   const [glitchInjectionEnabled, setGlitchInjectionEnabled] = useState(false);
   const [showVcdModal, setShowVcdModal] = useState(false);
   const [showGhdlModal, setShowGhdlModal] = useState(false);
+  const [showVhdlLabPanel, setShowVhdlLabPanel] = useState(false);
   const [vcdText, setVcdText] = useState('');
   const [vcdCopied, setVcdCopied] = useState(false);
   const [ghdlStatus, setGhdlStatus] = useState<GhdlStatus | null>(null);
@@ -773,6 +784,12 @@ export default function App() {
   }, [ghdlProjectInfo, ghdlSelectedSourcePaths]);
 
   useEffect(() => {
+    document.documentElement.dataset.theme = colorTheme;
+    document.documentElement.style.colorScheme = colorTheme;
+    window.localStorage.setItem(APP_THEME_STORAGE_KEY, colorTheme);
+  }, [colorTheme]);
+
+  useEffect(() => {
     if (!ghdlBusy || !ghdlJobStartedAt) {
       setGhdlElapsedSeconds(0);
       return;
@@ -788,7 +805,7 @@ export default function App() {
   }, [ghdlBusy, ghdlJobStartedAt]);
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-brand-surface text-brand-on-surface select-none font-sans overflow-hidden">
+    <div data-theme={colorTheme} className="h-screen w-screen flex flex-col bg-brand-surface text-brand-on-surface select-none font-sans overflow-hidden">
       <input
         ref={workspaceInputRef}
         type="file"
@@ -813,7 +830,17 @@ export default function App() {
             <span className="text-[12px] leading-none text-brand-secondary font-mono lowercase">v1.0</span>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-[12px] text-slate-400 font-mono">
+        <div className="flex items-center gap-3 text-[12px] text-slate-400 font-mono">
+          <button
+            type="button"
+            onClick={() => setColorTheme((current) => current === 'light' ? 'dark' : 'light')}
+            className="flex items-center gap-1.5 rounded-lg border border-brand-outline-variant/60 bg-brand-surface-low px-2.5 py-1.5 font-bold uppercase tracking-[0.08em] text-brand-on-surface transition-all hover:border-brand-cyan/60 hover:bg-brand-surface-high"
+            title={`Switch to ${colorTheme === 'light' ? 'dark' : 'light'} mode`}
+            aria-label={`Switch to ${colorTheme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {colorTheme === 'light' ? <Sparkles size={13} className="text-brand-cyan" /> : <CircleDot size={13} className="text-brand-cyan" />}
+            <span>{colorTheme === 'light' ? 'Light' : 'Dark'}</span>
+          </button>
           <div className="flex items-center gap-1.5 bg-[#0f1526] p-1 px-2 rounded">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary inline-block animate-pulse"></span>
             <span>Logic Simulator Engine Active</span>
@@ -840,7 +867,12 @@ export default function App() {
         onOpenWorkspace={handleOpenWorkspace}
         onOpenAIDrawer={() => setAiDrawerOpen(!aiDrawerOpen)}
         onOpenGhdlRunner={handleOpenGhdlModal}
+        onOpenVhdlLab={() => setShowVhdlLabPanel(true)}
       />
+
+      {showVhdlLabPanel && (
+        <VhdlImprovementLabPanel onClose={() => setShowVhdlLabPanel(false)} />
+      )}
 
       {workspaceError && (
         <div className="mx-3 mt-3 rounded border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-[12px] text-rose-100 flex items-center gap-2">

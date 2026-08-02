@@ -1,0 +1,25 @@
+{
+  "runId": "run_8b41c64525daf689",
+  "packets": [
+    {
+      "failureCode": "deterministic_dsp_accumulator_width_template",
+      "stage": "deterministic_repair",
+      "fileLine": null,
+      "excerpt": "deterministic_dsp_accumulator_width_template: Rewrote FIR accumulator sizing to use a wide accumulator, product resize to sum'length, and final resize to fir_output'length.",
+      "validatorOutput": "deterministic_dsp_accumulator_width_template: Rewrote FIR accumulator sizing to use a wide accumulator, product resize to sum'length, and final resize to fir_output'length.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "deterministic_dsp_accumulator_width_template",
+      "legalReplacement": "Repair locally and keep the frozen contract unchanged.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_8b41c64525daf689/generated/rtl/dsp_chain_top.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "ba207eb6452f466c50e0952b0cfc441a6187bc5259860b8d1f4caa75ca9a1cdd",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T19:41:12.017Z"
+    }
+  ]
+}

@@ -48,6 +48,7 @@ import {
   buildGoldenLeafLibraryPath,
   promotePassedLeafBlocks,
 } from './fpgaGoldenLeafLibrary';
+import { resolveOllamaMaxOutputTokens } from './modelGenerationProfiles';
 
 type SessionManager = ReturnType<typeof createSessionManager>;
 
@@ -173,6 +174,7 @@ export type FpgaArchitectStressLoopDesignSummary = {
   providerRuntimeFailures: number;
   contextBudgetFailures: number;
   architectureContractFailures: number;
+  implementationSourceFailures: number;
   codeQualityFailures: number;
   successes: number;
   results: RunLoopAttemptResult[];
@@ -200,6 +202,7 @@ export type FpgaArchitectStressLoopResult = {
   providerRuntimeFailures: number;
   contextBudgetFailures: number;
   architectureContractFailures: number;
+  implementationSourceFailures: number;
   codeQualityFailures: number;
   successes: number;
   logFilePath: string;
@@ -478,8 +481,12 @@ function makeContextBudgetError(promptLength: number, budget: number) {
   return error;
 }
 
+function estimatePromptTokens(prompt: string) {
+  return Math.ceil(prompt.length / 3.5);
+}
+
 function isModelOutputBudgetExhausted(message: string) {
-  return /returned no generated text[\s\S]*done_reason=length|done_reason=length[\s\S]*message_content_length=0|model_output_budget_exhausted/i.test(message);
+  return /returned no generated text[\s\S]*done_reason=length|done_reason=length[\s\S]*message_content_length=0|model_output_budget_exhausted|model_generation_timeout/i.test(message);
 }
 
 function normalizeContinuationCandidatePath(outputRoot: string, candidatePath: string) {
@@ -988,7 +995,9 @@ function normalizeRepairAuditFeedbackItems(audit: GeneratedVhdlRepairAuditEntry[
 
 function normalizeDiagnosticFeedbackItem(message: string) {
   const diagnostic = classifyFpgaArchitectLoopFailure(message);
-  const failureCode = isModelOutputBudgetExhausted(message)
+  const failureCode = /model_generation_timeout/i.test(message)
+    ? 'model_generation_timeout'
+    : isModelOutputBudgetExhausted(message)
     ? 'model_output_budget_exhausted'
     : /staged_port_interface_drift|changed the approved (?:generic|port) interface/i.test(message)
       ? 'staged_port_interface_drift'
@@ -1500,6 +1509,7 @@ export async function runFpgaArchitectStressLoop(params: {
   let globalProviderRuntimeFailures = 0;
   let globalContextBudgetFailures = 0;
   let globalArchitectureContractFailures = 0;
+  let globalImplementationSourceFailures = 0;
   const globalContractIssues: FpgaArchitectureContractIssue[] = [];
   const globalContractAttemptLogPaths: string[] = [];
   let globalContractFallbackUsed = false;
@@ -1598,6 +1608,8 @@ export async function runFpgaArchitectStressLoop(params: {
     let designProviderRuntimeFailures = 0;
     let designContextBudgetFailures = 0;
     let designArchitectureContractFailures = 0;
+    let designImplementationSourceFailures = 0;
+    const repeatedImplementationSourceFailures = new Map<string, number>();
     const designContractIssues: FpgaArchitectureContractIssue[] = [];
     const designContractAttemptLogPaths: string[] = [];
     let designContractFallbackUsed = false;
@@ -1740,7 +1752,6 @@ export async function runFpgaArchitectStressLoop(params: {
           masterLogPath,
           `Prompt size: ${designUserQuery.length} chars; feedback packets: ${activeFeedbackItems.length}; continuation files: ${promptContinuationFiles.length}`,
         );
-
         const preparedRequest = await prepareAiAnalyzeRequest({
           provider: selectedProvider,
           model: selectedModel,
@@ -1774,6 +1785,29 @@ export async function runFpgaArchitectStressLoop(params: {
       });
 
         const effectiveModel = preparedRequest.selectedModel || selectedModel || '';
+        const auditedRunModelAnalysis = async (modelParams: any) => {
+          const promptText = typeof modelParams?.prompt === 'string' ? modelParams.prompt : '';
+          const profile = modelParams?.generationProfile;
+          const providerForAudit = String(modelParams?.provider || preparedRequest.selectedProvider || selectedProvider || '').toLowerCase();
+          const modelForAudit = String(modelParams?.model || effectiveModel || selectedModel || '');
+          if (promptText && profile?.id) {
+            const effectiveOutputTokens = providerForAudit === 'ollama'
+              ? resolveOllamaMaxOutputTokens(profile, modelForAudit)
+              : profile.maxOutputTokens;
+            const auditLine = [
+              'Model prompt audit:',
+              `profile=${profile.id}`,
+              `chars=${promptText.length}`,
+              `estimatedTokens=${estimatePromptTokens(promptText)}`,
+              `requestedOutputTokens=${profile.maxOutputTokens}`,
+              providerForAudit === 'ollama' ? `effectiveOllamaOutputTokens=${effectiveOutputTokens}` : `effectiveOutputTokens=${effectiveOutputTokens}`,
+              `model=${modelForAudit || 'unknown'}`,
+            ].join(' ');
+            await appendLog(designLogPath, auditLine);
+            await appendLog(masterLogPath, auditLine);
+          }
+          return runModelAnalysis(modelParams);
+        };
         const analysisResult = await runAiAnalyzeJob({
           ai,
           selectedProvider: preparedRequest.selectedProvider,
@@ -1796,7 +1830,7 @@ export async function runFpgaArchitectStressLoop(params: {
           buildMacroPromptContract,
           userQuery: designUserQuery,
           applyMandatoryVhdlSkill,
-          runModelAnalysis,
+          runModelAnalysis: auditedRunModelAnalysis,
           validateMacroOutput,
           buildArtifactRetryPrompt,
           buildValidationRetryPrompt,
@@ -2131,6 +2165,9 @@ export async function runFpgaArchitectStressLoop(params: {
           continue;
         }
         if (diagnostic.category === 'context_budget' && isModelOutputBudgetExhausted(message)) {
+          const budgetFailureCode = /model_generation_timeout/i.test(message)
+            ? 'model_generation_timeout'
+            : 'model_output_budget_exhausted';
           globalContextBudgetFailures += 1;
           designContextBudgetFailures += 1;
           continuationFiles = [];
@@ -2151,7 +2188,7 @@ export async function runFpgaArchitectStressLoop(params: {
             globalContractFallbackUsed = true;
             const fallbackMessage = [
               'MODEL OUTPUT CONTRACT FALLBACK',
-              'failureCode: model_output_budget_exhausted',
+              `failureCode: ${budgetFailureCode}`,
               message,
               'The local model exhausted output while proposing the Architecture Contract JSON twice.',
               'The app is using its deterministic baseline Architecture Contract V2 and retrying the same attempt without counting pass/fail.',
@@ -2176,7 +2213,7 @@ export async function runFpgaArchitectStressLoop(params: {
               attemptsPerDesign,
               innerRepairAttempt: 0,
               innerRepairTotal: 0,
-              innerRepairFailureCode: 'model_output_budget_exhausted',
+              innerRepairFailureCode: budgetFailureCode,
               innerRepairFileLine: '',
               innerRepairStatus: 'using app-owned contract fallback',
             });
@@ -2193,7 +2230,7 @@ export async function runFpgaArchitectStressLoop(params: {
             designLogPath,
             [
               'MODEL OUTPUT BUDGET PAUSE',
-              'failureCode: model_output_budget_exhausted',
+              `failureCode: ${budgetFailureCode}`,
               message,
               pauseMessage,
               `Retry delay ms: ${shouldUseReducedPrompt ? 0 : Math.max(0, providerRetryDelayMs)}`,
@@ -2204,7 +2241,7 @@ export async function runFpgaArchitectStressLoop(params: {
             [
               'MODEL OUTPUT BUDGET PAUSE',
               preset.label,
-              'failureCode: model_output_budget_exhausted',
+              `failureCode: ${budgetFailureCode}`,
               message,
               pauseMessage,
               `Retry delay ms: ${shouldUseReducedPrompt ? 0 : Math.max(0, providerRetryDelayMs)}`,
@@ -2227,7 +2264,7 @@ export async function runFpgaArchitectStressLoop(params: {
             attemptsPerDesign,
             innerRepairAttempt: 0,
             innerRepairTotal: 0,
-            innerRepairFailureCode: 'model_output_budget_exhausted',
+            innerRepairFailureCode: budgetFailureCode,
             innerRepairFileLine: '',
             innerRepairStatus: shouldUseReducedPrompt ? 'retrying with reduced prompt' : 'paused before retry',
           });
@@ -2240,6 +2277,11 @@ export async function runFpgaArchitectStressLoop(params: {
         if (isContextBudgetFailure) {
           globalContextBudgetFailures += 1;
           designContextBudgetFailures += 1;
+        }
+        const isImplementationSourceFailure = diagnostic.category === 'implementation_source';
+        if (isImplementationSourceFailure) {
+          globalImplementationSourceFailures += 1;
+          designImplementationSourceFailures += 1;
         }
         globalFailures += 1;
         const feedbackItems = collectFeedbackItemsFromFailure(error, message);
@@ -2290,7 +2332,13 @@ export async function runFpgaArchitectStressLoop(params: {
               category: diagnostic.category,
               label: diagnostic.label,
               failureCode: isContractFailure ? 'architecture_contract_validation_failed' : (feedbackItems[0]?.failureCode || null),
-              stage: isContractFailure ? 'architecture_contract' : (isContextBudgetFailure ? 'context_budget' : 'vhdl_generation'),
+              stage: isContractFailure
+                ? 'architecture_contract'
+                : isContextBudgetFailure
+                  ? 'context_budget'
+                  : isImplementationSourceFailure
+                    ? 'implementation_source'
+                    : 'vhdl_generation',
               issueCodes: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.code))).slice(0, 20) : [],
               issuePaths: isContractFailure ? Array.from(new Set(contractIssues.map((issue) => issue.path))).slice(0, 20) : [],
               ruleIds: diagnostic.ruleIds,
@@ -2355,13 +2403,31 @@ export async function runFpgaArchitectStressLoop(params: {
             formatInnerRepairAuditForLog(annotatedError?.generatedVhdlValidation?.repairAudit),
           ].join('\n'),
         );
+        if (isImplementationSourceFailure) {
+          const implementationSourceKey = compactOneLine(`${diagnostic.category}:${message}`, 900);
+          const nextRepeatedCount = (repeatedImplementationSourceFailures.get(implementationSourceKey) || 0) + 1;
+          repeatedImplementationSourceFailures.set(implementationSourceKey, nextRepeatedCount);
+          if (nextRepeatedCount >= 2 && designAttempt < attemptsPerDesign) {
+            const remainingAttempts = attemptsPerDesign - designAttempt;
+            const shortCircuitMessage = [
+              'IMPLEMENTATION_SOURCE_BLOCKED',
+              `Repeated identical implementation-source failure count: ${nextRepeatedCount}`,
+              `Skipping remaining attempts for this design: ${remainingAttempts}`,
+              compactOneLine(message, 900),
+            ].join('\n');
+            await appendLog(designLogPath, shortCircuitMessage);
+            await appendLog(masterLogPath, `${preset.label}\n${shortCircuitMessage}`);
+            designAttempt = attemptsPerDesign + 1;
+            continue;
+          }
+        }
         designAttempt += 1;
       }
     }
 
     const designFailureBuckets = summarizeFpgaArchitectLoopFailures(designResults);
     const designFailures = designResults.filter((entry) => !entry.ok).length;
-    const designCodeQualityFailures = Math.max(0, designFailures - designContextBudgetFailures - designArchitectureContractFailures);
+    const designCodeQualityFailures = Math.max(0, designFailures - designContextBudgetFailures - designArchitectureContractFailures - designImplementationSourceFailures);
     const designSuccesses = designResults.length - designFailures;
     const designContractIssueBuckets = summarizeContractIssueBuckets(designContractIssues);
     const reproducibility = summarizeFpgaReproducibility(
@@ -2392,6 +2458,7 @@ export async function runFpgaArchitectStressLoop(params: {
         `Provider/runtime failures: ${designProviderRuntimeFailures}`,
         `App context-budget failures: ${designContextBudgetFailures}`,
         `Architecture-contract failures: ${designArchitectureContractFailures}`,
+        `Implementation-source failures: ${designImplementationSourceFailures}`,
         `Code-quality failures: ${designCodeQualityFailures}`,
         `Architecture contract fallback used: ${designContractFallbackUsed ? 'yes' : 'no'}`,
         ...(designContractIssueBuckets.length > 0 ? [
@@ -2410,6 +2477,7 @@ export async function runFpgaArchitectStressLoop(params: {
         `Provider/runtime failures: ${designProviderRuntimeFailures}`,
         `App context-budget failures: ${designContextBudgetFailures}`,
         `Architecture-contract failures: ${designArchitectureContractFailures}`,
+        `Implementation-source failures: ${designImplementationSourceFailures}`,
         `Code-quality failures: ${designCodeQualityFailures}`,
         `Architecture contract fallback used: ${designContractFallbackUsed ? 'yes' : 'no'}`,
         `Detailed Log: ${designLogPath}`,
@@ -2428,6 +2496,7 @@ export async function runFpgaArchitectStressLoop(params: {
       providerRuntimeFailures: designProviderRuntimeFailures,
       contextBudgetFailures: designContextBudgetFailures,
       architectureContractFailures: designArchitectureContractFailures,
+      implementationSourceFailures: designImplementationSourceFailures,
       codeQualityFailures: designCodeQualityFailures,
       successes: designSuccesses,
       results: designResults,
@@ -2443,7 +2512,7 @@ export async function runFpgaArchitectStressLoop(params: {
 
   const failureBuckets = summarizeFpgaArchitectLoopFailures(results);
   const successes = results.filter((entry) => entry.ok).length;
-  const globalCodeQualityFailures = Math.max(0, globalFailures - globalContextBudgetFailures - globalArchitectureContractFailures);
+  const globalCodeQualityFailures = Math.max(0, globalFailures - globalContextBudgetFailures - globalArchitectureContractFailures - globalImplementationSourceFailures);
   const globalContractIssueBuckets = summarizeContractIssueBuckets(globalContractIssues);
   if (failureBuckets.length > 0) {
     await appendLog(
@@ -2471,6 +2540,7 @@ export async function runFpgaArchitectStressLoop(params: {
       `Provider/runtime failures: ${globalProviderRuntimeFailures}`,
       `App context-budget failures: ${globalContextBudgetFailures}`,
       `Architecture-contract failures: ${globalArchitectureContractFailures}`,
+      `Implementation-source failures: ${globalImplementationSourceFailures}`,
       `Code-quality failures: ${globalCodeQualityFailures}`,
       `Architecture contract fallback used: ${globalContractFallbackUsed ? 'yes' : 'no'}`,
       ...(globalContractIssueBuckets.length > 0 ? [
@@ -2492,6 +2562,7 @@ export async function runFpgaArchitectStressLoop(params: {
     providerRuntimeFailures: globalProviderRuntimeFailures,
     contextBudgetFailures: globalContextBudgetFailures,
     architectureContractFailures: globalArchitectureContractFailures,
+    implementationSourceFailures: globalImplementationSourceFailures,
     codeQualityFailures: globalCodeQualityFailures,
     successes,
     logFilePath: masterLogPath,

@@ -136,6 +136,164 @@ test('verified VHDL wrapper rejects unsafe extra control input', () => {
   assert.match(plan.unsafeReasons.join('\n'), /mode_i/);
 });
 
+test('verified VHDL wrapper maps deterministic video timing config inputs', () => {
+  const syncComponent = {
+    ...component,
+    id: 'sync_generator',
+    name: 'sync_generator',
+    file: 'src/sync_generator.vhd',
+    responsibility: 'Generate VGA/video sync timing from configured active/front/sync/back windows.',
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 'hsync_o', mode: 'out' as const, type: 'std_logic', purpose: 'Horizontal sync.' },
+      { name: 'vsync_o', mode: 'out' as const, type: 'std_logic', purpose: 'Vertical sync.' },
+    ],
+  };
+  const verifiedContent = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity sync_generator_det_cfg is',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    h_active : in positive;',
+    '    h_front : in positive;',
+    '    h_sync : in positive;',
+    '    h_back : in positive;',
+    '    hsync : out std_logic;',
+    '    vsync : out std_logic',
+    '  );',
+    'end entity;',
+    'architecture rtl of sync_generator_det_cfg is begin',
+    "  hsync <= '0';",
+    "  vsync <= '0';",
+    'end architecture;',
+    '',
+  ].join('\n');
+  const candidate = makeCandidate(verifiedContent, 'sync_generator_det_cfg', syncComponent);
+  const plan = planVerifiedVhdlWrapper({ component: syncComponent, candidate });
+  assert.equal(plan.kind, 'wrapper_safe');
+  assert.equal(plan.portAssociations.h_active, '640');
+  assert.equal(plan.portAssociations.h_front, '16');
+  assert.equal(plan.portAssociations.h_sync, '96');
+  assert.equal(plan.portAssociations.h_back, '48');
+  assert.ok(plan.mismatches.some((entry) => entry.kind === 'verified_config_input_defaulted'));
+});
+
+test('capability normalization promotes video timing config ports before wrapper planning', () => {
+  const syncComponent = {
+    ...component,
+    id: 'sync_generator',
+    name: 'sync_generator',
+    file: 'src/sync_generator.vhd',
+    responsibility: 'Generate sync pulses from timing counters.',
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Broad placeholder input that sync generation does not consume.' },
+      { name: 'hsync_o', mode: 'out' as const, type: 'std_logic', purpose: 'Horizontal sync.' },
+      { name: 'vsync_o', mode: 'out' as const, type: 'std_logic', purpose: 'Vertical sync.' },
+    ],
+  };
+  const normalized = normalizeComponentContractForVerifiedCapability({
+    contract: { ...contract, components: [syncComponent] },
+    component: syncComponent,
+  });
+  assert.equal(normalized.audit.capability, 'video_timing');
+  for (const name of ['h_active', 'h_front', 'h_sync', 'h_back', 'v_active', 'v_front', 'v_sync', 'v_back']) {
+    assert.ok(normalized.component.ports.some((port) => port.name === name), `${name} should be promoted`);
+  }
+  const verifiedContent = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity sync_generator_det_cfg is',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    h_active : in positive;',
+    '    h_front : in positive;',
+    '    h_sync : in positive;',
+    '    h_back : in positive;',
+    '    v_active : in positive;',
+    '    v_front : in positive;',
+    '    v_sync : in positive;',
+    '    v_back : in positive;',
+    '    hsync_o : out std_logic;',
+    '    vsync_o : out std_logic',
+    '  );',
+    'end entity;',
+    'architecture rtl of sync_generator_det_cfg is begin',
+    "  hsync_o <= '0';",
+    "  vsync_o <= '0';",
+    'end architecture;',
+    '',
+  ].join('\n');
+  const candidate = makeCandidate(verifiedContent, 'sync_generator_det_cfg', normalized.component);
+  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({ component: normalized.component, candidate });
+  assert.notEqual(parameterCompatibility.kind, 'parameter_unsafe');
+  const plan = planVerifiedVhdlWrapper({ component: normalized.component, candidate, parameterCompatibility });
+  assert.equal(plan.kind, 'wrapper_safe');
+  assert.equal(plan.portAssociations.h_active, 'h_active');
+  assert.ok(plan.mismatches.some((entry) => entry.kind === 'approved_leaf_input_ignored' && entry.approvedName === 'data_i'));
+});
+
+test('capability normalization promotes program-counter redirect contract before wrapper planning', () => {
+  const pcComponent = {
+    ...component,
+    id: 'program_counter',
+    name: 'program_counter',
+    file: 'src/program_counter.vhd',
+    responsibility: 'Maintain the CPU program counter.',
+    ports: [
+      { name: 'clk', mode: 'in' as const, type: 'std_logic', purpose: 'Clock.' },
+      { name: 'rst', mode: 'in' as const, type: 'std_logic', purpose: 'Reset.' },
+      { name: 'enable_i', mode: 'in' as const, type: 'std_logic', purpose: 'Advance enable.' },
+      { name: 'data_i', mode: 'in' as const, type: 'std_logic_vector(7 downto 0)', purpose: 'Broad placeholder input not consumed by PC.' },
+    ],
+  };
+  const normalized = normalizeComponentContractForVerifiedCapability({
+    contract: { ...contract, components: [pcComponent] },
+    component: pcComponent,
+  });
+  assert.equal(normalized.audit.capability, 'program_counter');
+  assert.ok(normalized.component.ports.some((port) => port.name === 'redirect_pc_i'));
+  assert.ok(normalized.component.ports.some((port) => port.name === 'redirect_valid_i'));
+  const verifiedContent = [
+    'library ieee;',
+    'use ieee.std_logic_1164.all;',
+    'entity program_counter_det_cfg is',
+    '  generic (',
+    '    PC_WIDTH : positive := 32;',
+    '    RESET_VECTOR : natural := 0;',
+    '    INSTR_BYTES : positive := 4',
+    '  );',
+    '  port (',
+    '    clk : in std_logic;',
+    '    rst : in std_logic;',
+    '    sequential_advance : in std_logic;',
+    '    redirect_valid : in std_logic;',
+    '    redirect_pc : in std_logic_vector(PC_WIDTH-1 downto 0);',
+    '    pc_current : out std_logic_vector(PC_WIDTH-1 downto 0);',
+    '    pc_valid : out std_logic',
+    '  );',
+    'end entity;',
+    'architecture rtl of program_counter_det_cfg is begin',
+    '  pc_current <= redirect_pc;',
+    '  pc_valid <= redirect_valid;',
+    'end architecture;',
+    '',
+  ].join('\n');
+  const candidate = makeCandidate(verifiedContent, 'program_counter_det_cfg', normalized.component);
+  const parameterCompatibility = evaluateVerifiedVhdlParameterCompatibility({ component: normalized.component, candidate });
+  assert.notEqual(parameterCompatibility.kind, 'parameter_unsafe');
+  const plan = planVerifiedVhdlWrapper({ component: normalized.component, candidate, parameterCompatibility });
+  assert.equal(plan.kind, 'wrapper_safe');
+  assert.equal(plan.portAssociations.redirect_pc, 'redirect_pc_i');
+  assert.equal(plan.portAssociations.redirect_valid, 'redirect_valid_i');
+  assert.ok(plan.mismatches.some((entry) => entry.kind === 'approved_leaf_input_ignored' && entry.approvedName === 'data_i'));
+});
+
 test('verified VHDL wrapper semantically adapts UART RX deterministic wrapper ports', () => {
   const uartComponent = {
     ...component,

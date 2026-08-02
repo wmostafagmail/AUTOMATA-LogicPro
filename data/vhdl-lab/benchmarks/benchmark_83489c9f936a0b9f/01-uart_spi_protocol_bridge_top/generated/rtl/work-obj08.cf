@@ -1,0 +1,7 @@
+v 4
+file . "../testbench/tb_uart_spi_protocol_bridge_top.candidate-1.vhd" "b51bcae11a6f0a37f54027421ae67391b510b35b" "20260801200650.621":
+  entity tb_uart_spi_protocol_bridge_top at 1( 0) + 0 on 13;
+  architecture sim of tb_uart_spi_protocol_bridge_top at 8( 157) + 0 on 14;
+file . "uart_spi_protocol_bridge_top.adapter-candidate-1.vhd" "a347c33a5df9d858ca23a77e0f7047e1b6d7026f" "20260801200650.550":
+  entity uart_spi_protocol_bridge_top at 1( 0) + 0 on 11;
+  architecture rtl of uart_spi_protocol_bridge_top at 24( 552) + 0 on 12;

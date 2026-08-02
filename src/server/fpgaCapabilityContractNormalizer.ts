@@ -6,13 +6,16 @@ import type {
 import type { GoldenLeafInterfaceItem } from './fpgaGoldenLeafLibrary';
 import {
   classifyVerifiedPortRole,
+  isProgramCounterComponent,
   isRegisterFileComponent,
+  isSpiMasterComponent,
   isUartTransmitterComponent,
+  isVideoTimingComponent,
   type VerifiedPortRole,
 } from './fpgaVerifiedVhdlPortRoles';
 
 export type CapabilityContractNormalizationAudit = {
-  capability: 'uart_tx' | 'register_file' | 'none';
+  capability: 'uart_tx' | 'register_file' | 'spi_master' | 'program_counter' | 'video_timing' | 'none';
   componentId: string;
   addedPorts: string[];
   addedGenerics: string[];
@@ -65,6 +68,25 @@ function addPortIfMissing(params: {
   port: FpgaArchitecturePortContract;
 }) {
   const existing = findRolePort(params.component, params.role);
+  if (existing) {
+    params.audit.semanticMappings.push({ approvedPort: existing.name, role: params.role, status: 'resolved' });
+    return params.component;
+  }
+  params.audit.addedPorts.push(params.port.name);
+  params.audit.semanticMappings.push({ approvedPort: params.port.name, role: params.role, status: 'added' });
+  return {
+    ...params.component,
+    ports: [...params.component.ports, params.port],
+  };
+}
+
+function addNamedPortIfMissing(params: {
+  component: FpgaArchitectureComponentContract;
+  audit: CapabilityContractNormalizationAudit;
+  role: VerifiedPortRole;
+  port: FpgaArchitecturePortContract;
+}) {
+  const existing = params.component.ports.find((port) => normalizeName(port.name) === normalizeName(params.port.name));
   if (existing) {
     params.audit.semanticMappings.push({ approvedPort: existing.name, role: params.role, status: 'resolved' });
     return params.component;
@@ -254,6 +276,112 @@ function normalizeRegisterFile(params: {
   return { contract, component };
 }
 
+function normalizeSpiMaster(params: {
+  contract: FpgaArchitectureContract;
+  component: FpgaArchitectureComponentContract;
+  audit: CapabilityContractNormalizationAudit;
+}) {
+  let component = params.component;
+  component = addGenericIfMissing({ component, audit: params.audit, name: 'DATA_WIDTH', type: 'positive', defaultValue: '8' });
+  component = addGenericIfMissing({ component, audit: params.audit, name: 'STATUS_WIDTH', type: 'positive', defaultValue: '32' });
+  component = addPortIfMissing({
+    component,
+    audit: params.audit,
+    role: 'serial_rx',
+    port: { name: 'miso_i', mode: 'in', type: 'std_logic', purpose: 'SPI master serial receive input from the selected slave (MISO).' },
+  });
+  component = addPortIfMissing({
+    component,
+    audit: params.audit,
+    role: 'valid',
+    port: { name: 'tx_valid_i', mode: 'in', type: 'std_logic', purpose: 'One-cycle command-valid input for launching an SPI transfer.' },
+  });
+  let contract = replaceComponent(params.contract, component);
+  contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: 'miso_i', actual: "'0'" });
+  contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: 'tx_valid_i', actual: "'1'" });
+  contract = ensureGenericMap({ contract, component, name: 'DATA_WIDTH', value: '8' });
+  contract = ensureGenericMap({ contract, component, name: 'STATUS_WIDTH', value: '32' });
+  params.audit.assumptions.push(`CAPABILITY_CONTRACT_NORMALIZATION component=${component.id} capability=spi_master exposed required serial receive and command-valid roles.`);
+  return { contract, component };
+}
+
+function normalizeProgramCounter(params: {
+  contract: FpgaArchitectureContract;
+  component: FpgaArchitectureComponentContract;
+  audit: CapabilityContractNormalizationAudit;
+}) {
+  let component = params.component;
+  component = addGenericIfMissing({ component, audit: params.audit, name: 'PC_WIDTH', type: 'positive', defaultValue: '32' });
+  component = addGenericIfMissing({ component, audit: params.audit, name: 'RESET_VECTOR', type: 'natural', defaultValue: '0' });
+  component = addGenericIfMissing({ component, audit: params.audit, name: 'INSTR_BYTES', type: 'positive', defaultValue: '4' });
+  component = addNamedPortIfMissing({
+    component,
+    audit: params.audit,
+    role: 'address',
+    port: { name: 'redirect_pc_i', mode: 'in', type: 'std_logic_vector(PC_WIDTH-1 downto 0)', purpose: 'Program-counter redirect target address, inactive unless redirect_valid_i is asserted.' },
+  });
+  component = addNamedPortIfMissing({
+    component,
+    audit: params.audit,
+    role: 'valid',
+    port: { name: 'redirect_valid_i', mode: 'in', type: 'std_logic', purpose: 'Program-counter redirect request valid; low means sequential PC advance.' },
+  });
+  component = addNamedPortIfMissing({
+    component,
+    audit: params.audit,
+    role: 'enable',
+    port: { name: 'sequential_advance_i', mode: 'in', type: 'std_logic', purpose: 'Enables normal PC increment by INSTR_BYTES when no redirect is active.' },
+  });
+  component = addNamedPortIfMissing({
+    component,
+    audit: params.audit,
+    role: 'address',
+    port: { name: 'pc_o', mode: 'out', type: 'std_logic_vector(PC_WIDTH-1 downto 0)', purpose: 'Current program counter value.' },
+  });
+  let contract = replaceComponent(params.contract, component);
+  contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: 'redirect_pc_i', actual: "(others => '0')" });
+  contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: 'redirect_valid_i', actual: "'0'" });
+  contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: 'sequential_advance_i', actual: "'1'" });
+  contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: 'pc_o', actual: 'open' });
+  contract = ensureGenericMap({ contract, component, name: 'PC_WIDTH', value: '32' });
+  contract = ensureGenericMap({ contract, component, name: 'RESET_VECTOR', value: '0' });
+  contract = ensureGenericMap({ contract, component, name: 'INSTR_BYTES', value: '4' });
+  params.audit.assumptions.push(`CAPABILITY_CONTRACT_NORMALIZATION component=${component.id} capability=program_counter exposed redirect, sequential advance, and PC output roles.`);
+  return { contract, component };
+}
+
+function normalizeVideoTiming(params: {
+  contract: FpgaArchitectureContract;
+  component: FpgaArchitectureComponentContract;
+  audit: CapabilityContractNormalizationAudit;
+}) {
+  let component = params.component;
+  const timingPorts = [
+    ['h_active', '640'],
+    ['h_front', '16'],
+    ['h_sync', '96'],
+    ['h_back', '48'],
+    ['v_active', '480'],
+    ['v_front', '10'],
+    ['v_sync', '2'],
+    ['v_back', '33'],
+  ] as const;
+  for (const [portName, _value] of timingPorts) {
+    component = addNamedPortIfMissing({
+      component,
+      audit: params.audit,
+      role: 'video_timing_config',
+      port: { name: portName, mode: 'in', type: 'positive', purpose: 'VGA 640x480 timing configuration input.' },
+    });
+  }
+  let contract = replaceComponent(params.contract, component);
+  for (const [portName, value] of timingPorts) {
+    contract = ensureInstanceMap({ contract, component, audit: params.audit, formal: portName, actual: value });
+  }
+  params.audit.assumptions.push(`CAPABILITY_CONTRACT_NORMALIZATION component=${component.id} capability=video_timing applied VGA_640x480 timing config defaults.`);
+  return { contract, component };
+}
+
 export function normalizeComponentContractForVerifiedCapability(params: {
   contract: FpgaArchitectureContract;
   component: FpgaArchitectureComponentContract;
@@ -283,6 +411,42 @@ export function normalizeComponentContractForVerifiedCapability(params: {
   if (isRegisterFileComponent(params.component)) {
     audit.capability = 'register_file';
     const normalized = normalizeRegisterFile({ contract: params.contract, component: params.component, audit });
+    return {
+      ...normalized,
+      audit,
+      contract: {
+        ...normalized.contract,
+        assumptions: [...(normalized.contract.assumptions || []), ...audit.assumptions].slice(0, 64),
+      },
+    };
+  }
+  if (isSpiMasterComponent(params.component)) {
+    audit.capability = 'spi_master';
+    const normalized = normalizeSpiMaster({ contract: params.contract, component: params.component, audit });
+    return {
+      ...normalized,
+      audit,
+      contract: {
+        ...normalized.contract,
+        assumptions: [...(normalized.contract.assumptions || []), ...audit.assumptions].slice(0, 64),
+      },
+    };
+  }
+  if (isProgramCounterComponent(params.component)) {
+    audit.capability = 'program_counter';
+    const normalized = normalizeProgramCounter({ contract: params.contract, component: params.component, audit });
+    return {
+      ...normalized,
+      audit,
+      contract: {
+        ...normalized.contract,
+        assumptions: [...(normalized.contract.assumptions || []), ...audit.assumptions].slice(0, 64),
+      },
+    };
+  }
+  if (isVideoTimingComponent(params.component)) {
+    audit.capability = 'video_timing';
+    const normalized = normalizeVideoTiming({ contract: params.contract, component: params.component, audit });
     return {
       ...normalized,
       audit,

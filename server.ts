@@ -23,6 +23,7 @@ import { validateGhdlInstallRequest } from './src/server/ghdlInstallPolicy.ts';
 import { createProjectRouteContext } from './src/server/projectRouteHandlers.ts';
 import { buildPreparedRemoteExportPreview } from './src/server/remoteExportPreview.ts';
 import { createSessionSecurityContext } from './src/server/sessionSecurity.ts';
+import { createVhdlImprovementLabRouteContext } from './src/server/vhdlImprovementLabRouteHandlers.ts';
 import { prepareVhdlSkillOrchestratorPrompt } from './src/server/vhdlSkillOrchestrator.ts';
 import {
   buildFpgaArchitectCompactRetryPrompt,
@@ -36,7 +37,7 @@ import {
 } from './src/server/fpgaArchitect.ts';
 import { validateGeneratedVhdlWithGhdl } from './src/server/generatedVhdlValidation.ts';
 import {
-  buildOllamaGenerationOptions,
+  buildOllamaGenerationOptionsForModel,
   buildOpenAiCompatibleGenerationOptions,
   type ModelGenerationProfile,
 } from './src/server/modelGenerationProfiles.ts';
@@ -59,7 +60,7 @@ import { analyzeProtocolFrames, analyzeWaveformHazards, formatSignalValue, getSi
 // Load environment variables
 dotenv.config();
 
-type LLMProviderId = 'gemini' | 'ollama' | 'mtplx' | 'openai' | 'anthropic' | 'openrouter' | 'groq' | 'mistral';
+type LLMProviderId = 'gemini' | 'ollama' | 'unsloth' | 'mtplx' | 'openai' | 'anthropic' | 'openrouter' | 'groq' | 'mistral';
 
 type ProviderDescriptor = {
   id: LLMProviderId;
@@ -371,6 +372,7 @@ function scoreOllamaModel(modelId: string) {
 }
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+const UNSLOTH_BASE_URL = process.env.UNSLOTH_BASE_URL || 'http://127.0.0.1:8001';
 const MTPLX_BASE_URL = process.env.MTPLX_BASE_URL || 'http://127.0.0.1:8000';
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 const OPENAI_BASE_URL = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
@@ -392,6 +394,7 @@ const STATIC_PROVIDER_MODELS: Record<LLMProviderId, ProviderModel[]> = {
     { id: 'llama3.1:latest', label: 'Llama 3.1' },
     { id: 'codellama:latest', label: 'Code Llama' },
   ],
+  unsloth: [],
   mtplx: [
     { id: 'mtplx-qwen36-27b-optimized-quality', label: 'MTPLX Qwen36 27B Optimized Quality' },
     { id: 'mtplx-qwen36-27b-optimized-speed', label: 'MTPLX Qwen36 27B Optimized Speed' },
@@ -433,6 +436,24 @@ function withStaticFallback(provider: LLMProviderId, models: ProviderModel[]) {
   return models.length > 0 ? sortProviderModels(models) : sortProviderModels(STATIC_PROVIDER_MODELS[provider] || []);
 }
 
+function normalizeProviderId(provider: string): LLMProviderId | null {
+  const normalized = String(provider || '').trim().toLowerCase();
+  if (normalized === 'unslouth') return 'unsloth';
+  return ([
+    'gemini',
+    'ollama',
+    'unsloth',
+    'mtplx',
+    'openai',
+    'anthropic',
+    'openrouter',
+    'groq',
+    'mistral',
+  ] as LLMProviderId[]).includes(normalized as LLMProviderId)
+    ? normalized as LLMProviderId
+    : null;
+}
+
 function getProviderDescriptors(): ProviderDescriptor[] {
   return [
     {
@@ -440,6 +461,13 @@ function getProviderDescriptors(): ProviderDescriptor[] {
       label: 'Ollama Local',
       enabled: true,
       reason: `Uses ${OLLAMA_BASE_URL}`,
+      deployment: 'local',
+    },
+    {
+      id: 'unsloth',
+      label: 'Unsloth Local',
+      enabled: true,
+      reason: `Uses ${UNSLOTH_BASE_URL}`,
       deployment: 'local',
     },
     {
@@ -557,6 +585,13 @@ function getMtplxHeaders() {
   };
 }
 
+function getUnslothHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    ...(process.env.UNSLOTH_API_KEY ? { Authorization: `Bearer ${process.env.UNSLOTH_API_KEY}` } : {}),
+  };
+}
+
 function extractOpenAICompatibleMessageContent(data: any) {
   const rawContent = data?.choices?.[0]?.message?.content;
   if (typeof rawContent === 'string') {
@@ -590,6 +625,15 @@ function shouldDisableOllamaThinking(modelId: string) {
   return id.includes('thinking') || id.includes(':think') || id.includes('/think');
 }
 
+function isLikelyOllamaCompletionOnlyModel(modelId: string) {
+  const id = modelId.toLowerCase();
+  return (
+    id.includes('gguf') ||
+    id.includes('completion') ||
+    id.includes('mradermacher/qwen-32b')
+  ) && !isLikelyOllamaChatModel(id);
+}
+
 async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSignal, generationProfile?: ModelGenerationProfile) {
   const data = await fetchJson(`${OLLAMA_BASE_URL}/api/generate`, {
     method: 'POST',
@@ -599,7 +643,7 @@ async function runOllamaGenerate(model: string, prompt: string, signal?: AbortSi
       model,
       prompt,
       stream: false,
-      ...buildOllamaGenerationOptions(generationProfile),
+      ...buildOllamaGenerationOptionsForModel(generationProfile, model),
       ...(shouldDisableOllamaThinking(model) ? { think: false } : {}),
     }),
   });
@@ -639,7 +683,7 @@ async function runOllamaChat(model: string, prompt: string, signal?: AbortSignal
         { role: 'user', content: prompt },
       ],
       stream: false,
-      ...buildOllamaGenerationOptions(generationProfile),
+      ...buildOllamaGenerationOptionsForModel(generationProfile, model),
       ...(shouldDisableOllamaThinking(model) ? { think: false } : {}),
     }),
   });
@@ -1512,15 +1556,42 @@ async function ensureDirectoryPath(targetPath: string, label = 'Directory') {
 }
 
 async function listProviderModels(provider: LLMProviderId): Promise<ProviderModel[]> {
-  switch (provider) {
+  const normalizedProvider = normalizeProviderId(provider) || provider;
+  switch (normalizedProvider) {
     case 'ollama': {
       const data = await fetchJson(`${OLLAMA_BASE_URL}/api/tags`);
       const models = Array.isArray(data.models) ? data.models : [];
-      return withStaticFallback(provider, models
+      return withStaticFallback(normalizedProvider, models
         .map((model: any) => ({
           id: model.name,
           label: model.name,
         }))
+        .filter((model: ProviderModel) => !isLikelyOllamaEmbeddingModel(model.id))
+        .sort((left: ProviderModel, right: ProviderModel) => {
+          const scoreDelta = scoreOllamaModel(right.id) - scoreOllamaModel(left.id);
+          return scoreDelta || left.label.localeCompare(right.label);
+        }));
+    }
+    case 'unsloth': {
+      const data = await fetchJsonWithFallback([
+        `${UNSLOTH_BASE_URL}/v1/models`,
+        `${UNSLOTH_BASE_URL}/models`,
+      ], {
+        headers: getUnslothHeaders(),
+      });
+      const models = Array.isArray(data)
+        ? data
+        : Array.isArray(data.data)
+          ? data.data
+          : Array.isArray(data.models)
+            ? data.models
+            : [];
+      return withStaticFallback(normalizedProvider, models
+        .map((model: any) => ({
+          id: model.id || model.name,
+          label: model.name || model.id,
+        }))
+        .filter((model: ProviderModel) => Boolean(model.id))
         .filter((model: ProviderModel) => !isLikelyOllamaEmbeddingModel(model.id))
         .sort((left: ProviderModel, right: ProviderModel) => {
           const scoreDelta = scoreOllamaModel(right.id) - scoreOllamaModel(left.id);
@@ -1541,7 +1612,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
           : Array.isArray(data.models)
             ? data.models
             : [];
-      return withStaticFallback(provider, models
+      return withStaticFallback(normalizedProvider, models
         .map((model: any) => ({
           id: model.id || model.name,
           label: model.name || model.id,
@@ -1553,7 +1624,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
       if (!process.env.GEMINI_API_KEY) return sortProviderModels(STATIC_PROVIDER_MODELS.gemini);
       const data = await fetchJson(`${GEMINI_BASE_URL}/models?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`);
       const models = Array.isArray(data.models) ? data.models : [];
-      return withStaticFallback(provider, models
+      return withStaticFallback(normalizedProvider, models
         .filter((model: any) => typeof model.name === 'string' && model.name.includes('models/'))
         .map((model: any) => {
           const id = String(model.name).replace(/^models\//, '');
@@ -1570,7 +1641,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
         headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
       });
       const models = Array.isArray(data.data) ? data.data : [];
-      return withStaticFallback(provider, models
+      return withStaticFallback(normalizedProvider, models
         .map((model: any) => ({ id: model.id, label: model.id }))
         .sort((left: ProviderModel, right: ProviderModel) => left.label.localeCompare(right.label)));
     }
@@ -1583,7 +1654,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
         },
       });
       const models = Array.isArray(data.data) ? data.data : [];
-      return withStaticFallback(provider, models.map((model: any) => ({
+      return withStaticFallback(normalizedProvider, models.map((model: any) => ({
         id: model.id,
         label: model.display_name || model.id,
       })));
@@ -1594,7 +1665,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
         headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` },
       });
       const models = Array.isArray(data.data) ? data.data : [];
-      return withStaticFallback(provider, models.map((model: any) => ({
+      return withStaticFallback(normalizedProvider, models.map((model: any) => ({
         id: model.id,
         label: model.name || model.id,
       })));
@@ -1605,7 +1676,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
         headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
       });
       const models = Array.isArray(data.data) ? data.data : [];
-      return withStaticFallback(provider, models.map((model: any) => ({
+      return withStaticFallback(normalizedProvider, models.map((model: any) => ({
         id: model.id,
         label: model.id,
       })));
@@ -1616,7 +1687,7 @@ async function listProviderModels(provider: LLMProviderId): Promise<ProviderMode
         headers: { Authorization: `Bearer ${process.env.MISTRAL_API_KEY}` },
       });
       const models = Array.isArray(data.data) ? data.data : [];
-      return withStaticFallback(provider, models.map((model: any) => ({
+      return withStaticFallback(normalizedProvider, models.map((model: any) => ({
         id: model.id,
         label: model.name || model.id,
       })));
@@ -1634,7 +1705,8 @@ async function runModelAnalysis(params: {
   signal?: AbortSignal;
   generationProfile?: ModelGenerationProfile;
 }): Promise<AiRunResult> {
-  const { ai, provider, model, prompt, signal, generationProfile } = params;
+  const { ai, model, prompt, signal, generationProfile } = params;
+  const provider = normalizeProviderId(params.provider) || params.provider;
   const startedAt = Date.now();
   const finalizeResult = (
     text: string,
@@ -1697,20 +1769,19 @@ async function runModelAnalysis(params: {
         throw new Error(`The selected Ollama model "${model}" appears to be an embedding or reranking model, not a text-generation model. Choose a chat/coder model instead.`);
       }
       try {
-        const strategies = isLikelyOllamaChatModel(model)
+        const strategies: Array<{ endpoint: string; run: () => ReturnType<typeof runOllamaGenerate> }> = isLikelyOllamaChatModel(model)
           ? [
-              () => runOllamaChat(model, prompt, signal, generationProfile),
-              () => runOllamaGenerate(model, prompt, signal, generationProfile),
+              { endpoint: '/api/chat', run: () => runOllamaChat(model, prompt, signal, generationProfile) },
+              { endpoint: '/api/generate', run: () => runOllamaGenerate(model, prompt, signal, generationProfile) },
             ]
-          : [
-              () => runOllamaGenerate(model, prompt, signal, generationProfile),
-              () => runOllamaChat(model, prompt, signal, generationProfile),
-            ];
+          : [{ endpoint: '/api/generate', run: () => runOllamaGenerate(model, prompt, signal, generationProfile) }];
 
         let lastError: unknown = null;
+        const attemptedEndpoints: string[] = [];
         for (const attempt of strategies) {
           try {
-            const result = await attempt();
+            attemptedEndpoints.push(attempt.endpoint);
+            const result = await attempt.run();
             return finalizeResult(result.text, result.usage);
           } catch (error) {
             if (isAbortError(error)) {
@@ -1719,16 +1790,67 @@ async function runModelAnalysis(params: {
             lastError = error;
           }
         }
-        throw lastError instanceof Error ? lastError : new Error(`Ollama text generation failed for model "${model}".`);
+        const errorMessage = lastError instanceof Error
+          ? lastError.message
+          : String(lastError || `Ollama text generation failed for model "${model}".`);
+        throw new Error(`${errorMessage} Attempted endpoints: ${attemptedEndpoints.join(', ')}.`);
       } catch (error: any) {
+        const originalMessage = String(error?.message || error || '');
+        const apiReachable = await canReachOllamaApi();
+        if (
+          apiReachable
+          && generationProfile?.id === 'contract_json'
+          && /fetch failed|500|internal server error|socket hang up|terminated|timed out|timeout|cancel task|other side closed/i.test(originalMessage)
+        ) {
+          throw new Error([
+            'model_generation_timeout: model_output_budget_exhausted',
+            `Ollama reached ${OLLAMA_BASE_URL}, but contract_json generation did not complete for model "${model}".`,
+            `Prompt chars: ${prompt.length}. Requested output tokens: ${generationProfile.maxOutputTokens}.`,
+            `Original error: ${originalMessage}`,
+            isLikelyOllamaCompletionOnlyModel(model)
+              ? 'The model appears completion-only, so only /api/generate was attempted.'
+              : 'The model appears chat-capable, so chat/generate fallback was attempted.',
+            'Use a reduced contract profile or app-owned Architecture Contract fallback before counting this as a design failure.',
+          ].join(' '));
+        }
         if (isLikelyConnectivityError(error)) {
-          const apiReachable = await canReachOllamaApi();
           if (apiReachable) {
             throw new Error(
-              `Ollama is reachable at ${OLLAMA_BASE_URL}, but text generation failed for model "${model}" across both chat/generate attempts. Check that the model is fully available for chat/completion and try the request again. Original error: ${String(error?.message || error)}`
+              `Ollama is reachable at ${OLLAMA_BASE_URL}, but text generation failed for model "${model}". Check that the model is fully available for text completion and try the request again. Original error: ${String(error?.message || error)}`
             );
           }
           throw new Error(`Ollama Local is selected, but ${OLLAMA_BASE_URL} is unreachable. Start the Ollama service or choose a different provider/model.`);
+        }
+        throw error;
+      }
+    }
+    case 'unsloth': {
+      try {
+        const data = await fetchJsonWithFallback([
+          `${UNSLOTH_BASE_URL}/v1/chat/completions`,
+          `${UNSLOTH_BASE_URL}/chat/completions`,
+        ], {
+          method: 'POST',
+          signal,
+          headers: getUnslothHeaders(),
+          body: JSON.stringify({
+            model,
+            messages: [{ role: 'user', content: prompt }],
+            ...buildOpenAiCompatibleGenerationOptions(generationProfile),
+          }),
+        });
+        const responseText = extractOpenAICompatibleMessageContent(data);
+        if (!responseText) {
+          throw new Error(`Unsloth returned no generated text for model "${model}".`);
+        }
+        return finalizeResult(responseText, {
+          inputTokens: data?.usage?.prompt_tokens,
+          outputTokens: data?.usage?.completion_tokens,
+          totalTokens: data?.usage?.total_tokens,
+        });
+      } catch (error: any) {
+        if (isLikelyConnectivityError(error)) {
+          throw new Error(`Unsloth Local is selected, but ${UNSLOTH_BASE_URL} is unreachable. Start the Unsloth-compatible OpenAI server or update UNSLOTH_BASE_URL.`);
         }
         throw error;
       }
@@ -1922,7 +2044,7 @@ async function bootstrap() {
       console.error('Error initializing Gemini client:', e);
     }
   } else {
-    console.warn('GEMINI_API_KEY environment variable is not defined. Gemini is disabled; AI Assist defaults to available local providers such as Ollama.');
+    console.warn('GEMINI_API_KEY environment variable is not defined. Gemini is disabled; AI Assist defaults to available local providers such as Ollama, Unsloth, or MTPLX.');
   }
   console.log('Bootstrap: building route contexts.');
   const {
@@ -2028,6 +2150,9 @@ async function bootstrap() {
     isAbortError,
     staticProviderModels: STATIC_PROVIDER_MODELS,
   });
+  const vhdlLabRoutes = createVhdlImprovementLabRouteContext({
+    getRequiredSession,
+  });
 
   // --- API ROUTES ---
   console.log('Bootstrap: registering API routes.');
@@ -2096,6 +2221,70 @@ async function bootstrap() {
   app.post('/api/ai/fpga-architect-loop', fpgaArchitectStressLoopHandler);
 
   app.post('/api/ai/code-chat', codeChatHandler);
+
+  app.get('/api/vhdl-lab/overview', vhdlLabRoutes.getOverviewHandler);
+  app.get('/api/vhdl-lab/providers', vhdlLabRoutes.getProvidersHandler);
+  app.post('/api/vhdl-lab/providers', vhdlLabRoutes.createProviderHandler);
+  app.post('/api/vhdl-lab/providers/:id/health', vhdlLabRoutes.providerHealthHandler);
+  app.get('/api/vhdl-lab/models', vhdlLabRoutes.getModelsHandler);
+  app.post('/api/vhdl-lab/models/discover', vhdlLabRoutes.discoverModelsHandler);
+  app.post('/api/vhdl-lab/models/:id/test', vhdlLabRoutes.testModelHandler);
+  app.get('/api/vhdl-lab/contracts', vhdlLabRoutes.getContractsHandler);
+  app.get('/api/vhdl-lab/preset-contracts', vhdlLabRoutes.getPresetContractsHandler);
+  app.post('/api/vhdl-lab/preset-contracts/:id/create-contract', vhdlLabRoutes.createPresetContractHandler);
+  app.post('/api/vhdl-lab/contracts', vhdlLabRoutes.createContractHandler);
+  app.get('/api/vhdl-lab/contracts/:id', vhdlLabRoutes.getContractHandler);
+  app.put('/api/vhdl-lab/contracts/:id', vhdlLabRoutes.notYetWorkerHandler);
+  app.post('/api/vhdl-lab/contracts/:id/validate', vhdlLabRoutes.validateContractHandler);
+  app.post('/api/vhdl-lab/contracts/:id/freeze', vhdlLabRoutes.freezeContractHandler);
+  app.get('/api/vhdl-lab/contracts/:id/diff', vhdlLabRoutes.diffContractHandler);
+  app.get('/api/vhdl-lab/runs', vhdlLabRoutes.getRunsHandler);
+  app.post('/api/vhdl-lab/runs', vhdlLabRoutes.createRunHandler);
+  app.get('/api/vhdl-lab/runs/:id', vhdlLabRoutes.getRunHandler);
+  app.post('/api/vhdl-lab/runs/:id/cancel', vhdlLabRoutes.cancelRunHandler);
+  app.post('/api/vhdl-lab/runs/:id/retry', vhdlLabRoutes.retryRunHandler);
+  app.get('/api/vhdl-lab/runs/:id/events', vhdlLabRoutes.runEventsHandler);
+  app.get('/api/vhdl-lab/runs/:id/artifacts', vhdlLabRoutes.runArtifactsHandler);
+  app.get('/api/vhdl-lab/prompts', vhdlLabRoutes.promptsHandler);
+  app.post('/api/vhdl-lab/prompts', vhdlLabRoutes.notYetWorkerHandler);
+  app.get('/api/vhdl-lab/prompts/:id/versions', vhdlLabRoutes.promptVersionsHandler);
+  app.post('/api/vhdl-lab/prompts/:id/optimize', vhdlLabRoutes.optimizePromptHandler);
+  app.post('/api/vhdl-lab/prompt-versions/:id/ab-test', vhdlLabRoutes.promptAbTestHandler);
+  app.post('/api/vhdl-lab/prompt-versions/:id/promote', vhdlLabRoutes.promotePromptHandler);
+  app.post('/api/vhdl-lab/prompt-versions/:id/reject', vhdlLabRoutes.rejectPromptHandler);
+  app.get('/api/vhdl-lab/datasets', vhdlLabRoutes.datasetsHandler);
+  app.post('/api/vhdl-lab/datasets/build', vhdlLabRoutes.buildDatasetHandler);
+  app.get('/api/vhdl-lab/datasets/:id', vhdlLabRoutes.datasetDetailHandler);
+  app.post('/api/vhdl-lab/datasets/:id/audit', vhdlLabRoutes.datasetAuditHandler);
+  app.post('/api/vhdl-lab/datasets/:id/freeze', vhdlLabRoutes.datasetFreezeHandler);
+  app.get('/api/vhdl-lab/datasets/:id/download', vhdlLabRoutes.datasetDownloadHandler);
+  app.get('/api/vhdl-lab/training-runs', vhdlLabRoutes.trainingRunsHandler);
+  app.post('/api/vhdl-lab/training-runs', vhdlLabRoutes.createTrainingRunHandler);
+  app.get('/api/vhdl-lab/training-runs/:id', vhdlLabRoutes.getTrainingRunHandler);
+  app.post('/api/vhdl-lab/training-runs/:id/cancel', vhdlLabRoutes.cancelTrainingRunHandler);
+  app.post('/api/vhdl-lab/training-runs/:id/resume', vhdlLabRoutes.notYetWorkerHandler);
+  app.get('/api/vhdl-lab/training-runs/:id/checkpoints', vhdlLabRoutes.trainingCheckpointsHandler);
+  app.post('/api/vhdl-lab/checkpoints/:id/benchmark', vhdlLabRoutes.benchmarkCheckpointHandler);
+  app.post('/api/vhdl-lab/checkpoints/:id/promotion-benchmark', vhdlLabRoutes.promotionBenchmarkCheckpointHandler);
+  app.post('/api/vhdl-lab/checkpoints/:id/promote', vhdlLabRoutes.promoteCheckpointHandler);
+  app.post('/api/vhdl-lab/benchmarks', vhdlLabRoutes.queueBenchmarkHandler);
+  app.get('/api/vhdl-lab/diagnostics', vhdlLabRoutes.diagnosticsHandler);
+  app.post('/api/vhdl-lab/diagnostics/self-test', vhdlLabRoutes.selfTestHandler);
+  app.get('/api/vhdl-lab/worker/status', vhdlLabRoutes.workerStatusHandler);
+
+  app.use('/api', (req, res) => {
+    res.status(404).json({
+      error: `API route not found: ${req.method} ${req.originalUrl}`,
+    });
+  });
+
+  app.use('/api', (error: any, req: any, res: any, _next: any) => {
+    const message = String(error?.message || error || 'Internal Server Error');
+    console.error(`API error for ${req.method} ${req.originalUrl}:`, error);
+    res.status(error?.statusCode || error?.status || 500).json({
+      error: message,
+    });
+  });
 
   // --- VITE MIDDLEWARE OR STATIC SERVER ---
 

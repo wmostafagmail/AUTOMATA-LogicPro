@@ -60,7 +60,11 @@ function findClock(component: FpgaArchitectureComponentContract) {
 }
 
 function findReset(component: FpgaArchitectureComponentContract) {
-  return component.ports.find((port) => isScalarLogic(port.type) && /^(?:rst|reset|rst_i|reset_i)$/i.test(port.name))?.name || null;
+  return component.ports.find((port) => isScalarLogic(port.type) && /^(?:rst|reset|rst_i|reset_i|rst_n|reset_n|reset_ni|aresetn)$/i.test(port.name))?.name || null;
+}
+
+function resetAssertedExpression(resetName: string) {
+  return /(?:_n$|_ni$|n$|aresetn|resetn)/i.test(resetName) ? `${resetName} = '0'` : `${resetName} = '1'`;
 }
 
 function renderDefaultOutputAssignments(component: FpgaArchitectureComponentContract, comment: string) {
@@ -193,6 +197,121 @@ function renderPixelOrFramebufferTemplate(
   };
 }
 
+function renderSampleInputStageTemplate(
+  contract: FpgaArchitectureContract,
+  component: FpgaArchitectureComponentContract,
+  skeleton: string,
+): DeterministicLeafTemplateResult | null {
+  const text = roleText(component);
+  if (!/(?:sample_input|sample.*stage|input_stage|adc.*capture|stream.*input)/.test(text)) return null;
+  const clk = findClock(component);
+  const rst = findReset(component);
+  if (!clk || !rst) return null;
+  const dataIn = inputPorts(component).find((port) => vectorRange(port.type) && /(?:sample|data|payload|din|input)/i.test(port.name));
+  const dataOut = outputPorts(component).find((port) => vectorRange(port.type) && /(?:sample|data|payload|dout|output)/i.test(port.name));
+  const validIn = inputPorts(component).find((port) => isScalarLogic(port.type) && /(?:valid|strobe|enable|en)/i.test(port.name));
+  const validOut = outputPorts(component).find((port) => isScalarLogic(port.type) && /valid/i.test(port.name));
+  const readyOut = outputPorts(component).find((port) => isScalarLogic(port.type) && /ready/i.test(port.name));
+  if (!dataOut && !validOut && !readyOut) return null;
+  const declarations = [
+    ...(dataOut ? [`  signal ${dataOut.name}_r : ${dataOut.type} := ${defaultVhdlValue(dataOut.type)};`] : []),
+    ...(validOut ? [`  signal ${validOut.name}_r : ${validOut.type} := '0';`] : []),
+  ];
+  const captureCondition = validIn ? `${validIn.name} = '1'` : 'true';
+  const statements = [
+    '  -- DETERMINISTIC_TEMPLATE: sample/stream input boundary with registered payload and valid timing.',
+    `  ${component.id}_sample_input_p : process(${clk})`,
+    '  begin',
+    `    if rising_edge(${clk}) then`,
+    `      if ${resetAssertedExpression(rst)} then`,
+    ...(dataOut ? [`        ${dataOut.name}_r <= ${defaultVhdlValue(dataOut.type)};`] : []),
+    ...(validOut ? [`        ${validOut.name}_r <= '0';`] : []),
+    '      else',
+    ...(validOut ? [`        ${validOut.name}_r <= '0';`] : []),
+    `        if ${captureCondition} then`,
+    ...(dataOut ? [`          ${dataOut.name}_r <= ${dataIn ? dataIn.name : defaultVhdlValue(dataOut.type)};`] : []),
+    ...(validOut ? [`          ${validOut.name}_r <= '1';`] : []),
+    '        end if;',
+    '      end if;',
+    '    end if;',
+    '  end process;',
+    ...(dataOut ? [`  ${dataOut.name} <= ${dataOut.name}_r;`] : []),
+    ...(validOut ? [`  ${validOut.name} <= ${validOut.name}_r;`] : []),
+    ...(readyOut ? [`  ${readyOut.name} <= '1';`] : []),
+    ...outputPorts(component)
+      .filter((port) => port.name !== dataOut?.name && port.name !== validOut?.name && port.name !== readyOut?.name)
+      .map((port) => `  ${port.name} <= ${defaultVhdlValue(port.type)};`),
+  ];
+  return {
+    templateId: 'deterministic_sample_input_stage',
+    reason: 'Registered sample/stream input stage with ready/valid-safe defaults.',
+    content: replaceSkeletonRegions(skeleton || renderLeafSkeleton(contract, component), declarations, statements),
+  };
+}
+
+function renderStreamBoundaryTemplate(
+  contract: FpgaArchitectureContract,
+  component: FpgaArchitectureComponentContract,
+  skeleton: string,
+): DeterministicLeafTemplateResult | null {
+  const text = roleText(component);
+  if (!/(?:ingress|egress|stream|axis|axi_stream|skid|packet)/.test(text)) return null;
+  const clk = findClock(component);
+  const rst = findReset(component);
+  if (!clk || !rst) return null;
+  const dataIn = inputPorts(component).find((port) => vectorRange(port.type) && /(?:data|payload|tdata|sample|din|input)/i.test(port.name));
+  const dataOut = outputPorts(component).find((port) => vectorRange(port.type) && /(?:data|payload|tdata|sample|dout|output)/i.test(port.name));
+  const validIn = inputPorts(component).find((port) => isScalarLogic(port.type) && /(?:valid|tvalid)/i.test(port.name));
+  const readyIn = inputPorts(component).find((port) => isScalarLogic(port.type) && /(?:ready|tready)/i.test(port.name));
+  const lastIn = inputPorts(component).find((port) => isScalarLogic(port.type) && /(?:last|tlast)/i.test(port.name));
+  const validOut = outputPorts(component).find((port) => isScalarLogic(port.type) && /(?:valid|tvalid)/i.test(port.name));
+  const readyOut = outputPorts(component).find((port) => isScalarLogic(port.type) && /(?:ready|tready)/i.test(port.name));
+  const lastOut = outputPorts(component).find((port) => isScalarLogic(port.type) && /(?:last|tlast)/i.test(port.name));
+  if (!dataOut && !validOut && !readyOut && !lastOut) return null;
+  const declarations = [
+    ...(dataOut ? [`  signal ${dataOut.name}_r : ${dataOut.type} := ${defaultVhdlValue(dataOut.type)};`] : []),
+    ...(validOut ? [`  signal ${validOut.name}_r : std_logic := '0';`] : []),
+    ...(lastOut ? [`  signal ${lastOut.name}_r : std_logic := '0';`] : []),
+  ];
+  const acceptCondition = [
+    validIn ? `${validIn.name} = '1'` : 'true',
+    readyIn ? `${readyIn.name} = '1'` : '',
+  ].filter(Boolean).join(' and ');
+  const statements = [
+    '  -- DETERMINISTIC_TEMPLATE: stream boundary register preserving ready/valid/data/last behavior.',
+    `  ${component.id}_stream_p : process(${clk})`,
+    '  begin',
+    `    if rising_edge(${clk}) then`,
+    `      if ${resetAssertedExpression(rst)} then`,
+    ...(dataOut ? [`        ${dataOut.name}_r <= ${defaultVhdlValue(dataOut.type)};`] : []),
+    ...(validOut ? [`        ${validOut.name}_r <= '0';`] : []),
+    ...(lastOut ? [`        ${lastOut.name}_r <= '0';`] : []),
+    '      else',
+    ...(validOut ? [`        ${validOut.name}_r <= '0';`] : []),
+    ...(lastOut ? [`        ${lastOut.name}_r <= '0';`] : []),
+    `        if ${acceptCondition} then`,
+    ...(dataOut ? [`          ${dataOut.name}_r <= ${dataIn ? dataIn.name : defaultVhdlValue(dataOut.type)};`] : []),
+    ...(validOut ? [`          ${validOut.name}_r <= '1';`] : []),
+    ...(lastOut ? [`          ${lastOut.name}_r <= ${lastIn ? lastIn.name : "'0'"};`] : []),
+    '        end if;',
+    '      end if;',
+    '    end if;',
+    '  end process;',
+    ...(dataOut ? [`  ${dataOut.name} <= ${dataOut.name}_r;`] : []),
+    ...(validOut ? [`  ${validOut.name} <= ${validOut.name}_r;`] : []),
+    ...(lastOut ? [`  ${lastOut.name} <= ${lastOut.name}_r;`] : []),
+    ...(readyOut ? [`  ${readyOut.name} <= '1';`] : []),
+    ...outputPorts(component)
+      .filter((port) => port.name !== dataOut?.name && port.name !== validOut?.name && port.name !== readyOut?.name && port.name !== lastOut?.name)
+      .map((port) => `  ${port.name} <= ${defaultVhdlValue(port.type)};`),
+  ];
+  return {
+    templateId: 'deterministic_stream_boundary_leaf',
+    reason: 'Registered stream ingress/egress/skid boundary with conservative handshake behavior.',
+    content: replaceSkeletonRegions(skeleton || renderLeafSkeleton(contract, component), declarations, statements),
+  };
+}
+
 function renderClockedRegisterOrFifoShell(
   contract: FpgaArchitectureContract,
   component: FpgaArchitectureComponentContract,
@@ -221,7 +340,7 @@ function renderClockedRegisterOrFifoShell(
         '  begin',
         `    if rising_edge(${clk}) then`,
         ...(rst ? [
-          `      if ${rst} = '1' then`,
+          `      if ${resetAssertedExpression(rst)} then`,
           '        null;',
           '      else',
           '        null;',
@@ -249,7 +368,7 @@ function renderClockedRegisterOrFifoShell(
     `  ${component.id}_p : process(${clk})`,
     '  begin',
     `    if rising_edge(${clk}) then`,
-    `      if ${rst} = '1' then`,
+    `      if ${resetAssertedExpression(rst)} then`,
     ...outputs.map((port) => `        ${port.name}_r <= ${defaultVhdlValue(port.type)};`),
     '      else',
     ...sameTypedAssignments.map(({ output, input }) => input
@@ -276,6 +395,8 @@ export function renderDeterministicLeafTemplate(params: {
   const renderers = [
     renderLogicGateTemplate,
     renderAluTemplate,
+    renderSampleInputStageTemplate,
+    renderStreamBoundaryTemplate,
     renderPixelOrFramebufferTemplate,
     renderPassThroughTemplate,
     renderClockedRegisterOrFifoShell,

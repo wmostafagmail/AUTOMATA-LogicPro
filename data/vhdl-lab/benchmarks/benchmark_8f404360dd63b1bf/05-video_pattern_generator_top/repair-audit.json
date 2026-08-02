@@ -1,0 +1,85 @@
+{
+  "runId": "checkpoint_eval_benchmark_8f404360dd63b1bf_contract_6ec6045a1bfc1d5a",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_8f404360dd63b1bf/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "2f100e53792281431cfb4ffc9da200437873c5f6dfb8dfc671701f7a0f37b0b2",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:27:37.213Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_8f404360dd63b1bf/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "8d99fdff9823d644c468d925660fb2e746ba4de14043cfe5e30aa49fe7d658fd",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:27:44.038Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_8f404360dd63b1bf/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "77803f982c7c5768cf048bd42d86c6b2275365ebdacec0fdb2a317c17c6369e5",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:27:51.030Z"
+    },
+    {
+      "failureCode": "error",
+      "stage": "analyzing",
+      "fileLine": "video_pattern_generator_top.adapter-candidate-4.vhd:23:17",
+      "excerpt": "video_pattern_generator_top.adapter-candidate-4.vhd:23:17:error: no declaration for \"core\" u_core:entity core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,hsync_o=>hsync_o,vsync_o=>vsync_o,de_o=>de_o,pixel_o=>pixel_o,pixel_addr_o=>pixel_addr_o); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --st",
+      "validatorOutput": "video_pattern_generator_top.adapter-candidate-4.vhd:23:17:error: no declaration for \"core\" u_core:entity core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,hsync_o=>hsync_o,vsync_o=>vsync_o,de_o=>de_o,pixel_o=>pixel_o,pixel_addr_o=>pixel_addr_o); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-4.vhd video_pattern_generator_top.adapter-candidate-4.vhd:23:17:error: no declaration for \"core\" u_core:entity core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,hsync_o=>hsync_o,vsync_o=>vsync_o,de_o=>de_o,pixel_o=>pixel_o,pixel_addr_o=>pixel_addr_o); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "ghdlOutput": "video_pattern_generator_top.adapter-candidate-4.vhd:23:17:error: no declaration for \"core\" u_core:entity core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,hsync_o=>hsync_o,vsync_o=>vsync_o,de_o=>de_o,pixel_o=>pixel_o,pixel_addr_o=>pixel_addr_o); ^ /opt/homebrew/bin/ghdl:error: compilation error Command failed: /opt/homebrew/bin/ghdl -a --std=08 video_pattern_generator_top.adapter-candidate-4.vhd video_pattern_generator_top.adapter-candidate-4.vhd:23:17:error: no declaration for \"core\" u_core:entity core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,hsync_o=>hsync_o,vsync_o=>vsync_o,de_o=>de_o,pixel_o=>pixel_o,pixel_addr_o=>pixel_addr_o); ^ /opt/homebrew/bin/ghdl:error: compilation error",
+      "forbiddenPattern": "error",
+      "legalReplacement": "Repair the exact GHDL error locally while preserving the frozen entity interface and using numeric_std-safe typing.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_8f404360dd63b1bf/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-4.vhd",
+      "candidateAttempt": 4,
+      "contentHash": "5886455d2069d84624e4c35e304102d73bf4c64d0312880c8d2f4af8c350801d",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:27:58.091Z"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import type { FpgaArchitectureComponentContract } from './fpgaArchitectureContra
 import type { GoldenLeafInterfaceItem } from './fpgaGoldenLeafLibrary';
 import type { VerifiedVhdlBlockNearMatch } from './fpgaVerifiedVhdlBlockLibrary';
 import { classifyVerifiedPortRole, rolesCompatible } from './fpgaVerifiedVhdlPortRoles';
+import { canonicalParameterName } from './fpgaArchitectureParameterIntent';
 
 export type VerifiedVhdlParameterCompatibilityKind =
   | 'parameter_exact'
@@ -39,6 +40,10 @@ export type VerifiedVhdlParameterCompatibilityResult = {
 
 function normalizeName(value: string | null | undefined) {
   return String(value || '').trim().toLowerCase();
+}
+
+function canonicalGenericKey(value: string | null | undefined) {
+  return canonicalParameterName(String(value || '').replace(/^(?:g|c)_/i, '')).toLowerCase();
 }
 
 function normalizeType(value: string | null | undefined) {
@@ -208,6 +213,11 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
   const verifiedPublicGenerics = publicGenerics(params.candidate.actualSignature.generics);
   const approvedPublicGenerics = publicGenerics(params.candidate.approvedSignature.generics);
   const approvedByName = new Map(approvedPublicGenerics.map((item) => [normalizeName(item.name), item]));
+  const approvedByCanonical = new Map<string, GoldenLeafInterfaceItem[]>();
+  for (const approvedGeneric of approvedPublicGenerics) {
+    const key = canonicalGenericKey(approvedGeneric.name);
+    approvedByCanonical.set(key, [...(approvedByCanonical.get(key) || []), approvedGeneric]);
+  }
   const mappedApprovedGenericNames = new Set<string>();
   let changed = false;
   const portWidthDerivation = deriveGenericWidthsFromPortTypes(params);
@@ -215,7 +225,9 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
   unsafeReasons.push(...portWidthDerivation.unsafeReasons);
 
   for (const verifiedGeneric of verifiedPublicGenerics) {
-    const approvedGeneric = approvedByName.get(normalizeName(verifiedGeneric.name));
+    const canonicalMatches = approvedByCanonical.get(canonicalGenericKey(verifiedGeneric.name)) || [];
+    const approvedGeneric = approvedByName.get(normalizeName(verifiedGeneric.name))
+      || (canonicalMatches.length === 1 ? canonicalMatches[0] : undefined);
     if (!approvedGeneric) {
       unsafeReasons.push(`verified generic ${verifiedGeneric.name} has no approved generic to map`);
       continue;
@@ -226,6 +238,7 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
     }
     genericMap[verifiedGeneric.name] = approvedGeneric.name;
     mappedApprovedGenericNames.add(normalizeName(approvedGeneric.name));
+    mappedApprovedGenericNames.add(canonicalGenericKey(approvedGeneric.name));
     const verifiedDefault = normalizeValue(verifiedGeneric.defaultValue);
     const derived = derivedByGeneric.get(normalizeName(verifiedGeneric.name));
     const approvedDefault = derived ? String(derived.value) : normalizeValue(approvedGeneric.defaultValue);
@@ -356,7 +369,10 @@ export function evaluateVerifiedVhdlParameterCompatibility(params: {
   }
 
   for (const approvedGeneric of approvedPublicGenerics) {
-    if (!mappedApprovedGenericNames.has(normalizeName(approvedGeneric.name))) {
+    if (
+      !mappedApprovedGenericNames.has(normalizeName(approvedGeneric.name))
+      && !mappedApprovedGenericNames.has(canonicalGenericKey(approvedGeneric.name))
+    ) {
       unsafeReasons.push(`approved generic ${approvedGeneric.name} cannot be represented by verified block`);
     }
   }

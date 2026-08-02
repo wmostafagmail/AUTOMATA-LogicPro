@@ -1,0 +1,173 @@
+{
+  "run": {
+    "id": "run_1e9033693bc3d333",
+    "contractId": "contract_9e1f855131977b5e",
+    "modelProfileId": "model_c5d98dc1ed26c328",
+    "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+    "verificationProfileId": "verification_vhdl_2008_strict",
+    "runType": "BENCHMARK",
+    "status": "QUEUED",
+    "seed": 42,
+    "temperature": 0,
+    "maxTokens": 8192,
+    "candidateCount": 1,
+    "maxRepairAttempts": 3,
+    "workspacePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_1e9033693bc3d333",
+    "currentStage": "queued",
+    "stageLog": [
+      {
+        "at": "2026-08-01T20:07:10.093Z",
+        "stage": "queued",
+        "status": "QUEUED",
+        "message": "Run queued for local worker execution."
+      }
+    ],
+    "benchmarkSuiteId": "smoke_core_contracts",
+    "datasetReleaseId": null,
+    "promptVersionIds": [
+      "prompt_version_vhdl_rtl_generator_v1"
+    ],
+    "seedList": [
+      42
+    ],
+    "metrics": {
+      "benchmarkId": "benchmark_dcf5ad4bab5a6815",
+      "seed": 42
+    },
+    "repairAuditPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/runs/run_1e9033693bc3d333/repair-audit.json",
+    "startedAt": null,
+    "completedAt": null,
+    "cancelledAt": null,
+    "createdAt": "2026-08-01T20:07:10.093Z"
+  },
+  "contract": {
+    "id": "contract_9e1f855131977b5e",
+    "name": "Digital Signal Processing Chain: FIR Filter + FFT-lite Analyzer",
+    "version": 1,
+    "status": "VALIDATED",
+    "taskFamily": "FPGA_SWEEP_DSP_CHAIN",
+    "entityName": "dsp_chain_top",
+    "contractJson": {
+      "contract_version": "1.0",
+      "entity": {
+        "name": "dsp_chain_top",
+        "description": "Design a DSP processing chain in VHDL consisting of a FIR filter followed by an FFT-lite or spectral analyzer stage, with explicit signed or fixed-point arithmetic and verifiable pipeline latency."
+      },
+      "generics": [
+        {
+          "name": "DATA_WIDTH",
+          "type": "positive",
+          "default": "16",
+          "constraints": [
+            "DATA_WIDTH >= 1"
+          ]
+        }
+      ],
+      "ports": [
+        {
+          "name": "clk",
+          "mode": "in",
+          "type": "std_logic",
+          "semantic_role": "clock"
+        },
+        {
+          "name": "rst",
+          "mode": "in",
+          "type": "std_logic",
+          "semantic_role": "reset"
+        },
+        {
+          "name": "sample_i",
+          "mode": "in",
+          "type": "signed(15 downto 0)",
+          "semantic_role": "sample_input"
+        },
+        {
+          "name": "sample_valid_i",
+          "mode": "in",
+          "type": "std_logic",
+          "semantic_role": "sample_valid"
+        },
+        {
+          "name": "sample_ready_o",
+          "mode": "out",
+          "type": "std_logic",
+          "semantic_role": "sample_ready"
+        },
+        {
+          "name": "result_o",
+          "mode": "out",
+          "type": "signed(31 downto 0)",
+          "semantic_role": "processed_result"
+        },
+        {
+          "name": "result_valid_o",
+          "mode": "out",
+          "type": "std_logic",
+          "semantic_role": "result_valid"
+        }
+      ],
+      "clocking": {
+        "domains": [
+          {
+            "name": "main",
+            "clock_port": "clk",
+            "edge": "rising"
+          }
+        ]
+      },
+      "reset": {
+        "port": "rst",
+        "polarity": "active_high",
+        "synchronous": true
+      },
+      "behavior": [
+        "Design a DSP processing chain in VHDL consisting of a FIR filter followed by an FFT-lite or spectral analyzer stage, with explicit signed or fixed-point arithmetic and verifiable pipeline latency.",
+        "Required block/responsibility: sample input staging path",
+        "Required block/responsibility: FIR filter datapath with explicit coefficients or coefficient placeholders",
+        "Required block/responsibility: pipeline registers and latency bookkeeping",
+        "Required block/responsibility: FFT-lite or spectral-analysis stage",
+        "Required block/responsibility: output-valid or result-ready signaling",
+        "Required block/responsibility: top-level DSP chain integration",
+        "Use signed or fixed-point arithmetic explicitly; do not rely on ambiguous implicit typing.",
+        "Document widths, growth, truncation, rounding, and saturation assumptions.",
+        "Keep stage-to-stage latency visible in the architecture and in the verification plan.",
+        "Use a deterministic synchronous pipeline model.",
+        "Reset must put all pipeline state into known values.",
+        "Latency through the datapath must be explicit and testable."
+      ],
+      "corner_cases": [
+        "Generate a self-checking testbench aware of pipeline latency.",
+        "Verify representative numeric behavior through the FIR stage and the analyzer stage.",
+        "Check latency alignment between input stimulus and observed output results."
+      ],
+      "prohibited_implementations": [
+        "std_logic_unsigned",
+        "std_logic_arith",
+        "std_logic_signed",
+        "Do not omit explicit numeric types and width handling.",
+        "Do not produce a DSP chain with undocumented latency.",
+        "Do not replace the analyzer stage with placeholder comments while claiming completion."
+      ],
+      "synthesis_requirements": [
+        "All generated VHDL must compile, elaborate, and simulate under GHDL.",
+        "The testbench must demonstrate deterministic latency-aware checking.",
+        "The generated design must show a clear staged architecture rather than a vague arithmetic sketch."
+      ],
+      "testbench_obligations": [
+        "Generate a self-checking testbench aware of pipeline latency.",
+        "Verify representative numeric behavior through the FIR stage and the analyzer stage.",
+        "Check latency alignment between input stimulus and observed output results."
+      ],
+      "pass_marker": "PASS"
+    },
+    "contractHash": "286473545e01406a4507b85dae17bf7995fddc49377e7a6c4c6092e261867c5e",
+    "sourceType": "fixture",
+    "sourceReference": "sweep_dsp_chain",
+    "holdoutGroup": null,
+    "isBenchmarkHoldout": false,
+    "createdBy": "local_user",
+    "createdAt": "2026-08-01T01:08:21.575Z",
+    "updatedAt": "2026-08-01T01:08:21.575Z"
+  }
+}

@@ -1,0 +1,74 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity axi_stream_packet_router_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    s_axis_tvalid_i : in std_logic;
+    s_axis_tready_o : out std_logic;
+    s_axis_tdata_i : in std_logic_vector(31 downto 0);
+    s_axis_tlast_i : in std_logic;
+    m_axis_tvalid_o : out std_logic;
+    m_axis_tready_i : in std_logic;
+    m_axis_tdata_o : out std_logic_vector(31 downto 0);
+    m_axis_tlast_o : out std_logic
+  );
+end entity axi_stream_packet_router_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of axi_stream_packet_router_top is
+
+    type state_type is (IDLE, FORWARDING);
+    signal state : state_type := IDLE;
+
+begin
+
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                s_axis_tready_o <= '0';
+                m_axis_tvalid_o <= '0';
+                m_axis_tdata_o  <= (others => '0');
+                m_axis_tlast_o  <= '0';
+                state           <= IDLE;
+            else
+                case state is
+                    when IDLE =>
+                        if s_axis_tvalid_i = '1' then
+                            s_axis_tready_o <= '1';
+                            m_axis_tdata_o  <= s_axis_tdata_i;
+                            m_axis_tlast_o  <= s_axis_tlast_i;
+                            m_axis_tvalid_o <= '1';
+                            state           <= FORWARDING;
+                        else
+                            s_axis_tready_o <= '0';
+                            m_axis_tvalid_o <= '0';
+                        end if;
+
+                    when FORWARDING =>
+                        if m_axis_tready_i = '1' then
+                            m_axis_tvalid_o <= '0';
+                            if s_axis_tlast_i = '1' then
+                                state <= IDLE;
+                            else
+                                state <= IDLE; -- Assuming no pipelining for simplicity
+                            end if;
+                        end if;
+
+                    when others =>
+                        state <= IDLE;
+                end case;
+            end if;
+        end if;
+    end process;
+
+end architecture rtl;

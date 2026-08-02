@@ -1,0 +1,264 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+## Focused Single-File Dependency Repair
+Repair attempt 1/3.
+The previous answer instantiated missing child entities in a single-file VHDL Lab run.
+Return exactly one complete self-contained VHDL-2008 file.
+For this repair, do not output any line containing "entity work.".
+For this repair, do not output component declarations or component instantiations.
+Hard rule: do not use entity work.X unless entity X and architecture of X are declared earlier in this same returned file.
+Best repair: inline simple child behavior into the top architecture and remove entity work.X instantiations.
+If helper entities are necessary, declare each child entity/architecture before the top architecture that instantiates it.
+Repeat these context clauses before every design unit: library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+Preserve the exact frozen entity interface below. Do not add/remove/rename public ports or generics.
+Return VHDL only, no Markdown, no prose.
+
+Frozen interface:
+entity lab_counter
+Required generics:
+- generic WIDTH : positive := 8
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port enable_i : in std_logic
+- port count_o : out unsigned(WIDTH-1 downto 0)
+
+Required behavior obligations:
+[
+  "Self-check reset, increment, hold, and wrap behavior",
+  "Print PASS only after all checks pass"
+]
+
+Missing dependency findings:
+- lab_counter.adapter-candidate-1.vhd:23:3:error: 'end' is expected instead of '<integer>'
+  1port(clk : in std_logic;
+  ^
+lab_counter.adapter-candidate-1.vhd:22:34:error: missing ";" at end of entity
+  generic(WIDTH : positive := 8);
+                                 ^
+lab_counter.adapter-candidate-1.vhd:24:9:error: missing entity, architecture, package or configuration
+        rst : in std_logic;
+        ^
+lab_counter.adapter-candidate-1.vhd:25:9:error: missing entity, architecture, package or configuration
+        enable_i : in std_logic;
+        ^
+lab_counter.adapter-candidate-1.vhd:26:2:error: missing entity, architecture, package or configuration
+ constant max_count : unsigned(WIDTH-)IDTH-1 downto 0) := :=clk VD0 const_to >Value> 1; 
+ ^
+lab_counter.adapter-candidate-1.vhd:27:9:error: missing entity, architecture, package or configuration
+        count_o : out unsigned(WIDTH-1 downto or));
+        ^
+lab_counter.adapter-candidate-1.vhd:28:1:error: missing entity, architecture, package or configuration
+end:lab_counter;
+^
+lab_counter.adapter-candidate-1.vhd:40:35:error: unexpected token ''' in a primary
+            count_o <= (others => ':0');
+                                  ^
+lab_counter.adapter-candidate-1.vhd:40:34:error: ')' is expected instead of '''
+            count_o <= (others => ':0');
+                                 ^
+lab_counter.adapter-candidate-1.vhd:40:34:error: missing ";" at end of statement
+            count_o <= (others => ':0');
+                                 ^
+lab_counter.adapter-candidate-1.vhd:42:13:error: 'end' is expected instead of ':'
+            :1
+            ^
+lab_counter.adapter-candidate-1.vhd:42:13:error: 'if' is expected instead of ':'
+            :1
+            ^
+lab_counter.adapter-candidate-1.vhd:41:55:error: missing ";" at end of statement
+        elsif rising_edge(clk) and enable_i = '1' then
+                                                      ^
+lab_counter.adapter-candidate-1.vhd:46:12:error: '!' not allowed since vhdl 2008(was replacement character for '|')
+           !
+           ^
+lab_counter.adapter-candidate-1.vhd:46:12:error: 'end' is expected instead of '|'
+           !
+           ^
+lab_counter.adapter-candidate-1.vhd:46:12:error: 'if' is expected instead of '|'
+           !
+           ^
+lab_counter.adapter-candidate-1.vhd:45:44:error: missing ";" at end of statement
+                count_o <= (others => '0');
+                                           ^
+lab_counter.adapter-candidate-1.vhd:47:17:error: 'end' is expected instead of 'else'
+                else
+                ^
+lab_counter.adapter-candidate-1.vhd:47:17:error: "end" must be followed by 'process'
+                else
+                ^
+lab_counter.adapter-candidate-1.vhd:46:13:error: ';' expected at end of process
+           !
+            ^
+lab_counter.adapter-candidate-1.vhd:46:13:error: (found: 'else')
+lab_counter.adapter-candidate-1.vhd:47:17:error: 'end' is expected instead of 'else'
+                else
+                ^
+lab_counter.adapter-candidate-1.vhd:46:13:error: missing ";" at end of architecture
+           !
+            ^
+lab_counter.adapter-candidate-1.vhd:49:17:error: missing entity, architecture, package or configuration
+                end if;
+                ^
+lab_counter.adapter-candidate-1.vhd:50:13:error: missing entity, architecture, package or configuration
+            end if;
+            ^
+lab_counter.adapter-candidate-1.vhd:51:9:error: missing entity, architecture, package or configuration
+        end process;
+        ^
+lab_counter.adapter-candidate-1.vhd:52:5:error: missing entity, architecture, package or configuration
+    end rtl;
+    ^
+/opt/homebrew/bin/ghdl:error: compilation error
+
+Command failed: /opt/homebrew/bin/ghdl -a --std=08 lab_counter.adapter-candidate-1.vhd
+lab_counter.adapter-candidate-1.vhd:23:3:error: 'end' is expected instead of '<integer>'
+  1port(clk : in std_logic;
+  ^
+lab_counter.adapter-candidate-1.vhd:22:34:error: missing ";" at end of entity
+  generic(WIDTH : positive := 8);
+                                 ^
+lab_counter.adapter-candidate-1.vhd:24:9:error: missing entity, architecture, package or configuration
+        rst : in std_logic;
+        ^
+lab_counter.adapter-candidate-1.vhd:25:9:error: missing entity, architecture, package or configuration
+        enable_i : in std_logic;
+        ^
+lab_counter.adapter-candidate-1.vhd:26:2:error: missing entity, architecture, package or configuration
+ constant max_count : unsigned(WIDTH-)IDTH-1 downto 0) := :=clk VD0 const_to >Value> 1; 
+ ^
+lab_counter.adapter-candidate-1.vhd:27:9:error: missing entity, architecture, package or configuration
+        count_o : out unsigned(WIDTH-1 downto or));
+        ^
+lab_counter.adapter-candidate-1.vhd:28:1:error: missing entity, architecture, package or configuration
+end:lab_counter;
+^
+lab_counter.adapter-candidate-1.vhd:40:35:error: unexpected token ''' in a primary
+            count_o <= (others => ':0');
+                                  ^
+lab_counter.adapter-candidate-1.vhd:40:34:error: ')' is expected instead of '''
+            count_o <= (others => ':0');
+                                 ^
+lab_counter.adapter-candidate-1.vhd:40:34:error: missing ";" at end of statement
+            count_o <= (others => ':0');
+                                 ^
+lab_counter.adapter-candidate-1.vhd:42:13:error: 'end' is expected instead of ':'
+            :1
+            ^
+lab_counter.adapter-candidate-1.vhd:42:13:error: 'if' is expected instead of ':'
+            :1
+            ^
+lab_counter.adapter-candidate-1.vhd:41:55:error: missing ";" at end of statement
+        elsif rising_edge(clk) and enable_i = '1' then
+                                                      ^
+lab_counter.adapter-candidate-1.vhd:46:12:error: '!' not allowed since vhdl 2008(was replacement character for '|')
+           !
+           ^
+lab_counter.adapter-candidate-1.vhd:46:12:error: 'end' is expected instead of '|'
+           !
+           ^
+lab_counter.adapter-candidate-1.vhd:46:12:error: 'if' is expected instead of '|'
+           !
+           ^
+lab_counter.adapter-candidate-1.vhd:45:44:error: missing ";" at end of statement
+                count_o <= (others => '0');
+                                           ^
+lab_counter.adapter-candidate-1.vhd:47:17:error: 'end' is expected instead of 'else'
+                else
+                ^
+lab_counter.adapter-candidate-1.vhd:47:17:error: "end" must be followed by 'process'
+                else
+                ^
+lab_counter.adapter-candidate-1.vhd:46:13:error: ';' expected at end of process
+           !
+            ^
+lab_counter.adapter-candidate-1.vhd:46:13:error: (found: 'else')
+lab_counter.adapter-candidate-1.vhd:47:17:error: 'end' is expected instead of 'else'
+                else
+                ^
+lab_counter.adapter-candidate-1.vhd:46:13:error: missing ";" at end of architecture
+           !
+            ^
+lab_counter.adapter-candidate-1.vhd:49:17:error: missing entity, architecture, package or configuration
+                end if;
+                ^
+lab_counter.adapter-candidate-1.vhd:50:13:error: missing entity, architecture, package or configuration
+            end if;
+            ^
+lab_counter.adapter-candidate-1.vhd:51:9:error: missing entity, architecture, package or configuration
+        end process;
+        ^
+lab_counter.adapter-candidate-1.vhd:52:5:error: missing entity, architecture, package or configuration
+    end rtl;
+    ^
+/opt/homebrew/bin/ghdl:error: compilation error
+
+
+
+Do not copy the previous broken hierarchy. Treat this as the required replacement shape:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity lab_counter is ... end entity;
+architecture rtl of lab_counter is
+  -- local signals/functions/procedures only
+begin
+  -- synchronous processes and concurrent assignments only
+end architecture;
+
+Diagnostic excerpt from the previous broken VHDL, for reference only:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity lab_counter is
+  generic (
+    WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    enable_i : in std_logic;
+    count_o : out unsigned(WIDTH-1 downto 0)
+  );
+end entity lab_counter;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity lab_counter is
+  generic(WIDTH : positive := 8);
+  1port(clk : in std_logic;
+        rst : in std_logic;
+        enable_i : in std_logic;
+ constant max_count : unsigned(WIDTH-)IDTH-1 downto 0) := :=clk VD0 const_to >Value> 1; 
+        count_o : out unsigned(WIDTH-1 downto or));
+end:lab_counter;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of lab_counter is
+begin
+    process  (clk,rst)
+    begin
+        if rst = '1' then
+            count_o <= (others => ':0');
+        elsif rising_edge(clk) and enable_i = '1' then
+            :1
+
+            if count_o = max_count then
+                count_o <= (others => '0');
+           !
+                else
+                    count_o <= count_o + 1;
+                end if;
+            end if;
+        end process;
+    end rtl;

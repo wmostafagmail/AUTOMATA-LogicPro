@@ -1,0 +1,7 @@
+v 4
+file . "../testbench/tb_mini_cpu_core_top.candidate-3.vhd" "84585672d09eb987f51ce531104700a431b97a5c" "20260802114935.131":
+  entity tb_mini_cpu_core_top at 1( 0) + 0 on 13;
+  architecture sim of tb_mini_cpu_core_top at 8( 135) + 0 on 14;
+file . "mini_cpu_core_top.adapter-candidate-3.vhd" "b6e72046de29dcd9bb00532f8de0c1c61499c403" "20260802114935.105":
+  entity mini_cpu_core_top at 1( 0) + 0 on 11;
+  architecture rtl of mini_cpu_core_top at 23( 580) + 0 on 12;

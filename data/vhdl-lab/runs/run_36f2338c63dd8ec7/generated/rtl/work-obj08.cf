@@ -1,0 +1,4 @@
+v 4
+file . "dsp_chain_top.vhd" "26cadbe671ea13c5ca6683939fea5c761129675e" "20260801010921.150":
+  entity dsp_chain_top at 1( 0) + 0 on 11;
+  architecture rtl of dsp_chain_top at 20( 417) + 0 on 12;

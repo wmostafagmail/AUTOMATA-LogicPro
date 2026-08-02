@@ -1,0 +1,126 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity video_pattern_generator_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    hsync_o : out std_logic;
+    vsync_o : out std_logic;
+    de_o : out std_logic;
+    pixel_o : out std_logic_vector(23 downto 0);
+    pixel_addr_o : out unsigned(18 downto 0)
+  );
+end entity video_pattern_generator_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of video_pattern_generator_top is
+
+    -- VGA Timing Constants
+    constant H_ACTIVE   : natural := 640;
+    constant H_FRONT_PORCH : natural := 16;
+    constant H_SYNC_PULSE : natural := 96;
+    constant H_BACK_PORCH : natural := 48;
+
+    constant V_ACTIVE   : natural := 480;
+    constant V_FRONT_PORCH : natural := 10;
+    constant V_SYNC_PULSE : natural := 2;
+    constant V_BACK_PORCH : natural := 33;
+
+    -- Counters
+    signal h_count : unsigned(9 downto 0) := (others => '0');
+    signal v_count : unsigned(9 downto 0) := (others => '0');
+
+    -- Sync Signals
+    signal hsync_i : std_logic;
+    signal vsync_i : std_logic;
+
+    -- Active Video Window
+    signal active_video : std_logic;
+
+begin
+
+    -- Horizontal Timing Counter
+    process(clk, rst)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                h_count <= (others => '0');
+            else
+                if h_count = H_ACTIVE + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH - 1 then
+                    h_count <= (others => '0');
+                else
+                    h_count <= h_count + 1;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -- Vertical Timing Counter
+    process(clk, rst)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                v_count <= (others => '0');
+            else
+                if h_count = H_ACTIVE + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH - 1 and v_count = V_ACTIVE + V_FRONT_PORCH + V_SYNC_PULSE + V_BACK_PORCH - 1 then
+                    v_count <= (others => '0');
+                elsif h_count = H_ACTIVE + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH - 1 then
+                    v_count <= v_count + 1;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -- Sync Generation Logic
+    hsync_i <= '0' when h_count >= H_ACTIVE + H_FRONT_PORCH and h_count < H_ACTIVE + H_FRONT_PORCH + H_SYNC_PULSE else '1';
+    vsync_i <= '0' when v_count >= V_ACTIVE + V_FRONT_PORCH and v_count < V_ACTIVE + V_FRONT_PORCH + V_SYNC_PULSE else '1';
+
+    -- Active Video Window Generation
+    active_video <= '1' when h_count < H_ACTIVE and v_count < V_ACTIVE else '0';
+
+    -- Pixel Addressing Path
+    pixel_addr_o <= (v_count(8 downto 0) & h_count(9 downto 2));
+
+    -- Pattern Generator or Pixel Formatting Stage
+    process(clk, rst)
+        variable pattern : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                pixel_o <= (others => '0');
+            else
+                if active_video = '1' then
+                    -- Simple color bar pattern for demonstration
+                    case h_count(9 downto 8) is
+                        when "00" =>
+                            pattern := x"FF"; -- Red
+                        when "01" =>
+                            pattern := x"0F"; -- Green
+                        when "10" =>
+                            pattern := x"F0"; -- Blue
+                        when others =>
+                            pattern := x"00"; -- Black
+                    end case;
+                else
+                    pattern := (others => '0');
+                end if;
+
+                pixel_o <= pattern & pattern & pattern; -- RGB format
+            end if;
+        end if;
+    end process;
+
+    -- Top-Level Video Output Integration
+    hsync_o <= hsync_i;
+    vsync_o <= vsync_i;
+    de_o    <= active_video;
+
+end architecture rtl;

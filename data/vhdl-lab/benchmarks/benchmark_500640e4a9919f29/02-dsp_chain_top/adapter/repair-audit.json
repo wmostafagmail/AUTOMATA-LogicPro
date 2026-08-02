@@ -1,0 +1,45 @@
+{
+  "runId": "checkpoint_eval_benchmark_500640e4a9919f29_contract_9e1f855131977b5e",
+  "packets": [
+    {
+      "failureCode": "vhdl_extraction_missing_entity",
+      "stage": "extracting",
+      "fileLine": null,
+      "excerpt": "vhdl_extraction_missing_entity: Extracted VHDL is missing an entity declaration.",
+      "validatorOutput": "vhdl_extraction_missing_entity: Extracted VHDL is missing an entity declaration.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "vhdl_extraction_missing_entity",
+      "legalReplacement": "Repair locally and keep the frozen contract unchanged.",
+      "previousCandidatePath": null,
+      "candidateAttempt": 1,
+      "contentHash": null,
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:19:38.547Z"
+    },
+    {
+      "failureCode": "vhdl_extraction_missing_entity",
+      "stage": "extracting",
+      "fileLine": null,
+      "excerpt": "vhdl_extraction_missing_entity: Extracted VHDL is missing an entity declaration.",
+      "validatorOutput": "vhdl_extraction_missing_entity: Extracted VHDL is missing an entity declaration.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "vhdl_extraction_missing_entity",
+      "legalReplacement": "Repair locally and keep the frozen contract unchanged.",
+      "previousCandidatePath": null,
+      "candidateAttempt": 2,
+      "contentHash": null,
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-02T11:22:18.275Z"
+    }
+  ]
+}

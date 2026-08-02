@@ -1,0 +1,65 @@
+{
+  "runId": "checkpoint_eval_benchmark_1b588b487bd4912a_contract_6ec6045a1bfc1d5a",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "2f100e53792281431cfb4ffc9da200437873c5f6dfb8dfc671701f7a0f37b0b2",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:21:12.093Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "084b4e65f6ad892c1181e796ac7850471ab178e82ffce044abffd24024b2980b",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:21:18.723Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_1b588b487bd4912a/05-video_pattern_generator_top/generated/rtl/video_pattern_generator_top.adapter-candidate-3.vhd",
+      "candidateAttempt": 3,
+      "contentHash": "084b4e65f6ad892c1181e796ac7850471ab178e82ffce044abffd24024b2980b",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:21:25.570Z"
+    }
+  ]
+}

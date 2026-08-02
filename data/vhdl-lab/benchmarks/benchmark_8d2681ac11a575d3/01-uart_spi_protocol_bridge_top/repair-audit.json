@@ -1,0 +1,45 @@
+{
+  "runId": "checkpoint_eval_benchmark_8d2681ac11a575d3_contract_fb9b64a3834e20d1",
+  "packets": [
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_8d2681ac11a575d3/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-1.vhd",
+      "candidateAttempt": 1,
+      "contentHash": "97a4cdd4343da07e22374b27d86fe81a5e3afe6b426011bf3302287ea3e4c89d",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:43:49.651Z"
+    },
+    {
+      "failureCode": "missing_work_unit_dependency",
+      "stage": "validating_dependencies",
+      "fileLine": null,
+      "excerpt": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "validatorOutput": "missing_work_unit_dependency: Single-file VHDL Lab run instantiates entity bb_core, but no entity bb_core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.",
+      "ghdlOutput": "",
+      "forbiddenPattern": "missing_work_unit_dependency",
+      "legalReplacement": "Return one self-contained VHDL file; declare any entity work.X child units in the same file before use, or inline the logic.",
+      "previousCandidatePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_8d2681ac11a575d3/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-2.vhd",
+      "candidateAttempt": 2,
+      "contentHash": "d0b9673ac3de2e502ec471d1e89529800570e2f004f7c6accccc3d83af8b5d3a",
+      "advisor": {
+        "rootCauseOwner": "unknown",
+        "failureClass": "",
+        "deterministicFixPossible": false,
+        "recommendedAction": "Use the canonical validator/GHDL output to choose the next repair route."
+      },
+      "createdAt": "2026-08-01T21:44:06.051Z"
+    }
+  ]
+}

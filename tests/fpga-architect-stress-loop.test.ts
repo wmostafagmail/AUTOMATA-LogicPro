@@ -533,6 +533,36 @@ test('runFpgaArchitectStressLoop logs architecture contract issues separately fr
   assert.deepEqual(bucket.issueCodes, ['architecture_contract_child_missing', 'architecture_contract_source_missing']);
 });
 
+test('runFpgaArchitectStressLoop counts implementation-source failures separately from VHDL code-quality failures', async () => {
+  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-implementation-source-'));
+  const { sessionManager, session } = createLoopHarness(projectRoot);
+
+  const result = await runFpgaArchitectStressLoop({
+    ...buildLoopDependencies(projectRoot, async () => {
+      throw new Error([
+        'model_vhdl_generation_blocked_by_policy',
+        'Strict FPGA implementation policy blocked fresh model-authored VHDL for component "sample_input_stage".',
+        'componentId=sample_input_stage',
+        'policy=verified_or_template_only',
+      ].join('\n'));
+    }),
+    session,
+    sessionManager,
+    designPresets: [createTestPreset('alpha', 'Alpha Design')],
+    attemptsPerDesign: 1,
+  });
+
+  assert.equal(result.failures, 1);
+  assert.equal(result.implementationSourceFailures, 1);
+  assert.equal(result.codeQualityFailures, 0);
+  assert.equal(result.designSummaries[0]?.implementationSourceFailures, 1);
+  assert.equal(result.designSummaries[0]?.codeQualityFailures, 0);
+
+  const masterLogContent = await fs.readFile(result.masterLogPath, 'utf8');
+  assert.match(masterLogContent, /Implementation-source failures: 1/);
+  assert.match(masterLogContent, /Code-quality failures: 0/);
+});
+
 test('runFpgaArchitectStressLoop emits expanded progress metadata with global and per-design counters', async () => {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'logicpro-architect-sweep-progress-'));
   const { sessionManager, session } = createLoopHarness(projectRoot);

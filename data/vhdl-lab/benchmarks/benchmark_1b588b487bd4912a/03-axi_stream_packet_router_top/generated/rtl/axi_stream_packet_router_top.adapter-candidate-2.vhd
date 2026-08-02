@@ -1,0 +1,25 @@
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+
+entity axi_stream_packet_router_top is
+  generic (
+    DATA_WIDTH : positive := 8
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    s_axis_tvalid_i : in std_logic;
+    s_axis_tready_o : out std_logic;
+    s_axis_tdata_i : in std_logic_vector(31 downto 0);
+    s_axis_tlast_i : in std_logic;
+    m_axis_tvalid_o : out std_logic;
+    m_axis_tready_i : in std_logic;
+    m_axis_tdata_o : out std_logic_vector(31 downto 0);
+    m_axis_tlast_o : out std_logic
+  );
+end entity axi_stream_packet_router_top;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of axi_stream_packet_router_top is begin u_core:entity work.core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,s_axis_tvalid_i=>s_axis_tvalid_i,s_axis_tready_o=>s_axis_tready_o,s_axis_tdata_i=>s_axis_tdata_i,s_axis_tlast_i=>s_axis_tlast_i,m_axis_tvalid_o=>m_axis_tvalid_o,m_axis_tready_i=>m_axis_tready_i,m_axis_tdata_o=>m_axis_tdata_o,m_axis_tlast_o=>m_axis_tlast_o);end architecture;

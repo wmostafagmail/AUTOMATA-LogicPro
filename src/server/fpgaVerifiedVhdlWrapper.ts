@@ -176,6 +176,40 @@ function safeExtraInputDefault(name: string) {
   return null;
 }
 
+function deterministicConfigInputValue(port: GoldenLeafInterfaceItem, component: FpgaArchitectureComponentContract) {
+  const name = normalizeName(port.name);
+  const type = normalizeType(port.type);
+  const text = [
+    component.id,
+    component.name,
+    component.file,
+    component.responsibility,
+    ...(component.implements || []),
+  ].join(' ').toLowerCase();
+  const videoTimingDefaults: Record<string, string> = {
+    h_active: '640',
+    h_front: '16',
+    h_sync: '96',
+    h_back: '48',
+    h_total: '800',
+    v_active: '480',
+    v_front: '10',
+    v_sync: '2',
+    v_back: '33',
+    v_total: '525',
+  };
+  if (/\b(?:video|vga|sync|pixel|timing)\b/.test(text) && videoTimingDefaults[name]) {
+    return videoTimingDefaults[name];
+  }
+  if (/polarity|mode|threshold|limit|period|cfg|config/.test(name)) {
+    if (/^(?:integer|natural)\b/.test(type)) return '0';
+    if (/^positive\b/.test(type)) return '1';
+    if (/\bstd_(?:u)?logic\b/.test(type) && !/vector/.test(type)) return "'0'";
+    if (/\b(?:std_logic_vector|std_ulogic_vector|unsigned|signed)\b/.test(type)) return defaultValueForPortType(port.type);
+  }
+  return null;
+}
+
 function describePortRole(port: GoldenLeafInterfaceItem, component: FpgaArchitectureComponentContract) {
   const role = classifyVerifiedPortRole(port, component);
   return `${port.name}{mode=${port.mode || 'generic'}, type=${port.type}, role=${role.role}, confidence=${role.confidence}}`;
@@ -194,7 +228,7 @@ function isSafeUnusedApprovedPort(params: {
   const role = classifyVerifiedPortRole(params.approvedPort, params.component);
   if (role.role === 'enable') return true;
   const hasSerialRx = params.verifiedPorts.some((port) => classifyVerifiedPortRole(port, params.component).role === 'serial_rx');
-  if (role.role === 'payload_in' && hasSerialRx && isReceiverLikeComponent(params.component)) return true;
+  if ((role.role === 'payload_in' || role.role === 'stream_data' || role.role === 'sample_input') && hasSerialRx && isReceiverLikeComponent(params.component)) return true;
   const text = [
     params.component.id,
     params.component.name,
@@ -202,7 +236,8 @@ function isSafeUnusedApprovedPort(params: {
     params.component.responsibility,
     ...(params.component.implements || []),
   ].join(' ').toLowerCase();
-  return role.role === 'payload_in' && /\b(?:program_counter|pc|counter|timer|video_timing|horizontal_counter|vertical_counter)\b/.test(text);
+  return ['payload_in', 'stream_data', 'data'].includes(role.role)
+    && /\b(?:program_counter|pc|counter|timer|video|vga|hdmi|sync_generator|video_timing|horizontal_counter|vertical_counter)\b/.test(text);
 }
 
 export function planVerifiedVhdlWrapper(params: {
@@ -275,6 +310,17 @@ export function planVerifiedVhdlWrapper(params: {
           continue;
         }
         const verifiedRole = classifyVerifiedPortRole(verifiedPort, params.component);
+        if (verifiedRole.role === 'video_timing_config' || verifiedRole.role === 'config') {
+          const configValue = deterministicConfigInputValue(verifiedPort, params.component);
+          if (configValue !== null) {
+            portAssociations[verifiedPort.name] = configValue;
+            mismatches.push({ kind: 'verified_config_input_defaulted', verifiedName: verifiedPort.name, message: `VERIFIED_CONFIG_PORT_MAP ${verifiedPort.name} => ${configValue}` });
+            continue;
+          }
+          unsafeReasons.push(`verified_config_input_unresolved ${verifiedPort.name}: no deterministic contract or preset value is available`);
+          mismatches.push({ kind: 'verified_config_input_unresolved', verifiedName: verifiedPort.name, message: `Verified config input ${verifiedPort.name} has no deterministic value` });
+          continue;
+        }
         if (verifiedRole.role === 'serial_rx' && isReceiverLikeComponent(params.component) && isScalarLogic(verifiedPort.type)) {
           portAssociations[verifiedPort.name] = "'1'";
           mismatches.push({ kind: 'extra_input_tied_off', verifiedName: verifiedPort.name, message: `Extra verified serial receive input ${verifiedPort.name} tied to idle '1' because the approved component exposes no serial source.` });

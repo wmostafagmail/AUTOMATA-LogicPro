@@ -1,0 +1,16 @@
+v 4
+file . "uart_spi_protocol_bridge_top.vhd" "4a30f0075a91f42e0e191cbdf2cf2281024850c8" "20260731162219.896":
+  entity uart_spi_protocol_bridge_top at 1( 0) + 0 on 11;
+  entity uart_receiver at 24( 628) + 0 on 12;
+  architecture rtl of uart_receiver at 42( 1062) + 0 on 13;
+  entity uart_transmitter at 51( 1244) + 0 on 14;
+  architecture rtl of uart_transmitter at 69( 1684) + 0 on 15;
+  entity spi_master_controller at 78( 1872) + 0 on 16;
+  architecture rtl of spi_master_controller at 100( 2492) + 0 on 17;
+  entity fifo at 109( 2690) + 0 on 18;
+  architecture rtl of fifo at 132( 3313) + 0 on 19;
+  entity control_status_register at 141( 3477) + 0 on 20;
+  architecture rtl of control_status_register at 155( 3829) + 0 on 21;
+  entity bridge_control_fsm at 164( 4031) + 0 on 22;
+  architecture rtl of bridge_control_fsm at 185( 4605) + 0 on 23;
+  architecture rtl of uart_spi_protocol_bridge_top at 194( 4797) + 0 on 24;

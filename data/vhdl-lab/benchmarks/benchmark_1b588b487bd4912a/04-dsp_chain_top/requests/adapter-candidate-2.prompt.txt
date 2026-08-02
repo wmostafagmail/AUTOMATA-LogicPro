@@ -1,0 +1,68 @@
+You generate one complete VHDL-2008 artifact from a frozen hardware contract.
+Preserve the required entity interface exactly.
+Use ieee.std_logic_1164 and ieee.numeric_std only.
+Return VHDL only, no Markdown, no prose.
+
+## Focused Single-File Dependency Repair
+Repair attempt 1/3.
+The previous answer instantiated missing child entities in a single-file VHDL Lab run.
+Return exactly one complete self-contained VHDL-2008 file.
+Hard rule: do not use entity work.X unless entity X and architecture of X are declared earlier in this same returned file.
+Best repair: inline simple child behavior into the top architecture and remove entity work.X instantiations.
+If helper entities are necessary, declare each child entity/architecture before the top architecture that instantiates it.
+Repeat these context clauses before every design unit: library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+Preserve the exact frozen entity interface below. Do not add/remove/rename public ports or generics.
+Return VHDL only, no Markdown, no prose.
+
+Frozen interface:
+entity dsp_chain_top
+Required generics:
+- generic DATA_WIDTH : positive := 16
+Required ports:
+- port clk : in std_logic
+- port rst : in std_logic
+- port sample_i : in signed(15 downto 0)
+- port sample_valid_i : in std_logic
+- port sample_ready_o : out std_logic
+- port result_o : out signed(31 downto 0)
+- port result_valid_o : out std_logic
+
+Required behavior obligations:
+[
+  "Generate a self-checking testbench aware of pipeline latency.",
+  "Verify representative numeric behavior through the FIR stage and the analyzer stage.",
+  "Check latency alignment between input stimulus and observed output results."
+]
+
+Missing dependency findings:
+- Single-file VHDL Lab run instantiates entity work.core, but no entity core is declared in the returned artifact. Return self-contained RTL or use multi-file project mode.
+
+Previous generated VHDL excerpt to repair:
+library ieee; use ieee.std_logic_1164.all;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity dsp_chain_top is
+  generic (
+    DATA_WIDTH : positive := 16
+  );
+  port (
+    clk : in std_logic;
+    rst : in std_logic;
+    sample_i : in signed(15 downto 0);
+    sample_valid_i : in std_logic;
+    sample_ready_o : out std_logic;
+    result_o : out signed(31 downto 0);
+    result_valid_o : out std_logic
+  );
+end entity dsp_chain_top;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+architecture rtl of dsp_chain_top is begin u_core:entity work.core generic map(DATA_WIDTH=>DATA_WIDTH) port map(clk=>clk,rst=>rst,sample_i=>sample_i,sample_valid_i=>sample_valid_i,sample_ready_o=>sample_ready_o,result_o=>result_o,result_valid_o=>result_valid_o);end architecture;

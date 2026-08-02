@@ -1,0 +1,15 @@
+library ieee; use ieee.std_logic_1164.all; use ieee.numeric_std.all;
+
+entity lab_counter is generic(WIDTH:positive:=8);port(clk,rst,enable_i:in std_logic;count_o:out unsigned(WIDTH-1 downto 0));end entity;
+
+architecture rtl of lab_counter is begin p_core:process(clk,rst)begin if(rst='1')then count_o<=to_unsigned(0,WIDTH);elsif(clk'event and clk='1')then if(enable_i='1')then count_o<=count_o+1;end if;end if;end process;end architecture;
+
+
+--- STDERR ---
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 1096.90it/s]
+
+
+--- ADAPTER BENCHMARK METADATA ---
+elapsedMs=4913
+timeoutMs=900000
+timedOut=false

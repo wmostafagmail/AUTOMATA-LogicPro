@@ -1,0 +1,55 @@
+{
+  "id": "benchmark_df9a89a4942e1bce",
+  "suiteId": "checkpoint_adapter_generation:smoke_core_contracts",
+  "status": "FAILED",
+  "contractIds": [
+    "contract_fb9b64a3834e20d1",
+    "contract_88296f5c0367cfbe",
+    "contract_74680bc3fae28ab1",
+    "contract_9e1f855131977b5e",
+    "contract_6ec6045a1bfc1d5a"
+  ],
+  "childRunIds": [],
+  "modelProfileId": null,
+  "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+  "seedList": [
+    42
+  ],
+  "maxRepairAttempts": 0,
+  "summary": {
+    "total": 5,
+    "passed": 0,
+    "failed": 5,
+    "running": 0,
+    "passRate": 0,
+    "adapterCheckpointId": "checkpoint_87c0925338f946c3",
+    "adapterPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/training/training_afe67160f80573b1/adapter",
+    "trainingRunId": "training_afe67160f80573b1",
+    "baseModel": "mlx-community/Qwen2.5-Coder-7B-Instruct-4bit",
+    "evaluationScope": "smoke_core_contracts",
+    "holdoutCount": 0,
+    "generationBenchmarkPassed": false,
+    "promptVersionId": "prompt_version_vhdl_rtl_generator_v1",
+    "results": [
+      {
+        "contractId": "contract_fb9b64a3834e20d1",
+        "contractName": "UART-to-SPI Protocol Bridge with FIFOs",
+        "entityName": "uart_spi_protocol_bridge_top",
+        "passed": false,
+        "stage": "analyzing",
+        "failureCode": "error",
+        "message": "uart_spi_protocol_bridge_top.adapter-candidate-1.vhd:60:1:error: extra ';' ignored\n;\n^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:2:error: character '�' can only be used in strings or comments\n（）;\n ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:3:error: control character that is not CR, LF, FF, HT or VT is not allowed\n（）;\n  ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:4:error: \"<=\" or \":=\" expected instead of an identifier\n（）;\n   ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:5:error: character '�' can only be used in strings or comments\n（）;\n    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:6:error: control character that is not CR, LF, FF, HT or VT is not allowed\n（）;\n     ^\n/opt/homebrew/bin/ghdl:error: compilation error\n\nCommand failed: /opt/homebrew/bin/ghdl -a --std=08 uart_spi_protocol_bridge_top.adapter-candidate-1.vhd\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:60:1:error: extra ';' ignored\n;\n^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:2:error: character '�' can only be used in strings or comments\n（）;\n ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:3:error: control character that is not CR, LF, FF, HT or VT is not allowed\n（）;\n  ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:4:error: \"<=\" or \":=\" expected instead of an identifier\n（）;\n   ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:5:error: character '�' can only be used in strings or comments\n（）;\n    ^\nuart_spi_protocol_bridge_top.adapter-candidate-1.vhd:62:6:error: control character that is not CR, LF, FF, HT or VT is not allowed\n（）;\n     ^\n/opt/homebrew/bin/ghdl:error: compilation error\n\n",
+        "artifactPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df9a89a4942e1bce/01-uart_spi_protocol_bridge_top/generated/rtl/uart_spi_protocol_bridge_top.adapter-candidate-1.vhd",
+        "promptPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df9a89a4942e1bce/01-uart_spi_protocol_bridge_top/requests/adapter-candidate-1.prompt.txt",
+        "responsePath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df9a89a4942e1bce/01-uart_spi_protocol_bridge_top/raw-responses/adapter-candidate-1.txt",
+        "elapsedMs": 131648,
+        "timeoutMs": 900000
+      }
+    ],
+    "interrupted": 4,
+    "interruptedReason": "adapter_benchmark_interrupted_by_restart"
+  },
+  "resultPath": "/Users/waleedmostafa/Documents/Automata LogicPro/data/vhdl-lab/benchmarks/benchmark_df9a89a4942e1bce/summary.json",
+  "createdAt": "2026-08-01T20:15:37.363Z",
+  "completedAt": "2026-08-02T00:43:24.668Z"
+}

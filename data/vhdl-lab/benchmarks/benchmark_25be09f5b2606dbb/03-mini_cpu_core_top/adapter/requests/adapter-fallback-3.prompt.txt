@@ -1,0 +1,11 @@
+App-owned deterministic adapter benchmark fallback.
+
+Reason:
+- Adapter candidate repeatedly failed with vhdl_extraction_missing_entity at extracting.
+- The adapter did not produce a valid self-contained implementation for the frozen contract.
+
+Action:
+- Emit an interface-smoke RTL implementation owned by the app.
+- Preserve the frozen entity, generics, and ports exactly.
+- Drive outputs with conservative reset/smoke defaults only.
+- Mark this benchmark result as adapterFallbackUsed; do not treat it as adapter-authored success.
