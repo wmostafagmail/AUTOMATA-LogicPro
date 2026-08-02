@@ -418,7 +418,11 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
       sourceType: req.body?.sourceType || req.body?.source_type,
       maxLibraryRecords: req.body?.maxLibraryRecords || req.body?.max_library_records,
     });
-    res.status(result.ok ? 201 : 400).json(result);
+    const qualityGateIssues = Array.isArray(result.release?.audit?.qualityGateIssues) ? result.release.audit.qualityGateIssues.map(String) : [];
+    res.status(result.ok ? 201 : 400).json(result.ok ? result : {
+      ...result,
+      error: qualityGateIssues.join('\n') || 'Dataset failed quality audit.',
+    });
   });
 
   const datasetDetailHandler = asyncHandler(async (req, res) => {

@@ -56,6 +56,7 @@ export type VhdlLibraryTrainingRecord = {
   artifactId: string;
   runId: string;
   sourcePath: string;
+  sourceContentHash?: string;
   contentHash: string;
   contractHash: string;
   evaluationOnly: boolean;
@@ -196,7 +197,8 @@ export async function buildVerifiedVhdlLibraryTrainingRecords(params: {
       audit.excludedSecrets += 1;
       continue;
     }
-    const contentHash = params.sha256(vhdlContent);
+    const sourceContentHash = params.sha256(vhdlContent);
+    const contentHash = params.sha256(vhdlContent.replace(/\r\n?/g, '\n').split('\n').map((line) => line.replace(/[ \t]+$/g, '')).join('\n').replace(/\n*$/, '\n'));
     const entityName = String(manifest.block?.entity || block.name);
     const blockName = String(manifest.block?.name || block.name);
     records.push({
@@ -218,6 +220,7 @@ export async function buildVerifiedVhdlLibraryTrainingRecords(params: {
       artifactId: `verified_10k:${blockName}`,
       runId: 'verified_10k_library',
       sourcePath: path.join(libraryRoot, sourceRelativePath),
+      sourceContentHash,
       contentHash,
       contractHash: params.sha256(stableJson(blockSpec)),
       evaluationOnly: false,

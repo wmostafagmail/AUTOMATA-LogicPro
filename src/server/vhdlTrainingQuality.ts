@@ -47,6 +47,7 @@ export type VhdlDatasetDeduplicationResult<T> = {
   removedCount: number;
   duplicateGroups: number;
   evaluationOnlyConflicts: number;
+  sourceContentHashMismatchCount: number;
 };
 
 export type VhdlMlxValidationMetric = {
@@ -67,6 +68,19 @@ export type VhdlMlxTrainingMetrics = {
   truncationWarningCount: number;
 };
 
+export type VhdlMlxAdapterSelection = {
+  selectedSourcePath: string;
+  selectedCheckpointIteration: number | null;
+  selectedCheckpointValidationLoss: number | null;
+  bestValidationIteration: number | null;
+  bestValidationLoss: number | null;
+  selectionReason:
+    | 'minimum_validation_loss_exact_checkpoint'
+    | 'minimum_validation_loss_closest_lower_checkpoint'
+    | 'minimum_validation_loss_closest_checkpoint'
+    | 'final_adapter_fallback';
+};
+
 type RecordLike = Record<string, any>;
 
 export function normalizeVhdlContentForHash(content: string): string {
@@ -78,8 +92,8 @@ function verificationScore(record: RecordLike) {
   if (record.recordType === 'contract_to_accepted_rtl' && record.verificationStrength === 'ghdl_simulation') return 900;
   const metadata = `${JSON.stringify(record.verification || '')}\n${JSON.stringify(record.maturity || '')}\n${String(record.verificationStrength || '')}`;
   if (/ghdl[_ -]?simulation|simulation/i.test(metadata)) return 800;
-  if (/ghdl|analy[sz]e|static|smoke|verified/i.test(metadata)) return 600;
-  if (record.recordType === 'contract_to_accepted_rtl') return 500;
+  if (/ghdl|analy[sz]e|static|smoke|verified/i.test(metadata)) return 700;
+  if (record.recordType === 'contract_to_accepted_rtl') return 600;
   return 100;
 }
 
@@ -88,9 +102,12 @@ export function deduplicateVhdlTrainingRecords<T extends Record<string, any>>(
   sha256Fn: (value: string) => string,
 ): VhdlDatasetDeduplicationResult<T> {
   const groups = new Map<string, T[]>();
+  let sourceContentHashMismatchCount = 0;
   for (const record of records) {
-    const contentHash = String(record.contentHash || sha256Fn(normalizeVhdlContentForHash(String(record.completion || ''))));
-    const next = { ...record, contentHash } as T;
+    const sourceContentHash = record.contentHash ? String(record.contentHash) : null;
+    const contentHash = sha256Fn(normalizeVhdlContentForHash(String(record.completion || '')));
+    if (sourceContentHash && sourceContentHash !== contentHash) sourceContentHashMismatchCount += 1;
+    const next = { ...record, sourceContentHash, contentHash } as T;
     const group = groups.get(contentHash) || [];
     group.push(next);
     groups.set(contentHash, group);
@@ -114,6 +131,7 @@ export function deduplicateVhdlTrainingRecords<T extends Record<string, any>>(
     removedCount: records.length - selected.length,
     duplicateGroups,
     evaluationOnlyConflicts,
+    sourceContentHashMismatchCount,
   };
 }
 
@@ -194,6 +212,13 @@ function integerOverride(overrides: Record<string, unknown>, key: string, fallba
   return value;
 }
 
+function evaluationBatchOverride(overrides: Record<string, unknown>, key: string, fallback: number) {
+  if (!(key in overrides)) return fallback;
+  const value = finiteNumber(overrides[key], key);
+  if (!Number.isInteger(value) || value === 0 || value < -1 || value > 1_000_000) throw new Error(`Invalid quality_v1 override ${key}: expected -1 or integer 1-1000000.`);
+  return value;
+}
+
 function numberOverride(overrides: Record<string, unknown>, key: string, fallback: number, min: number, max: number) {
   if (!(key in overrides)) return fallback;
   const value = finiteNumber(overrides[key], key);
@@ -271,8 +296,8 @@ export function resolveVhdlQualityTrainingConfig(params: {
     stepsPerReport: integerOverride(overrides, 'stepsPerReport', 10, 1, 100_000),
     stepsPerEval,
     saveEvery: integerOverride(overrides, 'saveEvery', stepsPerEval, 1, 1_000_000),
-    valBatches: integerOverride(overrides, 'valBatches', -1, -1, 1_000_000, true),
-    testBatches: integerOverride(overrides, 'testBatches', -1, -1, 1_000_000, true),
+    valBatches: evaluationBatchOverride(overrides, 'valBatches', -1),
+    testBatches: evaluationBatchOverride(overrides, 'testBatches', -1),
     trainCount,
   };
 }
@@ -282,8 +307,8 @@ function quoteYamlString(value: string) {
 }
 
 function yamlNumber(value: number) {
+  if (!Number.isFinite(value)) throw new Error('Cannot render a non-finite number in MLX YAML.');
   if (Object.is(value, -0)) return '0';
-  if (Math.abs(value) > 0 && Math.abs(value) < 0.001) return value.toExponential(1).replace('e', 'e');
   return String(value);
 }
 
@@ -398,21 +423,14 @@ export function parseMlxTrainingMetrics(logText: string): VhdlMlxTrainingMetrics
     trainableParameterMillions: paramsMatch ? Number(paramsMatch[2]) : null,
     totalParameterMillions: paramsMatch ? Number(paramsMatch[3]) : null,
     peakMemoryGb,
-    truncationWarningCount: (logText.match(/Some sequences are longer than|will be truncated/gi) || []).length,
+    truncationWarningCount: logText.split(/\r?\n/).filter((line) => /Some sequences are longer than|will be truncated/i.test(line)).length,
   };
 }
 
 export async function selectBestMlxAdapterCandidate(params: {
   adapterDirectory: string;
   validationMetrics: VhdlMlxValidationMetric[];
-}): Promise<{
-  selectedSourcePath: string;
-  selectedIteration: number | null;
-  selectedValidationLoss: number | null;
-  selectionReason:
-    | 'minimum_validation_loss'
-    | 'final_adapter_fallback';
-}> {
+}): Promise<VhdlMlxAdapterSelection> {
   const finalPath = path.join(params.adapterDirectory, 'adapters.safetensors');
   const best = [...params.validationMetrics]
     .filter((entry) => entry.iteration > 1 && Number.isFinite(entry.validationLoss))
@@ -433,11 +451,18 @@ export async function selectBestMlxAdapterCandidate(params: {
     const closest = [...numbered].sort((left, right) => Math.abs(left.iteration - best.iteration) - Math.abs(right.iteration - best.iteration) || left.iteration - right.iteration)[0];
     const selected = exact || lower || closest;
     if (selected) {
+      const selectedMetric = params.validationMetrics.find((entry) => entry.iteration === selected.iteration && Number.isFinite(entry.validationLoss)) || null;
       return {
         selectedSourcePath: path.join(params.adapterDirectory, selected.file),
-        selectedIteration: selected.iteration,
-        selectedValidationLoss: best.validationLoss,
-        selectionReason: 'minimum_validation_loss',
+        selectedCheckpointIteration: selected.iteration,
+        selectedCheckpointValidationLoss: selectedMetric?.validationLoss ?? null,
+        bestValidationIteration: best.iteration,
+        bestValidationLoss: best.validationLoss,
+        selectionReason: exact
+          ? 'minimum_validation_loss_exact_checkpoint'
+          : lower
+            ? 'minimum_validation_loss_closest_lower_checkpoint'
+            : 'minimum_validation_loss_closest_checkpoint',
       };
     }
   }
@@ -448,8 +473,10 @@ export async function selectBestMlxAdapterCandidate(params: {
   }
   return {
     selectedSourcePath: finalPath,
-    selectedIteration: null,
-    selectedValidationLoss: null,
+    selectedCheckpointIteration: null,
+    selectedCheckpointValidationLoss: null,
+    bestValidationIteration: best?.iteration ?? null,
+    bestValidationLoss: best?.validationLoss ?? null,
     selectionReason: 'final_adapter_fallback',
   };
 }

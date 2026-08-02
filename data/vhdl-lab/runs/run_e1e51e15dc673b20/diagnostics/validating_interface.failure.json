@@ -1,5 +1,0 @@
-{
-  "stage": "validating_interface",
-  "message": "interface_port_missing: Generated entity is missing port \"s_axis_tlast_i\". interface_port_missing: Generated entity is missing port \"m_axis_tvalid_o\". interface_port_missing: Generated entity is missing port \"m_axis_tready_i\". interface_port_missing: Generated entity is missing port \"m_axis_tdata_o\". interface_port_missing: Generated entity is missing port \"m_axis_tlast_o\".",
-  "at": "2026-07-31T16:40:09.567Z"
-}

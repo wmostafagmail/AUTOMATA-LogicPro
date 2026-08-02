@@ -8,3 +8,16 @@ coverage/
 !.env.example
 data/fpga-vhdl-building-block-library/**/build/
 data/fpga-vhdl-building-block-library/**/e~*.o
+data/vhdl-lab/accepted/
+data/vhdl-lab/benchmarks/
+data/vhdl-lab/training/
+data/vhdl-lab/datasets/
+data/vhdl-lab/runs/
+data/vhdl-lab/contracts/
+data/vhdl-lab/qualified-adapters/
+data/vhdl-lab/vhdl-lab-state.json
+data/vhdl-lab/vhdl-lab-state*.json
+data/vhdl-lab/vhdl-lab-state.json.*
+data/vhdl-lab/**/*.o
+data/vhdl-lab/**/e~*.o
+data/vhdl-lab/**/work-obj*.cf

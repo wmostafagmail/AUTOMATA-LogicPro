@@ -1,5 +1,0 @@
-{
-  "stage": "generating",
-  "message": "model_generation_failed: Ollama returned no generated text for model \"hf.co/mradermacher/qwen-32b-vhdl-gpt-GGUF:Q8_0\".",
-  "at": "2026-08-01T20:36:40.703Z"
-}

@@ -1,14 +1,0 @@
-entity be used to generate the VHDL code. The code should be self-contained and not include any external entities or components. The code should also not include any instantiation of other entities or components. The code should be written in VHDL-200 to ensure compatibility with modern VHDL tools. The code the code should be written and formatted according to the guidelines provided in the question entity uart_spi_protocol_bridge_top is
-entity uart_spi_protocol_bridge_top is
- !
-
-
-
---- STDERR ---
-Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 5510.76it/s]
-
-
---- ADAPTER BENCHMARK METADATA ---
-elapsedMs=22936
-timeoutMs=900000
-timedOut=false

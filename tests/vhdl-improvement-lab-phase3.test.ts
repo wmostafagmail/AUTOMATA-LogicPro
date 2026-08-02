@@ -24,6 +24,51 @@ const makeContract = () => ({
   pass_marker: 'PASS',
 });
 
+const hashText = (value: string) => createHash('sha256').update(value).digest('hex');
+
+async function writePhase3DatasetManifest(datasetPath: string, splits: Record<'train' | 'validation' | 'test' | 'holdout', string>) {
+  const counts = Object.fromEntries(Object.entries(splits).map(([split, content]) => [split, content.trim() ? content.trim().split(/\r?\n/).length : 0]));
+  const hashes = Object.fromEntries(Object.entries(splits).map(([split, content]) => [split, hashText(content)]));
+  await fs.writeFile(path.join(datasetPath, 'manifest.json'), `${JSON.stringify({ schemaVersion: 2, splits: counts, hashes }, null, 2)}\n`);
+}
+
+async function writeMinimalBuiltDatasetRelease(lab: any, dataRoot: string, releaseId: string) {
+  const datasetPath = path.join(dataRoot, releaseId);
+  await fs.mkdir(datasetPath, { recursive: true });
+  const splits = {
+    train: `${JSON.stringify({ prompt: 'contract', completion: 'rtl train' })}\n`,
+    validation: `${JSON.stringify({ prompt: 'contract', completion: 'rtl validation' })}\n`,
+    test: `${JSON.stringify({ prompt: 'contract', completion: 'rtl test' })}\n`,
+    holdout: `${JSON.stringify({ prompt: 'contract', completion: 'rtl holdout' })}\n`,
+  };
+  await fs.writeFile(path.join(datasetPath, 'train.jsonl'), splits.train);
+  await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), splits.validation);
+  await fs.writeFile(path.join(datasetPath, 'test.jsonl'), splits.test);
+  await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), splits.holdout);
+  await writePhase3DatasetManifest(datasetPath, splits);
+  const release = {
+    id: releaseId,
+    schemaVersion: 2 as const,
+    status: 'BUILT' as const,
+    name: releaseId,
+    recordCount: 4,
+    trainCount: 1,
+    validationCount: 1,
+    testCount: 1,
+    holdoutCount: 1,
+    manifestPath: path.join(datasetPath, 'manifest.json'),
+    datasetPath,
+    sourceRunIds: ['run_a'],
+    sourceArtifactIds: ['artifact_a'],
+    createdAt: new Date(0).toISOString(),
+    frozenAt: new Date(0).toISOString(),
+    audit: {},
+  };
+  const state = await lab.readVhdlLabState();
+  await lab.writeVhdlLabState({ ...state, datasetReleases: [release, ...(state.datasetReleases || []).filter((entry: any) => entry.id !== release.id)] });
+  return release;
+}
+
 test('VHDL Lab Phase 3 repair packets are compact and stage-specific', async () => {
   process.env.VHDL_LAB_DATA_ROOT = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-lab-phase3-packet-'));
   const lab = await import('../src/server/vhdlImprovementLab.ts');
@@ -299,11 +344,11 @@ test('VHDL Lab Phase 3 reports MLX unavailable without failing the app', async (
       schemaVersion: 2 as const,
       status: 'BUILT' as const,
       name: 'training test',
-      recordCount: 160,
-      trainCount: 100,
-      validationCount: 20,
-      testCount: 20,
-      holdoutCount: 20,
+      recordCount: 4,
+      trainCount: 1,
+      validationCount: 1,
+      testCount: 1,
+      holdoutCount: 1,
       manifestPath: '/tmp/manifest.json',
       datasetPath: '/tmp/dataset',
       sourceRunIds: ['run_a'],
@@ -397,21 +442,28 @@ test('VHDL Lab Phase 3 launches local MLX LoRA training and records a checkpoint
     await lab.ensureVhdlLabStorage();
     const datasetPath = path.join(dataRoot, 'qualified-dataset');
     await fs.mkdir(datasetPath, { recursive: true });
-    await fs.writeFile(path.join(datasetPath, 'train.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
-    await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
-    await fs.writeFile(path.join(datasetPath, 'test.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
-    await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify({ prompt: 'contract', completion: 'rtl' })}\n`);
+    const splits = {
+      train: `${JSON.stringify({ prompt: 'contract', completion: 'rtl train' })}\n`,
+      validation: `${JSON.stringify({ prompt: 'contract', completion: 'rtl validation' })}\n`,
+      test: `${JSON.stringify({ prompt: 'contract', completion: 'rtl test' })}\n`,
+      holdout: `${JSON.stringify({ prompt: 'contract', completion: 'rtl holdout' })}\n`,
+    };
+    await fs.writeFile(path.join(datasetPath, 'train.jsonl'), splits.train);
+    await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), splits.validation);
+    await fs.writeFile(path.join(datasetPath, 'test.jsonl'), splits.test);
+    await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), splits.holdout);
+    await writePhase3DatasetManifest(datasetPath, splits);
     const state = await lab.readVhdlLabState();
     const release = {
       id: 'dataset_mlx_launch_test',
       schemaVersion: 2 as const,
       status: 'BUILT' as const,
       name: 'mlx launch test',
-      recordCount: 160,
-      trainCount: 100,
-      validationCount: 20,
-      testCount: 20,
-      holdoutCount: 20,
+      recordCount: 4,
+      trainCount: 1,
+      validationCount: 1,
+      testCount: 1,
+      holdoutCount: 1,
       manifestPath: path.join(datasetPath, 'manifest.json'),
       datasetPath,
       sourceRunIds: ['run_a'],
@@ -449,6 +501,82 @@ test('VHDL Lab Phase 3 launches local MLX LoRA training and records a checkpoint
     assert.equal(checkpoint.metrics.mlxHeldoutTestLoss, 0.321);
     assert.equal(checkpoint.metrics.mlxHeldoutTestPpl, 1.378);
   } finally {
+    if (oldCommand === undefined) delete process.env.VHDL_LAB_MLX_LORA_COMMAND;
+    else process.env.VHDL_LAB_MLX_LORA_COMMAND = oldCommand;
+  }
+});
+
+test('VHDL Lab Phase 3 rejects corrupted MLX adapter artifacts and unparseable test metrics', async () => {
+  const dataRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-lab-phase3-mlx-failures-'));
+  process.env.VHDL_LAB_DATA_ROOT = dataRoot;
+  const oldCommand = process.env.VHDL_LAB_MLX_LORA_COMMAND;
+  const fakeCommand = path.join(dataRoot, 'fake-mlx-lora.sh');
+  await fs.writeFile(fakeCommand, [
+    '#!/bin/sh',
+    'mkdir -p "$PWD/adapter"',
+    'printf "weights" > "$PWD/adapter/0000100_adapters.safetensors"',
+    'printf "final" > "$PWD/adapter/adapters.safetensors"',
+    'echo "Iter 100: Val loss 0.500, Val took 1.0s"',
+    'if [ "$MLX_TEST_WITHOUT_METRICS" = "1" ] && echo "$@" | grep -q "best-adapter-test-config"; then',
+    '  echo "test completed without metrics"',
+    '  exit 0',
+    'fi',
+    'if [ "$MLX_WRITE_CONFIG" = "1" ]; then',
+    '  printf "{\\"adapter\\":\\"lora\\"}\\n" > "$PWD/adapter/adapter_config.json"',
+    'fi',
+    'if echo "$@" | grep -q "best-adapter-test-config"; then',
+    '  echo "Test loss 0.321, Test ppl 1.378."',
+    'fi',
+    'exit 0',
+    '',
+  ].join('\n'));
+  await fs.chmod(fakeCommand, 0o755);
+  process.env.VHDL_LAB_MLX_LORA_COMMAND = fakeCommand;
+  try {
+    const lab = await import('../src/server/vhdlImprovementLab.ts');
+    await lab.ensureVhdlLabStorage();
+    const releaseMissingConfig = await writeMinimalBuiltDatasetRelease(lab, dataRoot, 'dataset_missing_adapter_config');
+    const missingConfigRun = await lab.createVhdlLabTrainingRun({
+      datasetReleaseId: releaseMissingConfig.id,
+      baseModel: 'local-mlx-model',
+      config: { profile: 'quality_v1' },
+    });
+    assert.equal(missingConfigRun.ok, true);
+    if (!missingConfigRun.ok) return;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const state = await lab.readVhdlLabState();
+      const run = state.trainingRuns.find((entry: any) => entry.id === missingConfigRun.trainingRun.id);
+      if (run?.status === 'FAILED') break;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    let state = await lab.readVhdlLabState();
+    let run = state.trainingRuns.find((entry: any) => entry.id === missingConfigRun.trainingRun.id);
+    assert.equal(run?.status, 'FAILED');
+    assert.match(run?.error || '', /MLX adapter_config\.json is missing/);
+
+    process.env.MLX_WRITE_CONFIG = '1';
+    process.env.MLX_TEST_WITHOUT_METRICS = '1';
+    const releaseNoMetrics = await writeMinimalBuiltDatasetRelease(lab, dataRoot, 'dataset_unparseable_test_metrics');
+    const noMetricsRun = await lab.createVhdlLabTrainingRun({
+      datasetReleaseId: releaseNoMetrics.id,
+      baseModel: 'local-mlx-model',
+      config: { profile: 'quality_v1' },
+    });
+    assert.equal(noMetricsRun.ok, true);
+    if (!noMetricsRun.ok) return;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      state = await lab.readVhdlLabState();
+      run = state.trainingRuns.find((entry: any) => entry.id === noMetricsRun.trainingRun.id);
+      if (run?.status === 'FAILED') break;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    state = await lab.readVhdlLabState();
+    run = state.trainingRuns.find((entry: any) => entry.id === noMetricsRun.trainingRun.id);
+    assert.equal(run?.status, 'FAILED');
+    assert.match(run?.error || '', /Test loss could not be parsed/);
+  } finally {
+    delete process.env.MLX_WRITE_CONFIG;
+    delete process.env.MLX_TEST_WITHOUT_METRICS;
     if (oldCommand === undefined) delete process.env.VHDL_LAB_MLX_LORA_COMMAND;
     else process.env.VHDL_LAB_MLX_LORA_COMMAND = oldCommand;
   }

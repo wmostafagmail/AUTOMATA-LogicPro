@@ -1,5 +1,0 @@
-{
-  "stage": "validating_interface",
-  "message": "interface_port_missing: Generated entity is missing port \"pm_data_i\". interface_port_missing: Generated entity is missing port \"dm_addr_o\". interface_port_missing: Generated entity is missing port \"dm_wdata_o\". interface_port_missing: Generated entity is missing port \"dm_rdata_i\". interface_port_missing: Generated entity is missing port \"dm_we_o\". interface_port_missing: Generated entity is missing port \"halted_o\". interface_port_missing: Generated entity is missing port \"status_o\".",
-  "at": "2026-07-31T14:32:13.053Z"
-}

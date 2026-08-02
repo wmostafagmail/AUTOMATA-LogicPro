@@ -1,7 +1,0 @@
-v 4
-file . "../testbench/tb_lab_counter.candidate-1.vhd" "d1b42032b569aa93131adce7fc85a4641e5b8f4c" "20260801214606.703":
-  entity tb_lab_counter at 1( 0) + 0 on 13;
-  architecture sim of tb_lab_counter at 8( 123) + 0 on 14;
-file . "lab_counter.adapter-candidate-1.vhd" "3c4d29661c12e70ba2ea5be6579cdf145ea666f8" "20260801214606.506":
-  entity lab_counter at 1( 0) + 0 on 11;
-  architecture rtl of lab_counter at 21( 342) + 0 on 12;

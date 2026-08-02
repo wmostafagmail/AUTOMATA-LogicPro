@@ -3456,7 +3456,6 @@ export async function buildVhdlLabDatasetRelease(params: {
         recordType: 'contract_to_accepted_rtl',
         contractId: contract.id,
         contractHash: contract.contractHash,
-        contentHash: artifact.contentHash || sha256(normalizeVhdlContentForHash(vhdlContent)),
         entityName: contract.entityName,
         taskFamily: contract.taskFamily,
         category: contract.taskFamily,
@@ -3467,7 +3466,12 @@ export async function buildVhdlLabDatasetRelease(params: {
         completion: vhdlContent,
         artifactId: artifact.id,
         runId: artifact.runId,
-        verificationStrength: 'ghdl_simulation',
+        sourceContentHash: artifact.contentHash || null,
+        contentHash: sha256(normalizeVhdlContentForHash(vhdlContent)),
+        verificationStrength: artifact.verificationStrength || 'unknown',
+        simulationRequired: Boolean(artifact.simulationRequired),
+        passMarkerRequired: Boolean(artifact.passMarkerRequired),
+        acceptedTestbenchPath: artifact.acceptedTestbenchPath || null,
         evaluationOnly: Boolean(contract.isBenchmarkHoldout),
         createdAt: nowIso(),
       });
@@ -3496,6 +3500,7 @@ export async function buildVhdlLabDatasetRelease(params: {
   audit.exactDuplicateRecordsRemoved = deduplicated.removedCount;
   audit.exactDuplicateGroups = deduplicated.duplicateGroups;
   audit.evaluationOnlyDuplicateConflicts = deduplicated.evaluationOnlyConflicts;
+  audit.sourceContentHashMismatchCount = deduplicated.sourceContentHashMismatchCount;
   const datasetId = id('dataset', `${params.name || 'dataset'}:${records.map((record) => record.id).join(':')}`);
   const datasetPath = path.join(vhdlLabPaths().datasets, datasetId);
   await fs.mkdir(datasetPath, { recursive: true });
@@ -3562,12 +3567,19 @@ export async function buildVhdlLabDatasetRelease(params: {
     auditSummary: {
       exactDuplicateRecordsRemoved: deduplicated.removedCount,
       exactDuplicateGroups: deduplicated.duplicateGroups,
+      sourceContentHashMismatchCount: deduplicated.sourceContentHashMismatchCount,
       crossSplitOverlapCount,
       qualityGatePassed: qualityGate.ok,
     },
   }, null, 2)}\n`);
   await writeVhdlLabState({ ...state, datasetReleases: [release, ...state.datasetReleases.filter((entry) => entry.id !== release.id)] });
-  return { ok: release.status === 'BUILT', release, records };
+  const qualityGateIssues = Array.isArray(audit.qualityGateIssues) ? audit.qualityGateIssues.map(String).filter(Boolean) : [];
+  return {
+    ok: release.status === 'BUILT',
+    error: release.status === 'BUILT' ? undefined : qualityGateIssues.join('\n') || 'Dataset failed quality audit.',
+    release,
+    records,
+  };
 }
 
 function suiteContractIds(state: VhdlLabState, suiteId: string, explicitContractIds?: string[]) {
@@ -3924,6 +3936,75 @@ function countNonEmptyJsonlRecords(content: string) {
   return content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length;
 }
 
+async function readNonEmptyJsonlCount(filePath: string, emptyMessage: string) {
+  const content = await fs.readFile(filePath, 'utf8').catch(() => '');
+  if (!content.trim()) throw new Error(emptyMessage);
+  return countNonEmptyJsonlRecords(content);
+}
+
+export async function verifyVhdlQualityDatasetIntegrity(release: VhdlLabDatasetRelease): Promise<{
+  ok: true;
+  actualCounts: { train: number; validation: number; test: number; holdout: number };
+  manifestSha256: string;
+}> {
+  if (release.schemaVersion !== 2) {
+    throw new Error('This dataset release predates isolated quality-training splits. Rebuild the dataset to create independent train, validation, test, and promotion-holdout splits.');
+  }
+  if (release.status !== 'BUILT') {
+    const issues = Array.isArray(release.audit?.qualityGateIssues) ? release.audit.qualityGateIssues.map(String).filter(Boolean) : [];
+    throw new Error(issues.length ? `Dataset failed quality audit:\n${issues.join('\n')}` : 'Dataset does not meet quality minimum record counts.');
+  }
+  const manifestText = await fs.readFile(release.manifestPath, 'utf8').catch(() => '');
+  if (!manifestText.trim()) throw new Error('Dataset manifest is missing or empty.');
+  let manifest: any;
+  try {
+    manifest = JSON.parse(manifestText);
+  } catch (error: any) {
+    throw new Error(`Dataset manifest is not valid JSON: ${String(error?.message || error)}`);
+  }
+  const splitPaths = {
+    train: path.join(release.datasetPath, 'train.jsonl'),
+    validation: path.join(release.datasetPath, 'validation.jsonl'),
+    test: path.join(release.datasetPath, 'test.jsonl'),
+    holdout: path.join(release.datasetPath, 'holdout.jsonl'),
+  };
+  const splitErrors = {
+    train: 'Training split is missing or empty.',
+    validation: 'Validation split is missing or empty.',
+    test: 'Test split is missing or empty.',
+    holdout: 'Promotion holdout is missing or empty.',
+  };
+  const actualCounts = {
+    train: await readNonEmptyJsonlCount(splitPaths.train, splitErrors.train),
+    validation: await readNonEmptyJsonlCount(splitPaths.validation, splitErrors.validation),
+    test: await readNonEmptyJsonlCount(splitPaths.test, splitErrors.test),
+    holdout: await readNonEmptyJsonlCount(splitPaths.holdout, splitErrors.holdout),
+  };
+  const expectedCounts = {
+    train: Number(manifest.splits?.train ?? release.trainCount),
+    validation: Number(manifest.splits?.validation ?? release.validationCount),
+    test: Number(manifest.splits?.test ?? release.testCount),
+    holdout: Number(manifest.splits?.holdout ?? release.holdoutCount),
+  };
+  for (const split of Object.keys(actualCounts) as Array<keyof typeof actualCounts>) {
+    if (actualCounts[split] !== expectedCounts[split]) {
+      const fileName = split === 'validation' ? 'validation.jsonl' : `${split}.jsonl`;
+      throw new Error(`Dataset manifest/count mismatch: expected ${expectedCounts[split]} records in ${fileName} but found ${actualCounts[split]}.`);
+    }
+  }
+  const expectedHashes = manifest.hashes || {};
+  for (const [split, filePath] of Object.entries(splitPaths) as Array<[keyof typeof splitPaths, string]>) {
+    const expectedHash = expectedHashes[split];
+    if (!expectedHash) throw new Error(`Dataset manifest is missing frozen hash for ${split}.jsonl.`);
+    const actualHash = await hashFile(filePath);
+    if (actualHash !== expectedHash) {
+      const fileName = split === 'validation' ? 'validation.jsonl' : `${split}.jsonl`;
+      throw new Error(`Dataset integrity check failed: ${fileName} does not match the frozen manifest hash.`);
+    }
+  }
+  return { ok: true, actualCounts, manifestSha256: sha256(manifestText) };
+}
+
 async function requireNonEmptyTrainingSplit(sourcePath: string, destinationPath: string, splitName: string) {
   const content = await fs.readFile(sourcePath, 'utf8').catch(() => '');
   if (!content.trim()) throw new Error(`Quality training requires a non-empty ${splitName} split.`);
@@ -3933,21 +4014,15 @@ async function requireNonEmptyTrainingSplit(sourcePath: string, destinationPath:
 }
 
 export async function prepareMlxTrainingDataset(release: VhdlLabDatasetRelease, outputPath: string) {
-  if (release.schemaVersion !== 2) {
-    throw new Error('This dataset release predates isolated quality-training splits. Rebuild the dataset to create independent train, validation, test, and promotion-holdout splits.');
-  }
-  if (release.status !== 'BUILT') throw new Error('Dataset does not meet quality minimum record counts.');
+  await verifyVhdlQualityDatasetIntegrity(release);
   const trainSource = path.join(release.datasetPath, 'train.jsonl');
   const validationSource = path.join(release.datasetPath, 'validation.jsonl');
   const testSource = path.join(release.datasetPath, 'test.jsonl');
-  const holdoutSource = path.join(release.datasetPath, 'holdout.jsonl');
   const dataPath = path.join(outputPath, 'mlx-data');
   await fs.mkdir(dataPath, { recursive: true });
   await requireNonEmptyTrainingSplit(trainSource, path.join(dataPath, 'train.jsonl'), 'train');
   await requireNonEmptyTrainingSplit(validationSource, path.join(dataPath, 'valid.jsonl'), 'validation');
   await requireNonEmptyTrainingSplit(testSource, path.join(dataPath, 'test.jsonl'), 'test');
-  const holdoutContent = await fs.readFile(holdoutSource, 'utf8').catch(() => '');
-  if (!holdoutContent.trim()) throw new Error('Promotion holdout is missing or empty.');
   return dataPath;
 }
 
@@ -3963,6 +4038,17 @@ async function copyFileWithHash(sourcePath: string, destinationPath: string) {
   await fs.mkdir(path.dirname(destinationPath), { recursive: true });
   await fs.copyFile(sourcePath, destinationPath);
   return hashFile(destinationPath);
+}
+
+async function requireNonEmptyFile(filePath: string, label: string) {
+  let stat;
+  try {
+    stat = await fs.stat(filePath);
+  } catch {
+    throw new Error(`${label} is missing: ${filePath}`);
+  }
+  if (!stat.isFile() || stat.size < 1) throw new Error(`${label} is missing or empty: ${filePath}`);
+  return stat.size;
 }
 
 async function runLoggedMlxProcess(params: {
@@ -4017,29 +4103,30 @@ async function materializeBestAdapter(params: {
   });
   const bestAdapterPath = path.join(params.outputPath, 'best-adapter');
   await fs.mkdir(bestAdapterPath, { recursive: true });
+  const weightsSizeBytes = await requireNonEmptyFile(selection.selectedSourcePath, 'Selected adapter weights');
   const weightsSha256 = await copyFileWithHash(selection.selectedSourcePath, path.join(bestAdapterPath, 'adapters.safetensors'));
   const adapterConfigPath = path.join(params.adapterPath, 'adapter_config.json');
-  const adapterConfigSha256 = await copyFileWithHash(adapterConfigPath, path.join(bestAdapterPath, 'adapter_config.json')).catch(async () => {
-    const fallbackConfig = `${JSON.stringify({ adapterType: 'lora', generatedBy: 'vhdl_lab_quality_v1' }, null, 2)}\n`;
-    const destination = path.join(bestAdapterPath, 'adapter_config.json');
-    await fs.writeFile(destination, fallbackConfig);
-    return sha256(fallbackConfig);
-  });
+  const adapterConfigSizeBytes = await requireNonEmptyFile(adapterConfigPath, 'MLX adapter_config.json');
+  const adapterConfigSha256 = await copyFileWithHash(adapterConfigPath, path.join(bestAdapterPath, 'adapter_config.json'));
   const selectionJson = {
     trainingRunId: params.trainingRunId,
     selectedSourcePath: selection.selectedSourcePath,
-    selectedIteration: selection.selectedIteration,
-    selectedValidationLoss: selection.selectedValidationLoss,
+    selectedCheckpointIteration: selection.selectedCheckpointIteration,
+    selectedCheckpointValidationLoss: selection.selectedCheckpointValidationLoss,
+    bestValidationIteration: selection.bestValidationIteration,
+    bestValidationLoss: selection.bestValidationLoss,
     selectionReason: selection.selectionReason,
     trainingLogPath: params.logPath,
     resolvedConfigPath: params.resolvedConfigPath,
     selectedAt: nowIso(),
     weightsSha256,
     adapterConfigSha256,
+    weightsSizeBytes,
+    adapterConfigSizeBytes,
   };
   await fs.writeFile(path.join(bestAdapterPath, 'selection.json'), `${JSON.stringify(selectionJson, null, 2)}\n`);
-  await fs.appendFile(params.logPath, `Best adapter selection: ${selection.selectionReason}; source=${selection.selectedSourcePath}; iteration=${selection.selectedIteration ?? 'final'}; validationLoss=${selection.selectedValidationLoss ?? 'n/a'}.\n`);
-  return { bestAdapterPath, selection, weightsSha256, adapterConfigSha256 };
+  await fs.appendFile(params.logPath, `Best adapter selection: ${selection.selectionReason}; source=${selection.selectedSourcePath}; selectedIteration=${selection.selectedCheckpointIteration ?? 'final'}; selectedValidationLoss=${selection.selectedCheckpointValidationLoss ?? 'n/a'}; bestIteration=${selection.bestValidationIteration ?? 'n/a'}; bestValidationLoss=${selection.bestValidationLoss ?? 'n/a'}.\n`);
+  return { bestAdapterPath, selection, weightsSha256, adapterConfigSha256, weightsSizeBytes, adapterConfigSizeBytes };
 }
 
 async function updateVhdlLabTrainingRun(trainingRunId: string, updater: (run: VhdlLabTrainingRun, state: VhdlLabState) => { run: VhdlLabTrainingRun; checkpoint?: VhdlLabCheckpoint | null }) {
@@ -4205,8 +4292,10 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
         loraRank: resolvedConfig.loraParameters.rank,
         loraScale: resolvedConfig.loraParameters.scale,
         loraDropout: resolvedConfig.loraParameters.dropout,
-        bestValidationIteration: best.selection.selectedIteration,
-        bestValidationLoss: best.selection.selectedValidationLoss,
+        bestValidationIteration: best.selection.bestValidationIteration,
+        bestValidationLoss: best.selection.bestValidationLoss,
+        selectedCheckpointIteration: best.selection.selectedCheckpointIteration,
+        selectedCheckpointValidationLoss: best.selection.selectedCheckpointValidationLoss,
         checkpointSelectionReason: best.selection.selectionReason,
         mlxHeldoutTestLoss: testMetrics.testLoss,
         mlxHeldoutTestPpl: testMetrics.testPpl,
@@ -4225,6 +4314,8 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
         resolvedConfigSha256,
         selectedAdapterWeightsSha256: best.weightsSha256,
         adapterConfigSha256: best.adapterConfigSha256,
+        selectedAdapterWeightsSizeBytes: best.weightsSizeBytes,
+        adapterConfigSizeBytes: best.adapterConfigSizeBytes,
       },
       promotionStatus: 'LAB_ONLY' as const,
       promotionBenchmarks: [],

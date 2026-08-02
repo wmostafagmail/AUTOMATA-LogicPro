@@ -33,6 +33,23 @@ function record(id: string, completion = `entity ${id} is end; architecture rtl 
   };
 }
 
+async function writeQualityDatasetManifest(datasetPath: string, splits: Record<'train' | 'validation' | 'test' | 'holdout', string>) {
+  const hashes = {
+    train: sha256(splits.train),
+    validation: sha256(splits.validation),
+    test: sha256(splits.test),
+    holdout: sha256(splits.holdout),
+  };
+  const counts = {
+    train: splits.train.trim() ? splits.train.trim().split(/\r?\n/).length : 0,
+    validation: splits.validation.trim() ? splits.validation.trim().split(/\r?\n/).length : 0,
+    test: splits.test.trim() ? splits.test.trim().split(/\r?\n/).length : 0,
+    holdout: splits.holdout.trim() ? splits.holdout.trim().split(/\r?\n/).length : 0,
+  };
+  await fs.writeFile(path.join(datasetPath, 'manifest.json'), `${JSON.stringify({ schemaVersion: 2, splits: counts, hashes }, null, 2)}\n`);
+  return { hashes, counts };
+}
+
 test('quality normalization preserves semantics while stabilizing hashes', () => {
   const left = 'entity demo is\r\n  -- keep comment   \r\n  constant S : string := " a  b ";   \r\nend;\r\n';
   const right = 'entity demo is\n  -- keep comment\n  constant S : string := " a  b ";\nend;\n';
@@ -52,6 +69,19 @@ test('quality deduplication removes exact duplicates and keeps evaluation-only c
   assert.equal(result.duplicateGroups, 1);
   assert.equal(result.evaluationOnlyConflicts, 1);
   assert.equal(result.records[0].evaluationOnly, true);
+});
+
+test('quality deduplication canonicalizes hashes and audits source hash drift', () => {
+  const completion = 'entity canon is\r\n  signal s : string := "keep   me";   \r\nend;\r\narchitecture rtl of canon is begin end;\r\n';
+  const canonical = sha256(normalizeVhdlContentForHash(completion));
+  const result = deduplicateVhdlTrainingRecords([
+    record('source_hash_old', completion, { contentHash: sha256(completion) }),
+    record('canonical_hash', normalizeVhdlContentForHash(completion), { contentHash: canonical }),
+  ], sha256);
+  assert.equal(result.records.length, 1);
+  assert.equal(result.records[0].contentHash, canonical);
+  assert.equal(result.sourceContentHashMismatchCount, 1);
+  assert.equal((result.records[0] as any).sourceContentHash, canonical);
 });
 
 test('quality deduplication prefers simulation-verified accepted artifacts', () => {
@@ -139,6 +169,8 @@ test('quality config resolver validates overrides without truncating floats', ()
   assert.equal(config.minimumLearningRate, 0.0000123);
   assert.equal(config.loraParameters.scale, 2.75);
   assert.equal(config.loraParameters.dropout, 0.125);
+  assert.throws(() => resolveVhdlQualityTrainingConfig({ trainCount: 100, overrides: { valBatches: 0 } }), /valBatches/);
+  assert.throws(() => resolveVhdlQualityTrainingConfig({ trainCount: 100, overrides: { testBatches: -2 } }), /testBatches/);
 });
 
 test('quality YAML generation is deterministic, escaped, complete, and omits keys', () => {
@@ -151,6 +183,8 @@ test('quality YAML generation is deterministic, escaped, complete, and omits key
   });
   assert.match(yaml, /model: "model \\"with quote\\""/);
   assert.match(yaml, /max_seq_length: 4096/);
+  assert.match(yaml, /learning_rate: 0.00002/);
+  assert.match(yaml, /eps: 1e-8/);
   assert.match(yaml, /grad_accumulation_steps: 8/);
   assert.match(yaml, /rank: 16/);
   assert.doesNotMatch(yaml, /keys:/);
@@ -169,6 +203,7 @@ test('quality MLX metric parser captures validation, train, test, parameters, me
     'Peak mem 3.0 GB',
     'Peak mem 4.5 GB',
     'Some sequences are longer than the limit and will be truncated',
+    'will be truncated',
     'Test loss 0.321, Test ppl 1.378.',
   ].join('\n'));
   assert.equal(metrics.validation.length, 3);
@@ -187,18 +222,21 @@ test('quality adapter selection chooses exact, lower, closest, final, and missin
   const exactDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-quality-exact-'));
   await fs.writeFile(path.join(exactDir, '0000200_adapters.safetensors'), '200');
   await fs.writeFile(path.join(exactDir, 'adapters.safetensors'), 'final');
-  assert.equal((await selectBestMlxAdapterCandidate({ adapterDirectory: exactDir, validationMetrics: [{ iteration: 200, validationLoss: 0.1 }] })).selectedIteration, 200);
+  assert.equal((await selectBestMlxAdapterCandidate({ adapterDirectory: exactDir, validationMetrics: [{ iteration: 1, validationLoss: 0.05 }, { iteration: 200, validationLoss: 0.1 }] })).selectedCheckpointIteration, 200);
 
   const lowerDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-quality-lower-'));
   await fs.writeFile(path.join(lowerDir, '0000100_adapters.safetensors'), '100');
   await fs.writeFile(path.join(lowerDir, '0000300_adapters.safetensors'), '300');
   await fs.writeFile(path.join(lowerDir, 'adapters.safetensors'), 'final');
-  assert.equal((await selectBestMlxAdapterCandidate({ adapterDirectory: lowerDir, validationMetrics: [{ iteration: 250, validationLoss: 0.1 }] })).selectedIteration, 100);
+  const lowerSelection = await selectBestMlxAdapterCandidate({ adapterDirectory: lowerDir, validationMetrics: [{ iteration: 250, validationLoss: 0.1 }] });
+  assert.equal(lowerSelection.selectedCheckpointIteration, 100);
+  assert.equal(lowerSelection.bestValidationIteration, 250);
+  assert.equal(lowerSelection.selectedCheckpointValidationLoss, null);
 
   const closestDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-quality-closest-'));
   await fs.writeFile(path.join(closestDir, '0000300_adapters.safetensors'), '300');
   await fs.writeFile(path.join(closestDir, 'adapters.safetensors'), 'final');
-  assert.equal((await selectBestMlxAdapterCandidate({ adapterDirectory: closestDir, validationMetrics: [{ iteration: 100, validationLoss: 0.1 }] })).selectedIteration, 300);
+  assert.equal((await selectBestMlxAdapterCandidate({ adapterDirectory: closestDir, validationMetrics: [{ iteration: 100, validationLoss: 0.1 }] })).selectedCheckpointIteration, 300);
 
   const finalDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-quality-final-'));
   await fs.writeFile(path.join(finalDir, 'adapters.safetensors'), 'final');
@@ -221,6 +259,12 @@ test('quality MLX dataset preparation uses train, validation, and test only', as
   await fs.writeFile(path.join(datasetPath, 'validation.jsonl'), `${JSON.stringify(validation)}\n`);
   await fs.writeFile(path.join(datasetPath, 'test.jsonl'), `${JSON.stringify(testRecord)}\n`);
   await fs.writeFile(path.join(datasetPath, 'holdout.jsonl'), `${JSON.stringify(holdout)}\n`);
+  await writeQualityDatasetManifest(datasetPath, {
+    train: `${JSON.stringify(train)}\n`,
+    validation: `${JSON.stringify(validation)}\n`,
+    test: `${JSON.stringify(testRecord)}\n`,
+    holdout: `${JSON.stringify(holdout)}\n`,
+  });
   const release = {
     id: 'dataset_quality_prepare',
     schemaVersion: 2 as const,
@@ -245,4 +289,42 @@ test('quality MLX dataset preparation uses train, validation, and test only', as
   assert.match(await fs.readFile(path.join(dataPath, 'test.jsonl'), 'utf8'), /rtl test/);
   assert.doesNotMatch(await fs.readFile(path.join(dataPath, 'test.jsonl'), 'utf8'), /rtl holdout/);
   await assert.rejects(() => lab.prepareMlxTrainingDataset({ ...release, schemaVersion: 1 as const, testCount: 0 }, root), /predates isolated quality-training splits/);
+});
+
+test('quality MLX dataset integrity rejects count and hash drift before training', async () => {
+  const lab = await import('../src/server/vhdlImprovementLab.ts');
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'vhdl-quality-integrity-'));
+  const datasetPath = path.join(root, 'dataset');
+  await fs.mkdir(datasetPath, { recursive: true });
+  const splits = {
+    train: `${JSON.stringify({ prompt: 'train', completion: 'rtl train' })}\n`,
+    validation: `${JSON.stringify({ prompt: 'validation', completion: 'rtl validation' })}\n`,
+    test: `${JSON.stringify({ prompt: 'test', completion: 'rtl test' })}\n`,
+    holdout: `${JSON.stringify({ prompt: 'holdout', completion: 'rtl holdout' })}\n`,
+  };
+  await Promise.all(Object.entries(splits).map(([split, content]) => fs.writeFile(path.join(datasetPath, `${split}.jsonl`), content)));
+  await writeQualityDatasetManifest(datasetPath, splits);
+  const release = {
+    id: 'dataset_quality_integrity',
+    schemaVersion: 2 as const,
+    status: 'BUILT' as const,
+    name: 'quality integrity',
+    recordCount: 4,
+    trainCount: 1,
+    validationCount: 1,
+    testCount: 1,
+    holdoutCount: 1,
+    manifestPath: path.join(datasetPath, 'manifest.json'),
+    datasetPath,
+    sourceRunIds: [],
+    sourceArtifactIds: [],
+    createdAt: new Date(0).toISOString(),
+    frozenAt: new Date(0).toISOString(),
+    audit: {},
+  };
+  assert.equal((await lab.verifyVhdlQualityDatasetIntegrity(release)).actualCounts.train, 1);
+  await fs.appendFile(path.join(datasetPath, 'test.jsonl'), `${JSON.stringify({ prompt: 'tamper', completion: 'tamper' })}\n`);
+  await assert.rejects(() => lab.verifyVhdlQualityDatasetIntegrity(release), /Dataset manifest\/count mismatch: expected 1 records in test\.jsonl but found 2/);
+  await fs.writeFile(path.join(datasetPath, 'test.jsonl'), splits.test.replace('rtl test', 'rtl tampered'));
+  await assert.rejects(() => lab.verifyVhdlQualityDatasetIntegrity(release), /Dataset integrity check failed: test\.jsonl does not match the frozen manifest hash/);
 });

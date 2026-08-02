@@ -1,5 +1,0 @@
-{
-  "stage": "validating_interface",
-  "message": "interface_port_missing: Generated entity is missing port \"pixel_addr_o\".",
-  "at": "2026-07-31T16:33:27.749Z"
-}

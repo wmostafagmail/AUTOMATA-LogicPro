@@ -1,9 +1,0 @@
-v 4
-file . "../testbench/tb_dsp_chain_top.candidate-3.vhd" "60df51b8f73f999217fbc4ce2035195eb951864c" "20260801212056.987":
-  entity tb_dsp_chain_top at 1( 0) + 0 on 15;
-  architecture sim of tb_dsp_chain_top at 8( 127) + 0 on 16;
-file . "dsp_chain_top.adapter-candidate-3.vhd" "8a173c47e5fad68a1d099de27ea813fd91290b7b" "20260801212056.761":
-  entity dsp_chain_top at 1( 0) + 0 on 11;
-  entity core at 18( 417) + 0 on 12;
-  architecture rtl of core at 37( 816) + 0 on 13;
-  architecture rtl of dsp_chain_top at 43( 1158) + 0 on 14;
