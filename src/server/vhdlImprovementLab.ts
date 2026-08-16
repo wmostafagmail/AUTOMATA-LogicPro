@@ -8,14 +8,27 @@ import { buildVerifiedVhdlLibraryTrainingRecords } from './fpgaVhdlLibraryTraini
 import {
   assignVhdlQualityDatasetSplit,
   auditVhdlQualitySplitOverlaps,
+  buildVhdlQualityDatasetReport,
+  buildVhdlTrainingCheckpointCatalog,
+  buildVhdlTrainingValidationEvents,
   deduplicateVhdlTrainingRecords,
+  discoverMlxAdapterCheckpoints,
+  evaluateVhdlTrainingEarlyStopping,
   normalizeVhdlContentForHash,
+  parseMlxTrainMetricLine,
+  parseMlxProgressLine,
   parseMlxTrainingMetrics,
+  parseMlxValidationMetricLine,
   renderMlxLoraConfigYaml,
   renderMlxLoraTestConfigYaml,
+  resolveVhdlTrainingEarlyStoppingPolicy,
   resolveVhdlQualityTrainingConfig,
   selectBestMlxAdapterCandidate,
+  selectBestMlxAdapterCandidateFromCatalog,
+  splitVhdlTrainingRequestedConfig,
   validateVhdlQualityDatasetMinimums,
+  type VhdlTrainingEarlyStoppingPolicy,
+  type VhdlTrainingValidationEvent,
   type VhdlQualityTrainingConfig,
 } from './vhdlTrainingQuality';
 
@@ -23,6 +36,13 @@ const execFileAsync = promisify(execFile);
 const activeVhdlLabTrainingProcesses = new Map<string, ReturnType<typeof spawn>>();
 const activeVhdlLabCheckpointBenchmarks = new Set<string>();
 const vhdlLabStateWriteQueues = new Map<string, Promise<void>>();
+const DEFAULT_VHDL_TRAINING_EARLY_STOP_GRACE_MS = 10_000;
+
+function getVhdlTrainingEarlyStopGraceMs() {
+  const parsed = Number(process.env.VHDL_LAB_TRAINING_EARLY_STOP_GRACE_MS);
+  if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_VHDL_TRAINING_EARLY_STOP_GRACE_MS;
+  return parsed;
+}
 
 export type VhdlLabProviderType = 'OLLAMA' | 'LM_STUDIO' | 'MLX_LM_DIRECT' | 'CUSTOM_OPENAI_COMPATIBLE';
 export type VhdlLabApiMode = 'OLLAMA_NATIVE' | 'LM_STUDIO_NATIVE_V1' | 'OPENAI_CHAT_COMPLETIONS' | 'OPENAI_RESPONSES' | 'LOCAL_SUBPROCESS';
@@ -253,11 +273,15 @@ export type VhdlLabDatasetRelease = {
   audit: Record<string, unknown>;
 };
 
-export type VhdlLabDatasetSource = 'accepted_artifacts' | 'verified_10k_blocks' | 'mixed_accepted_and_verified_10k';
+export type VhdlLabDatasetSource =
+  | 'accepted_artifacts'
+  | 'verified_10k_blocks'
+  | 'mixed_accepted_and_verified_10k'
+  | 'quality_v2_repair_augmented';
 
 export type VhdlLabTrainingRun = {
   id: string;
-  status: 'QUEUED' | 'RUNNING' | 'BLOCKED_MLX_UNAVAILABLE' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  status: 'QUEUED' | 'RUNNING' | 'BLOCKED_MLX_UNAVAILABLE' | 'COMPLETED' | 'EARLY_STOPPED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
   datasetReleaseId: string;
   baseModel: string;
   adapterName: string;
@@ -265,6 +289,44 @@ export type VhdlLabTrainingRun = {
   outputPath: string;
   logPath: string;
   checkpointIds: string[];
+  checkpointCatalogPath?: string | null;
+  requestedEarlyStoppingPolicy?: unknown;
+  resolvedEarlyStoppingPolicy?: VhdlTrainingEarlyStoppingPolicy | null;
+  currentIteration?: number | null;
+  totalIterations?: number | null;
+  progressFraction?: number | null;
+  activePhase?: string | null;
+  activePhaseProgressCount?: number | null;
+  activePhaseDetail?: string | null;
+  lossHistory?: Array<{ iteration: number; trainLoss?: number | null; validationLoss?: number | null }>;
+  latestTrainLoss?: number | null;
+  latestIterationsPerSecond?: number | null;
+  latestTokensPerSecond?: number | null;
+  latestTrainedTokens?: number | null;
+  latestValidationIteration?: number | null;
+  latestValidationLoss?: number | null;
+  bestValidationIteration?: number | null;
+  bestValidationLoss?: number | null;
+  bestValidationEventIndex?: number | null;
+  selectedCheckpointIteration?: number | null;
+  selectedCheckpointValidationLoss?: number | null;
+  latestValidCheckpointPath?: string | null;
+  latestValidCheckpointIteration?: number | null;
+  bestValidatedCheckpointPath?: string | null;
+  bestValidatedCheckpointIteration?: number | null;
+  consecutiveNonImprovingValidationEvents?: number;
+  earlyStopReason?: 'VALIDATION_PATIENCE_EXHAUSTED' | 'HARD_VALIDATION_REGRESSION' | 'NON_FINITE_VALIDATION_METRIC' | null;
+  earlyStoppedAtIteration?: number | null;
+  earlyStoppedAt?: string | null;
+  parentTrainingRunId?: string | null;
+  resumedFromCheckpointPath?: string | null;
+  resumedFromCheckpointSha256?: string | null;
+  resumedFromCheckpointIteration?: number | null;
+  interruptedAt?: string | null;
+  interruptionReason?: string | null;
+  resumableCheckpointPath?: string | null;
+  resumableCheckpointIteration?: number | null;
+  resumableCheckpointSha256?: string | null;
   createdAt: string;
   startedAt: string | null;
   completedAt: string | null;
@@ -396,7 +458,7 @@ export type QualifiedAdapterGenerationSource = {
 export type VhdlLabBenchmarkRun = {
   id: string;
   suiteId: string;
-  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   contractIds: string[];
   childRunIds: string[];
   modelProfileId: string | null;
@@ -727,7 +789,46 @@ function normalizeVhdlLabState(state: VhdlLabState, dataRoot = getVhdlLabConfig(
       schemaVersion: release.schemaVersion || 1,
       testCount: Number(release.testCount || 0),
     })),
-    trainingRuns: state.trainingRuns || [],
+    trainingRuns: (state.trainingRuns || []).map((run) => ({
+      ...run,
+      checkpointCatalogPath: run.checkpointCatalogPath || path.join(run.outputPath, 'checkpoint-catalog.json'),
+      requestedEarlyStoppingPolicy: run.requestedEarlyStoppingPolicy ?? null,
+      resolvedEarlyStoppingPolicy: run.resolvedEarlyStoppingPolicy || null,
+      currentIteration: run.currentIteration ?? null,
+      totalIterations: run.totalIterations ?? (Number((run.config?.resolved as any)?.iters || 0) || null),
+      progressFraction: run.progressFraction ?? null,
+      activePhase: run.activePhase ?? null,
+      activePhaseProgressCount: run.activePhaseProgressCount ?? null,
+      activePhaseDetail: run.activePhaseDetail ?? null,
+      latestTrainLoss: run.latestTrainLoss ?? null,
+      latestIterationsPerSecond: run.latestIterationsPerSecond ?? null,
+      latestTokensPerSecond: run.latestTokensPerSecond ?? null,
+      latestTrainedTokens: run.latestTrainedTokens ?? null,
+      latestValidationIteration: run.latestValidationIteration ?? null,
+      latestValidationLoss: run.latestValidationLoss ?? null,
+      bestValidationIteration: run.bestValidationIteration ?? (run as any).bestValidationIteration ?? null,
+      bestValidationLoss: run.bestValidationLoss ?? (run as any).bestValidationLoss ?? null,
+      bestValidationEventIndex: run.bestValidationEventIndex ?? null,
+      selectedCheckpointIteration: run.selectedCheckpointIteration ?? null,
+      selectedCheckpointValidationLoss: run.selectedCheckpointValidationLoss ?? null,
+      latestValidCheckpointPath: run.latestValidCheckpointPath ?? null,
+      latestValidCheckpointIteration: run.latestValidCheckpointIteration ?? null,
+      bestValidatedCheckpointPath: run.bestValidatedCheckpointPath ?? null,
+      bestValidatedCheckpointIteration: run.bestValidatedCheckpointIteration ?? null,
+      consecutiveNonImprovingValidationEvents: Number(run.consecutiveNonImprovingValidationEvents || 0),
+      earlyStopReason: run.earlyStopReason || null,
+      earlyStoppedAtIteration: run.earlyStoppedAtIteration ?? null,
+      earlyStoppedAt: run.earlyStoppedAt || null,
+      parentTrainingRunId: run.parentTrainingRunId || null,
+      resumedFromCheckpointPath: run.resumedFromCheckpointPath || null,
+      resumedFromCheckpointSha256: run.resumedFromCheckpointSha256 || null,
+      resumedFromCheckpointIteration: run.resumedFromCheckpointIteration ?? null,
+      interruptedAt: run.interruptedAt || null,
+      interruptionReason: run.interruptionReason || null,
+      resumableCheckpointPath: run.resumableCheckpointPath || null,
+      resumableCheckpointIteration: run.resumableCheckpointIteration ?? null,
+      resumableCheckpointSha256: run.resumableCheckpointSha256 || null,
+    })),
     checkpoints: (state.checkpoints || []).map((checkpoint) => ({
       ...checkpoint,
       promotionStatus: checkpoint.promotionStatus || (checkpoint.status === 'PROMOTED' ? 'QUALIFIED_FOR_LEAF_RTL' : 'LAB_ONLY'),
@@ -754,6 +855,32 @@ function normalizeVhdlLabState(state: VhdlLabState, dataRoot = getVhdlLabConfig(
       repairAuditPath: run.repairAuditPath || path.join(run.workspacePath, 'repair-audit.json'),
     })),
   };
+}
+
+export async function buildVhdlLabTrainingLossHistory(run: VhdlLabTrainingRun) {
+  if (!run.logPath) return [] as Array<{ iteration: number; trainLoss?: number | null; validationLoss?: number | null }>;
+  let logText = '';
+  try {
+    logText = await fs.readFile(run.logPath, 'utf8');
+  } catch {
+    return [];
+  }
+  const metrics = parseMlxTrainingMetrics(logText);
+  const byIteration = new Map<number, { iteration: number; trainLoss?: number | null; validationLoss?: number | null }>();
+  for (const train of metrics.train) {
+    const entry = byIteration.get(train.iteration) || { iteration: train.iteration };
+    entry.trainLoss = train.trainLoss;
+    byIteration.set(train.iteration, entry);
+  }
+  for (const validation of metrics.validation) {
+    const entry = byIteration.get(validation.iteration) || { iteration: validation.iteration };
+    entry.validationLoss = validation.validationLoss;
+    byIteration.set(validation.iteration, entry);
+  }
+  return [...byIteration.values()]
+    .filter((entry) => entry.iteration >= 0)
+    .sort((left, right) => left.iteration - right.iteration)
+    .slice(-400);
 }
 
 export async function writeVhdlLabState(state: VhdlLabState, dataRoot = getVhdlLabConfig().dataRoot) {
@@ -3380,6 +3507,57 @@ export async function cancelVhdlLabRun(runId: string) {
   return { ok: true as const, run: runs.find((run) => run.id === runId)! };
 }
 
+export async function cancelVhdlLabBenchmark(benchmarkId: string) {
+  const state = await readVhdlLabState();
+  const benchmark = (state.benchmarkRuns || []).find((entry) => entry.id === benchmarkId);
+  if (!benchmark) return { ok: false as const, error: `Benchmark ${benchmarkId} was not found.` };
+  const cancelledAt = nowIso();
+  const terminalRunStatuses = new Set(['ACCEPTED', 'FAILED', 'CANCELLED']);
+  const childRunIds = new Set(benchmark.childRunIds || []);
+  const runs = state.runs.map((run) => {
+    if (!childRunIds.has(run.id) || terminalRunStatuses.has(run.status)) return run;
+    return {
+      ...run,
+      status: 'CANCELLED' as VhdlLabRunStatus,
+      currentStage: 'cancelled',
+      cancelledAt,
+      completedAt: run.completedAt || cancelledAt,
+      stageLog: [...run.stageLog, { at: cancelledAt, stage: 'cancelled', status: 'CANCELLED', message: `Benchmark ${benchmarkId} cancellation requested by user.` }],
+    };
+  });
+  const existingResults = Array.isArray(benchmark.summary?.results) ? benchmark.summary.results : [];
+  const total = Number(benchmark.summary?.total || benchmark.contractIds.length || existingResults.length || childRunIds.size || 0);
+  const passed = Number(benchmark.summary?.passed || existingResults.filter((result: any) => result?.passed === true).length || 0);
+  const failed = Number(benchmark.summary?.failed || existingResults.filter((result: any) => result?.passed === false).length || 0);
+  const cancelled = Math.max(1, total - passed - failed);
+  const nextBenchmark: VhdlLabBenchmarkRun = {
+    ...benchmark,
+    status: 'CANCELLED',
+    completedAt: benchmark.completedAt || cancelledAt,
+    summary: {
+      ...benchmark.summary,
+      total,
+      passed,
+      failed,
+      cancelled,
+      running: 0,
+      passRate: total ? passed / total : 0,
+      cancelledAt,
+      interrupted: true,
+      interruptedReason: 'benchmark_cancelled_by_user',
+      message: 'Benchmark cancellation requested by user.',
+    },
+  };
+  await fs.mkdir(path.dirname(nextBenchmark.resultPath), { recursive: true });
+  await fs.writeFile(nextBenchmark.resultPath, `${JSON.stringify(nextBenchmark, null, 2)}\n`);
+  await writeVhdlLabState({
+    ...state,
+    runs,
+    benchmarkRuns: [nextBenchmark, ...(state.benchmarkRuns || []).filter((entry) => entry.id !== benchmarkId)],
+  });
+  return { ok: true as const, benchmark: nextBenchmark };
+}
+
 function jsonl(values: unknown[]) {
   return values.map((value) => JSON.stringify(value)).join('\n') + (values.length ? '\n' : '');
 }
@@ -3402,6 +3580,228 @@ function validateDatasetTrainingRecord(record: any) {
   } catch {
     return { ok: false as const, reason: 'malformed_chat_record' };
   }
+}
+
+function datasetRecordBase(params: {
+  idSeed: string;
+  recordType: string;
+  contract: VhdlLabHardwareContract;
+  completion: string;
+  artifact: any;
+  createdAt?: string;
+}) {
+  const normalizedCompletion = normalizeVhdlContentForHash(params.completion);
+  return {
+    id: id('dataset_record', params.idSeed),
+    recordType: params.recordType,
+    contractId: params.contract.id,
+    contractHash: params.contract.contractHash,
+    entityName: params.contract.entityName,
+    taskFamily: params.contract.taskFamily,
+    category: params.contract.taskFamily,
+    completion: params.completion,
+    artifactId: params.artifact.id,
+    runId: params.artifact.runId,
+    sourceContentHash: params.artifact.contentHash || sha256(params.completion),
+    contentHash: sha256(normalizedCompletion),
+    verificationStrength: params.artifact.verificationStrength || 'unknown',
+    simulationRequired: Boolean(params.artifact.simulationRequired),
+    passMarkerRequired: Boolean(params.artifact.passMarkerRequired),
+    acceptedTestbenchPath: params.artifact.acceptedTestbenchPath || null,
+    evaluationOnly: Boolean(params.contract.isBenchmarkHoldout),
+    createdAt: params.createdAt || nowIso(),
+  };
+}
+
+async function readRepairAuditPackets(repairAuditPath: string | null | undefined): Promise<VhdlLabRepairPacket[]> {
+  if (!repairAuditPath) return [];
+  try {
+    const parsed = JSON.parse(await fs.readFile(repairAuditPath, 'utf8')) as { packets?: VhdlLabRepairPacket[] };
+    return Array.isArray(parsed.packets) ? parsed.packets : [];
+  } catch {
+    return [];
+  }
+}
+
+function compactVhdlForRepairContext(vhdl: string) {
+  const lines = normalizeVhdlContentForHash(vhdl).split('\n');
+  if (lines.length <= 180) return lines.join('\n');
+  return [
+    ...lines.slice(0, 90),
+    '-- ... middle of failed candidate omitted for prompt budget ...',
+    ...lines.slice(-90),
+  ].join('\n');
+}
+
+function qualityV2FailurePriority(failureCode: string) {
+  const priorities: Record<string, number> = {
+    video_pixel_address_bound_check: 100,
+    missing_work_unit_dependency: 95,
+    vhdl_extraction_missing_entity: 90,
+    vhdl_extraction_entity_architecture_mismatch: 90,
+    runtime_bound_check_risk: 85,
+    ghdl_synthesis_failure: 70,
+    interface_port_missing: 65,
+    interface_port_mode_mismatch: 65,
+    simulation_assertion_failure: 60,
+  };
+  return priorities[failureCode] || 10;
+}
+
+async function buildQualityV2AcceptedArtifactRecords(params: {
+  artifact: any;
+  contract: VhdlLabHardwareContract;
+  vhdlContent: string;
+  run?: VhdlLabGenerationRun | null;
+  now: string;
+}) {
+  const { artifact, contract, vhdlContent, run, now } = params;
+  const basePayload = `${stableJson(contract.contractJson)}\n${vhdlContent}`;
+  const records: any[] = [];
+  records.push({
+    ...datasetRecordBase({
+      idSeed: `quality_v2:${artifact.id}:contract:${artifact.contentHash}`,
+      recordType: 'contract_to_accepted_rtl',
+      contract,
+      completion: vhdlContent,
+      artifact,
+      createdAt: now,
+    }),
+    prompt: {
+      contractJson: contract.contractJson,
+      instruction: [
+        `Generate one complete VHDL-2008 RTL file for entity ${contract.entityName}.`,
+        'Preserve the frozen entity interface, satisfy the behavior contract, and keep the implementation GHDL-compatible.',
+      ].join(' '),
+    },
+    deduplicationKey: `contract:${contract.contractHash}:${artifact.contentHash || sha256(vhdlContent)}`,
+  });
+  records.push({
+    ...datasetRecordBase({
+      idSeed: `quality_v2:${artifact.id}:self-contained:${artifact.contentHash}`,
+      recordType: 'contract_to_self_contained_rtl',
+      contract,
+      completion: vhdlContent,
+      artifact,
+      createdAt: now,
+    }),
+    prompt: {
+      contractJson: contract.contractJson,
+      instruction: [
+        `Return one complete self-contained VHDL-2008 RTL file for entity ${contract.entityName}.`,
+        'Do not instantiate entity work.X unless X is declared in the same returned file before use.',
+        'Include required IEEE library/use clauses and preserve every frozen generic and port.',
+      ].join(' '),
+      dependencyPolicy: 'single_file_self_contained_no_missing_work_units',
+    },
+    deduplicationKey: `self_contained:${contract.contractHash}:${artifact.contentHash || sha256(vhdlContent)}`,
+  });
+  if (artifact.acceptedTestbenchPath) {
+    let testbench = '';
+    try {
+      testbench = await fs.readFile(artifact.acceptedTestbenchPath, 'utf8');
+    } catch {
+      testbench = '';
+    }
+    if (testbench.trim() && !containsLikelySecret(testbench)) {
+      records.push({
+        ...datasetRecordBase({
+          idSeed: `quality_v2:${artifact.id}:testbench-derived:${sha256(testbench).slice(0, 16)}`,
+          recordType: 'contract_to_testbench_expectations',
+          contract,
+          completion: vhdlContent,
+          artifact,
+          createdAt: now,
+        }),
+        prompt: {
+          contractJson: contract.contractJson,
+          instruction: [
+            `Generate RTL for ${contract.entityName} that passes the deterministic self-checking testbench obligations.`,
+            'Do not weaken, remove, rename, or skip any assertion implied by the testbench expectations.',
+          ].join(' '),
+          testbenchObligations: contract.contractJson.testbench_obligations || [],
+          passMarker: contract.contractJson.pass_marker,
+        },
+        deduplicationKey: `testbench:${contract.contractHash}:${artifact.contentHash || sha256(vhdlContent)}`,
+      });
+    }
+  }
+  const packets = (await readRepairAuditPackets(run?.repairAuditPath)).sort((left, right) => (
+    qualityV2FailurePriority(right.failureCode) - qualityV2FailurePriority(left.failureCode)
+      || left.candidateAttempt - right.candidateAttempt
+      || left.createdAt.localeCompare(right.createdAt)
+  ));
+  const seenFailures = new Set<string>();
+  for (const packet of packets) {
+    if (records.length >= 8) break;
+    if (!packet.previousCandidatePath || !packet.failureCode) continue;
+    const failureKey = `${packet.failureCode}:${packet.contentHash || packet.previousCandidatePath}`;
+    if (seenFailures.has(failureKey)) continue;
+    seenFailures.add(failureKey);
+    let failedVhdl = '';
+    try {
+      failedVhdl = await fs.readFile(packet.previousCandidatePath, 'utf8');
+    } catch {
+      failedVhdl = '';
+    }
+    const repairPayload = `${basePayload}\n${failedVhdl}\n${stableJson(packet)}`;
+    if (!failedVhdl.trim() || containsLikelySecret(repairPayload)) continue;
+    records.push({
+      ...datasetRecordBase({
+        idSeed: `quality_v2:${artifact.id}:repair:${packet.failureCode}:${packet.contentHash || sha256(failedVhdl)}`,
+        recordType: 'failed_rtl_to_repaired_rtl',
+        contract,
+        completion: vhdlContent,
+        artifact,
+        createdAt: now,
+      }),
+      failureCode: packet.failureCode,
+      failureStage: packet.stage,
+      prompt: {
+        contractJson: contract.contractJson,
+        instruction: [
+          `Repair the failed VHDL candidate for entity ${contract.entityName}.`,
+          'Return one complete VHDL-2008 RTL file only.',
+          'Preserve the frozen entity interface and do not weaken test assertions.',
+          'Apply the legal replacement described by the canonical failure packet.',
+        ].join(' '),
+        failurePacket: {
+          failureCode: packet.failureCode,
+          stage: packet.stage,
+          fileLine: packet.fileLine,
+          excerpt: packet.excerpt,
+          validatorOutput: packet.validatorOutput,
+          ghdlOutput: packet.ghdlOutput,
+          forbiddenPattern: packet.forbiddenPattern,
+          legalReplacement: packet.legalReplacement,
+        },
+        failedVhdl: compactVhdlForRepairContext(failedVhdl),
+      },
+      deduplicationKey: `repair:${contract.contractHash}:${packet.failureCode}:${packet.contentHash || sha256(failedVhdl)}`,
+    });
+    records.push({
+      ...datasetRecordBase({
+        idSeed: `quality_v2:${artifact.id}:anti-pattern:${packet.failureCode}:${packet.contentHash || sha256(failedVhdl)}`,
+        recordType: 'anti_pattern_to_safe_pattern',
+        contract,
+        completion: vhdlContent,
+        artifact,
+        createdAt: now,
+      }),
+      failureCode: packet.failureCode,
+      prompt: {
+        contractJson: contract.contractJson,
+        instruction: [
+          `Generate RTL for ${contract.entityName} while avoiding this known VHDL failure class: ${packet.failureCode}.`,
+          `Forbidden construct/pattern: ${packet.forbiddenPattern}.`,
+          `Legal replacement: ${packet.legalReplacement}.`,
+          'Return one complete VHDL-2008 RTL file only.',
+        ].join(' '),
+      },
+      deduplicationKey: `anti_pattern:${contract.contractHash}:${packet.failureCode}:${artifact.contentHash || sha256(vhdlContent)}`,
+    });
+  }
+  return records;
 }
 
 async function writeJsonlFile(filePath: string, values: unknown[]) {
@@ -3427,12 +3827,14 @@ export async function buildVhdlLabDatasetRelease(params: {
   const audit: Record<string, unknown> = {
     sourceType,
     acceptedArtifacts: { excludedSecrets: 0, missingArtifacts: 0, excludedUnverified: 0, includedRecords: 0 },
+    qualityV2: { repairAugmentedRecords: 0, selfContainedRecords: 0, antiPatternRecords: 0, testbenchDerivedRecords: 0, sourceRunsWithRepairAudit: 0 },
     verified10k: null,
     excludedMalformedTrainingRecords: 0,
     excludedEmptyAssistantCompletions: 0,
   };
-  if (sourceType === 'accepted_artifacts' || sourceType === 'mixed_accepted_and_verified_10k') {
+  if (sourceType === 'accepted_artifacts' || sourceType === 'mixed_accepted_and_verified_10k' || sourceType === 'quality_v2_repair_augmented') {
     const acceptedAudit = audit.acceptedArtifacts as Record<string, number>;
+    const qualityV2Audit = audit.qualityV2 as Record<string, number>;
     for (const artifact of selectedArtifacts) {
       const contract = state.contracts.find((entry) => entry.id === artifact.contractId);
       if (!contract) {
@@ -3451,34 +3853,54 @@ export async function buildVhdlLabDatasetRelease(params: {
         acceptedAudit.excludedSecrets += 1;
         continue;
       }
-      records.push({
-        id: id('dataset_record', `${artifact.id}:${artifact.contentHash}`),
-        recordType: 'contract_to_accepted_rtl',
-        contractId: contract.id,
-        contractHash: contract.contractHash,
-        entityName: contract.entityName,
-        taskFamily: contract.taskFamily,
-        category: contract.taskFamily,
-        prompt: {
-          contractJson: contract.contractJson,
-          instruction: `Generate one complete VHDL-2008 RTL file for entity ${contract.entityName}.`,
-        },
-        completion: vhdlContent,
-        artifactId: artifact.id,
-        runId: artifact.runId,
-        sourceContentHash: artifact.contentHash || null,
-        contentHash: sha256(normalizeVhdlContentForHash(vhdlContent)),
-        verificationStrength: artifact.verificationStrength || 'unknown',
-        simulationRequired: Boolean(artifact.simulationRequired),
-        passMarkerRequired: Boolean(artifact.passMarkerRequired),
-        acceptedTestbenchPath: artifact.acceptedTestbenchPath || null,
-        evaluationOnly: Boolean(contract.isBenchmarkHoldout),
-        createdAt: nowIso(),
-      });
-      acceptedAudit.includedRecords += 1;
+      if (sourceType === 'quality_v2_repair_augmented') {
+        const sourceRun = state.runs.find((entry) => entry.id === artifact.runId);
+        if (sourceRun?.repairAuditPath) qualityV2Audit.sourceRunsWithRepairAudit += 1;
+        const enhancedRecords = await buildQualityV2AcceptedArtifactRecords({
+          artifact,
+          contract,
+          vhdlContent,
+          run: sourceRun || null,
+          now: nowIso(),
+        });
+        for (const record of enhancedRecords) {
+          if (record.recordType === 'failed_rtl_to_repaired_rtl') qualityV2Audit.repairAugmentedRecords += 1;
+          if (record.recordType === 'contract_to_self_contained_rtl') qualityV2Audit.selfContainedRecords += 1;
+          if (record.recordType === 'anti_pattern_to_safe_pattern') qualityV2Audit.antiPatternRecords += 1;
+          if (record.recordType === 'contract_to_testbench_expectations') qualityV2Audit.testbenchDerivedRecords += 1;
+        }
+        records.push(...enhancedRecords);
+        acceptedAudit.includedRecords += enhancedRecords.length;
+      } else {
+        records.push({
+          id: id('dataset_record', `${artifact.id}:${artifact.contentHash}`),
+          recordType: 'contract_to_accepted_rtl',
+          contractId: contract.id,
+          contractHash: contract.contractHash,
+          entityName: contract.entityName,
+          taskFamily: contract.taskFamily,
+          category: contract.taskFamily,
+          prompt: {
+            contractJson: contract.contractJson,
+            instruction: `Generate one complete VHDL-2008 RTL file for entity ${contract.entityName}.`,
+          },
+          completion: vhdlContent,
+          artifactId: artifact.id,
+          runId: artifact.runId,
+          sourceContentHash: artifact.contentHash || null,
+          contentHash: sha256(normalizeVhdlContentForHash(vhdlContent)),
+          verificationStrength: artifact.verificationStrength || 'unknown',
+          simulationRequired: Boolean(artifact.simulationRequired),
+          passMarkerRequired: Boolean(artifact.passMarkerRequired),
+          acceptedTestbenchPath: artifact.acceptedTestbenchPath || null,
+          evaluationOnly: Boolean(contract.isBenchmarkHoldout),
+          createdAt: nowIso(),
+        });
+        acceptedAudit.includedRecords += 1;
+      }
     }
   }
-  if (sourceType === 'verified_10k_blocks' || sourceType === 'mixed_accepted_and_verified_10k') {
+  if (sourceType === 'verified_10k_blocks' || sourceType === 'mixed_accepted_and_verified_10k' || sourceType === 'quality_v2_repair_augmented') {
     const verified = await buildVerifiedVhdlLibraryTrainingRecords({
       maxRecords: params.maxLibraryRecords,
       nowIso,
@@ -3525,7 +3947,9 @@ export async function buildVhdlLabDatasetRelease(params: {
     overlapAudit.validationHoldoutOverlap,
     overlapAudit.testHoldoutOverlap,
   ].reduce((sum, value) => sum + value, 0);
+  const qualityReport = buildVhdlQualityDatasetReport(records, nowIso());
   Object.assign(audit, overlapAudit, {
+    qualityReport,
     qualityGateIssues: qualityGate.qualityGateIssues,
     qualityGatePassed: qualityGate.ok,
     minimumTrain: qualityGate.minimumTrain,
@@ -3541,6 +3965,7 @@ export async function buildVhdlLabDatasetRelease(params: {
     holdout: await writeJsonlFile(path.join(datasetPath, 'holdout.jsonl'), holdout),
   };
   await fs.writeFile(path.join(datasetPath, 'audit.json'), `${JSON.stringify(audit, null, 2)}\n`);
+  await fs.writeFile(path.join(datasetPath, 'quality_report.json'), `${JSON.stringify(qualityReport, null, 2)}\n`);
   const release: VhdlLabDatasetRelease = {
     id: datasetId,
     schemaVersion: 2,
@@ -3570,6 +3995,10 @@ export async function buildVhdlLabDatasetRelease(params: {
       sourceContentHashMismatchCount: deduplicated.sourceContentHashMismatchCount,
       crossSplitOverlapCount,
       qualityGatePassed: qualityGate.ok,
+      qualityReportPath: path.join(datasetPath, 'quality_report.json'),
+      recordTypes: qualityReport.recordTypes,
+      repairAugmentedRecords: qualityReport.repairAugmentedRecords,
+      categories: qualityReport.categories,
     },
   }, null, 2)}\n`);
   await writeVhdlLabState({ ...state, datasetReleases: [release, ...state.datasetReleases.filter((entry) => entry.id !== release.id)] });
@@ -3962,6 +4391,37 @@ export async function verifyVhdlQualityDatasetIntegrity(release: VhdlLabDatasetR
   } catch (error: any) {
     throw new Error(`Dataset manifest is not valid JSON: ${String(error?.message || error)}`);
   }
+  const splitFileName = (split: 'train' | 'validation' | 'test' | 'holdout') => split === 'validation' ? 'validation.jsonl' : `${split}.jsonl`;
+  const validCount = (value: unknown) => Number.isFinite(Number(value)) && Number.isInteger(Number(value)) && Number(value) >= 0;
+  const releaseCountFields = {
+    train: 'trainCount',
+    validation: 'validationCount',
+    test: 'testCount',
+    holdout: 'holdoutCount',
+  } as const;
+  const manifestSplits = manifest.splits || {};
+  const manifestCounts = {
+    train: Number(manifestSplits.train),
+    validation: Number(manifestSplits.validation),
+    test: Number(manifestSplits.test),
+    holdout: Number(manifestSplits.holdout),
+  };
+  for (const split of Object.keys(manifestCounts) as Array<keyof typeof manifestCounts>) {
+    if (!Object.prototype.hasOwnProperty.call(manifestSplits, split) || !validCount(manifestSplits[split])) {
+      throw new Error(`Dataset manifest is missing a valid integer count for ${split}.`);
+    }
+  }
+  const releaseCounts = {
+    train: Number(release.trainCount),
+    validation: Number(release.validationCount),
+    test: Number(release.testCount),
+    holdout: Number(release.holdoutCount),
+  };
+  for (const split of Object.keys(releaseCounts) as Array<keyof typeof releaseCounts>) {
+    if (!validCount((release as any)[releaseCountFields[split]])) {
+      throw new Error(`Dataset release contains an invalid ${releaseCountFields[split]} value.`);
+    }
+  }
   const splitPaths = {
     train: path.join(release.datasetPath, 'train.jsonl'),
     validation: path.join(release.datasetPath, 'validation.jsonl'),
@@ -3980,16 +4440,12 @@ export async function verifyVhdlQualityDatasetIntegrity(release: VhdlLabDatasetR
     test: await readNonEmptyJsonlCount(splitPaths.test, splitErrors.test),
     holdout: await readNonEmptyJsonlCount(splitPaths.holdout, splitErrors.holdout),
   };
-  const expectedCounts = {
-    train: Number(manifest.splits?.train ?? release.trainCount),
-    validation: Number(manifest.splits?.validation ?? release.validationCount),
-    test: Number(manifest.splits?.test ?? release.testCount),
-    holdout: Number(manifest.splits?.holdout ?? release.holdoutCount),
-  };
   for (const split of Object.keys(actualCounts) as Array<keyof typeof actualCounts>) {
-    if (actualCounts[split] !== expectedCounts[split]) {
-      const fileName = split === 'validation' ? 'validation.jsonl' : `${split}.jsonl`;
-      throw new Error(`Dataset manifest/count mismatch: expected ${expectedCounts[split]} records in ${fileName} but found ${actualCounts[split]}.`);
+    if (actualCounts[split] !== manifestCounts[split]) {
+      throw new Error(`Dataset manifest/count mismatch: expected ${manifestCounts[split]} records in ${splitFileName(split)} but found ${actualCounts[split]}.`);
+    }
+    if (actualCounts[split] !== releaseCounts[split]) {
+      throw new Error(`Dataset release/count mismatch: release ${releaseCountFields[split]}=${releaseCounts[split]}, but ${splitFileName(split)} contains ${actualCounts[split]} records.`);
     }
   }
   const expectedHashes = manifest.hashes || {};
@@ -3998,8 +4454,7 @@ export async function verifyVhdlQualityDatasetIntegrity(release: VhdlLabDatasetR
     if (!expectedHash) throw new Error(`Dataset manifest is missing frozen hash for ${split}.jsonl.`);
     const actualHash = await hashFile(filePath);
     if (actualHash !== expectedHash) {
-      const fileName = split === 'validation' ? 'validation.jsonl' : `${split}.jsonl`;
-      throw new Error(`Dataset integrity check failed: ${fileName} does not match the frozen manifest hash.`);
+      throw new Error(`Dataset integrity check failed: ${splitFileName(split)} does not match the frozen manifest hash.`);
     }
   }
   return { ok: true, actualCounts, manifestSha256: sha256(manifestText) };
@@ -4013,8 +4468,15 @@ async function requireNonEmptyTrainingSplit(sourcePath: string, destinationPath:
   await fs.writeFile(destinationPath, normalized);
 }
 
-export async function prepareMlxTrainingDataset(release: VhdlLabDatasetRelease, outputPath: string) {
-  await verifyVhdlQualityDatasetIntegrity(release);
+export async function prepareMlxTrainingDataset(release: VhdlLabDatasetRelease, outputPath: string): Promise<{
+  dataPath: string;
+  integrity: {
+    ok: true;
+    actualCounts: { train: number; validation: number; test: number; holdout: number };
+    manifestSha256: string;
+  };
+}> {
+  const integrity = await verifyVhdlQualityDatasetIntegrity(release);
   const trainSource = path.join(release.datasetPath, 'train.jsonl');
   const validationSource = path.join(release.datasetPath, 'validation.jsonl');
   const testSource = path.join(release.datasetPath, 'test.jsonl');
@@ -4023,7 +4485,7 @@ export async function prepareMlxTrainingDataset(release: VhdlLabDatasetRelease, 
   await requireNonEmptyTrainingSplit(trainSource, path.join(dataPath, 'train.jsonl'), 'train');
   await requireNonEmptyTrainingSplit(validationSource, path.join(dataPath, 'valid.jsonl'), 'validation');
   await requireNonEmptyTrainingSplit(testSource, path.join(dataPath, 'test.jsonl'), 'test');
-  return dataPath;
+  return { dataPath, integrity };
 }
 
 function shellQuote(value: string) {
@@ -4051,6 +4513,38 @@ async function requireNonEmptyFile(filePath: string, label: string) {
   return stat.size;
 }
 
+async function writeTrainingCheckpointCatalogSnapshot(params: {
+  trainingRunId: string;
+  adapterPath: string;
+  catalogPath: string;
+  policy: VhdlTrainingEarlyStoppingPolicy;
+  validationMetrics: Array<{ iteration: number; validationLoss: number }>;
+}) {
+  const generatedAt = nowIso();
+  const checkpoints = await discoverMlxAdapterCheckpoints(params.adapterPath, generatedAt);
+  const events = buildVhdlTrainingValidationEvents({
+    metrics: params.validationMetrics,
+    policy: params.policy,
+    checkpoints,
+    observedAt: generatedAt,
+  });
+  const catalog = buildVhdlTrainingCheckpointCatalog({
+    trainingRunId: params.trainingRunId,
+    checkpoints,
+    validationEvents: events,
+    policy: params.policy,
+    generatedAt,
+  });
+  await fs.mkdir(path.dirname(params.catalogPath), { recursive: true });
+  const tempPath = `${params.catalogPath}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(tempPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  await fs.rename(tempPath, params.catalogPath);
+  const latestCheckpoint = [...checkpoints]
+    .filter((checkpoint) => checkpoint.valid)
+    .sort((left, right) => Number(right.iteration ?? Number.MAX_SAFE_INTEGER) - Number(left.iteration ?? Number.MAX_SAFE_INTEGER))[0] || null;
+  return { catalog, events, checkpoints, latestCheckpoint };
+}
+
 async function runLoggedMlxProcess(params: {
   trainingRunId: string;
   command: string;
@@ -4058,6 +4552,10 @@ async function runLoggedMlxProcess(params: {
   cwd: string;
   logPath: string;
   env: NodeJS.ProcessEnv;
+  adapterPath?: string;
+  checkpointCatalogPath?: string;
+  earlyStoppingPolicy?: VhdlTrainingEarlyStoppingPolicy;
+  resolvedIterations?: number;
 }): Promise<{
   code: number | null;
   signal: NodeJS.Signals | null;
@@ -4065,59 +4563,218 @@ async function runLoggedMlxProcess(params: {
   await fs.appendFile(params.logPath, `Command: ${shellQuote(params.command)} ${params.args.map(shellQuote).join(' ')}\n`);
   return await new Promise((resolve, reject) => {
     let settled = false;
+    let bufferedLine = '';
+    const validationMetrics: Array<{ iteration: number; validationLoss: number }> = [];
+    const seenValidationMetrics = new Set<string>();
+    const pendingLineTasks = new Set<Promise<void>>();
+    let stopRequested = false;
+    let earlyStopEscalationTimer: NodeJS.Timeout | null = null;
     const finish = (callback: () => void) => {
       if (settled) return;
       settled = true;
+      if (earlyStopEscalationTimer) {
+        clearTimeout(earlyStopEscalationTimer);
+        earlyStopEscalationTimer = null;
+      }
       activeVhdlLabTrainingProcesses.delete(params.trainingRunId);
       callback();
+    };
+    const trackLineProcessing = (line: string, child: ReturnType<typeof spawn>) => {
+      const task = processLine(line, child)
+        .catch((error) => {
+          void fs.appendFile(params.logPath, `Checkpoint catalog update failed: ${String(error?.message || error)}\n`);
+        })
+        .finally(() => {
+          pendingLineTasks.delete(task);
+        });
+      pendingLineTasks.add(task);
+    };
+    const processLine = async (line: string, child: ReturnType<typeof spawn>) => {
+      const train = parseMlxTrainMetricLine(line);
+      if (train) {
+        await updateVhdlLabTrainingRun(params.trainingRunId, (run) => ({
+          run: {
+            ...run,
+            currentIteration: train.iteration,
+            totalIterations: params.resolvedIterations ?? run.totalIterations ?? null,
+            progressFraction: params.resolvedIterations && params.resolvedIterations > 0 ? train.iteration / params.resolvedIterations : run.progressFraction ?? null,
+            activePhase: 'training_iterations',
+            activePhaseProgressCount: train.iteration,
+            activePhaseDetail: null,
+            latestTrainLoss: train.trainLoss,
+            latestIterationsPerSecond: train.iterationsPerSecond,
+            latestTokensPerSecond: train.tokensPerSecond,
+            latestTrainedTokens: train.trainedTokens,
+          },
+        }));
+      }
+      const progress = parseMlxProgressLine(line);
+      if (progress) {
+        await updateVhdlLabTrainingRun(params.trainingRunId, (run) => ({
+          run: {
+            ...run,
+            activePhase: progress.phase,
+            activePhaseProgressCount: progress.count,
+            activePhaseDetail: progress.detail,
+          },
+        }));
+      }
+      const validation = parseMlxValidationMetricLine(line);
+      if (!validation || !params.adapterPath || !params.checkpointCatalogPath || !params.earlyStoppingPolicy) return;
+      const validationKey = `${validation.iteration}:${String(validation.validationLoss)}`;
+      if (seenValidationMetrics.has(validationKey)) return;
+      seenValidationMetrics.add(validationKey);
+      validationMetrics.push(validation);
+      const snapshot = await writeTrainingCheckpointCatalogSnapshot({
+        trainingRunId: params.trainingRunId,
+        adapterPath: params.adapterPath,
+        catalogPath: params.checkpointCatalogPath,
+        policy: params.earlyStoppingPolicy,
+        validationMetrics,
+      });
+      const latestEvent = snapshot.events[snapshot.events.length - 1] || null;
+      const bestEvent = [...snapshot.events]
+        .filter((event) => event.iteration > 1 && event.isFinite && event.isImprovement)
+        .sort((left, right) => left.validationLoss - right.validationLoss || left.iteration - right.iteration)[0] || null;
+      const earlyStopping = evaluateVhdlTrainingEarlyStopping({ events: snapshot.events, policy: params.earlyStoppingPolicy });
+      await updateVhdlLabTrainingRun(params.trainingRunId, (run) => ({
+        run: {
+          ...run,
+          currentIteration: validation.iteration,
+          totalIterations: params.resolvedIterations ?? run.totalIterations ?? null,
+          progressFraction: params.resolvedIterations && params.resolvedIterations > 0 ? validation.iteration / params.resolvedIterations : run.progressFraction ?? null,
+          activePhase: 'validation',
+          activePhaseProgressCount: validation.iteration,
+          activePhaseDetail: null,
+          latestValidationIteration: validation.iteration,
+          latestValidationLoss: validation.validationLoss,
+          bestValidationIteration: bestEvent?.iteration ?? run.bestValidationIteration ?? null,
+          bestValidationLoss: bestEvent?.validationLoss ?? run.bestValidationLoss ?? null,
+          bestValidationEventIndex: bestEvent ? snapshot.events.findIndex((event) => event === bestEvent) : run.bestValidationEventIndex ?? null,
+          selectedCheckpointIteration: snapshot.catalog.currentBest.selectedCheckpointIteration,
+          selectedCheckpointValidationLoss: snapshot.events.find((event) => event.iteration === snapshot.catalog.currentBest.selectedCheckpointIteration)?.validationLoss ?? null,
+          latestValidCheckpointPath: snapshot.latestCheckpoint?.path || run.latestValidCheckpointPath || null,
+          latestValidCheckpointIteration: snapshot.latestCheckpoint?.iteration ?? run.latestValidCheckpointIteration ?? null,
+          bestValidatedCheckpointPath: snapshot.catalog.currentBest.selectedCheckpointPath,
+          bestValidatedCheckpointIteration: snapshot.catalog.currentBest.selectedCheckpointIteration,
+          consecutiveNonImprovingValidationEvents: latestEvent?.consecutiveNonImprovingEvents ?? run.consecutiveNonImprovingValidationEvents ?? 0,
+          checkpointCatalogPath: params.checkpointCatalogPath,
+          earlyStopReason: earlyStopping.stopReason || run.earlyStopReason || null,
+          earlyStoppedAtIteration: earlyStopping.stoppedAtIteration ?? run.earlyStoppedAtIteration ?? null,
+          earlyStoppedAt: earlyStopping.stopRequested ? (run.earlyStoppedAt || nowIso()) : run.earlyStoppedAt || null,
+          status: earlyStopping.stopRequested && run.status !== 'CANCELLED' ? 'EARLY_STOPPED' : run.status,
+          error: earlyStopping.stopRequested ? null : run.error,
+        },
+      }));
+      if (earlyStopping.stopRequested && !stopRequested) {
+        stopRequested = true;
+        await fs.appendFile(params.logPath, `Early stopping requested: ${earlyStopping.stopReason} at iteration ${earlyStopping.stoppedAtIteration}.\n`);
+        child.kill('SIGTERM');
+        const graceMs = getVhdlTrainingEarlyStopGraceMs();
+        if (graceMs > 0) {
+          earlyStopEscalationTimer = setTimeout(() => {
+            if (settled) return;
+            void fs.appendFile(params.logPath, `Early stopping graceful timeout exceeded after ${graceMs}ms; sending SIGKILL.\n`);
+            child.kill('SIGKILL');
+          }, graceMs);
+          earlyStopEscalationTimer.unref?.();
+        }
+      }
+    };
+    const processChunk = (chunk: Buffer | string, child: ReturnType<typeof spawn>) => {
+      const text = String(chunk);
+      bufferedLine += text;
+      const lines = bufferedLine.split(/\r\n|\n|\r/);
+      bufferedLine = lines.pop() || '';
+      for (const line of lines) trackLineProcessing(line, child);
     };
     const child = spawn(params.command, params.args, { cwd: params.cwd, env: params.env });
     activeVhdlLabTrainingProcesses.set(params.trainingRunId, child);
     child.stdout.on('data', (chunk) => {
       void fs.appendFile(params.logPath, chunk);
+      processChunk(chunk, child);
     });
     child.stderr.on('data', (chunk) => {
       void fs.appendFile(params.logPath, chunk);
+      processChunk(chunk, child);
     });
     child.on('error', (error) => {
       void fs.appendFile(params.logPath, `\nMLX process failed to start: ${error.message}\n`);
       finish(() => reject(error));
     });
     child.on('close', (code, signal) => {
-      finish(() => resolve({ code, signal }));
+      if (bufferedLine.trim()) {
+        trackLineProcessing(bufferedLine, child);
+      }
+      void Promise.allSettled([...pendingLineTasks]).then(() => {
+        finish(() => resolve({ code, signal }));
+      });
     });
   });
 }
 
 async function materializeBestAdapter(params: {
   trainingRunId: string;
+  runTerminalStatus: 'COMPLETED' | 'EARLY_STOPPED';
   outputPath: string;
   adapterPath: string;
   logPath: string;
   resolvedConfigPath: string;
+  checkpointCatalogPath: string;
+  earlyStoppingPolicy: VhdlTrainingEarlyStoppingPolicy;
+  earlyStopReason: VhdlLabTrainingRun['earlyStopReason'];
+  earlyStoppedAtIteration: number | null;
   metrics: ReturnType<typeof parseMlxTrainingMetrics>;
 }) {
-  const selection = await selectBestMlxAdapterCandidate({
-    adapterDirectory: params.adapterPath,
-    validationMetrics: params.metrics.validation,
+  const checkpoints = await discoverMlxAdapterCheckpoints(params.adapterPath);
+  const validationEvents = buildVhdlTrainingValidationEvents({
+    metrics: params.metrics.validation,
+    policy: params.earlyStoppingPolicy,
+    checkpoints,
+    observedAt: nowIso(),
   });
+  const catalog = buildVhdlTrainingCheckpointCatalog({
+    trainingRunId: params.trainingRunId,
+    checkpoints,
+    validationEvents,
+    policy: params.earlyStoppingPolicy,
+    generatedAt: nowIso(),
+  });
+  await fs.writeFile(params.checkpointCatalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  const selection = selectBestMlxAdapterCandidateFromCatalog({ checkpoints, validationEvents });
   const bestAdapterPath = path.join(params.outputPath, 'best-adapter');
   await fs.mkdir(bestAdapterPath, { recursive: true });
-  const weightsSizeBytes = await requireNonEmptyFile(selection.selectedSourcePath, 'Selected adapter weights');
-  const weightsSha256 = await copyFileWithHash(selection.selectedSourcePath, path.join(bestAdapterPath, 'adapters.safetensors'));
+  await requireNonEmptyFile(selection.selectedSourcePath, 'Selected adapter weights');
+  const copiedWeightsPath = path.join(bestAdapterPath, 'adapters.safetensors');
+  const sourceWeightsSha256 = await hashFile(selection.selectedSourcePath);
+  const weightsSha256 = await copyFileWithHash(selection.selectedSourcePath, copiedWeightsPath);
+  if (sourceWeightsSha256 !== weightsSha256) throw new Error('Copied best-adapter weights failed hash verification.');
+  const weightsSizeBytes = await requireNonEmptyFile(copiedWeightsPath, 'Copied best-adapter weights');
   const adapterConfigPath = path.join(params.adapterPath, 'adapter_config.json');
-  const adapterConfigSizeBytes = await requireNonEmptyFile(adapterConfigPath, 'MLX adapter_config.json');
-  const adapterConfigSha256 = await copyFileWithHash(adapterConfigPath, path.join(bestAdapterPath, 'adapter_config.json'));
+  await requireNonEmptyFile(adapterConfigPath, 'MLX adapter_config.json');
+  const copiedAdapterConfigPath = path.join(bestAdapterPath, 'adapter_config.json');
+  const sourceAdapterConfigSha256 = await hashFile(adapterConfigPath);
+  const adapterConfigSha256 = await copyFileWithHash(adapterConfigPath, copiedAdapterConfigPath);
+  if (sourceAdapterConfigSha256 !== adapterConfigSha256) throw new Error('Copied best-adapter configuration failed hash verification.');
+  const adapterConfigSizeBytes = await requireNonEmptyFile(copiedAdapterConfigPath, 'Copied best-adapter configuration');
   const selectionJson = {
     trainingRunId: params.trainingRunId,
-    selectedSourcePath: selection.selectedSourcePath,
-    selectedCheckpointIteration: selection.selectedCheckpointIteration,
-    selectedCheckpointValidationLoss: selection.selectedCheckpointValidationLoss,
+    runTerminalStatus: params.runTerminalStatus,
     bestValidationIteration: selection.bestValidationIteration,
     bestValidationLoss: selection.bestValidationLoss,
+    selectedCheckpointIteration: selection.selectedCheckpointIteration,
+    selectedCheckpointValidationLoss: selection.selectedCheckpointValidationLoss,
     selectionReason: selection.selectionReason,
+    selectedSourcePath: selection.selectedSourcePath,
+    sourceCheckpointPath: selection.selectedSourcePath,
+    destinationWeightsPath: copiedWeightsPath,
+    destinationAdapterConfigPath: copiedAdapterConfigPath,
     trainingLogPath: params.logPath,
     resolvedConfigPath: params.resolvedConfigPath,
+    checkpointCatalogPath: params.checkpointCatalogPath,
+    earlyStoppingPolicy: params.earlyStoppingPolicy,
+    earlyStopReason: params.earlyStopReason,
+    earlyStoppedAtIteration: params.earlyStoppedAtIteration,
     selectedAt: nowIso(),
     weightsSha256,
     adapterConfigSha256,
@@ -4144,6 +4801,99 @@ async function updateVhdlLabTrainingRun(trainingRunId: string, updater: (run: Vh
   await writeVhdlLabState({ ...state, trainingRuns, checkpoints });
 }
 
+async function getFileMtimeMs(filePath: string) {
+  try {
+    return (await fs.stat(filePath)).mtimeMs;
+  } catch {
+    return 0;
+  }
+}
+
+async function findLatestResumableTrainingCheckpoint(run: VhdlLabTrainingRun) {
+  const adapterPath = path.join(run.outputPath, 'adapter');
+  const checkpoints = await discoverMlxAdapterCheckpoints(adapterPath);
+  const latestIntermediate = checkpoints
+    .filter((checkpoint) => checkpoint.valid && checkpoint.kind === 'INTERMEDIATE' && Number.isFinite(Number(checkpoint.iteration)))
+    .sort((left, right) => Number(right.iteration) - Number(left.iteration) || right.fileName.localeCompare(left.fileName))[0] || null;
+  return latestIntermediate;
+}
+
+export async function recoverInterruptedVhdlLabTrainingRuns(params: { staleMs?: number } = {}) {
+  await ensureVhdlLabStorage();
+  const state = await readVhdlLabState();
+  const staleMs = Math.max(1_000, Number(params.staleMs ?? 120_000));
+  const observedAt = Date.now();
+  let changed = false;
+  const trainingRuns: VhdlLabTrainingRun[] = [];
+  for (const run of state.trainingRuns || []) {
+    const activeProcess = activeVhdlLabTrainingProcesses.has(run.id);
+    const isRecoverableStatus = run.status === 'RUNNING' || run.status === 'QUEUED';
+    if (!isRecoverableStatus || activeProcess) {
+      trainingRuns.push(run);
+      continue;
+    }
+    const newestActivityMs = Math.max(
+      await getFileMtimeMs(run.logPath),
+      run.startedAt ? Date.parse(run.startedAt) || 0 : 0,
+      run.createdAt ? Date.parse(run.createdAt) || 0 : 0,
+    );
+    if (newestActivityMs > 0 && observedAt - newestActivityMs < staleMs) {
+      trainingRuns.push(run);
+      continue;
+    }
+    const checkpoint = await findLatestResumableTrainingCheckpoint(run);
+    const interruptedAt = nowIso();
+    const interruptionReason = checkpoint
+      ? `Training process was not attached after app restart or power loss. Latest resumable checkpoint is iteration ${checkpoint.iteration}.`
+      : 'Training process was not attached after app restart or power loss. No valid numbered adapter checkpoint was found, so start fresh training.';
+    const nextRun: VhdlLabTrainingRun = {
+      ...run,
+      status: 'INTERRUPTED',
+      completedAt: run.completedAt || interruptedAt,
+      interruptedAt,
+      interruptionReason,
+      error: interruptionReason,
+      resumableCheckpointPath: checkpoint?.path || null,
+      resumableCheckpointIteration: checkpoint?.iteration ?? null,
+      resumableCheckpointSha256: checkpoint?.sha256 || null,
+    };
+    changed = true;
+    trainingRuns.push(nextRun);
+    await fs.appendFile(run.logPath, `\nMarked interrupted at ${interruptedAt}: ${interruptionReason}\n`).catch(() => {});
+  }
+  if (!changed) return { ok: true as const, changed: false, state };
+  const nextState = { ...state, trainingRuns };
+  await writeVhdlLabState(nextState);
+  return { ok: true as const, changed: true, state: nextState };
+}
+
+function pickDefinedTrainingOverrides(source: Record<string, unknown>) {
+  const allowed = [
+    'profile',
+    'epochs',
+    'batchSize',
+    'gradAccumulationSteps',
+    'maxSeqLength',
+    'learningRate',
+    'minimumLearningRate',
+    'numLayers',
+    'seed',
+    'stepsPerReport',
+    'stepsPerEval',
+    'saveEvery',
+    'valBatches',
+    'testBatches',
+    'loraRank',
+    'loraScale',
+    'loraDropout',
+    'iters',
+    'warmupIterations',
+  ];
+  return Object.fromEntries(allowed
+    .filter((key) => source[key] !== undefined && source[key] !== null)
+    .map((key) => [key, source[key]]));
+}
+
 async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release: VhdlLabDatasetRelease, availability: Awaited<ReturnType<typeof getVhdlLabMlxLmAvailability>>) {
   if (!availability.available || !availability.command) return;
   const env = {
@@ -4151,16 +4901,24 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
     PATH: `${path.resolve(process.cwd(), '.venv', 'bin')}:${process.env.PATH || ''}`,
   };
   try {
-    const dataPath = await prepareMlxTrainingDataset(release, trainingRun.outputPath);
+    const prepared = await prepareMlxTrainingDataset(release, trainingRun.outputPath);
+    const dataPath = prepared.dataPath;
+    const integrity = prepared.integrity;
     const adapterPath = path.join(trainingRun.outputPath, 'adapter');
-    const requestedConfig = (trainingRun.config?.requested as Record<string, unknown> | undefined) || trainingRun.config || {};
-    const resolvedConfig = resolveVhdlQualityTrainingConfig({ trainCount: release.trainCount, overrides: requestedConfig });
+    const rawRequestedConfig = (trainingRun.config?.requested as Record<string, unknown> | undefined) || trainingRun.config || {};
+    const splitRequestedConfig = splitVhdlTrainingRequestedConfig(rawRequestedConfig);
+    const requestedConfig = splitRequestedConfig.qualityConfig;
+    const requestedEarlyStoppingPolicy = trainingRun.requestedEarlyStoppingPolicy ?? splitRequestedConfig.requestedEarlyStoppingPolicy;
+    const resolvedConfig = resolveVhdlQualityTrainingConfig({ trainCount: integrity.actualCounts.train, overrides: requestedConfig });
+    const resolvedEarlyStoppingPolicy = resolveVhdlTrainingEarlyStoppingPolicy(requestedEarlyStoppingPolicy);
     const mlxConfigPath = path.join(trainingRun.outputPath, 'mlx-lora-config.yaml');
     const resolvedConfigPath = path.join(trainingRun.outputPath, 'resolved-training-config.json');
+    const checkpointCatalogPath = path.join(trainingRun.outputPath, 'checkpoint-catalog.json');
     const mlxConfig = renderMlxLoraConfigYaml({
       model: trainingRun.baseModel,
       dataPath,
       adapterPath,
+      resumeAdapterFile: trainingRun.resumedFromCheckpointPath || null,
       config: resolvedConfig,
     });
     await fs.writeFile(mlxConfigPath, mlxConfig);
@@ -4168,23 +4926,32 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
     const resolvedPayload = {
       requestedConfig,
       resolvedConfig,
+      requestedEarlyStoppingPolicy,
+      resolvedEarlyStoppingPolicy,
       datasetReleaseId: release.id,
       datasetManifestPath: release.manifestPath,
+      datasetManifestSha256: integrity.manifestSha256,
+      verifiedDatasetCounts: integrity.actualCounts,
       baseModel: trainingRun.baseModel,
       trainerCommand: availability.command,
+      resume: trainingRun.resumedFromCheckpointPath ? {
+        parentTrainingRunId: trainingRun.parentTrainingRunId || null,
+        resumedFromCheckpointPath: trainingRun.resumedFromCheckpointPath,
+        resumedFromCheckpointIteration: trainingRun.resumedFromCheckpointIteration ?? null,
+        resumedFromCheckpointSha256: trainingRun.resumedFromCheckpointSha256 || null,
+      } : null,
       generatedYamlPath: mlxConfigPath,
       generatedYamlSha256: mlxConfigSha256,
       createdAt: nowIso(),
     };
     await fs.writeFile(resolvedConfigPath, `${JSON.stringify(resolvedPayload, null, 2)}\n`);
     const resolvedConfigSha256 = await hashFile(resolvedConfigPath);
-    const manifestSha256 = await hashFile(release.manifestPath).catch(() => null);
     await fs.appendFile(trainingRun.logPath, [
       `Starting MLX-LM LoRA quality training at ${nowIso()}`,
       `Training profile: ${resolvedConfig.profile}`,
       `Dataset release ID: ${release.id}`,
       `Dataset schema version: ${release.schemaVersion}`,
-      `Train/validation/test/holdout counts: ${release.trainCount}/${release.validationCount}/${release.testCount}/${release.holdoutCount}`,
+      `Verified train/validation/test/holdout counts: ${integrity.actualCounts.train}/${integrity.actualCounts.validation}/${integrity.actualCounts.test}/${integrity.actualCounts.holdout}`,
       `Base model: ${trainingRun.baseModel}`,
       `Resolved epochs: ${resolvedConfig.epochs}`,
       `Resolved iterations: ${resolvedConfig.iters}`,
@@ -4194,6 +4961,8 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
       `LoRA rank/scale/dropout: ${resolvedConfig.loraParameters.rank}/${resolvedConfig.loraParameters.scale}/${resolvedConfig.loraParameters.dropout}`,
       `Validation interval: ${resolvedConfig.stepsPerEval}`,
       `Checkpoint interval: ${resolvedConfig.saveEvery}`,
+      trainingRun.resumedFromCheckpointPath ? `Resume adapter file: ${trainingRun.resumedFromCheckpointPath}` : '',
+      trainingRun.resumedFromCheckpointPath ? `Resume checkpoint iteration: ${trainingRun.resumedFromCheckpointIteration ?? 'unknown'}` : '',
       `YAML path: ${mlxConfigPath}`,
       `YAML hash: ${mlxConfigSha256}`,
       '',
@@ -4204,12 +4973,47 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
         status: 'RUNNING',
         startedAt: run.startedAt || nowIso(),
         error: null,
+        checkpointCatalogPath,
+        requestedEarlyStoppingPolicy,
+        resolvedEarlyStoppingPolicy,
+        currentIteration: 0,
+        totalIterations: resolvedConfig.iters,
+        progressFraction: 0,
+        latestTrainLoss: null,
+        latestIterationsPerSecond: null,
+        latestTokensPerSecond: null,
+        latestTrainedTokens: null,
+        latestValidationIteration: null,
+        latestValidationLoss: null,
+        bestValidationIteration: null,
+        bestValidationLoss: null,
+        bestValidationEventIndex: null,
+        selectedCheckpointIteration: null,
+        selectedCheckpointValidationLoss: null,
+        latestValidCheckpointPath: null,
+        latestValidCheckpointIteration: null,
+        bestValidatedCheckpointPath: null,
+        bestValidatedCheckpointIteration: null,
+        consecutiveNonImprovingValidationEvents: 0,
+        earlyStopReason: null,
+        earlyStoppedAtIteration: null,
+        earlyStoppedAt: null,
         config: {
           requested: requestedConfig,
           resolved: resolvedConfig,
+          requestedEarlyStoppingPolicy,
+          resolvedEarlyStoppingPolicy,
           trainerCommand: availability.command,
+          resume: trainingRun.resumedFromCheckpointPath ? {
+            parentTrainingRunId: trainingRun.parentTrainingRunId || null,
+            resumedFromCheckpointPath: trainingRun.resumedFromCheckpointPath,
+            resumedFromCheckpointIteration: trainingRun.resumedFromCheckpointIteration ?? null,
+            resumedFromCheckpointSha256: trainingRun.resumedFromCheckpointSha256 || null,
+          } : null,
           mlxConfigPath,
           mlxConfigSha256,
+          verifiedDatasetCounts: integrity.actualCounts,
+          datasetManifestSha256: integrity.manifestSha256,
         },
       },
     }));
@@ -4220,22 +5024,32 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
       cwd: trainingRun.outputPath,
       logPath: trainingRun.logPath,
       env,
+      adapterPath,
+      checkpointCatalogPath,
+      earlyStoppingPolicy: resolvedEarlyStoppingPolicy,
+      resolvedIterations: resolvedConfig.iters,
     });
     const afterMainState = await readVhdlLabState();
     const afterMainRun = afterMainState.trainingRuns.find((entry) => entry.id === trainingRun.id);
     if (afterMainRun?.status === 'CANCELLED') return;
     await fs.appendFile(trainingRun.logPath, `\nMain training process exited at ${nowIso()} with code=${mainResult.code} signal=${mainResult.signal || 'none'}.\n`);
-    if (mainResult.code !== 0) {
+    const policyStopped = afterMainRun?.status === 'EARLY_STOPPED';
+    if (mainResult.code !== 0 && !policyStopped) {
       throw new Error(`Main training process failed. mlx_lm.lora exited with code ${mainResult.code}${mainResult.signal ? ` (${mainResult.signal})` : ''}. The quality_v1 profile did not complete with this model. The resolved configuration and full MLX log were preserved. Select a smaller quantized base model or explicitly provide a reviewed backend override; the application did not silently reduce training quality.`);
     }
     const trainingLogText = await fs.readFile(trainingRun.logPath, 'utf8');
     const trainingMetrics = parseMlxTrainingMetrics(trainingLogText);
     const best = await materializeBestAdapter({
       trainingRunId: trainingRun.id,
+      runTerminalStatus: policyStopped ? 'EARLY_STOPPED' : 'COMPLETED',
       outputPath: trainingRun.outputPath,
       adapterPath,
       logPath: trainingRun.logPath,
       resolvedConfigPath,
+      checkpointCatalogPath,
+      earlyStoppingPolicy: resolvedEarlyStoppingPolicy,
+      earlyStopReason: afterMainRun?.earlyStopReason || null,
+      earlyStoppedAtIteration: afterMainRun?.earlyStoppedAtIteration ?? null,
       metrics: trainingMetrics,
     });
     const testConfigPath = path.join(trainingRun.outputPath, 'best-adapter-test-config.yaml');
@@ -4277,10 +5091,10 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
         exitCode: 0,
         epochs: resolvedConfig.epochs,
         iters: resolvedConfig.iters,
-        trainCount: release.trainCount,
-        validationCount: release.validationCount,
-        testCount: release.testCount,
-        holdoutCount: release.holdoutCount,
+        trainCount: integrity.actualCounts.train,
+        validationCount: integrity.actualCounts.validation,
+        testCount: integrity.actualCounts.test,
+        holdoutCount: integrity.actualCounts.holdout,
         batchSize: resolvedConfig.batchSize,
         gradAccumulationSteps: resolvedConfig.gradAccumulationSteps,
         effectiveBatchSize: resolvedConfig.effectiveBatchSize,
@@ -4307,7 +5121,7 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
         truncationWarningCount: trainingMetrics.truncationWarningCount,
         datasetSchemaVersion: release.schemaVersion,
         datasetManifestPath: release.manifestPath,
-        datasetManifestSha256: manifestSha256,
+        datasetManifestSha256: integrity.manifestSha256,
         trainingConfigPath: mlxConfigPath,
         trainingConfigSha256: mlxConfigSha256,
         resolvedConfigPath,
@@ -4331,7 +5145,7 @@ async function launchVhdlLabMlxTraining(trainingRun: VhdlLabTrainingRun, release
       return {
         run: {
           ...run,
-          status: 'COMPLETED',
+          status: run.status === 'EARLY_STOPPED' ? 'EARLY_STOPPED' : 'COMPLETED',
           completedAt,
           checkpointIds: [checkpoint.id, ...run.checkpointIds.filter((entry) => entry !== checkpoint.id)],
           error: null,
@@ -4365,23 +5179,58 @@ export async function createVhdlLabTrainingRun(params: { datasetReleaseId: strin
   const logPath = path.join(outputPath, 'training.log');
   const availability = await getVhdlLabMlxLmAvailability();
   const mlxAvailable = availability.available;
-  const requestedConfig = Object.keys(params.config || {}).length ? params.config! : { profile: 'quality_v1' };
+  const rawRequestedConfig = Object.keys(params.config || {}).length ? params.config! : { profile: 'quality_v1' };
+  const { qualityConfig: requestedConfig, requestedEarlyStoppingPolicy } = splitVhdlTrainingRequestedConfig(rawRequestedConfig);
   let resolvedConfig: VhdlQualityTrainingConfig;
+  let resolvedEarlyStoppingPolicy: VhdlTrainingEarlyStoppingPolicy;
   try {
     resolvedConfig = resolveVhdlQualityTrainingConfig({ trainCount: release.trainCount, overrides: requestedConfig });
+    resolvedEarlyStoppingPolicy = resolveVhdlTrainingEarlyStoppingPolicy(requestedEarlyStoppingPolicy);
   } catch (error: any) {
     return { ok: false as const, error: String(error?.message || error) };
   }
+  const checkpointCatalogPath = path.join(outputPath, 'checkpoint-catalog.json');
   const trainingRun: VhdlLabTrainingRun = {
     id: trainingId,
     status: mlxAvailable ? 'QUEUED' : 'BLOCKED_MLX_UNAVAILABLE',
     datasetReleaseId: release.id,
     baseModel,
     adapterName: params.adapterName || `vhdl-lora-${trainingId.slice(-6)}`,
-    config: { requested: requestedConfig, resolved: resolvedConfig, trainerCommand: availability.command },
+    config: { requested: requestedConfig, resolved: resolvedConfig, requestedEarlyStoppingPolicy, resolvedEarlyStoppingPolicy, trainerCommand: availability.command },
     outputPath,
     logPath,
     checkpointIds: [],
+    checkpointCatalogPath,
+    requestedEarlyStoppingPolicy,
+    resolvedEarlyStoppingPolicy,
+    currentIteration: 0,
+    totalIterations: resolvedConfig.iters,
+    progressFraction: 0,
+    latestTrainLoss: null,
+    latestValidationIteration: null,
+    latestValidationLoss: null,
+    bestValidationIteration: null,
+    bestValidationLoss: null,
+    bestValidationEventIndex: null,
+    selectedCheckpointIteration: null,
+    selectedCheckpointValidationLoss: null,
+    latestValidCheckpointPath: null,
+    latestValidCheckpointIteration: null,
+    bestValidatedCheckpointPath: null,
+    bestValidatedCheckpointIteration: null,
+    consecutiveNonImprovingValidationEvents: 0,
+    earlyStopReason: null,
+    earlyStoppedAtIteration: null,
+    earlyStoppedAt: null,
+    parentTrainingRunId: null,
+    resumedFromCheckpointPath: null,
+    resumedFromCheckpointSha256: null,
+    resumedFromCheckpointIteration: null,
+    interruptedAt: null,
+    interruptionReason: null,
+    resumableCheckpointPath: null,
+    resumableCheckpointIteration: null,
+    resumableCheckpointSha256: null,
     createdAt: nowIso(),
     startedAt: null,
     completedAt: mlxAvailable ? null : nowIso(),
@@ -4399,6 +5248,159 @@ export async function createVhdlLabTrainingRun(params: { datasetReleaseId: strin
     });
   }
   return { ok: true as const, trainingRun };
+}
+
+export async function resumeInterruptedVhdlLabTrainingRun(trainingRunId: string) {
+  await recoverInterruptedVhdlLabTrainingRuns({ staleMs: 1_000 });
+  const state = await readVhdlLabState();
+  const sourceRun = state.trainingRuns.find((entry) => entry.id === trainingRunId);
+  if (!sourceRun) return { ok: false as const, error: `Training run ${trainingRunId} was not found.` };
+  if (sourceRun.status !== 'INTERRUPTED') return { ok: false as const, error: `Training run ${trainingRunId} is ${sourceRun.status}, not INTERRUPTED.` };
+  const release = state.datasetReleases.find((entry) => entry.id === sourceRun.datasetReleaseId);
+  if (!release || release.status !== 'BUILT') return { ok: false as const, error: `Dataset release ${sourceRun.datasetReleaseId} is not available for resume.` };
+  if (release.schemaVersion !== 2) return { ok: false as const, error: 'This dataset release predates quality-training splits. Rebuild the dataset or start fresh training.' };
+  const checkpoint = await findLatestResumableTrainingCheckpoint(sourceRun);
+  if (!checkpoint) return { ok: false as const, error: 'No valid numbered adapter checkpoint was found for this interrupted training run. Start fresh training instead.' };
+  const checkpointSize = await requireNonEmptyFile(checkpoint.path, 'Resumable adapter checkpoint');
+  const checkpointSha256 = checkpoint.sha256 || await hashFile(checkpoint.path);
+  const sourceResolved = (sourceRun.config?.resolved as Record<string, any> | undefined) || {};
+  const sourceRequested = (sourceRun.config?.requested as Record<string, unknown> | undefined) || {};
+  const originalTotalIterations = Math.max(
+    Number(sourceRun.totalIterations || 0),
+    Number(sourceResolved.iters || 0),
+  );
+  const checkpointIteration = Math.max(0, Number(checkpoint.iteration || 0));
+  const remainingIterations = Math.max(1, originalTotalIterations > checkpointIteration
+    ? originalTotalIterations - checkpointIteration
+    : Number(sourceResolved.saveEvery || sourceRun.totalIterations || 1));
+  const sourceLora = (sourceResolved.loraParameters || {}) as Record<string, unknown>;
+  const resumeRequestedConfig = pickDefinedTrainingOverrides({
+    ...sourceRequested,
+    profile: sourceResolved.profile || sourceRequested.profile || 'quality_v2_repair_augmented',
+    epochs: sourceResolved.epochs,
+    batchSize: sourceResolved.batchSize,
+    gradAccumulationSteps: sourceResolved.gradAccumulationSteps,
+    maxSeqLength: sourceResolved.maxSeqLength,
+    learningRate: sourceResolved.learningRate,
+    minimumLearningRate: sourceResolved.minimumLearningRate,
+    numLayers: sourceResolved.numLayers,
+    seed: sourceResolved.seed,
+    stepsPerReport: sourceResolved.stepsPerReport,
+    stepsPerEval: sourceResolved.stepsPerEval,
+    saveEvery: sourceResolved.saveEvery,
+    valBatches: sourceResolved.valBatches,
+    testBatches: sourceResolved.testBatches,
+    loraRank: sourceLora.rank,
+    loraScale: sourceLora.scale,
+    loraDropout: sourceLora.dropout,
+    iters: remainingIterations,
+    warmupIterations: 0,
+  });
+  const requestedEarlyStoppingPolicy = sourceRun.requestedEarlyStoppingPolicy ?? sourceRun.config?.requestedEarlyStoppingPolicy ?? null;
+  let resolvedConfig: VhdlQualityTrainingConfig;
+  let resolvedEarlyStoppingPolicy: VhdlTrainingEarlyStoppingPolicy;
+  try {
+    resolvedConfig = resolveVhdlQualityTrainingConfig({ trainCount: release.trainCount, overrides: resumeRequestedConfig });
+    resolvedEarlyStoppingPolicy = resolveVhdlTrainingEarlyStoppingPolicy(requestedEarlyStoppingPolicy);
+  } catch (error: any) {
+    return { ok: false as const, error: String(error?.message || error) };
+  }
+  const availability = await getVhdlLabMlxLmAvailability();
+  const trainingNonce = `${nowIso()}:${Math.random()}`;
+  const trainingId = id('training', `${sourceRun.id}:resume:${checkpoint.path}:${trainingNonce}`);
+  const outputPath = path.join(vhdlLabPaths().training, trainingId);
+  await fs.mkdir(outputPath, { recursive: true });
+  const logPath = path.join(outputPath, 'training.log');
+  const checkpointCatalogPath = path.join(outputPath, 'checkpoint-catalog.json');
+  const trainingRun: VhdlLabTrainingRun = {
+    id: trainingId,
+    status: availability.available ? 'QUEUED' : 'BLOCKED_MLX_UNAVAILABLE',
+    datasetReleaseId: release.id,
+    baseModel: sourceRun.baseModel,
+    adapterName: `${sourceRun.adapterName || 'vhdl-lora'}-resume-${checkpointIteration}`,
+    config: {
+      requested: resumeRequestedConfig,
+      resolved: resolvedConfig,
+      requestedEarlyStoppingPolicy,
+      resolvedEarlyStoppingPolicy,
+      trainerCommand: availability.command,
+      resume: {
+        parentTrainingRunId: sourceRun.id,
+        resumedFromCheckpointPath: checkpoint.path,
+        resumedFromCheckpointIteration: checkpointIteration,
+        resumedFromCheckpointSha256: checkpointSha256,
+        checkpointSizeBytes: checkpointSize,
+        originalTotalIterations,
+        remainingIterations,
+      },
+    },
+    outputPath,
+    logPath,
+    checkpointIds: [],
+    checkpointCatalogPath,
+    requestedEarlyStoppingPolicy,
+    resolvedEarlyStoppingPolicy,
+    currentIteration: 0,
+    totalIterations: resolvedConfig.iters,
+    progressFraction: 0,
+    activePhase: 'resume_queued',
+    activePhaseProgressCount: checkpointIteration,
+    activePhaseDetail: `Resuming from checkpoint iteration ${checkpointIteration}.`,
+    latestTrainLoss: null,
+    latestIterationsPerSecond: null,
+    latestTokensPerSecond: null,
+    latestTrainedTokens: null,
+    latestValidationIteration: null,
+    latestValidationLoss: null,
+    bestValidationIteration: null,
+    bestValidationLoss: null,
+    bestValidationEventIndex: null,
+    selectedCheckpointIteration: null,
+    selectedCheckpointValidationLoss: null,
+    latestValidCheckpointPath: null,
+    latestValidCheckpointIteration: null,
+    bestValidatedCheckpointPath: null,
+    bestValidatedCheckpointIteration: null,
+    consecutiveNonImprovingValidationEvents: 0,
+    earlyStopReason: null,
+    earlyStoppedAtIteration: null,
+    earlyStoppedAt: null,
+    parentTrainingRunId: sourceRun.id,
+    resumedFromCheckpointPath: checkpoint.path,
+    resumedFromCheckpointSha256: checkpointSha256,
+    resumedFromCheckpointIteration: checkpointIteration,
+    interruptedAt: null,
+    interruptionReason: null,
+    resumableCheckpointPath: null,
+    resumableCheckpointIteration: null,
+    resumableCheckpointSha256: null,
+    createdAt: nowIso(),
+    startedAt: null,
+    completedAt: availability.available ? null : nowIso(),
+    error: availability.available ? null : 'mlx_lm.lora was not found on PATH or in the project .venv. Install MLX-LM before resuming local LoRA training.',
+  };
+  await fs.writeFile(logPath, [
+    `Queued power-loss resume at ${nowIso()}.`,
+    `Parent training run: ${sourceRun.id}`,
+    `Resume adapter checkpoint: ${checkpoint.path}`,
+    `Resume checkpoint iteration: ${checkpointIteration}`,
+    `Checkpoint SHA-256: ${checkpointSha256}`,
+    `Original total iterations: ${originalTotalIterations || 'unknown'}`,
+    `Remaining iterations for this resume run: ${remainingIterations}`,
+    trainingRun.error || '',
+    '',
+  ].filter((line) => line !== null && line !== undefined).join('\n'));
+  await fs.writeFile(path.join(outputPath, 'config.json'), `${JSON.stringify({ trainingRun, datasetRelease: release, sourceTrainingRun: sourceRun }, null, 2)}\n`);
+  await writeVhdlLabState({ ...state, trainingRuns: [trainingRun, ...state.trainingRuns.filter((entry) => entry.id !== trainingRun.id)] });
+  if (availability.available) {
+    void launchVhdlLabMlxTraining(trainingRun, release, availability).catch(async (error) => {
+      await fs.appendFile(logPath, `Training resume launch failed: ${String(error?.message || error)}\n`);
+      await updateVhdlLabTrainingRun(trainingRun.id, (run) => ({
+        run: { ...run, status: 'FAILED', completedAt: nowIso(), error: String(error?.message || error) },
+      }));
+    });
+  }
+  return { ok: true as const, trainingRun, sourceTrainingRun: sourceRun };
 }
 
 export async function cancelVhdlLabTrainingRun(trainingRunId: string) {
@@ -4710,6 +5712,7 @@ async function writeCheckpointBenchmarkProgress(params: {
   const state = await readVhdlLabState();
   const benchmark = (state.benchmarkRuns || []).find((entry) => entry.id === params.benchmarkId);
   if (!benchmark) return;
+  if (benchmark.status === 'CANCELLED') return;
   const nextBenchmark = {
     ...benchmark,
     status: params.status,
@@ -4732,6 +5735,10 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
   if (activeVhdlLabCheckpointBenchmarks.has(params.benchmarkId)) return;
   activeVhdlLabCheckpointBenchmarks.add(params.benchmarkId);
   try {
+    const isBenchmarkCancelled = async () => {
+      const latestState = await readVhdlLabState();
+      return latestState.benchmarkRuns?.some((entry) => entry.id === params.benchmarkId && entry.status === 'CANCELLED') || false;
+    };
     const state = await readVhdlLabState();
     const checkpoint = (state.checkpoints || []).find((entry) => entry.id === params.checkpointId);
     if (!checkpoint) throw new Error(`Checkpoint ${params.checkpointId} was not found.`);
@@ -4755,6 +5762,7 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
     let passed = 0;
     let failed = 0;
     for (const [index, contract] of contracts.entries()) {
+      if (await isBenchmarkCancelled()) return;
       const contractWorkspace = path.join(benchmarkPath, `${String(index + 1).padStart(2, '0')}-${contract.entityName}`);
       await fs.mkdir(contractWorkspace, { recursive: true });
       const maxAdapterRepairAttempts = Math.max(0, Math.min(10, benchmark.maxRepairAttempts ?? 0));
@@ -4766,6 +5774,21 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
         let lastRepairProgressKey = '';
         let contractResult: Record<string, unknown> | null = null;
         for (let candidateAttempt = 1; candidateAttempt <= maxAdapterCandidateAttempts; candidateAttempt += 1) {
+        if (await isBenchmarkCancelled()) {
+          return {
+            contractId: contract.id,
+            contractName: contract.name,
+            entityName: contract.entityName,
+            passed: false,
+            stage: 'cancelled',
+            failureCode: 'benchmark_cancelled_by_user',
+            message: 'Benchmark cancellation requested by user.',
+            candidateAttemptsUsed: candidateAttempt,
+            maxRepairAttempts: maxAdapterRepairAttempts,
+            generationMode: mode,
+            adapterUsed: mode === 'adapter',
+          };
+        }
         const generation = await runMlxAdapterVhdlGeneration({
           command: generateCommand,
           baseModel: trainingRun.baseModel,
@@ -4777,6 +5800,25 @@ async function runVhdlLabCheckpointBenchmarkWorker(params: { benchmarkId: string
           seed: benchmark.seedList[0] || 42,
           maxTokens: Number(process.env.VHDL_LAB_CHECKPOINT_BENCHMARK_MAX_TOKENS || 8192),
         });
+        if (await isBenchmarkCancelled()) {
+          return {
+            contractId: contract.id,
+            contractName: contract.name,
+            entityName: contract.entityName,
+            passed: false,
+            stage: 'cancelled',
+            failureCode: 'benchmark_cancelled_by_user',
+            message: 'Benchmark cancellation requested by user.',
+            promptPath: generation.promptPath,
+            responsePath: generation.responsePath,
+            elapsedMs: generation.elapsedMs,
+            timeoutMs: generation.timeoutMs,
+            candidateAttemptsUsed: candidateAttempt,
+            maxRepairAttempts: maxAdapterRepairAttempts,
+            generationMode: mode,
+            adapterUsed: mode === 'adapter',
+          };
+        }
         if (!generation.ok) {
           const failureCode = generation.timedOut
             ? (candidateAttempt > 1 ? 'model_repair_timeout' : 'model_generation_timeout')

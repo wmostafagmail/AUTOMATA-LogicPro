@@ -43,7 +43,12 @@ export const SignalSidebar: React.FC<SignalSidebarProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto bg-brand-surface-lowest">
-        {hiddenSignals.length === 0 ? (
+        {signals.length === 0 ? (
+          <div className="p-8 text-center text-brand-on-surface-variant text-[12px] space-y-2">
+            <p className="text-brand-cyan font-medium">No VCD Loaded</p>
+            <p>Select a project folder containing a VCD file, or open a VCD manually.</p>
+          </div>
+        ) : hiddenSignals.length === 0 ? (
           <div className="p-8 text-center text-brand-on-surface-variant text-[12px] space-y-2">
             <p className="text-brand-cyan font-medium">All VCD Signals Are Visible</p>
             <p>Hide any signal from the waveform view to bring it back here for re-adding.</p>

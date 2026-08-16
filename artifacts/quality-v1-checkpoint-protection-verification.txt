@@ -1,0 +1,48 @@
+VHDL Lab quality_v1 checkpoint protection verification
+Generated: 2026-08-04T01:24:16Z
+
+Working tree base:
+- git rev-parse HEAD: 1e5a3855626e980992f2b9a25a191a9de29f5285
+- working tree: modified source/test files plus this verification artifact
+
+Environment:
+- Node: v24.18.0
+- npm: 11.16.0
+
+Targeted tests:
+- Command: node --import tsx --test tests/vhdlTrainingQuality.test.ts tests/vhdl-improvement-lab-phase3.test.ts
+- Exit code: 0
+- Result: 50 tests, 50 passed, 0 failed, 0 cancelled, 0 skipped, 0 todo
+
+Lint:
+- Command: npm run lint
+- Exit code: 0
+- Result: tsc --noEmit completed successfully
+
+Full test suite:
+- Command: npm test
+- Exit code: 0
+- Result: 622 tests, 622 passed, 0 failed, 0 cancelled, 0 skipped, 0 todo
+
+Build:
+- Command: npm run build
+- Exit code: 0
+- Result: Vite and esbuild production build completed successfully
+- Warning: dist/server.cjs reported 3.1mb
+
+Implemented checkpoint-protection coverage:
+- Per-run early-stopping policy is resolved, stored, and frozen on training runs.
+- MLX train and validation metrics are parsed dynamically from actual log lines.
+- Validation patience counts validation events, not assumed iteration intervals.
+- Generic checkpoint discovery accepts arbitrary numbered *_adapters.safetensors files and validates size/hash.
+- Corrupt numbered checkpoints are reported instead of silently ignored.
+- Best-validation and latest-checkpoint state are tracked separately.
+- Early stopping records EARLY_STOPPED status and preserves checkpoints.
+- Policy-driven early stopping sends SIGTERM, waits a centralized configurable grace window, and escalates only if the process does not close.
+- best-adapter is materialized by copy, not move, with source/destination hash and size verification.
+- Isolated test evaluation runs after best-adapter selection and does not influence early stopping.
+- UI overview exposes current iteration, progress, train loss, validation loss, best validation, patience, and early-stop status.
+
+Notes:
+- No model weights, adapter binaries, generated VHDL, or large logs are included in this report.
+- Early stopping protects against validation degradation. Actual VHDL quality still requires isolated test evaluation, GHDL functional benchmarking, base-versus-adapter comparison, and promotion-holdout qualification.

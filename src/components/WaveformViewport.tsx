@@ -450,8 +450,10 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
             onWheel={handleWaveformWheel}
           >
             {visibleSignals.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-[12px] font-mono text-slate-500">
-                No visible signals. Re-add hidden ones from Signal Manager.
+              <div className="h-full flex items-center justify-center px-4 text-center text-[12px] font-mono text-slate-500">
+                {signals.length === 0
+                  ? 'Blank waveform. Select a project folder with a VCD file, or open a VCD manually.'
+                  : 'No visible signals. Re-add hidden ones from Signal Manager.'}
               </div>
             ) : (
               <div
@@ -650,8 +652,10 @@ export const WaveformViewport: React.FC<WaveformViewportProps> = ({
               onPointerLeave={() => setHoveredTick(null)}
             >
               {visibleSignals.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-[12px] font-mono text-slate-500">
-                  No visible signals. Re-add hidden ones from Signal Manager.
+                <div className="h-full flex items-center justify-center px-6 text-center text-[12px] font-mono text-slate-500">
+                  {signals.length === 0
+                    ? 'Blank VCD waveform. No project waveform has been loaded yet.'
+                    : 'No visible signals. Re-add hidden ones from Signal Manager.'}
                 </div>
               ) : (
                 <div

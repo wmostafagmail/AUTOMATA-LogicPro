@@ -2262,12 +2262,13 @@ async function bootstrap() {
   app.post('/api/vhdl-lab/training-runs', vhdlLabRoutes.createTrainingRunHandler);
   app.get('/api/vhdl-lab/training-runs/:id', vhdlLabRoutes.getTrainingRunHandler);
   app.post('/api/vhdl-lab/training-runs/:id/cancel', vhdlLabRoutes.cancelTrainingRunHandler);
-  app.post('/api/vhdl-lab/training-runs/:id/resume', vhdlLabRoutes.notYetWorkerHandler);
+  app.post('/api/vhdl-lab/training-runs/:id/resume', vhdlLabRoutes.resumeTrainingRunHandler);
   app.get('/api/vhdl-lab/training-runs/:id/checkpoints', vhdlLabRoutes.trainingCheckpointsHandler);
   app.post('/api/vhdl-lab/checkpoints/:id/benchmark', vhdlLabRoutes.benchmarkCheckpointHandler);
   app.post('/api/vhdl-lab/checkpoints/:id/promotion-benchmark', vhdlLabRoutes.promotionBenchmarkCheckpointHandler);
   app.post('/api/vhdl-lab/checkpoints/:id/promote', vhdlLabRoutes.promoteCheckpointHandler);
   app.post('/api/vhdl-lab/benchmarks', vhdlLabRoutes.queueBenchmarkHandler);
+  app.post('/api/vhdl-lab/benchmarks/:id/cancel', vhdlLabRoutes.cancelBenchmarkHandler);
   app.get('/api/vhdl-lab/diagnostics', vhdlLabRoutes.diagnosticsHandler);
   app.post('/api/vhdl-lab/diagnostics/self-test', vhdlLabRoutes.selfTestHandler);
   app.get('/api/vhdl-lab/worker/status', vhdlLabRoutes.workerStatusHandler);

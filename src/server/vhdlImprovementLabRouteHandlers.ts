@@ -1,5 +1,6 @@
 import type express from 'express';
 import {
+  cancelVhdlLabBenchmark,
   cancelVhdlLabRun,
   cancelVhdlLabTrainingRun,
   benchmarkVhdlLabCheckpoint,
@@ -9,6 +10,7 @@ import {
   createVhdlLabPromptOptimization,
   createVhdlLabRun,
   createVhdlLabTrainingRun,
+  buildVhdlLabTrainingLossHistory,
   discoverOllamaModels,
   ensureVhdlLabStorage,
   finalizeVhdlLabBenchmarks,
@@ -24,6 +26,8 @@ import {
   queueVhdlLabPromptAbTest,
   readVhdlLabState,
   rejectVhdlLabPromptVersion,
+  recoverInterruptedVhdlLabTrainingRuns,
+  resumeInterruptedVhdlLabTrainingRun,
   startVhdlLabWorker,
   validateVhdlContractDocument,
   VHDL_LAB_PROMOTION_STRICTNESS_PROFILES,
@@ -50,6 +54,7 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
 
   const getOverviewHandler = asyncHandler(async (_req, res) => {
     await ensureVhdlLabStorage();
+    await recoverInterruptedVhdlLabTrainingRuns();
     await finalizeVhdlLabBenchmarks();
     const [state, diagnostics, trainingAvailability] = await Promise.all([
       readVhdlLabState(),
@@ -119,6 +124,10 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
         passMarkerRequired: acceptedArtifact?.passMarkerRequired ?? null,
       };
     });
+    const trainingRuns = await Promise.all((state.trainingRuns || []).map(async (run) => ({
+      ...run,
+      lossHistory: await buildVhdlLabTrainingLossHistory(run),
+    })));
     res.json({
       enabled: getVhdlLabConfig().enabled,
       dataRoot: getVhdlLabConfig().dataRoot,
@@ -133,7 +142,7 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
       recentRuns,
       failureClusters: state.failureClusters.slice(0, 20),
       datasetReleases: state.datasetReleases,
-      trainingRuns: state.trainingRuns,
+      trainingRuns,
       trainingAvailability,
       benchmarkRuns,
       checkpoints: state.checkpoints || [],
@@ -469,6 +478,7 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
   });
 
   const trainingRunsHandler = asyncHandler(async (_req, res) => {
+    await recoverInterruptedVhdlLabTrainingRuns();
     const state = await readVhdlLabState();
     res.json({ trainingRuns: state.trainingRuns });
   });
@@ -484,6 +494,7 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
   });
 
   const getTrainingRunHandler = asyncHandler(async (req, res) => {
+    await recoverInterruptedVhdlLabTrainingRuns();
     const state = await readVhdlLabState();
     const trainingRun = state.trainingRuns.find((entry) => entry.id === req.params.id);
     if (!trainingRun) {
@@ -496,6 +507,11 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
   const cancelTrainingRunHandler = asyncHandler(async (req, res) => {
     const result = await cancelVhdlLabTrainingRun(req.params.id);
     res.status(result.ok ? 200 : 404).json(result);
+  });
+
+  const resumeTrainingRunHandler = asyncHandler(async (req, res) => {
+    const result = await resumeInterruptedVhdlLabTrainingRun(req.params.id);
+    res.status(result.ok ? 201 : 400).json(result);
   });
 
   const trainingCheckpointsHandler = asyncHandler(async (req, res) => {
@@ -541,6 +557,11 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
       maxRepairAttempts: Number(req.body?.maxRepairAttempts || req.body?.max_repair_attempts || 3),
     });
     res.status(result.ok ? 201 : 400).json(result);
+  });
+
+  const cancelBenchmarkHandler = asyncHandler(async (req, res) => {
+    const result = await cancelVhdlLabBenchmark(req.params.id);
+    res.status(result.ok ? 200 : 404).json(result);
   });
 
   const diagnosticsHandler = asyncHandler(async (_req, res) => {
@@ -598,11 +619,13 @@ export function createVhdlImprovementLabRouteContext(params: RouteContext) {
     createTrainingRunHandler,
     getTrainingRunHandler,
     cancelTrainingRunHandler,
+    resumeTrainingRunHandler,
     trainingCheckpointsHandler,
     benchmarkCheckpointHandler,
     promotionBenchmarkCheckpointHandler,
     promoteCheckpointHandler,
     queueBenchmarkHandler,
+    cancelBenchmarkHandler,
     diagnosticsHandler,
     selfTestHandler,
     workerStatusHandler,

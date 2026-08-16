@@ -62,7 +62,7 @@ export default function App() {
   const [simulationLength, setSimulationLength] = useState(200);
   const [timeUnit, setTimeUnit] = useState<'ns' | 'us' | 'ms' | 's'>('ns');
   const [tickDuration, setTickDuration] = useState(5);
-  const [activePresetId, setActivePresetId] = useState('spi_debug');
+  const [activePresetId, setActivePresetId] = useState('custom');
   const [colorTheme, setColorTheme] = useState<AppColorTheme>(() => {
     if (typeof window === 'undefined') return 'light';
     const stored = window.localStorage.getItem(APP_THEME_STORAGE_KEY);
@@ -145,17 +145,6 @@ export default function App() {
     }
   }, []);
 
-  // Bootstrap initial preset on component mount
-  useEffect(() => {
-    const defaultPreset = PRESETS.find(p => p.id === 'spi_debug');
-    if (defaultPreset) {
-      setSignals(defaultPreset.signals);
-      setSimulationLength(defaultPreset.length);
-      setTickDuration(defaultPreset.tickDuration);
-      setTimeUnit(defaultPreset.timeUnit);
-    }
-  }, []);
-
   useEffect(() => {
     if (startupWorkspaceRecoveryRef.current) {
       return;
@@ -164,8 +153,7 @@ export default function App() {
     const visibleSignals = signals.filter((signal) => signal.visible);
     const hasHiddenOnlyState = signals.length > 0 && visibleSignals.length === 0;
     const hasCorruptedTimeline = simulationLength < 10;
-    const hasNoSignals = signals.length === 0;
-    const looksBroken = hasNoSignals || hasHiddenOnlyState || hasCorruptedTimeline;
+    const looksBroken = hasHiddenOnlyState || hasCorruptedTimeline;
 
     if (!looksBroken) {
       startupWorkspaceRecoveryRef.current = true;
@@ -178,19 +166,12 @@ export default function App() {
       return;
     }
 
-    const defaultPreset = PRESETS.find((preset) => preset.id === 'spi_debug');
-    if (!defaultPreset) {
-      startupWorkspaceRecoveryRef.current = true;
-      return;
-    }
-
-    setSignals(defaultPreset.signals);
-    setSimulationLength(defaultPreset.length);
-    setTickDuration(defaultPreset.tickDuration);
-    setTimeUnit(defaultPreset.timeUnit);
-    setCursorA(25);
-    setCursorB(89);
-    setActivePresetId(defaultPreset.id);
+    setSimulationLength(200);
+    setTickDuration(5);
+    setTimeUnit('ns');
+    setCursorA(null);
+    setCursorB(null);
+    setActivePresetId('custom');
     setWorkspaceFileName(null);
     setWorkspaceError(null);
     startupWorkspaceRecoveryRef.current = true;
@@ -351,6 +332,74 @@ export default function App() {
     await openWorkspaceSource(file.name, await file.text());
   };
 
+  const resetWaveformToBlank = () => {
+    setSignals([]);
+    setSimulationLength(200);
+    setTickDuration(5);
+    setTimeUnit('ns');
+    setZoom(1.4);
+    setCursorA(null);
+    setCursorB(null);
+    setActivePresetId('custom');
+    setWorkspaceFileName(null);
+    setSimulationMacroContext(null);
+  };
+
+  const selectPreferredVcdFile = (files: ProjectFileEntry[]) => {
+    return files
+      .filter((file) => file.extension.toLowerCase() === '.vcd')
+      .sort((left, right) => {
+        const modifiedDelta = (right.lastModified || 0) - (left.lastModified || 0);
+        return modifiedDelta || left.path.localeCompare(right.path);
+      })[0] || null;
+  };
+
+  const openProjectVcdIfAvailable = async (
+    projectPath: string | null,
+    files: ProjectFileEntry[],
+    options: { showMissingMessage?: boolean } = {}
+  ) => {
+    const vcdFile = selectPreferredVcdFile(files);
+    if (!vcdFile) {
+      resetWaveformToBlank();
+      if (options.showMissingMessage) {
+        setWorkspaceError('No VCD waveform file was found in the selected project folder.');
+      }
+      return;
+    }
+
+    try {
+      if (vcdFile.file) {
+        await openWorkspaceFile(vcdFile.file);
+        return;
+      }
+
+      if (!projectPath) {
+        resetWaveformToBlank();
+        return;
+      }
+
+      const absoluteVcdPath = `${projectPath.replace(/\/+$/, '')}/${vcdFile.path}`;
+      const response = await apiFetch('/api/project/read-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: absoluteVcdPath }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `Unable to read ${vcdFile.name}.`);
+      }
+      await openWorkspaceSource(data.name || vcdFile.name, data.content || '');
+    } catch (error: any) {
+      resetWaveformToBlank();
+      if (typeof error?.message === 'string' && isProjectApprovalErrorMessage(error.message)) {
+        resetProjectSelection('The saved project folder is no longer authorized for this app session. Re-select it to continue.');
+        return;
+      }
+      setWorkspaceError(error?.message || 'Unable to load the VCD waveform from the selected project folder.');
+    }
+  };
+
   const applyProjectFiles = (
     nextProjectName: string,
     nextProjectPath: string | null,
@@ -372,6 +421,8 @@ export default function App() {
     setGhdlProjectInfo(null);
     setGhdlSelectedSourcePaths([]);
     setGhdlTopEntity('');
+    startupProjectRestorePathRef.current = null;
+    resetWaveformToBlank();
 
     if (message) {
       setWorkspaceError(message);
@@ -400,7 +451,9 @@ export default function App() {
         if (!response.ok) {
           throw new Error(data.error || 'Unable to restore the selected project folder.');
         }
-        applyProjectFiles(data.name, data.path, Array.isArray(data.files) ? data.files : []);
+        const nextFiles = Array.isArray(data.files) ? data.files : [];
+        applyProjectFiles(data.name, data.path, nextFiles);
+        resetWaveformToBlank();
       } catch (error: any) {
         startupProjectRestorePathRef.current = null;
         resetProjectSelection(error?.message || 'Re-select the project folder to continue.');
@@ -438,31 +491,8 @@ export default function App() {
 
   // Actions
   const handleClearWorkspace = () => {
-    setSignals([
-      {
-        id: 'clk_base',
-        name: 'MASTER_CLK',
-        type: 'clock',
-        color: '#00e5ff',
-        visible: true,
-        pinned: true,
-        values: Array(simulationLength).fill(0),
-        config: { frequency: 8, dutyCycle: 0.5, phase: 0 }
-      },
-      {
-        id: 'wire_base',
-        name: 'GPIO_0',
-        type: 'wire',
-        color: '#4edea3',
-        visible: true,
-        pinned: false,
-        values: Array(simulationLength).fill(0)
-      }
-    ]);
-    setCursorA(null);
-    setCursorB(null);
-    setActivePresetId('custom');
-    setSimulationMacroContext(null);
+    resetWaveformToBlank();
+    setWorkspaceError(null);
   };
 
   // Standard VCD Exporter module compile
@@ -694,8 +724,11 @@ export default function App() {
       });
       const data = await response.json();
       if (response.ok) {
-        applyProjectFiles(data.name, data.path, Array.isArray(data.files) ? data.files : []);
+        const nextFiles = Array.isArray(data.files) ? data.files : [];
+        startupProjectRestorePathRef.current = data.path || null;
+        applyProjectFiles(data.name, data.path, nextFiles);
         setSimulationMacroContext(null);
+        await openProjectVcdIfAvailable(data.path, nextFiles, { showMissingMessage: true });
         return;
       }
       if (!data.cancelled) {
@@ -715,7 +748,7 @@ export default function App() {
     const firstPath = files[0].webkitRelativePath || files[0].name;
     const directoryName = firstPath.split('/')[0] || 'Selected project';
 
-    applyProjectFiles(directoryName, null, files.map((file) => ({
+    const nextFiles = files.map((file) => ({
       path: file.webkitRelativePath || file.name,
       name: file.name,
       extension: file.name.includes('.') ? `.${file.name.split('.').pop()?.toLowerCase()}` : '',
@@ -723,8 +756,10 @@ export default function App() {
       type: file.type,
       lastModified: file.lastModified,
       file,
-    })));
+    }));
+    applyProjectFiles(directoryName, null, nextFiles);
     setSimulationMacroContext(null);
+    void openProjectVcdIfAvailable(null, nextFiles, { showMissingMessage: true });
     event.target.value = '';
   };
 

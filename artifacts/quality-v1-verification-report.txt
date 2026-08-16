@@ -1,0 +1,87 @@
+VHDL quality_v1 implementation verification
+============================================
+
+Node:
+v24.18.0
+
+npm:
+11.16.0
+
+Commit:
+1e5a385
+
+Date:
+2026-08-02T15:52:07Z
+
+Command:
+node --test --import tsx tests/vhdlTrainingQuality.test.ts
+
+Exit code:
+0
+
+Output summary:
+21 tests, 21 passed, 0 failed, 0 skipped, duration 197.545292 ms.
+
+Command:
+node --test --import tsx tests/vhdl-improvement-lab-phase3.test.ts
+
+Exit code:
+0
+
+Output summary:
+24 tests, 24 passed, 0 failed, 0 skipped, duration 6373.828958 ms.
+
+Command:
+node --import tsx --test tests/vhdlTrainingQuality.test.ts tests/vhdl-improvement-lab-phase3.test.ts
+
+Exit code:
+0
+
+Output summary:
+45 tests, 45 passed, 0 failed, 0 skipped, duration 6212.689583 ms.
+
+Command:
+npm run lint
+
+Exit code:
+0
+
+Output summary:
+TypeScript check completed with tsc --noEmit and no errors.
+
+Command:
+npm test
+
+Exit code:
+0
+
+Output summary:
+617 tests, 617 passed, 0 failed, 0 skipped, duration 25733.158208 ms.
+
+Command:
+npm run build
+
+Exit code:
+0
+
+Output summary:
+Production build completed: vite transformed 113 modules and esbuild emitted dist/server.cjs.
+Warning retained from build output: dist/server.cjs is 3.1mb.
+
+Command:
+git diff --check
+
+Exit code:
+0
+
+Output summary:
+No whitespace errors.
+
+Command:
+git ls-files 'data/vhdl-lab/**'
+
+Exit code:
+0
+
+Output summary:
+No tracked VHDL Lab runtime artifacts were reported.
